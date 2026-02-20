@@ -1,5 +1,7 @@
 const crypto = require('crypto')
 
+const { buildRelaySubscribeSubject, buildRelayUnsubscribePattern } = require('../subject')
+
 const NATS_JWT_HEADER = { typ: 'JWT', alg: 'ed25519-nkey' }
 
 function base64url (data) {
@@ -117,8 +119,8 @@ function computePermissions (allowedStreams, organizationId) {
     const subAllow = ['_INBOX.>']
 
     for (const streamName of allowedStreams) {
-        pubAllow.push(`_NATS.subscribe.${streamName}.${organizationId}`)
-        pubAllow.push('_NATS.unsubscribe.>')
+        pubAllow.push(buildRelaySubscribeSubject(streamName, organizationId))
+        pubAllow.push(buildRelayUnsubscribePattern())
     }
 
     return {

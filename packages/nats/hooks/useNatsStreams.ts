@@ -40,7 +40,7 @@ export const useNatsStreams = () => {
                 const data: NatsStreamsResponse = await response.json()
                 setStreams(data.streams)
             } catch (err) {
-                console.error('[NATS Streams] Error:', err)
+                console.error('[NATS] Error fetching streams:', err)
                 setError(err instanceof Error ? err.message : 'Unknown error')
                 setStreams([])
             } finally {

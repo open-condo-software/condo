@@ -3,10 +3,13 @@ const jwt = require('jsonwebtoken')
 const nextCookie = require('next-cookies')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+const logger = getLogger('nats')
 
 const { getAvailableStreams } = require('../utils/natsAuthCallout')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
+const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
 
 const GET_EMPLOYEE_QUERY = `
     query getEmployee($id: ID!) {
@@ -74,13 +77,18 @@ class NatsMiddleware {
 
                 return res.json({ streams, organizationId })
             } catch (error) {
-                console.error('[NATS Streams] Error:', error)
+                logger.error({ msg: 'Failed to get available streams', err: error })
                 return res.status(500).json({ error: 'Failed to get available streams' })
             }
         })
 
         app.get('/nats/token', async (req, res) => {
             try {
+                if (!TOKEN_SECRET) {
+                    logger.error({ msg: 'NATS_TOKEN_SECRET is not configured' })
+                    return res.status(503).json({ error: 'NATS is not configured' })
+                }
+
                 const result = await resolveEmployeeContext(req, keystone)
                 if (result.error) {
                     return res.status(result.error.status).json({ error: result.error.message })
@@ -98,7 +106,7 @@ class NatsMiddleware {
 
                 return res.json({ token, allowedStreams })
             } catch (error) {
-                console.error('[NATS Token] Error:', error)
+                logger.error({ msg: 'Failed to generate token', err: error })
                 return res.status(500).json({ error: 'Failed to generate token' })
             }
         })

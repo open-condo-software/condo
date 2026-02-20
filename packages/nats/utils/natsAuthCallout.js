@@ -1,6 +1,9 @@
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
 const { streamRegistry } = require('../streams')
+
+const logger = getLogger('nats')
 
 // Module-level storage for injected dependencies
 let _getPermittedOrganizations = null
@@ -50,7 +53,7 @@ async function checkNatsAccess (context, userId, organizationId, subject) {
 
         if (typeof accessConfig === 'string') {
             if (!_getPermittedOrganizations) {
-                console.error('[NATS Auth] getPermittedOrganizations not configured')
+                logger.error({ msg: 'getPermittedOrganizations not configured' })
                 return { allowed: false, reason: 'Internal configuration error' }
             }
 
@@ -65,7 +68,7 @@ async function checkNatsAccess (context, userId, organizationId, subject) {
 
         return { allowed: false, reason: 'Invalid access configuration' }
     } catch (error) {
-        console.error('[NATS Auth] Error:', error)
+        logger.error({ msg: 'Error checking access', err: error })
         return { allowed: false, reason: 'Internal error' }
     }
 }
@@ -99,7 +102,7 @@ async function getAvailableStreams (context, userId, organizationId) {
                         const organizations = await _getPermittedOrganizations(context, user, [permission])
                         hasAccess = organizations.includes(organizationId)
                     } else {
-                        console.error('[NATS] getPermittedOrganizations not configured')
+                        logger.error({ msg: 'getPermittedOrganizations not configured' })
                         hasAccess = false
                     }
                 } else if (typeof accessConfig === 'function') {
@@ -116,15 +119,13 @@ async function getAvailableStreams (context, userId, organizationId) {
                     })
                 }
             } catch (error) {
-                // streamConfig.name is a controlled value from the internal stream registry, not user input
-                // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
-                console.error(`[NATS] Error checking access for stream ${streamConfig.name}:`, error)
+                logger.error({ msg: 'Error checking access for stream', stream: streamConfig.name, err: error })
             }
         }
 
         return availableStreams
     } catch (error) {
-        console.error('[NATS] Error getting available streams:', error)
+        logger.error({ msg: 'Error getting available streams', err: error })
         return []
     }
 }

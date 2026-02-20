@@ -16,7 +16,7 @@ class NatsClient {
 
         try {
             const connectOpts = {
-                servers: config.url || process.env.NATS_URL || 'nats://127.0.0.1:4222',
+                servers: config.url || process.env.NATS_URL,
                 reconnect: true,
                 maxReconnectAttempts: -1,
             }

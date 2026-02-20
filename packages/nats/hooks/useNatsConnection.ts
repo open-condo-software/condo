@@ -92,7 +92,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                     })
                 }
 
-                console.log('[NATS] ✅ Connected successfully')
+                console.log('[NATS] Connected successfully')
                 return nc
             } catch (error) {
                 globalConnectionPromise = null

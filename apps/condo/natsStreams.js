@@ -1,11 +1,14 @@
-const { streamRegistry } = require('@open-condo/nats')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { streamRegistry, buildSubject } = require('@open-condo/nats')
 
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
+const logger = getLogger('nats')
+
 streamRegistry.register('ticket-changes', {
     ttl: 3600,
-    subjects: ['ticket-changes.>'],
+    subjects: [buildSubject('ticket-changes', '>')],
     access: {
         read: async ({ authentication, context, organizationId, subject }) => {
             try {
@@ -25,42 +28,10 @@ streamRegistry.register('ticket-changes', {
 
                 return !!ticket
             } catch (error) {
-                console.error('[NATS] Error in ticket-changes access check:', error)
+                logger.error({ msg: 'Error in ticket-changes access check', err: error })
                 return false
             }
         },
-    },
-})
-
-streamRegistry.register('property-changes', {
-    ttl: 3600,
-    subjects: ['property-changes.>'],
-    access: {
-        read: 'canManageProperties',
-    },
-})
-
-streamRegistry.register('contact-changes', {
-    ttl: 3600,
-    subjects: ['contact-changes.>'],
-    access: {
-        read: 'canManageContacts',
-    },
-})
-
-streamRegistry.register('billing-events', {
-    ttl: 7200,
-    subjects: ['billing-events.>'],
-    access: {
-        read: 'canReadBillingReceipts',
-    },
-})
-
-streamRegistry.register('notification-events', {
-    ttl: 1800,
-    subjects: ['notification-events.>'],
-    access: {
-        read: true,
     },
 })
 

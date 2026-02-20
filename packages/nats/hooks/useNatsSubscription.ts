@@ -1,6 +1,9 @@
 import { Msg, Subscription, NatsConnection, createInbox } from '@nats-io/nats-core'
 import { useEffect, useRef, useCallback, useState } from 'react'
 
+// @ts-ignore - JS module without type declarations
+import { buildRelaySubscribeSubject, buildRelayUnsubscribeSubject } from '@open-condo/nats/subject'
+
 interface UseNatsSubscriptionOptions<T> {
     streamName: string
     subject: string
@@ -62,7 +65,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
     const unsubscribe = useCallback(() => {
         if (relayIdRef.current && connection && !connection.isClosed()) {
             try {
-                connection.publish(`_NATS.unsubscribe.${relayIdRef.current}`)
+                connection.publish(buildRelayUnsubscribeSubject(relayIdRef.current))
             } catch (error) {
                 console.error('[NATS] Error sending unsubscribe:', error)
             }
@@ -103,7 +106,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                 inboxSub = connection.subscribe(deliverInbox)
                 subscriptionRef.current = inboxSub
 
-                const relaySubject = `_NATS.subscribe.${streamName}.${organizationId}`
+                const relaySubject = buildRelaySubscribeSubject(streamName, organizationId)
                 const response = await connection.request(
                     relaySubject,
                     JSON.stringify({ deliverInbox }),
@@ -115,7 +118,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                 relayIdRef.current = currentRelayId
 
                 if (!isActiveRef.current) {
-                    connection.publish(`_NATS.unsubscribe.${currentRelayId}`)
+                    connection.publish(buildRelayUnsubscribeSubject(currentRelayId))
                     inboxSub.unsubscribe()
                     return
                 }
@@ -162,7 +165,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
             isActiveRef.current = false
             if (currentRelayId && connection && !connection.isClosed()) {
                 try {
-                    connection.publish(`_NATS.unsubscribe.${currentRelayId}`)
+                    connection.publish(buildRelayUnsubscribeSubject(currentRelayId))
                 } catch {
                     // connection may be closed
                 }

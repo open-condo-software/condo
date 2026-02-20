@@ -10,7 +10,7 @@ const {
     isSubjectAllowed,
 } = require('@open-condo/nats/utils')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
+const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
 
 describe('NATS Access Control', () => {
     describe('Subject matching utility', () => {

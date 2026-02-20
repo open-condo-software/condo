@@ -2,37 +2,19 @@ const { z } = require('zod')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('nats-streams')
+const {
+    streamNameSchema,
+    subjectPatternSchema,
+    buildSubject,
+    buildRelaySubscribeSubject,
+    buildRelayUnsubscribeSubject,
+    buildRelaySubscribePattern,
+    buildRelayUnsubscribePattern,
+    RELAY_SUBSCRIBE_PREFIX,
+    RELAY_UNSUBSCRIBE_PREFIX,
+} = require('./subject')
 
-/**
- * Stream naming conventions:
- * - Must be kebab-case (lowercase with hyphens)
- * - Must end with one of the allowed suffixes: -changes, -events, -notifications
- * - Must be 3-50 characters long
- * - Examples: ticket-changes, billing-events, system-notifications
- */
-const streamNameSchema = z
-    .string()
-    .min(3, 'Stream name must be at least 3 characters long')
-    .max(50, 'Stream name must be at most 50 characters long')
-    .regex(
-        /^[a-z][a-z0-9]*(-[a-z0-9]+)*-(changes|events|notifications)$/,
-        'Stream name must be kebab-case and end with -changes, -events, or -notifications'
-    )
-
-/**
- * Subject pattern validation:
- * - Must start with stream name
- * - Can include wildcards: * (single token) or > (multiple tokens)
- * - Must use dot notation
- * - Examples: ticket-changes.123.>, billing-events.*.payment
- */
-const subjectPatternSchema = z
-    .string()
-    .regex(
-        /^[a-z][a-z0-9-]*(\.[a-z0-9-*>]+)*$/,
-        'Subject must be dot-separated tokens in lowercase, with optional wildcards (* or >)'
-    )
+const logger = getLogger('nats')
 
 /**
  * @typedef {Object} StreamAccessConfig
@@ -132,6 +114,18 @@ class StreamRegistry {
 
     /**
      * @param {string} streamName
+     * @returns {boolean}
+     */
+    unregister (streamName) {
+        const deleted = this.streams.delete(streamName)
+        if (deleted) {
+            logger.info({ msg: 'Stream unregistered', stream: streamName })
+        }
+        return deleted
+    }
+
+    /**
+     * @param {string} streamName
      * @returns {StreamConfig | undefined}
      */
     get (streamName) {
@@ -147,12 +141,14 @@ class StreamRegistry {
 
     /**
      * @param {{ connection: { jetstreamManager: () => Promise<any> } }} natsClient
-     * @returns {Promise<void>}
+     * @returns {Promise<{ created: string[], updated: string[], upToDate: string[], failed: string[] }>}
      */
     async initializeAll (natsClient) {
+        const result = { created: [], updated: [], upToDate: [], failed: [] }
+
         if (!natsClient || !natsClient.connection) {
             logger.warn({ msg: 'NATS client not connected, skipping stream initialization' })
-            return
+            return result
         }
 
         try {
@@ -170,22 +166,84 @@ class StreamRegistry {
                         max_consumers: config.maxConsumers,
                     }
 
-                    await jsm.streams.add(streamConfig)
-                    logger.info({ msg: 'Stream initialized', stream: config.name })
-                } catch (error) {
-                    if (error && error.message && error.message.includes('already in use')) {
-                        logger.info({ msg: 'Stream already exists', stream: config.name })
-                    } else {
-                        logger.error({ msg: 'Failed to create stream', stream: config.name, err: error })
+                    let existing = null
+                    try {
+                        existing = await jsm.streams.info(config.name)
+                    } catch {
+                        // stream does not exist yet
                     }
+
+                    if (!existing) {
+                        await jsm.streams.add(streamConfig)
+                        result.created.push(config.name)
+                        logger.info({ msg: 'Stream created', stream: config.name })
+                    } else {
+                        const cur = existing.config
+                        const needsUpdate =
+                            JSON.stringify(cur.subjects) !== JSON.stringify(streamConfig.subjects) ||
+                            cur.max_age !== streamConfig.max_age ||
+                            cur.storage !== streamConfig.storage ||
+                            cur.retention !== streamConfig.retention ||
+                            cur.discard !== streamConfig.discard ||
+                            cur.max_consumers !== streamConfig.max_consumers
+
+                        if (needsUpdate) {
+                            await jsm.streams.update(streamConfig)
+                            result.updated.push(config.name)
+                            logger.info({ msg: 'Stream updated', stream: config.name })
+                        } else {
+                            result.upToDate.push(config.name)
+                            logger.info({ msg: 'Stream up to date', stream: config.name })
+                        }
+                    }
+                } catch (error) {
+                    result.failed.push(config.name)
+                    logger.error({ msg: 'Failed to initialize stream', stream: config.name, err: error })
                 }
             }
         } catch (error) {
             logger.error({ msg: 'Failed to initialize streams', err: error })
+        }
+
+        return result
+    }
+
+    /**
+     * @param {{ connection: { jetstreamManager: () => Promise<any> } }} natsClient
+     * @param {string} streamName
+     * @returns {Promise<boolean>}
+     */
+    async deleteStream (natsClient, streamName) {
+        if (!natsClient || !natsClient.connection) {
+            logger.warn({ msg: 'NATS client not connected, skipping stream deletion' })
+            return false
+        }
+
+        try {
+            const jsm = await natsClient.connection.jetstreamManager()
+            await jsm.streams.delete(streamName)
+            this.streams.delete(streamName)
+            logger.info({ msg: 'Stream deleted', stream: streamName })
+            return true
+        } catch (error) {
+            logger.error({ msg: 'Failed to delete stream', stream: streamName, err: error })
+            return false
         }
     }
 }
 
 const streamRegistry = new StreamRegistry()
 
-module.exports = { streamRegistry, StreamRegistry, streamNameSchema, subjectPatternSchema }
+module.exports = {
+    streamRegistry,
+    StreamRegistry,
+    streamNameSchema,
+    subjectPatternSchema,
+    buildSubject,
+    buildRelaySubscribeSubject,
+    buildRelayUnsubscribeSubject,
+    buildRelaySubscribePattern,
+    buildRelayUnsubscribePattern,
+    RELAY_SUBSCRIBE_PREFIX,
+    RELAY_UNSUBSCRIBE_PREFIX,
+}

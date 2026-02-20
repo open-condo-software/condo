@@ -9,7 +9,7 @@ const {
     computePermissions,
 } = require('@open-condo/nats/utils')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
+const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
 
 /**
  * Unit tests for the auth callout request/response flow.
