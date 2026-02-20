@@ -116,8 +116,9 @@ class FirebaseAdapter {
      * Mimics FireBase failure response
      * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
      */
-    static getFakeErrorResponse () {
+    static getFakeErrorResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: false,
             type: 'Fake',
             error: {
@@ -133,8 +134,9 @@ class FirebaseAdapter {
      * Mimics FireBase success response
      * @returns {{success: boolean, messageId: string}}
      */
-    static getFakeSuccessResponse () {
+    static getFakeSuccessResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: true,
             type: 'Fake',
             messageId: `fake-success-message/${Date.now()}`,
@@ -148,18 +150,18 @@ class FirebaseAdapter {
      * @param fakeNotifications
      * @returns {*}
      */
-    static injectFakeResults (result, fakeNotifications) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? FirebaseAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(FirebaseAdapter.getFakeSuccessResponse())
+                mixed.responses.push(FirebaseAdapter.getFakeSuccessResponse({ appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(FirebaseAdapter.getFakeErrorResponse())
+                mixed.responses.push(FirebaseAdapter.getFakeErrorResponse({ appId: appIds[token] }))
             }
         })
 
@@ -246,7 +248,7 @@ class FirebaseAdapter {
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
         // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
-            result = FirebaseAdapter.injectFakeResults(FirebaseAdapter.getEmptyResult(), fakeNotifications)
+            result = FirebaseAdapter.injectFakeResults(FirebaseAdapter.getEmptyResult(), fakeNotifications, appIds)
         // NOTE: we try to fire FireBase request only if FireBase was initialized and we have some real notifications
         } else if (!isEmpty(this.appsByAppId)) { 
             const notificationsByAppId = {}
@@ -318,9 +320,9 @@ class FirebaseAdapter {
             }
 
             if (combinedResult) {
-                result = FirebaseAdapter.injectFakeResults(combinedResult, fakeNotifications)
+                result = FirebaseAdapter.injectFakeResults(combinedResult, fakeNotifications, appIds)
             } else if (!isEmpty(fakeNotifications)) {
-                result = FirebaseAdapter.injectFakeResults(FirebaseAdapter.getEmptyResult(), fakeNotifications)
+                result = FirebaseAdapter.injectFakeResults(FirebaseAdapter.getEmptyResult(), fakeNotifications, appIds)
             }
         }
 
