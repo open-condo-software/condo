@@ -65,8 +65,9 @@ class RedStoreAdapter {
         }
     }
 
-    static getFakeErrorResponse () {
+    static getFakeErrorResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: false,
             type: 'Fake',
             error: {
@@ -78,26 +79,27 @@ class RedStoreAdapter {
         }
     }
 
-    static getFakeSuccessResponse () {
+    static getFakeSuccessResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: true,
             type: 'Fake',
             messageId: `fake-success-message/${Date.now()}`,
         }
     }
 
-    static injectFakeResults (result, fakeNotifications) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? RedStoreAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(RedStoreAdapter.getFakeSuccessResponse())
+                mixed.responses.push(RedStoreAdapter.getFakeSuccessResponse({ appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(RedStoreAdapter.getFakeErrorResponse())
+                mixed.responses.push(RedStoreAdapter.getFakeErrorResponse({ appId: appIds[token] }))
             }
         })
 
@@ -148,7 +150,7 @@ class RedStoreAdapter {
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
         // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
-            result = RedStoreAdapter.injectFakeResults(RedStoreAdapter.getEmptyResult(), fakeNotifications)
+            result = RedStoreAdapter.injectFakeResults(RedStoreAdapter.getEmptyResult(), fakeNotifications, appIds)
         }
 
         if (!isNull(this._config) && !isEmpty(notifications)) {
