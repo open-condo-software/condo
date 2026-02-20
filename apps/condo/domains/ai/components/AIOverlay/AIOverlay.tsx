@@ -77,6 +77,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                     <Button 
                         type='secondary'
                         size='medium'
+                        compact
+                        minimal
                         onClick={() => aiChatRef.current?.handleResetHistory()}
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
@@ -84,6 +86,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                     <Button 
                         type='secondary'
                         size='medium'
+                        compact
+                        minimal
                         onClick={() => aiChatRef.current?.handleSaveConversation()}
                         icon={<Download size='small' />}
                         title={saveConversationLabel}
@@ -91,6 +95,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                     <Button 
                         type='secondary' 
                         size='medium'
+                        compact
+                        minimal
                         onClick={onClose}
                         icon={<Close size='small' />}
                         title={closeLabel}
