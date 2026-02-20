@@ -1,4 +1,6 @@
-const { isNull, isUndefined, isObject } = require('lodash')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
+const isUndefined = require('lodash/isUndefined')
 const validate = require('validate.js')
 
 const {

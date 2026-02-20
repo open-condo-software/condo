@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { getLogger } = require('@open-condo/keystone/logging')

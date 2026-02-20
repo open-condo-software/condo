@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
-const { isEmpty, get, isNumber } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNumber = require('lodash/isNumber')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')

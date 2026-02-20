@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { omit } = require('lodash')
+const omit = require('lodash/omit')
 
 const {
     makeLoggedInAdminClient,

@@ -1,4 +1,6 @@
-const { get, isEmpty, isNull } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
 
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 

@@ -1,7 +1,8 @@
 const { Readable } = require('stream')
 
 const Upload = require('graphql-upload/Upload.js')
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
 const { ROWS_COUNT_LIMIT, ROWS_COUNT_LIMIT_EXCEEDED } = require('@open-condo/keystone/file/constants')

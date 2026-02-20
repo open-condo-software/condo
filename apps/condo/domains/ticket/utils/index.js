@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
 

@@ -4,7 +4,9 @@
 
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { uniq, map, get } = require('lodash')
+const get = require('lodash/get')
+const map = require('lodash/map')
+const uniq = require('lodash/uniq')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')

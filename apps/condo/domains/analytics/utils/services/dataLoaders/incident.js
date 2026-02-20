@@ -1,4 +1,6 @@
-const { get, omit, find } = require('lodash')
+const find = require('lodash/find')
+const get = require('lodash/get')
+const omit = require('lodash/omit')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')

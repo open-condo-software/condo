@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken')
-const { get, isEmpty, isString, isFunction } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isFunction = require('lodash/isFunction')
+const isString = require('lodash/isString')
 
 const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
 

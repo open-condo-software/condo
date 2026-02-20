@@ -4,7 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { random, isEmpty, sample, get } = require('lodash')
+const random = require('lodash/random')
+const isEmpty = require('lodash/isEmpty')
+const sample = require('lodash/sample')
+const get = require('lodash/get')
 
 const { getRandomString } = require('@open-condo/keystone/test.utils')
 

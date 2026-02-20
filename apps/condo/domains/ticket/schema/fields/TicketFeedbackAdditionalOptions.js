@@ -1,5 +1,8 @@
 const Ajv = require('ajv')
-const { isEmpty, compact, isArray, uniq } = require('lodash')
+const compact = require('lodash/compact')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const uniq = require('lodash/uniq')
 
 const { getValidator, renderEnumOptions } = require('@condo/domains/common/schema/json.utils')
 const { FEEDBACK_ADDITIONAL_OPTIONS } = require('@condo/domains/ticket/constants/feedback')

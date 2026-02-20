@@ -1,5 +1,5 @@
-const { get } = require('lodash')
 const compact = require('lodash/compact')
+const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')

@@ -1,4 +1,5 @@
-const { isNil, get } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 const { generators } = require('openid-client')
 
 const conf = require('@open-condo/config')

@@ -6,7 +6,7 @@ const path = require('path')
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
-const { get } = require('lodash')
+const get = require('lodash/get')
 const XLSX = require('xlsx')
 
 const conf = require('@open-condo/config')

@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
-const { set } = require('lodash')
+const set = require('lodash/set')
 
 const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
 const { FakeAddressServiceClient } = require('@open-condo/clients/address-service-client/FakeAddressServiceClient')

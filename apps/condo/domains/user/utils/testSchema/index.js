@@ -5,7 +5,9 @@
  */
 const { faker } = require('@faker-js/faker')
 const { countryPhoneData } = require('phone')
-const { repeat, get, isEmpty } = require('lodash')
+const repeat = require('lodash/repeat')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 const dayjs = require('dayjs')
 
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')

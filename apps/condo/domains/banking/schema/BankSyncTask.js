@@ -3,7 +3,8 @@
  */
 
 const Ajv = require('ajv')
-const { values, get } = require('lodash')
+const get = require('lodash/get')
+const values = require('lodash/values')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')

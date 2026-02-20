@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
-const { sample, map } = require('lodash')
+const sample = require('lodash/sample')
+const map = require('lodash/map')
 
 const { AddressMetaDataFields } = require('../../schema/fields/AddressMetaField')
 const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')

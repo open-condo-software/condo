@@ -3,7 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const {
     makeLoggedInAdminClient, makeClient,

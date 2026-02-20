@@ -3,7 +3,8 @@ const axios = require('axios').default
 // eslint-disable-next-line import/order
 const https = require('https')
 const jwtDecode = require('jwt-decode')
-const { capitalize, isNil } = require('lodash')
+const capitalize = require('lodash/capitalize')
+const isNil = require('lodash/isNil')
 const { customAlphabet } = require('nanoid')
 
 

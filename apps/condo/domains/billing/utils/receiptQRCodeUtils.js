@@ -1,6 +1,8 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, isNil, set } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
+const set = require('lodash/set')
 
 const { find } = require('@open-condo/keystone/schema')
 

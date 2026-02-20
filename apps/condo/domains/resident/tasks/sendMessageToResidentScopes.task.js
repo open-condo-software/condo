@@ -1,4 +1,9 @@
-const { isArray, isEmpty, compact, get, omit, uniq } = require('lodash')
+const compact = require('lodash/compact')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const omit = require('lodash/omit')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')

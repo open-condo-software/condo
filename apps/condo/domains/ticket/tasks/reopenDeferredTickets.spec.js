@@ -5,7 +5,7 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 

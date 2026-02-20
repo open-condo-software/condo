@@ -1,7 +1,9 @@
 // ELS is a 10-digit code, where 3 and 4 characters are russian letters and the rest are numbers.
 const IS_ELS_REGEXP = /^\d{2}[А-Я]{2}\d{6}$/i
 
-const { isEmpty, isNil, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNil = require('lodash/isNil')
 
 const { find, getById } = require('@open-condo/keystone/schema')
 

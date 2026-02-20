@@ -1,4 +1,8 @@
-const { get, isArray, isString, isEmpty, cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isString = require('lodash/isString')
 
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')

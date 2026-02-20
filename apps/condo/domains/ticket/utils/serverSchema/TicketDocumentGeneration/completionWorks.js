@@ -1,5 +1,5 @@
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
