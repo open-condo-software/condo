@@ -196,7 +196,7 @@ export type RichTextAreaCustomLabels = {
     imageModal?: Partial<RichTextAreaImageModalLabels>
 }
 
-export type BuiltinToolbarButton =
+type ToolbarButtonKey =
     | 'undo' | 'redo'
     | 'bold' | 'italic' | 'strikethrough'
     | 'link'
@@ -204,7 +204,7 @@ export type BuiltinToolbarButton =
     | 'removeFormating'
     | 'table' | 'blockquote' | 'image' | 'heading'
 
-export type ToolbarGroup = BuiltinToolbarButton[]
+export type ToolbarGroup = ToolbarButtonKey[]
 
 const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     undo: 'Undo',
@@ -247,7 +247,7 @@ type BuiltinButtonConfig = {
     isDisabled?: (editor: Editor) => boolean
 }
 
-const BUILTIN_BUTTON_CONFIG: Record<BuiltinToolbarButton, BuiltinButtonConfig> = {
+const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
     undo: {
         icon: <Undo size='small' />,
         labelKey: 'undo',
