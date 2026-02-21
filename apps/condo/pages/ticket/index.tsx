@@ -91,7 +91,7 @@ import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedT
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
-import { useTicketNatsSubscription } from '@condo/domains/ticket/hooks/useTicketNatsSubscription'
+import { useTicketMessagingSubscription } from '@condo/domains/ticket/hooks/useTicketMessagingSubscription'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -1100,10 +1100,10 @@ const TicketsPage: PageComponentType = () => {
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     // NOTE: debug usage of subscriptions
-    const { isConnected, isSubscribed } = useTicketNatsSubscription({
+    const { isConnected, isSubscribed } = useTicketMessagingSubscription({
         enabled: true,
         onMessage: (data) => {
-            console.log('🎯 [NATS] Ticket changed:', {
+            console.log('[messaging] Ticket changed:', {
                 ticketId: data.ticketId,
                 operation: data.operation,
                 status: data.status,
@@ -1116,10 +1116,10 @@ const TicketsPage: PageComponentType = () => {
     // Log connection status changes
     useEffect(() => {
         if (isConnected) {
-            console.log('✅ [NATS] Connected to ticket-changes stream')
+            console.log('[messaging] Connected to ticket-changes channel')
         }
         if (isSubscribed) {
-            console.log('📡 [NATS] Subscribed to organization ticket changes')
+            console.log('[messaging] Subscribed to organization ticket changes')
         }
     }, [isConnected, isSubscribed])
 

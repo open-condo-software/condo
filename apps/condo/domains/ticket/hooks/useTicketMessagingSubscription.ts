@@ -1,8 +1,7 @@
-import { Msg } from '@nats-io/nats-core'
 import { useCallback } from 'react'
 
 // @ts-ignore - JS module without type declarations
-import { useMessagingConnection, useMessagingSubscription } from '@open-condo/messaging/hooks'
+import { useMessagingConnection, useMessagingSubscription, MessagingMessage } from '@open-condo/messaging/hooks'
 // @ts-ignore - JS module without type declarations
 import { buildTopic } from '@open-condo/messaging/topic'
 import { useOrganization } from '@open-condo/next/organization'
@@ -19,7 +18,7 @@ export interface TicketChangeData {
 
 interface UseTicketMessagingSubscriptionOptions {
     enabled?: boolean
-    onMessage?: (data: TicketChangeData, msg: Msg) => void | Promise<void>
+    onMessage?: (data: TicketChangeData, msg: MessagingMessage) => void | Promise<void>
 }
 
 export const useTicketMessagingSubscription = (options: UseTicketMessagingSubscriptionOptions = {}) => {
@@ -32,7 +31,7 @@ export const useTicketMessagingSubscription = (options: UseTicketMessagingSubscr
 
     const topic = organization?.id ? buildTopic('ticket-changes', organization.id, '>') : ''
 
-    const handleMessage = useCallback(async (data: TicketChangeData, msg: Msg) => {
+    const handleMessage = useCallback(async (data: TicketChangeData, msg: MessagingMessage) => {
         console.log('[messaging] Received ticket change:', data)
         if (onMessage) {
             await onMessage(data, msg)
