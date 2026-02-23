@@ -7,6 +7,8 @@ const { buildTopic, buildRelaySubscribePattern, buildRelayUnsubscribePattern } =
 
 const logger = getLogger()
 
+const RELAY_QUEUE_GROUP = 'messaging-relay'
+
 /**
  * Server-side subscription relay service.
  *
@@ -42,8 +44,8 @@ class NatsSubscriptionRelay {
 
             this.isRunning = true
 
-            const subscribeSub = this.connection.subscribe(buildRelaySubscribePattern())
-            const unsubscribeSub = this.connection.subscribe(buildRelayUnsubscribePattern())
+            const subscribeSub = this.connection.subscribe(buildRelaySubscribePattern(), { queue: RELAY_QUEUE_GROUP })
+            const unsubscribeSub = this.connection.subscribe(buildRelayUnsubscribePattern(), { queue: RELAY_QUEUE_GROUP })
 
             ;(async () => {
                 for await (const msg of subscribeSub) {
