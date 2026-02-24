@@ -3,6 +3,7 @@ const jose = require('jose')
 const jwtDecode = require('jwt-decode')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 
@@ -65,27 +66,6 @@ class AppleIdIdentityIntegration {
         return link
     }
 
-    /**
-     * Helper to fetch with timeout
-     */
-    async fetchWithTimeout (url, options = {}) {
-        const { timeout = FETCH_TIMEOUT } = options
-        const controller = new AbortController()
-        const id = setTimeout(() => controller.abort(), timeout)
-
-        try {
-            const response = await fetch(url, {
-                ...options,
-                signal: controller.signal,
-            })
-            clearTimeout(id)
-            return response
-        } catch (error) {
-            clearTimeout(id)
-            throw error
-        }
-    }
-
     async issueExternalIdentityToken (code) {
         const requestParams = {
             client_id: clientId,
@@ -96,8 +76,9 @@ class AppleIdIdentityIntegration {
             scope,
         }
 
-        const response = await this.fetchWithTimeout(tokenUrl, {
+        const response = await fetch(tokenUrl, {
             method: 'POST',
+            abortRequestTimeout: FETCH_TIMEOUT,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
@@ -157,7 +138,9 @@ class AppleIdIdentityIntegration {
     }
 
     async getAppleIdKeys () {
-        const response = await this.fetchWithTimeout('https://appleid.apple.com/auth/keys')
+        const response = await fetch('https://appleid.apple.com/auth/keys', {
+            abortRequestTimeout: FETCH_TIMEOUT,
+        })
         if (!response.ok) throw new Error(`Failed to fetch Apple keys: ${response.statusText}`)
         return await response.json()
     }
