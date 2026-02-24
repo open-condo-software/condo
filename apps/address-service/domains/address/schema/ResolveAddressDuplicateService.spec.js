@@ -13,10 +13,11 @@ const {
     makeLoggedInClient,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
+    expectToThrowGQLErrorToResult,
     setFakeClientMode,
 } = require('@open-condo/keystone/test.utils')
 
-const { Address, createTestAddress } = require('@address-service/domains/address/utils/testSchema')
+const { Address, createTestAddress, updateTestAddress } = require('@address-service/domains/address/utils/testSchema')
 const { makeClientWithSupportUser } = require('@address-service/domains/user/utils/testSchema')
 
 const RESOLVE_ADDRESS_DUPLICATE_MUTATION = gql`
@@ -114,48 +115,102 @@ describe('ResolveAddressDuplicateService', () => {
 
     describe('validation', () => {
         test('throws if address does not exist', async () => {
-            await expect(resolveAddressDuplicateByTestClient(adminClient, {
-                addressId: faker.datatype.uuid(),
-                action: 'dismiss',
-            })).rejects.toThrow(/not found/)
+            const missingAddressId = faker.datatype.uuid()
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await resolveAddressDuplicateByTestClient(adminClient, {
+                    addressId: missingAddressId,
+                    action: 'dismiss',
+                })
+            }, {
+                code: 'NOT_FOUND',
+                type: 'ADDRESS_NOT_FOUND',
+                message: `Address ${missingAddressId} not found`,
+                mutation: 'resolveAddressDuplicate',
+            })
         })
 
         test('throws if address has no possibleDuplicateOf', async () => {
             const [address] = await createTestAddress(adminClient)
 
-            await expect(resolveAddressDuplicateByTestClient(adminClient, {
-                addressId: address.id,
-                action: 'dismiss',
-            })).rejects.toThrow(/has no possibleDuplicateOf set/)
+            await expectToThrowGQLErrorToResult(async () => {
+                await resolveAddressDuplicateByTestClient(adminClient, {
+                    addressId: address.id,
+                    action: 'dismiss',
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'NO_POSSIBLE_DUPLICATE_OF',
+                message: `Address ${address.id} has no possibleDuplicateOf set`,
+                mutation: 'resolveAddressDuplicate',
+            })
+        })
+
+        test('throws if target address is soft-deleted', async () => {
+            const { duplicate, winner } = await createLinkedAddresses(adminClient)
+            await updateTestAddress(adminClient, winner.id, { deletedAt: new Date().toISOString() })
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await resolveAddressDuplicateByTestClient(adminClient, {
+                    addressId: duplicate.id,
+                    action: 'dismiss',
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TARGET_MISSING_OR_SOFT_DELETED',
+                message: `Target Address ${winner.id} is missing or soft-deleted`,
+                mutation: 'resolveAddressDuplicate',
+            })
         })
 
         test('throws for unknown action', async () => {
             const { duplicate } = await createLinkedAddresses(adminClient)
+            const action = 'unknown'
 
-            await expect(resolveAddressDuplicateByTestClient(adminClient, {
-                addressId: duplicate.id,
-                action: 'unknown',
-            })).rejects.toThrow(/Unknown action/)
+            await expectToThrowGQLErrorToResult(async () => {
+                await resolveAddressDuplicateByTestClient(adminClient, {
+                    addressId: duplicate.id,
+                    action,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'UNKNOWN_ACTION',
+                message: `Unknown action: ${action}. Must be "merge" or "dismiss"`,
+                mutation: 'resolveAddressDuplicate',
+            })
         })
 
         test('throws for merge without winnerId', async () => {
             const { duplicate } = await createLinkedAddresses(adminClient)
 
-            await expect(resolveAddressDuplicateByTestClient(adminClient, {
-                addressId: duplicate.id,
-                action: 'merge',
-            })).rejects.toThrow(/winnerId is required/)
+            await expectToThrowGQLErrorToResult(async () => {
+                await resolveAddressDuplicateByTestClient(adminClient, {
+                    addressId: duplicate.id,
+                    action: 'merge',
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WINNER_ID_REQUIRED',
+                message: 'winnerId is required for merge action',
+                mutation: 'resolveAddressDuplicate',
+            })
         })
 
-        test('throws if winnerId is not one of duplicate candidates', async () => {
-            const { duplicate } = await createLinkedAddresses(adminClient)
-            const [wrongWinner] = await createTestAddress(adminClient)
+        test('throws if winnerId is not equal to possibleDuplicateOf target', async () => {
+            const { duplicate, winner } = await createLinkedAddresses(adminClient)
 
-            await expect(resolveAddressDuplicateByTestClient(adminClient, {
-                addressId: duplicate.id,
-                action: 'merge',
-                winnerId: wrongWinner.id,
-            })).rejects.toThrow(/winnerId must be either/)
+            await expectToThrowGQLErrorToResult(async () => {
+                await resolveAddressDuplicateByTestClient(adminClient, {
+                    addressId: duplicate.id,
+                    action: 'merge',
+                    winnerId: duplicate.id,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WINNER_ID_MUST_EQUAL_TARGET',
+                message: `winnerId must be equal to possibleDuplicateOf (${winner.id})`,
+                mutation: 'resolveAddressDuplicate',
+            })
         })
     })
 

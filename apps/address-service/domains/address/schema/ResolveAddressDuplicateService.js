@@ -1,3 +1,4 @@
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, NOT_FOUND } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
@@ -9,6 +10,45 @@ const logger = getLogger('ResolveAddressDuplicateService')
 
 const RESOLVE_ACTION_MERGE = 'merge'
 const RESOLVE_ACTION_DISMISS = 'dismiss'
+
+const ERRORS = {
+    ADDRESS_NOT_FOUND: {
+        mutation: 'resolveAddressDuplicate',
+        code: NOT_FOUND,
+        type: 'ADDRESS_NOT_FOUND',
+        message: 'Address {addressId} not found',
+    },
+    NO_POSSIBLE_DUPLICATE_OF: {
+        mutation: 'resolveAddressDuplicate',
+        code: BAD_USER_INPUT,
+        type: 'NO_POSSIBLE_DUPLICATE_OF',
+        message: 'Address {addressId} has no possibleDuplicateOf set',
+    },
+    TARGET_MISSING_OR_SOFT_DELETED: {
+        mutation: 'resolveAddressDuplicate',
+        code: BAD_USER_INPUT,
+        type: 'TARGET_MISSING_OR_SOFT_DELETED',
+        message: 'Target Address {targetId} is missing or soft-deleted',
+    },
+    WINNER_ID_REQUIRED: {
+        mutation: 'resolveAddressDuplicate',
+        code: BAD_USER_INPUT,
+        type: 'WINNER_ID_REQUIRED',
+        message: 'winnerId is required for merge action',
+    },
+    WINNER_ID_MUST_EQUAL_TARGET: {
+        mutation: 'resolveAddressDuplicate',
+        code: BAD_USER_INPUT,
+        type: 'WINNER_ID_MUST_EQUAL_TARGET',
+        message: 'winnerId must be equal to possibleDuplicateOf ({targetId})',
+    },
+    UNKNOWN_ACTION: {
+        mutation: 'resolveAddressDuplicate',
+        code: BAD_USER_INPUT,
+        type: 'UNKNOWN_ACTION',
+        message: 'Unknown action: {action}. Must be "merge" or "dismiss"',
+    },
+}
 
 const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplicateService', {
     types: [
@@ -32,11 +72,26 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
 
                 const address = await getById('Address', addressId)
                 if (!address) {
-                    throw new Error(`Address ${addressId} not found`)
+                    throw new GQLError({
+                        ...ERRORS.ADDRESS_NOT_FOUND,
+                        messageInterpolation: { addressId },
+                    }, context)
                 }
 
                 if (!address.possibleDuplicateOf) {
-                    throw new Error(`Address ${addressId} has no possibleDuplicateOf set`)
+                    throw new GQLError({
+                        ...ERRORS.NO_POSSIBLE_DUPLICATE_OF,
+                        messageInterpolation: { addressId },
+                    }, context)
+                }
+
+                const targetId = address.possibleDuplicateOf
+                const targetAddress = await getById('Address', targetId)
+                if (!targetAddress || targetAddress.deletedAt) {
+                    throw new GQLError({
+                        ...ERRORS.TARGET_MISSING_OR_SOFT_DELETED,
+                        messageInterpolation: { targetId },
+                    }, context)
                 }
 
                 if (action === RESOLVE_ACTION_DISMISS) {
@@ -52,15 +107,17 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
 
                 if (action === RESOLVE_ACTION_MERGE) {
                     if (!winnerId) {
-                        throw new Error('winnerId is required for merge action')
+                        throw new GQLError(ERRORS.WINNER_ID_REQUIRED, context)
                     }
 
-                    const targetId = address.possibleDuplicateOf
-                    if (winnerId !== addressId && winnerId !== targetId) {
-                        throw new Error(`winnerId must be either ${addressId} or ${targetId}`)
+                    if (winnerId !== targetId) {
+                        throw new GQLError({
+                            ...ERRORS.WINNER_ID_MUST_EQUAL_TARGET,
+                            messageInterpolation: { targetId },
+                        }, context)
                     }
 
-                    const loserId = winnerId === addressId ? targetId : addressId
+                    const loserId = addressId
 
                     await mergeAddresses(context, winnerId, loserId, dvSender)
 
@@ -68,7 +125,10 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
                     return { status: 'merged' }
                 }
 
-                throw new Error(`Unknown action: ${action}. Must be "merge" or "dismiss"`)
+                throw new GQLError({
+                    ...ERRORS.UNKNOWN_ACTION,
+                    messageInterpolation: { action },
+                }, context)
             },
         },
     ],
