@@ -22,6 +22,7 @@ const {
 const { PAYMENTS_FILE_NEW_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS } = require('@condo/domains/acquiring/constants/constants')
 const { PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -52,7 +53,8 @@ describe('PaymentsFile', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient();
 
-        [organization] = await createTestOrganization(admin);
+        [organization] = await createTestOrganization(admin)
+        await createTestBillingIntegration(admin);
         [integration] = await createTestAcquiringIntegration(admin);
         [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
 

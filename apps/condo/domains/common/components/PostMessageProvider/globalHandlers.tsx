@@ -4,9 +4,9 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 
-import type { CondoBridgeResultResponseEvent } from '@open-condo/bridge'
+import type { CondoBridgeResultResponseEvent, SetPageActionsParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -29,6 +29,8 @@ type OpenModalRecord = {
     destroy: () => void
     update: (opts: ModalProps) => void
 }
+type ActionWithId = SetPageActionsParams['actions'][number] & { id: string }
+export type Actions = Array<ActionWithId>
 
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {
     const { type, ...restParams } = params
@@ -286,4 +288,47 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
 
         return { success: true }
     }, [router])
+}
+
+export const useSetActionsHandler: () => [
+    RequestHandler<'CondoWebAppSetPageActions'>,
+    Actions | null,
+    Window | null,
+    string | null,
+    () => void,
+] = () => {
+    const [actions, setActions] = useState<Actions | null>(null)
+    const [source, setSource] = useState<Window | null>(null)
+    const [origin, setOrigin] = useState<string | null>(null)
+    const actionsRef = useRef<Actions | null>(null)
+
+    const handleSetActions = useCallback<RequestHandler<'CondoWebAppSetPageActions'>>((params, nextOrigin, nextSource) => {
+        const prevActions = actionsRef.current || []
+        const actionsWithIds = params.actions.map((action, index) => {
+            const prevId = prevActions[index]?.id
+            return { ...action, id: prevId || generateUUIDv4() }
+        })
+
+        setActions(actionsWithIds)
+        setSource(nextSource)
+        setOrigin(nextOrigin)
+        actionsRef.current = actionsWithIds
+
+        return { actionIds: actionsWithIds.map(a => a.id) }
+    }, [])
+
+    const clear = useCallback(() => {
+        actionsRef.current = null
+        setActions(null)
+        setSource(null)
+        setOrigin(null)
+    }, [])
+
+    return [
+        handleSetActions,
+        actions,
+        source,
+        origin,
+        clear,
+    ]
 }

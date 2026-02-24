@@ -21,6 +21,7 @@ const {
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice, createTestMarketPriceScopes, softDeleteTestMarketPriceScopes } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -39,6 +40,7 @@ describe('MarketPriceScope', () => {
         [marketItem] = await createTestMarketItem(admin, marketCategory, organization);
         [price] = await createTestMarketItemPrice(admin, marketItem)
 
+        await createTestBillingIntegration(admin)
         const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
         await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })

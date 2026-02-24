@@ -84,6 +84,9 @@
       "helpers/webpack": [
         "dist/helpers/webpack.d.ts"
       ],
+      "hooks/useSetPageActionsHandlers": [
+        "dist/hooks/useSetPageActionsHandlers.d.ts"
+      ],
       "hooks/useEffectOnce": [
         "dist/hooks/useEffectOnce.d.ts"
       ],
@@ -177,6 +180,11 @@
       "types": "./dist/helpers/webpack.d.ts",
       "require": "./dist/helpers/webpack.js",
       "import": "./dist/helpers/webpack.mjs"
+    },
+    "./hooks/useSetPageActionsHandlers": {
+      "types": "./dist/hooks/useSetPageActionsHandlers.d.ts",
+      "require": "./dist/hooks/useSetPageActionsHandlers.js",
+      "import": "./dist/hooks/useSetPageActionsHandlers.mjs"
     },
     "./hooks/useEffectOnce": {
       "types": "./dist/hooks/useEffectOnce.d.ts",
