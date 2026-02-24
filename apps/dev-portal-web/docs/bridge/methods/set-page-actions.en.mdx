@@ -1,0 +1,111 @@
+Sometimes you may need to add a mini-app action to the main application interface: a button in the Action Bar on the web or an icon in the navigation of the mobile application. Typical examples are the export button, camera icon, or delete icon: actions that should remain visible when scrolling the page.
+This method allows you to set, update, and hide actions that the main application renders. The usage looks like this: you send the list of `actions`, get the `actionIds` and use these ids to process clicks in the mini‑app.
+
+## Platforms
+- B2B-Web
+
+## Method params
+
+| Parameter name | Parameter type | Required | Parameter description |
+|---|---|---|---|
+| actions | Action[] | yes | List of actions to render |
+
+### Action params
+
+| Parameter name | Parameter type | Required | Parameter description |
+|---|---|---|---|
+| label | string | no | Button text |
+| disabled | boolean | no | Whether the button is disabled |
+| loading | boolean | no | Whether the button shows loading state |
+| icon | string | no | Optional icon name (e.g., 'Download') |
+
+<Alert type='info'>
+    Icon names are listed in the [UI Icons catalog](https://condo.d.doma.ai/ui/index.html?path=/story/icons--icons).
+</Alert>
+
+## Return value
+
+If successful, the method will return a JSON object containing a list of action IDs:
+```json
+{ "actionIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
+```
+
+The host generates internal action ids and returns them in the same order as the input list.
+When a user clicks a button, the host emits `CondoWebAppActionClickEvent` as a side effect.
+
+## Usage example
+
+```typescript jsx
+import React, { useEffect, useMemo, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { useSetPageActionsHandlers } from '@open-condo/miniapp-utils'
+
+export default function MiniappPage (): React.ReactNode {
+    const [actionIds, setActionIds] = useState<string[]>([])
+    const actions = useMemo(() => ([
+        { label: 'Save' },
+        { label: 'Download', icon: 'Download' },
+    ]), [])
+
+    useEffect(() => {
+        bridge.send('CondoWebAppSetPageActions', { actions }).then((data) => {
+            setActionIds(data.actionIds)
+        })
+    }, [actions])
+
+    const handlers = useMemo(() => {
+        if (!actionIds.length) return {}
+
+        const [saveId, downloadId] = actionIds
+        return {
+            [saveId]: () => {
+                // handle save
+            },
+            [downloadId]: () => {
+                // handle download
+            },
+        }
+    }, [actions, actionIds])
+
+    useSetPageActionsHandlers(bridge, handlers)
+
+    return null
+}
+```
+
+<Alert type='info'>
+    Keep the order of `actions` stable if you rely on index-based ids.
+</Alert>
+
+## Persistence and cleanup
+
+Actions stay visible while the mini‑app navigates between its internal pages. If you need to hide them, send an empty `actions` array based on your own conditions.
+
+If you want to clear actions when a specific component unmounts, do it in the `useEffect` cleanup:
+```typescript jsx
+import React, { useEffect } from 'react'
+import bridge from '@open-condo/bridge'
+
+useEffect(() => {
+    bridge.send('CondoWebAppSetPageActions', { actions: [/* ... */] })
+
+    return () => {
+        bridge.send('CondoWebAppSetPageActions', { actions: [] })
+    }
+}, [])
+```
+
+## Updating actions
+
+To update a button, send a full updated `actions` array again:
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetPageActions', {
+    actions: [
+        { label: 'Save' },
+        { label: 'Download', loading: true },
+    ],
+})
+```
