@@ -53,8 +53,9 @@ jobs:
           sudo apt update && sudo apt install -y git
       - name: Set registry variables
         run: |
-          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
-          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
+          ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
+          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref}" >> $GITHUB_ENV
+          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref},mode=max,image-manifest=true" >> $GITHUB_ENV
       - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
