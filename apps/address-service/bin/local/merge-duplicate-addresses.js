@@ -186,7 +186,7 @@ async function main (args) {
         // Advance skip past records that remain in query results (skipped/unmerged).
         // In non-dry-run mode merged records disappear from the query, so only
         // skipped ones need to be stepped over. In dry-run nothing is removed.
-        skip += pageSkipped
+        skip += isDryRun ? addresses.length : pageSkipped
     } while (addresses.length > 0)
 
     console.info(`\nSummary: ${totalProcessed} processed, ${totalMerged} merged, ${totalSkipped} skipped`)
