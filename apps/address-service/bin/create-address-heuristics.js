@@ -479,7 +479,7 @@ async function main (args) {
     console.info(`    - fallback: ${conflictsByType[HEURISTIC_TYPE_FALLBACK]}`)
     console.info(`    - coordinates: ${conflictsByType[HEURISTIC_TYPE_COORDINATES]}`)
     console.info(`    - google_place_id: ${conflictsByType[HEURISTIC_TYPE_GOOGLE_PLACE_ID]}`)
-    console.info(`  possibleDuplicateOf links ${isDryRun ? 'planned' : 'updated'}: ${totalDuplicateLinksSet}`)
+    console.info(`  possibleDuplicateOf links ${isDryRun ? 'planned' : 'updated'}: ${isDryRun ? totalConflicts : totalDuplicateLinksSet}`)
     console.info(`Execution time: ${formatDuration(Date.now() - startedAt)}`)
 }
 
