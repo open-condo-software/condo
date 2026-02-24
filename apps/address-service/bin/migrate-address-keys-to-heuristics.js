@@ -2,7 +2,6 @@
  * Migrate Address.key values to the new heuristic-prefixed format.
  *
  * Current format → New format:
- *   fias:<uuid>                    → fias_id:<uuid>
  *   россия~свердловская~...        → fallback:россия~свердловская~...
  *
  * Usage:
@@ -89,18 +88,16 @@ async function main (args) {
         const whereActiveWithKey = (query) => query.whereNull('deletedAt').whereNotNull('key')
 
         const totalCount = await getCount(whereActiveWithKey(addressQuery()))
-        const fiasToMigrateCount = await getCount(whereActiveWithKey(addressQuery()).where('key', 'like', 'fias:%'))
         const fallbackToMigrateCount = await getCount(
             whereNotMigratedKeys(
                 whereActiveWithKey(addressQuery())
-                    .whereNot('key', 'like', 'fias:%')
             )
         )
-        const totalToMigrate = fiasToMigrateCount + fallbackToMigrateCount
+        const totalToMigrate = fallbackToMigrateCount
         const alreadyMigratedCount = totalCount - totalToMigrate
 
         console.info(`Migration plan: total=${totalCount}, toMigrate=${totalToMigrate}, alreadyMigrated=${alreadyMigratedCount}`)
-        console.info(`To migrate by type: fias_id=${fiasToMigrateCount}, fallback=${fallbackToMigrateCount}`)
+        console.info(`To migrate by type: fallback=${fallbackToMigrateCount}`)
 
         if (totalToMigrate === 0) {
             console.info(`\nSummary: ${totalCount} processed, 0 migrated, ${totalCount} already migrated`)
@@ -108,26 +105,15 @@ async function main (args) {
             return
         }
 
-        let migratedFiasCount = 0
         let migratedFallbackCount = 0
 
         if (isDryRun) {
-            migratedFiasCount = fiasToMigrateCount
             migratedFallbackCount = fallbackToMigrateCount
         } else {
             const senderAsJsonb = knex.raw('?::jsonb', [JSON.stringify(sender)])
 
-            migratedFiasCount = await whereActiveWithKey(addressQuery())
-                .where('key', 'like', 'fias:%')
-                .update({
-                    dv,
-                    sender: senderAsJsonb,
-                    key: knex.raw('? || substring("key" from 6)', ['fias_id:']),
-                })
-
             migratedFallbackCount = await whereNotMigratedKeys(
                 whereActiveWithKey(addressQuery())
-                    .whereNot('key', 'like', 'fias:%')
             ).update({
                 dv,
                 sender: senderAsJsonb,
@@ -135,12 +121,12 @@ async function main (args) {
             })
         }
 
-        const totalMigrated = migratedFiasCount + migratedFallbackCount
+        const totalMigrated = migratedFallbackCount
         const remainingNotMigratedCount = await getCount(whereNotMigratedKeys(whereActiveWithKey(addressQuery())))
         const totalSkipped = Math.max(totalCount - totalMigrated, 0)
 
         console.info(`\nSummary: ${totalCount} processed, ${totalMigrated} migrated, ${totalSkipped} already migrated`)
-        console.info(`Migrated by type: fias_id=${migratedFiasCount}, fallback=${migratedFallbackCount}`)
+        console.info(`Migrated by type: fallback=${migratedFallbackCount}`)
         console.info(`Remaining without heuristic prefix: ${remainingNotMigratedCount}`)
         console.info(`Execution time: ${formatDuration(Date.now() - startedAt)}`)
     } finally {
