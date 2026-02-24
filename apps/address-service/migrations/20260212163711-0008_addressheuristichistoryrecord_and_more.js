@@ -8,7 +8,7 @@ exports.up = async (knex) => {
 --
 -- Create model addressheuristichistoryrecord
 --
-CREATE TABLE "AddressHeuristicHistoryRecord" ("address" uuid NULL, "type" text NULL, "value" text NULL, "reliability" integer NULL, "provider" text NULL, "latitude" numeric(18, 4) NULL, "longitude" numeric(18, 4) NULL, "meta" jsonb NULL, "enabled" boolean NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE "AddressHeuristicHistoryRecord" ("address" uuid NULL, "type" text NULL, "value" text NULL, "reliability" integer NULL, "provider" text NULL, "latitude" numeric(18, 8) NULL, "longitude" numeric(18, 8) NULL, "meta" jsonb NULL, "enabled" boolean NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Add field possibleDuplicateOf to address
 --
