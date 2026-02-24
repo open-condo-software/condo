@@ -29,6 +29,14 @@ const ACTUALIZE_ADDRESSES_MUTATION = gql`
     }
 `
 
+function extractErrorMessage (error, fallbackMessage) {
+    return error?.graphQLErrors?.[0]?.extensions?.message ||
+        error?.graphQLErrors?.[0]?.message ||
+        error?.networkError?.message ||
+        error?.message ||
+        fallbackMessage
+}
+
 const UpdateAddress = (props) => {
     const location = useLocation()
     const [actualizeAddress] = useMutation(ACTUALIZE_ADDRESSES_MUTATION)
@@ -44,10 +52,21 @@ const UpdateAddress = (props) => {
         const sender = getClientSideSenderInfo()
         const path = location.pathname.split('/').splice(2, 2)
         const addressId = (path[0] === TARGET_URL_PART && path[1]) ? path[1] : null
+        if (!addressId) {
+            alert('Cannot detect address id from current URL')
+            return
+        }
+
         const data = { dv: 1, sender, addresses: [{ id: addressId }] }
         actualizeAddress({ variables: { data } })
             .then(({ data }) => {
-                const { result: { successIds, failures } } = data
+                const result = data?.result
+                if (!result) {
+                    alert('Actualize failed: empty response')
+                    return
+                }
+
+                const { successIds, failures } = result
                 if (successIds.includes(addressId)) {
                     console.log('✅ Address actualized')
                     window.location.reload()
@@ -63,6 +82,7 @@ const UpdateAddress = (props) => {
             })
             .catch((error) => {
                 console.error('Failed to actualize address', error)
+                alert(extractErrorMessage(error, 'Failed to actualize address'))
             })
     }, [location, actualizeAddress])
 
@@ -126,7 +146,7 @@ const ResolveAddressDuplicate = () => {
             })
             .catch((error) => {
                 console.error('Failed to resolve duplicate', error)
-                alert(error.message)
+                alert(extractErrorMessage(error, 'Failed to resolve duplicate'))
             })
     }, [addressId, location.pathname, possibleDuplicate, resolveDuplicate])
 
