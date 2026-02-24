@@ -34,7 +34,6 @@ const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integrat
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 
-
 setupMessaging({
     getPermittedOrganizations: getEmployedOrRelatedOrganizationsByPermissions,
 })

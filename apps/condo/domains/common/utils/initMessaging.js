@@ -2,6 +2,8 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { configure, createAdapter, initializePublisher } = require('@open-condo/messaging')
 
+const { registerMessagingChannels } = require('./messagingChannels')
+
 const logger = getLogger()
 
 let adapter = null
@@ -22,43 +24,32 @@ async function initMessaging () {
     adapter = createAdapter()
 
     if (conf.MESSAGING_AUTH_ACCOUNT_SEED) {
-        try {
-            await adapter.startAuthService({
-                url: conf.MESSAGING_BROKER_URL,
-                accountSeed: conf.MESSAGING_AUTH_ACCOUNT_SEED,
-                authUser: conf.MESSAGING_AUTH_USER,
-                authPass: conf.MESSAGING_AUTH_PASSWORD,
-            })
-            logger.info({ msg: 'Auth callout service started' })
-        } catch (error) {
-            logger.error({ msg: 'Failed to start auth callout service', err: error })
-        }
+        await adapter.startAuthService({
+            url: conf.MESSAGING_BROKER_URL,
+            accountSeed: conf.MESSAGING_AUTH_ACCOUNT_SEED,
+            authUser: conf.MESSAGING_AUTH_USER,
+            authPass: conf.MESSAGING_AUTH_PASSWORD,
+        })
+        logger.info({ msg: 'Auth callout service started' })
     } else {
         logger.info({ msg: 'MESSAGING_AUTH_ACCOUNT_SEED not set, auth callout service disabled' })
     }
 
-    try {
-        await adapter.connect({
-            url: conf.MESSAGING_BROKER_URL,
-            user: conf.MESSAGING_SERVER_USER,
-            pass: conf.MESSAGING_SERVER_PASSWORD,
-        })
-        await initializePublisher(adapter, { enabled: true })
-        logger.info({ msg: 'Publisher initialized' })
-    } catch (error) {
-        logger.error({ msg: 'Failed to initialize publisher', err: error })
-    }
+    await adapter.connect({
+        url: conf.MESSAGING_BROKER_URL,
+        user: conf.MESSAGING_SERVER_USER,
+        pass: conf.MESSAGING_SERVER_PASSWORD,
+    })
 
-    try {
-        await adapter.startRelayService({
-            url: conf.MESSAGING_BROKER_URL,
-            user: conf.MESSAGING_SERVER_USER,
-            pass: conf.MESSAGING_SERVER_PASSWORD,
-        })
-        logger.info({ msg: 'Subscription relay service started' })
-    } catch (error) {
-        logger.error({ msg: 'Failed to start subscription relay service', err: error })
-    }
+    await initializePublisher(adapter, { enabled: true })
+    logger.info({ msg: 'Publisher initialized' })
+
+    await adapter.startRelayService({
+        url: conf.MESSAGING_BROKER_URL,
+        user: conf.MESSAGING_SERVER_USER,
+        pass: conf.MESSAGING_SERVER_PASSWORD,
+    })
+    logger.info({ msg: 'Subscription relay service started' })
 }
 
 async function closeMessaging () {
@@ -72,7 +63,7 @@ async function closeMessaging () {
 
 /**
  * Single entry point for messaging setup.
- * Configures access control, registers channels, and initializes the adapter.
+ * Configures access control, registers channels, and starts the messaging adapter.
  * @param {Object} config
  * @param {Function} config.getPermittedOrganizations - Function to get organizations where user has permissions
  */
@@ -81,9 +72,11 @@ function setupMessaging (config = {}) {
         getPermittedOrganizations: config.getPermittedOrganizations,
     })
 
-    require('./messagingChannels')
+    registerMessagingChannels()
 
-    initMessaging()
+    initMessaging().catch((error) => {
+        logger.error({ msg: 'Failed to initialize messaging', err: error })
+    })
 }
 
 module.exports = { setupMessaging, closeMessaging }

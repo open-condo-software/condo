@@ -38,7 +38,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
             return globalConnection
         }
 
-        if (globalConnectionPromise) {
+        if (globalConnectionPromise !== null) {
             return globalConnectionPromise
         }
 
@@ -130,7 +130,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
 
         connectionRefCount++
 
-        if (autoConnect && !globalConnection && !globalConnectionPromise) {
+        if (autoConnect && globalConnection === null && globalConnectionPromise === null) {
             connect().catch(console.error)
         }
 
