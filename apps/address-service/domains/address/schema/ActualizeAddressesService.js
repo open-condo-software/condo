@@ -11,6 +11,8 @@ const access = require('@address-service/domains/address/access/ActualizeAddress
 const { mergeAddresses } = require('@address-service/domains/address/utils/mergeAddresses')
 const { Address } = require('@address-service/domains/address/utils/serverSchema')
 const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { upsertHeuristics } = require('@address-service/domains/common/utils/services/search/heuristicMatcher')
+const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 const logger = getLogger()
@@ -65,6 +67,10 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         dataForLog.fiasId = fiasId
 
                         const provider = new DadataSuggestionProvider(context)
+                        // DadataSearchProvider internally uses DadataSuggestionProvider too.
+                        // We keep SuggestionProvider as the source of fresh provider data,
+                        // and use SearchProvider only to extract heuristics from normalized result.
+                        const heuristicProvider = new DadataSearchProvider({ req: context.req })
 
                         // Logic partially similar to SearchByFiasId plugin
                         const denormalizedResult = await provider.getAddressByFiasId(fiasId)
@@ -75,6 +81,7 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
 
                         const [searchResult] = provider.normalize([denormalizedResult])
                         const addressKey = provider.generateAddressKey(searchResult)
+                        const heuristics = heuristicProvider.extractHeuristics(searchResult)
 
                         dataForLog.denormalizedResult = denormalizedResult
                         dataForLog.addressKey = addressKey
@@ -106,6 +113,7 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                             },
                         }
                         const updatedAddress = await Address.update(context, addressId, newAddressData, 'id')
+                        await upsertHeuristics(context, updatedAddress.id, heuristics, providerName, { dv, sender })
                         dataForLog.actualizedAddress = updatedAddress
                         successIds.push(updatedAddress.id)
                     } else if (providerName === GOOGLE_PROVIDER) {
