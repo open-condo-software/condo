@@ -7,8 +7,6 @@ This guide covers migrating your address-service database to the new heuristics-
 1. **New `AddressHeuristic` model** — stores provider-generated identifiers (FIAS ID, coordinates, Google Place ID, fallback key) as separate DB records for cross-provider matching
 2. **New `Address.possibleDuplicateOf` field** — flags addresses that may be duplicates of another address
 3. **New `Address.key` format** — keys are now prefixed with heuristic type (e.g. `fias_id:<uuid>`, `fallback:<key>`)
-4. **Removed `FIAS_PROVIDERS` constant** — provider-specific logic replaced by generic heuristic extraction
-5. **Removed `generateAddressKeyFromFiasId()`** — FIAS logic now lives in provider `extractHeuristics()`
 
 ## Prerequisites
 
@@ -52,6 +50,7 @@ yarn workspace @app/address-service node bin/migrate-address-keys-to-heuristics.
 This converts:
 - `fias:<uuid>` → `fias_id:<uuid>`
 - `россия~свердловская~...` → `fallback:россия~свердловская~...`
+- `usa~california~los_angeles~...` → `fallback:usa~california~los_angeles~...`
 
 ### 4. Run Script B — Create AddressHeuristic records
 
@@ -111,6 +110,21 @@ SELECT COUNT(*) FROM "Address" WHERE "deletedAt" IS NULL AND "key" NOT LIKE '%:%
 SELECT COUNT(*) FROM "Address" WHERE "deletedAt" IS NULL AND "possibleDuplicateOf" IS NOT NULL;
 ```
 
+## Troubleshooting
+
+### Handling individual bad heuristics
+
+If you find that a specific heuristic (e.g., an imprecise coordinate or a broad fallback key) is causing incorrect address merges, you can manage it directly in the database or via the Admin UI. Each `AddressHeuristic` record has an `enabled` flag:
+- **Disable**: Set `enabled: false` to stop the system from using this specific heuristic for future searches.
+- **Edit**: Correct the `value` if it is inaccurate.
+- **Delete**: Soft-delete the record (`deletedAt` = now) if it shouldn't exist at all.
+
+### High false-positive rate for Google coordinates
+
+If you notice that `GoogleSearchProvider` is merging distinct addresses due to imprecise coordinates (since Google doesn't provide a `qc_geo` exactness flag like Dadata), you can disable the coordinate heuristic extraction for Google.
+
+To do this, modify `extractHeuristics()` in `GoogleSearchProvider.js` to omit `HEURISTIC_TYPE_COORDINATES`, then rerun `bin/create-address-heuristics.js` (which is idempotent) to rebuild heuristics without Google coordinates.
+
 ## Rollback
 
 To revert the database schema migration:
@@ -126,6 +140,4 @@ Note: Scripts A and B are idempotent — they can be safely re-run after a rollb
 | Change | Impact |
 |--------|--------|
 | `Address.key` format changed | Keys now prefixed with heuristic type (`fias_id:`, `fallback:`, etc.). Code that parses `Address.key` directly needs updating. |
-| `FIAS_PROVIDERS` constant removed | Use `extractHeuristics()` on providers instead of checking provider membership. |
-| `generateAddressKeyFromFiasId()` removed | FIAS key generation now handled by `DadataSearchProvider.extractHeuristics()` and `PullentiSearchProvider.extractHeuristics()`. |
-| `generateAddressKey()` renamed to `generateFallbackKey()` | On `AbstractSearchProvider` and `InjectionsSeeker`. `generateAddressKey()` still exists but now delegates to `extractHeuristics()`. |
+| `generateAddressKey()` logic replaced | Was a standalone utility in `utils/addressKeyUtils`, now implemented on providers via `generateAddressKey()` and `extractHeuristics()`. `generateFallbackKey()` replaces its old string-concatenation behavior. |
