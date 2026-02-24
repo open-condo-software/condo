@@ -1,11 +1,6 @@
-// eslint-disable-next-line import/order
-const axios = require('axios').default
-
-// eslint-disable-next-line import/order
 const dayjs = require('dayjs')
 const jose = require('jose')
 const jwtDecode = require('jwt-decode')
-const { isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
 
@@ -23,9 +18,10 @@ const {
     teamId,
     secretKey,
 } = APPLE_ID_CONFIG
+
 const CALLBACK_PATH = '/api/apple_id/auth/callback'
 const CALLBACK_URL = redirectUri || `${conf.SERVER_URL}${CALLBACK_PATH}`
-const AXIOS_TIMEOUT = 10000
+const FETCH_TIMEOUT = 10000
 const keystore = new jose.JWKS.KeyStore()
 
 class AppleIdIdentityIntegration {
@@ -58,7 +54,6 @@ class AppleIdIdentityIntegration {
         const { nonce, state } = checks
         const link = new URL(authorizeUrl || conf.SERVER_URL)
 
-        // set params to link
         link.searchParams.set('client_id', clientId)
         link.searchParams.set('redirect_uri', CALLBACK_URL)
         link.searchParams.set('response_type', 'code')
@@ -70,9 +65,29 @@ class AppleIdIdentityIntegration {
         return link
     }
 
+    /**
+     * Helper to fetch with timeout
+     */
+    async fetchWithTimeout (url, options = {}) {
+        const { timeout = FETCH_TIMEOUT } = options
+        const controller = new AbortController()
+        const id = setTimeout(() => controller.abort(), timeout)
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal,
+            })
+            clearTimeout(id)
+            return response
+        } catch (error) {
+            clearTimeout(id)
+            throw error
+        }
+    }
+
     async issueExternalIdentityToken (code) {
-        // set issue token request parameters
-        const request = {
+        const requestParams = {
             client_id: clientId,
             client_secret: await this.getClientSecret(),
             code,
@@ -81,22 +96,25 @@ class AppleIdIdentityIntegration {
             scope,
         }
 
-        // send a request
-        const tokenResponse = await axios.create({
-            timeout: AXIOS_TIMEOUT,
-            validateStatus: () => true,
-        }).post(tokenUrl, new URLSearchParams(request))
+        const response = await this.fetchWithTimeout(tokenUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(requestParams).toString(),
+        })
 
-        // extract required params
+        const data = await response.json()
+
         const {
             access_token: accessToken,
             token_type: tokenType,
             expires_in: expiresIn,
             id_token: idToken,
-        } = tokenResponse.data
+        } = data
 
-        if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
-            throw new Error(JSON.stringify(tokenResponse.data))
+        if (!response.ok || accessToken == null || idToken == null) {
+            throw new Error(JSON.stringify(data))
         }
 
         return {
@@ -123,7 +141,6 @@ class AppleIdIdentityIntegration {
     async validateIdToken (idToken) {
         const { kid } = jwtDecode(idToken, { header: true })
 
-        // get key or refill keystore
         let key = keystore.get({ kid })
         if (!key) {
             const { keys } = await this.getAppleIdKeys()
@@ -134,18 +151,15 @@ class AppleIdIdentityIntegration {
             key = keystore.get({ kid })
         }
 
-        // validate idToken
-        const verifyResult = await jose.JWS.verify(idToken, key, { complete:true })
+        const verifyResult = await jose.JWS.verify(idToken, key, { complete: true })
         const { iss, aud, exp } = JSON.parse(String(verifyResult.payload))
         return iss === 'https://appleid.apple.com' && aud === clientId && exp >= dayjs().unix()
     }
 
     async getAppleIdKeys () {
-        // send a request
-        return (await axios.create({
-            timeout: AXIOS_TIMEOUT,
-            validateStatus: () => true,
-        }).get('https://appleid.apple.com/auth/keys')).data
+        const response = await this.fetchWithTimeout('https://appleid.apple.com/auth/keys')
+        if (!response.ok) throw new Error(`Failed to fetch Apple keys: ${response.statusText}`)
+        return await response.json()
     }
 }
 
