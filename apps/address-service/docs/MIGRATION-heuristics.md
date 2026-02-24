@@ -48,7 +48,6 @@ yarn workspace @app/address-service node bin/migrate-address-keys-to-heuristics.
 ```
 
 This converts:
-- `fias:<uuid>` → `fias_id:<uuid>`
 - `россия~свердловская~...` → `fallback:россия~свердловская~...`
 - `usa~california~los_angeles~...` → `fallback:usa~california~los_angeles~...`
 
