@@ -5,29 +5,25 @@ const http = require('http')
 const https = require('https')
 const os = require('os')
 const path = require('path')
-const urlLib = require('url')
+const { URL } = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
-const axiosLib = require('axios')
-const axiosCookieJarSupportLib = require('axios-cookiejar-support')
 const express = require('express')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
-const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
+const { get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
 const fetch = require('node-fetch')
-const { CookieJar, Cookie } = require('tough-cookie')
+const { Cookie, CookieJar } = require('tough-cookie')
+const { Agent } = require('undici')
+
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
-
-const urlParse = urlLib.parse
-const axios = axiosLib.default
-const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
 const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
@@ -255,9 +251,9 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
                 }
             } catch (error) {
                 throw new Error(
-                    `Failed to generate SSL certificates. OpenSSL is required.\n` +
+                    'Failed to generate SSL certificates. OpenSSL is required.\n' +
                     `Error: ${error.message}\n\n` +
-                    `Install OpenSSL or use protocol='http' for tests that don't require HTTPS`
+                    'Install OpenSSL or use protocol=\'http\' for tests that don\'t require HTTPS'
                 )
             }
 
@@ -539,24 +535,97 @@ const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => 
     )
 }
 
-const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
-    const cookies = (cookie) ? cookie.split(';').map(Cookie.parse) : []
+const createFetchClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
     const cookieJar = new CookieJar()
-    const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
-    cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
-    // test axios client with disabled tls
-    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
-    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
-    if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
-    const client = axios.create({
-        withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
-        validateStatus: (status) => status >= 200 && status < 500,
-        ...options,
-    })
-    axiosCookieJarSupport(client)
-    client.defaults.jar = cookieJar
-    client.getCookie = () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';')
+
+    // Формируем базовый домен для установки начальных кук
+    const domainUrl = new URL(cookieDomain.startsWith('http') ? cookieDomain : `http://${cookieDomain}`)
+    const baseOrigin = domainUrl.origin
+
+    if (cookie) {
+        cookie.split(';').forEach((c) => {
+            try {
+                cookieJar.setCookieSync(Cookie.parse(c.trim()), baseOrigin)
+            } catch (e) {
+                // Игнорируем битые куки
+            }
+        })
+    }
+
+    // Настройка диспетчера для пропуска проверки TLS (аналог rejectUnauthorized: false)
+    let dispatcher = undefined
+    if (process.env.TESTS_TLS_IGNORE_UNAUTHORIZED === 'true') {
+        dispatcher = new Agent({
+            connect: { rejectUnauthorized: false },
+        })
+    }
+
+    const client = async (url, requestOptions = {}) => {
+        const fullUrl = url.startsWith('http') ? url : `${baseOrigin}${url}`
+
+        // 1. Извлекаем куки для конкретного URL перед запросом
+        const cookieString = cookieJar.getCookieStringSync(fullUrl)
+
+        const fetchOptions = {
+            ...options,
+            ...requestOptions,
+            dispatcher, // Используется вместо httpsAgent в нативном fetch
+            headers: {
+                ...options.headers,
+                ...requestOptions.headers,
+                ...(cookieString ? { 'Cookie': cookieString } : {}),
+            },
+        }
+
+        const response = await global.fetch(fullUrl, fetchOptions)
+
+        const rawBody = await response.text()
+        let data
+        try { data = JSON.parse(rawBody) } catch (e) { data = rawBody }
+
+        const result = {
+            status: response.status,
+            data: data,
+            headers: Object.fromEntries(response.headers.entries()),
+            config: { url: response.url },
+            getCookie: () => cookieJar.getCookieStringSync(baseOrigin),
+        }
+
+        if (response.status >= 400) {
+            const message = `Request failed with status code ${response.status}`
+            const error = new Error(message)
+
+            error.request = {
+                res: {
+                    statusCode: response.status,
+                    headers: result.headers,
+                },
+            }
+            error.response = result
+
+            throw error
+        }
+
+        // 2. Сохраняем новые куки из заголовка Set-Cookie
+        // В нативном fetch метод getSetCookie() доступен в Headers
+        const setCookies = response.headers.getSetCookie ? response.headers.getSetCookie() : []
+        setCookies.forEach(sc => {
+            cookieJar.setCookieSync(sc, fullUrl)
+        })
+
+        // Добавляем метод json() и data для схожести с axios (по желанию)
+        // Но лучше работать с нативным response.
+        return response
+    }
+
+    /**
+     * Упрощенный аналог старого безумного метода getCookie
+     */
+    client.getCookie = () => {
+        return cookieJar.getSetCookieStringsSync(baseOrigin).join('; ')
+    }
+
+    client.jar = cookieJar
     return client
 }
 
@@ -1392,7 +1461,7 @@ module.exports = {
     isPostgres, isMongo,
     EmptyApp,
     setFakeClientMode,
-    createAxiosClientWithCookie,
+    createFetchClientWithCookie,
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,

@@ -7,7 +7,7 @@ const { Issuer, generators } = require('openid-client')
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const {
-    createAxiosClientWithCookie,
+    createFetchClientWithCookie,
     getRandomString,
     makeLoggedInAdminClient,
     catchErrorFrom,
@@ -34,13 +34,13 @@ async function getAccessToken (accessToken, context = null) {
 }
 
 async function request (url, cookie, maxRedirects = 0) {
-    const client = createAxiosClientWithCookie({ maxRedirects }, cookie, url)
-    const res = await client.get(url)
-    cookie = client.getCookie()
+    const client = createFetchClientWithCookie({ maxRedirects }, cookie, url)
+    const res = await client(url)
+
     return {
-        cookie,
+        cookie: client.getCookie(),
         client,
-        url: res.config.url,
+        url: res.url,
         status: res.status,
         data: res.data,
         headers: res.headers,
