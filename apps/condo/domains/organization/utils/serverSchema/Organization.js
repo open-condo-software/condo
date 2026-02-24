@@ -1,6 +1,3 @@
-const axios = require('axios').default
-const { get } = require('lodash')
-
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -76,7 +73,7 @@ async function pushOrganizationToSalesCRM (organization) {
         return
     }
     const { tin, name: orgName, createdBy } = organization
-    const fingerprint = get(organization, ['sender', 'fingerprint'])
+    const fingerprint = organization?.sender?.fingerprint
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
         const data = {
@@ -87,7 +84,19 @@ async function pushOrganizationToSalesCRM (organization) {
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         }
-        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
+
+        const response = await fetch(SALES_CRM_WEBHOOKS_URL.organizations, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`)
+        }
+
         logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
     } catch (err) {
         logger.warn({ msg: 'Request to sales crm failed', err })

@@ -1,4 +1,3 @@
-import axios from 'axios'
 import * as Figma from 'figma-js'
 import { processFile } from 'figma-transformer'
 
@@ -78,11 +77,17 @@ export async function getSVGData (config: GetSVGDataConfig): Promise<Array<SVGDa
 
 export async function downloadSVGs (data: Array<SVGData>): Promise<Array<SVG>> {
     return Promise.all(data.map(async item => {
-        const downloadedSVG = await axios.get<string>(item.url)
+        const response = await fetch(item.url)
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch SVG from ${item.url}: ${response.statusText}`)
+        }
+
+        const svgText = await response.text()
 
         return {
             ...item,
-            data: downloadedSVG.data,
+            data: svgText,
         }
     }))
 }

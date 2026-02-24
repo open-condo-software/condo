@@ -1,6 +1,3 @@
-const axios = require('axios')
-const { get } = require('lodash')
-
 const conf = require('@open-condo/config')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
@@ -10,7 +7,7 @@ const { renderTemplate } = require('@condo/domains/notification/templates')
 
 
 async function prepareMessageToSend (message) {
-    const userId = get(message, 'user.id')
+    const userId = message?.user?.id
 
     if (!userId) throw new Error(NO_USER_ID_TO_SEND_TELEGRAM_NOTIFICATION)
 
@@ -18,7 +15,7 @@ async function prepareMessageToSend (message) {
         user: { id: userId },
         deletedAt: null,
     })
-    const telegramChatId = get(telegramUserChat, 'telegramChatId')
+    const telegramChatId = telegramUserChat?.telegramChatId
 
     if (!telegramUserChat) throw new Error(NO_TELEGRAM_CHAT_FOR_USER)
 
@@ -35,17 +32,28 @@ async function send ({ telegramChatId, text, html, inlineKeyboard } = {}) {
 
     if (inlineKeyboard) {
         messageData.reply_markup = {
-            ...messageData.reply_markup,
             inline_keyboard: inlineKeyboard,
         }
     }
 
-    const result = await axios.post(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
-        chat_id: telegramChatId,
-        ...messageData,
+    const response = await fetch(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            chat_id: telegramChatId,
+            ...messageData,
+        }),
     })
 
-    return [true, result.data]
+    if (!response.ok) {
+        throw new Error(`Failed to send Telegram message: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    return [true, data]
 }
 
 module.exports = {
