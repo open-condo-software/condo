@@ -212,7 +212,7 @@ async function loadCoordinateCandidates (knex, coordinateValues) {
     const maxLongitude = String(Math.max(...longitudes) + COORDINATE_TOLERANCE)
 
     return await knex('AddressHeuristic')
-        .select('id', 'address')
+        .select('id', 'address', 'latitude', 'longitude')
         .whereNull('deletedAt')
         .where('enabled', true)
         .where('type', HEURISTIC_TYPE_COORDINATES)
