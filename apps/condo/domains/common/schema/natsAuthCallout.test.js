@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { configure, checkAccess, getAvailableChannels, channelRegistry } = require('@open-condo/messaging')
+
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
