@@ -40,9 +40,6 @@ function hasExactGeoQuality (meta) {
  * Parse Address.key to determine primary heuristic type and value
  */
 function parseAddressKey (key) {
-    if (key.startsWith('fias_id:')) {
-        return { type: HEURISTIC_TYPE_FIAS_ID, value: key.slice('fias_id:'.length), reliability: 95 }
-    }
     if (key.startsWith('fallback:')) {
         return { type: HEURISTIC_TYPE_FALLBACK, value: key.slice('fallback:'.length), reliability: 10 }
     }
