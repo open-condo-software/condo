@@ -422,6 +422,41 @@ describe('NATS Access Control', () => {
     })
 
     describe('Deleted and blocked users denied access', () => {
+        it('user with access loses ALL channels immediately after soft-delete', async () => {
+            const [user] = await createTestUser(admin)
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageTickets: true,
+            })
+            await createTestOrganizationEmployee(admin, organization, user, role, {
+                isAccepted: true,
+                isRejected: false,
+                isBlocked: false,
+            })
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+
+            // Before: user has access
+            const channelsBefore = await getAvailableChannels(context, user.id, organization.id)
+            const namesBefore = channelsBefore.map(s => s.name)
+            expect(namesBefore).toContain('test-available-permission-changes')
+
+            const accessBefore = await checkAccess(context, user.id, organization.id, 'test-permission-changes.test.message')
+            expect(accessBefore.allowed).toBe(true)
+
+            // Soft-delete
+            await User.softDelete(admin, user.id)
+
+            // After: access revoked immediately — no caching, no delay
+            const channelsAfter = await getAvailableChannels(context, user.id, organization.id)
+            expect(channelsAfter).toHaveLength(0)
+
+            const accessAfter = await checkAccess(context, user.id, organization.id, 'test-permission-changes.test.message')
+            expect(accessAfter.allowed).toBe(false)
+            expect(accessAfter.reason).toBe('User not found or deleted')
+        })
+
         it('soft-deleted user gets NO channels', async () => {
             const [user] = await createTestUser(admin)
             const [organization] = await createTestOrganization(admin)
