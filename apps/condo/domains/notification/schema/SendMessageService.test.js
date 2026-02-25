@@ -124,6 +124,7 @@ describe('SendMessageService', () => {
                             data: {
                                 B2CAppId: faker.datatype.uuid(),
                                 callId: faker.datatype.uuid(),
+                                address: faker.random.alphaNumeric(30),
                             },
                         },
                     }
@@ -169,6 +170,7 @@ describe('SendMessageService', () => {
                             data: {
                                 B2CAppId: faker.datatype.uuid(),
                                 callId: faker.datatype.uuid(),
+                                address: faker.random.alphaNumeric(30),
                             },
                         },
                     }
@@ -214,6 +216,7 @@ describe('SendMessageService', () => {
                             data: {
                                 B2CAppId: faker.datatype.uuid(),
                                 callId: faker.datatype.uuid(),
+                                address: faker.random.alphaNumeric(30),
                             },
                         },
                     }
@@ -258,6 +261,7 @@ describe('SendMessageService', () => {
                             data: {
                                 B2CAppId: faker.datatype.uuid(),
                                 voipIncomingCallId: faker.datatype.uuid(),
+                                address: faker.random.alphaNumeric(30),
                             },
                         },
                     }
@@ -329,6 +333,7 @@ describe('SendMessageService', () => {
                         B2CAppName: faker.datatype.string(5),
                         residentId: faker.datatype.uuid(),
                         voipIncomingCallId: faker.datatype.uuid(),
+                        address: faker.random.alphaNumeric(30),
                     }
 
                     const messageAttrs = {
