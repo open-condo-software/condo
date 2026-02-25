@@ -253,7 +253,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 if ([VOIP_INCOMING_CALL_MESSAGE_TYPE, CANCELED_CALL_MESSAGE_PUSH_TYPE].includes(type)) {
                     const i18nOptions = userExisted.locale ? { locale: userExisted.locale } : {}
                     title = i18n(`api.miniapp.sendB2CAppPushMessage.pushData.${type}.title`, i18nOptions)
-                    body = residentExisted.address
+                    body = residentExisted.address ?? '' // must not be null (some support empty / not present body, but not "null"), empty body can be displayed
                 }
 
                 const messageAttrs = {
