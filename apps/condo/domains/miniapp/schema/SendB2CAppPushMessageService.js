@@ -249,11 +249,6 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 )
                 Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId, address: residentExisted.address })
 
-                if ([VOIP_INCOMING_CALL_MESSAGE_TYPE, CANCELED_CALL_MESSAGE_PUSH_TYPE].includes(type)) {
-                    title = `api.miniapp.sendB2CAppPushMessage.pushData.${type}.title` // is translated in deliverMessage
-                    body = '' // should be handled by templates, but just in case
-                }
-
                 const messageAttrs = {
                     uniqKey,
                     sender,
