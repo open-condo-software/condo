@@ -88,6 +88,7 @@ class EncryptedTextImplementation extends Text.implementation {
                     const operation = context._encryptedTextOperations[`${this.listKey}:${itemId}:${fieldPath}`]
                     
                     if (operation === 'create') {
+                        delete context._encryptedTextOperations[`${this.listKey}:${itemId}:${fieldPath}`]
                         return this.encryptionManager.decrypt(value)
                     }
                 }
