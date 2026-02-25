@@ -68,7 +68,7 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
         })
     }
 
-    logger.info({ msg: 'Merged addresses', winnerId, loserId, movedSources: loserSources.length, movedHeuristics: loserHeuristics.length })
+    logger.info({ msg: 'Merged addresses', data: { winnerId, loserId, movedSources: loserSources.length, movedHeuristics: loserHeuristics.length } })
 }
 
 module.exports = {

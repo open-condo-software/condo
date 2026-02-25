@@ -159,7 +159,7 @@ async function findRootAddress (addressId, maxDepth = 10) {
     }
 
     if (depth >= maxDepth) {
-        logger.warn({ msg: 'possibleDuplicateOf chain exceeded max depth', addressId, maxDepth })
+        logger.warn({ msg: 'possibleDuplicateOf chain exceeded max depth', data: { addressId, maxDepth } })
     }
 
     return lastAliveId
@@ -201,10 +201,12 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
             // Different address — conflict
             logger.warn({
                 msg: 'Heuristic conflict detected',
-                type: heuristic.type,
-                value: heuristic.value,
-                existingAddressId,
-                newAddressId: addressId,
+                data: {
+                    type: heuristic.type,
+                    value: heuristic.value,
+                    existingAddressId,
+                    newAddressId: addressId,
+                },
             })
 
             if (!bestConflict || heuristic.reliability > bestConflict.reliability) {
@@ -259,10 +261,12 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
             if (existingAddressId !== addressId) {
                 logger.warn({
                     msg: 'Heuristic conflict detected during create (race)',
-                    type: heuristic.type,
-                    value: heuristic.value,
-                    existingAddressId,
-                    newAddressId: addressId,
+                    data: {
+                        type: heuristic.type,
+                        value: heuristic.value,
+                        existingAddressId,
+                        newAddressId: addressId,
+                    },
                 })
 
                 // We track the highest reliability conflict found during this race
