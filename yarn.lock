@@ -1657,6 +1657,7 @@ __metadata:
     locale-currency: 1.0.0
     lodash: ^4.17.21
     next: ^15.5.7
+    node-html-parser: ^7.0.2
     openid-client: 5.7.1
     path-to-regexp: ^8.2.0
     phone: ^3.1.41
@@ -27683,7 +27684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"he@npm:^1.2.0":
+"he@npm:1.2.0, he@npm:^1.2.0":
   version: 1.2.0
   resolution: "he@npm:1.2.0"
   bin:
@@ -35030,6 +35031,16 @@ __metadata:
   bin:
     node-gyp: bin/node-gyp.js
   checksum: 1437fa4a879b5b9010604128e8da8609b57c66034262087539ee04a8b764b8436af2be01bab66f8fc729a3adba2dcc21b10a32b9f552696c3fa8cd657d134fc4
+  languageName: node
+  linkType: hard
+
+"node-html-parser@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "node-html-parser@npm:7.0.2"
+  dependencies:
+    css-select: ^5.1.0
+    he: 1.2.0
+  checksum: 9ab9af5622276c6d9640cd40caba30cf14f5468bac7e02d1b1612ac1859fe2c7e7d3c9a79c05b7f8d5b84f0e3fd2f95aac3035a7f9cbb9c22ad7857fdcade003
   languageName: node
   linkType: hard
 
