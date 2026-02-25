@@ -19,7 +19,8 @@ const COORDINATE_TOLERANCE = 0.00001
  * @returns {{latitude: number, longitude: number}|null}
  */
 function parseCoordinates (coordString) {
-    const [lat, lon] = coordString.split(',').map(parseFloat)
+    if (!coordString || typeof coordString !== 'string') return null
+    const [lat, lon] = coordString.trim().split(',').map(parseFloat)
     if (isNaN(lat) || isNaN(lon)) return null
     return { latitude: lat, longitude: lon }
 }
