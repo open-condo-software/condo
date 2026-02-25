@@ -49,6 +49,9 @@ function parseAddressKey (key) {
     if (key.startsWith('google_place_id:')) {
         return { type: HEURISTIC_TYPE_GOOGLE_PLACE_ID, value: key.slice('google_place_id:'.length), reliability: 95 }
     }
+    if (key.startsWith('fias_id:')) {
+        return { type: HEURISTIC_TYPE_FIAS_ID, value: key.slice('fias_id:'.length), reliability: 95 }
+    }
     // Unmigrated key — treat as fallback
     return { type: HEURISTIC_TYPE_FALLBACK, value: key, reliability: 10 }
 }
