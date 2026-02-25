@@ -101,7 +101,7 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
                         possibleDuplicateOf: { disconnectAll: true },
                     })
 
-                    logger.info({ msg: 'Dismissed duplicate', addressId })
+                    logger.info({ msg: 'Dismissed duplicate', data: { addressId } })
                     return { status: 'dismissed' }
                 }
 
@@ -121,7 +121,7 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
 
                     await mergeAddresses(context, winnerId, loserId, dvSender)
 
-                    logger.info({ msg: 'Merged duplicate', winnerId, loserId })
+                    logger.info({ msg: 'Merged duplicate', data: { winnerId, loserId } })
                     return { status: 'merged' }
                 }
 
