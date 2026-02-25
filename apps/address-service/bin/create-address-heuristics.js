@@ -79,7 +79,7 @@ function extractAdditionalHeuristics (meta, primaryType) {
         if (providerName === DADATA_PROVIDER) {
             const geoLat = get(data, 'geo_lat')
             const geoLon = get(data, 'geo_lon')
-            if (geoLat && geoLon && hasExactGeoQuality(meta)) {
+            if (geoLat != null && geoLon != null && hasExactGeoQuality(meta)) {
                 const qcGeo = get(data, 'qc_geo')
                 heuristics.push({
                     type: HEURISTIC_TYPE_COORDINATES,
