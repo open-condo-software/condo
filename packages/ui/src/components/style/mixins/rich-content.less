@@ -142,17 +142,155 @@
     }
   }
 
+  // CodeWrapper-specific: grid layout with copy button and language tag
+  pre {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr @condo-global-spacing-20;
+    column-gap: @condo-global-spacing-12;
+  }
+
+  pre[class*="language-"] {
+    padding: @condo-global-spacing-20 @condo-global-spacing-16;
+  }
+
+  pre > .condo-tag {
+    position: absolute;
+    top: 0;
+    left: @condo-global-spacing-16;
+    transform: translateY(-50%);
+  }
+
+  .code-container {
+    width: 100%;
+    overflow: auto;
+  }
+
+  .copy-text-icon {
+    cursor: pointer;
+  }
+
+  .namespace {
+    opacity: 0.7;
+  }
+
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata,
+  .token.punctuation {
+    color: @condo-global-color-gray-7;
+  }
+
+  .token.property,
+  .token.tag,
+  .token.boolean,
+  .token.number,
+  .token.constant,
+  .token.symbol,
+  .token.deleted {
+    color: @condo-global-color-pink-5;
+  }
+
+  .token.selector,
+  .token.attr-name,
+  .token.string,
+  .token.char,
+  .token.builtin,
+  .token.inserted {
+    color: @condo-global-color-cyan-7;
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url,
+  .language-css .token.string,
+  .style .token.string {
+    color: @condo-global-color-brown-5;
+  }
+
+  .token.atrule,
+  .token.attr-value,
+  .token.keyword {
+    color: @condo-global-color-blue-5;
+  }
+
+  .token.function {
+    color: @condo-global-color-red-5;
+  }
+
+  .token.regex,
+  .token.important,
+  .token.variable {
+    color: @condo-global-color-orange-5;
+  }
+
+  .token.important,
+  .token.bold {
+    font-weight: bold;
+  }
+
+  .token.italic {
+    font-style: italic;
+  }
+
+  .token.entity {
+    cursor: help;
+  }
+
+  .line-highlight {
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 0;
+    margin-top: 1em;
+    /* stylelint-disable */
+    padding-top: inherit;
+    padding-right: 0;
+    padding-bottom: inherit;
+    padding-left: 0;
+    /* stylelint-enable */
+    line-height: inherit;
+    white-space: pre;
+    background: @condo-global-color-gray-3;
+    box-shadow: inset 5px 0 0 @condo-global-color-gray-5;
+    pointer-events: none;
+  }
+
   ul[data-type="taskList"] {
     padding-left: 0;
     list-style: none;
 
-    li {
-      display: flex;
-      gap: @condo-global-spacing-8;
-      align-items: flex-start;
+    > .react-renderer:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
 
+    li {
       &::marker {
         content: none;
+      }
+
+      > .condo-rich-text-area-task-list-item {
+        display: flex;
+        gap: @condo-global-spacing-8;
+        align-items: flex-start;
+      }
+
+      > .condo-rich-text-area-task-list-item > span[contenteditable="false"] {
+        flex-shrink: 0;
+        line-height: 0;
+      }
+
+      > .condo-rich-text-area-task-list-item > .condo-typography {
+        flex: 1;
+        min-width: 0;
+      }
+
+      > .condo-rich-text-area-task-list-item > .condo-typography > ul[data-type="taskList"],
+      > .condo-rich-text-area-task-list-item > .condo-typography > ol[data-type="taskList"] {
+        padding-left: @condo-global-spacing-20;
+        margin-top: 0.5em;
+        margin-bottom: 0;
       }
 
       > span[contenteditable="false"] {

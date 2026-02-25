@@ -269,8 +269,12 @@
 
   .condo-rich-content();
 
-  pre {
-    overflow-x: auto;
+  & > * {
+    margin-bottom: @condo-global-spacing-20;
+  }
+
+  & > *:last-child {
+    margin-bottom: 0;
   }
 }
 
