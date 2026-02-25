@@ -71,7 +71,7 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
                 const dvSender = { dv, sender }
 
                 const address = await getById('Address', addressId)
-                if (!address) {
+                if (!address || address.deletedAt) {
                     throw new GQLError({
                         ...ERRORS.ADDRESS_NOT_FOUND,
                         messageInterpolation: { addressId },
