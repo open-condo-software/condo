@@ -471,9 +471,10 @@ const ChangePasswordPage: PageComponentType = () => {
 
     useEffect(() => {
         if (step !== 'getSudoTokenBeforeChangePassword') return
+        if (!identifier || !identifierType || !token) return
 
         onSubmitWithSecondFactor()
-    }, [step])
+    }, [step, identifier])
 
     if (tokenError) {
         return (
