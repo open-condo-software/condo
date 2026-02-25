@@ -462,6 +462,8 @@
   "api.miniapp.sendB2CAppPushMessage.RESIDENT_NOT_FOUND": "Unable to find resident by provided id.",
   "api.miniapp.sendB2CAppPushMessage.USER_NOT_FOUND": "Unable to find user by provided id.",
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Invalid format of \"sender\" field value. {details}",
+  "api.miniapp.sendB2CAppPushMessage.pushData.VOIP_INCOMING_CALL_MESSAGE.title": "Intercom call",
+  "api.miniapp.sendB2CAppPushMessage.pushData.CANCELED_CALL_MESSAGE_PUSH.title": "Intercom call ended",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE": "Response from NewsSharing miniapp was successful, but the data format was incorrect. Please consult with miniapp developer",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED": "Could not get a successful response from NewsSharing miniapp. Please check the network and url configuration",
   "api.news.getNewsSharingRecipients.NOT_NEWS_SHARING_APP": "Provided b2bAppContext.app is not a NewsSharing miniapp",

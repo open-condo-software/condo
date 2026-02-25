@@ -7,6 +7,7 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendB2CAppPushMessageService')
@@ -192,11 +193,12 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
             schema: 'sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput',
             resolver: async (parent, args, context) => {
                 const { data: argsData } = args
-                const { dv, sender, app, user, resident, type, uniqKey, data: { title, body } } = argsData
+                const { dv, sender, app, user, resident, type, uniqKey } = argsData
+                let { data: { title, body } } = argsData
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                const userExisted = await User.getOne(context, { id: user.id, deletedAt: null })
+                const userExisted = await User.getOne(context, { id: user.id, deletedAt: null }, 'id locale')
 
                 if (!userExisted) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
@@ -209,7 +211,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     user: { id: user.id },
                     deletedAt: null,
                 }
-                const residentExisted = await Resident.getOne(context, residentWhere)
+                const residentExisted = await Resident.getOne(context, residentWhere, 'id address')
 
                 if (!residentExisted) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
 
@@ -248,6 +250,11 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 )
                 Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId })
 
+                if ([VOIP_INCOMING_CALL_MESSAGE_TYPE, CANCELED_CALL_MESSAGE_PUSH_TYPE].includes(type)) {
+                    const i18nOptions = userExisted.locale ? { locale: userExisted.locale } : {}
+                    title = i18n(`api.miniapp.sendB2CAppPushMessage.pushData.${type}.title`, i18nOptions)
+                    body = residentExisted.address
+                }
 
                 const messageAttrs = {
                     uniqKey,

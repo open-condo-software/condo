@@ -462,6 +462,8 @@
   "api.miniapp.sendB2CAppPushMessage.RESIDENT_NOT_FOUND": "Не удалось найти жителя по переданному id",
   "api.miniapp.sendB2CAppPushMessage.USER_NOT_FOUND": "Не удалось найти пользователя по переданному id",
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Неверный формат поля \"sender\"",
+  "api.miniapp.sendB2CAppPushMessage.pushData.VOIP_INCOMING_CALL_MESSAGE.title": "Звонок домофона",
+  "api.miniapp.sendB2CAppPushMessage.pushData.CANCELED_CALL_MESSAGE_PUSH.title": "Звонок домофона завершен",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE": "Запрос в миниапп вернул некорректные данные",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED": "Запрос в миниапп завершился с ошибкой",
   "api.news.getNewsSharingRecipients.NOT_NEWS_SHARING_APP": "Этот миниапп не поддерживает функциональность отправки новостей",
