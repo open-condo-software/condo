@@ -1,10 +1,10 @@
-import { Blockquote } from '@tiptap/extension-blockquote'
 import { CharacterCount } from '@tiptap/extension-character-count'
 import { CodeBlock } from '@tiptap/extension-code-block'
 import { Heading } from '@tiptap/extension-heading'
 import { Image } from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
 import { TaskItem, TaskList } from '@tiptap/extension-list'
+import { Paragraph } from '@tiptap/extension-paragraph'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import { Table } from '@tiptap/extension-table'
 import { TableCell } from '@tiptap/extension-table-cell'
@@ -45,6 +45,7 @@ import { Input as TextInput } from './input'
 
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import { CodeWrapper } from '../Markdown/codeWrapper'
 import { Modal } from '../Modal'
 import { Tooltip } from '../Tooltip'
 import { Typography } from '../Typography'
@@ -55,79 +56,77 @@ import type { CSSProperties } from 'react'
 
 type RenderType = 'default' | 'inline'
 
-type NodeConfig = {
-    component: React.ComponentType<any>
-    props?: Record<string, any>
-    getProps?: (attrs: Record<string, any>) => Record<string, any>
-}
-
-// NOTE: If you change this config, make sure to update MARKDOWN_COMPONENTS_BY_TYPE
-// in packages/ui/src/components/Markdown/markdown.tsx accordingly
-const RICH_TEXT_AREA_COMPONENTS_BY_TYPE: Record<RenderType, Record<string, NodeConfig>> = {
-    default: {
-        heading: {
-            component: Typography.Title,
-            getProps: (attrs) => ({ level: attrs.level }),
-        },
-    },
-    inline: {
-        heading: {
-            component: Typography.Paragraph,
-            props: { strong: true, type: 'primary' },
-        },
-    },
-}
-
 const RICH_TEXT_AREA_CLASS_PREFIX = 'condo-rich-text-area'
+const RICH_TEXT_AREA_TASK_LIST_ITEM_CLASS = 'condo-rich-text-area-task-list-item'
 
 const RichTextTypeContext = React.createContext<RenderType>('default')
 
 const TypedNodeViewContent = NodeViewContent as React.FC<{ as?: keyof JSX.IntrinsicElements }>
 
-type NodeViewOptions = {
-    configKey?: string
-    fallbackTag: keyof JSX.IntrinsicElements
-    contentTag?: keyof JSX.IntrinsicElements
-}
+const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const
+type HeadingLevel = typeof HEADING_LEVELS[number]
 
-function createNodeView ({ configKey, fallbackTag, contentTag }: NodeViewOptions): React.FC<ReactNodeViewProps> {
-    const resolvedContentTag = contentTag || 'span'
-    const resolvedFallbackTag = fallbackTag
+const HeadingNodeView: React.FC<ReactNodeViewProps> = ({ node }) => {
+    const type = useContext(RichTextTypeContext)
+    const parsedLevel = Number(node.attrs?.level)
+    const level = (HEADING_LEVELS.includes(parsedLevel as HeadingLevel) ? parsedLevel : 2) as HeadingLevel
 
-    const View: React.FC<ReactNodeViewProps> = ({ node }) => {
-        const type = useContext(RichTextTypeContext)
-        const config = configKey ? RICH_TEXT_AREA_COMPONENTS_BY_TYPE[type]?.[configKey] : null
-
-        if (config) {
-            const Component = config.component
-            const props = {
-                ...config.props,
-                ...(config.getProps ? config.getProps(node.attrs) : {}),
-            }
-            return (
-                <NodeViewWrapper>
-                    <Component {...props}>
-                        <TypedNodeViewContent as={resolvedContentTag} />
-                    </Component>
-                </NodeViewWrapper>
-            )
-        }
-
+    if (type === 'inline') {
         return (
-            <NodeViewWrapper as={resolvedFallbackTag}>
-                <TypedNodeViewContent as={resolvedContentTag} />
+            <NodeViewWrapper>
+                <Typography.Paragraph strong type='primary'>
+                    <TypedNodeViewContent as='span' />
+                </Typography.Paragraph>
             </NodeViewWrapper>
         )
     }
-    View.displayName = `NodeView(${configKey || fallbackTag})`
-    return View
-}
 
-const HeadingNodeView = createNodeView({ configKey: 'heading', fallbackTag: 'h2' })
-const CodeBlockNodeView = createNodeView({ fallbackTag: 'pre', contentTag: 'code' })
-const BlockquoteNodeView = createNodeView({ fallbackTag: 'blockquote' })
+    return (
+        <NodeViewWrapper>
+            <Typography.Title level={level}>
+                <TypedNodeViewContent as='span' />
+            </Typography.Title>
+        </NodeViewWrapper>
+    )
+}
+HeadingNodeView.displayName = 'HeadingNodeView'
+
+const ParagraphNodeView: React.FC<ReactNodeViewProps> = () => {
+    const type = useContext(RichTextTypeContext)
+    if (type === 'inline') {
+        return (
+            <NodeViewWrapper>
+                <Typography.Paragraph type='primary'>
+                    <TypedNodeViewContent as='span' />
+                </Typography.Paragraph>
+            </NodeViewWrapper>
+        )
+    }
+    return (
+        <NodeViewWrapper>
+            <Typography.Paragraph type='secondary'>
+                <TypedNodeViewContent as='span' />
+            </Typography.Paragraph>
+        </NodeViewWrapper>
+    )
+}
+ParagraphNodeView.displayName = 'ParagraphNodeView'
+
+const CodeBlockNodeView: React.FC<ReactNodeViewProps> = ({ node }) => {
+    const className = node.attrs?.language ? `language-${node.attrs.language}` : undefined
+
+    return (
+        <NodeViewWrapper as='div'>
+            <CodeWrapper className={className}>
+                <TypedNodeViewContent as='code' />
+            </CodeWrapper>
+        </NodeViewWrapper>
+    )
+}
+CodeBlockNodeView.displayName = 'CodeBlockNodeView'
 
 const TaskItemNodeView: React.FC<ReactNodeViewProps> = ({ node, updateAttributes }) => {
+    const type = useContext(RichTextTypeContext)
     const checked = node.attrs.checked || false
 
     const handleChange = useCallback(() => {
@@ -136,10 +135,14 @@ const TaskItemNodeView: React.FC<ReactNodeViewProps> = ({ node, updateAttributes
 
     return (
         <NodeViewWrapper as='li' data-checked={String(checked)}>
-            <span contentEditable={false}>
-                <Checkbox checked={checked} onChange={handleChange} />
-            </span>
-            <TypedNodeViewContent as='div' />
+            <div className={RICH_TEXT_AREA_TASK_LIST_ITEM_CLASS}>
+                <span contentEditable={false}>
+                    <Checkbox checked={checked} onChange={handleChange} />
+                </span>
+                <Typography.Text type={type === 'inline' ? undefined : 'secondary'}>
+                    <TypedNodeViewContent as='span' />
+                </Typography.Text>
+            </div>
         </NodeViewWrapper>
     )
 }
@@ -735,12 +738,12 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             StarterKit.configure({
                 heading: false,
                 codeBlock: false,
-                blockquote: false,
+                paragraph: false,
             }),
+            Paragraph.extend({ addNodeView: () => ReactNodeViewRenderer(ParagraphNodeView) }),
             Heading.extend({ addNodeView: () => ReactNodeViewRenderer(HeadingNodeView) })
                 .configure({ levels: [1, 2, 3, 4, 5, 6] }),
             CodeBlock.extend({ addNodeView: () => ReactNodeViewRenderer(CodeBlockNodeView) }),
-            Blockquote.extend({ addNodeView: () => ReactNodeViewRenderer(BlockquoteNodeView) }),
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
