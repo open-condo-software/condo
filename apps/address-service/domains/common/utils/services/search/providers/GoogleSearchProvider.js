@@ -305,7 +305,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
 
         const geoLat = get(normalizedBuilding, ['data', 'geo_lat'])
         const geoLon = get(normalizedBuilding, ['data', 'geo_lon'])
-        if (geoLat && geoLon) {
+        if (geoLat != null && geoLon != null) {
             heuristics.push({
                 type: HEURISTIC_TYPE_COORDINATES,
                 value: `${geoLat},${geoLon}`,
