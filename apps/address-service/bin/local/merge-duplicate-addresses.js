@@ -154,8 +154,10 @@ async function main (args) {
                 pageSkipped++
                 continue
             } else if (currentReferenced) {
-                winner = address
-                loser = target
+                console.info('    SKIP: current address (duplicate) is referenced in condo Properties, but the mutation requires the target to be the winner')
+                totalSkipped++
+                pageSkipped++
+                continue
             } else if (targetReferenced) {
                 winner = target
                 loser = address
