@@ -218,15 +218,6 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
         toCreate.push(heuristic)
     }
 
-    // Resolve the single best conflict to set possibleDuplicateOf once
-    if (bestConflict) {
-        const rootAddressId = await findRootAddress(bestConflict.existingAddressId)
-        await AddressServerUtils.update(context, addressId, {
-            ...dvSender,
-            possibleDuplicateOf: { connect: { id: rootAddressId } },
-        })
-    }
-
     // Second pass: create new heuristic records
     let bestCreatePhaseConflict = null
 
@@ -274,6 +265,8 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
                     newAddressId: addressId,
                 })
 
+                // We track the highest reliability conflict found during this race
+                // to ensure we link to the strongest possible root address.
                 if (!bestCreatePhaseConflict || heuristic.reliability > bestCreatePhaseConflict.reliability) {
                     bestCreatePhaseConflict = { existingAddressId, reliability: heuristic.reliability }
                 }
@@ -281,8 +274,17 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
         }
     }
 
+    // Evaluate both passes: use the highest reliability conflict overall
+    // We defer the actual update to the end so we only update possibleDuplicateOf exactly once.
+    let bestOverallConflict = bestConflict
     if (bestCreatePhaseConflict) {
-        const rootAddressId = await findRootAddress(bestCreatePhaseConflict.existingAddressId)
+        if (!bestOverallConflict || bestCreatePhaseConflict.reliability > bestOverallConflict.reliability) {
+            bestOverallConflict = bestCreatePhaseConflict
+        }
+    }
+
+    if (bestOverallConflict) {
+        const rootAddressId = await findRootAddress(bestOverallConflict.existingAddressId)
         await AddressServerUtils.update(context, addressId, {
             ...dvSender,
             possibleDuplicateOf: { connect: { id: rootAddressId } },
