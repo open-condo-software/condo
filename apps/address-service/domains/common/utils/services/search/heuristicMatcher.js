@@ -290,10 +290,17 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
 
     if (bestOverallConflict) {
         const rootAddressId = await findRootAddress(bestOverallConflict.existingAddressId)
-        await AddressServerUtils.update(context, addressId, {
-            ...dvSender,
-            possibleDuplicateOf: { connect: { id: rootAddressId } },
-        })
+        if (rootAddressId === addressId) {
+            logger.warn({
+                msg: 'Skip possibleDuplicateOf self-link',
+                data: { addressId, rootAddressId, bestOverallConflict },
+            })
+        } else {
+            await AddressServerUtils.update(context, addressId, {
+                ...dvSender,
+                possibleDuplicateOf: { connect: { id: rootAddressId } },
+            })
+        }
     }
 }
 
