@@ -192,8 +192,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
             schema: 'sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput',
             resolver: async (parent, args, context) => {
                 const { data: argsData } = args
-                const { dv, sender, app, user, resident, type, uniqKey } = argsData
-                let { data: { title, body } } = argsData
+                const { dv, sender, app, user, resident, type, uniqKey, data: { title, body } } = argsData
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 

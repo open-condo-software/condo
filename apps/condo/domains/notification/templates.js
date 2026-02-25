@@ -308,7 +308,7 @@ function pushRenderer ({ message, env }) {
     // For push messages emails we unescape message to prevent HTML entities in push body
     // See https://lodash.com/docs/4.17.15#unescape
     // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
-    const renderedBody =  unescape(nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, renderedTitle, env  }))
+    const renderedBody =  unescape(nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, env  }))
 
     return {
         notification: {
