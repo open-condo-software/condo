@@ -12,7 +12,7 @@ type ValidationResult<T> =
 
 export type ParamsValidator<Params extends EventParams> = (params: unknown) => ValidationResult<Params>
 export type HandlerResult = Record<string, unknown>
-export type Handler<Params extends EventParams, Result extends HandlerResult> = (params: Params, storage: EventTypeStorage, frame?: FrameType, sw?: ServiceWorker) => Result | Promise<Result>
+export type Handler<Params extends EventParams, Result extends HandlerResult> = (params: Params, storage: EventTypeStorage, target?: FrameType | ServiceWorker) => Result | Promise<Result>
 export type HandlerMethods<Params extends EventParams, Result extends HandlerResult> = {
     validator: ParamsValidator<Params>
     handler: Handler<Params, Result>

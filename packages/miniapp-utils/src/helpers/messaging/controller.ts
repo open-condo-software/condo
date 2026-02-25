@@ -44,7 +44,7 @@ export class PostMessageController extends EventTarget {
     constructor () {
         super()
         this.addFrame = this.addFrame.bind(this)
-        this.tryAddServiceWorker = this.tryAddServiceWorker.bind(this)
+        this.addServiceWorkerIfSupported = this.addServiceWorkerIfSupported.bind(this)
         this.removeFrame = this.removeFrame.bind(this)
         this.addHandler = this.addHandler.bind(this)
         this.eventListener = this.eventListener.bind(this)
@@ -68,7 +68,7 @@ export class PostMessageController extends EventTarget {
         return frameId
     }
 
-    tryAddServiceWorker (): string | null {
+    addServiceWorkerIfSupported (): string | null {
         if (!('serviceWorker' in navigator) || !('controller' in navigator.serviceWorker) || !navigator.serviceWorker.controller) {
             return null
         }
@@ -78,9 +78,9 @@ export class PostMessageController extends EventTarget {
         if (registeredServiceWorker) {
             return registeredServiceWorker[0]
         }
-        const frameId = generateUUIDv4()
-        this.#registeredServiceWorkers[frameId] = sw
-        return frameId
+        const senderId = generateUUIDv4()
+        this.#registeredServiceWorkers[senderId] = sw
+        return senderId
     }
 
     removeFrame (frameId: FrameId) {
@@ -106,21 +106,14 @@ export class PostMessageController extends EventTarget {
         eventHandlers[eventName] = { validator, handler } as HandlerMethods<EventParams, HandlerResult>
     }
 
-    async #postMessage (source: Window | ServiceWorker, ...data: unknown[]) {
-        if (source instanceof ServiceWorker) {
-            return source.postMessage(data)
-        }
-        source.postMessage(...(data as Parameters<Window['postMessage']>))
-    }
-
-    #getRegisteredFrameByEventSource (source: Window | ServiceWorker) {
+    #getRegisteredTargetByEventSource (source: Window | ServiceWorker) {
         if (source instanceof ServiceWorker) {
             const registeredWorker = Object.entries(this.#registeredServiceWorkers)
                 .find(([, ref]) => ref === source)
             if (registeredWorker) {
                 return {
-                    frameId: registeredWorker[0],
-                    frame: registeredWorker[1],
+                    targetId: registeredWorker[0],
+                    target: registeredWorker[1],
                 }
             }
         } else {
@@ -128,8 +121,8 @@ export class PostMessageController extends EventTarget {
                 .find(([, ref]) => ref.contentWindow === source)
             if (registeredFrame) {
                 return {
-                    frameId: registeredFrame[0],
-                    frame: registeredFrame[1],
+                    targetId: registeredFrame[0],
+                    target: registeredFrame[1],
                 }
             }
         }
@@ -143,8 +136,8 @@ export class PostMessageController extends EventTarget {
             !event.isTrusted 
             || !event.source 
             || (
-                !('self' in event.source) 
-                && !(event.source instanceof ServiceWorker)
+                !('self' in event.source) // not from iframe
+                && (typeof ServiceWorker === 'undefined' || !(event.source instanceof ServiceWorker)) // not from worker
             )
         ) return
     
@@ -155,39 +148,39 @@ export class PostMessageController extends EventTarget {
 
         const source = event.source
 
-        let frame: FrameType | ServiceWorker | undefined = undefined
-        let frameId = 'parent'
+        let target: FrameType | ServiceWorker | undefined = undefined
+        let targetId = 'parent'
 
         if (source !== window) {
-            const registeredFrame = this.#getRegisteredFrameByEventSource(source)
-            if (!registeredFrame) {
-                return this.#postMessage(source,
+            const registeredTarget = this.#getRegisteredTargetByEventSource(source)
+            if (!registeredTarget) {
+                return source.postMessage(
                     getClientErrorMessage('ACCESS_DENIED', 0, 'Message was received from unregistered origin / iframe', requestId, eventName),
-                    event.origin,
+                    { targetOrigin: event.origin },
                 )
             }
-            frame = registeredFrame.frame
-            frameId = registeredFrame.frameId
+            target = registeredTarget.target
+            targetId = registeredTarget.targetId
         }
 
         const handlerMethods = (
-            this.#registeredHandlers[frameId]?.[eventType]?.[eventName]
+            this.#registeredHandlers[targetId]?.[eventType]?.[eventName]
             ?? this.#registeredHandlers['*']?.[eventType]?.[eventName]
             ?? {}
         )
         const { handler, validator } = handlerMethods
         if (!handler || !validator) {
-            return this.#postMessage(source,
+            return source.postMessage(
                 getClientErrorMessage('UNKNOWN_METHOD', 2, 'Unknown method was provided. Make sure your runtime environment supports it.', requestId),
-                event.origin,
+                { targetOrigin: event.origin },
             )
         }
 
         const validationResult = validator(handlerParams)
         if (!validationResult.success) {
-            return this.#postMessage(source,
+            return source.postMessage(
                 getClientErrorMessage('INVALID_PARAMETERS', 3, validationResult.error, requestId, eventName),
-                event.origin,
+                { targetOrigin: event.origin },
             )
         }
 
@@ -199,21 +192,20 @@ export class PostMessageController extends EventTarget {
             const result = await handler(
                 validatedParams, 
                 storage,
-                frame instanceof HTMLIFrameElement ? frame : undefined,
-                frame instanceof ServiceWorker ? frame : undefined,
+                target,
             )
-            return this.#postMessage(source, {
+            return source.postMessage({
                 type: `${eventName}Result`,
                 data: {
                     ...result,
                     requestId,
                 },
-            }, event.origin)
+            }, { targetOrigin: event.origin })
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : String(err)
-            return this.#postMessage(source,
+            return source.postMessage(
                 getClientErrorMessage('HANDLER_ERROR', 4, errorMessage, requestId, eventName),
-                event.origin
+                { targetOrigin: event.origin },
             )
         }
     }
