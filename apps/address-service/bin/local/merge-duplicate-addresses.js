@@ -24,6 +24,7 @@ const conf = require('@open-condo/config')
 
 const PropertyGQL = generateGqlQueries('Property', '{ id addressKey }')
 const AddressGQL = generateGqlQueries('Address', '{ id key possibleDuplicateOf { id key } }')
+const PROGRESS_BAR_WIDTH = 20
 
 const RESOLVE_ADDRESS_DUPLICATE_MUTATION = gql`
     mutation resolveAddressDuplicate ($data: ResolveAddressDuplicateInput!) {
@@ -61,14 +62,16 @@ async function createClients () {
  * Check if an address id is referenced by any Property in condo.
  * Property.addressKey stores Address.id.
  */
-async function isAddressReferenced (condoClient, addressId) {
-    if (!addressId) return false
+async function getReferencedAddressIds (condoClient, addressIds) {
+    const uniqueAddressIds = [...new Set(addressIds.filter(Boolean))]
+    if (uniqueAddressIds.length === 0) return new Set()
+
     const properties = await condoClient.getModels({
         modelGql: PropertyGQL,
-        where: { addressKey: addressId, deletedAt: null },
-        first: 1,
+        where: { addressKey_in: uniqueAddressIds, deletedAt: null },
     })
-    return properties.length > 0
+
+    return new Set(properties.map((property) => property.addressKey).filter(Boolean))
 }
 
 /**
@@ -100,6 +103,13 @@ async function resolveDuplicate (addressClient, addressId, winnerId) {
     return data.result.status
 }
 
+function formatProgressBar (current, total, width = PROGRESS_BAR_WIDTH) {
+    const safeTotal = total > 0 ? total : 1
+    const ratio = Math.min(current / safeTotal, 1)
+    const filled = Math.round(ratio * width)
+    return `[${'#'.repeat(filled)}${'-'.repeat(width - filled)}]`
+}
+
 async function main (args) {
     const isDryRun = args.includes('--dry-run')
     if (isDryRun) {
@@ -110,54 +120,76 @@ async function main (args) {
     console.info('Signed in to condo and address-service')
 
     const pageSize = 100
+    const duplicateWhere = { possibleDuplicateOf_is_null: false, deletedAt: null }
+    const totalRecords = await addressClient.getCount({
+        modelGql: AddressGQL,
+        where: duplicateWhere,
+    })
+    const totalPages = Math.ceil(totalRecords / pageSize)
+
+    console.info(`Total to process: ${totalRecords} records across ~${totalPages} pages (pageSize=${pageSize})`)
+
     let skip = 0
+    let pageNumber = 0
     let totalProcessed = 0
     let totalMerged = 0
     let totalSkipped = 0
 
     let addresses
     do {
+        pageNumber++
         addresses = await addressClient.getModels({
             modelGql: AddressGQL,
-            where: { possibleDuplicateOf_is_null: false, deletedAt: null },
+            where: duplicateWhere,
             first: pageSize,
             skip,
             sortBy: ['createdAt_ASC'],
         })
 
+        if (addresses.length === 0) break
+
+        console.info(`\nPage ${pageNumber}/${totalPages || '?'}: ${addresses.length} records`)
+
+        const referencedAddressIds = await getReferencedAddressIds(
+            condoClient,
+            addresses.flatMap((address) => [address.id, address.possibleDuplicateOf && address.possibleDuplicateOf.id])
+        )
+
         let pageSkipped = 0
+        let pageProcessed = 0
 
         for (const address of addresses) {
             totalProcessed++
+            pageProcessed++
+
+            const progress = formatProgressBar(pageProcessed, addresses.length)
+            const progressLine = `${progress} batch=${pageNumber}/${totalPages || '?'} page ${pageProcessed}/${addresses.length} global=${totalProcessed}/${totalRecords} merged=${totalMerged} skipped=${totalSkipped}`
             const target = address.possibleDuplicateOf
 
             if (!target) {
-                console.info(`\n  Processing: ${address.id} (key: ${address.key})`)
-                console.info('    SKIP: possibleDuplicateOf target is null (possibly soft-deleted)')
+                console.info(`${progressLine} | SKIP null target | current=${address.id || '-'}`)
+                console.info(`  current key: ${address.key || '-'}`)
                 totalSkipped++
                 pageSkipped++
                 continue
             }
 
-            console.info(`\n  Processing: ${address.id} (key: ${address.key})`)
-            console.info(`    Target:   ${target.id} (key: ${target.key})`)
-
             // Check which address id is actually used in condo Properties
-            const currentReferenced = await isAddressReferenced(condoClient, address.id)
-            const targetReferenced = await isAddressReferenced(condoClient, target.id)
+            const currentReferenced = referencedAddressIds.has(address.id)
+            const targetReferenced = referencedAddressIds.has(target.id)
 
             let winner, loser
 
             if (currentReferenced && targetReferenced) {
-                console.info('    SKIP: both addresses are referenced in condo Properties')
+                console.info(`${progressLine} | SKIP both referenced | current=${address.id || '-'} target=${target.id || '-'}`)
+                console.info(`  current key: ${address.key || '-'}`)
+                console.info(`  target  key: ${target.key || '-'}`)
                 totalSkipped++
                 pageSkipped++
                 continue
             } else if (currentReferenced) {
-                console.info('    SKIP: current address (duplicate) is referenced in condo Properties, but the mutation requires the target to be the winner')
-                totalSkipped++
-                pageSkipped++
-                continue
+                winner = address
+                loser = target
             } else if (targetReferenced) {
                 winner = target
                 loser = address
@@ -167,15 +199,19 @@ async function main (args) {
                 loser = address
             }
 
-            console.info(`    Winner: ${winner.id}, Loser: ${loser.id} (current=${currentReferenced ? 'ref' : '-'}, target=${targetReferenced ? 'ref' : '-'})`)
+            console.info(
+                `${progressLine} | MERGE winner=${winner.id} loser=${loser.id} current=${currentReferenced ? 'ref' : '-'} target=${targetReferenced ? 'ref' : '-'}`
+            )
+            console.info(`  current key: ${address.key || '-'}`)
+            console.info(`  target  key: ${target.key || '-'}`)
 
             if (!isDryRun) {
                 try {
                     const status = await resolveDuplicate(addressClient, address.id, winner.id)
-                    console.info(`    Result: ${status}`)
+                    console.info(`  result: ${status}`)
                     totalMerged++
                 } catch (err) {
-                    console.info(`    SKIP (server error): ${err.message}`)
+                    console.info(`  SKIP (server error): ${err.message}`)
                     totalSkipped++
                     pageSkipped++
                 }
@@ -184,6 +220,8 @@ async function main (args) {
                 pageSkipped++
             }
         }
+
+        console.info(`Page ${pageNumber} done: processed=${pageProcessed}, merged=${totalMerged}, skipped=${totalSkipped}`)
 
         // Advance skip past records that remain in query results (skipped/unmerged).
         // In non-dry-run mode merged records disappear from the query, so only
