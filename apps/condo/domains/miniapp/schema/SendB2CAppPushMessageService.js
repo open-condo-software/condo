@@ -7,7 +7,6 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { i18n } = require('@open-condo/locales/loader')
 
 const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendB2CAppPushMessageService')
@@ -248,12 +247,11 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 const metaData = Object.fromEntries(
                     Object.keys(requiredMetaData).map((key) => [key, argsData.data[key]])
                 )
-                Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId })
+                Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId, address: residentExisted.address })
 
                 if ([VOIP_INCOMING_CALL_MESSAGE_TYPE, CANCELED_CALL_MESSAGE_PUSH_TYPE].includes(type)) {
-                    const i18nOptions = userExisted.locale ? { locale: userExisted.locale } : {}
-                    title = i18n(`api.miniapp.sendB2CAppPushMessage.pushData.${type}.title`, i18nOptions)
-                    body = residentExisted.address ?? '' // must not be null (some support empty / not present body, but not "null"), empty body can be displayed
+                    title = `api.miniapp.sendB2CAppPushMessage.pushData.${type}.title` // is translated in deliverMessage
+                    body = '' // should be handled by templates, but just in case
                 }
 
                 const messageAttrs = {
