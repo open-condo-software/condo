@@ -4,7 +4,8 @@ export type GetLaunchParamsParams = Record<string, never>
 export type GetLaunchParamsData = {
     condoUserId: string | null
     condoUserType: 'staff' | 'resident'
-    condoLocale: string
     condoContextEntity: 'Organization' | 'Resident'
     condoContextEntityId: string | null
+    condoLocale: string
+    condoDeviceId: string
 }
