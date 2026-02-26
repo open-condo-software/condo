@@ -1,40 +1,24 @@
-const { getLogger } = require('@open-condo/keystone/logging')
-const { channelRegistry, buildTopic } = require('@open-condo/messaging')
+const { find } = require('@open-condo/keystone/schema')
 
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
-const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-
-const logger = getLogger()
-
-function registerMessagingChannels () {
-    channelRegistry.register('ticket-changes', {
-        ttl: 3600,
-        topics: [buildTopic('ticket-changes', '>')],
-        access: {
-            read: async ({ authentication, context, organizationId, topic }) => {
-                try {
-                    const { item: user } = authentication
-                    if (!user || user.deletedAt) return false
-
-                    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canReadTickets'])
-                    if (!permittedOrganizations.includes(organizationId)) return false
-
-                    const ticketId = topic.split('.')[2]
-                    if (!ticketId) return true
-
-                    const ticket = await Ticket.getOne(context, {
-                        id: ticketId,
-                        organization: { id: organizationId },
-                    })
-
-                    return !!ticket
-                } catch (error) {
-                    logger.error({ msg: 'Error in ticket-changes access check', err: error })
-                    return false
-                }
-            },
-        },
+/**
+ * Checks whether a user is an active employee of the given organization.
+ * Active = accepted, not rejected, not blocked, not soft-deleted.
+ *
+ * @param {Object} context - Keystone context (with skipAccessControl)
+ * @param {string} userId
+ * @param {string} organizationId
+ * @returns {Promise<boolean>}
+ */
+async function isActiveEmployee (context, userId, organizationId) {
+    const employees = await find('OrganizationEmployee', {
+        user: { id: userId },
+        organization: { id: organizationId },
+        isAccepted: true,
+        isRejected: false,
+        isBlocked: false,
+        deletedAt: null,
     })
+    return employees.length > 0
 }
 
-module.exports = { registerMessagingChannels }
+module.exports = { isActiveEmployee }

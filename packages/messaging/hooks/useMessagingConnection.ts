@@ -1,7 +1,5 @@
-import { wsconnect, ConnectionOptions, NatsConnection } from '@nats-io/nats-core'
+import { wsconnect, NatsConnection } from '@nats-io/nats-core'
 import { useEffect, useRef, useState, useCallback } from 'react'
-
-import { useOrganization } from '@open-condo/next/organization'
 
 interface UseMessagingConnectionOptions {
     enabled?: boolean
@@ -13,23 +11,19 @@ interface MessagingConnectionState {
     isConnected: boolean
     isConnecting: boolean
     error: Error | null
-    allowedChannels: string[]
 }
 
 let globalConnection: NatsConnection | null = null
 let globalConnectionPromise: Promise<NatsConnection> | null = null
-let globalAllowedChannels: string[] = []
 let connectionRefCount = 0
 
 export const useMessagingConnection = (options: UseMessagingConnectionOptions = {}) => {
     const { enabled = true, autoConnect = true } = options
-    const { organization } = useOrganization()
     const [state, setState] = useState<MessagingConnectionState>({
         connection: globalConnection,
         isConnected: !!globalConnection,
         isConnecting: false,
         error: null,
-        allowedChannels: globalAllowedChannels,
     })
     const isMountedRef = useRef(true)
 
@@ -50,8 +44,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 if (!tokenResponse.ok) {
                     throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
                 }
-                const { token, allowedChannels: channels } = await tokenResponse.json()
-                globalAllowedChannels = channels || []
+                const { token } = await tokenResponse.json()
 
                 const wsUrl = process.env.NEXT_PUBLIC_MESSAGING_WS_URL || 'ws://localhost:8080'
 
@@ -62,7 +55,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                     maxReconnectAttempts: -1,
                     reconnectTimeWait: 2000,
                     pingInterval: 25_000,
-                } as ConnectionOptions)
+                })
 
                 globalConnection = nc
 
@@ -70,14 +63,12 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                     console.log('[messaging] Connection closed', err || '')
                     globalConnection = null
                     globalConnectionPromise = null
-                    globalAllowedChannels = []
                     if (isMountedRef.current) {
                         setState({
                             connection: null,
                             isConnected: false,
                             isConnecting: false,
                             error: err ? new Error(String(err)) : null,
-                            allowedChannels: [],
                         })
                     }
                 })
@@ -88,7 +79,6 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                         isConnected: true,
                         isConnecting: false,
                         error: null,
-                        allowedChannels: globalAllowedChannels,
                     })
                 }
 
@@ -104,7 +94,6 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                         isConnected: false,
                         isConnecting: false,
                         error: err,
-                        allowedChannels: [],
                     })
                 }
                 throw err
@@ -124,7 +113,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
     }, [])
 
     useEffect(() => {
-        if (!enabled || !organization?.id) {
+        if (!enabled) {
             return
         }
 
@@ -142,14 +131,13 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 disconnect().catch(console.error)
             }
         }
-    }, [enabled, organization?.id, autoConnect, connect, disconnect])
+    }, [enabled, autoConnect, connect, disconnect])
 
     return {
         connection: state.connection,
         isConnected: state.isConnected,
         isConnecting: state.isConnecting,
         error: state.error,
-        allowedChannels: state.allowedChannels,
         connect,
         disconnect,
     }

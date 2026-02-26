@@ -5,12 +5,10 @@ const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
 
 interface UseMessagingSubscriptionOptions<T> {
-    channelName: string
+    /** Full topic to subscribe to, e.g. 'organization.org-1.ticket' or 'user.user-1.notification' */
     topic: string
     connection: NatsConnection | null
     isConnected: boolean
-    allowedChannels?: string[]
-    organizationId?: string
     enabled?: boolean
     onMessage?: (data: T, msg: Msg) => void | Promise<void>
 }
@@ -31,18 +29,15 @@ interface MessagingSubscriptionState {
  *
  * Flow:
  * 1. Client subscribes to a unique delivery INBOX
- * 2. Client publishes to `_MESSAGING.subscribe.{channel}.{orgId}` (PUB-gated)
- * 3. Server-side relay subscribes to channel topics and forwards to client INBOX
+ * 2. Client publishes to `_MESSAGING.subscribe.<topic>` (PUB-gated)
+ * 3. Server-side relay subscribes to actual topic and forwards to client INBOX
  * 4. On cleanup, client publishes `_MESSAGING.unsubscribe.{relayId}`
  */
 export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubscriptionOptions<T>) => {
     const {
-        channelName,
         topic,
         connection,
         isConnected,
-        allowedChannels,
-        organizationId,
         enabled = true,
         onMessage,
     } = options
@@ -84,7 +79,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
     }, [connection])
 
     useEffect(() => {
-        if (!enabled || !isConnected || !connection || !organizationId) {
+        if (!enabled || !isConnected || !connection || !topic) {
             return
         }
         isActiveRef.current = true
@@ -95,18 +90,14 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
             try {
                 setState(prev => ({ ...prev, isSubscribing: true, error: null }))
 
-                if (allowedChannels && !allowedChannels.includes(channelName)) {
-                    throw new Error(`[messaging] Channel "${channelName}" is not in allowedChannels. Access denied.`)
-                }
-
                 const deliverInbox = createInbox()
 
-                console.log(`[messaging] Setting up relay for ${channelName}.${organizationId}`)
+                console.log(`[messaging] Setting up relay for ${topic}`)
 
                 inboxSub = connection.subscribe(deliverInbox)
                 subscriptionRef.current = inboxSub
 
-                const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${channelName}.${organizationId}`
+                const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${topic}`
                 const response = await connection.request(
                     relayTopic,
                     JSON.stringify({ deliverInbox }),
@@ -174,7 +165,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 inboxSub.unsubscribe()
             }
         }
-    }, [enabled, isConnected, connection, channelName, organizationId, allowedChannels])
+    }, [enabled, isConnected, connection, topic])
 
     return {
         isSubscribed: state.isSubscribed,

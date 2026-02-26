@@ -1,19 +1,11 @@
 import { useCallback } from 'react'
 
-// @ts-ignore - JS module without type declarations
 import { useMessagingConnection, useMessagingSubscription, MessagingMessage } from '@open-condo/messaging/hooks'
-// @ts-ignore - JS module without type declarations
-import { buildTopic } from '@open-condo/messaging/topic'
 import { useOrganization } from '@open-condo/next/organization'
 
 export interface TicketChangeData {
-    ticketId: string
-    organizationId: string
-    operation: 'create' | 'update'
-    status: string
-    number: number
-    timestamp: string
-    userId: string | null
+    id: string
+    operation: 'create' | 'update' | 'delete'
 }
 
 interface UseTicketMessagingSubscriptionOptions {
@@ -25,11 +17,11 @@ export const useTicketMessagingSubscription = (options: UseTicketMessagingSubscr
     const { enabled = true, onMessage } = options
     const { organization } = useOrganization()
 
-    const { connection, isConnected, isConnecting, error: connectionError, allowedChannels } = useMessagingConnection({
+    const { connection, isConnected, isConnecting, error: connectionError } = useMessagingConnection({
         enabled: enabled && !!organization?.id,
     })
 
-    const topic = organization?.id ? buildTopic('ticket-changes', organization.id, '>') : ''
+    const topic = organization?.id ? `organization.${organization.id}.ticket` : ''
 
     const handleMessage = useCallback(async (data: TicketChangeData, msg: MessagingMessage) => {
         console.log('[messaging] Received ticket change:', data)
@@ -44,12 +36,9 @@ export const useTicketMessagingSubscription = (options: UseTicketMessagingSubscr
         error: subscriptionError,
         messageCount,
     } = useMessagingSubscription<TicketChangeData>({
-        channelName: 'ticket-changes',
         topic,
         connection,
         isConnected,
-        allowedChannels,
-        organizationId: organization?.id,
         enabled: enabled && !!topic && isConnected,
         onMessage: handleMessage,
     })

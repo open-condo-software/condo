@@ -29,14 +29,10 @@ const { setupMessaging } = require('@condo/domains/common/utils/initMessaging')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
-
-setupMessaging({
-    getPermittedOrganizations: getEmployedOrRelatedOrganizationsByPermissions,
-})
+setupMessaging()
 
 dayjs.extend(duration)
 dayjs.extend(utc)

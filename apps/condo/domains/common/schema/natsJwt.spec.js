@@ -49,7 +49,7 @@ describe('NATS JWT Utilities', () => {
             const userNkey = nkeys.createUser().getPublicKey()
             const permissions = {
                 pub: { allow: ['_INBOX.>'] },
-                sub: { allow: ['_INBOX.>', 'ticket-changes.org123.>'] },
+                sub: { allow: ['_INBOX.>', 'organization.org123.>'] },
             }
 
             const jwt = createUserJwt({
@@ -69,7 +69,7 @@ describe('NATS JWT Utilities', () => {
             expect(decoded.nats.type).toBe('user')
             expect(decoded.nats.version).toBe(2)
             expect(decoded.nats.pub.allow).toEqual(['_INBOX.>'])
-            expect(decoded.nats.sub.allow).toContain('ticket-changes.org123.>')
+            expect(decoded.nats.sub.allow).toContain('organization.org123.>')
             expect(decoded.nats.issuer_account).toBeUndefined()
         })
 
@@ -134,40 +134,39 @@ describe('NATS JWT Utilities', () => {
     })
 
     describe('computePermissions', () => {
-        it('computes correct PUB-gated relay permissions for a single stream', () => {
-            const perms = computePermissions(['ticket-changes'], 'org-123')
+        it('computes correct PUB-gated relay permissions for user and organization', () => {
+            const perms = computePermissions('user-123', 'org-123')
 
             expect(perms.pub.allow).toContain('_INBOX.>')
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.ticket-changes.org-123')
-            expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.>')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-123.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-123.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.*')
 
             expect(perms.sub.allow).toEqual(['_INBOX.>'])
         })
 
-        it('does not grant JetStream API or direct stream SUB access', () => {
-            const perms = computePermissions(['ticket-changes'], 'org-123')
+        it('does not grant JetStream API or direct channel SUB access', () => {
+            const perms = computePermissions('user-123', 'org-123')
 
             for (const pattern of perms.pub.allow) {
                 expect(pattern).not.toMatch(/\$JS\.API/)
             }
-            expect(perms.sub.allow).not.toContain('ticket-changes.org-123.>')
+            expect(perms.sub.allow).not.toContain('organization.org-123.>')
+            expect(perms.sub.allow).not.toContain('user.user-123.>')
         })
 
-        it('computes permissions for multiple streams', () => {
-            const perms = computePermissions(
-                ['ticket-changes', 'notification-events'],
-                'org-456'
-            )
+        it('scopes user relay to own userId only', () => {
+            const perms = computePermissions('user-abc', 'org-456')
 
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.ticket-changes.org-456')
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.notification-events.org-456')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-abc.*')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.user.user-other.*')
         })
 
-        it('returns minimal permissions for empty streams', () => {
-            const perms = computePermissions([], 'org-789')
+        it('scopes organization relay to own orgId only', () => {
+            const perms = computePermissions('user-abc', 'org-456')
 
-            expect(perms.pub.allow).toEqual(['_INBOX.>'])
-            expect(perms.sub.allow).toEqual(['_INBOX.>'])
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-456.*')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.organization.org-other.*')
         })
     })
 })

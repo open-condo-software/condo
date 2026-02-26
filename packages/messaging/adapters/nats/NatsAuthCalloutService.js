@@ -5,6 +5,7 @@ const nkeys = require('nkeys.js')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
 const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
 
 const logger = getLogger()
@@ -17,6 +18,7 @@ class NatsAuthCalloutService {
         this.accountKeyPair = null
         this.accountPublicKey = null
         this.isRunning = false
+        this.revokedUsers = new Set()
     }
 
     /**
@@ -70,6 +72,22 @@ class NatsAuthCalloutService {
                 }
             })()
 
+            const revokeSub = this.connection.subscribe(`${ADMIN_REVOKE_PREFIX}.>`)
+            ;(async () => {
+                for await (const msg of revokeSub) {
+                    const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
+                    if (userId) this.revokeUser(userId)
+                }
+            })()
+
+            const unrevokeSub = this.connection.subscribe(`${ADMIN_UNREVOKE_PREFIX}.>`)
+            ;(async () => {
+                for await (const msg of unrevokeSub) {
+                    const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
+                    if (userId) this.unrevokeUser(userId)
+                }
+            })()
+
             this.connection.closed().then((err) => {
                 this.isRunning = false
                 if (err) {
@@ -113,19 +131,20 @@ class NatsAuthCalloutService {
             return
         }
 
-        const { userId, organizationId, allowedChannels } = decoded
+        const { userId, organizationId } = decoded
 
         if (!userId || !organizationId) {
             this._respondError(msg, user_nkey, serverId, 'Token missing userId or organizationId')
             return
         }
 
-        if (!allowedChannels || !Array.isArray(allowedChannels) || allowedChannels.length === 0) {
-            this._respondError(msg, user_nkey, serverId, 'No allowed channels in token')
+        if (this.revokedUsers.has(userId)) {
+            logger.warn({ msg: 'Auth callout: access denied for revoked user', userId })
+            this._respondError(msg, user_nkey, serverId, 'User access revoked')
             return
         }
 
-        const permissions = computePermissions(allowedChannels, organizationId)
+        const permissions = computePermissions(userId, organizationId)
         const signingConfig = { algorithm: this.algorithm, keyPair: this.accountKeyPair }
 
         const userJwt = createUserJwt({
@@ -149,7 +168,6 @@ class NatsAuthCalloutService {
             msg: 'Auth callout: access granted',
             userId,
             organizationId,
-            channels: allowedChannels,
         })
 
         msg.respond(new TextEncoder().encode(responseJwt))
@@ -168,6 +186,14 @@ class NatsAuthCalloutService {
         })
 
         msg.respond(new TextEncoder().encode(responseJwt))
+    }
+
+    revokeUser (userId) {
+        this.revokedUsers.add(userId)
+    }
+
+    unrevokeUser (userId) {
+        this.revokedUsers.delete(userId)
     }
 
     async stop () {

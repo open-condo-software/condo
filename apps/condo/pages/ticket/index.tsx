@@ -1103,13 +1103,7 @@ const TicketsPage: PageComponentType = () => {
     const { isConnected, isSubscribed } = useTicketMessagingSubscription({
         enabled: true,
         onMessage: (data) => {
-            console.log('[messaging] Ticket changed:', {
-                ticketId: data.ticketId,
-                operation: data.operation,
-                status: data.status,
-                number: data.number,
-                timestamp: data.timestamp,
-            })
+            console.log('[messaging] Ticket changed:', { ...data })
         },
     })
 

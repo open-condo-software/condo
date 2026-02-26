@@ -1,6 +1,6 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { channelRegistry } = require('./ChannelRegistry')
+const { initializeChannels } = require('./ChannelRegistry')
 
 const logger = getLogger()
 
@@ -9,6 +9,7 @@ let isEnabled = false
 
 /**
  * Initialize the messaging publisher with the given adapter.
+ * Creates the two built-in channels (user, organization) on the broker.
  * @param {import('./BaseAdapter').BaseAdapter} messagingAdapter
  * @param {Object} [config]
  * @param {boolean} [config.enabled]
@@ -31,7 +32,7 @@ const initializePublisher = async (messagingAdapter, config = {}) => {
     }
 
     try {
-        await channelRegistry.initializeAll(adapter)
+        await initializeChannels(adapter)
         logger.info({ msg: 'Publisher initialized' })
     } catch (error) {
         logger.error({ msg: 'Failed to initialize publisher channels', err: error })
@@ -40,23 +41,22 @@ const initializePublisher = async (messagingAdapter, config = {}) => {
 }
 
 /**
- * Publish a message to a channel topic.
+ * Publish a message to a topic.
  * @param {Object} params
- * @param {string} params.channel - Channel name
- * @param {string} params.topic - Full topic string
+ * @param {string} params.topic - Full topic string (e.g. 'organization.org-1.ticket' or 'user.user-1')
  * @param {*} params.data - Message payload
  * @returns {Promise<void>}
  */
-const publish = async ({ channel, topic, data }) => {
+const publish = async ({ topic, data }) => {
     if (!isEnabled || !adapter) {
         return
     }
 
     try {
         await adapter.publish(topic, data)
-        logger.info({ msg: 'Published', topic, channel })
+        logger.info({ msg: 'Published', topic })
     } catch (error) {
-        logger.error({ msg: 'Publish failed', err: error, channel, topic })
+        logger.error({ msg: 'Publish failed', err: error, topic })
     }
 }
 

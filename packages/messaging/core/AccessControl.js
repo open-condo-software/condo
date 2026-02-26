@@ -1,79 +1,71 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { channelRegistry } = require('./ChannelRegistry')
+const { CHANNEL_USER, CHANNEL_ORGANIZATION, CHANNEL_DEFINITIONS } = require('./topic')
 
 const logger = getLogger()
 
-let _getPermittedOrganizations = null
+let _isActiveEmployee = null
 
 /**
  * Initialize messaging access control with required dependencies.
  * @param {Object} config
- * @param {Function} config.getPermittedOrganizations - Function to get organizations where user has permissions
+ * @param {Function} config.isActiveEmployee - (context, userId, organizationId) => Promise<boolean>
  */
 function configure (config = {}) {
-    _getPermittedOrganizations = config.getPermittedOrganizations
+    _isActiveEmployee = config.isActiveEmployee
 }
 
 /**
  * Check if a user has access to a specific topic.
+ *
+ * Channel rules:
+ *   - user.<userId>: authorized + not deleted + own channel only
+ *   - organization.<orgId>.<entity>: authorized + not deleted + active employee
+ *
  * @param {Object} context - Keystone context
  * @param {string} userId
- * @param {string} organizationId
  * @param {string} topic
  * @returns {Promise<{ allowed: boolean, reason?: string, user?: string, organization?: string }>}
  */
-async function checkAccess (context, userId, organizationId, topic) {
+async function checkAccess (context, userId, topic) {
     try {
-        const channelName = topic.split('.')[0]
-        const channelConfig = channelRegistry.get(channelName)
-
-        if (!channelConfig) {
-            return { allowed: false, reason: 'Channel not found' }
-        }
-
-        const accessConfig = channelConfig.access?.read
-
-        if (!accessConfig) {
-            return { allowed: false, reason: 'No access configuration for channel' }
-        }
+        const parts = topic.split('.')
+        const channel = parts[0]
 
         const user = await getById('User', userId)
         if (!user || user.deletedAt) {
             return { allowed: false, reason: 'User not found or deleted' }
         }
 
-        if (typeof accessConfig === 'function') {
-            const authentication = { item: user }
-            const allowed = await accessConfig({ authentication, context, organizationId, topic })
-
-            if (allowed) {
-                return { allowed: true, user: userId, organization: organizationId }
+        if (channel === CHANNEL_USER) {
+            const topicUserId = parts[1]
+            if (topicUserId !== userId) {
+                return { allowed: false, reason: 'Cannot access other user channel' }
             }
-            return { allowed: false, reason: 'Access denied by custom function' }
+            return { allowed: true, user: userId }
         }
 
-        if (accessConfig === true) {
-            return { allowed: true }
-        }
+        if (channel === CHANNEL_ORGANIZATION) {
+            const organizationId = parts[1]
+            if (!organizationId) {
+                return { allowed: false, reason: 'Invalid organization topic' }
+            }
 
-        if (typeof accessConfig === 'string') {
-            if (!_getPermittedOrganizations) {
-                logger.error({ msg: 'getPermittedOrganizations not configured' })
+            if (!_isActiveEmployee) {
+                logger.error({ msg: 'isActiveEmployee not configured' })
                 return { allowed: false, reason: 'Internal configuration error' }
             }
 
-            const organizations = await _getPermittedOrganizations(context, user, [accessConfig])
-            const hasAccess = organizations.includes(organizationId)
-
-            if (hasAccess) {
-                return { allowed: true, user: userId, organization: organizationId }
+            const isEmployee = await _isActiveEmployee(context, userId, organizationId)
+            if (!isEmployee) {
+                return { allowed: false, reason: 'Not an active employee of this organization' }
             }
-            return { allowed: false, reason: 'Permission denied' }
+
+            return { allowed: true, user: userId, organization: organizationId }
         }
 
-        return { allowed: false, reason: 'Invalid access configuration' }
+        return { allowed: false, reason: 'Unknown channel' }
     } catch (error) {
         logger.error({ msg: 'Error checking access', err: error })
         return { allowed: false, reason: 'Internal error' }
@@ -81,11 +73,14 @@ async function checkAccess (context, userId, organizationId, topic) {
 }
 
 /**
- * Get all channels available to a user in a given organization.
+ * Get channels available to a user.
+ * Always includes the user's own channel.
+ * Includes organization channel if user is an active employee.
+ *
  * @param {Object} context - Keystone context
  * @param {string} userId
- * @param {string} organizationId
- * @returns {Promise<Array<{ name: string, topics: string[], permission?: string }>>}
+ * @param {string} [organizationId]
+ * @returns {Promise<Array<{ name: string, topic: string }>>}
  */
 async function getAvailableChannels (context, userId, organizationId) {
     try {
@@ -94,50 +89,23 @@ async function getAvailableChannels (context, userId, organizationId) {
             return []
         }
 
-        const allChannels = channelRegistry.getAll()
-        const availableChannels = []
+        const channelContext = { userId, organizationId }
+        const channels = []
 
-        for (const channelConfig of allChannels) {
-            try {
-                const accessConfig = channelConfig.access?.read
-
-                if (!accessConfig) {
-                    continue
-                }
-
-                let hasAccess = false
-                let permission = null
-
-                if (accessConfig === true) {
-                    hasAccess = true
-                } else if (typeof accessConfig === 'string') {
-                    permission = accessConfig
-                    if (_getPermittedOrganizations) {
-                        const organizations = await _getPermittedOrganizations(context, user, [permission])
-                        hasAccess = organizations.includes(organizationId)
-                    } else {
-                        logger.error({ msg: 'getPermittedOrganizations not configured' })
-                        hasAccess = false
+        for (const ch of CHANNEL_DEFINITIONS) {
+            if (ch.name === CHANNEL_ORGANIZATION) {
+                if (organizationId && _isActiveEmployee) {
+                    const isEmployee = await _isActiveEmployee(context, userId, organizationId)
+                    if (isEmployee) {
+                        channels.push(ch.buildAvailableChannel(channelContext))
                     }
-                } else if (typeof accessConfig === 'function') {
-                    const authentication = { item: user }
-                    const testTopic = `${channelConfig.name}.${organizationId}`
-                    hasAccess = await accessConfig({ authentication, context, organizationId, topic: testTopic })
                 }
-
-                if (hasAccess) {
-                    availableChannels.push({
-                        name: channelConfig.name,
-                        topics: channelConfig.topics,
-                        ...(permission && { permission }),
-                    })
-                }
-            } catch (error) {
-                logger.error({ msg: 'Error checking access for channel', channel: channelConfig.name, err: error })
+            } else {
+                channels.push(ch.buildAvailableChannel(channelContext))
             }
         }
 
-        return availableChannels
+        return channels
     } catch (error) {
         logger.error({ msg: 'Error getting available channels', err: error })
         return []

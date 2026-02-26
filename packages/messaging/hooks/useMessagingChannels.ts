@@ -1,27 +1,26 @@
 import { useEffect, useState } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
-
 interface MessagingChannel {
     name: string
-    topics: string[]
-    description: string
-    permission?: string
+    topic: string
 }
 
 interface MessagingChannelsResponse {
     channels: MessagingChannel[]
-    organizationId: string
 }
 
-export const useMessagingChannels = () => {
-    const { organization } = useOrganization()
+interface UseMessagingChannelsOptions {
+    enabled?: boolean
+}
+
+export const useMessagingChannels = (options: UseMessagingChannelsOptions = {}) => {
+    const { enabled = true } = options
     const [channels, setChannels] = useState<MessagingChannel[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!organization?.id) {
+        if (!enabled) {
             setChannels([])
             setLoading(false)
             return
@@ -49,7 +48,7 @@ export const useMessagingChannels = () => {
         }
 
         fetchChannels()
-    }, [organization?.id])
+    }, [enabled])
 
     return {
         channels,

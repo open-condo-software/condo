@@ -6,14 +6,25 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { configure } = require('@open-condo/messaging')
 
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
-const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { isActiveEmployee } = require('@condo/domains/common/utils/initMessaging')
+const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
 const BROKER_URL = conf.MESSAGING_BROKER_URL
 const MESSAGING_CONFIGURED = conf.MESSAGING_ENABLED === 'true' && !!conf.MESSAGING_AUTH_ACCOUNT_SEED
+
+function expectGQLError (body, expectedType) {
+    expect(body.errors).toBeDefined()
+    expect(body.errors).toHaveLength(1)
+    expect(body.errors[0]).toEqual(expect.objectContaining({
+        name: 'GQLError',
+        extensions: expect.objectContaining({
+            type: expectedType,
+        }),
+    }))
+}
 
 async function getCookieWithOrganization (client, adminClient) {
     const baseCookie = client.getCookie()
@@ -38,7 +49,7 @@ async function getCookieWithOrganization (client, adminClient) {
     return `${baseCookie}; organizationLinkId=${employeeId}`
 }
 
-describe('NATS Middleware Integration Tests', () => {
+describe('Messaging Integration Tests', () => {
     let admin
     let serverUrl
     let natsTokenUrl
@@ -46,7 +57,7 @@ describe('NATS Middleware Integration Tests', () => {
 
     beforeAll(async () => {
         configure({
-            getPermittedOrganizations: getEmployedOrRelatedOrganizationsByPermissions,
+            isActiveEmployee,
         })
         admin = await makeLoggedInAdminClient()
         const client = await makeClient()
@@ -63,7 +74,7 @@ describe('NATS Middleware Integration Tests', () => {
 
             expect(response.status).toBe(401)
             const body = await response.json()
-            expect(body.error).toBe('Not authenticated')
+            expectGQLError(body, 'AUTHORIZATION_REQUIRED')
         })
 
         it('denies access without organizationLinkId cookie', async () => {
@@ -77,7 +88,7 @@ describe('NATS Middleware Integration Tests', () => {
 
             expect(response.status).toBe(401)
             const body = await response.json()
-            expect(body.error).toBe('No organization selected')
+            expectGQLError(body, 'NO_ORGANIZATION_SELECTED')
         })
 
         it('generates valid JWT token for authenticated user with organization', async () => {
@@ -92,13 +103,12 @@ describe('NATS Middleware Integration Tests', () => {
             expect(response.status).toBe(200)
             const body = await response.json()
             expect(body.token).toBeDefined()
-            expect(body.allowedChannels).toBeDefined()
-            expect(Array.isArray(body.allowedChannels)).toBe(true)
+            expect(body.userId).toBe(client.user.id)
+            expect(body.organizationId).toBe(client.organization.id)
 
             const decoded = jwt.verify(body.token, TOKEN_SECRET)
             expect(decoded.userId).toBe(client.user.id)
             expect(decoded.organizationId).toBe(client.organization.id)
-            expect(decoded.allowedChannels).toBeDefined()
             expect(decoded.exp).toBeDefined()
         })
 
@@ -118,7 +128,7 @@ describe('NATS Middleware Integration Tests', () => {
 
             expect(response.status).toBe(403)
             const body = await response.json()
-            expect(body.error).toBe('Invalid organization selection')
+            expectGQLError(body, 'INVALID_ORGANIZATION_SELECTION')
         })
     })
 
@@ -130,7 +140,7 @@ describe('NATS Middleware Integration Tests', () => {
 
             expect(response.status).toBe(401)
             const body = await response.json()
-            expect(body.error).toBe('Not authenticated')
+            expectGQLError(body, 'AUTHORIZATION_REQUIRED')
         })
 
         it('denies access without organizationLinkId cookie', async () => {
@@ -144,7 +154,7 @@ describe('NATS Middleware Integration Tests', () => {
 
             expect(response.status).toBe(401)
             const body = await response.json()
-            expect(body.error).toBe('No organization selected')
+            expectGQLError(body, 'NO_ORGANIZATION_SELECTED')
         })
 
         it('returns available channels for authenticated user', async () => {
@@ -161,36 +171,12 @@ describe('NATS Middleware Integration Tests', () => {
             expect(body.channels).toBeDefined()
             expect(Array.isArray(body.channels)).toBe(true)
             expect(body.organizationId).toBe(client.organization.id)
+            expect(body.userId).toBe(client.user.id)
 
             const channelNames = body.channels.map(s => s.name)
-            expect(channelNames).toContain('ticket-changes')
-        })
-
-        it('returns only channels user has permission for', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canReadTickets: false,
-            })
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                isRejected: false,
-                isAccepted: true,
-                isBlocked: false,
-            })
-
-            client.organization = { ...organization, employeeId: employee.id }
-            const cookie = await getCookieWithOrganization(client, admin)
-
-            const response = await fetch(natsStreamsUrl, {
-                method: 'GET',
-                headers: { Cookie: cookie },
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            const channelNames = body.channels.map(s => s.name)
-
-            expect(channelNames).not.toContain('ticket-changes')
+            expect(channelNames).toContain('user')
+            expect(channelNames).toContain('organization')
+            expect(body.channels).toHaveLength(2)
         })
     })
 
@@ -205,39 +191,14 @@ describe('NATS Middleware Integration Tests', () => {
             })
 
             expect(tokenResponse.status).toBe(200)
-            const { token, allowedChannels } = await tokenResponse.json()
+            const { token, userId, organizationId } = await tokenResponse.json()
             expect(token).toBeDefined()
-            expect(allowedChannels.length).toBeGreaterThan(0)
+            expect(userId).toBe(client.user.id)
+            expect(organizationId).toBe(client.organization.id)
 
             const decoded = jwt.verify(token, TOKEN_SECRET)
             expect(decoded.userId).toBe(client.user.id)
             expect(decoded.organizationId).toBe(client.organization.id)
-            expect(decoded.allowedChannels).toEqual(expect.arrayContaining(allowedChannels))
-        })
-
-        it('token for user without permissions excludes restricted streams', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canReadTickets: false,
-            })
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                isRejected: false,
-                isAccepted: true,
-                isBlocked: false,
-            })
-
-            client.organization = { ...organization, employeeId: employee.id }
-            const cookie = await getCookieWithOrganization(client, admin)
-
-            const tokenResponse = await fetch(natsTokenUrl, {
-                method: 'GET',
-                headers: { Cookie: cookie },
-            })
-
-            expect(tokenResponse.status).toBe(200)
-            const { allowedChannels } = await tokenResponse.json()
-            expect(allowedChannels).not.toContain('ticket-changes')
         })
     })
 
@@ -277,7 +238,7 @@ describe('NATS Middleware Integration Tests', () => {
                 const deliverInbox = createInbox()
                 nc.subscribe(deliverInbox)
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.ticket-changes.${client.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${client.organization.id}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -298,7 +259,7 @@ describe('NATS Middleware Integration Tests', () => {
             const jc = JSONCodec()
             try {
                 await expect(nc.request(
-                    `_MESSAGING.subscribe.ticket-changes.${clientB.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${clientB.organization.id}.ticket`,
                     jc.encode({ deliverInbox: createInbox() }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -334,7 +295,7 @@ describe('NATS Middleware Integration Tests', () => {
                 })()
 
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.ticket-changes.${clientA.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${clientA.organization.id}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -342,15 +303,15 @@ describe('NATS Middleware Integration Tests', () => {
 
                 await new Promise(resolve => setTimeout(resolve, 300))
 
-                const serverJs = serverConn.jetstream()
-                await serverJs.publish(
-                    `ticket-changes.${clientA.organization.id}.e1`,
+                serverConn.publish(
+                    `organization.${clientA.organization.id}.ticket`,
                     jc.encode({ org: clientA.organization.id, id: 'e1' })
                 )
-                await serverJs.publish(
-                    `ticket-changes.${clientB.organization.id}.e2`,
+                serverConn.publish(
+                    `organization.${clientB.organization.id}.ticket`,
                     jc.encode({ org: clientB.organization.id, id: 'e2' })
                 )
+                await serverConn.flush()
 
                 await new Promise(resolve => setTimeout(resolve, 1000))
                 inboxSub.unsubscribe()
@@ -404,14 +365,14 @@ describe('NATS Middleware Integration Tests', () => {
                 })()
 
                 const respA = await ncA.request(
-                    `_MESSAGING.subscribe.ticket-changes.${clientA.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${clientA.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxA }),
                     { timeout: 5000 }
                 )
                 expect(jc.decode(respA.data).status).toBe('ok')
 
                 const respB = await ncB.request(
-                    `_MESSAGING.subscribe.ticket-changes.${clientB.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${clientB.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxB }),
                     { timeout: 5000 }
                 )
@@ -419,29 +380,29 @@ describe('NATS Middleware Integration Tests', () => {
 
                 // User A CANNOT subscribe to User B's org
                 await expect(ncA.request(
-                    `_MESSAGING.subscribe.ticket-changes.${clientB.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${clientB.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxA }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
 
                 // User B CANNOT subscribe to User A's org
                 await expect(ncB.request(
-                    `_MESSAGING.subscribe.ticket-changes.${clientA.organization.id}`,
+                    `_MESSAGING.subscribe.organization.${clientA.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxB }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
 
                 await new Promise(resolve => setTimeout(resolve, 300))
 
-                const serverJs = serverConn.jetstream()
-                await serverJs.publish(
-                    `ticket-changes.${clientA.organization.id}.msg-a`,
+                serverConn.publish(
+                    `organization.${clientA.organization.id}.ticket`,
                     jc.encode({ org: clientA.organization.id, from: 'for-A' })
                 )
-                await serverJs.publish(
-                    `ticket-changes.${clientB.organization.id}.msg-b`,
+                serverConn.publish(
+                    `organization.${clientB.organization.id}.ticket`,
                     jc.encode({ org: clientB.organization.id, from: 'for-B' })
                 )
+                await serverConn.flush()
 
                 await new Promise(resolve => setTimeout(resolve, 1000))
                 subA.unsubscribe()
@@ -467,7 +428,7 @@ describe('NATS Middleware Integration Tests', () => {
 
         it('forged token is rejected at NATS level', async () => {
             const forgedToken = jwt.sign(
-                { userId: 'fake-user', organizationId: 'fake-org', allowedChannels: ['property-changes'] },
+                { userId: 'fake-user', organizationId: 'fake-org' },
                 // intentionally wrong secret to test that forged tokens are rejected
                 // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
@@ -483,5 +444,99 @@ describe('NATS Middleware Integration Tests', () => {
                 connect({ servers: BROKER_URL, name: 'no-token', timeout: 5000 })
             ).rejects.toThrow()
         })
+
+        it('blocking employee instantly revokes active relay subscription', async () => {
+            const client = await makeClientWithProperty()
+            const token = await getTokenForClient(client)
+
+            const serverConn = await connect({
+                servers: BROKER_URL,
+                user: conf.MESSAGING_SERVER_USER,
+                pass: conf.MESSAGING_SERVER_PASSWORD,
+                name: 'revoke-publisher',
+            })
+
+            let nc
+            try {
+                nc = await connect({ servers: BROKER_URL, token, name: 'revoke-target', timeout: 5000 })
+                const jc = JSONCodec()
+
+                // 1. Set up relay subscription and verify it works
+                const deliverInbox = createInbox()
+                const received = []
+                const inboxSub = nc.subscribe(deliverInbox)
+                const done = (async () => {
+                    for await (const msg of inboxSub) {
+                        received.push(jc.decode(msg.data))
+                    }
+                })()
+
+                const response = await nc.request(
+                    `_MESSAGING.subscribe.user.${client.user.id}.notification`,
+                    jc.encode({ deliverInbox }),
+                    { timeout: 5000 }
+                )
+                expect(jc.decode(response.data).status).toBe('ok')
+
+                await new Promise(resolve => setTimeout(resolve, 300))
+
+                // Publish a message — should be received
+                serverConn.publish(
+                    `user.${client.user.id}.notification`,
+                    jc.encode({ id: 'before-block', operation: 'create' })
+                )
+                await serverConn.flush()
+                await new Promise(resolve => setTimeout(resolve, 500))
+
+                expect(received.length).toBe(1)
+                expect(received[0].id).toBe('before-block')
+
+                // 2. Block the employee via Keystone API
+                const employees = await OrganizationEmployee.getAll(admin, {
+                    organization: { id: client.organization.id },
+                    user: { id: client.user.id },
+                    deletedAt: null,
+                })
+                expect(employees).toHaveLength(1)
+                await updateTestOrganizationEmployee(admin, employees[0].id, {
+                    isBlocked: true,
+                })
+
+                // Publish revocation via NATS (in production, adapter.revokeUser does this)
+                serverConn.publish(`_MESSAGING.admin.revoke.${client.user.id}`)
+                await serverConn.flush()
+                await new Promise(resolve => setTimeout(resolve, 500))
+
+                // 3. Publish another message — should NOT be received (relay torn down)
+                serverConn.publish(
+                    `user.${client.user.id}.notification`,
+                    jc.encode({ id: 'after-block', operation: 'update' })
+                )
+                await serverConn.flush()
+                await new Promise(resolve => setTimeout(resolve, 1000))
+
+                inboxSub.unsubscribe()
+                await done
+
+                // Only the pre-block message should have been received
+                const postBlockMessages = received.filter(m => m.id === 'after-block')
+                expect(postBlockMessages).toHaveLength(0)
+
+                // 4. New relay request should also be rejected
+                const deliverInbox2 = createInbox()
+                nc.subscribe(deliverInbox2)
+                const retryResponse = await nc.request(
+                    `_MESSAGING.subscribe.user.${client.user.id}.notification`,
+                    jc.encode({ deliverInbox: deliverInbox2 }),
+                    { timeout: 5000 }
+                )
+                const retryData = jc.decode(retryResponse.data)
+                expect(retryData.status).toBe('error')
+                expect(retryData.reason).toBe('access revoked')
+            } finally {
+                if (nc) await nc.close()
+                await serverConn.close()
+            }
+        }, 30000)
     })
 })

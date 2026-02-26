@@ -1,6 +1,9 @@
 const crypto = require('crypto')
 
-const { buildRelaySubscribeTopic, buildRelayUnsubscribePattern } = require('../../core/topic')
+const {
+    CHANNEL_DEFINITIONS,
+    RELAY_UNSUBSCRIBE_PREFIX,
+} = require('../../core/topic')
 
 /**
  * Supported JWT signing algorithms.
@@ -136,19 +139,30 @@ function createAuthResponseJwt ({ userNkey, serverId, accountPublicKey, userJwt,
 }
 
 /**
- * Computes pub/sub permissions for a user based on their allowed channels.
- * @param {string[]} allowedChannels - Channel names the user can access
- * @param {string} organizationId - Organization ID for scoping topics
+ * Computes pub/sub permissions for a user based on their userId and organizationId.
+ *
+ * Dynamically builds PUB allow patterns from CHANNEL_DEFINITIONS registry.
+ * Each channel definition provides buildRelayPermissions({ userId, organizationId })
+ * that returns the PUB patterns for relay subscribe topics.
+ *
+ * Also grants:
+ *   - _MESSAGING.unsubscribe.*  (unsubscribe from relays)
+ *   - _INBOX.>                  (receive relayed messages)
+ *
+ * @param {string} userId
+ * @param {string} organizationId
  * @returns {{ pub: { allow: string[] }, sub: { allow: string[] } }}
  */
-function computePermissions (allowedChannels, organizationId) {
-    const pubAllow = ['_INBOX.>']
-    const subAllow = ['_INBOX.>']
+function computePermissions (userId, organizationId) {
+    const context = { userId, organizationId }
+    const channelPermissions = CHANNEL_DEFINITIONS.flatMap(ch => ch.buildRelayPermissions(context))
 
-    for (const channelName of allowedChannels) {
-        pubAllow.push(buildRelaySubscribeTopic(channelName, organizationId))
-        pubAllow.push(buildRelayUnsubscribePattern())
-    }
+    const pubAllow = [
+        '_INBOX.>',
+        ...channelPermissions,
+        `${RELAY_UNSUBSCRIBE_PREFIX}.*`,
+    ]
+    const subAllow = ['_INBOX.>']
 
     return {
         pub: { allow: pubAllow },

@@ -1,20 +1,23 @@
 const { NatsAdapter } = require('./adapters/nats')
 const { BaseAdapter } = require('./core/BaseAdapter')
+const { CHANNELS, initializeChannels } = require('./core/ChannelRegistry')
+const { initializePublisher, publish, closePublisher } = require('./core/Publisher')
 const {
-    channelRegistry,
-    ChannelRegistry,
-    channelNameSchema,
-    topicPatternSchema,
+    CHANNEL_USER,
+    CHANNEL_ORGANIZATION,
+    RELAY_SUBSCRIBE_PREFIX,
+    RELAY_UNSUBSCRIBE_PREFIX,
+    buildUserTopic,
+    buildOrganizationTopic,
     buildTopic,
-    buildRelaySubscribeTopic,
+    buildUserRelaySubscribeTopic,
+    buildOrganizationRelaySubscribeTopic,
     buildRelayUnsubscribeTopic,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
-    RELAY_SUBSCRIBE_PREFIX,
-    RELAY_UNSUBSCRIBE_PREFIX,
-} = require('./core/ChannelRegistry')
-const { initializePublisher, publish, closePublisher } = require('./core/Publisher')
+} = require('./core/topic')
 const { MessagingMiddleware } = require('./middleware')
+const { messaged } = require('./plugins')
 const {
     configure,
     checkAccess,
@@ -44,15 +47,18 @@ module.exports = {
     BaseAdapter,
     NatsAdapter,
 
-    // Channel registry
-    channelRegistry,
-    ChannelRegistry,
-    channelNameSchema,
-    topicPatternSchema,
+    // Channels
+    CHANNELS,
+    CHANNEL_USER,
+    CHANNEL_ORGANIZATION,
+    initializeChannels,
 
     // Topic utilities
+    buildUserTopic,
+    buildOrganizationTopic,
     buildTopic,
-    buildRelaySubscribeTopic,
+    buildUserRelaySubscribeTopic,
+    buildOrganizationRelaySubscribeTopic,
     buildRelayUnsubscribeTopic,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
@@ -66,6 +72,9 @@ module.exports = {
 
     // Middleware
     MessagingMiddleware,
+
+    // Plugin
+    messaged,
 
     // Access control
     configure,

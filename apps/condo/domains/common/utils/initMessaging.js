@@ -1,8 +1,7 @@
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { find } = require('@open-condo/keystone/schema')
 const { configure, createAdapter, initializePublisher } = require('@open-condo/messaging')
-
-const { registerMessagingChannels } = require('./messagingChannels')
 
 const logger = getLogger()
 
@@ -62,21 +61,65 @@ async function closeMessaging () {
 }
 
 /**
- * Single entry point for messaging setup.
- * Configures access control, registers channels, and starts the messaging adapter.
- * @param {Object} config
- * @param {Function} config.getPermittedOrganizations - Function to get organizations where user has permissions
+ * Immediately revokes a user's messaging access:
+ * - Tears down all active relay subscriptions (no more messages)
+ * - Blocks new relay requests from this user
+ * - Rejects future NATS connection/reconnection attempts
+ *
+ * Call this when a user is soft-deleted, blocked, or otherwise loses access.
+ *
+ * @param {string} userId
+ * @returns {number} Number of relays torn down (0 if messaging not initialized)
  */
-function setupMessaging (config = {}) {
-    configure({
-        getPermittedOrganizations: config.getPermittedOrganizations,
-    })
+function revokeMessagingUser (userId) {
+    if (!adapter) return 0
+    return adapter.revokeUser(userId)
+}
 
-    registerMessagingChannels()
+/**
+ * Re-enables a previously revoked user's messaging access.
+ * Call this if a user is re-activated after being blocked/deleted.
+ *
+ * @param {string} userId
+ */
+function unrevokeMessagingUser (userId) {
+    if (!adapter) return
+    adapter.unrevokeUser(userId)
+}
+
+/**
+ * Checks whether a user is an active employee of the given organization.
+ * Active = accepted, not rejected, not blocked, not soft-deleted.
+ *
+ * @param {Object} context - Keystone context (with skipAccessControl)
+ * @param {string} userId
+ * @param {string} organizationId
+ * @returns {Promise<boolean>}
+ */
+async function isActiveEmployee (context, userId, organizationId) {
+    const employees = await find('OrganizationEmployee', {
+        user: { id: userId },
+        organization: { id: organizationId },
+        isAccepted: true,
+        isRejected: false,
+        isBlocked: false,
+        deletedAt: null,
+    })
+    return employees.length > 0
+}
+
+/**
+ * Single entry point for messaging setup.
+ * Configures access control and starts the messaging adapter.
+ */
+function setupMessaging () {
+    configure({
+        isActiveEmployee,
+    })
 
     initMessaging().catch((error) => {
         logger.error({ msg: 'Failed to initialize messaging', err: error })
     })
 }
 
-module.exports = { setupMessaging, closeMessaging }
+module.exports = { setupMessaging, closeMessaging, isActiveEmployee, revokeMessagingUser, unrevokeMessagingUser }

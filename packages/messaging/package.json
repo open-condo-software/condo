@@ -10,6 +10,7 @@
     ".": "./index.js",
     "./hooks": "./hooks/index.ts",
     "./middleware": "./middleware/index.js",
+    "./plugins": "./plugins/index.js",
     "./topic": "./core/topic.js",
     "./utils": "./utils/index.js",
     "./adapters/nats": "./adapters/nats/index.js"

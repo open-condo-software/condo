@@ -3,13 +3,20 @@ const jwt = require('jsonwebtoken')
 const nextCookie = require('next-cookies')
 
 const conf = require('@open-condo/config')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
-const { getAvailableChannels } = require('../core/AccessControl')
+const { CHANNEL_DEFINITIONS } = require('../core/topic')
+const { ERRORS } = require('../errors')
 
 const logger = getLogger()
 
 const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
+const TOKEN_TTL = conf.MESSAGING_TOKEN_TTL || '24h'
+const RATE_LIMIT_MAX_REQUESTS = parseInt(conf.MESSAGING_RATE_LIMIT_MAX) || 20
+const RATE_LIMIT_WINDOW_SEC = parseInt(conf.MESSAGING_RATE_LIMIT_WINDOW_SEC) || 60
 
 const GET_EMPLOYEE_QUERY = `
     query getEmployee($id: ID!) {
@@ -21,41 +28,69 @@ const GET_EMPLOYEE_QUERY = `
     }
 `
 
-async function resolveEmployeeContext (req, keystone) {
-    const user = req.user
-    const userId = user?.id
-
-    if (!userId) {
-        return { error: { status: 401, message: 'Not authenticated' } }
+function authHandler () {
+    return function (req, res, next) {
+        if (!req.user || !req.user.id) {
+            return next(new GQLError(ERRORS.AUTHORIZATION_REQUIRED, { req }))
+        }
+        next()
     }
+}
 
-    const cookies = nextCookie({ req })
-    const employeeId = cookies.organizationLinkId
-
-    if (!employeeId) {
-        return { error: { status: 401, message: 'No organization selected' } }
+function rateLimitHandler () {
+    const kvClient = getKVClient('guards')
+    return async function (req, res, next) {
+        const ip = req.ip || req.socket?.remoteAddress || 'unknown'
+        const key = `messaging_rate:${ip}`
+        try {
+            const count = await kvClient.incr(key)
+            if (count === 1) {
+                await kvClient.expire(key, RATE_LIMIT_WINDOW_SEC)
+            }
+            if (count > RATE_LIMIT_MAX_REQUESTS) {
+                logger.warn({ msg: 'Rate limit exceeded', ip, path: req.path })
+                return next(new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req }))
+            }
+        } catch (err) {
+            logger.error({ msg: 'Rate limit check failed, allowing request', err })
+        }
+        next()
     }
+}
 
-    const context = await keystone.createContext({ skipAccessControl: true })
+function resolveEmployeeContextHandler ({ keystone }) {
+    return async function (req, res, next) {
+        const cookies = nextCookie({ req })
+        const employeeId = cookies.organizationLinkId
 
-    const employee = await context.executeGraphQL({
-        query: GET_EMPLOYEE_QUERY,
-        variables: { id: employeeId },
-    })
+        if (!employeeId) {
+            return next(new GQLError(ERRORS.NO_ORGANIZATION_SELECTED, { req }))
+        }
 
-    const employeeData = employee?.data?.employee
+        const context = await keystone.createContext({ skipAccessControl: true })
+        const employee = await context.executeGraphQL({
+            query: GET_EMPLOYEE_QUERY,
+            variables: { id: employeeId },
+        })
 
-    if (!employeeData || employeeData.user?.id !== userId) {
-        return { error: { status: 403, message: 'Invalid organization selection' } }
+        const employeeData = employee?.data?.employee
+        if (!employeeData || employeeData.user?.id !== req.user.id) {
+            return next(new GQLError(ERRORS.INVALID_ORGANIZATION_SELECTION, { req }))
+        }
+
+        const organizationId = employeeData.organization?.id
+        if (!organizationId) {
+            return next(new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, { req }))
+        }
+
+        req.messaging = { userId: req.user.id, organizationId }
+        next()
     }
+}
 
-    const organizationId = employeeData.organization?.id
-
-    if (!organizationId) {
-        return { error: { status: 500, message: 'Organization not found' } }
-    }
-
-    return { userId, organizationId, context }
+function buildChannels (userId, organizationId) {
+    const context = { userId, organizationId }
+    return CHANNEL_DEFINITIONS.map(ch => ch.buildAvailableChannel(context))
 }
 
 class MessagingMiddleware {
@@ -65,51 +100,40 @@ class MessagingMiddleware {
         const app = express()
         app.use(express.json())
 
-        app.get('/messaging/channels', async (req, res) => {
-            try {
-                const result = await resolveEmployeeContext(req, keystone)
-                if (result.error) {
-                    return res.status(result.error.status).json({ error: result.error.message })
-                }
-
-                const { userId, organizationId, context } = result
-                const channels = await getAvailableChannels(context, userId, organizationId)
-
-                return res.json({ channels, organizationId })
-            } catch (error) {
-                logger.error({ msg: 'Failed to get available channels', err: error })
-                return res.status(500).json({ error: 'Failed to get available channels' })
+        app.get(
+            '/messaging/channels',
+            authHandler(),
+            rateLimitHandler(),
+            resolveEmployeeContextHandler({ keystone }),
+            (req, res) => {
+                const { userId, organizationId } = req.messaging
+                const channels = buildChannels(userId, organizationId)
+                return res.json({ channels, userId, organizationId })
             }
-        })
+        )
 
-        app.get('/messaging/token', async (req, res) => {
-            try {
+        app.get(
+            '/messaging/token',
+            authHandler(),
+            rateLimitHandler(),
+            resolveEmployeeContextHandler({ keystone }),
+            (req, res, next) => {
                 if (!TOKEN_SECRET) {
-                    logger.error({ msg: 'MESSAGING_TOKEN_SECRET is not configured' })
-                    return res.status(503).json({ error: 'Messaging is not configured' })
+                    return next(new GQLError(ERRORS.MESSAGING_NOT_CONFIGURED, { req }))
                 }
 
-                const result = await resolveEmployeeContext(req, keystone)
-                if (result.error) {
-                    return res.status(result.error.status).json({ error: result.error.message })
-                }
-
-                const { userId, organizationId, context } = result
-                const channels = await getAvailableChannels(context, userId, organizationId)
-                const allowedChannels = channels.map(s => s.name)
-
+                const { userId, organizationId } = req.messaging
                 const token = jwt.sign(
-                    { userId, organizationId, allowedChannels },
+                    { userId, organizationId },
                     TOKEN_SECRET,
-                    { expiresIn: '24h' }
+                    { expiresIn: TOKEN_TTL }
                 )
 
-                return res.json({ token, allowedChannels })
-            } catch (error) {
-                logger.error({ msg: 'Failed to generate token', err: error })
-                return res.status(500).json({ error: 'Failed to generate token' })
+                return res.json({ token, userId, organizationId })
             }
-        })
+        )
+
+        app.use(expressErrorHandler)
 
         return app
     }

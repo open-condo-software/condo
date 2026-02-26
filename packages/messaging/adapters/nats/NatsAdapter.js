@@ -1,5 +1,6 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
 
 const { NatsAuthCalloutService } = require('./NatsAuthCalloutService')
 const { NatsClient } = require('./NatsClient')
@@ -142,6 +143,35 @@ class NatsAdapter extends BaseAdapter {
             await this.relayService.stop()
             this.relayService = null
         }
+    }
+
+    /**
+     * Revokes a user's messaging access across all services.
+     * - Auth callout rejects future connection/reconnection attempts
+     * - Relay service tears down existing relays and rejects new ones
+     * @param {string} userId
+     * @returns {number} Number of relays torn down
+     */
+    revokeUser (userId) {
+        if (this.client?.connection && !this.client.connection.isClosed()) {
+            this.client.connection.publish(`${ADMIN_REVOKE_PREFIX}.${userId}`)
+            logger.info({ msg: 'Published revocation via NATS', userId })
+        }
+        if (this.authService) this.authService.revokeUser(userId)
+        if (this.relayService) return this.relayService.revokeUser(userId)
+        return 0
+    }
+
+    /**
+     * Re-enables a previously revoked user's messaging access.
+     * @param {string} userId
+     */
+    unrevokeUser (userId) {
+        if (this.client?.connection && !this.client.connection.isClosed()) {
+            this.client.connection.publish(`${ADMIN_UNREVOKE_PREFIX}.${userId}`)
+        }
+        if (this.authService) this.authService.unrevokeUser(userId)
+        if (this.relayService) this.relayService.unrevokeUser(userId)
     }
 }
 

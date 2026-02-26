@@ -3,23 +3,22 @@ const { faker } = require('@faker-js/faker')
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { configure, checkAccess, getAvailableChannels, channelRegistry } = require('@open-condo/messaging')
+const { configure, checkAccess, getAvailableChannels } = require('@open-condo/messaging')
 
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { isActiveEmployee } = require('@condo/domains/common/utils/initMessaging')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { Ticket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { User, makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 
-describe('NATS Access Control', () => {
+describe('Messaging Access Control', () => {
     let admin
 
     let needsDisconnect = false
 
     beforeAll(async () => {
         configure({
-            getPermittedOrganizations: getEmployedOrRelatedOrganizationsByPermissions,
+            isActiveEmployee,
         })
 
         admin = await makeLoggedInAdminClient()
@@ -36,259 +35,87 @@ describe('NATS Access Control', () => {
             await keystone.disconnect()
         }
     })
-    describe('checkAccess', () => {
-        describe('Boolean true access (public)', () => {
-            beforeAll(() => {
-                channelRegistry.register('test-public-events', {
-                    ttl: 3600,
-                    topics: ['test-public-events.>'],
-                    access: {
-                        read: true,
-                    },
-                })
-            })
 
-            it('allows authenticated user to access public channel', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const userId = client.user.id
-                const [organization] = await createTestOrganization(admin)
-                const organizationId = organization.id
+    describe('checkAccess — user channel', () => {
+        it('allows authenticated user to access own user channel', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userId = client.user.id
 
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    'test-public-events.test.message'
-                )
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(context, userId, `user.${userId}.notification`)
 
-                expect(result.allowed).toBe(true)
-            })
+            expect(result.allowed).toBe(true)
+            expect(result.user).toEqual(userId)
         })
 
-        describe('Permission string access', () => {
-            beforeAll(() => {
-                channelRegistry.register('test-permission-changes', {
-                    ttl: 3600,
-                    topics: ['test-permission-changes.>'],
-                    access: {
-                        read: 'canManageTickets',
-                    },
-                })
+        it('denies access to another user channel', async () => {
+            const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(context, client1.user.id, `user.${client2.user.id}.notification`)
+
+            expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('Cannot access other user channel')
+        })
+    })
+
+    describe('checkAccess — organization channel', () => {
+        it('allows active employee to access organization channel', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+            const employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, {
+                isRejected: false,
+                isAccepted: true,
+                isBlocked: false,
             })
 
-            it('allows user with required permission', async () => {
-                const [organization] = await createTestOrganization(admin)
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true, canManageTickets: true } )
-                const employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
-                await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, {
-                    isRejected: false,
-                    isAccepted: true,
-                    isBlocked: false,
-                })
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(
+                context,
+                employeeUser.user.id,
+                `organization.${organization.id}.ticket`
+            )
 
-                const userId = employeeUser.user.id
-                const organizationId = organization.id
-
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    'test-permission-changes.test.message'
-                )
-
-                expect(result.allowed).toBeTruthy()
-                expect(result.user).toEqual(userId)
-                expect(result.organization).toEqual(organizationId)
-            })
-
-            it('denies user without required permission', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const userId = client.user.id
-
-                const [organization] = await createTestOrganization(admin)
-                const organizationId = organization.id
-
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageTickets: false,
-                })
-
-                await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                    isAccepted: true,
-                    isRejected: false,
-                })
-
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    'test-permission-changes.test.message'
-                )
-
-                expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('Permission denied')
-            })
-
+            expect(result.allowed).toBe(true)
+            expect(result.user).toEqual(employeeUser.user.id)
+            expect(result.organization).toEqual(organization.id)
         })
 
-        describe('Custom function access', () => {
-            beforeAll(() => {
-                channelRegistry.register('test-custom-events', {
-                    ttl: 3600,
-                    topics: ['test-custom-events.>'],
-                    access: {
-                        read: async ({ authentication, context, organizationId, topic }) => {
-                            try {
-                                const { item: user } = authentication
-                                if (!user || user.deletedAt) return false
+        it('denies non-employee user access to organization channel', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(admin)
 
-                                const ticketId = topic.split('.')[2]
-                                if (!ticketId) return false
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(
+                context,
+                client.user.id,
+                `organization.${organization.id}.ticket`
+            )
 
-                                const ticket = await Ticket.getOne(context, {
-                                    id: ticketId,
-                                    organization: { id: organizationId },
-                                })
-
-                                if (!ticket) return false
-
-                                const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canReadTickets'])
-                                return permittedOrganizations.includes(organizationId)
-                            } catch (error) {
-                                return false
-                            }
-                        },
-                    },
-                })
-            })
-
-            it('denies user who cannot access ticket from different organization', async () => {
-                const client1 = await makeClientWithProperty()
-                const client2 = await makeClientWithProperty()
-
-                const [ticket] = await createTestTicket(client1, client1.organization, client1.property)
-                const ticketId = ticket.id
-
-                const userId = client2.user.id
-                const organizationId = client2.organization.id
-
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    `test-custom-events.${organizationId}.${ticketId}`
-                )
-
-                expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('Access denied by custom function')
-            })
-
-            it('denies access when ticket does not exist', async () => {
-                const client = await makeClientWithProperty()
-                const userId = client.user.id
-                const organizationId = client.organization.id
-                const fakeTicketId = faker.datatype.uuid()
-
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    `test-custom-events.${organizationId}.${fakeTicketId}`
-                )
-
-                expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('Access denied by custom function')
-            })
+            expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('Not an active employee of this organization')
         })
 
-        describe('Error handling', () => {
-            it('denies access for non-existent channel', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const userId = client.user.id
-                const [organization] = await createTestOrganization(admin)
-                const organizationId = organization.id
+        it('denies access for unknown channel prefix', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    'non-existent-stream.test.message'
-                )
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(context, client.user.id, 'unknown.topic')
 
-                expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('Channel not found')
-            })
-
-            it('denies access when channel has no access config', async () => {
-                channelRegistry.register('test-no-access-events', {
-                    ttl: 3600,
-                    topics: ['test-no-access-events.>'],
-                })
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const userId = client.user.id
-                const [organization] = await createTestOrganization(admin)
-                const organizationId = organization.id
-
-                const keystone = getSchemaCtx('User').keystone
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkAccess(
-                    context,
-                    userId,
-                    organizationId,
-                    'test-no-access-events.test.message'
-                )
-
-                expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('No access configuration for channel')
-            })
+            expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('Unknown channel')
         })
     })
 
     describe('getAvailableChannels', () => {
-        beforeAll(() => {
-            channelRegistry.register('test-available-public-events', {
-                ttl: 3600,
-                topics: ['test-available-public-events.>'],
-                access: {
-                    read: true,
-                },
-            })
-
-            channelRegistry.register('test-available-permission-changes', {
-                ttl: 3600,
-                topics: ['test-available-permission-changes.>'],
-                access: {
-                    read: 'canManageTickets',
-                },
-            })
-
-            channelRegistry.register('test-available-custom-events', {
-                ttl: 3600,
-                topics: ['test-available-custom-events.>'],
-                access: {
-                    read: async ({ authentication, context }) => {
-                        const { item: user } = authentication
-                        if (!user || user.deletedAt) return false
-                        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canManageTickets'])
-                        return permittedOrganizations.length > 0
-                    },
-                },
-            })
-        })
-
-        it('returns only public and permitted streams for regular user', async () => {
+        it('returns user and organization channels for active employee', async () => {
             const client = await makeClientWithProperty()
             const userId = client.user.id
             const organizationId = client.organization.id
@@ -298,70 +125,34 @@ describe('NATS Access Control', () => {
             const channels = await getAvailableChannels(context, userId, organizationId)
 
             const channelNames = channels.map(s => s.name)
-            expect(channelNames).toContain('test-available-public-events')
-            expect(channelNames).toContain('test-available-permission-changes')
-            expect(channelNames).toContain('test-available-custom-events')
+            expect(channelNames).toContain('user')
+            expect(channelNames).toContain('organization')
+            expect(channels).toHaveLength(2)
+
+            const userChannel = channels.find(c => c.name === 'user')
+            expect(userChannel.topic).toBe(`user.${userId}.>`)
+
+            const orgChannel = channels.find(c => c.name === 'organization')
+            expect(orgChannel.topic).toBe(`organization.${organizationId}.>`)
         })
 
-        it('returns only public channels for user without permissions', async () => {
+        it('returns only user channel for non-employee', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const userId = client.user.id
-
             const [organization] = await createTestOrganization(admin)
-            const organizationId = organization.id
-
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageTickets: false,
-            })
-
-            await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                isAccepted: true,
-                isRejected: false,
-            })
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const channels = await getAvailableChannels(context, userId, organizationId)
+            const channels = await getAvailableChannels(context, client.user.id, organization.id)
 
             const channelNames = channels.map(s => s.name)
-            expect(channelNames).toContain('test-available-public-events')
-            expect(channelNames).not.toContain('test-available-permission-changes')
-            expect(channelNames).not.toContain('test-available-custom-events')
-        })
-
-        it('includes permission field for permission-based channels', async () => {
-            const client = await makeClientWithProperty()
-            const userId = client.user.id
-            const organizationId = client.organization.id
-
-            const keystone = getSchemaCtx('User').keystone
-            const context = await keystone.createContext({ skipAccessControl: true })
-            const channels = await getAvailableChannels(context, userId, organizationId)
-
-            const permissionChannel = channels.find(s => s.name === 'test-available-permission-changes')
-            expect(permissionChannel).toBeDefined()
-            expect(permissionChannel.permission).toBe('canManageTickets')
-        })
-
-        it('includes topics for all channels', async () => {
-            const client = await makeClientWithProperty()
-            const userId = client.user.id
-            const organizationId = client.organization.id
-
-            const keystone = getSchemaCtx('User').keystone
-            const context = await keystone.createContext({ skipAccessControl: true })
-            const channels = await getAvailableChannels(context, userId, organizationId)
-
-            channels.forEach(channel => {
-                expect(channel.topics).toBeDefined()
-                expect(Array.isArray(channel.topics)).toBe(true)
-                expect(channel.topics.length).toBeGreaterThan(0)
-            })
+            expect(channelNames).toContain('user')
+            expect(channelNames).not.toContain('organization')
+            expect(channels).toHaveLength(1)
         })
     })
 
     describe('Cross-organization access isolation', () => {
-        it('non-employee user cannot access permission-based channels of organization', async () => {
+        it('non-employee cannot access organization channel', async () => {
             const outsiderClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const targetOrgClient = await makeClientWithProperty()
 
@@ -370,11 +161,10 @@ describe('NATS Access Control', () => {
             const channels = await getAvailableChannels(context, outsiderClient.user.id, targetOrgClient.organization.id)
 
             const channelNames = channels.map(s => s.name)
-            expect(channelNames).not.toContain('test-available-permission-changes')
-            expect(channelNames).not.toContain('test-available-custom-events')
+            expect(channelNames).not.toContain('organization')
         })
 
-        it('employee of org-A gets NO permission-based channels for org-B', async () => {
+        it('employee of org-A gets NO organization channel for org-B', async () => {
             const clientA = await makeClientWithProperty()
             const clientB = await makeClientWithProperty()
 
@@ -383,41 +173,23 @@ describe('NATS Access Control', () => {
             const channels = await getAvailableChannels(context, clientA.user.id, clientB.organization.id)
 
             const channelNames = channels.map(s => s.name)
-            expect(channelNames).not.toContain('test-available-permission-changes')
+            expect(channelNames).not.toContain('organization')
         })
 
-        it('denies non-employee user access to permission-based channel of another organization', async () => {
-            const outsiderClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const targetOrgClient = await makeClientWithProperty()
-
-            const keystone = getSchemaCtx('User').keystone
-            const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkAccess(
-                context,
-                outsiderClient.user.id,
-                targetOrgClient.organization.id,
-                'test-permission-changes.test.message'
-            )
-
-            expect(result.allowed).toBe(false)
-            expect(result.reason).toBe('Permission denied')
-        })
-
-        it('employee of org-A cannot access custom channel of org-B', async () => {
+        it('employee of org-A cannot checkAccess organization topic of org-B', async () => {
             const clientA = await makeClientWithProperty()
             const clientB = await makeClientWithProperty()
-            const [ticket] = await createTestTicket(clientB, clientB.organization, clientB.property)
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
             const result = await checkAccess(
                 context,
                 clientA.user.id,
-                clientB.organization.id,
-                `test-custom-events.${clientB.organization.id}.${ticket.id}`
+                `organization.${clientB.organization.id}.ticket`
             )
 
             expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('Not an active employee of this organization')
         })
     })
 
@@ -439,20 +211,19 @@ describe('NATS Access Control', () => {
 
             // Before: user has access
             const channelsBefore = await getAvailableChannels(context, user.id, organization.id)
-            const namesBefore = channelsBefore.map(s => s.name)
-            expect(namesBefore).toContain('test-available-permission-changes')
+            expect(channelsBefore.map(s => s.name)).toContain('organization')
 
-            const accessBefore = await checkAccess(context, user.id, organization.id, 'test-permission-changes.test.message')
+            const accessBefore = await checkAccess(context, user.id, `organization.${organization.id}.ticket`)
             expect(accessBefore.allowed).toBe(true)
 
             // Soft-delete
             await User.softDelete(admin, user.id)
 
-            // After: access revoked immediately — no caching, no delay
+            // After: access revoked immediately
             const channelsAfter = await getAvailableChannels(context, user.id, organization.id)
             expect(channelsAfter).toHaveLength(0)
 
-            const accessAfter = await checkAccess(context, user.id, organization.id, 'test-permission-changes.test.message')
+            const accessAfter = await checkAccess(context, user.id, `organization.${organization.id}.ticket`)
             expect(accessAfter.allowed).toBe(false)
             expect(accessAfter.reason).toBe('User not found or deleted')
         })
@@ -478,7 +249,20 @@ describe('NATS Access Control', () => {
             expect(channels).toHaveLength(0)
         })
 
-        it('checkAccess denies soft-deleted user', async () => {
+        it('checkAccess denies soft-deleted user on user channel', async () => {
+            const [user] = await createTestUser(admin)
+
+            await User.softDelete(admin, user.id)
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(context, user.id, `user.${user.id}.notification`)
+
+            expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('User not found or deleted')
+        })
+
+        it('checkAccess denies soft-deleted user on organization channel', async () => {
             const [user] = await createTestUser(admin)
             const [organization] = await createTestOrganization(admin)
 
@@ -486,12 +270,7 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkAccess(
-                context,
-                user.id,
-                organization.id,
-                'test-permission-changes.test.message'
-            )
+            const result = await checkAccess(context, user.id, `organization.${organization.id}.ticket`)
 
             expect(result.allowed).toBe(false)
             expect(result.reason).toBe('User not found or deleted')
@@ -514,18 +293,13 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkAccess(
-                context,
-                fakeUserId,
-                organization.id,
-                'test-permission-changes.test.message'
-            )
+            const result = await checkAccess(context, fakeUserId, `organization.${organization.id}.ticket`)
 
             expect(result.allowed).toBe(false)
             expect(result.reason).toBe('User not found or deleted')
         })
 
-        it('blocked employee gets NO permission-based channels', async () => {
+        it('blocked employee gets NO organization channel', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canManageTickets: true,
@@ -544,11 +318,10 @@ describe('NATS Access Control', () => {
             const channels = await getAvailableChannels(context, client.user.id, organization.id)
 
             const channelNames = channels.map(s => s.name)
-            expect(channelNames).not.toContain('test-available-permission-changes')
-            expect(channelNames).not.toContain('test-available-custom-events')
+            expect(channelNames).not.toContain('organization')
         })
 
-        it('rejected employee gets NO permission-based channels', async () => {
+        it('rejected employee gets NO organization channel', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canManageTickets: true,
@@ -565,8 +338,7 @@ describe('NATS Access Control', () => {
             const channels = await getAvailableChannels(context, client.user.id, organization.id)
 
             const channelNames = channels.map(s => s.name)
-            expect(channelNames).not.toContain('test-available-permission-changes')
-            expect(channelNames).not.toContain('test-available-custom-events')
+            expect(channelNames).not.toContain('organization')
         })
     })
 })

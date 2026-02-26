@@ -1,8 +1,8 @@
 /**
  * Matches a topic against a pattern with wildcards.
  * Uses dot-separated tokens with * (single token) and > (multi-token) wildcards.
- * @param {string} topic - The actual topic to check (e.g., 'ticket-changes.org-A.123')
- * @param {string} pattern - The permission pattern (e.g., 'ticket-changes.org-A.>')
+ * @param {string} topic - The actual topic to check (e.g., 'organization.org-A.ticket')
+ * @param {string} pattern - The permission pattern (e.g., 'organization.org-A.*')
  * @returns {boolean} Whether the topic matches the pattern
  */
 function matchTopic (topic, pattern) {

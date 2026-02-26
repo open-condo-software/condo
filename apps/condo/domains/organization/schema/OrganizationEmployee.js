@@ -12,6 +12,7 @@ const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { revokeMessagingUser } = require('@condo/domains/common/utils/initMessaging')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
@@ -251,6 +252,11 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             // TODO(DOMA-4440): we need to make a tool for automatic cascading soft deletion of related objects
             if (isSoftDeleteOperation) {
                 await softDeletePropertyScopeOrganizationEmployee(context, updatedItem)
+            }
+
+            const isBlockOperation = operation === 'update' && !existingItem.isBlocked && updatedItem.isBlocked
+            if ((isSoftDeleteOperation || isBlockOperation) && updatedUserId) {
+                revokeMessagingUser(updatedUserId)
             }
         },
     },

@@ -20,7 +20,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
-const { publish, buildTopic } = require('@open-condo/messaging')
+const { messaged } = require('@open-condo/messaging/plugins')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const logger = getLogger()
@@ -681,7 +681,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(), messaged()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
@@ -995,24 +995,6 @@ const Ticket = new GQLListSchema('Ticket', {
             const isBulkOperation = Array.isArray(get(context, ['req', 'body', 'variables', 'data'], null))
             if (!isBulkOperation) {
                 await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
-
-                try {
-                    await publish({
-                        channel: 'ticket-changes',
-                        topic: buildTopic('ticket-changes', updatedItem.organization, updatedItem.id),
-                        data: {
-                            ticketId: updatedItem.id,
-                            organizationId: updatedItem.organization,
-                            operation,
-                            status: updatedItem.status,
-                            number: updatedItem.number,
-                            timestamp: new Date().toISOString(),
-                            userId: get(context, ['authedItem', 'id'], null),
-                        },
-                    })
-                } catch (error) {
-                    logger.error({ msg: 'Failed to publish ticket change', err: error })
-                }
             }
         },
     },

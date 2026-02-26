@@ -1,66 +1,121 @@
-const { z } = require('zod')
-
-/**
- * Channel naming conventions:
- * - Must be kebab-case (lowercase with hyphens)
- * - Must end with one of the allowed suffixes: -changes, -events, -notifications
- * - Must be 3-50 characters long
- * - Examples: ticket-changes, billing-events, system-notifications
- */
-const channelNameSchema = z
-    .string()
-    .min(3, 'Channel name must be at least 3 characters long')
-    .max(50, 'Channel name must be at most 50 characters long')
-    .regex(
-        /^[a-z][a-z0-9]*(-[a-z0-9]+)*-(changes|events|notifications)$/,
-        'Channel name must be kebab-case and end with -changes, -events, or -notifications'
-    )
-
-/**
- * Topic pattern validation:
- * - Must start with channel name
- * - Can include wildcards: * (single token) or > (multiple tokens)
- * - Must use dot notation
- * - Examples: ticket-changes.123.>, billing-events.*.payment
- */
-const topicPatternSchema = z
-    .string()
-    .regex(
-        /^[a-z][a-z0-9-]*(\.[a-z0-9-*>]+)*$/,
-        'Topic must be dot-separated tokens in lowercase, with optional wildcards (* or >)'
-    )
-
-/**
- * Build a dot-separated topic from a channel name and tokens.
- * @param {string} channelName
- * @param {...string} tokens - Organization ID, resource ID, wildcards (*, >), etc.
- * @returns {string}
- */
-function buildTopic (channelName, ...tokens) {
-    channelNameSchema.parse(channelName)
-    const topic = [channelName, ...tokens].join('.')
-    topicPatternSchema.parse(topic)
-    return topic
-}
+const CHANNEL_USER = 'user'
+const CHANNEL_ORGANIZATION = 'organization'
 
 const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
+const ADMIN_REVOKE_PREFIX = '_MESSAGING.admin.revoke'
+const ADMIN_UNREVOKE_PREFIX = '_MESSAGING.admin.unrevoke'
 
 /**
- * Build the relay subscribe topic for PUB-gated subscription requests.
- * @param {string} channelName - Must be a valid channel name
- * @param {string} organizationId
- * @returns {string} e.g. `_MESSAGING.subscribe.ticket-changes.org-1`
+ * Channel definitions registry
+ *
+ * @typedef {Object} ChannelDefinition
+ * @property {string} name - Channel name constant (e.g. 'user', 'organization')
+ * @property {function(string[]): string|null} extractUserId - Given relay subject parts after channel name,
+ *   return the userId to track for revocation, or null if this channel doesn't track userId.
+ * @property {function(string[]): string} buildActualTopic - Given relay subject parts after channel name,
+ *   return the actual NATS topic to subscribe to.
+ * @property {function({userId: string, organizationId: string}): string[]} buildRelayPermissions -
+ *   Given user context, return PUB allow patterns for relay subscribe topics.
+ * @property {function({userId: string, organizationId: string}): {name: string, topic: string}} buildAvailableChannel -
+ *   Given user context, return the channel info for the /messaging/channels endpoint.
  */
-function buildRelaySubscribeTopic (channelName, organizationId) {
-    channelNameSchema.parse(channelName)
-    return `${RELAY_SUBSCRIBE_PREFIX}.${channelName}.${organizationId}`
+const CHANNEL_DEFINITIONS = [
+    {
+        name: CHANNEL_USER,
+        extractUserId: (parts) => parts[0] || null,
+        buildActualTopic: (parts) => {
+            const userId = parts[0]
+            const entity = parts[1]
+            return entity
+                ? `${CHANNEL_USER}.${userId}.${entity}`
+                : `${CHANNEL_USER}.${userId}.>`
+        },
+        buildRelayPermissions: ({ userId }) => [
+            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_USER}.${userId}.*`,
+        ],
+        buildAvailableChannel: ({ userId }) => ({
+            name: CHANNEL_USER,
+            topic: `${CHANNEL_USER}.${userId}.>`,
+        }),
+    },
+    {
+        name: CHANNEL_ORGANIZATION,
+        extractUserId: () => null,
+        buildActualTopic: (parts) => {
+            const orgId = parts[0]
+            const entity = parts[1]
+            return entity
+                ? `${CHANNEL_ORGANIZATION}.${orgId}.${entity}`
+                : `${CHANNEL_ORGANIZATION}.${orgId}.>`
+        },
+        buildRelayPermissions: ({ organizationId }) => [
+            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.*`,
+        ],
+        buildAvailableChannel: ({ organizationId }) => ({
+            name: CHANNEL_ORGANIZATION,
+            topic: `${CHANNEL_ORGANIZATION}.${organizationId}.>`,
+        }),
+    },
+]
+
+const CHANNEL_DEFINITIONS_BY_NAME = Object.fromEntries(
+    CHANNEL_DEFINITIONS.map(ch => [ch.name, ch])
+)
+
+/**
+ * Build a user channel topic.
+ * @param {string} userId
+ * @param {string} entity - Entity name (e.g. 'notification')
+ * @returns {string} e.g. `user.abc-123.notification`
+ */
+function buildUserTopic (userId, entity) {
+    return `${CHANNEL_USER}.${userId}.${entity}`
+}
+
+/**
+ * Build an organization channel topic.
+ * @param {string} organizationId
+ * @param {string} entity - Entity name (e.g. 'ticket', 'ticketComment')
+ * @returns {string} e.g. `organization.org-1.ticket`
+ */
+function buildOrganizationTopic (organizationId, entity) {
+    return `${CHANNEL_ORGANIZATION}.${organizationId}.${entity}`
+}
+
+/**
+ * Build a dot-separated topic from tokens.
+ * @param {...string} tokens
+ * @returns {string}
+ */
+function buildTopic (...tokens) {
+    return tokens.join('.')
+}
+
+/**
+ * Build the relay subscribe topic for a user entity.
+ * @param {string} userId
+ * @param {string} entity - Entity name (e.g. 'notification')
+ * @returns {string} e.g. `_MESSAGING.subscribe.user.abc-123.notification`
+ */
+function buildUserRelaySubscribeTopic (userId, entity) {
+    return `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_USER}.${userId}.${entity}`
+}
+
+/**
+ * Build the relay subscribe topic for an organization entity.
+ * @param {string} organizationId
+ * @param {string} entity - Entity name (e.g. 'ticket')
+ * @returns {string} e.g. `_MESSAGING.subscribe.organization.org-1.ticket`
+ */
+function buildOrganizationRelaySubscribeTopic (organizationId, entity) {
+    return `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.${entity}`
 }
 
 /**
  * Build the relay unsubscribe topic.
  * @param {string} relayId
- * @returns {string} e.g. `_MESSAGING.unsubscribe.abc123`
+ * @returns {string} e.g. `_MESSAGING.unsubscribe.relay-1`
  */
 function buildRelayUnsubscribeTopic (relayId) {
     return `${RELAY_UNSUBSCRIBE_PREFIX}.${relayId}`
@@ -83,13 +138,20 @@ function buildRelayUnsubscribePattern () {
 }
 
 module.exports = {
-    channelNameSchema,
-    topicPatternSchema,
+    CHANNEL_USER,
+    CHANNEL_ORGANIZATION,
+    CHANNEL_DEFINITIONS,
+    CHANNEL_DEFINITIONS_BY_NAME,
+    RELAY_SUBSCRIBE_PREFIX,
+    RELAY_UNSUBSCRIBE_PREFIX,
+    ADMIN_REVOKE_PREFIX,
+    ADMIN_UNREVOKE_PREFIX,
+    buildUserTopic,
+    buildOrganizationTopic,
     buildTopic,
-    buildRelaySubscribeTopic,
+    buildUserRelaySubscribeTopic,
+    buildOrganizationRelaySubscribeTopic,
     buildRelayUnsubscribeTopic,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
-    RELAY_SUBSCRIBE_PREFIX,
-    RELAY_UNSUBSCRIBE_PREFIX,
 }
