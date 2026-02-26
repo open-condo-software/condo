@@ -1,4 +1,4 @@
-export type FrameId = string
+export type SourceId = string
 export type FrameType = HTMLIFrameElement
 export type EventType = string
 export type EventName = string
@@ -17,7 +17,7 @@ export type HandlerMethods<Params extends EventParams, Result extends HandlerRes
     validator: ParamsValidator<Params>
     handler: Handler<Params, Result>
 }
-export type HandlerScope = FrameId | '*' | 'parent'
+export type HandlerScope = SourceId | '*' | 'parent'
 export type AddHandlerType = <Params extends EventParams, Result extends HandlerResult>(
     eventType: EventType,
     eventName: EventName,
