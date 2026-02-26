@@ -8,6 +8,7 @@ import React, { useCallback, useRef, useState } from 'react'
 
 import type { CondoBridgeResultResponseEvent, SetPageActionsParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
+import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -138,6 +139,8 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
     const { organization } = useOrganization()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
+    const deviceId = getClientSideFingerprint()
+
     return useCallback(() => {
         return {
             condoUserId: userId,
@@ -145,8 +148,9 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
             condoLocale: locale,
             condoContextEntity: 'Organization',
             condoContextEntityId: organizationId,
+            condoDeviceId: deviceId,
         }
-    }, [userId, organizationId, locale])
+    }, [userId, locale, organizationId, deviceId])
 }
 
 export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowProgressBar'> = () => {
