@@ -1,6 +1,8 @@
 import get from 'lodash/get'
 import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+
+import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -11,6 +13,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
+import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
@@ -78,18 +81,26 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const { organization } = useOrganization()
     const { addFrame, addEventHandler, removeFrame, actionsContext: { actions, actionsSource, actionsOrigin } } = usePostMessageContext()
     const userId = get(user, 'id', null)
+    const userType = get(user, 'type', STAFF)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
         const url = new URL(src)
+        url.searchParams.set('condoUserType', userType)
+        url.searchParams.set('condoContextEntity', 'Organization')
+        if (typeof window !== 'undefined') {
+            url.searchParams.set('condoDeviceId', getClientSideFingerprint())
+        }
+
         if (userId && (reloadScope === 'user' || reloadScope === 'organization')) {
             url.searchParams.set('condoUserId', userId)
         }
         if (organizationId && reloadScope === 'organization') {
+            // TODO: remove this later
             url.searchParams.set('condoOrganizationId', organizationId)
+            url.searchParams.set('condoContextEntityId', organizationId)
         }
-
         return url.toString()
-    }, [src, userId, organizationId, reloadScope])
+    }, [src, userType, userId, reloadScope, organizationId])
 
     const rerenderKey = useMemo(() => {
         const params: { [key: string]: string } = { src }
