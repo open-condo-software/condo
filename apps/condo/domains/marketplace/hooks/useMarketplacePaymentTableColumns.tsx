@@ -134,7 +134,7 @@ export function useMarketplacePaymentTableColumns<T> (filterMetas: Array<Filters
                     verifyDescription: PosReceiptVerifyDescription,
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
-                width: '10em',
+                width: '8em',
             } : undefined,
         ].filter(Boolean)
     }, [DateMessage, sorterMap, filters, intl, search, filterMetas, InvoiceNumberMessage, invoiceNumberRender, TicketNumberMessage, ticketNumberRender, StatusMessage, openStatusDescModal, SumMessage, options.posIntegrationContext, options.lastTestingPosReceipt, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
