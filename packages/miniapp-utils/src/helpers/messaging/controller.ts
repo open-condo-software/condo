@@ -107,6 +107,10 @@ export class PostMessageController extends EventTarget {
             navigator?.serviceWorker?.removeEventListener?.('controllerchange', this._onNewServiceWorker)
             this.#isNewWorkerAutoConnectEnabled = false
         }
+        const senderId = Object.keys(this.#registeredServiceWorkers)[0]
+        if (senderId) {
+            delete this.#registeredHandlers[senderId]
+        }
         this.#registeredServiceWorkers = {}
     }
 
