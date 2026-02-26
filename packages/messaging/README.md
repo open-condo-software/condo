@@ -72,18 +72,64 @@ NEXT_PUBLIC_MESSAGING_WS_URL=ws://localhost:8080
 
 ### Using the `messaged` plugin (recommended)
 
-Add the plugin to any Keystone schema to auto-publish changes on create/update/delete:
+Add the plugin to any Keystone schema to auto-publish changes on create/update/delete.
+
+Each target specifies a **channel** name and either a direct **field** on the model or an async **resolve** function.
+
+**Direct field** (model has the target ID as a field):
 
 ```javascript
 const { messaged } = require('@open-condo/messaging')
 
 const Ticket = new GQLListSchema('Ticket', {
-    plugins: [messaged({ organizationField: 'organization' })],
+    plugins: [messaged({ targets: [{ channel: 'organization', field: 'organization' }] })],
+    // ...
+})
+// publishes to: condo.organization.<orgId>.ticket
+```
+
+**Relationship resolution** (target ID is on a related model):
+
+```javascript
+const { messaged } = require('@open-condo/messaging')
+const { getById } = require('@open-condo/keystone/schema')
+
+const TicketComment = new GQLListSchema('TicketComment', {
+    plugins: [messaged({ targets: [{ channel: 'organization', resolve: async ({ updatedItem }) => {
+        const ticket = await getById('Ticket', updatedItem.ticket)
+        return ticket?.organization
+    }}] })],
     // ...
 })
 ```
 
-Publishes to `organization.<orgId>.ticket` with payload `{ id, operation }` where operation is `'create'` | `'update'` | `'delete'`.
+**Multi-target with holding organization** (publish to direct org + holding org):
+
+```javascript
+const { messaged } = require('@open-condo/messaging')
+const { find } = require('@open-condo/keystone/schema')
+
+const Ticket = new GQLListSchema('Ticket', {
+    plugins: [messaged({
+        targets: [
+            { channel: 'organization', field: 'organization' },
+            {
+                channel: 'organization',
+                resolve: async ({ updatedItem }) => {
+                    const orgId = updatedItem.organization
+                    if (!orgId) return null
+                    const links = await find('OrganizationLink', { to: orgId, deletedAt: null })
+                    return links[0]?.from || null
+                },
+            },
+        ],
+    })],
+    // ...
+})
+// publishes to: condo.organization.<orgId>.ticket AND condo.organization.<holdingOrgId>.ticket
+```
+
+Publishes to `<appPrefix>.<channel>.<targetId>.<entityName>` with payload `{ id, operation }` where operation is `'create'` | `'update'` | `'delete'`. The app prefix is automatically derived from the nearest `package.json` name.
 
 ### Manual publishing
 

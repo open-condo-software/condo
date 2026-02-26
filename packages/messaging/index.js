@@ -7,6 +7,8 @@ const {
     CHANNEL_ORGANIZATION,
     RELAY_SUBSCRIBE_PREFIX,
     RELAY_UNSUBSCRIBE_PREFIX,
+    APP_PREFIX,
+    getAppPrefix,
     buildUserTopic,
     buildOrganizationTopic,
     buildTopic,
@@ -54,6 +56,8 @@ module.exports = {
     initializeChannels,
 
     // Topic utilities
+    APP_PREFIX,
+    getAppPrefix,
     buildUserTopic,
     buildOrganizationTopic,
     buildTopic,

@@ -1,12 +1,11 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
-
 const { NatsAuthCalloutService } = require('./NatsAuthCalloutService')
 const { NatsClient } = require('./NatsClient')
 const { NatsSubscriptionRelay } = require('./NatsSubscriptionRelay')
 
 const { BaseAdapter } = require('../../core/BaseAdapter')
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
 
 const logger = getLogger()
 

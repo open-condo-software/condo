@@ -1,3 +1,7 @@
+const fs = require('fs')
+const path = require('path')
+const { fileURLToPath } = require('url')
+
 const CHANNEL_USER = 'user'
 const CHANNEL_ORGANIZATION = 'organization'
 
@@ -5,6 +9,41 @@ const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
 const ADMIN_REVOKE_PREFIX = '_MESSAGING.admin.revoke'
 const ADMIN_UNREVOKE_PREFIX = '_MESSAGING.admin.unrevoke'
+
+/**
+ * Derives an app-specific prefix from the nearest package.json name.
+ * @returns {string} e.g. 'condo' for @app/condo
+ */
+const getAppPrefix = () => {
+    const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
+
+    const cwd = process.cwd()
+    let stopAt = 'apps'
+    let directory = path.resolve(toPath(cwd) ?? '')
+    const { root } = path.parse(directory)
+    stopAt = path.resolve(directory, toPath(stopAt) ?? root)
+    let packageJsonPath
+
+    while (directory && directory !== stopAt && directory !== root) {
+        packageJsonPath = path.isAbsolute('package.json') ? 'package.json' : path.join(directory, 'package.json')
+
+        try {
+            const stats = fs.statSync(packageJsonPath, { throwIfNoEntry: false })
+            if (stats?.isFile()) {
+                break
+            }
+        } catch (e) { console.error(e) }
+
+        directory = path.dirname(directory)
+    }
+
+    return require(packageJsonPath).name.split('/')
+        .pop()
+        .replace(/:/g, '')
+        .replace(/-/g, '_').toLowerCase()
+}
+
+const APP_PREFIX = getAppPrefix()
 
 /**
  * Channel definitions registry
@@ -26,13 +65,13 @@ const CHANNEL_DEFINITIONS = [
         extractUserId: (parts) => parts[0] || null,
         buildActualTopic: (parts) => {
             const userId = parts[0]
-            const entity = parts[1]
-            return entity
-                ? `${CHANNEL_USER}.${userId}.${entity}`
-                : `${CHANNEL_USER}.${userId}.>`
+            const rest = parts.slice(1)
+            return rest.length > 0
+                ? `${APP_PREFIX}.${CHANNEL_USER}.${userId}.${rest.join('.')}`
+                : `${APP_PREFIX}.${CHANNEL_USER}.${userId}.>`
         },
         buildRelayPermissions: ({ userId }) => [
-            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_USER}.${userId}.*`,
+            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_USER}.${userId}.>`,
         ],
         buildAvailableChannel: ({ userId }) => ({
             name: CHANNEL_USER,
@@ -44,13 +83,13 @@ const CHANNEL_DEFINITIONS = [
         extractUserId: () => null,
         buildActualTopic: (parts) => {
             const orgId = parts[0]
-            const entity = parts[1]
-            return entity
-                ? `${CHANNEL_ORGANIZATION}.${orgId}.${entity}`
-                : `${CHANNEL_ORGANIZATION}.${orgId}.>`
+            const rest = parts.slice(1)
+            return rest.length > 0
+                ? `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${orgId}.${rest.join('.')}`
+                : `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${orgId}.>`
         },
         buildRelayPermissions: ({ organizationId }) => [
-            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.*`,
+            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.>`,
         ],
         buildAvailableChannel: ({ organizationId }) => ({
             name: CHANNEL_ORGANIZATION,
@@ -64,32 +103,32 @@ const CHANNEL_DEFINITIONS_BY_NAME = Object.fromEntries(
 )
 
 /**
- * Build a user channel topic.
+ * Build a user channel topic (auto-prefixed with app name).
  * @param {string} userId
  * @param {string} entity - Entity name (e.g. 'notification')
- * @returns {string} e.g. `user.abc-123.notification`
+ * @returns {string} e.g. `condo.user.abc-123.notification`
  */
 function buildUserTopic (userId, entity) {
-    return `${CHANNEL_USER}.${userId}.${entity}`
+    return `${APP_PREFIX}.${CHANNEL_USER}.${userId}.${entity}`
 }
 
 /**
- * Build an organization channel topic.
+ * Build an organization channel topic (auto-prefixed with app name).
  * @param {string} organizationId
  * @param {string} entity - Entity name (e.g. 'ticket', 'ticketComment')
- * @returns {string} e.g. `organization.org-1.ticket`
+ * @returns {string} e.g. `condo.organization.org-1.ticket`
  */
 function buildOrganizationTopic (organizationId, entity) {
-    return `${CHANNEL_ORGANIZATION}.${organizationId}.${entity}`
+    return `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.${entity}`
 }
 
 /**
- * Build a dot-separated topic from tokens.
+ * Build a dot-separated topic from tokens (auto-prefixed with app name).
  * @param {...string} tokens
- * @returns {string}
+ * @returns {string} e.g. `condo.organization.org-1.ticket`
  */
 function buildTopic (...tokens) {
-    return tokens.join('.')
+    return [APP_PREFIX, ...tokens].join('.')
 }
 
 /**
@@ -146,6 +185,8 @@ module.exports = {
     RELAY_UNSUBSCRIBE_PREFIX,
     ADMIN_REVOKE_PREFIX,
     ADMIN_UNREVOKE_PREFIX,
+    APP_PREFIX,
+    getAppPrefix,
     buildUserTopic,
     buildOrganizationTopic,
     buildTopic,

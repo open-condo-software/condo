@@ -15,15 +15,12 @@ const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 const { messaged } = require('@open-condo/messaging/plugins')
 const { webHooked } = require('@open-condo/webhooks/plugins')
-
-const logger = getLogger()
 
 const {
     PROPERTY_REQUIRED_ERROR,
@@ -681,7 +678,20 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(), messaged()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(), messaged({
+        targets: [
+            { channel: 'organization', field: 'organization' },
+            {
+                channel: 'organization',
+                resolve: async ({ updatedItem }) => {
+                    const orgId = updatedItem.organization
+                    if (!orgId) return null
+                    const links = await find('OrganizationLink', { to: orgId, deletedAt: null })
+                    return links[0]?.from || null
+                },
+            },
+        ],
+    })],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts

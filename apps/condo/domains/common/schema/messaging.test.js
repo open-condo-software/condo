@@ -4,7 +4,7 @@ const { connect, JSONCodec, createInbox } = require('nats')
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { configure } = require('@open-condo/messaging')
+const { configure, buildOrganizationTopic } = require('@open-condo/messaging')
 
 const { isActiveEmployee } = require('@condo/domains/common/utils/initMessaging')
 const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -304,11 +304,11 @@ describe('Messaging Integration Tests', () => {
                 await new Promise(resolve => setTimeout(resolve, 300))
 
                 serverConn.publish(
-                    `organization.${clientA.organization.id}.ticket`,
+                    buildOrganizationTopic(clientA.organization.id, 'ticket'),
                     jc.encode({ org: clientA.organization.id, id: 'e1' })
                 )
                 serverConn.publish(
-                    `organization.${clientB.organization.id}.ticket`,
+                    buildOrganizationTopic(clientB.organization.id, 'ticket'),
                     jc.encode({ org: clientB.organization.id, id: 'e2' })
                 )
                 await serverConn.flush()
@@ -395,11 +395,11 @@ describe('Messaging Integration Tests', () => {
                 await new Promise(resolve => setTimeout(resolve, 300))
 
                 serverConn.publish(
-                    `organization.${clientA.organization.id}.ticket`,
+                    buildOrganizationTopic(clientA.organization.id, 'ticket'),
                     jc.encode({ org: clientA.organization.id, from: 'for-A' })
                 )
                 serverConn.publish(
-                    `organization.${clientB.organization.id}.ticket`,
+                    buildOrganizationTopic(clientB.organization.id, 'ticket'),
                     jc.encode({ org: clientB.organization.id, from: 'for-B' })
                 )
                 await serverConn.flush()
@@ -488,7 +488,7 @@ describe('Messaging Integration Tests', () => {
                 await serverConn.flush()
                 await new Promise(resolve => setTimeout(resolve, 500))
 
-                expect(received.length).toBe(1)
+                expect(received).toHaveLength(1)
                 expect(received[0].id).toBe('before-block')
 
                 // 2. Block the employee via Keystone API

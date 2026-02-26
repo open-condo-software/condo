@@ -3,6 +3,7 @@ const { connect, JSONCodec, createInbox } = require('nats')
 const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
+const { buildOrganizationTopic } = require('@open-condo/messaging')
 const { NatsSubscriptionRelay } = require('@open-condo/messaging/adapters/nats')
 const {
     decodeNatsJwt,
@@ -208,11 +209,11 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 await new Promise(resolve => setTimeout(resolve, 300))
 
                 serverConn.publish(
-                    `organization.${ORG_A}.ticket`,
+                    buildOrganizationTopic(ORG_A, 'ticket'),
                     jc.encode({ org: ORG_A, id: 'ticket-aaa' })
                 )
                 serverConn.publish(
-                    `organization.${ORG_B}.ticket`,
+                    buildOrganizationTopic(ORG_B, 'ticket'),
                     jc.encode({ org: ORG_B, id: 'ticket-bbb' })
                 )
                 await serverConn.flush()
@@ -283,11 +284,11 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 await new Promise(resolve => setTimeout(resolve, 300))
 
                 serverConn.publish(
-                    `organization.${ORG_B}.ticket`,
+                    buildOrganizationTopic(ORG_B, 'ticket'),
                     jc.encode({ org: ORG_B, id: 'secret-ticket', data: 'confidential' })
                 )
                 serverConn.publish(
-                    `organization.${ORG_A}.ticket`,
+                    buildOrganizationTopic(ORG_A, 'ticket'),
                     jc.encode({ org: ORG_A, id: 'own-ticket' })
                 )
                 await serverConn.flush()
