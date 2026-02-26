@@ -21,6 +21,13 @@ const {
 const { MessagingMiddleware } = require('./middleware')
 const { messaged } = require('./plugins')
 const {
+    initMessaging,
+    closeMessaging,
+    revokeMessagingUser,
+    unrevokeMessagingUser,
+    setupMessaging,
+} = require('./setup')
+const {
     configure,
     checkAccess,
     getAvailableChannels,
@@ -79,6 +86,13 @@ module.exports = {
 
     // Plugin
     messaged,
+
+    // Setup
+    initMessaging,
+    closeMessaging,
+    revokeMessagingUser,
+    unrevokeMessagingUser,
+    setupMessaging,
 
     // Access control
     configure,

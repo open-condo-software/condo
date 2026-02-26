@@ -50,15 +50,32 @@ MESSAGING_AUTH_PASSWORD=<password>
 
 ### Server initialization
 
-Call `setupMessaging()` in your app entry point:
+Call `setupMessaging()` in your app entry point with per-channel access checkers:
 
 ```javascript
-const { setupMessaging } = require('@condo/domains/common/utils/initMessaging')
+const { find } = require('@open-condo/keystone/schema')
+const { setupMessaging } = require('@open-condo/messaging')
 
-setupMessaging()
+setupMessaging({
+    accessCheckers: {
+        organization: async (context, userId, organizationId) => {
+            const employees = await find('OrganizationEmployee', {
+                user: { id: userId },
+                organization: { id: organizationId },
+                isAccepted: true,
+                isRejected: false,
+                isBlocked: false,
+                deletedAt: null,
+            })
+            return employees.length > 0
+        },
+    },
+})
 ```
 
-This configures access control, connects to NATS, starts the auth callout service, publisher, and subscription relay.
+The `accessCheckers` map defines a per-channel access control function `(context, userId, targetId) => Promise<boolean>`. The `user` channel has built-in access control (own channel only) and does not need a checker.
+
+This connects to NATS, starts the auth callout service, publisher, and subscription relay.
 
 ### Client env
 
@@ -206,7 +223,7 @@ export const useTicketMessagingSubscription = ({ enabled = true, onMessage }) =>
 When a user is deleted or blocked, revoke their messaging access instantly:
 
 ```javascript
-const { revokeMessagingUser, unrevokeMessagingUser } = require('@condo/domains/common/utils/initMessaging')
+const { revokeMessagingUser, unrevokeMessagingUser } = require('@open-condo/messaging')
 
 revokeMessagingUser(userId)       // tears down relays + blocks new connections
 unrevokeMessagingUser(userId)     // re-enables access
@@ -243,5 +260,6 @@ packages/messaging/
 ├── middleware/               # Express endpoints (/messaging/token, /messaging/channels)
 ├── errors.js                # GQLError definitions for middleware
 ├── plugins/messaged.js      # Keystone plugin for auto-publishing
+├── setup.js                 # setupMessaging, initMessaging, closeMessaging, revoke/unrevoke
 └── hooks/                   # React hooks (useMessagingConnection, useMessagingSubscription)
 ```

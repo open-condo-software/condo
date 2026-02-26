@@ -1,11 +1,10 @@
 const { faker } = require('@faker-js/faker')
 
 const conf = require('@open-condo/config')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { configure, checkAccess, getAvailableChannels } = require('@open-condo/messaging')
 
-const { isActiveEmployee } = require('@condo/domains/common/utils/initMessaging')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { User, makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
@@ -18,7 +17,19 @@ describe('Messaging Access Control', () => {
 
     beforeAll(async () => {
         configure({
-            isActiveEmployee,
+            accessCheckers: {
+                organization: async (context, userId, organizationId) => {
+                    const employees = await find('OrganizationEmployee', {
+                        user: { id: userId },
+                        organization: { id: organizationId },
+                        isAccepted: true,
+                        isRejected: false,
+                        isBlocked: false,
+                        deletedAt: null,
+                    })
+                    return employees.length > 0
+                },
+            },
         })
 
         admin = await makeLoggedInAdminClient()

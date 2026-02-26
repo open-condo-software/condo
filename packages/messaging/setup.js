@@ -1,12 +1,26 @@
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { find } = require('@open-condo/keystone/schema')
-const { configure, createAdapter, initializePublisher } = require('@open-condo/messaging')
+
+const { NatsAdapter } = require('./adapters/nats')
+const { initializePublisher } = require('./core/Publisher')
+const { configure } = require('./utils')
 
 const logger = getLogger()
 
 let adapter = null
 
+/**
+ * Initialize the messaging subsystem: adapter, auth service, publisher, relay.
+ * Reads configuration from environment variables via @open-condo/config:
+ *   - PHASE — if 'build', skips initialization
+ *   - MESSAGING_ENABLED — must be 'true' to proceed
+ *   - MESSAGING_BROKER_URL — broker connection URL
+ *   - MESSAGING_AUTH_ACCOUNT_SEED — if set, starts auth callout service
+ *   - MESSAGING_AUTH_USER / MESSAGING_AUTH_PASSWORD — auth service credentials
+ *   - MESSAGING_SERVER_USER / MESSAGING_SERVER_PASSWORD — server connection credentials
+ *
+ * @returns {Promise<void>}
+ */
 async function initMessaging () {
     if (conf.PHASE === 'build') return
 
@@ -20,7 +34,11 @@ async function initMessaging () {
         return
     }
 
-    adapter = createAdapter()
+    const adapterName = process.env.MESSAGING_ADAPTER || 'nats'
+    if (adapterName !== 'nats') {
+        throw new Error(`Unknown messaging adapter: ${adapterName}`)
+    }
+    adapter = new NatsAdapter()
 
     if (conf.MESSAGING_AUTH_ACCOUNT_SEED) {
         await adapter.startAuthService({
@@ -51,6 +69,10 @@ async function initMessaging () {
     logger.info({ msg: 'Subscription relay service started' })
 }
 
+/**
+ * Gracefully shut down the messaging subsystem.
+ * @returns {Promise<void>}
+ */
 async function closeMessaging () {
     if (adapter) {
         await adapter.stopRelayService()
@@ -88,38 +110,37 @@ function unrevokeMessagingUser (userId) {
 }
 
 /**
- * Checks whether a user is an active employee of the given organization.
- * Active = accepted, not rejected, not blocked, not soft-deleted.
- *
- * @param {Object} context - Keystone context (with skipAccessControl)
- * @param {string} userId
- * @param {string} organizationId
- * @returns {Promise<boolean>}
- */
-async function isActiveEmployee (context, userId, organizationId) {
-    const employees = await find('OrganizationEmployee', {
-        user: { id: userId },
-        organization: { id: organizationId },
-        isAccepted: true,
-        isRejected: false,
-        isBlocked: false,
-        deletedAt: null,
-    })
-    return employees.length > 0
-}
-
-/**
  * Single entry point for messaging setup.
- * Configures access control and starts the messaging adapter.
+ * Configures per-channel access control and starts the messaging adapter.
+ *
+ * @param {Object} config
+ * @param {Record<string, function(Object, string, string): Promise<boolean>>} config.accessCheckers
+ *   Map of channel name → async (context, userId, targetId) => boolean
+ *
+ * @example
+ *   setupMessaging({
+ *       accessCheckers: {
+ *           organization: async (context, userId, organizationId) => {
+ *               const employees = await find('OrganizationEmployee', { ... })
+ *               return employees.length > 0
+ *           },
+ *       },
+ *   })
  */
-function setupMessaging () {
-    configure({
-        isActiveEmployee,
-    })
+function setupMessaging (config = {}) {
+    const { accessCheckers } = config
+
+    configure({ accessCheckers })
 
     initMessaging().catch((error) => {
         logger.error({ msg: 'Failed to initialize messaging', err: error })
     })
 }
 
-module.exports = { setupMessaging, closeMessaging, isActiveEmployee, revokeMessagingUser, unrevokeMessagingUser }
+module.exports = {
+    initMessaging,
+    closeMessaging,
+    revokeMessagingUser,
+    unrevokeMessagingUser,
+    setupMessaging,
+}

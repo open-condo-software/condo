@@ -1,32 +1,57 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { CHANNEL_USER, CHANNEL_ORGANIZATION, CHANNEL_DEFINITIONS } = require('./topic')
+const { CHANNEL_USER, CHANNEL_DEFINITIONS } = require('./topic')
 
 const logger = getLogger()
 
-let _isActiveEmployee = null
+/**
+ * Per-channel access checkers map.
+ * Key: channel name (e.g. 'organization')
+ * Value: async (context, userId, targetId) => boolean
+ *
+ * The 'user' channel has built-in logic (own channel only) and does not need a checker.
+ * @type {Record<string, function>}
+ */
+let _accessCheckers = {}
 
 /**
- * Initialize messaging access control with required dependencies.
+ * Register per-channel access checkers for messaging.
+ *
+ * The 'user' channel has a built-in access rule (own channel only).
+ * All other channels (e.g. 'organization') require an explicit checker.
+ *
  * @param {Object} config
- * @param {Function} config.isActiveEmployee - (context, userId, organizationId) => Promise<boolean>
+ * @param {Record<string, function(Object, string, string): Promise<boolean>>} config.accessCheckers
+ *   Map of channel name → async (context, userId, targetId) => boolean
+ *
+ * @example
+ *   configure({
+ *       accessCheckers: {
+ *           organization: async (context, userId, organizationId) => {
+ *               const employees = await find('OrganizationEmployee', { ... })
+ *               return employees.length > 0
+ *           },
+ *       },
+ *   })
  */
 function configure (config = {}) {
-    _isActiveEmployee = config.isActiveEmployee
+    _accessCheckers = config.accessCheckers || {}
 }
 
 /**
  * Check if a user has access to a specific topic.
  *
- * Channel rules:
+ * Built-in rules:
  *   - user.<userId>: authorized + not deleted + own channel only
- *   - organization.<orgId>.<entity>: authorized + not deleted + active employee
+ *
+ * Configurable rules (via accessCheckers):
+ *   - <channel>.<targetId>[.<entity>]: calls registered checker for channel
  *
  * @param {Object} context - Keystone context
  * @param {string} userId
  * @param {string} topic
- * @returns {Promise<{ allowed: boolean, reason?: string, user?: string, organization?: string }>}
+ * @returns {Promise<{ allowed: boolean, reason?: string, user?: string, [channel: string]: string }>}
  */
 async function checkAccess (context, userId, topic) {
     try {
@@ -46,26 +71,23 @@ async function checkAccess (context, userId, topic) {
             return { allowed: true, user: userId }
         }
 
-        if (channel === CHANNEL_ORGANIZATION) {
-            const organizationId = parts[1]
-            if (!organizationId) {
-                return { allowed: false, reason: 'Invalid organization topic' }
-            }
-
-            if (!_isActiveEmployee) {
-                logger.error({ msg: 'isActiveEmployee not configured' })
-                return { allowed: false, reason: 'Internal configuration error' }
-            }
-
-            const isEmployee = await _isActiveEmployee(context, userId, organizationId)
-            if (!isEmployee) {
-                return { allowed: false, reason: 'Not an active employee of this organization' }
-            }
-
-            return { allowed: true, user: userId, organization: organizationId }
+        const targetId = parts[1]
+        if (!targetId) {
+            return { allowed: false, reason: `Invalid ${channel} topic: missing target ID` }
         }
 
-        return { allowed: false, reason: 'Unknown channel' }
+        const checker = _accessCheckers[channel]
+        if (!checker) {
+            logger.error({ msg: 'No access checker registered for channel', channel })
+            return { allowed: false, reason: `No access checker for channel: ${channel}` }
+        }
+
+        const allowed = await checker(context, userId, targetId)
+        if (!allowed) {
+            return { allowed: false, reason: `Access denied for ${channel} channel` }
+        }
+
+        return { allowed: true, user: userId, [channel]: targetId }
     } catch (error) {
         logger.error({ msg: 'Error checking access', err: error })
         return { allowed: false, reason: 'Internal error' }
@@ -74,8 +96,8 @@ async function checkAccess (context, userId, topic) {
 
 /**
  * Get channels available to a user.
- * Always includes the user's own channel.
- * Includes organization channel if user is an active employee.
+ * Always includes channels with built-in access (user).
+ * Includes other channels only if their access checker approves.
  *
  * @param {Object} context - Keystone context
  * @param {string} userId
@@ -93,15 +115,17 @@ async function getAvailableChannels (context, userId, organizationId) {
         const channels = []
 
         for (const ch of CHANNEL_DEFINITIONS) {
-            if (ch.name === CHANNEL_ORGANIZATION) {
-                if (organizationId && _isActiveEmployee) {
-                    const isEmployee = await _isActiveEmployee(context, userId, organizationId)
-                    if (isEmployee) {
+            if (ch.name === CHANNEL_USER) {
+                channels.push(ch.buildAvailableChannel(channelContext))
+            } else {
+                const checker = _accessCheckers[ch.name]
+                const targetId = channelContext[ch.name + 'Id'] || channelContext[ch.name]
+                if (targetId && checker) {
+                    const allowed = await checker(context, userId, targetId)
+                    if (allowed) {
                         channels.push(ch.buildAvailableChannel(channelContext))
                     }
                 }
-            } else {
-                channels.push(ch.buildAvailableChannel(channelContext))
             }
         }
 

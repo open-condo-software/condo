@@ -3,10 +3,10 @@ const { connect, JSONCodec, createInbox } = require('nats')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
+const { find } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { configure, buildOrganizationTopic } = require('@open-condo/messaging')
 
-const { isActiveEmployee } = require('@condo/domains/common/utils/initMessaging')
 const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -57,7 +57,19 @@ describe('Messaging Integration Tests', () => {
 
     beforeAll(async () => {
         configure({
-            isActiveEmployee,
+            accessCheckers: {
+                organization: async (context, userId, organizationId) => {
+                    const employees = await find('OrganizationEmployee', {
+                        user: { id: userId },
+                        organization: { id: organizationId },
+                        isAccepted: true,
+                        isRejected: false,
+                        isBlocked: false,
+                        deletedAt: null,
+                    })
+                    return employees.length > 0
+                },
+            },
         })
         admin = await makeLoggedInAdminClient()
         const client = await makeClient()
