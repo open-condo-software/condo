@@ -28,7 +28,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER = {
     windowSizeInSec: 60 * 60,
-    windowLimit: 30,
+    windowLimit: 60,
 }
 let EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 try {
