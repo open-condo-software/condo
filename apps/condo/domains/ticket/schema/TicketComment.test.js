@@ -1264,6 +1264,7 @@ describe('TicketComment', () => {
                     const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
                     const message = await Message.getOne(admin, messageWhere)
 
+                    expect(message).toBeTruthy()
                     expect(message.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(message.meta.data.ticketId).toEqual(ticket.id)
                     expect(message.meta.data.commentId).toEqual(ticketComment.id)
