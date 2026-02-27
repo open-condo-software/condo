@@ -234,7 +234,6 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
             }
         }
         const payload = { tokens, pushTypes, appIds, notification, dataByToken, metaByToken }
-        console.error('payload', JSON.stringify(payload, null, 2))
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
 
         await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })
@@ -247,10 +246,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     logger.info({ msg: 'encrypted data', entity: 'Message', entityId: data.notificationId, data: { encryptedDataByAppId } })
 
     for (const p of promises) {
-        if (p.status !== 'fulfilled') {
-            console.error('pppp', p.reason)
-            continue
-        }
+        if (p.status !== 'fulfilled') continue
 
         const value = p.value
         if (value === null) continue
