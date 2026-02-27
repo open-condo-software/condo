@@ -72110,7 +72110,7 @@ enum B2BAppIconType {
   Readings
   Redo
   RefreshCw
-  RemoveFormating
+  RemoveFormatting
   Rocket
   Ruble
   Sber

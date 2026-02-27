@@ -34,7 +34,7 @@ import {
     NumberList,
     Paperclip,
     Redo,
-    RemoveFormating,
+    RemoveFormatting,
     Sheet,
     Slash,
     Subtitles,
@@ -295,7 +295,7 @@ const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
         isActive: (editor) => editor.isActive('taskList'),
     },
     removeFormatting: {
-        icon: <RemoveFormating size='small' />,
+        icon: <RemoveFormatting size='small' />,
         labelKey: 'removeFormatting',
         action: (editor) => editor.chain().focus().clearNodes().unsetAllMarks().run(),
     },
