@@ -12,9 +12,6 @@ const {
     buildUserTopic,
     buildOrganizationTopic,
     buildTopic,
-    buildUserRelaySubscribeTopic,
-    buildOrganizationRelaySubscribeTopic,
-    buildRelayUnsubscribeTopic,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
 } = require('./core/topic')
@@ -31,28 +28,10 @@ const {
     configure,
     checkAccess,
     getAvailableChannels,
-    matchTopic,
-    isTopicAllowed,
 } = require('./utils')
 
-/**
- * Create a messaging adapter by name.
- * @param {string} [adapterName] - Adapter type. Defaults to MESSAGING_ADAPTER env var or 'nats'.
- * @returns {BaseAdapter}
- */
-function createAdapter (adapterName) {
-    const name = adapterName || process.env.MESSAGING_ADAPTER || 'nats'
-    switch (name) {
-        case 'nats':
-            return new NatsAdapter()
-        default:
-            throw new Error(`Unknown messaging adapter: ${name}`)
-    }
-}
-
 module.exports = {
-    // Adapter factory
-    createAdapter,
+    // Adapters
     BaseAdapter,
     NatsAdapter,
 
@@ -68,9 +47,6 @@ module.exports = {
     buildUserTopic,
     buildOrganizationTopic,
     buildTopic,
-    buildUserRelaySubscribeTopic,
-    buildOrganizationRelaySubscribeTopic,
-    buildRelayUnsubscribeTopic,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
     RELAY_SUBSCRIBE_PREFIX,
@@ -98,8 +74,4 @@ module.exports = {
     configure,
     checkAccess,
     getAvailableChannels,
-
-    // Topic matching
-    matchTopic,
-    isTopicAllowed,
 }

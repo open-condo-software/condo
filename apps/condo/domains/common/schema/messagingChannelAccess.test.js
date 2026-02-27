@@ -110,7 +110,7 @@ describe('Messaging Access Control', () => {
             )
 
             expect(result.allowed).toBe(false)
-            expect(result.reason).toBe('Not an active employee of this organization')
+            expect(result.reason).toBe('Access denied for organization channel')
         })
 
         it('denies access for unknown channel prefix', async () => {
@@ -121,7 +121,7 @@ describe('Messaging Access Control', () => {
             const result = await checkAccess(context, client.user.id, 'unknown.topic')
 
             expect(result.allowed).toBe(false)
-            expect(result.reason).toBe('Unknown channel')
+            expect(result.reason).toBe('No access checker for channel: unknown')
         })
     })
 
@@ -200,7 +200,7 @@ describe('Messaging Access Control', () => {
             )
 
             expect(result.allowed).toBe(false)
-            expect(result.reason).toBe('Not an active employee of this organization')
+            expect(result.reason).toBe('Access denied for organization channel')
         })
     })
 

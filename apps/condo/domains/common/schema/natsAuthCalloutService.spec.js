@@ -54,8 +54,8 @@ describe('Auth Callout Service Logic', () => {
             expect(userClaims.nats.sub.allow).toEqual(['_INBOX.>'])
 
             expect(userClaims.nats.pub.allow).toContain('_INBOX.>')
-            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.user.${userId}.*`)
-            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.organization.${organizationId}.*`)
+            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.user.${userId}.>`)
+            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.organization.${organizationId}.>`)
             expect(userClaims.nats.pub.allow).toContain('_MESSAGING.unsubscribe.*')
         })
 
@@ -146,10 +146,10 @@ describe('Auth Callout Service Logic', () => {
         it('scopes relay PUB permissions to user and organization', () => {
             const perms = computePermissions('user-abc', 'org-abc')
 
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-abc.*')
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-abc.*')
-            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.organization.org-xyz.*')
-            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.user.user-xyz.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-abc.>')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-abc.>')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.organization.org-xyz.>')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.user.user-xyz.>')
         })
 
         it('does not grant JetStream API or direct stream access', () => {

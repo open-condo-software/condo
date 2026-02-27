@@ -132,35 +132,6 @@ function buildTopic (...tokens) {
 }
 
 /**
- * Build the relay subscribe topic for a user entity.
- * @param {string} userId
- * @param {string} entity - Entity name (e.g. 'notification')
- * @returns {string} e.g. `_MESSAGING.subscribe.user.abc-123.notification`
- */
-function buildUserRelaySubscribeTopic (userId, entity) {
-    return `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_USER}.${userId}.${entity}`
-}
-
-/**
- * Build the relay subscribe topic for an organization entity.
- * @param {string} organizationId
- * @param {string} entity - Entity name (e.g. 'ticket')
- * @returns {string} e.g. `_MESSAGING.subscribe.organization.org-1.ticket`
- */
-function buildOrganizationRelaySubscribeTopic (organizationId, entity) {
-    return `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.${entity}`
-}
-
-/**
- * Build the relay unsubscribe topic.
- * @param {string} relayId
- * @returns {string} e.g. `_MESSAGING.unsubscribe.relay-1`
- */
-function buildRelayUnsubscribeTopic (relayId) {
-    return `${RELAY_UNSUBSCRIBE_PREFIX}.${relayId}`
-}
-
-/**
  * Build the wildcard pattern for relay subscribe (used by server-side relay service).
  * @returns {string} `_MESSAGING.subscribe.>`
  */
@@ -190,9 +161,6 @@ module.exports = {
     buildUserTopic,
     buildOrganizationTopic,
     buildTopic,
-    buildUserRelaySubscribeTopic,
-    buildOrganizationRelaySubscribeTopic,
-    buildRelayUnsubscribeTopic,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
 }

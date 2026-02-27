@@ -138,8 +138,8 @@ describe('NATS JWT Utilities', () => {
             const perms = computePermissions('user-123', 'org-123')
 
             expect(perms.pub.allow).toContain('_INBOX.>')
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-123.*')
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-123.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-123.>')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-123.>')
             expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.*')
 
             expect(perms.sub.allow).toEqual(['_INBOX.>'])
@@ -158,15 +158,15 @@ describe('NATS JWT Utilities', () => {
         it('scopes user relay to own userId only', () => {
             const perms = computePermissions('user-abc', 'org-456')
 
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-abc.*')
-            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.user.user-other.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-abc.>')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.user.user-other.>')
         })
 
         it('scopes organization relay to own orgId only', () => {
             const perms = computePermissions('user-abc', 'org-456')
 
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-456.*')
-            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.organization.org-other.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-456.>')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.organization.org-other.>')
         })
     })
 })

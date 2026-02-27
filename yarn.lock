@@ -12012,13 +12012,11 @@ __metadata:
     "@nats-io/nats-core": ^3.3.1
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@open-condo/next": "workspace:^"
     express: ^4.21.2
     jsonwebtoken: ^9.0.0
     nats: ^2.28.2
     next-cookies: ^2.0.3
     nkeys.js: ^1.1.0
-    zod: ^4.3.6
   peerDependencies:
     react: ^17.0.0 || ^18.0.0
   languageName: unknown
@@ -50258,13 +50256,6 @@ __metadata:
   version: 4.0.15
   resolution: "zod@npm:4.0.15"
   checksum: d52dc9df5ed7a066ac7c3193862a2aa2c48ee45476403a88ab1dbab8f701cec1c50d9309cf550e4531722737d0b2fad853c8e9a52a928c13a3cbb9ee3498daba
-  languageName: node
-  linkType: hard
-
-"zod@npm:^4.3.6":
-  version: 4.3.6
-  resolution: "zod@npm:4.3.6"
-  checksum: 19cec761b46bae4b6e7e861ea740f3f248e50a6671825afc8a5758e27b35d6f20ccde9942422fd5cf6f8b697f18bd05ef8bb33f5f2db112ab25cc628de2fae47
   languageName: node
   linkType: hard
 

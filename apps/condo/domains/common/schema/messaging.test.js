@@ -5,7 +5,7 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { find } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { configure, buildOrganizationTopic } = require('@open-condo/messaging')
+const { configure, buildOrganizationTopic, buildUserTopic } = require('@open-condo/messaging')
 
 const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
@@ -494,7 +494,7 @@ describe('Messaging Integration Tests', () => {
 
                 // Publish a message — should be received
                 serverConn.publish(
-                    `user.${client.user.id}.notification`,
+                    buildUserTopic(client.user.id, 'notification'),
                     jc.encode({ id: 'before-block', operation: 'create' })
                 )
                 await serverConn.flush()
@@ -521,7 +521,7 @@ describe('Messaging Integration Tests', () => {
 
                 // 3. Publish another message — should NOT be received (relay torn down)
                 serverConn.publish(
-                    `user.${client.user.id}.notification`,
+                    buildUserTopic(client.user.id, 'notification'),
                     jc.encode({ id: 'after-block', operation: 'update' })
                 )
                 await serverConn.flush()
