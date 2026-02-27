@@ -1087,6 +1087,7 @@ __metadata:
     "@emotion/react": ^11.11.0
     "@emotion/server": ^11.11.0
     "@emotion/styled": ^11.11.0
+    "@faker-js/faker": ^7.6.0
     "@graphql-codegen/cli": ^5.0.2
     "@graphql-codegen/typescript": ^4.0.9
     "@insurance/domains": "link:./domains"
