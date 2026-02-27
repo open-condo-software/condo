@@ -39,6 +39,7 @@ const UI_AI_REWRITE_TICKET_COMMENT = 'ui-ai-ticket-rewrite-comment'
 const UI_AI_REWRITE_TEXT = 'ui-ai-rewrite-text'
 const UI_AI_REWRITE_NEWS_TEXT = 'ui-ai-news-rewrite-text'
 const UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT = 'ui-ai-rewrite-incident-text-for-resident'
+const UI_NEWS_MARKDOWN = 'ui-news-markdown'
 const SUBSCRIPTIONS = 'subscriptions'
 const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
 const TICKET_OBSERVERS = 'ticket-observers'
@@ -89,6 +90,7 @@ module.exports = {
     UI_AI_REWRITE_TEXT,
     UI_AI_REWRITE_NEWS_TEXT,
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
+    UI_NEWS_MARKDOWN,
     ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
     TICKET_OBSERVERS,
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,

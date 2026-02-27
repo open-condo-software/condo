@@ -3,6 +3,7 @@ import { Col, FormInstance, notification, Row, Form } from 'antd'
 import classNames from 'classnames'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import {
@@ -16,6 +17,7 @@ import AIInputNotification from '@condo/domains/ai/components/AIInputNotificatio
 import { FLOW_TYPES } from '@condo/domains/ai/constants'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { UI_NEWS_MARKDOWN } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
@@ -61,13 +63,13 @@ interface InputStepFormProps {
 }
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
-
 interface DefaultAiTextAreaProps {
     inputType: 'title' | 'body'
     value: string
     textForContext: string
     handleFormTextChange: (value: string) => void
     autoFocus?: boolean
+    useRichText?: boolean
 }
 
 const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
@@ -76,6 +78,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     textForContext,
     handleFormTextChange,
     autoFocus,
+    useRichText = false,
 }) => {
     const intl = useIntl()
 
@@ -154,7 +157,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
             component: 'Button',
         })
 
-        newsTextAreaRef.current?.focus()
+        newsTextAreaRef.current?.focus?.()
 
         handleCloseAINotificationText()
         if (!rewriteNewsTextError?.cause) {
@@ -185,6 +188,40 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
             console.error('Unable to copy to clipboard', e)
         }
     }, [copied, value])
+
+    const bottomPanelUtils = [
+        <Tooltip
+            title={copied ? CopiedTooltipText : CopyTooltipText }
+            placement='top'
+            key='copyButton'
+        >
+            <Button
+                minimal
+                compact
+                type='secondary'
+                size='medium'
+                disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
+                onClick={handleCopyTextClick}
+                icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+            />
+        </Tooltip>,
+        ...(rewriteNewsTextEnabled ? [
+            <Button
+                key='improveButton'
+                compact
+                minimal
+                type='secondary'
+                size='medium'
+                disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
+                loading={isRewriteNewsTextLoading}
+                icon={<Sparkles size='small' />}
+                onClick={handleRewriteNewsTextClick}
+                className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+            >
+                {UpdateTextMessage}
+            </Button>,
+        ] : []),
+    ]
     
     return (
         <AIInputNotification
@@ -197,50 +234,49 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
             onUpdate={handleRegenerateMessage}
             open={newsTextAiNotificationShow}
         >
-            <Input.TextArea
-                autoFocus={autoFocus}
-                className='text-area-no-resize'
-                placeholder={inputType === 'title' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
-                onChange={e => handleFormTextChange(e.target.value)}
-                name={inputType}
-                ref={newsTextAreaRef}
-                value={value}
-                autoSize={{ minRows: 2, maxRows: 5 }}
-                disabled={isRewriteNewsTextLoading}
-                bottomPanelUtils={[
-                    <Tooltip
-                        title={copied ? CopiedTooltipText : CopyTooltipText }
-                        placement='top'
-                        key='copyButton'
-                    >
-                        <Button
-                            minimal
-                            compact
-                            type='secondary'
-                            size='medium'
-                            disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
-                            onClick={handleCopyTextClick}
-                            icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
-                        />
-                    </Tooltip>,
-                    ...(rewriteNewsTextEnabled ? [
-                        <Button
-                            key='improveButton'
-                            compact
-                            minimal
-                            type='secondary'
-                            size='medium'
-                            disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
-                            loading={isRewriteNewsTextLoading}
-                            icon={<Sparkles size='small' />}
-                            onClick={handleRewriteNewsTextClick}
-                            className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
-                        >
-                            {UpdateTextMessage}
-                        </Button>,
-                    ] : []),
-                ]}
-            />
+            {useRichText ? (
+                <Input.RichTextArea
+                    placeholder={BodyPlaceholderMessage}
+                    onChange={handleFormTextChange}
+                    value={value}
+                    autoSize={{ minRows: 4, maxRows: 4 }}
+                    disabled={isRewriteNewsTextLoading}
+                    customLabels={
+                        {
+                            toolbar: {
+                                undo: 'Отменить',
+                                redo: 'Повторить',
+                                link: 'Ссылка',
+                                bold: 'Жирный',
+                                italic: 'Курсив',
+                                unorderedList: 'Неупорядоченный список',
+                                orderedList: 'Упорядоченный список',
+                                removeFormatting: 'Убрать форматирование',
+                            },
+                            linkModal: {
+                                urlLabel: 'Ссылка',
+                                textLabel: 'Текст',
+                                submitLabel: 'OK',
+                            },
+                        }
+                    }
+                    type='inline'
+                    bottomPanelUtils={bottomPanelUtils}
+                />
+            ) : (
+                <Input.TextArea
+                    autoFocus={autoFocus}
+                    className='text-area-no-resize'
+                    placeholder={inputType === 'title' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
+                    onChange={e => handleFormTextChange(e.target.value)}
+                    name={inputType}
+                    ref={newsTextAreaRef}
+                    value={value}
+                    autoSize={{ minRows: 2, maxRows: 5 }}
+                    disabled={isRewriteNewsTextLoading}
+                    bottomPanelUtils={bottomPanelUtils}
+                />
+            )}
         </AIInputNotification>
     )
 }
@@ -261,14 +297,14 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     template,
     handleFormBodyChange,
 }) => {
+    const { useFlag } = useFeatureFlags()
+    const isNewsMarkdownEnabled = useFlag(UI_NEWS_MARKDOWN)
+
     const { type: selectedType } = newsItemData
 
     const intl = useIntl()
 
     const MakeTextLabel = intl.formatMessage({ id: 'news.fields.makeText.label' })
-    const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
-    const TitleLabel = intl.formatMessage({ id: 'news.fields.title.label' })
-    const BodyLabel = intl.formatMessage({ id: 'news.fields.body.label' })
     const TitleErrorMessage = intl.formatMessage({ id: 'news.fields.title.error.length' })
     const BodyErrorMessage = intl.formatMessage({ id: 'news.fields.body.error.length' })
     const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
@@ -388,12 +424,8 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
 
                             <Col span={24}>
                                 <Row gutter={[0, 24]}>
-                                    <Col span={24} >
-                                        <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
-                                    </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            label={TitleLabel}
                                             labelCol={{ className: styles.customFormItemLabel }}
                                             name='title'
                                             required
@@ -411,8 +443,6 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            label={BodyLabel}
-                                            labelCol={{ className: styles.customFormItemLabel }}
                                             name='body'
                                             required
                                             rules={bodyRule}
@@ -425,6 +455,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                                 textForContext={selectedTitle}
                                                 handleFormTextChange={handleFormBodyChange(form)}
                                                 autoFocus={autoFocusBody}
+                                                useRichText={isNewsMarkdownEnabled}
                                             />
                                         </Form.Item>
                                     </Col>

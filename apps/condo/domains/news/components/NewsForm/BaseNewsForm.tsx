@@ -175,7 +175,7 @@ const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
-const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
+const ALL_ANGLE_BRACKETS_OCCURRENCES_REGEX = /<[^>]*?>/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
 const DATE_FORMAT = 'DD MMMM YYYY HH:mm'
 
@@ -209,19 +209,19 @@ const getValidBeforeAfterSendAt = (form) => {
     return true
 }
 
-const containWordsInSquareBrackets = (str) => {
-    const words = str.match(ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX) || []
+const containTemplatePlaceholders = (str) => {
+    const words = str.match(ALL_ANGLE_BRACKETS_OCCURRENCES_REGEX) || []
     return words.length !== 0
 }
 
 const getTitleTemplateChanged = (form) => {
     const { title } = form.getFieldsValue(['title'])
-    return !containWordsInSquareBrackets(title)
+    return !containTemplatePlaceholders(title)
 }
 
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
-    return !containWordsInSquareBrackets(body)
+    return !containTemplatePlaceholders(body)
 }
 
 const isDateDisabled = date => {

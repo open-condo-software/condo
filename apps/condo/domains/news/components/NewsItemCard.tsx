@@ -65,23 +65,27 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
             >
                 <Row gutter={[0, 16]}>
                     <Col span={12}>
-                        <Typography.Text strong type='secondary'>{TypeLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{typeTranslation}</Typography.Paragraph>
+                        <Typography.Text strong>{TypeLabel}</Typography.Text><br/>
+                        <Typography.Paragraph>{typeTranslation}</Typography.Paragraph>
                     </Col>
                     <Col span={12}>
-                        <Typography.Text strong type='secondary'>{ValidBeforeLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{validBeforeFormatted}</Typography.Paragraph>
+                        <Typography.Text strong>{ValidBeforeLabel}</Typography.Text><br/>
+                        <Typography.Paragraph>{validBeforeFormatted}</Typography.Paragraph>
                     </Col>
-                    <div>
-                        <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
-                    </div>
-                    <div className={styles.newsItemCardMarkdown}>
-                        <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>
-                            <Markdown type='inline'>{body}</Markdown>
-                        </Typography.Paragraph>
-                    </div>
+                    <Col span={24}>
+                        <div>
+                            <Typography.Text strong>{TitleLabel}</Typography.Text><br/>
+                            <Typography.Paragraph>{title}</Typography.Paragraph>
+                        </div>
+                    </Col>
+                    <Col span={24}>
+                        <div className={styles.newsItemCardMarkdown}>
+                            <Typography.Text strong>{BodyLabel}</Typography.Text><br/>
+                            <Typography.Paragraph>
+                                <Markdown type='inline'>{body}</Markdown>
+                            </Typography.Paragraph>
+                        </div>
+                    </Col>
                     {
                         footer && (
                             <Col span={24} className={styles.newsItemCardModalFooter}>
@@ -101,27 +105,18 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                 className={styles.newsItemCard}
             >
                 <Row gutter={[0, 16]}>
-                    <Col span={12}>
-                        <Typography.Text strong type='secondary'>{TypeLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{typeTranslation}</Typography.Paragraph>
-                    </Col>
-                    <Col span={12}>
-                        <Typography.Text strong type='secondary'>{ValidBeforeLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{validBeforeFormatted}</Typography.Paragraph>
-                    </Col>
                     <Col span={24}>
-                        <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
+                        <Typography.Text strong>{TitleLabel}</Typography.Text><br/>
+                        <Typography.Paragraph>{title}</Typography.Paragraph>
                     </Col>
                     <Col span={24} className={styles.newsItemCardMarkdown}>
-                        <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
+                        <Typography.Text strong>{BodyLabel}</Typography.Text><br/>
                         <Typography.Paragraph
                             ellipsis={{
                                 rows: 4,
-                                symbol: <><br/><Typography.Text strong type='secondary'>{ShowMoreLabel}</Typography.Text></>,
+                                symbol: <><br/><Typography.Text strong>{ShowMoreLabel}</Typography.Text></>,
                                 onEllipsis: (ellipsis: boolean) => setIsEllipsis(ellipsis),
                             }}
-                            type='secondary'
                         >
                             <Markdown type='inline'>{body}</Markdown>
                         </Typography.Paragraph>
@@ -129,7 +124,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                     {
                         isEllipsis && (
                             <Col>
-                                <Typography.Text underline type='secondary' onClick={() => setExpanded(!expanded)}>{ShowMoreLabel}</Typography.Text>
+                                <Typography.Text underline onClick={() => setExpanded(!expanded)}>{ShowMoreLabel}</Typography.Text>
                             </Col>
                         )
                     }
