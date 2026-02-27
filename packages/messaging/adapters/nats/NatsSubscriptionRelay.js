@@ -13,6 +13,8 @@ const {
 
 const logger = getLogger()
 
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
 const RELAY_QUEUE_GROUP = 'messaging-relay'
 
 /**
@@ -43,9 +45,9 @@ class NatsSubscriptionRelay {
     async start (config = {}) {
         try {
             this.connection = await connect({
-                servers: config.url || conf.MESSAGING_BROKER_URL,
-                user: config.user || conf.MESSAGING_SERVER_USER,
-                pass: config.pass || conf.MESSAGING_SERVER_PASSWORD,
+                servers: config.url || MESSAGING_CONFIG.brokerUrl,
+                user: config.user || MESSAGING_CONFIG.serverUser,
+                pass: config.pass || MESSAGING_CONFIG.serverPassword,
                 name: 'subscription-relay',
                 reconnect: true,
                 maxReconnectAttempts: -1,

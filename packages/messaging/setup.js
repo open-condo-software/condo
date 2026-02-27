@@ -7,64 +7,60 @@ const { configure } = require('./utils')
 
 const logger = getLogger()
 
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
 let adapter = null
 
 /**
  * Initialize the messaging subsystem: adapter, auth service, publisher, relay.
- * Reads configuration from environment variables via @open-condo/config:
- *   - PHASE — if 'build', skips initialization
- *   - MESSAGING_ENABLED — must be 'true' to proceed
- *   - MESSAGING_BROKER_URL — broker connection URL
- *   - MESSAGING_AUTH_ACCOUNT_SEED — if set, starts auth callout service
- *   - MESSAGING_AUTH_USER / MESSAGING_AUTH_PASSWORD — auth service credentials
- *   - MESSAGING_SERVER_USER / MESSAGING_SERVER_PASSWORD — server connection credentials
+ * Reads configuration from MESSAGING_CONFIG JSON env var via @open-condo/config.
  *
  * @returns {Promise<void>}
  */
 async function initMessaging () {
     if (conf.PHASE === 'build') return
 
-    if (conf.MESSAGING_ENABLED !== 'true') {
-        logger.info({ msg: 'Messaging disabled (set MESSAGING_ENABLED=true to enable)' })
+    if (!MESSAGING_CONFIG.enabled) {
+        logger.info({ msg: 'Messaging disabled (set MESSAGING_CONFIG.enabled to true)' })
         return
     }
 
-    if (!conf.MESSAGING_BROKER_URL) {
-        logger.warn({ msg: 'MESSAGING_ENABLED is true but MESSAGING_BROKER_URL is not set, skipping initialization' })
+    if (!MESSAGING_CONFIG.brokerUrl) {
+        logger.warn({ msg: 'Messaging enabled but brokerUrl is not set, skipping initialization' })
         return
     }
 
-    const adapterName = process.env.MESSAGING_ADAPTER || 'nats'
+    const adapterName = MESSAGING_CONFIG.adapter || 'nats'
     if (adapterName !== 'nats') {
         throw new Error(`Unknown messaging adapter: ${adapterName}`)
     }
     adapter = new NatsAdapter()
 
-    if (conf.MESSAGING_AUTH_ACCOUNT_SEED) {
+    if (MESSAGING_CONFIG.authAccountSeed) {
         await adapter.startAuthService({
-            url: conf.MESSAGING_BROKER_URL,
-            accountSeed: conf.MESSAGING_AUTH_ACCOUNT_SEED,
-            authUser: conf.MESSAGING_AUTH_USER,
-            authPass: conf.MESSAGING_AUTH_PASSWORD,
+            url: MESSAGING_CONFIG.brokerUrl,
+            accountSeed: MESSAGING_CONFIG.authAccountSeed,
+            authUser: MESSAGING_CONFIG.authUser,
+            authPass: MESSAGING_CONFIG.authPassword,
         })
         logger.info({ msg: 'Auth callout service started' })
     } else {
-        logger.info({ msg: 'MESSAGING_AUTH_ACCOUNT_SEED not set, auth callout service disabled' })
+        logger.info({ msg: 'authAccountSeed not set, auth callout service disabled' })
     }
 
     await adapter.connect({
-        url: conf.MESSAGING_BROKER_URL,
-        user: conf.MESSAGING_SERVER_USER,
-        pass: conf.MESSAGING_SERVER_PASSWORD,
+        url: MESSAGING_CONFIG.brokerUrl,
+        user: MESSAGING_CONFIG.serverUser,
+        pass: MESSAGING_CONFIG.serverPassword,
     })
 
     await initializePublisher(adapter, { enabled: true })
     logger.info({ msg: 'Publisher initialized' })
 
     await adapter.startRelayService({
-        url: conf.MESSAGING_BROKER_URL,
-        user: conf.MESSAGING_SERVER_USER,
-        pass: conf.MESSAGING_SERVER_PASSWORD,
+        url: MESSAGING_CONFIG.brokerUrl,
+        user: MESSAGING_CONFIG.serverUser,
+        pass: MESSAGING_CONFIG.serverPassword,
     })
     logger.info({ msg: 'Subscription relay service started' })
 }

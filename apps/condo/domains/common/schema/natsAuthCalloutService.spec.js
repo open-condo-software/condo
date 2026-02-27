@@ -9,7 +9,9 @@ const {
     computePermissions,
 } = require('@open-condo/messaging/adapters/nats')
 
-const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
+const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
 
 
 describe('Auth Callout Service Logic', () => {

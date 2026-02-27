@@ -1,8 +1,11 @@
 const { connect, StringCodec, JSONCodec } = require('nats')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger()
+
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
 class NatsClient {
     connection = null
@@ -16,7 +19,7 @@ class NatsClient {
 
         try {
             const connectOpts = {
-                servers: config.url || process.env.MESSAGING_BROKER_URL,
+                servers: config.url || MESSAGING_CONFIG.brokerUrl,
                 reconnect: true,
                 maxReconnectAttempts: -1,
             }
@@ -24,8 +27,8 @@ class NatsClient {
             if (config.user && config.pass) {
                 connectOpts.user = config.user
                 connectOpts.pass = config.pass
-            } else if (config.token || process.env.MESSAGING_BROKER_TOKEN) {
-                connectOpts.token = config.token || process.env.MESSAGING_BROKER_TOKEN
+            } else if (config.token || MESSAGING_CONFIG.brokerToken) {
+                connectOpts.token = config.token || MESSAGING_CONFIG.brokerToken
             }
 
             this.connection = await connect(connectOpts)

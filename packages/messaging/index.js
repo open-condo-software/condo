@@ -16,7 +16,7 @@ const {
     buildRelayUnsubscribePattern,
 } = require('./core/topic')
 const { MessagingMiddleware } = require('./middleware')
-const { messaged } = require('./plugins')
+const { messaged, organizationMessaged } = require('./plugins')
 const {
     initMessaging,
     closeMessaging,
@@ -60,8 +60,9 @@ module.exports = {
     // Middleware
     MessagingMiddleware,
 
-    // Plugin
+    // Plugins
     messaged,
+    organizationMessaged,
 
     // Setup
     initMessaging,

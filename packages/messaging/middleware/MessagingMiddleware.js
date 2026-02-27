@@ -13,10 +13,12 @@ const { ERRORS } = require('../errors')
 
 const logger = getLogger()
 
-const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
-const TOKEN_TTL = conf.MESSAGING_TOKEN_TTL || '24h'
-const RATE_LIMIT_MAX_REQUESTS = parseInt(conf.MESSAGING_RATE_LIMIT_MAX) || 20
-const RATE_LIMIT_WINDOW_SEC = parseInt(conf.MESSAGING_RATE_LIMIT_WINDOW_SEC) || 60
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
+const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
+const TOKEN_TTL = MESSAGING_CONFIG.tokenTtl || '24h'
+const RATE_LIMIT_MAX_REQUESTS = parseInt(MESSAGING_CONFIG.rateLimitMax) || 20
+const RATE_LIMIT_WINDOW_SEC = parseInt(MESSAGING_CONFIG.rateLimitWindowSec) || 60
 
 const GET_EMPLOYEE_QUERY = `
     query getEmployee($id: ID!) {

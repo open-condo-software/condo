@@ -12,8 +12,10 @@ const {
     computePermissions,
 } = require('@open-condo/messaging/adapters/nats')
 
-const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
-const BROKER_URL = conf.MESSAGING_BROKER_URL
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
+const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
+const BROKER_URL = MESSAGING_CONFIG.brokerUrl
 
 describe('Messaging PUB-gated Relay Access Control Integration', () => {
     let authConnection
@@ -22,15 +24,15 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
     let relayService
 
     beforeAll(async () => {
-        const seed = conf.MESSAGING_AUTH_ACCOUNT_SEED
+        const seed = MESSAGING_CONFIG.authAccountSeed
 
         accountKeyPair = nkeys.fromSeed(Buffer.from(seed))
         accountPublicKey = accountKeyPair.getPublicKey()
 
         authConnection = await connect({
             servers: BROKER_URL,
-            user: conf.MESSAGING_AUTH_USER,
-            pass: conf.MESSAGING_AUTH_PASSWORD,
+            user: MESSAGING_CONFIG.authUser,
+            pass: MESSAGING_CONFIG.authPassword,
             name: 'test-auth-callout',
         })
 
@@ -88,8 +90,8 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
         relayService = new NatsSubscriptionRelay()
         await relayService.start({
             url: BROKER_URL,
-            user: conf.MESSAGING_SERVER_USER,
-            pass: conf.MESSAGING_SERVER_PASSWORD,
+            user: MESSAGING_CONFIG.serverUser,
+            pass: MESSAGING_CONFIG.serverPassword,
         })
     }, 15000)
 
@@ -178,8 +180,8 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
         it('relay delivers ONLY own-org messages to client INBOX', async () => {
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'test-publisher-relay',
             })
 
@@ -254,8 +256,8 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
         it('user cannot receive org-B messages via relay scoped to org-A', async () => {
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'test-publisher-isolation',
             })
 
@@ -454,8 +456,8 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
         it('server connection CAN publish to _MESSAGING.admin.revoke', async () => {
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'admin-revoke-server',
             })
             try {
@@ -470,8 +472,8 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
         it('server connection CAN publish to _MESSAGING.admin.unrevoke', async () => {
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'admin-unrevoke-server',
             })
             try {

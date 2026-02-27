@@ -5,13 +5,15 @@ const nkeys = require('nkeys.js')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
-
 const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
+
+const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
 
 const logger = getLogger()
 
-const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
+const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
 
 class NatsAuthCalloutService {
     constructor () {
@@ -34,9 +36,9 @@ class NatsAuthCalloutService {
      * @param {number} [config.userJwtTtl] - User JWT TTL in seconds (default: 1h)
      */
     async start (config = {}) {
-        const seed = config.accountSeed || conf.MESSAGING_AUTH_ACCOUNT_SEED
+        const seed = config.accountSeed || MESSAGING_CONFIG.authAccountSeed
         if (!seed) {
-            logger.warn({ msg: 'MESSAGING_AUTH_ACCOUNT_SEED not configured, auth callout service disabled' })
+            logger.warn({ msg: 'authAccountSeed not configured, auth callout service disabled' })
             return
         }
 
@@ -51,9 +53,9 @@ class NatsAuthCalloutService {
             logger.info({ msg: 'Auth callout issuer public key', publicKey: this.accountPublicKey })
 
             this.connection = await connect({
-                servers: config.url || conf.MESSAGING_BROKER_URL,
-                user: config.authUser || conf.MESSAGING_AUTH_USER,
-                pass: config.authPass || conf.MESSAGING_AUTH_PASSWORD,
+                servers: config.url || MESSAGING_CONFIG.brokerUrl,
+                user: config.authUser || MESSAGING_CONFIG.authUser,
+                pass: config.authPass || MESSAGING_CONFIG.authPassword,
                 reconnect: true,
                 maxReconnectAttempts: -1,
             })

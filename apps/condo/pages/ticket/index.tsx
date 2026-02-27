@@ -19,6 +19,7 @@ import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
@@ -1100,8 +1101,10 @@ const TicketsPage: PageComponentType = () => {
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     // NOTE: debug usage of subscriptions
+    const { publicRuntimeConfig: { messagingWsUrl } } = getConfig()
     const { connection, isConnected } = useMessagingConnection({
         enabled: !!userOrganizationId,
+        wsUrl: messagingWsUrl,
     })
     const ticketTopic = userOrganizationId ? `organization.${userOrganizationId}.ticket` : ''
     const { isSubscribed } = useMessagingSubscription({

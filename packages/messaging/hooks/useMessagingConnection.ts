@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 interface UseMessagingConnectionOptions {
     enabled?: boolean
     autoConnect?: boolean
+    wsUrl?: string
 }
 
 interface MessagingConnectionState {
@@ -18,7 +19,7 @@ let globalConnectionPromise: Promise<NatsConnection> | null = null
 let connectionRefCount = 0
 
 export const useMessagingConnection = (options: UseMessagingConnectionOptions = {}) => {
-    const { enabled = true, autoConnect = true } = options
+    const { enabled = true, autoConnect = true, wsUrl } = options
     const [state, setState] = useState<MessagingConnectionState>({
         connection: globalConnection,
         isConnected: !!globalConnection,
@@ -46,10 +47,8 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 }
                 const { token } = await tokenResponse.json()
 
-                const wsUrl = process.env.NEXT_PUBLIC_MESSAGING_WS_URL || 'ws://localhost:8080'
-
                 const nc = await wsconnect({
-                    servers: wsUrl,
+                    servers: wsUrl || 'ws://localhost:8080',
                     token,
                     reconnect: true,
                     maxReconnectAttempts: -1,

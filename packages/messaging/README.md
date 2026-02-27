@@ -34,19 +34,29 @@ No other files need modification — the relay, JWT permissions, `/messaging/cha
 
 ## Setup
 
-### Environment variables
+### Configuration
+
+All messaging settings are provided via a single `MESSAGING_CONFIG` JSON env var:
 
 ```env
-MESSAGING_ENABLED=true
-MESSAGING_BROKER_URL=nats://localhost:4222
-MESSAGING_BROKER_WS_URL=ws://localhost:8080
-MESSAGING_TOKEN_SECRET=<random-secret>
-MESSAGING_SERVER_USER=server
-MESSAGING_SERVER_PASSWORD=<password>
-MESSAGING_AUTH_ACCOUNT_SEED=<nats-account-nkey-seed>
-MESSAGING_AUTH_USER=auth
-MESSAGING_AUTH_PASSWORD=<password>
+MESSAGING_CONFIG={"enabled":true,"brokerUrl":"nats://localhost:4222","wsUrl":"ws://localhost:8080","tokenSecret":"<secret>","authAccountSeed":"<nkey-seed>","authUser":"auth","authPassword":"<pass>","serverUser":"server","serverPassword":"<pass>"}
 ```
+
+| Field | Description | Default |
+|---|---|---|
+| `enabled` | Enable messaging subsystem | `false` |
+| `adapter` | Adapter name | `'nats'` |
+| `brokerUrl` | NATS broker URL | — |
+| `wsUrl` | WebSocket URL for browser clients (passed to Next.js `publicRuntimeConfig`) | — |
+| `tokenSecret` | Secret for signing client JWT tokens | — |
+| `tokenTtl` | Client token TTL | `'24h'` |
+| `authAccountSeed` | NKey seed for auth callout account | — |
+| `authUser` | Auth callout NATS username | — |
+| `authPassword` | Auth callout NATS password | — |
+| `serverUser` | Server connection NATS username | — |
+| `serverPassword` | Server connection NATS password | — |
+| `rateLimitMax` | Max requests per rate-limit window | `20` |
+| `rateLimitWindowSec` | Rate-limit window in seconds | `60` |
 
 ### Server initialization
 
@@ -77,76 +87,54 @@ The `accessCheckers` map defines a per-channel access control function `(context
 
 This connects to NATS, starts the auth callout service, publisher, and subscription relay.
 
-### Client env
-
-Add to `.env` or Next.js config:
-
-```env
-NEXT_PUBLIC_MESSAGING_WS_URL=ws://localhost:8080
-```
-
 ## Publishing messages
 
-### Using the `messaged` plugin (recommended)
+### Using `organizationMessaged` plugin (recommended for organization channel)
 
-Add the plugin to any Keystone schema to auto-publish changes on create/update/delete.
+Publishes entity changes to the organization channel, automatically resolving the organization and its holding organization (via `OrganizationLink`). Uses the same resolution pattern as `addOrganizationFieldPlugin`.
 
-Each target specifies a **channel** name and either a direct **field** on the model or an async **resolve** function.
-
-**Direct field** (model has the target ID as a field):
+**Model with direct `organization` field** (e.g. Ticket):
 
 ```javascript
-const { messaged } = require('@open-condo/messaging')
+const { organizationMessaged } = require('@open-condo/messaging')
 
 const Ticket = new GQLListSchema('Ticket', {
-    plugins: [messaged({ targets: [{ channel: 'organization', field: 'organization' }] })],
+    plugins: [organizationMessaged()],
     // ...
 })
 // publishes to: condo.organization.<orgId>.ticket
+// publishes to: condo.organization.<holdingOrgId>.ticket (if holding exists)
 ```
 
-**Relationship resolution** (target ID is on a related model):
+**Model without `organization` field** (e.g. TicketComment → ticket.organization):
 
 ```javascript
-const { messaged } = require('@open-condo/messaging')
-const { getById } = require('@open-condo/keystone/schema')
+const { organizationMessaged } = require('@open-condo/messaging')
 
 const TicketComment = new GQLListSchema('TicketComment', {
-    plugins: [messaged({ targets: [{ channel: 'organization', resolve: async ({ updatedItem }) => {
-        const ticket = await getById('Ticket', updatedItem.ticket)
-        return ticket?.organization
-    }}] })],
+    plugins: [organizationMessaged({ fromField: 'ticket' })],
     // ...
 })
+// resolves organization via getById('Ticket', updatedItem.ticket).organization
 ```
 
-**Multi-target with holding organization** (publish to direct org + holding org):
+### Using the `messaged` plugin (generic, for custom channels)
+
+For non-organization channels or custom publishing logic, use the lower-level `messaged` plugin with explicit targets:
 
 ```javascript
 const { messaged } = require('@open-condo/messaging')
-const { find } = require('@open-condo/keystone/schema')
 
-const Ticket = new GQLListSchema('Ticket', {
-    plugins: [messaged({
-        targets: [
-            { channel: 'organization', field: 'organization' },
-            {
-                channel: 'organization',
-                resolve: async ({ updatedItem }) => {
-                    const orgId = updatedItem.organization
-                    if (!orgId) return null
-                    const links = await find('OrganizationLink', { to: orgId, deletedAt: null })
-                    return links[0]?.from || null
-                },
-            },
-        ],
-    })],
+const Notification = new GQLListSchema('Notification', {
+    plugins: [messaged({ targets: [{ channel: 'user', field: 'user' }] })],
     // ...
 })
-// publishes to: condo.organization.<orgId>.ticket AND condo.organization.<holdingOrgId>.ticket
+// publishes to: condo.user.<userId>.notification
 ```
 
-Publishes to `<appPrefix>.<channel>.<targetId>.<entityName>` with payload `{ id, operation }` where operation is `'create'` | `'update'` | `'delete'`. The app prefix is automatically derived from the nearest `package.json` name.
+Each target specifies a **channel** name and either a direct **field** on the model or an async **resolve** function `({ updatedItem, existingItem, operation, context }) => string|null`.
+
+All plugins publish to `<appPrefix>.<channel>.<targetId>.<entityName>` with payload `{ id, operation }` where operation is `'create'` | `'update'` | `'delete'`. The app prefix is automatically derived from the nearest `package.json` name.
 
 ### Manual publishing
 
@@ -232,7 +220,9 @@ packages/messaging/
 ├── adapters/nats/           # NATS adapter, auth callout, subscription relay
 ├── middleware/               # Express endpoints (/messaging/token, /messaging/channels)
 ├── errors.js                # GQLError definitions for middleware
-├── plugins/messaged.js      # Keystone plugin for auto-publishing
+├── plugins/
+│   ├── messaged.js          # Generic Keystone plugin for auto-publishing to any channel
+│   └── organizationMessaged.js  # Organization-specific plugin (auto-resolves org + holding)
 ├── setup.js                 # setupMessaging, initMessaging, closeMessaging, revoke/unrevoke
 ├── utils/                   # Re-exports from core/AccessControl (configure, checkAccess, getAvailableChannels)
 └── hooks/                   # React hooks (useMessagingConnection, useMessagingSubscription, useMessagingChannels)

@@ -11,9 +11,11 @@ const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmpl
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
-const BROKER_URL = conf.MESSAGING_BROKER_URL
-const MESSAGING_CONFIGURED = conf.MESSAGING_ENABLED === 'true' && !!conf.MESSAGING_AUTH_ACCOUNT_SEED
+const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
+
+const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
+const BROKER_URL = MESSAGING_CONFIG.brokerUrl
+const MESSAGING_CONFIGURED = MESSAGING_CONFIG.enabled && !!MESSAGING_CONFIG.authAccountSeed
 
 function expectGQLError (body, expectedType) {
     expect(body.errors).toBeDefined()
@@ -287,8 +289,8 @@ describe('Messaging Integration Tests', () => {
 
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'test-publisher',
             })
 
@@ -346,8 +348,8 @@ describe('Messaging Integration Tests', () => {
 
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'cross-user-publisher',
             })
 
@@ -463,8 +465,8 @@ describe('Messaging Integration Tests', () => {
 
             const serverConn = await connect({
                 servers: BROKER_URL,
-                user: conf.MESSAGING_SERVER_USER,
-                pass: conf.MESSAGING_SERVER_PASSWORD,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
                 name: 'revoke-publisher',
             })
 
