@@ -148,6 +148,8 @@ const TaskItemNodeView: React.FC<ReactNodeViewProps> = ({ node, updateAttributes
 }
 TaskItemNodeView.displayName = 'TaskItemNodeView'
 
+// NOTE: Normalizes non-breaking spaces in markdown:
+// replaces HTML entity (&nbsp;) and Unicode NBSP (\u00A0) with regular spaces.
 function sanitizeMarkdown (md: string): string {
     return md.replaceAll('&nbsp;', ' ').replaceAll('\u00A0', ' ')
 }
@@ -761,7 +763,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             TableHeader,
             Markdown,
             Placeholder.configure({
-                placeholder: placeholder || 'Placeholder',
+                placeholder: placeholder,
                 showOnlyCurrent: false,
             }),
             CharacterCount.configure({
@@ -776,7 +778,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             const md = sanitizeMarkdown(updatedEditor.getMarkdown())
             onChangeRef.current?.(md)
         },
-    }, [placeholder, disabled, maxLength, overflowPolicy, type])
+    }, [placeholder, maxLength, overflowPolicy, type])
 
     useEffect(() => {
         if (editor) {
@@ -786,9 +788,12 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
 
     useEffect(() => {
         if (editor && value !== undefined) {
-            const currentMd = sanitizeMarkdown(editor.getMarkdown())
-            if (currentMd !== value) {
-                editor.commands.setContent(value || '', value ? { contentType: 'markdown' } : {})
+            const currentMd = sanitizeMarkdown(editor.getMarkdown()).trimEnd()
+            if (currentMd !== value.trimEnd()) {
+                editor.commands.setContent(value || '', {
+                    ...(value ? { contentType: 'markdown' } : {}),
+                    emitUpdate: false,
+                })
             }
         }
     }, [editor, value])

@@ -3,7 +3,7 @@ import React from 'react'
 
 import { IconWrapper, IconProps } from '../wrappers'
 
-export const RemoveFormating: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
+export const RemoveFormatting: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
     return (
         <IconWrapper
             icon={
