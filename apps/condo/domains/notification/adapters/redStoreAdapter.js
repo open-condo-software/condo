@@ -108,7 +108,7 @@ class RedStoreAdapter {
      * Prepares notification for either/both sending to redStore
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}, isVoIP = false) {
+    static prepareBatchData (notificationRaw, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}, isVoIP = false) {
         const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
@@ -118,17 +118,22 @@ class RedStoreAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = RedStoreAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken] || {}
             const pushData = {
                 token: pushToken,
-                data: preparedData,
+                data: data,
                 notification,
                 appId: appIds[pushToken],
                 ...DEFAULT_PUSH_SETTINGS,
             }
 
             // TODO(pahaz): check why `pushData.appId` used. but `data.app` is everywhere?!
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken]) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.appId)) target.push(pushData)
+            // NOTE(YEgorLu) ^ there is more. I can't find in history where event data.app was provided previously or what even is this
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken])
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+                && (!data.appId || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.appId))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -139,10 +144,10 @@ class RedStoreAdapter {
     /**
      * Manages to send notification to all available pushTokens of the user.
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
+    async sendNotification ({ notification, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds, isVoIP)
+        const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, dataByToken, tokens, pushTypes, appIds, isVoIP)
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains

@@ -191,13 +191,13 @@ class HCMAdapter {
      * Prepares notification for either/both sending to HMS and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
-     * @param data
+     * @param dataByToken
      * @param tokens
      * @param pushTypes
      * @param appIds
      * @returns {Promise<[[], [], {}]>}
      */
-    static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}) {
+    static async prepareBatchData (notificationRaw, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}) {
         const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
         const notification = HCMAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
@@ -208,12 +208,12 @@ class HCMAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = HCMAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken] || {}
             const pushData = isSilentDataPushEnabled && pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
                     data: JSON.stringify({
-                        ...preparedData,
+                        ...data,
                         '_title': notification.title,
                         '_body': notification.body,
                     }),
@@ -221,12 +221,15 @@ class HCMAdapter {
                 }
                 : {
                     token: pushToken,
-                    data: preparedData,
+                    data: data,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken]) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken])
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })

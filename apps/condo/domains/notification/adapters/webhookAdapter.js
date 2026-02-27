@@ -82,31 +82,35 @@ class WebhookAdapter {
      * Prepares notification for either/both sending to Apple push and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
-     * @param data
+     * @param dataByToken
      * @param tokens
      * @param pushTypes
      * @param appIds
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}) {
+    static prepareBatchData (notificationRaw, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}) {
         const notification = WebhookAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
 
         tokens.forEach((pushToken) => {
             const pushType = pushTypes?.[pushToken] ?? PUSH_TYPE_DEFAULT
-            const preparedData = WebhookAdapter.prepareData(data)
+            const data = dataByToken[pushToken] || {}
+            const appId = get(appIds, pushToken)
             const pushData = {
                 token: pushToken,
                 data: {
-                    ...preparedData,
+                    ...data,
                     '_title': notification.title,
                     '_body': notification.body,
                 },
                 type: pushType,
-                appId: get(appIds, pushToken),
+                appId: appId,
             }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) notifications.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes[appId]
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) notifications.push(pushData)
         })
 
         return [notifications, {}]
@@ -116,18 +120,18 @@ class WebhookAdapter {
      * Sends notification via webhook with message type based routing
      * @param {Object} options - Notification options
      * @param {Object} options.notification - Notification data
-     * @param {Object} options.data - Additional data including message type
+     * @param {Object} options.dataByToken - Additional data including message type
      * @param {Array} options.tokens - Array of push tokens
      * @param {Object} options.pushTypes - Push types for tokens
      * @param {Object} options.appIds - App IDs for tokens
      * @returns {Promise<Array>} [success, result] - Returns [isSuccess, {successCount, failureCount, errors}]
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
+    async sendNotification ({ notification, dataByToken, tokens, pushTypes, appIds } = {}) {
         if (!this.#isConfigured) return [false, { error: 'webhookAdapter is not configured' }]
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications] = WebhookAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
+        const [notifications] = WebhookAdapter.prepareBatchData(notification, dataByToken, tokens, pushTypes, appIds)
 
         // Group notifications by appId and message type
         // WEBHOOK_CONFIG_JSON='{"appId": { "urls": [{ "secret": "***", "http://example.com/webhook/ticket", messageTypes: ["TICKET_STATUS_DONE"]}]}}'
