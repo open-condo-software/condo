@@ -95,19 +95,17 @@ services:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:8222:8222"
     environment:
-      MESSAGING_AUTH_ISSUER: ${MESSAGING_AUTH_ISSUER}
-      MESSAGING_AUTH_USER: ${MESSAGING_AUTH_USER:-auth-service}
-      MESSAGING_AUTH_PASSWORD: ${MESSAGING_AUTH_PASSWORD:-auth-secret}
-      MESSAGING_SERVER_USER: ${MESSAGING_SERVER_USER:-condo-server}
-      MESSAGING_SERVER_PASSWORD: ${MESSAGING_SERVER_PASSWORD:-server-secret}
+      MESSAGING_CONFIG: ${MESSAGING_CONFIG}
     networks:
       - app-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    entrypoint: ["/nats-entrypoint.sh"]
     command: ["-c", "/etc/nats/nats.conf"]
     volumes:
       - nats-data:/data
       - ./nats.conf:/etc/nats/nats.conf:ro
+      - ./nats-entrypoint.sh:/nats-entrypoint.sh:ro
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
       interval: 10s
