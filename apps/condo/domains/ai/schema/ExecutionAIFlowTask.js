@@ -28,7 +28,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER = {
     windowSizeInSec: 60 * 60,
-    windowLimit: 30,
+    windowLimit: 60,
 }
 let EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 try {
@@ -75,6 +75,7 @@ const ERRORS = {
         messageForUser: 'api.ai.executionAIFlowTask.STATUS_IS_ALREADY_ERROR',
     },
 }
+
 
 const redisGuard = new RedisGuard()
 
@@ -243,6 +244,17 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
 
         itemId: {
             schemaDoc: 'ID of the item that was changed via this task. Used for analytics',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        aiSessionId: {
+            schemaDoc: 'Session identifier for grouping related AI tasks in a conversation and using memory',
             type: 'Text',
             isRequired: false,
             access: {

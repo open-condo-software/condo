@@ -7,6 +7,7 @@ query getExecutionAIFlowTaskById ($id: ID!) {
         result
         errorMessage
         status
+        aiSessionId
         __typename
     }
 }
@@ -19,5 +20,19 @@ mutation createExecutionAIFlowTask ($data: ExecutionAIFlowTaskCreateInput!) {
         result
         errorMessage
         status
+        aiSessionId
+    }
+}
+
+mutation updateExecutionAIFlowTask ($id: ID!, $data: ExecutionAIFlowTaskUpdateInput!) {
+    task: updateExecutionAIFlowTask(
+        id: $id
+        data: $data
+    ) {
+        id
+        result
+        errorMessage
+        status
+        aiSessionId
     }
 }

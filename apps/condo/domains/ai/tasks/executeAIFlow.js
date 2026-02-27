@@ -102,8 +102,8 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
         const { replacements } = removeSensitiveDataFromObj(task.context)
         const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
-
-        await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
+        
+        let updateData = {
             ...BASE_ATTRIBUTES,
             result: resultWithRestoredPII,
             meta: {
@@ -111,7 +111,9 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                 response: prediction._response,
             },
             status: TASK_STATUSES.COMPLETED,
-        })
+        }
+
+        await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, updateData)
     } catch (error) {
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,

@@ -16,6 +16,7 @@ const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
 const INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE = 'incident_rewrite_text_for_resident_flow'
 const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
+const CHAT_WITH_CONDO_FLOW_TYPE = 'chat-with-condo'
 
 /**
  * list of hardcoded flow types
@@ -29,6 +30,7 @@ const FLOW_TYPES = {
     NEWS_REWRITE_TEXT: NEWS_REWRITE_TEXT_FLOW_TYPE,
     INCIDENT_REWRITE_TEXT_FOR_RESIDENT: INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE,
     GENERATE_NEWS_BY_INCIDENT: GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE,
+    CHAT_WITH_CONDO: CHAT_WITH_CONDO_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -178,6 +180,58 @@ const FLOW_META_SCHEMAS = {
             },
         },
     },
+    [FLOW_TYPES.CHAT_WITH_CONDO]: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
+                userData: {
+                    type: 'object',
+                    additionalProperties: true,
+                    properties: {
+                        userId: { type: 'string' },
+                        organizationId: { type: 'string' },
+                        toolCalls: {
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    name: { type: 'string' },
+                                    args: { type: 'object', additionalProperties: true },
+                                    result: { type: ['object', 'array'] },
+                                },
+                                required: ['name', 'args'],
+                            },
+                            type: 'array',
+                            minItems: 0,
+                        },
+                    },
+                    required: ['userId', 'organizationId'],
+                },
+            },
+            required: ['userInput', 'userData'],
+            additionalProperties: true,
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+                toolCalls: {
+                    items: {
+                        type: 'object',
+                        properties: {
+                            name: { type: 'string' },
+                            args: { type: 'object', additionalProperties: true },
+                        },
+                        required: ['name'],
+                    },
+                    type: 'array',
+                    minItems: 0,
+                },
+            },
+            required: ['answer'],
+            additionalProperties: true,
+        },
+    },
     [CUSTOM_FLOW_TYPE]: {
         // Data for custom flows is only checked to ensure that it is an object
         input: {
@@ -205,4 +259,5 @@ module.exports = {
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
+    CHAT_WITH_CONDO_FLOW_TYPE,
 }

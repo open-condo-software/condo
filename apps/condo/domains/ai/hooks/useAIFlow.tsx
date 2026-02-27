@@ -1,7 +1,9 @@
 import {
     useCreateExecutionAiFlowTaskMutation,
     useGetExecutionAiFlowTaskByIdLazyQuery,
+    useUpdateExecutionAiFlowTaskMutation,
 } from '@app/condo/gql'
+import { ExecutionAiFlowTask, ExecutionAiFlowTaskStatusType } from '@app/condo/schema'
 import getConfig from 'next/config'
 import { useState, useCallback } from 'react'
 
@@ -10,6 +12,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { FLOW_TYPES_LIST, TASK_STATUSES } from '@condo/domains/ai/constants'
 import {
     UI_AI_GENERATE_NEWS_BY_INCIDENT,
     UI_AI_REWRITE_NEWS_TEXT,
@@ -18,12 +21,11 @@ import {
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
 } from '@condo/domains/common/constants/featureflags'
 
-import { FLOW_TYPES_LIST, TASK_STATUSES } from '../constants'
 
 
 type FlowType = typeof FLOW_TYPES_LIST[number]
 
-type UseAIFlowPropsType<T> = {
+type UseAIFlowPropsType<T = object> = {
     flowType: FlowType
     itemId?: string
     modelName?: string
@@ -31,12 +33,21 @@ type UseAIFlowPropsType<T> = {
     timeout?: number
 }
 
+type UseAIFlowResult<T> = {
+    status: ExecutionAiFlowTask['status']
+    aiSessionId: ExecutionAiFlowTask['aiSessionId']
+    errorMessage?: ExecutionAiFlowTask['errorMessage']
+    result: T
+}
+
 type UseAIFlowResultType<T> = [
-    (params?: { context?: object }) => Promise<{ data: T, error: object, localizedErrorText: string } | null>,
+    (params?: { context?: object }) => Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string } | null>,
     {
         loading: boolean
-        data: T | null
+        data: UseAIFlowResult<T> | null
         error: Error | null
+        currentTaskId: string | null
+        cancelCurrentTask: () => Promise<void>
     },
 ]
 
@@ -56,12 +67,14 @@ export function useAIFlow<T = object> ({
 
     const [createExecutionAIFlowMutation] = useCreateExecutionAiFlowTaskMutation()
     const [getExecutionAiFlowTaskById] = useGetExecutionAiFlowTaskByIdLazyQuery()
+    const [updateExecutionAIFlowTaskMutation] = useUpdateExecutionAiFlowTaskMutation()
 
     const [loading, setLoading] = useState(false)
-    const [data, setData] = useState<T | null>(null)
+    const [data, setData] = useState<UseAIFlowResult<T> | null>(null)
     const [error, setError] = useState<Error | null>(null)
+    const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
 
-    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: T, error: object, localizedErrorText: string }> => {
+    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string }> => {
         if (!user?.id) {
             const err = new Error('User is not authenticated')
             setError(err)
@@ -93,6 +106,8 @@ export function useAIFlow<T = object> ({
             const taskId = createResult.data?.task?.id
             if (!taskId) { return { data: null, error: new Error('Failed to create a task'), localizedErrorText: null } }
 
+            setCurrentTaskId(taskId)
+
             await new Promise(resolve => setTimeout(resolve, TASK_FIRST_POLL_TIMEOUT_MS))
 
             const startTime = Date.now()
@@ -103,14 +118,26 @@ export function useAIFlow<T = object> ({
                     fetchPolicy: 'no-cache',
                 })
 
-                const [task] = pollResult.data.task
+                if (!pollResult?.data?.task) {
+                    return { data: null, error: new Error('Task not found'), localizedErrorText: null }
+                }
+
+                const task = Array.isArray(pollResult.data.task) ? pollResult.data.task[0] : pollResult.data.task
                 if (!task) { return { data: null, error: new Error('Task not found'), localizedErrorText: null } }
 
                 if (task.status === TASK_STATUSES.COMPLETED) {
                     const result = task.result as T
-                    setData(result)
-                    return { data: result, error: null, localizedErrorText: null }
+                    const combinedResult: UseAIFlowResult<T> = {
+                        status: task.status,
+                        aiSessionId: task.aiSessionId,
+                        errorMessage: task.errorMessage,
+                        result,
+                    }
+                    setData(combinedResult)
+                    setCurrentTaskId(null)
+                    return { data: combinedResult, error: null, localizedErrorText: null }
                 } else if (task.status === TASK_STATUSES.ERROR || task.status === TASK_STATUSES.CANCELLED) {
+                    setCurrentTaskId(null)
                     return { data: null, error: new Error(`Task in ${task.status} state`), localizedErrorText: task.errorMessage || null }
                 }
 
@@ -118,10 +145,12 @@ export function useAIFlow<T = object> ({
             }
 
             setError(new Error('Flow timed out'))
+            setCurrentTaskId(null)
             return { data: null, error: new Error('Flow timed out'), localizedErrorText: null }
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())
             setError(wrappedErr)
+            setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
             setLoading(false)
@@ -132,10 +161,35 @@ export function useAIFlow<T = object> ({
         defaultContext,
         createExecutionAIFlowMutation,
         getExecutionAiFlowTaskById,
+        updateExecutionAIFlowTaskMutation,
         user?.id,
+        organization?.id,
+        modelName,
+        itemId,
     ])
 
-    return [getAIFlowResult, { loading, data, error }]
+    const cancelCurrentTask = useCallback(async () => {
+        if (!currentTaskId) return
+
+        try {
+            await updateExecutionAIFlowTaskMutation({
+                variables: {
+                    id: currentTaskId,
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        status: ExecutionAiFlowTaskStatusType.Cancelled,
+                    },
+                },
+            })
+            setCurrentTaskId(null)
+            setLoading(false)
+        } catch (err) {
+            console.error('Failed to cancel task:', err)
+        }
+    }, [currentTaskId, updateExecutionAIFlowTaskMutation])
+
+    return [getAIFlowResult, { loading, data, error, currentTaskId, cancelCurrentTask }]
 }
 
 export function useAIConfig () {
