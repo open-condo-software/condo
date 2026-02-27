@@ -1,6 +1,6 @@
 import FieldController from '@open-keystone/fields/Controller'
 
-const { serialize, deserialize } = require('../utils')
+const { omitRecursively } = require('../utils/cleaner')
 
 class JsonController extends FieldController {
     constructor (config, ...args) {
@@ -9,11 +9,26 @@ class JsonController extends FieldController {
     }
 
     deserialize = data => {
-        return deserialize(data, this.path)
+        const { path } = this
+        if (!data || !data[path]) {
+            // Forcibly return null if empty string
+            return null
+        }
+        return JSON.stringify(omitRecursively(data[path], '__typename'))
     }
 
     serialize = data => {
-        return serialize(data, this.path)
+        const { path } = this
+        if (!data || !data[path]) {
+            // Forcibly return null if empty string
+            return null
+        }
+
+        if (Array.isArray(data[path])) {
+            data[path] = JSON.stringify(data[path])
+        }
+
+        return omitRecursively(JSON.parse(data[path]), '__typename')
     }
 
     getQueryFragment = () => {
