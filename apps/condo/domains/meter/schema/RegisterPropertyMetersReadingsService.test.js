@@ -624,12 +624,11 @@ describe('RegisterPropertyMetersReadingsService', () => {
 
                 const row = data[0]
 
+                const propertyMeterReading = await PropertyMeterReading.getOne(adminClient, { id: row.id })
                 if (path.startsWith('meterMeta')) {
                     path = path.substring('meterMeta.'.length)
-                    const propertyMeter = await PropertyMeter.getOne(adminClient, { id: row.meter.id })
-                    expect(propertyMeter).toHaveProperty(path, dayjs(output).toISOString())
+                    expect(propertyMeterReading).toHaveProperty(['meter', path], dayjs(output).toISOString())
                 } else {
-                    const propertyMeterReading = await PropertyMeterReading.getOne(adminClient, { id: row.id })
                     expect(propertyMeterReading).toHaveProperty(path, dayjs(output).toISOString())
                 }
             })
