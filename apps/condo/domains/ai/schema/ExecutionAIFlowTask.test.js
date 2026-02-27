@@ -61,7 +61,7 @@ describe.skip('ExecutionAIFlowTask', () => {
                 const [task, taskAttrs] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                     flowType: 'success_flow',
                     context: { some_field: faker.lorem.words(3) },
-                    sessionId: faker.datatype.uuid(),
+                    aiSessionId: faker.datatype.uuid(),
                 })
                 expect(task.id).toMatch(UUID_RE)
                 expect(task.v).toEqual(1)
@@ -74,7 +74,7 @@ describe.skip('ExecutionAIFlowTask', () => {
                 expect(task.status).toEqual(TASK_STATUSES.PROCESSING)
                 expect(task.flowType).toEqual(taskAttrs.flowType)
                 expect(task.context).toEqual(taskAttrs.context)
-                expect(task.sessionId).toEqual(taskAttrs.sessionId)
+                expect(task.aiSessionId).toEqual(taskAttrs.aiSessionId)
                 expect(task.result).toBeNull()
                 expect(task.errorMessage).toBeNull()
             })
@@ -441,7 +441,6 @@ describe.skip('ExecutionAIFlowTask', () => {
                 aiSessionId,
             })
             expect(taskWithSession.aiSessionId).toEqual(aiSessionId)
-        })
         })
 
     })
