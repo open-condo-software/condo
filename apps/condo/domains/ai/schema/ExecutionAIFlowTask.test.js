@@ -425,22 +425,23 @@ describe.skip('ExecutionAIFlowTask', () => {
             })
         })
 
-        test('sessionId should be optional and nullable', async () => {
-            // Test without sessionId
+        test('aiSessionId should be optional and nullable', async () => {
+            // Test without aiSessionId
             const [taskWithoutSession] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                 flowType: 'success_flow',
                 context: { some_field: faker.lorem.words(3) },
             })
-            expect(taskWithoutSession.sessionId).toBeNull()
+            expect(taskWithoutSession.aiSessionId).toBeNull()
 
-            // Test with sessionId
-            const sessionId = faker.datatype.uuid()
+            // Test with aiSessionId
+            const aiSessionId = faker.datatype.uuid()
             const [taskWithSession] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                 flowType: 'success_flow',
                 context: { some_field: faker.lorem.words(3) },
-                sessionId,
+                aiSessionId,
             })
-            expect(taskWithSession.sessionId).toEqual(sessionId)
+            expect(taskWithSession.aiSessionId).toEqual(aiSessionId)
+        })
         })
 
     })
