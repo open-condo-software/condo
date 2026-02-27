@@ -72,7 +72,7 @@ class NatsAdapter extends BaseAdapter {
             cur.max_consumers !== streamConfig.max_consumers
 
         if (needsUpdate) {
-            await jsm.streams.update(streamConfig)
+            await jsm.streams.update(streamConfig.name, streamConfig)
             return { created: false, updated: true }
         }
 

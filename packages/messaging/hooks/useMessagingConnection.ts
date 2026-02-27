@@ -28,7 +28,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
     const isMountedRef = useRef(true)
 
     const connect = useCallback(async (): Promise<NatsConnection> => {
-        if (globalConnection && !globalConnection.isClosed()) {
+        if (globalConnection && !globalConnection.isClosed() && !globalConnection.isDraining()) {
             return globalConnection
         }
 

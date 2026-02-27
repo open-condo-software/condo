@@ -5,7 +5,6 @@ const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
 
 interface UseMessagingSubscriptionOptions<T> {
-    /** Full topic to subscribe to, e.g. 'organization.org-1.ticket' or 'user.user-1.notification' */
     topic: string
     connection: NatsConnection | null
     isConnected: boolean
@@ -88,6 +87,10 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
 
         const subscribe = async () => {
             try {
+                if (connection.isClosed() || connection.isDraining()) {
+                    return
+                }
+
                 setState(prev => ({ ...prev, isSubscribing: true, error: null }))
 
                 const deliverInbox = createInbox()

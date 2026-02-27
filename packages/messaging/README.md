@@ -21,7 +21,7 @@ Add one entry to `CHANNEL_DEFINITIONS` in `core/topic.js`:
     extractUserId: (parts) => parts[0] || null,       // for revocation tracking
     buildActualTopic: (parts) => `mychannel.${parts[0]}.${parts[1] || '>'}`,
     buildRelayPermissions: ({ userId }) => [
-        `${RELAY_SUBSCRIBE_PREFIX}.mychannel.${userId}.*`,
+        `${RELAY_SUBSCRIBE_PREFIX}.mychannel.${userId}.>`,
     ],
     buildAvailableChannel: ({ userId }) => ({
         name: 'mychannel',
@@ -183,33 +183,6 @@ const { isSubscribed, messageCount } = useMessagingSubscription({
 })
 ```
 
-### Full example (domain hook)
-
-```typescript
-// domains/ticket/hooks/useTicketMessagingSubscription.ts
-import { useMessagingConnection, useMessagingSubscription } from '@open-condo/messaging/hooks'
-import { useOrganization } from '@open-condo/next/organization'
-
-export const useTicketMessagingSubscription = ({ enabled = true, onMessage }) => {
-    const { organization } = useOrganization()
-    const { connection, isConnected } = useMessagingConnection({
-        enabled: enabled && !!organization?.id,
-    })
-
-    const topic = organization?.id ? `organization.${organization.id}.ticket` : ''
-
-    const { isSubscribed } = useMessagingSubscription({
-        topic,
-        connection,
-        isConnected,
-        enabled: enabled && !!topic && isConnected,
-        onMessage,
-    })
-
-    return { isConnected, isSubscribed }
-}
-```
-
 ### Available hooks
 
 | Hook | Purpose |
@@ -261,5 +234,6 @@ packages/messaging/
 ├── errors.js                # GQLError definitions for middleware
 ├── plugins/messaged.js      # Keystone plugin for auto-publishing
 ├── setup.js                 # setupMessaging, initMessaging, closeMessaging, revoke/unrevoke
-└── hooks/                   # React hooks (useMessagingConnection, useMessagingSubscription)
+├── utils/                   # Re-exports from core/AccessControl (configure, checkAccess, getAvailableChannels)
+└── hooks/                   # React hooks (useMessagingConnection, useMessagingSubscription, useMessagingChannels)
 ```

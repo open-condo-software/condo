@@ -28,6 +28,7 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Search, Phone } from '@open-condo/icons'
+import { useMessagingConnection, useMessagingSubscription } from '@open-condo/messaging/hooks'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -91,7 +92,6 @@ import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedT
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
-import { useTicketMessagingSubscription } from '@condo/domains/ticket/hooks/useTicketMessagingSubscription'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -1100,10 +1100,17 @@ const TicketsPage: PageComponentType = () => {
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     // NOTE: debug usage of subscriptions
-    const { isConnected, isSubscribed } = useTicketMessagingSubscription({
-        enabled: true,
+    const { connection, isConnected } = useMessagingConnection({
+        enabled: !!userOrganizationId,
+    })
+    const ticketTopic = userOrganizationId ? `organization.${userOrganizationId}.ticket` : ''
+    const { isSubscribed } = useMessagingSubscription({
+        topic: ticketTopic,
+        connection,
+        isConnected,
+        enabled: !!ticketTopic && isConnected,
         onMessage: (data) => {
-            console.log('[messaging] Ticket changed:', { ...data })
+            console.log('[messaging] Ticket changed:', data)
         },
     })
 
