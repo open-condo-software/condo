@@ -832,9 +832,9 @@ const Ticket = new GQLListSchema('Ticket', {
                 const contact = await Contact.getOne(context, { id: resolvedData.contact }, 'name email phone')
 
                 if (contact) {
-                    if (!resolvedData.clientName) resolvedData.clientName = contact.name
-                    if (!resolvedData.clientEmail) resolvedData.clientEmail = contact.email
-                    if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
+                    if (!('clientName' in resolvedData)) resolvedData.clientName = contact.name
+                    if (!('clientEmail' in resolvedData)) resolvedData.clientEmail = contact.email
+                    if (!('clientPhone' in resolvedData)) resolvedData.clientPhone = contact.phone
                 }
             }
             if (resolvedData.classifier) {
