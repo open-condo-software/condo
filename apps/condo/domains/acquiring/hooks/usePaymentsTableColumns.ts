@@ -112,7 +112,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                     verifyDescription: PosReceiptVerifyDescription,
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
-                width: '5em',
+                width: '8em',
             } : undefined,
         }
 
