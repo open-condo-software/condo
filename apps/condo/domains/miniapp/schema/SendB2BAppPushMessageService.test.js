@@ -444,10 +444,12 @@ describe('SendB2BAppPushMessageService', () => {
                     },
                 })
 
-                const message = await Message.getOne(staffClient, { id: result.id })
                 const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${encodeURIComponent(appInitialContext)}`
 
-                expect(message.meta.data.url).toEqual(expectedUrl)
+                await waitFor(async () => {
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                })
                 expect(result.id).toMatch(UUID_RE)
             })
 
