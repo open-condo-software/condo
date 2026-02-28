@@ -1639,7 +1639,7 @@ __metadata:
     analytics: ^0.8.16
     antd: 5.28.0
     big.js: ^6.2.2
-    bowser: ^2.12.1
+    bowser: ^2.14.1
     classnames: ^2.5.1
     cookies-next: ^4.2.1
     cross-fetch: 4.0.0
@@ -19947,10 +19947,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bowser@npm:^2.12.1":
-  version: 2.13.1
-  resolution: "bowser@npm:2.13.1"
-  checksum: 83ba90bebe4b73ce761b35e13f846e90094919a351fbfe5ddb0b6be869d166648a70b9c97a8bfe1e0c21eee220ff9832ecef5302487efe53b2027d79189926c1
+"bowser@npm:^2.14.1":
+  version: 2.14.1
+  resolution: "bowser@npm:2.14.1"
+  checksum: 5a8b6272c5300b6de416b8508930479cb9028fda597fe3b77f3adbb3959c6bb58ac92b3398c9e9d3652c71e46bce3d6083a611c60c82e9cbaa8ce9698bc9c7af
   languageName: node
   linkType: hard
 
