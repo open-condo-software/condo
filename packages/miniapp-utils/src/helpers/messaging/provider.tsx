@@ -23,11 +23,13 @@ function useControllerState (controller: PostMessageController): ControllerState
     return controllerState
 }
 
-type PostMessageContextType = Pick<PostMessageController, 'addFrame' | 'removeFrame' | 'addHandler'> & ControllerState
+type PostMessageContextType = Pick<PostMessageController, 'addFrame' | 'removeFrame' | 'addServiceWorkerIfSupported' | 'removeServiceWorker' | 'addHandler'> & ControllerState
 
 const PostMessageContext = createContext<PostMessageContextType>({
     addFrame: () => '',
     removeFrame: () => {},
+    addServiceWorkerIfSupported: () => null,
+    removeServiceWorker: () => {},
     addHandler: () => {},
     isBridgeReady: false,
 })
@@ -44,8 +46,10 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessagePr
 
     useEffect(() => {
         window.addEventListener('message', controller.eventListener)
+        navigator?.serviceWorker?.addEventListener('message', controller.eventListener)
         return () => {
             window.removeEventListener('message', controller.eventListener)
+            navigator?.serviceWorker?.removeEventListener('message', controller.eventListener)
         }
     }, [controller.eventListener])
 
@@ -53,6 +57,8 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessagePr
         ...controllerState,
         addFrame: controller.addFrame,
         removeFrame: controller.removeFrame,
+        addServiceWorkerIfSupported: controller.addServiceWorkerIfSupported,
+        removeServiceWorker: controller.removeServiceWorker,
         addHandler: controller.addHandler,
     }), [controller, controllerState])
 

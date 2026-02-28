@@ -24,3 +24,7 @@ export function zodSchemaToValidator<T extends EventParams> (schema: z.ZodSchema
         return { success: true, data: result.data }
     }
 }
+
+export function isServiceWorker (data: unknown): data is ServiceWorker {
+    return typeof ServiceWorker !== 'undefined' && data instanceof ServiceWorker
+}

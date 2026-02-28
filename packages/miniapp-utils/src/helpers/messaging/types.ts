@@ -1,4 +1,4 @@
-export type FrameId = string
+export type SourceId = string
 export type FrameType = HTMLIFrameElement
 export type EventType = string
 export type EventName = string
@@ -12,12 +12,12 @@ type ValidationResult<T> =
 
 export type ParamsValidator<Params extends EventParams> = (params: unknown) => ValidationResult<Params>
 export type HandlerResult = Record<string, unknown>
-export type Handler<Params extends EventParams, Result extends HandlerResult> = (params: Params, storage: EventTypeStorage, frame?: FrameType) => Result | Promise<Result>
+export type Handler<Params extends EventParams, Result extends HandlerResult> = (params: Params, storage: EventTypeStorage, target?: FrameType | ServiceWorker) => Result | Promise<Result>
 export type HandlerMethods<Params extends EventParams, Result extends HandlerResult> = {
     validator: ParamsValidator<Params>
     handler: Handler<Params, Result>
 }
-export type HandlerScope = FrameId | '*' | 'parent'
+export type HandlerScope = SourceId | '*' | 'parent'
 export type AddHandlerType = <Params extends EventParams, Result extends HandlerResult>(
     eventType: EventType,
     eventName: EventName,

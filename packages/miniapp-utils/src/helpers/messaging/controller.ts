@@ -2,12 +2,13 @@ import { z } from 'zod'
 
 import { getClientErrorMessage } from './errors'
 import { registerBridgeEvents } from './events/bridge'
+import { isServiceWorker } from './utils'
 
 import { generateUUIDv4 } from '../uuid'
 
 import type { RegisterBridgeEventsOptions } from './events/bridge'
 import type {
-    FrameId,
+    SourceId,
     FrameType,
     EventType,
     EventName,
@@ -35,15 +36,20 @@ const MESSAGE_SCHEMA = z.object({
 }).strict()
 
 export class PostMessageController extends EventTarget {
-    #registeredFrames: Record<FrameId, FrameType> = {}
+    #registeredServiceWorkers: Record<SourceId, ServiceWorker> = {}
+    #registeredFrames: Record<SourceId, FrameType> = {}
     #registeredHandlers: Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>> = {}
     #storage: DataStorage = {}
+    #isNewWorkerAutoConnectEnabled = false
     state: ControllerState = { isBridgeReady: false }
 
     constructor () {
         super()
         this.addFrame = this.addFrame.bind(this)
         this.removeFrame = this.removeFrame.bind(this)
+        this.addServiceWorkerIfSupported = this.addServiceWorkerIfSupported.bind(this)
+        this._onNewServiceWorker = this._onNewServiceWorker.bind(this)
+        this.removeServiceWorker = this.removeServiceWorker.bind(this)
         this.addHandler = this.addHandler.bind(this)
         this.eventListener = this.eventListener.bind(this)
         this.registerBridgeEvents = this.registerBridgeEvents.bind(this)
@@ -54,7 +60,7 @@ export class PostMessageController extends EventTarget {
         this.dispatchEvent(new CustomEvent('statechange', { detail: this.state }))
     }
 
-    addFrame (frame: FrameType): FrameId {
+    addFrame (frame: FrameType): SourceId {
         const registeredFrame = Object.entries(this.#registeredFrames)
             .find(([, ref]) => ref === frame)
         if (registeredFrame) {
@@ -66,9 +72,46 @@ export class PostMessageController extends EventTarget {
         return frameId
     }
 
-    removeFrame (frameId: FrameId) {
+    removeFrame (frameId: SourceId) {
         delete this.#registeredFrames[frameId]
         delete this.#registeredHandlers[frameId]
+    }
+
+    addServiceWorkerIfSupported ({ enableNewWorkerInstanceAutoConnect = false }: { enableNewWorkerInstanceAutoConnect?: boolean }): SourceId | null {
+        if (typeof navigator !== 'undefined' && !('serviceWorker' in navigator) || !('controller' in navigator.serviceWorker) || !navigator.serviceWorker.controller) {
+            return null
+        }
+        const sw = navigator.serviceWorker.controller
+        const registeredServiceWorker = Object.entries(this.#registeredServiceWorkers)
+            .find(([, ref]) => ref === sw)
+        if (registeredServiceWorker) {
+            return registeredServiceWorker[0]
+        }
+        const senderId = Object.keys(this.#registeredServiceWorkers)[0] || generateUUIDv4()
+        this.#registeredServiceWorkers = { [senderId]: sw }
+
+        if (enableNewWorkerInstanceAutoConnect) {
+            this.#isNewWorkerAutoConnectEnabled = true
+            navigator.serviceWorker.addEventListener('controllerchange', this._onNewServiceWorker)
+        }
+
+        return senderId
+    }
+
+    _onNewServiceWorker () {
+        this.addServiceWorkerIfSupported({ enableNewWorkerInstanceAutoConnect: false })
+    }
+
+    removeServiceWorker () {
+        if (this.#isNewWorkerAutoConnectEnabled) {
+            navigator?.serviceWorker?.removeEventListener?.('controllerchange', this._onNewServiceWorker)
+            this.#isNewWorkerAutoConnectEnabled = false
+        }
+        const senderId = Object.keys(this.#registeredServiceWorkers)[0]
+        if (senderId) {
+            delete this.#registeredHandlers[senderId]
+        }
+        this.#registeredServiceWorkers = {}
     }
 
     addHandler<Params extends EventParams, Result extends HandlerResult>(
@@ -89,53 +132,81 @@ export class PostMessageController extends EventTarget {
         eventHandlers[eventName] = { validator, handler } as HandlerMethods<EventParams, HandlerResult>
     }
 
+    #getRegisteredSourceByEventSource (source: Window | ServiceWorker) {
+        if (isServiceWorker(source)) {
+            const registeredWorker = Object.entries(this.#registeredServiceWorkers)
+                .find(([, ref]) => ref === source)
+            if (registeredWorker) {
+                return {
+                    sourceId: registeredWorker[0],
+                    sourceRef: registeredWorker[1],
+                }
+            }
+        } else {
+            const registeredFrame = Object.entries(this.#registeredFrames)
+                .find(([, ref]) => ref.contentWindow === source)
+            if (registeredFrame) {
+                return {
+                    sourceId: registeredFrame[0],
+                    sourceRef: registeredFrame[1],
+                }
+            }
+        }
+            
+        return null
+    }
+
     async eventListener (event: MessageEvent) {
         if (typeof window === 'undefined') return
-        if (!event.isTrusted || !event.source || !('self' in event.source)) return
-
+        if (
+            !event.isTrusted 
+            || !event.source 
+            || (
+                !('self' in event.source) // not from iframe
+                && !isServiceWorker(event.source) // not from worker
+            )
+        ) return
+    
         const { success: isValidMessage, data: message } = MESSAGE_SCHEMA.safeParse(event.data)
         if (!isValidMessage) return
 
         const { handler: eventName, params: { requestId, ...handlerParams }, type: eventType } = message
 
-        const sourceWindow = event.source
+        const source = event.source
 
-        let frame: FrameType | undefined = undefined
-        let frameId = 'parent'
+        let sourceRef: FrameType | ServiceWorker | undefined = undefined
+        let sourceId = 'parent'
 
-        if (sourceWindow !== window) {
-            const registeredFrame = Object.entries(this.#registeredFrames)
-                .find(([, ref]) => ref.contentWindow === sourceWindow)
-
-            if (!registeredFrame) {
-                return sourceWindow.postMessage(
+        if (source !== window) {
+            const registeredSourceRef = this.#getRegisteredSourceByEventSource(source)
+            if (!registeredSourceRef) {
+                return source.postMessage(
                     getClientErrorMessage('ACCESS_DENIED', 0, 'Message was received from unregistered origin / iframe', requestId, eventName),
-                    event.origin,
+                    { targetOrigin: event.origin },
                 )
             }
-
-            frameId = registeredFrame[0]
-            frame = registeredFrame[1]
+            sourceRef = registeredSourceRef.sourceRef
+            sourceId = registeredSourceRef.sourceId
         }
 
         const handlerMethods = (
-            this.#registeredHandlers[frameId]?.[eventType]?.[eventName]
+            this.#registeredHandlers[sourceId]?.[eventType]?.[eventName]
             ?? this.#registeredHandlers['*']?.[eventType]?.[eventName]
             ?? {}
         )
         const { handler, validator } = handlerMethods
         if (!handler || !validator) {
-            return sourceWindow.postMessage(
+            return source.postMessage(
                 getClientErrorMessage('UNKNOWN_METHOD', 2, 'Unknown method was provided. Make sure your runtime environment supports it.', requestId),
-                event.origin,
+                { targetOrigin: event.origin },
             )
         }
 
         const validationResult = validator(handlerParams)
         if (!validationResult.success) {
-            return sourceWindow.postMessage(
+            return source.postMessage(
                 getClientErrorMessage('INVALID_PARAMETERS', 3, validationResult.error, requestId, eventName),
-                event.origin,
+                { targetOrigin: event.origin },
             )
         }
 
@@ -144,19 +215,23 @@ export class PostMessageController extends EventTarget {
         const storage = this.#storage[eventType]
 
         try {
-            const result = await handler(validatedParams, storage, frame)
-            return sourceWindow.postMessage({
+            const result = await handler(
+                validatedParams, 
+                storage,
+                sourceRef,
+            )
+            return source.postMessage({
                 type: `${eventName}Result`,
                 data: {
                     ...result,
                     requestId,
                 },
-            }, event.origin)
+            }, { targetOrigin: event.origin })
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : String(err)
-            return sourceWindow.postMessage(
+            return source.postMessage(
                 getClientErrorMessage('HANDLER_ERROR', 4, errorMessage, requestId, eventName),
-                event.origin
+                { targetOrigin: event.origin },
             )
         }
     }

@@ -22,7 +22,7 @@ import type {
 
 import { isSafeUrl } from '../../urls'
 import { generateUUIDv4 } from '../../uuid'
-import { zodSchemaToValidator } from '../utils'
+import { isServiceWorker, zodSchemaToValidator } from '../utils'
 
 import type { AddHandlerType } from '../types'
 
@@ -53,7 +53,7 @@ export function registerBridgeEvents ({
     addHandler<ResizeWindowParams, ResizeWindowData>('condo-bridge', 'CondoWebAppResizeWindow', '*', zodSchemaToValidator(z.strictObject({
         height: z.number(),
     })), (params: ResizeWindowParams, _, frame) => {
-        if (frame) {
+        if (frame && !isServiceWorker(frame)) {
             frame.height = `${params.height}px`
         }
         return { height: params.height }
@@ -128,7 +128,7 @@ export function registerBridgeEvents ({
             const originalSrc = new URL(params.url)
             originalSrc.searchParams.set('modalId', modalId)
 
-            if (frame && originalSrc.origin !== new URL(frame.src).origin) {
+            if (frame && !isServiceWorker(frame) && originalSrc.origin !== new URL(frame.src).origin) {
                 throw new Error('Forbidden url. Url must have same origin as sender')
             }
 
@@ -142,7 +142,7 @@ export function registerBridgeEvents ({
 
             const onCancel = () => {
                 storage.delete(`modals:${modalId}`)
-                if (frame) {
+                if (frame && !isServiceWorker(frame)) {
                     const frameOrigin = new URL(frame.src).origin
                     frame.contentWindow?.postMessage(closeEventData, frameOrigin)
                 }
