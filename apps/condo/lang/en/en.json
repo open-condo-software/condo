@@ -2430,6 +2430,8 @@
   "pages.condo.news.notification.success.button": "Cancel send",
   "pages.condo.news.notification.success.description": "Sending can be cancelled within 15 seconds",
   "pages.condo.news.notification.success.title": "News sent",
+  "pages.condo.news.profanity.badWords.default": "Profanity detected in the news text",
+  "pages.condo.news.profanity.badWords.list": "Profanity detected in the news text: {badWords}",
   "pages.condo.news.preview.condoAppName": "Doma",
   "pages.condo.news.preview.push": "Push notification",
   "pages.condo.news.resend": "Resend",
