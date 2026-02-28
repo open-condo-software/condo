@@ -1,0 +1,46 @@
+{
+  "name": "template",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "prepare": "node ./bin/prepare.js",
+    "dev": "yarn build:deps && NODE_ENV=development && yarn dev:start  ",
+    "dev:start": "node --trace-warnings ./../../bin/run-keystone-app.js",
+    "build:deps": "turbo build --filter=@app/~/^... --filter=!@app/condo",
+    "build": "cross-env PHASE=build keystone build",
+    "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
+    "makemigrations": "./../../bin/kmigrator.py makemigrations",
+    "migrate": "./../../bin/kmigrator.py migrate",
+    "migrate:down": "./../../bin/kmigrator.py down",
+    "migrate:unlock": "./../../bin/kmigrator.py unlock",
+    "maketypes:condo": "node ./bin/generate-condo-schema && ./../../node_modules/.bin/graphql-codegen -c condoCodegen.yaml",
+    "maketypes:local": "mkdirp dist/admin && node ./../../bin/create-graphql-schema.js && ./../../node_modules/.bin/graphql-codegen -c codegen.yaml",
+    "maketypes": "yarn maketypes:local && yarn maketypes:condo",
+    "createschema": "./../../bin/createschema",
+    "createservice": "node ./../../bin/createservice",
+    "worker": "cross-env PHASE=worker DISABLE_NEXT_APP=true node worker.js"
+  },
+  "dependencies": {
+    "@open-condo/apollo-server-client": "workspace:^",
+    "@open-condo/config": "workspace:^",
+    "@open-condo/keystone": "workspace:^",
+    "~/domains": "link:./domains",
+    "cross-env": "^7.0.3",
+    "dayjs": "^1.11.10",
+    "express": "^4.17.1",
+    "graphql-tag": "^2.12.6",
+    "lodash": "^4.17.21",
+    "mkdirp": "^3.0.1",
+    "openid-client": "5.7.1",
+    "react": "^18.3.1",
+    "zod": "^4.0.8"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@graphql-codegen/typescript": "^4.0.9",
+    "@open-condo/cli": "workspace:^",
+    "@types/react": "^18.3.1",
+    "jest": "^29.7.0"
+  }
+}
