@@ -71,6 +71,8 @@ const TaskListItem: React.FC<TaskListItemType> = ({
     )
 }
 
+// NOTE: If you change this config, make sure to update RICH_TEXT_AREA_COMPONENTS_BY_TYPE
+// in packages/ui/src/components/Input/richTextArea.tsx accordingly
 const MARKDOWN_COMPONENTS_BY_TYPE = {
     'default': {
         h1: (props: any) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
@@ -79,6 +81,7 @@ const MARKDOWN_COMPONENTS_BY_TYPE = {
         h4: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
         h5: (props: any) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
         h6: (props: any) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
+        p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary' />,
     },
     // Inline should be used when displaying text formatted by user
     'inline': {

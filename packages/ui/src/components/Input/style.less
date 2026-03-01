@@ -2,6 +2,8 @@
 @import "antd/lib/input/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/link";
+@import (reference) "@open-condo/ui/src/components/style/mixins/rich-content";
 
 .condo-input,
 .condo-input-phone,
@@ -187,4 +189,141 @@
     align-items: center;
     margin-left: auto;
   }
+}
+
+.condo-rich-text-area {
+  overflow: hidden;
+  font-size: @condo-global-typography-text-l-font-size;
+  font-family: @condo-global-typography-text-l-font-family;
+  background: @condo-global-color-white;
+  border: 1px solid @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-large;
+
+  --rta-min-height: auto;
+  --rta-max-height: none;
+}
+
+/* Toolbar — full-width row separator via background gradient.
+   Each row is 40px tall (32px button + 4px padding top/bottom).
+   A repeating 1px gray line every 40px spans the full toolbar width,
+   covering empty space to the right of groups on wrapped rows. */
+.condo-rich-text-area-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  align-items: stretch;
+  padding: 0 4px;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 39px,
+      @condo-global-color-gray-3 39px,
+      @condo-global-color-gray-3 40px
+    );
+}
+
+.condo-rich-text-area-toolbar-group {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+
+  &:not(:last-child) {
+    border-right: 1px solid @condo-global-color-gray-3;
+  }
+}
+
+.condo-rich-text-area-toolbar-button.condo-btn.condo-btn-secondary.condo-btn-minimal {
+  min-width: 32px;
+  height: 32px;
+
+  & > span {
+    color: @condo-global-color-black;
+  }
+
+  &.condo-rich-text-area-toolbar-button-active {
+    & > span {
+      color: @condo-global-color-green-5;
+    }
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.condo-rich-text-area-editor-wrap {
+  position: relative;
+  background: @condo-global-color-white;
+}
+
+.condo-rich-text-area-editor-wrap .tiptap {
+  min-height: var(--rta-min-height, auto);
+  max-height: var(--rta-max-height, none);
+  padding: @condo-global-spacing-12;
+  overflow-y: auto;
+  word-break: break-word;
+  outline: none;
+
+  .condo-rich-content();
+
+  & > * {
+    margin-bottom: @condo-global-spacing-20;
+  }
+
+  & > *:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.condo-rich-text-area-type-inline .condo-rich-text-area-editor-wrap .tiptap {
+  .condo-rich-content-inline();
+}
+
+.condo-rich-text-area-editor-wrap .tiptap > .is-editor-empty:first-child:last-child::before {
+  float: left;
+  width: 100%;
+  height: 0;
+  color: @condo-global-color-gray-7;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.condo-rich-text-area-bottom-panel {
+  padding: 0;
+}
+
+.condo-rich-text-area-disabled {
+  opacity: @condo-global-opacity-disabled;
+  pointer-events: none;
+}
+
+.condo-rich-text-area-count-overflow {
+  color: @condo-global-color-red-5;
+}
+
+.condo-rich-text-area-link-modal .condo-modal-wrapper {
+  box-sizing: border-box;
+}
+
+.condo-rich-text-area-link-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.condo-rich-text-area-link-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: @condo-global-spacing-20;
+  width: 100%;
+  min-width: 0;
+}
+
+.condo-rich-text-area-link-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: @condo-global-spacing-8;
+  width: 100%;
+  min-width: 0;
 }
