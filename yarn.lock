@@ -15397,9 +15397,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tiptap/core@npm:^3.19.0":
-  version: 3.19.0
-  resolution: "@tiptap/core@npm:3.19.0"
+"@tiptap/core@npm:^3.20.0":
+  version: 3.20.0
+  resolution: "@tiptap/core@npm:3.20.0"
   peerDependencies:
     "@tiptap/pm": ^3.20.0
   checksum: 525976648a752319d26a6b800215dc8698808eb8eee1cb3bd21a647da741cdc851bab7b700c384123cfa04ec44d041e45c503c7f129f58dc6236369d15e04124
