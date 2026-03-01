@@ -12,10 +12,10 @@ import React, { useCallback } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { RefreshCw } from '@open-condo/icons'
+import { Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
