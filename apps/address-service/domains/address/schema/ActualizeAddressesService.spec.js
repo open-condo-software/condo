@@ -20,16 +20,13 @@ const {
 const { Address, AddressSource, buildAddressModelData } = require('@address-service/domains/address/utils/testSchema')
 const { actualizeAddressesByTestClient } = require('@address-service/domains/address/utils/testSchema')
 const { generateDadataSuggestionItem } = require('@address-service/domains/address/utils/testSchema/dadataUtils')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 const { makeClientWithSupportUser } = require('@address-service/domains/user/utils/testSchema')
 
-const { keystone } = index
 
 describe('ActualizeAddressesService', () => {
-    let context
     let adminClient, supportClient, userClient, anonymousClient
     let dvSender
     let mockedCallToDadata
@@ -37,8 +34,6 @@ describe('ActualizeAddressesService', () => {
     setFakeClientMode(index)
 
     beforeAll(async () => {
-        context = await keystone.createContext({ skipAccessControl: true })
-
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         userClient = await makeLoggedInClient()
@@ -123,7 +118,7 @@ describe('ActualizeAddressesService', () => {
                     const s = suggestionItem.value
                     const denormalizedRows = await searchProvider.get({ query: s })
                     const [searchResult] = searchProvider.normalize(denormalizedRows)
-                    const addressKey = generateAddressKey(searchResult)
+                    const addressKey = searchProvider.generateAddressKey(searchResult)
                     const addressData = buildAddressModelData(searchResult, addressKey, searchProvider.getProviderName(), denormalizedRows[0])
                     const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, s, dvSender)
 
@@ -152,7 +147,7 @@ describe('ActualizeAddressesService', () => {
                     const s = suggestionItem.value
                     const denormalizedRows = await searchProvider.get({ query: s })
                     const [searchResult] = searchProvider.normalize(denormalizedRows)
-                    const addressKey = generateAddressKey(searchResult)
+                    const addressKey = searchProvider.generateAddressKey(searchResult)
                     const addressData = buildAddressModelData(searchResult, addressKey, searchProvider.getProviderName(), denormalizedRows[0])
                     const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, s, dvSender)
 
@@ -181,7 +176,7 @@ describe('ActualizeAddressesService', () => {
                     const s = suggestionItem.value
                     const denormalizedRows = await searchProvider.get({ query: s })
                     const [searchResult] = searchProvider.normalize(denormalizedRows)
-                    const addressKey = generateAddressKey(searchResult)
+                    const addressKey = searchProvider.generateAddressKey(searchResult)
                     const addressData = buildAddressModelData(searchResult, addressKey, searchProvider.getProviderName(), denormalizedRows[0])
                     const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, s, dvSender)
 
@@ -214,7 +209,7 @@ describe('ActualizeAddressesService', () => {
                     const s = suggestionItem.value
                     const denormalizedRows = await searchProvider.get({ query: s })
                     const [searchResult] = searchProvider.normalize(denormalizedRows)
-                    const addressKey = generateAddressKey(searchResult)
+                    const addressKey = searchProvider.generateAddressKey(searchResult)
                     const addressData = buildAddressModelData(searchResult, addressKey, searchProvider.getProviderName(), denormalizedRows[0])
                     const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, s, dvSender)
 
@@ -223,6 +218,8 @@ describe('ActualizeAddressesService', () => {
                         const cityDistrict = faker.lorem.word(12)
                         const data = {
                             ...initialData,
+                            // Change house_fias_id to simulate address change (e.g., building was re-registered)
+                            house_fias_id: faker.datatype.uuid(),
                             city_district_fias_id: faker.datatype.uuid(),
                             city_district_with_type: `${cityDistrictType} ${cityDistrict}`,
                             city_district_type: cityDistrictType,
@@ -264,15 +261,18 @@ describe('ActualizeAddressesService', () => {
                     const s1 = suggestionItem.value
                     const denormalizedRows1 = await searchProvider.get({ query: s1 })
                     const [searchResult1] = searchProvider.normalize(denormalizedRows1)
-                    const addressKey1 = generateAddressKey(searchResult1)
+                    const addressKey1 = searchProvider.generateAddressKey(searchResult1)
                     const addressData1 = buildAddressModelData(searchResult1, addressKey1, searchProvider.getProviderName(), denormalizedRows1[0])
                     const createdAddress1 = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData1, s1, dvSender)
                     const sources1 = await AddressSource.getAll(supportClient, { address: { id: createdAddress1.id } })
 
                     const cityDistrictType = faker.lorem.word(2)
                     const cityDistrict = faker.lorem.word(12)
+                    // Generate a new house_fias_id to simulate address change (e.g., building was re-registered)
+                    const newHouseFiasId = faker.datatype.uuid()
                     const changedSuggestionItem = generateDadataSuggestionItem({}, {
                         ...initialData,
+                        house_fias_id: newHouseFiasId,
                         city_district_fias_id: faker.datatype.uuid(),
                         city_district_with_type: `${cityDistrictType} ${cityDistrict}`,
                         city_district_type: cityDistrictType,
@@ -291,12 +291,17 @@ describe('ActualizeAddressesService', () => {
                     const s2 = changedSuggestionItem.value
                     const denormalizedRows2 = await searchProvider.get({ query: s2 })
                     const [searchResult2] = searchProvider.normalize(denormalizedRows2)
-                    const addressKey2 = generateAddressKey(searchResult2)
+                    const addressKey2 = searchProvider.generateAddressKey(searchResult2)
                     const addressData2 = buildAddressModelData(searchResult2, addressKey2, searchProvider.getProviderName(), denormalizedRows2[0])
                     const createdAddress2 = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData2, s2, dvSender)
                     const sources2 = await AddressSource.getAll(supportClient, { address: { id: createdAddress2.id } })
 
-                    expect(createdAddress1.meta.data.house_fias_id).toBe(createdAddress2.meta.data.house_fias_id)
+                    // Addresses should have different house_fias_id since we're simulating a building re-registration
+                    expect(createdAddress1.meta.data.house_fias_id).toBe(initialData.house_fias_id)
+                    expect(createdAddress2.meta.data.house_fias_id).toBe(newHouseFiasId)
+                    expect(createdAddress1.meta.data.house_fias_id).not.toBe(createdAddress2.meta.data.house_fias_id)
+                    // Address keys should be different due to different FIAS IDs
+                    expect(addressKey1).not.toBe(addressKey2)
 
                     mockedCallToDadata.mockImplementationOnce(() => {
                         return { suggestions: [changedSuggestionItem] }

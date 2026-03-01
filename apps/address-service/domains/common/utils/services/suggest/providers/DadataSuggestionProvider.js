@@ -6,6 +6,7 @@ const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
+const { HEURISTIC_TYPE_FIAS_ID, HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
@@ -419,6 +420,29 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                 type: VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
             }
         ))
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Dadata provider uses house_fias_id as unique identifier when available.
+     * Falls back to parent implementation if house_fias_id is not present.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string|null}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
+
+        if (houseFiasId) {
+            return `${HEURISTIC_TYPE_FIAS_ID}:${houseFiasId}`
+        }
+
+        const fallbackKey = super.generateAddressKey(normalizedBuilding)
+        if (fallbackKey) {
+            return `${HEURISTIC_TYPE_FALLBACK}:${fallbackKey}`
+        }
+
+        return fallbackKey
     }
 }
 

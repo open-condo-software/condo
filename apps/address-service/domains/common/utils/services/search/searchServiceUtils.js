@@ -4,6 +4,8 @@ const { AddressSource } = require('@address-service/domains/address/utils/server
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
+const { findAddressByHeuristics, upsertHeuristics } = require('./heuristicMatcher')
+
 const ADDRESS_ITEM_FIELDS = 'id address key meta overrides'
 
 async function upsertAddressSource (context, addressSourceServerUtils, dvSender, normalizedSource, addressId) {
@@ -42,8 +44,9 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
  * @param {{ address: string, key: string, meta: NormalizedBuilding }} addressData
  * @param {string} addressSource
  * @param {{ dv: number, sender: { dv: number, fingerprint: string } }} dvSender
+ * @param {Array<{type: string, value: string, reliability: number, meta?: object}>} [heuristics] - extracted heuristics from provider
  */
-async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender) {
+async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender, heuristics = []) {
     const { key, meta } = addressData
     const { helpers = null, provider: { name: providerName } = {}, data: { fias_id } = {} } = meta
 
@@ -59,12 +62,33 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     }
 
     //
-    // Address
+    // Address: first try heuristic-based matching, then fall back to key lookup
     //
-    let addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
+    let addressItem = null
+
+    if (heuristics.length > 0) {
+        const heuristicMatch = await findAddressByHeuristics(heuristics)
+        if (heuristicMatch) {
+            addressItem = await addressServerUtils.getOne(
+                context,
+                { id: heuristicMatch.addressId, deletedAt: null },
+                ADDRESS_ITEM_FIELDS
+            )
+        }
+    }
+
+    // Fallback: key-based lookup (backward compat with pre-migration data)
+    if (!addressItem) {
+        addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
+    }
 
     if (!addressItem) {
         addressItem = await addressServerUtils.create(context, { ...dvSender, ...addressData }, ADDRESS_ITEM_FIELDS)
+    }
+
+    // Upsert heuristics for the address
+    if (heuristics.length > 0) {
+        await upsertHeuristics(context, addressItem.id, heuristics, providerName, dvSender)
     }
 
     //

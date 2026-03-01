@@ -4,6 +4,10 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { suggestionContexts } = require('@address-service/domains/common/constants/contexts')
 
+const JOINER = '~'
+const SPACE_REPLACER = '_'
+const SPECIAL_SYMBOLS_TO_REMOVE_REGEX = /[!@#$%^&*)(+=.,_:;"'`[\]{}№|<>~]/g
+
 /**
  * @abstract
  */
@@ -73,6 +77,56 @@ class AbstractSuggestionProvider {
      */
     normalize (data) {
         throw new Error('Method still not implemented.')
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * This is the fallback implementation that builds key from address parts.
+     * FIAS-compatible providers should override this method to use house_fias_id.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string|null}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const data = normalizedBuilding.data
+
+        /**
+         * @type {string[]}
+         */
+        const parts = [
+            get(data, 'country'),
+            get(data, 'region'),
+            get(data, 'area'),
+            get(data, 'city'),
+            get(data, 'city_district'),
+            get(data, 'settlement'),
+            get(data, 'street_type_full'),
+            get(data, 'street'),
+            get(data, 'house'),
+            get(data, 'block_type_full'),
+            get(data, 'block'),
+        ]
+
+        const key = parts
+            // Remove empty parts
+            .filter(Boolean)
+            // Keep single space between words
+            .map(
+                (part) => (
+                    String(part)
+                        .replace(SPECIAL_SYMBOLS_TO_REMOVE_REGEX, '')
+                        .split(/\s/)
+                        .filter((word) => Boolean(word.trim()))
+                        .join(' ')
+                        .replace(/\s/g, SPACE_REPLACER)
+                ),
+            )
+            // Remove newly appeared empty parts
+            .filter(Boolean)
+            .join(JOINER)
+            .toLowerCase()
+
+        return key || null
     }
 }
 

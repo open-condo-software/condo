@@ -35,6 +35,13 @@ const Address = new GQLListSchema('Address', {
             isRequired: true,
         },
 
+        possibleDuplicateOf: {
+            schemaDoc: 'Points to the existing address that owns a conflicting heuristic. Used to flag potential duplicates for manual review.',
+            type: 'Relationship',
+            ref: 'Address',
+            isRequired: false,
+        },
+
         overrides: {
             schemaDoc: `The list of overrides for address ${OVERRIDING_ROOT} field`,
             adminDoc: `This is a JSON object that must look like {"field":"value", "someField.nestedField": "value2"}. Will use to override ${OVERRIDING_ROOT}`,

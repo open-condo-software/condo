@@ -20,6 +20,11 @@ const get = require('lodash/get')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { searchContexts } = require('@address-service/domains/common/constants/contexts')
+const { HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
+
+const JOINER = '~'
+const SPACE_REPLACER = '_'
+const SPECIAL_SYMBOLS_TO_REMOVE_REGEX = /[!@#$%^&*)(+=.,_:;"'`[\]{}№|<>~]/g
 
 /**
  * @abstract
@@ -86,6 +91,88 @@ class AbstractSearchProvider {
      */
     async getAddressByFiasId (fiasId) {
         throw new Error('Method still not implemented.')
+    }
+
+    /**
+     * Generates a fallback key from address parts.
+     * Used as the lowest-reliability heuristic when no provider-specific ID is available.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string|null}
+     * @protected
+     */
+    generateFallbackKey (normalizedBuilding) {
+        const data = normalizedBuilding.data
+
+        /**
+         * @type {string[]}
+         */
+        const parts = [
+            get(data, 'country'),
+            get(data, 'region'),
+            get(data, 'area'),
+            get(data, 'city'),
+            get(data, 'city_district'),
+            get(data, 'settlement'),
+            get(data, 'street_type_full'),
+            get(data, 'street'),
+            get(data, 'house'),
+            get(data, 'block_type_full'),
+            get(data, 'block'),
+        ]
+
+        const key = parts
+            // Remove empty parts
+            .filter(Boolean)
+            // Keep single space between words
+            .map(
+                (part) => (
+                    String(part)
+                        .replace(SPECIAL_SYMBOLS_TO_REMOVE_REGEX, '')
+                        .split(/\s/)
+                        .filter((word) => Boolean(word.trim()))
+                        .join(' ')
+                        .replace(/\s/g, SPACE_REPLACER)
+                ),
+            )
+            // Remove newly appeared empty parts
+            .filter(Boolean)
+            .join(JOINER)
+            .toLowerCase()
+
+        return key || null
+    }
+
+    /**
+     * Extract all possible heuristic identifiers from normalized data.
+     * Each provider should override this to return provider-specific heuristics.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
+     */
+    extractHeuristics (normalizedBuilding) {
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        if (!fallbackKey) return []
+
+        return [{
+            type: HEURISTIC_TYPE_FALLBACK,
+            value: fallbackKey,
+            reliability: 10,
+            meta: null,
+        }]
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Uses the best (highest reliability) heuristic as the key.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string|null}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const heuristics = this.extractHeuristics(normalizedBuilding)
+        if (!heuristics.length) return null
+
+        const best = heuristics.sort((a, b) => b.reliability - a.reliability)[0]
+        return `${best.type}:${best.value}`
     }
 }
 

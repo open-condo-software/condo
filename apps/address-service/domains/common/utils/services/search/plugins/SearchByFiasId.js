@@ -3,7 +3,6 @@ const { validate: isUUID } = require('uuid')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { DADATA_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
@@ -54,7 +53,8 @@ class SearchByFiasId extends AbstractSearchPlugin {
             return null
         }
 
-        const addressKey = generateAddressKey(searchResult)
+        const heuristics = searchProvider.extractHeuristics(searchResult)
+        const addressKey = searchProvider.generateAddressKey(searchResult)
 
         const addressData = {
             address: searchResult.value,
@@ -70,7 +70,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
             },
         }
 
-        return await createOrUpdateAddressWithSource(godContext, Address, AddressSource, addressData, s, dvSender)
+        return await createOrUpdateAddressWithSource(godContext, Address, AddressSource, addressData, s, dvSender, heuristics)
     }
 }
 
