@@ -17,7 +17,6 @@ const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     isWebhookUrlInWhitelist,
-    returnPlainTextWebhookSecretOnCreation,
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
@@ -337,7 +336,15 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        historical(),
+        analytical(),
+    ],
     access: {
         read: access.canReadBillingReceipts,
         create: access.canManageBillingReceipts,
@@ -401,7 +408,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
 
             // Auto-generate webhook secret when callback URL is set
-            applyWebhookSecretGeneration(resolvedData, existingItem, context)
+            applyWebhookSecretGeneration({ resolvedData, existingItem })
 
             return resolvedData
         },
@@ -448,10 +455,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 receiverId = createdRecipient.id
             }
             resolvedData.receiver = receiverId
-        },
-        afterChange: async (args) => {
-            // Return plain text webhook secret on creation
-            returnPlainTextWebhookSecretOnCreation(args)
         },
     },
 })
