@@ -43,7 +43,6 @@ async function canReadTicketComments (args) {
 
         return {
             ...accessFilter,
-            type: ORGANIZATION_COMMENT_TYPE,
         }
     }
 
@@ -86,12 +85,6 @@ const checkManageCommentAccess = async (args) => {
     if (user.type === SERVICE) {
         const hasAccess = await canManageObjectsAsB2BAppServiceUser(args)
         if (!hasAccess) return false
-
-        // service user can't create ticket comment with resident type or update type to resident
-        const resolvedCommentType = get(originalInput, 'type')
-        if (resolvedCommentType === RESIDENT_COMMENT_TYPE) {
-            return false
-        }
 
         // service user can't update not his own ticket comment
         if (operation === 'update') {
