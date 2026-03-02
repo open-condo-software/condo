@@ -292,8 +292,8 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                             value={editorValue}
                                             onChange={(newValue) => handleEditorChange(newValue, form)}
                                             placeholder={HintMessage}
-                                            maxLength={1000}
-                                            autoSize={{ minRows: 2, maxRows: 10 }}
+                                            maxLength={5000}
+                                            autoSize={{ minRows: 2 }}
                                             customLabels={{
                                                 toolbar: toolbarLabels,
                                                 linkModal: linkModalLabels,

@@ -397,19 +397,31 @@ describe('TicketPropertyHint', () => {
         })
     })
     describe('Validations', function () {
-        test('xss', async () => {
+        test('stores markdown content as is', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
-            const content = '<script> console.log(\'hello, world\') </script>'
-
+        
+            const content = [
+                '# Header',
+                '',
+                '**bold** _italic_',
+                '',
+                '- item 1',
+                '- item 2',
+                '',
+                '[Condo](https://github.com/open-condo-software/condo)',
+                '',
+                '<script>console.log("raw text")</script>',
+            ].join('\n')
+        
             const [createdTicketPropertyHint] = await createTestTicketPropertyHint(admin, organization, {
                 content,
             })
-
+        
             const ticketPropertyHint = await TicketPropertyHint.getOne(admin, { id: createdTicketPropertyHint.id })
-
+        
             expect(ticketPropertyHint.id).toMatch(UUID_RE)
-            expect(ticketPropertyHint.content).toEqual('&lt;script&gt; console.log(\'hello, world\') &lt;/script&gt;')
+            expect(ticketPropertyHint.content).toEqual(content)
         })
     })
 })
