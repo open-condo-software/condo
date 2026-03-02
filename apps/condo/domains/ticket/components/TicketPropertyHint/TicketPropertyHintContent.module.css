@@ -1,5 +1,5 @@
-.contentWrapper {
-    overflow: hidden;
-    word-break: break-word;
-    position: relative;
+.content-wrapper {
+  position: relative;
+  overflow: hidden;
+  word-break: break-word;
 }
