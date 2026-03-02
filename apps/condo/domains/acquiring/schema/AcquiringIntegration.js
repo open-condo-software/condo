@@ -12,6 +12,11 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const {
+    ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+    ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+    ACQUIRING_INTEGRATION_TYPES,
+} = require('@condo/domains/acquiring/constants/integration')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
@@ -37,6 +42,15 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         },
 
         isHidden: IS_HIDDEN_FIELD,
+
+        type: {
+            schemaDoc: `Defines the integration type. ${ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE}: used for processing and accepting payments. ${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}: used for storing information about payments completed through other channels`,
+            type: 'Select',
+            dataType: 'string',
+            options: ACQUIRING_INTEGRATION_TYPES,
+            defaultValue: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+            isRequired: true,
+        },
 
         accessRights: {
             type: 'Relationship',
