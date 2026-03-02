@@ -59,7 +59,7 @@
     "react": "^16.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "webpack": "^5.99.9",
+    "webpack": "^5.104.1",
     "webpack-cli": "^5.0.1"
   }
 }
