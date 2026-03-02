@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 7, 1)
+VERSION = (1, 8, 0)
 DISABLE_MODEL_CHOICES = True
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
@@ -827,6 +827,19 @@ def _generate_views_migration(ctx, fwd=True):
 
     return migration
 
+def _ensure_transaction(sql):
+    # NOTE: empty migrations does not have transaction, so we need to wrap views migration into transaction
+    if 'BEGIN;' not in sql:
+        sql = 'BEGIN;\n' + sql
+    if 'COMMIT;' not in sql:
+        sql += '\nCOMMIT;'
+
+    return sql
+
+def _append_to_transaction(original_sql, statement):
+    sql = _ensure_transaction(original_sql)
+    sql = sql.replace('COMMIT;', statement + '\nCOMMIT;')
+    return sql
 
 
 def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
@@ -879,13 +892,13 @@ def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
         cmd = [sys.executable, str(DJANGO_DIR / '..' / 'manage.py'), 'sqlmigrate', '_django_schema', name]
         fwd_sql = subprocess.check_output(cmd).decode('utf-8')
         if not views_inserted and fwd_views_sql:
-            fwd_sql += '\n' + fwd_views_sql
+            fwd_sql = _append_to_transaction(fwd_sql, fwd_views_sql)
             if not bwd_views_sql:
                 views_inserted = True
         try:
             bwd_sql = subprocess.check_output(cmd + ['--backwards'], stderr=subprocess.PIPE).decode('utf-8')
             if not views_inserted:
-                bwd_sql += '\n' + bwd_views_sql
+                bwd_sql = _append_to_transaction(bwd_sql, bwd_views_sql)
                 views_inserted = True
             text = KNEX_MIGRATION_TPL.format(**locals())
         except subprocess.CalledProcessError as e:
@@ -895,7 +908,7 @@ def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
             log_file.write_bytes(e.stderr)
             template = KNEX_MIGRATION_TPL_NO_DOWN
             if not views_inserted and bwd_views_sql:
-                bwd_sql = bwd_views_sql
+                bwd_sql = _append_to_transaction('', bwd_views_sql)
                 template = KNEX_MIGRATION_TPL
                 views_inserted = True
             text = template.format(**locals())
