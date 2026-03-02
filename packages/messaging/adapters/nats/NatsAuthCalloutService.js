@@ -5,9 +5,10 @@ const nkeys = require('nkeys.js')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
+const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
+
 const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
 
-const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
 
 const logger = getLogger()
 
