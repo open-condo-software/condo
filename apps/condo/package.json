@@ -59,7 +59,7 @@
     "@types/lodash": "4.14.186",
     "@types/wavesurfer.js": "^6.0.6",
     "@welldone-software/why-did-you-render": "^5.0.0-alpha.1",
-    "ajv": "8.11.0",
+    "ajv": "8.18.0",
     "ajv-formats": "^2.1.0",
     "analytics": "^0.8.16",
     "antd": "^4.24.12",
