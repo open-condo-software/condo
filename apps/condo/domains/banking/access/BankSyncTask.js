@@ -3,7 +3,7 @@
  */
 
 const Ajv = require('ajv')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')

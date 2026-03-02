@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')

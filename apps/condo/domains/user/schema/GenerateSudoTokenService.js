@@ -3,7 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')

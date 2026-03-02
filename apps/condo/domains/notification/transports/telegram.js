@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getByCondition } = require('@open-condo/keystone/schema')

@@ -1,7 +1,7 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const localizedFormat = require('dayjs/plugin/localizedFormat')
-const { get } = require('lodash')
+const get = require('lodash/get')
 // TODO(Tolmachev): DOMA-11884 1.16.0+ Moved away from CJS, consider migrating to to-words or other CJS-friendly alternatives
 const n2words = require('n2words')
 dayjs.extend(localizedFormat)

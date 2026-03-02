@@ -1,4 +1,4 @@
-const { isNil } = require('lodash')
+const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')

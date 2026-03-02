@@ -3,7 +3,10 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, uniq, map, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
+const map = require('lodash/map')
+const uniq = require('lodash/uniq')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')

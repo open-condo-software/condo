@@ -1,4 +1,6 @@
-const { isEmpty, get, has } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')

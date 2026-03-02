@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { pick } = require('lodash')
+const pick = require('lodash/pick')
 
 const {
     makeClient,

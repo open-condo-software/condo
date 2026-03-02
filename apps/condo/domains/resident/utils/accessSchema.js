@@ -1,4 +1,6 @@
-const { get, set, pick } = require('lodash')
+const get = require('lodash/get')
+const pick = require('lodash/pick')
+const set = require('lodash/set')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')

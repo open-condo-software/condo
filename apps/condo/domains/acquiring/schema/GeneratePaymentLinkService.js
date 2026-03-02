@@ -3,7 +3,8 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { isNil, map } = require('lodash')
+const isNil = require('lodash/isNil')
+const map = require('lodash/map')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')

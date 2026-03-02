@@ -1,4 +1,5 @@
-const { get, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { APPLE_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const {

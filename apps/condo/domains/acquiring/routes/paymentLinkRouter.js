@@ -1,6 +1,8 @@
 const querystring = require('querystring')
 
-const { get, has, isNil } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
+const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')

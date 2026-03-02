@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
-const { get, isEmpty, uniq } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')

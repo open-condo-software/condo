@@ -1,4 +1,4 @@
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 

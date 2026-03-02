@@ -1,5 +1,7 @@
 const Big = require('big.js')
-const { get, pick, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const pick = require('lodash/pick')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')

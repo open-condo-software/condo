@@ -1,5 +1,6 @@
 const axios = require('axios').default
-const { isNil, get } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 

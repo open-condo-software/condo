@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
-const { get, isEmpty, find } = require('lodash')
+const find = require('lodash/find')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')

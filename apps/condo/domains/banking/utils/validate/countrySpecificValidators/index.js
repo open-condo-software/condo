@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const ruValidator = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
 

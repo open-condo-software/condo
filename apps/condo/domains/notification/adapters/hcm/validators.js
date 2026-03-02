@@ -1,4 +1,6 @@
-const { isString, isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isString = require('lodash/isString')
 
 const {
     URGENCY_HIGH, URGENCY_NORMAL,

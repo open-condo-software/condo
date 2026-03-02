@@ -1,4 +1,8 @@
-const { isEmpty, isObject, isNull, get, cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')

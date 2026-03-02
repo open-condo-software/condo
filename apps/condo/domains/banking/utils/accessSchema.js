@@ -1,4 +1,6 @@
-const { get, uniq, isArray } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const uniq = require('lodash/uniq')
 
 const { find } = require('@open-condo/keystone/schema')
 
