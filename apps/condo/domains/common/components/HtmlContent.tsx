@@ -26,6 +26,9 @@ const StyledDiv = styled.div`
   }
 `
 
+/**
+ * @deprecated Use Markdown component instead
+ */
 export const HtmlContent = React.forwardRef<HTMLDivElement, HtmlContentProps>(({ html, style, className }, ref) => {
     const htmlContent = useMemo(() => ({
         __html: sanitizeXss(html),

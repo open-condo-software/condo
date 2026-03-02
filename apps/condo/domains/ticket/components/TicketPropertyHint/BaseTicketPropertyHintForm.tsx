@@ -114,7 +114,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
         unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
         orderedList: intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' }),
-        removeFormating: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormating' }),
+        removeFormatting: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' }),
     }), [intl])
 
     const linkModalLabels = useMemo(() => ({
@@ -297,7 +297,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                             customLabels={{
                                                 toolbar: toolbarLabels,
                                                 linkModal: linkModalLabels,
-                                            }}  
+                                            }}
                                         />
                                     </Col>
                                 </Row>
