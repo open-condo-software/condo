@@ -5071,6 +5071,8 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         payments
         news
         marketplace
+        analytics
+        properties
         support
         ai
         enabledB2BApps
