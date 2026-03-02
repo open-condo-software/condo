@@ -1,3 +1,4 @@
+const { faker } = require('@faker-js/faker')
 const jwt = require('jsonwebtoken')
 const { connect, JSONCodec, createInbox } = require('nats')
 
@@ -9,7 +10,7 @@ const { configure, buildOrganizationTopic, buildUserTopic } = require('@open-con
 
 const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
@@ -191,6 +192,48 @@ describe('Messaging Integration Tests', () => {
             expect(channelNames).toContain('user')
             expect(channelNames).toContain('organization')
             expect(body.channels).toHaveLength(2)
+        })
+    })
+
+    describe('Resident user access via HTTP endpoints', () => {
+        it('resident user gets token with userId only (no organizationId)', async () => {
+            const client = await makeClientWithResidentUser()
+            const cookie = client.getCookie()
+
+            const response = await fetch(natsTokenUrl, {
+                method: 'GET',
+                headers: { Cookie: cookie },
+            })
+
+            expect(response.status).toBe(200)
+            const body = await response.json()
+            expect(body.token).toBeDefined()
+            expect(body.userId).toBe(client.user.id)
+            expect(body.organizationId).toBeNull()
+
+            const decoded = jwt.verify(body.token, TOKEN_SECRET)
+            expect(decoded.userId).toBe(client.user.id)
+            expect(decoded.organizationId).toBeNull()
+        })
+
+        it('resident user gets only user channel from /messaging/channels', async () => {
+            const client = await makeClientWithResidentUser()
+            const cookie = client.getCookie()
+
+            const response = await fetch(natsStreamsUrl, {
+                method: 'GET',
+                headers: { Cookie: cookie },
+            })
+
+            expect(response.status).toBe(200)
+            const body = await response.json()
+            expect(body.userId).toBe(client.user.id)
+            expect(body.organizationId).toBeNull()
+            expect(body.channels).toHaveLength(1)
+
+            const channelNames = body.channels.map(s => s.name)
+            expect(channelNames).toContain('user')
+            expect(channelNames).not.toContain('organization')
         })
     })
 

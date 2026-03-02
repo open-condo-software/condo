@@ -62,6 +62,11 @@ function rateLimitHandler () {
 
 function resolveEmployeeContextHandler ({ keystone }) {
     return async function (req, res, next) {
+        if (req.user.type === 'resident') {
+            req.messaging = { userId: req.user.id, organizationId: null }
+            return next()
+        }
+
         const cookies = nextCookie({ req })
         const employeeId = cookies.organizationLinkId
 
@@ -92,7 +97,9 @@ function resolveEmployeeContextHandler ({ keystone }) {
 
 function buildChannels (userId, organizationId) {
     const context = { userId, organizationId }
-    return CHANNEL_DEFINITIONS.map(ch => ch.buildAvailableChannel(context))
+    return CHANNEL_DEFINITIONS
+        .filter(ch => ch.isAvailable(context))
+        .map(ch => ch.buildAvailableChannel(context))
 }
 
 class MessagingMiddleware {

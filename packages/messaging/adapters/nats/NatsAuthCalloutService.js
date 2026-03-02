@@ -137,8 +137,8 @@ class NatsAuthCalloutService {
 
         const { userId, organizationId } = decoded
 
-        if (!userId || !organizationId) {
-            this._respondError(msg, user_nkey, serverId, 'Token missing userId or organizationId')
+        if (!userId) {
+            this._respondError(msg, user_nkey, serverId, 'Token missing userId')
             return
         }
 

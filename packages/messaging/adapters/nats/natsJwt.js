@@ -155,7 +155,9 @@ function createAuthResponseJwt ({ userNkey, serverId, accountPublicKey, userJwt,
  */
 function computePermissions (userId, organizationId) {
     const context = { userId, organizationId }
-    const channelPermissions = CHANNEL_DEFINITIONS.flatMap(ch => ch.buildRelayPermissions(context))
+    const channelPermissions = CHANNEL_DEFINITIONS
+        .filter(ch => ch.isAvailable(context))
+        .flatMap(ch => ch.buildRelayPermissions(context))
 
     const pubAllow = [
         '_INBOX.>',

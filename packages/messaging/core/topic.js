@@ -58,10 +58,13 @@ const APP_PREFIX = getAppPrefix()
  *   Given user context, return PUB allow patterns for relay subscribe topics.
  * @property {function({userId: string, organizationId: string}): {name: string, topic: string}} buildAvailableChannel -
  *   Given user context, return the channel info for the /messaging/channels endpoint.
+ * @property {function({userId: string, organizationId: string}): boolean} isAvailable -
+ *   Given user context, return true if this channel should be included.
  */
 const CHANNEL_DEFINITIONS = [
     {
         name: CHANNEL_USER,
+        isAvailable: ({ userId }) => !!userId,
         extractUserId: (parts) => parts[0] || null,
         buildActualTopic: (parts) => {
             const userId = parts[0]
@@ -80,6 +83,7 @@ const CHANNEL_DEFINITIONS = [
     },
     {
         name: CHANNEL_ORGANIZATION,
+        isAvailable: ({ organizationId }) => !!organizationId,
         extractUserId: () => null,
         buildActualTopic: (parts) => {
             const orgId = parts[0]

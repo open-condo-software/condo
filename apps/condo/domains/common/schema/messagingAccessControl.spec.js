@@ -64,7 +64,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                     }
 
                     const { userId, organizationId } = decoded
-                    if (!userId || !organizationId) {
+                    if (!userId) {
                         msg.respond(new TextEncoder().encode(createAuthResponseJwt({
                             userNkey: user_nkey, serverId, accountPublicKey,
                             error: 'Access denied', signingConfig: { keyPair: accountKeyPair },
@@ -514,20 +514,18 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             expect(connectionFailed).toBe(true)
         })
 
-        it('rejects connection without organizationId', async () => {
+        it('allows connection without organizationId (user channel only)', async () => {
             const token = jwt.sign(
                 { userId: 'test-user' },
                 TOKEN_SECRET,
                 { expiresIn: '1h' }
             )
-            let connectionFailed = false
+            const nc = await connectWithToken(token, 'no-org')
             try {
-                const nc = await connectWithToken(token, 'no-org')
+                expect(nc).toBeDefined()
+            } finally {
                 await nc.close()
-            } catch {
-                connectionFailed = true
             }
-            expect(connectionFailed).toBe(true)
         })
 
         it('rejects connection with no token at all', async () => {

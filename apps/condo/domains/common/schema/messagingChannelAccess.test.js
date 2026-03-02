@@ -7,7 +7,7 @@ const { configure, checkAccess, getAvailableChannels } = require('@open-condo/me
 
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { User, makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { User, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Messaging Access Control', () => {
@@ -350,6 +350,62 @@ describe('Messaging Access Control', () => {
 
             const channelNames = channels.map(s => s.name)
             expect(channelNames).not.toContain('organization')
+        })
+    })
+
+    describe('Resident user access', () => {
+        it('resident user CAN access own user channel via checkAccess', async () => {
+            const client = await makeClientWithResidentUser()
+            const userId = client.user.id
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(context, userId, `user.${userId}.notification`)
+
+            expect(result.allowed).toBe(true)
+            expect(result.user).toEqual(userId)
+        })
+
+        it('resident user CANNOT access another user channel', async () => {
+            const resident = await makeClientWithResidentUser()
+            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(context, resident.user.id, `user.${otherUser.user.id}.notification`)
+
+            expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('Cannot access other user channel')
+        })
+
+        it('resident user CANNOT access organization channel (no employee record)', async () => {
+            const resident = await makeClientWithResidentUser()
+            const [organization] = await createTestOrganization(admin)
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const result = await checkAccess(
+                context,
+                resident.user.id,
+                `organization.${organization.id}.ticket`
+            )
+
+            expect(result.allowed).toBe(false)
+            expect(result.reason).toBe('Access denied for organization channel')
+        })
+
+        it('getAvailableChannels returns only user channel for resident user', async () => {
+            const resident = await makeClientWithResidentUser()
+            const [organization] = await createTestOrganization(admin)
+
+            const keystone = getSchemaCtx('User').keystone
+            const context = await keystone.createContext({ skipAccessControl: true })
+            const channels = await getAvailableChannels(context, resident.user.id, organization.id)
+
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).toContain('user')
+            expect(channelNames).not.toContain('organization')
+            expect(channels).toHaveLength(1)
         })
     })
 })
