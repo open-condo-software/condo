@@ -1,0 +1,31 @@
+{
+  "name": "@open-condo/messaging",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "generate-nats-keys": "node ./adapters/nats/bin/generate-nats-keys.js"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./hooks": "./hooks/index.ts",
+    "./middleware": "./middleware/index.js",
+    "./plugins": "./plugins/index.js",
+    "./topic": "./core/topic.js",
+    "./utils": "./utils/index.js",
+    "./adapters/nats": "./adapters/nats/index.js"
+  },
+  "dependencies": {
+    "@nats-io/nats-core": "^3.3.1",
+    "@open-condo/config": "workspace:^",
+    "@open-condo/keystone": "workspace:^",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.0",
+    "nats": "^2.28.2",
+    "next-cookies": "^2.0.3",
+    "nkeys.js": "^1.1.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0"
+  }
+}

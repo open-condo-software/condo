@@ -750,6 +750,7 @@ __metadata:
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    "@open-condo/messaging": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -10671,6 +10672,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nats-io/nats-core@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@nats-io/nats-core@npm:3.3.1"
+  dependencies:
+    "@nats-io/nkeys": 2.0.3
+    "@nats-io/nuid": 2.0.3
+  checksum: 5e3904b16dbc7f094e4a9679b9faaf53b7796a5a4df235a82526621a7b4836cd8cb1cbd2d4e7826e4e3f531be82265ab939747108147ddb55efd656bda1b4c50
+  languageName: node
+  linkType: hard
+
+"@nats-io/nkeys@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@nats-io/nkeys@npm:2.0.3"
+  dependencies:
+    tweetnacl: ^1.0.3
+  checksum: bc00502688aad5c3f1c01b24e4828dda145a1b102f81287f9ad71745343ebce61324a555e7303d08929330a546167eb2902d1c38628189fda78373bf8c5db15a
+  languageName: node
+  linkType: hard
+
+"@nats-io/nuid@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@nats-io/nuid@npm:2.0.3"
+  checksum: 7f19f1e90a51a9f136fa2719cc577b349093514c13c7fcc48737228b64c7b1fc04a8650b358629ef23af04bb95994a20d8d0879deda8579bcb8546c9788c4692
+  languageName: node
+  linkType: hard
+
 "@neoconfetti/react@npm:^1.0.0":
   version: 1.0.0
   resolution: "@neoconfetti/react@npm:1.0.0"
@@ -11975,6 +12002,23 @@ __metadata:
     "@open-condo/config": "workspace:^"
     lodash: ^4.17.21
     next-cookies: ^2.0.3
+  languageName: unknown
+  linkType: soft
+
+"@open-condo/messaging@workspace:^, @open-condo/messaging@workspace:packages/messaging":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/messaging@workspace:packages/messaging"
+  dependencies:
+    "@nats-io/nats-core": ^3.3.1
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    express: ^4.21.2
+    jsonwebtoken: ^9.0.0
+    nats: ^2.28.2
+    next-cookies: ^2.0.3
+    nkeys.js: ^1.1.0
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0
   languageName: unknown
   linkType: soft
 
@@ -35344,6 +35388,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nats@npm:^2.28.2":
+  version: 2.29.3
+  resolution: "nats@npm:2.29.3"
+  dependencies:
+    nkeys.js: 1.1.0
+  checksum: 3e530e1237ccc42f015731fedb1bbef8d2f61750d67570d28a1cafc6fb82f7c5256c5f3906a33a927d8264f1cec5d4b2ac351006006c930c005dd71314569fea
+  languageName: node
+  linkType: hard
+
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -35513,6 +35566,15 @@ __metadata:
   bin:
     next: dist/bin/next
   checksum: ad59f966a28cff60051740391cee8b2d7974283a4f85fb644c38c211f5a294c9bc90479adec25adaec8a89205c4d36cbc8cfc5362d90665da7905b017ab61d44
+  languageName: node
+  linkType: hard
+
+"nkeys.js@npm:1.1.0, nkeys.js@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "nkeys.js@npm:1.1.0"
+  dependencies:
+    tweetnacl: 1.0.3
+  checksum: 01de5355ae77973b70d0b96c8c5772bce32b20329229b11bfc2b3cfe8ecbd1b2f097ee77875efd987ff1ee0b559a8df2214821c7a39a297cb7c8f4dff4b5744e
   languageName: node
   linkType: hard
 
@@ -47414,6 +47476,13 @@ __metadata:
   bin:
     turbo: bin/turbo
   checksum: 16731ef4a4b3d33ca16ca8641e5f8125e8487215c099a92f6e104d30b2f46bea0f7fad438124aec26507dd5afb72f54e56cf10d5839735ba4e0bf1d2d9ea1078
+  languageName: node
+  linkType: hard
+
+"tweetnacl@npm:1.0.3, tweetnacl@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "tweetnacl@npm:1.0.3"
+  checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c
   languageName: node
   linkType: hard
 

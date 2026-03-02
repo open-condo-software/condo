@@ -1588,15 +1588,15 @@ describe('Ticket', () => {
             test('user cannot read observers from ticket', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(
-                    admin, 
-                    client.organization, 
-                    client.property, 
-                    { 
-                        observers: { 
-                            create: [{ 
-                                user: { connect: { id: client.user.id } }, 
-                                dv: 1, 
-                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, 
+                    admin,
+                    client.organization,
+                    client.property,
+                    {
+                        observers: {
+                            create: [{
+                                user: { connect: { id: client.user.id } },
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
                             }],
                         },
                     }
@@ -1612,22 +1612,22 @@ describe('Ticket', () => {
                     }
                 `
                 const { errors } = await client.query(GET_TICKET_WITH_OBSERVERS_BY_ID, { ticketId: ticket.id })
-                
+
                 expect(errors).toHaveLength(1)
             })
 
             test('user: can create and update observers from ticket', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(
-                    client, 
-                    client.organization, 
-                    client.property, 
-                    { 
-                        observers: { 
-                            create: [{ 
-                                user: { connect: { id: client.user.id } }, 
-                                dv: 1, 
-                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, 
+                    client,
+                    client.organization,
+                    client.property,
+                    {
+                        observers: {
+                            create: [{
+                                user: { connect: { id: client.user.id } },
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
                             }],
                         },
                     }
@@ -1639,9 +1639,9 @@ describe('Ticket', () => {
                 expect(ticketObserverBeforeUpdate.user.id).toEqual(client.user.id)
                 expect(ticketObserverBeforeUpdate.ticket.id).toEqual(ticket.id)
                 await updateTestTicket(
-                    client, 
-                    ticket.id, 
-                    { 
+                    client,
+                    ticket.id,
+                    {
                         observers: { disconnect: [{ id: ticketObserverBeforeUpdate.id }] },
                     }
                 )

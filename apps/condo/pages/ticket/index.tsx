@@ -19,6 +19,7 @@ import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
@@ -28,6 +29,7 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Search, Phone } from '@open-condo/icons'
+import { useMessagingConnection, useMessagingSubscription } from '@open-condo/messaging/hooks'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -459,13 +461,13 @@ const TicketsTableContainer = ({
         }
         setIsRefetching(false)
     }, [refetch, refetchUserTicketCommentReadTimes])
-    
+
     const shouldRefetchOnFocusRef = useRef(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
-    
+
     useEffect(() => {
         if (!isRefetchTicketsFeatureEnabled) return
-    
+
         const scheduleNext = () => {
             timerRef.current = setTimeout(async () => {
                 if (document.hidden) {
@@ -482,7 +484,7 @@ const TicketsTableContainer = ({
                 scheduleNext()
             }, refetchInterval)
         }
-    
+
         const onVisibilityChange = async () => {
             if (!document.hidden && shouldRefetchOnFocusRef.current) {
                 await refetchTickets()
@@ -492,10 +494,10 @@ const TicketsTableContainer = ({
                 scheduleNext()
             }
         }
-    
+
         scheduleNext()
         document.addEventListener('visibilitychange', onVisibilityChange)
-    
+
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current)
             document.removeEventListener('visibilitychange', onVisibilityChange)
@@ -871,7 +873,7 @@ export const TicketsPageContent = ({
         ...baseTicketsQuery,
         ...filtersToWhere(omit(filters, 'status')),
     }), [baseTicketsQuery, filters, filtersToWhere])
-    
+
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)
@@ -1097,6 +1099,33 @@ const TicketsPage: PageComponentType = () => {
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
+
+    // NOTE: debug usage of subscriptions
+    const { publicRuntimeConfig: { messagingWsUrl } } = getConfig()
+    const { connection, isConnected } = useMessagingConnection({
+        enabled: !!userOrganizationId,
+        wsUrl: messagingWsUrl,
+    })
+    const ticketTopic = userOrganizationId ? `organization.${userOrganizationId}.ticket` : ''
+    const { isSubscribed } = useMessagingSubscription({
+        topic: ticketTopic,
+        connection,
+        isConnected,
+        enabled: !!ticketTopic && isConnected,
+        onMessage: (data) => {
+            console.log('[messaging] Ticket changed:', data)
+        },
+    })
+
+    // Log connection status changes
+    useEffect(() => {
+        if (isConnected) {
+            console.log('[messaging] Connected to ticket-changes channel')
+        }
+        if (isSubscribed) {
+            console.log('[messaging] Subscribed to organization ticket changes')
+        }
+    }, [isConnected, isSubscribed])
 
     const {
         error,

@@ -1,5 +1,4 @@
 const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
-const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
     const addressServiceUrl = await getAppServerUrl('address-service')

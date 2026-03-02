@@ -19,6 +19,8 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { find } = require('@open-condo/keystone/schema')
+const { MessagingMiddleware, setupMessaging } = require('@open-condo/messaging')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -121,6 +123,7 @@ const apps = () => {
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
+        new MessagingMiddleware(),
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
         new FileMiddleware({ apiPrefix: '/api/files' }),
@@ -160,6 +163,22 @@ const authStrategyOpts = {
         },
     },
 }
+
+setupMessaging({
+    accessCheckers: {
+        organization: async (context, userId, organizationId) => {
+            const employees = await find('OrganizationEmployee', {
+                user: { id: userId },
+                organization: { id: organizationId },
+                isAccepted: true,
+                isRejected: false,
+                isBlocked: false,
+                deletedAt: null,
+            })
+            return employees.length > 0
+        },
+    },
+})
 
 module.exports = prepareKeystone({
     extendExpressApp,

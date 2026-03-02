@@ -36,6 +36,8 @@ const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
 const condoRBDomain = conf['RB_DOMAIN']
+const messagingConfig = conf['MESSAGING_CONFIG'] ? JSON.parse(conf['MESSAGING_CONFIG']) : {}
+const messagingWsUrl = messagingConfig.wsUrl || ''
 const apolloBatchingEnabled = conf['APOLLO_BATCHING_ENABLED'] === 'true'
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
 const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
@@ -149,6 +151,7 @@ const nextConfig: NextConfig = {
         subscriptionFeatureHelpLinks,
         subscriptionPayUrl,
         cardIssuerImages,
+        messagingWsUrl,
     },
     serverRuntimeConfig: {
         proxyName,
