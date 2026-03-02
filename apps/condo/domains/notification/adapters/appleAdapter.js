@@ -147,11 +147,11 @@ class AppleAdapter {
      * Prepares notification for either/both sending to Apple push and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
-     * @param data
+     * @param dataByToken
      * @param tokens
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds) {
+    static prepareBatchData (notificationRaw, dataByToken = {}, tokens = [], pushTypes = {}, appIds) {
         const notification = AppleAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
@@ -161,12 +161,12 @@ class AppleAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = AppleAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken] || {}
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
                     data: {
-                        ...preparedData,
+                        ...data,
                         '_title': notification.title,
                         '_body': notification.body,
                     },
@@ -176,14 +176,17 @@ class AppleAdapter {
                 }
                 : {
                     token: pushToken,
-                    data: preparedData,
+                    data: data,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                     type: pushType,
                     appId: get(appIds, pushToken),
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(get(appIds, pushToken)) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(get(appIds, pushToken))
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -203,10 +206,10 @@ class AppleAdapter {
      * @param pushTypes
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
+    async sendNotification ({ notification, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
+        const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notification, dataByToken, tokens, pushTypes, appIds)
         let result = AppleAdapter.getEmptyResult()
 
         if (!isNull(this.#config) && !isEmpty(notifications)) {

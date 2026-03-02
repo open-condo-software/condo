@@ -2,6 +2,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -26,8 +27,10 @@ const {
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
-
+const { encryptPushData } = require('@condo/domains/notification/utils/serverSchema/push/encryption')
 const logger = getLogger()
+
+const PUSH_ADAPTER_SETTINGS = JSON.parse(conf.PUSH_ADAPTER_SETTINGS || '{}')
 
 const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
     TICKET_CREATED_TYPE,
@@ -203,6 +206,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         )
     )
 
+    const encryptedDataByAppId = {}
     let container = {}
     let _isOk = false
 
@@ -214,9 +218,22 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     const promises = await Promise.allSettled(Object.keys(tokensByTransport).map(async transport => {
         const tokens = tokensByTransport[transport]
         if (isEmpty(tokens)) return null
-
         const adapter = ADAPTERS[transport]
-        const payload = { tokens, pushTypes, appIds, notification, data, metaByToken }
+        // Class.staticMethod() === new Class().constructor.staticMethod()
+        const dataByToken = Object.fromEntries(tokens.map(token => [token, adapter.constructor.prepareData(data, token)]))
+        for (const [token, dataForToken] of Object.entries(dataByToken)) {
+            const appId = appIds[token]
+            const encryptionVersion = PUSH_ADAPTER_SETTINGS.encryption?.[appId]
+            if (!encryptionVersion) continue
+            const encryptedData = encryptPushData(encryptionVersion, dataForToken, { appId })
+            if (encryptedData) {
+                encryptedDataByAppId[appId] = { success: true, encryptedData }
+                dataByToken[token] = { _actualData: encryptedData }
+            } else {
+                encryptedDataByAppId[appId] = { success: false }
+            }
+        }
+        const payload = { tokens, pushTypes, appIds, notification, dataByToken, metaByToken }
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
 
         await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })
@@ -225,6 +242,8 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         const sendNotificationResult = [isOk, result, transport]
         return sendNotificationResult
     }))
+
+    logger.info({ msg: 'encrypted data', entity: 'Message', entityId: data.notificationId, data: { encryptedDataByAppId } })
 
     for (const p of promises) {
         if (p.status !== 'fulfilled') continue

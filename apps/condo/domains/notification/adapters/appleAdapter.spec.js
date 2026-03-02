@@ -39,16 +39,19 @@ describe('Apple adapter utils', () => {
 
     it('should succeed sending push notification to fake success push token', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const dataByToken = Object.fromEntries(
+            tokens.map(token => [token, {
+                app : 'condo',
+                type: 'notification',
+            }])
+        )
         const [isOk, result] = await adapter.sendNotification({
             tokens,
             notification: {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
-            },
+            dataByToken: dataByToken,
         })
 
         expect(isOk).toBeTruthy()
