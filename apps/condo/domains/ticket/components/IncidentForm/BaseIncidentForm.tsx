@@ -564,6 +564,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
     const [incidentForm] = Form.useForm()
 
+    const client = useApolloClient()
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
@@ -684,6 +685,13 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             })
         }
 
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allIncidents' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'Incident' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allIncidentChanges' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allIncidentProperties' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allIncidentClassifierIncidents' })
+        client.cache.gc()
+
         let newsInitialValue
         if (formType === 'create' && withNewsGeneration && generateNews) {
             try {
@@ -740,7 +748,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         if (afterAction) {
             await afterAction()
         }
-    }, [formType, withNewsGeneration, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
+    }, [client, formType, withNewsGeneration, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
@@ -762,7 +770,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                 ? renderDeletedOption(intl, option)
                 : renderOption(option)
             )
-    }, [initialIncidentProperties])
+    }, [intl, initialIncidentProperties])
 
     const propertySelectProps: InputWithCheckAllProps['selectProps'] = useMemo(() => ({
         showArrow: false,

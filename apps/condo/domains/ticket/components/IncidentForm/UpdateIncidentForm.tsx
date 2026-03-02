@@ -3,9 +3,6 @@ import {
     useGetIncidentClassifierIncidentByIncidentIdQuery,
     useGetIncidentPropertiesByIncidentIdQuery,
     useUpdateIncidentMutation,
-    GetIncidentByIdDocument,
-    GetIncidentPropertiesByIncidentIdDocument,
-    GetIncidentChangesByIncidentIdDocument,
 } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
@@ -109,13 +106,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const incidentClassifiers = useMemo(() => incidentClassifiersData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifiersData?.incidentClassifierIncident])
 
-    const [updateIncident] = useUpdateIncidentMutation({
-        refetchQueries: [
-            { query: GetIncidentByIdDocument, variables: { incidentId } },
-            { query: GetIncidentPropertiesByIncidentIdDocument, variables: { incidentId } },
-            { query: GetIncidentChangesByIncidentIdDocument, variables: { incidentId } },
-        ],
-    })
+    const [updateIncident] = useUpdateIncidentMutation()
     const action: BaseIncidentFormProps['action'] = useCallback(
         async (values) => await updateIncident({
             variables: {
