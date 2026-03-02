@@ -23,6 +23,7 @@ const {
     TAX_REGIME_SIMPLE,
 } = require('@condo/domains/acquiring/constants/context')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     AcquiringIntegrationContext,
     createTestAcquiringIntegrationContext,
@@ -551,6 +552,47 @@ describe('AcquiringIntegrationContext', () => {
                 type: 'VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS',
                 message: `VAT percent value must be from the following list: ${acquiringIntegrationAttrs.vatPercentOptions}`,
             })
+        })
+        test(`Organization can have only one ${ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE} context`, async () => {
+            const [context1] = await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            expect(context1).toBeDefined()
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+            await AcquiringIntegrationContext.softDelete(admin, context1.id)
+
+            const [context2] = await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            expect(context2).toBeDefined()
+            await AcquiringIntegrationContext.softDelete(admin, context2.id)
+        })
+        test(`Organization can have many ${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE} contexts`, async () => {
+            const [externalImportIntegration] = await createTestAcquiringIntegration(admin, {
+                type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+            })
+
+            await createTestAcquiringIntegrationContext(admin, organization, externalImportIntegration, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            await createTestAcquiringIntegrationContext(admin, organization, externalImportIntegration, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            const externalContexts = await AcquiringIntegrationContext.getAll(admin, {
+                integration: { id: externalImportIntegration.id },
+            })
+
+            expect(externalContexts).toHaveLength(2)
         })
     })
     describe('Fields tests', () => {
