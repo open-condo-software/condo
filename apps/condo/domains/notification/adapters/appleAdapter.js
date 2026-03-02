@@ -90,8 +90,9 @@ class AppleAdapter {
      * Mimics Apple push failure response
      * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
      */
-    static getFakeErrorResponse () {
+    static getFakeErrorResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: false,
             type: 'Fake',
             state: 'error',
@@ -106,8 +107,9 @@ class AppleAdapter {
      * Mimics Apple push success response
      * @returns {{success: boolean, messageId: string}}
      */
-    static getFakeSuccessResponse () {
+    static getFakeSuccessResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: true,
             type: 'Fake',
             status: APS_RESPONSE_STATUS_SUCCESS,
@@ -125,18 +127,18 @@ class AppleAdapter {
      * @param fakeNotifications
      * @returns {*}
      */
-    static injectFakeResults (result, fakeNotifications) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? AppleAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(AppleAdapter.getFakeSuccessResponse())
+                mixed.responses.push(AppleAdapter.getFakeSuccessResponse({ appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(AppleAdapter.getFakeErrorResponse())
+                mixed.responses.push(AppleAdapter.getFakeErrorResponse({ appId: appIds[token] }))
             }
         })
 
@@ -287,7 +289,7 @@ class AppleAdapter {
             result = combinedResult
         }
 
-        result = AppleAdapter.injectFakeResults(result, fakeNotifications)
+        result = AppleAdapter.injectFakeResults(result, fakeNotifications, appIds)
 
         const isOk = !isEmpty(result) && result.successCount > 0
 

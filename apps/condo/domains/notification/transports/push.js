@@ -2,6 +2,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -25,9 +26,12 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
+const { getPreferredPushTypeByMessageType, chunkRemoteClientsByAppGroups } = require('@condo/domains/notification/utils/serverSchema/helpers')
 
 const logger = getLogger()
+
+const PUSH_NOTIFICATION_APP_GROUPS = JSON.parse(conf.PUSH_NOTIFICATION_APP_GROUPS ?? '{}')
+
 
 const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
     TICKET_CREATED_TYPE,
@@ -71,47 +75,64 @@ function getTokensConditions (ownerId, remoteClientId, isVoIP) {
 }
 
 /**
+ * @typedef TokensData
+ * @type {{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]}
+ */
+
+/**
  * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions. isVoIP flag is used to substitute VoIP pushToken, pushType and pushTransport fields.
+ * Push tokens are grouped settings (groups can be sent in parallel) and then chunked by appId in specific order according to settings (you must not send next chunks if current is successful)
  * @param ownerId
  * @param remoteClientId
  * @param isVoIP
- * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
+ * @returns {Promise<{allCount: number, tokensDataByGroupsAndChunks: {[groupName: string]: TokensData[]}}>}
  */
 async function getTokens (ownerId, remoteClientId, isVoIP = false) {
     if (!ownerId && !remoteClientId) return []
 
     const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
     const remoteClients =  await find('RemoteClient', conditions)
-    const tokensByTransport = {
-        [PUSH_TRANSPORT_FIREBASE]: [],
-        [PUSH_TRANSPORT_REDSTORE]: [],
-        [PUSH_TRANSPORT_HUAWEI]: [],
-        [PUSH_TRANSPORT_APPLE]: [],
-        [PUSH_TRANSPORT_WEBHOOK]: [],
-    }
-    const pushTypes = {}
-    const appIds = {}
-    const metaByToken = {}
+    const remoteClientsGrouped = chunkRemoteClientsByAppGroups(remoteClients, PUSH_NOTIFICATION_APP_GROUPS)
 
-    if (!isEmpty(remoteClients)) {
-        remoteClients.forEach((remoteClient) => {
-            const {
-                appId, pushToken, pushType, pushTransport,
-                pushTokenVoIP, pushTypeVoIP, pushTransportVoIP,
-                meta,
-            } = remoteClient
-            const transport = isVoIP ? pushTransportVoIP : pushTransport
-            const token = isVoIP ? pushTokenVoIP : pushToken
-            const type = isVoIP ? pushTypeVoIP : pushType
+    let allCount = 0
+    const tokensDataByGroupsAndChunks = Object.fromEntries(
+        Object.entries(remoteClientsGrouped).map(([groupName, remoteClientsChunks]) => {
+            const tokensDataByChunks = remoteClientsChunks.map(remoteClientsChunk => {
+                const tokensByTransport = {
+                    [PUSH_TRANSPORT_FIREBASE]: [],
+                    [PUSH_TRANSPORT_REDSTORE]: [],
+                    [PUSH_TRANSPORT_HUAWEI]: [],
+                    [PUSH_TRANSPORT_APPLE]: [],
+                    [PUSH_TRANSPORT_WEBHOOK]: [],
+                }
+                const pushTypes = {}
+                const appIds = {}
+                const metaByToken = {}
+                if (!isEmpty(remoteClientsChunk)) {
+                    remoteClientsChunk.forEach((remoteClient) => {
+                        const {
+                            appId, pushToken, pushType, pushTransport,
+                            pushTokenVoIP, pushTypeVoIP, pushTransportVoIP,
+                            meta,
+                        } = remoteClient
+                        const transport = isVoIP ? pushTransportVoIP : pushTransport
+                        const token = isVoIP ? pushTokenVoIP : pushToken
+                        const type = isVoIP ? pushTypeVoIP : pushType
 
-            tokensByTransport[transport].push(token)
-            pushTypes[token] = type
-            appIds[token] = appId
-            metaByToken[token] = meta
+                        tokensByTransport[transport].push(token)
+                        pushTypes[token] = type
+                        appIds[token] = appId
+                        metaByToken[token] = meta
+                    })
+                }
+
+                allCount += remoteClientsChunk.length
+                return { tokensByTransport, pushTypes, appIds, metaByToken, count: remoteClientsChunk.length }
+            })
+            return [groupName, tokensDataByChunks]
         })
-    }
-
-    return { tokensByTransport, pushTypes, appIds, metaByToken, count: remoteClients.length }
+    )
+    return { allCount, tokensDataByGroupsAndChunks }
 }
 
 /**
@@ -135,11 +156,12 @@ async function prepareMessageToSend (message) {
  * Mixes results from different push adapter to single result container
  * @param container
  * @param result
+ * @param additionalResponsesData {{[s: string]: any}} fields to add to responses objects
  * @returns {*}
  */
-const mixResult = (container, result, transport) => {
+const mixResult = (container, result, additionalResponsesData = {}) => {
     if (Array.isArray(result.responses)) {
-        result.responses = result.responses.map(response => ({ ...response, transport }))
+        result.responses = result.responses.map(response => ({ ...response, ...additionalResponsesData }))
     }
     
     if (isEmpty(container)) return result
@@ -179,37 +201,9 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP })
     // TODO: handle invalid / expired tokens for apple and others
 }
 
-/**
- * Send notification using corresponding transports (depending on FireBase/Huawei/Apple, appId, isVoIP)
- * @param notification
- * @param data
- * @param user
- * @param remoteClient
- * @param isVoIP
- * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
- */
-async function send ({ notification, data, user, remoteClient } = {}, isVoIP = false) {
-    const userId = get(user, 'id')
-    const remoteClientId = get(remoteClient, 'id')
-    const { tokensByTransport, pushTypes: initialPushTypes, appIds, metaByToken, count } = await getTokens(userId, remoteClientId, isVoIP)
-
-
-    // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
-    // If the message has a preferred push type, it takes priority over the value from the remote client.
-    const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(data, 'type'))
-    const pushTypes = Object.fromEntries(
-        Object.entries(initialPushTypes).map(([key, value]) =>
-            preferredPushTypeForMessage ? [key, preferredPushTypeForMessage] : [key, value]
-        )
-    )
-
+async function sendMessageToTransports ({ tokensByTransport, pushTypes, appIds, notification, data, metaByToken, isVoIP }) {
     let container = {}
     let _isOk = false
-
-    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(data, 'type'))) {
-        return [false, { error: 'Disabled type for push transport' }]
-    }
-    if (!count) return [false, { error: 'No pushTokens available.' }]
 
     const promises = await Promise.allSettled(Object.keys(tokensByTransport).map(async transport => {
         const tokens = tokensByTransport[transport]
@@ -233,7 +227,93 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         if (value === null) continue
 
         const [isOk, result, transport] = value
-        container = mixResult(container, result, transport)
+        container = mixResult(container, result, { transport })
+        _isOk = _isOk || isOk
+    }
+
+    return [_isOk, container]
+}
+
+async function sendMessageToAppsGroup ({ groupName, tokensChunksInGroup, isVoIP, notification, data }) {
+    let container = {}
+    let _isOk = false
+    for (const tokensChunk of tokensChunksInGroup) {
+        const { tokensByTransport, pushTypes, appIds, metaByToken } = tokensChunk
+        const [isOk, result] = await sendMessageToTransports({
+            tokensByTransport,
+            metaByToken,
+            appIds,
+            pushTypes,
+            data,
+            isVoIP,
+            notification,
+        })
+        container = mixResult(container, result, { groupName })
+
+        // Do not proceed with next chunk (next appId) if this succeeded
+        _isOk = _isOk || isOk
+        if (isOk) break
+    }
+    return [_isOk, container]
+}
+
+/**
+ * Send notification using corresponding transports (depending on FireBase/Huawei/Apple, appId, isVoIP)
+ * @param notification
+ * @param data
+ * @param user
+ * @param remoteClient
+ * @param isVoIP
+ * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
+ */
+async function send ({ notification, data, user, remoteClient } = {}, isVoIP = false) {
+    const userId = get(user, 'id')
+    const remoteClientId = get(remoteClient, 'id')
+    const { tokensDataByGroupsAndChunks, allCount } = await getTokens(userId, remoteClientId, isVoIP)
+
+
+    // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
+    // If the message has a preferred push type, it takes priority over the value from the remote client.
+    const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(data, 'type'))
+    if (preferredPushTypeForMessage) {
+        Object.entries(tokensDataByGroupsAndChunks).forEach(([_groupName, tokensChunks]) => {
+            tokensChunks.forEach(tokensData => {
+                const { pushTypes: initialPushTypes } = tokensData
+                tokensData.pushTypes = Object.fromEntries(
+                    Object.keys(initialPushTypes).map((key) =>
+                        [key, preferredPushTypeForMessage]
+                    )
+                )
+            })
+        })
+    }
+
+    let container = {}
+    let _isOk = false
+
+    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(data, 'type'))) {
+        return [false, { error: 'Disabled type for push transport' }]
+    }
+    if (!allCount) return [false, { error: 'No pushTokens available.' }]
+
+    const promises = await Promise.allSettled(Object.entries(tokensDataByGroupsAndChunks).map(async ([groupName, tokensChunks]) => {
+        return await sendMessageToAppsGroup({
+            groupName,
+            tokensChunksInGroup: tokensChunks,
+            isVoIP,
+            notification,
+            data,
+        })
+    }))
+
+    for (const p of promises) {
+        if (p.status !== 'fulfilled') continue
+
+        const value = p.value
+        if (value === null) continue
+
+        const [isOk, result] = value
+        container = mixResult(container, result)
         _isOk = _isOk || isOk
     }
 
