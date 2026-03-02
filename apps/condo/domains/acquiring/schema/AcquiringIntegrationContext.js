@@ -234,25 +234,31 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 && !resolvedData['deletedAt']
             ) {
                 const newItem = { ...existingItem, ...resolvedData }
-                const activeContexts = await find('AcquiringIntegrationContext', {
-                    organization: { id: newItem['organization'] },
-                    integration: {
-                        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
-                        deletedAt: null,
-                    },
-                    OR: [
-                        { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
-                        { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
-                    ],
-                    deletedAt: null,
-                    id_not: newItem['id'],
-                })
                 const [acquiringIntegration] = await find('AcquiringIntegration', {
-                    id: newItem.integration,
+                    id: newItem['integration'],
                     deletedAt: null,
                 })
-                if (acquiringIntegration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE && activeContexts.length > 0) {
-                    addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+                const isOnlineProcessing = acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE
+
+                if (isOnlineProcessing) {
+                    const activeContexts = await find('AcquiringIntegrationContext', {
+                        organization: { id: newItem['organization'] },
+                        integration: {
+                            type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                            deletedAt: null,
+                        },
+                        OR: [
+                            { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
+                            { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
+                        ],
+                        deletedAt: null,
+                        id_not: newItem['id'],
+                    })
+
+                    if (activeContexts.length > 0) {
+                        addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+                    }
                 }
             }
 
