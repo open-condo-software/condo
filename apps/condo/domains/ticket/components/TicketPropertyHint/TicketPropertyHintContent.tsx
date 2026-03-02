@@ -1,12 +1,16 @@
 import { Col, Row, RowProps } from 'antd'
-import React from 'react'
+import classNames from 'classnames'
+import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Markdown, Typography } from '@open-condo/ui'
 
-import { HtmlContent, HtmlContentProps } from '@condo/domains/common/components/HtmlContent'
+import styles from './TicketPropertyHintContent.module.css'
 
-type TicketPropertyHintContentProps = HtmlContentProps & {
+type TicketPropertyHintContentProps = {
+    content: string
+    style?: CSSProperties
+    className?: string
     linkToHint?: string
 }
 
@@ -29,7 +33,13 @@ export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps)
         <>
             <Row gutter={CONTENT_GUTTER}>
                 <Col span={24}>
-                    <HtmlContent {...props} ref={ref}/>
+                    <div
+                        ref={ref}
+                        className={classNames(styles.contentWrapper, props.className)}
+                        style={props.style}
+                    >
+                        <Markdown type='inline'>{props.content}</Markdown>
+                    </div>
                 </Col>
                 {
                     isContentOverflow && props.linkToHint && (

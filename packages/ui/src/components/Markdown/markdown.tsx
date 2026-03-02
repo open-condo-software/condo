@@ -81,7 +81,6 @@ const MARKDOWN_COMPONENTS_BY_TYPE = {
         h4: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
         h5: (props: any) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
         h6: (props: any) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
-        p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary' />,
     },
     // Inline should be used when displaying text formatted by user
     'inline': {
@@ -91,7 +90,6 @@ const MARKDOWN_COMPONENTS_BY_TYPE = {
         h4: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
         h5: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
         h6: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
-        p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='primary' />,
     },
 }
 

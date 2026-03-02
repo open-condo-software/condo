@@ -25,7 +25,6 @@ const googleTagManagerId  = conf['GOOGLE_TAG_MANAGER_ID']
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
-const TinyMceApiKey = conf['TINY_MCE_API_KEY']
 const UseDeskWidgetId = conf['USE_DESK_WIDGET_ID']
 const HelpRequisites = (conf['HELP_REQUISITES'] && JSON.parse(conf['HELP_REQUISITES'])) || {}
 const popupSmartConfig = JSON.parse(conf['POPUP_SMART_CONFIG'] || '{}')
@@ -107,7 +106,6 @@ const nextConfig: NextConfig = {
         defaultLocale,
         insuranceAppUrl,
         JivoSiteWidgetId,
-        TinyMceApiKey,
         UseDeskWidgetId,
         HelpRequisites,
         popupSmartConfig,

@@ -50,7 +50,7 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
     const renderTicketPropertyHint = useCallback((value, _) => {
         return (
             <TicketPropertyHintContent
-                html={value}
+                content={value}
                 style={HINT_STYLES}
             />
         )

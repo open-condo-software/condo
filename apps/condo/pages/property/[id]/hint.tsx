@@ -43,7 +43,7 @@ const PropertyHintPage: PageComponentType = () => {
         },
     })
 
-    const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+    const content = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
     if (error || propertyLoading || ticketPropertyHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
@@ -65,7 +65,7 @@ const PropertyHintPage: PageComponentType = () => {
                             </Col>
                             <Col span={24}>
                                 <TicketPropertyHintContent
-                                    html={htmlContent}
+                                    content={content}
                                 />
                             </Col>
                         </Row>
