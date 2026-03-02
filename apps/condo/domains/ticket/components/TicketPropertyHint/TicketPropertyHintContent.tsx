@@ -1,8 +1,11 @@
 import { Col, Row, RowProps } from 'antd'
+import classNames from 'classnames'
 import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Markdown, Typography } from '@open-condo/ui'
+
+import styles from './TicketPropertyHintContent.module.css'
 
 type TicketPropertyHintContentProps = {
     content: string
@@ -12,11 +15,6 @@ type TicketPropertyHintContentProps = {
 }
 
 const CONTENT_GUTTER: RowProps['gutter'] = [0, 14]
-const CONTENT_WRAPPER_STYLES: CSSProperties = {
-    overflow: 'hidden',
-    wordBreak: 'break-word',
-    position: 'relative',
-}
 
 export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps) => {
     const intl = useIntl()
@@ -31,16 +29,15 @@ export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps)
         }
     }, [ref])
 
-    const wrapperStyle = React.useMemo(
-        () => ({ ...CONTENT_WRAPPER_STYLES, ...props.style }),
-        [props.style]
-    )
-
     return (
         <>
             <Row gutter={CONTENT_GUTTER}>
                 <Col span={24}>
-                    <div ref={ref} style={wrapperStyle} className={props.className}>
+                    <div
+                        ref={ref}
+                        className={classNames(styles.contentWrapper, props.className)}
+                        style={props.style}
+                    >
                         <Markdown type='inline'>{props.content}</Markdown>
                     </div>
                 </Col>

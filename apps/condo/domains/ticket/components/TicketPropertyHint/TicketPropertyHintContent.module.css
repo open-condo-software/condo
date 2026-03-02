@@ -1,0 +1,5 @@
+.contentWrapper {
+    overflow: hidden;
+    word-break: break-word;
+    position: relative;
+}
