@@ -3829,7 +3829,7 @@
   "richTextArea.toolbar.italic": "Italic",
   "richTextArea.toolbar.unorderedList": "Bulleted list",
   "richTextArea.toolbar.orderedList": "Numbered list",
-  "richTextArea.toolbar.removeFormating": "Remove formatting",
+  "richTextArea.toolbar.removeFormatting": "Remove formatting",
   "richTextArea.linkModal.urlLabel": "Link",
   "richTextArea.linkModal.textLabel": "Text",
   "richTextArea.linkModal.submitLabel": "Ok"

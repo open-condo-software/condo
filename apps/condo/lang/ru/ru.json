@@ -3829,7 +3829,7 @@
   "richTextArea.toolbar.italic": "Курсивный текст",
   "richTextArea.toolbar.unorderedList": "Маркированный список",
   "richTextArea.toolbar.orderedList": "Нумерованный список",
-  "richTextArea.toolbar.removeFormating": "Очистить форматирование",
+  "richTextArea.toolbar.removeFormatting": "Очистить форматирование",
   "richTextArea.linkModal.urlLabel": "Ссылка",
   "richTextArea.linkModal.textLabel": "Текст",
   "richTextArea.linkModal.submitLabel": "Ок"
