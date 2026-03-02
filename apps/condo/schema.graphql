@@ -34923,7 +34923,7 @@ type TicketPropertyHint {
   """ Hint name """
   name: String
 
-  """ Textual content of help in HTML format """
+  """ Textual content of help in Markdown format """
   content: String
   id: ID!
   v: Int
