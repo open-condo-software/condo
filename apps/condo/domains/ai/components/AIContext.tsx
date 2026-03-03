@@ -21,15 +21,15 @@ export const useAIContext = () => {
 }
 
 export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const storage = new LocalStorageManager<number>()
+    
     const [isAIOverlayOpen, setIsAIOverlayOpen] = useState(false)
     const [aiOverlayWidth, setAIOverlayWidthState] = useState(() => {
-        const storage = new LocalStorageManager<number>()
         return storage.getItem('aiOverlayWidth') || 600
     })
 
     const setAIOverlayWidth = (width: number) => {
         setAIOverlayWidthState(width)
-        const storage = new LocalStorageManager<number>()
         storage.setItem('aiOverlayWidth', width)
     }
 

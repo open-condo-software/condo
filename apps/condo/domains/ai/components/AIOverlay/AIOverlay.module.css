@@ -64,6 +64,9 @@
   top: 0;
   left: 0;
   z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 4px;
   height: 100%;
   background: transparent;
@@ -79,6 +82,14 @@
 .resize-handle:active {
   background: var(--condo-global-color-green-5);
   border-left: 2px solid var(--condo-global-color-green-5);
+}
+
+.resize-handle.at-min-width {
+  cursor: w-resize;
+}
+
+.resize-handle.at-max-width {
+  cursor: e-resize;
 }
 
 /* Content area */

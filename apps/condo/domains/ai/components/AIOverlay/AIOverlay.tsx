@@ -1,3 +1,4 @@
+import classnames from 'classnames'
 import React, { useState, useRef, useEffect } from 'react'
 
 import { Close, RefreshCw, Download } from '@open-condo/icons'
@@ -6,7 +7,7 @@ import { Button, Typography } from '@open-condo/ui'
 
 import styles from './AIOverlay.module.css'
 
-import { AIChat } from '../AIChat/AIChat'
+import { AIChat } from '../AIChat'
 import { useAIContext } from '../AIContext'
 
 type AIOverlayProps = {
@@ -14,14 +15,22 @@ type AIOverlayProps = {
     onClose: () => void
 }
 
+const MIN_OVERLAY_WIDTH = 300
+const MAX_OVERLAY_WIDTH = 1200
+const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
+
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
     const title = intl.formatMessage({ id: 'ai.chat.title' })
     const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
     const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
     const closeLabel = intl.formatMessage({ id: 'Close' })
-    const { aiOverlayWidth, setAIOverlayWidth } = useAIContext()
+    const { aiOverlayWidth, setAIOverlayWidth, openAIOverlay } = useAIContext()
     const [isResizing, setIsResizing] = useState(false)
+    const [isAtMinWidth, setIsAtMinWidth] = useState(false)
+    const [isAtMaxWidth, setIsAtMaxWidth] = useState(false)
+    const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
+    const dragDirectionRef = useRef<'left' | 'right' | null>(null)
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
@@ -32,12 +41,35 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             if (!isResizing) return
             
             const newWidth = startWidthRef.current + (startXRef.current - e.clientX)
-            const clampedWidth = Math.max(300, Math.min(1200, newWidth))
+            const currentDirection = e.clientX > startXRef.current ? 'right' : 'left'
+            dragDirectionRef.current = currentDirection
+            setDragDirection(currentDirection)
+            
+            // Normal resizing when open
+            const clampedWidth = Math.max(MIN_OVERLAY_WIDTH, Math.min(MAX_OVERLAY_WIDTH, newWidth))
+            
+            // Check if we're at minimum or maximum width
+            setIsAtMinWidth(clampedWidth <= MIN_OVERLAY_WIDTH)
+            setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
+            
+            // Only close if dragging right consistently and beyond close threshold
+            if (newWidth < CLOSE_THRESHOLD && dragDirectionRef.current === 'right' && currentDirection === 'right') {
+                onClose()
+                return
+            }
+            
+            // Open overlay if dragging left consistently and crosses open threshold
+            if (newWidth > CLOSE_THRESHOLD && dragDirectionRef.current === 'left' && currentDirection === 'left') {
+                openAIOverlay()
+            }
+            
             setAIOverlayWidth(clampedWidth)
         }
 
         const handleMouseUp = () => {
             setIsResizing(false)
+            setDragDirection(null)
+            dragDirectionRef.current = null
         }
 
         if (isResizing) {
@@ -53,9 +85,12 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             document.body.style.cursor = ''
             document.body.style.userSelect = ''
         }
-    }, [isResizing, setAIOverlayWidth])
+    }, [isResizing, dragDirection, setAIOverlayWidth, onClose])
 
     const handleResizeStart = (e: React.MouseEvent) => {
+        // Only allow resizing when overlay is open
+        if (!open) return
+        
         setIsResizing(true)
         startXRef.current = e.clientX
         startWidthRef.current = aiOverlayWidth
@@ -103,7 +138,10 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                     />
                 </div>
             </div>
-            <div className={styles.resizeHandle} onMouseDown={handleResizeStart} />
+            <div className={classnames(styles.resizeHandle, {
+                [styles.atMinWidth]: isAtMinWidth,
+                [styles.atMaxWidth]: isAtMaxWidth,
+            })} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
                 <AIChat 
                     ref={aiChatRef}

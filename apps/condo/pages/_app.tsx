@@ -126,6 +126,12 @@ const AIOverlayWrapper = () => {
     return <AIOverlay open={isAIOverlayOpen} onClose={closeAIOverlay} />
 }
 
+const UseDeskWidgetWrapper = () => {
+    const { isAIOverlayOpen } = useAIContext()
+    
+    return <UseDeskWidget hide={isAIOverlayOpen} />
+}
+
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
@@ -569,12 +575,12 @@ const MyApp = ({ Component, pageProps }) => {
                             </HCaptchaProvider>
                             {!isSnowfallDisabled && <Snowfall />}
                             <AIOverlayWrapper />
+                            {UseDeskWidgetId && <UseDeskWidgetWrapper />}
                         </LayoutContextProvider>
                     </AIProvider>
                     {yandexMetrikaID && <YandexMetrika />}
                     {googleTagManagerId && <GoogleTagManager />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
-                    {UseDeskWidgetId && <UseDeskWidget/>}
                 </CacheProvider>
             </ConfigProvider>
         </>
