@@ -3,7 +3,9 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
@@ -81,20 +83,21 @@ describe('RemoteClient', () => {
         it('fails to read other`s RemoteClient', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeLoggedInClient()
-            const [pushToken] = await createTestRemoteClient(admin)
-            const othersRemoteClient = await RemoteClient.getOne(client, { id: pushToken.id })
+            const [pushToken] = await createTestRemoteClient(admin, { owner: { connect: { id: client.user.id } } })
 
-            expect(othersRemoteClient).toBeUndefined()
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await RemoteClient.getOne(client, { id: pushToken.id })
+            })
         })
 
         it('allows to read own RemoteClient', async () => {
             const admin = await makeLoggedInAdminClient()
-            const [pushToken] = await createTestRemoteClient(admin)
-            const lastRemoteClient = await RemoteClient.getOne(admin, { id: pushToken.id })
+            const client = await makeLoggedInClient()
+            const [pushToken] = await createTestRemoteClient(admin, { owner: { connect: { id: client.user.id } } })
 
-            expect(lastRemoteClient).toBeDefined()
-            expect(lastRemoteClient.id).toEqual(pushToken.id)
-            expect(lastRemoteClient.owner.id).toEqual(admin.user.id)
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await RemoteClient.getOne(client, { id: pushToken.id })
+            })
         })
 
         it('fails to update RemoteClient', async () => {

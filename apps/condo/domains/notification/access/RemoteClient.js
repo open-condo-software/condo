@@ -15,8 +15,7 @@ async function canReadRemoteClients ({ authentication: { item: user } }) {
 
     if (user.isAdmin) return {}
 
-    // User allowed to read own device info
-    return { owner: { id: user.id } }
+    return false
 }
 
 /**
