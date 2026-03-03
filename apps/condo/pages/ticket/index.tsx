@@ -19,7 +19,6 @@ import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
-import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
@@ -29,7 +28,6 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Search, Phone } from '@open-condo/icons'
-import { useMessagingConnection, useMessagingSubscription } from '@open-condo/messaging/hooks'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -1099,33 +1097,6 @@ const TicketsPage: PageComponentType = () => {
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
-
-    // NOTE: debug usage of subscriptions
-    const { publicRuntimeConfig: { messagingWsUrl } } = getConfig()
-    const { connection, isConnected } = useMessagingConnection({
-        enabled: !!userOrganizationId,
-        wsUrl: messagingWsUrl,
-    })
-    const ticketTopic = userOrganizationId ? `organization.${userOrganizationId}.ticket` : ''
-    const { isSubscribed } = useMessagingSubscription({
-        topic: ticketTopic,
-        connection,
-        isConnected,
-        enabled: !!ticketTopic && isConnected,
-        onMessage: (data) => {
-            console.log('[messaging] Ticket changed:', data)
-        },
-    })
-
-    // Log connection status changes
-    useEffect(() => {
-        if (isConnected) {
-            console.log('[messaging] Connected to ticket-changes channel')
-        }
-        if (isSubscribed) {
-            console.log('[messaging] Subscribed to organization ticket changes')
-        }
-    }, [isConnected, isSubscribed])
 
     const {
         error,

@@ -162,7 +162,7 @@ function computePermissions (userId, organizationId) {
     const pubAllow = [
         '_INBOX.>',
         ...channelPermissions,
-        `${RELAY_UNSUBSCRIBE_PREFIX}.*`,
+        `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.*`,
     ]
     const subAllow = ['_INBOX.>']
 

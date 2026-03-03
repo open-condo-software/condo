@@ -103,7 +103,6 @@ services:
     entrypoint: ["/nats-entrypoint.sh"]
     command: ["-c", "/etc/nats/nats.conf"]
     volumes:
-      - nats-data:/data
       - ./nats.conf:/etc/nats/nats.conf:ro
       - ./nats-entrypoint.sh:/nats-entrypoint.sh:ro
     healthcheck:
@@ -209,7 +208,6 @@ volumes:
   valkey-data-1: {}
   valkey-data-2: {}
   valkey-data-3: {}
-  nats-data: {}
 configs:
   valkey.conf:
     content: |

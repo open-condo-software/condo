@@ -51,7 +51,6 @@ class NatsAuthCalloutService {
             this.accountPublicKey = this.accountKeyPair.getPublicKey()
             this.accountName = config.accountName || 'APP'
 
-            logger.info({ msg: 'Auth callout issuer public key', publicKey: this.accountPublicKey })
 
             this.connection = await connect({
                 servers: config.url || MESSAGING_CONFIG.brokerUrl,
@@ -64,7 +63,6 @@ class NatsAuthCalloutService {
             const sub = this.connection.subscribe('$SYS.REQ.USER.AUTH')
             this.isRunning = true
 
-            logger.info({ msg: 'Auth callout service started' })
 
             ;(async () => {
                 for await (const msg of sub) {
@@ -96,8 +94,6 @@ class NatsAuthCalloutService {
                 this.isRunning = false
                 if (err) {
                     logger.error({ msg: 'Auth callout connection closed with error', err })
-                } else {
-                    logger.info({ msg: 'Auth callout connection closed' })
                 }
             })
         } catch (error) {
@@ -114,12 +110,6 @@ class NatsAuthCalloutService {
 
         const token = connect_opts?.auth_token || connect_opts?.token
         const serverId = server_id?.id || ''
-
-        logger.info({
-            msg: 'Auth callout request',
-            clientHost: client_info?.host,
-            hasToken: !!token,
-        })
 
         if (!token) {
             this._respondError(msg, user_nkey, serverId, 'No auth token provided')
@@ -168,12 +158,6 @@ class NatsAuthCalloutService {
             signingConfig,
         })
 
-        logger.info({
-            msg: 'Auth callout: access granted',
-            userId,
-            organizationId,
-        })
-
         msg.respond(new TextEncoder().encode(responseJwt))
     }
 
@@ -206,7 +190,6 @@ class NatsAuthCalloutService {
             await this.connection.close()
             this.connection = null
             this.isRunning = false
-            logger.info({ msg: 'Auth callout service stopped' })
         }
     }
 }

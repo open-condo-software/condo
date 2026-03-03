@@ -1,5 +1,5 @@
 import { wsconnect, NatsConnection } from '@nats-io/nats-core'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface UseMessagingConnectionOptions {
     enabled?: boolean
@@ -14,9 +14,19 @@ interface MessagingConnectionState {
     error: Error | null
 }
 
+type StateUpdater = (state: MessagingConnectionState) => void
+
 let globalConnection: NatsConnection | null = null
 let globalConnectionPromise: Promise<NatsConnection> | null = null
+let globalUserId: string | null = null
 let connectionRefCount = 0
+const subscribers = new Set<StateUpdater>()
+
+function notifySubscribers (state: MessagingConnectionState) {
+    for (const setter of subscribers) {
+        setter(state)
+    }
+}
 
 export const useMessagingConnection = (options: UseMessagingConnectionOptions = {}) => {
     const { enabled = true, autoConnect = true, wsUrl } = options
@@ -26,7 +36,6 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
         isConnecting: false,
         error: null,
     })
-    const isMountedRef = useRef(true)
 
     const connect = useCallback(async (): Promise<NatsConnection> => {
         if (globalConnection && !globalConnection.isClosed() && !globalConnection.isDraining()) {
@@ -37,7 +46,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
             return globalConnectionPromise
         }
 
-        setState(prev => ({ ...prev, isConnecting: true, error: null }))
+        notifySubscribers({ connection: null, isConnected: false, isConnecting: true, error: null })
 
         globalConnectionPromise = (async () => {
             try {
@@ -45,7 +54,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 if (!tokenResponse.ok) {
                     throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
                 }
-                const { token } = await tokenResponse.json()
+                const { token, userId } = await tokenResponse.json()
 
                 const nc = await wsconnect({
                     servers: wsUrl || 'ws://localhost:8080',
@@ -57,29 +66,28 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 })
 
                 globalConnection = nc
+                globalUserId = userId || null
 
                 nc.closed().then((err) => {
                     console.log('[messaging] Connection closed', err || '')
                     globalConnection = null
                     globalConnectionPromise = null
-                    if (isMountedRef.current) {
-                        setState({
-                            connection: null,
-                            isConnected: false,
-                            isConnecting: false,
-                            error: err ? new Error(String(err)) : null,
-                        })
-                    }
+                    globalUserId = null
+                    notifySubscribers({
+                        connection: null,
+                        isConnected: false,
+                        isConnecting: false,
+                        error: err ? new Error(String(err)) : null,
+                    })
                 })
 
-                if (isMountedRef.current) {
-                    setState({
-                        connection: nc,
-                        isConnected: true,
-                        isConnecting: false,
-                        error: null,
-                    })
+                const connectedState: MessagingConnectionState = {
+                    connection: nc,
+                    isConnected: true,
+                    isConnecting: false,
+                    error: null,
                 }
+                notifySubscribers(connectedState)
 
                 console.log('[messaging] Connected successfully')
                 return nc
@@ -87,14 +95,12 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 globalConnectionPromise = null
                 const err = error instanceof Error ? error : new Error(String(error))
                 console.error('[messaging] Connection error:', err)
-                if (isMountedRef.current) {
-                    setState({
-                        connection: null,
-                        isConnected: false,
-                        isConnecting: false,
-                        error: err,
-                    })
-                }
+                notifySubscribers({
+                    connection: null,
+                    isConnected: false,
+                    isConnecting: false,
+                    error: err,
+                })
                 throw err
             }
         })()
@@ -116,6 +122,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
             return
         }
 
+        subscribers.add(setState)
         connectionRefCount++
 
         if (autoConnect && globalConnection === null && globalConnectionPromise === null) {
@@ -123,8 +130,8 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
         }
 
         return () => {
+            subscribers.delete(setState)
             connectionRefCount--
-            isMountedRef.current = false
 
             if (connectionRefCount === 0) {
                 disconnect().catch(console.error)
@@ -137,6 +144,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
         isConnected: state.isConnected,
         isConnecting: state.isConnecting,
         error: state.error,
+        userId: globalUserId,
         connect,
         disconnect,
     }

@@ -1,4 +1,4 @@
-const { NatsAuthCalloutService, NatsSubscriptionRelay } = require('@open-condo/messaging/adapters/nats')
+const { NatsAuthCalloutService, NatsSubscriptionRelay } = require('./index')
 
 
 describe('Messaging Revocation — unit tests', () => {
@@ -152,9 +152,98 @@ describe('Messaging Revocation — unit tests', () => {
         })
     })
 
+    describe('NatsSubscriptionRelay TTL-based cleanup', () => {
+        let relay
+
+        beforeEach(() => {
+            relay = new NatsSubscriptionRelay()
+            relay.relayCounter = 0
+            relay.relayTtlMs = 1000
+        })
+
+        it('_sweepExpiredRelays removes relays older than TTL', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'user', userId: 'user-1',
+                deliverInbox: '_INBOX.a', actualTopic: 'user.user-1.>',
+                subscription: mockSub,
+                createdAt: Date.now() - 2000,
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1']))
+
+            relay._sweepExpiredRelays()
+
+            expect(relay.relays.size).toBe(0)
+            expect(relay.userRelays.has('user-1')).toBe(false)
+            expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
+        })
+
+        it('_sweepExpiredRelays keeps relays within TTL', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'user', userId: 'user-1',
+                deliverInbox: '_INBOX.a', actualTopic: 'user.user-1.>',
+                subscription: mockSub,
+                createdAt: Date.now(),
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1']))
+
+            relay._sweepExpiredRelays()
+
+            expect(relay.relays.size).toBe(1)
+            expect(mockSub.unsubscribe).not.toHaveBeenCalled()
+        })
+
+        it('_sweepExpiredRelays removes only expired relays in mixed set', () => {
+            const mockSub1 = { unsubscribe: jest.fn() }
+            const mockSub2 = { unsubscribe: jest.fn() }
+
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'user', userId: 'user-1',
+                deliverInbox: '_INBOX.a', actualTopic: 'user.user-1.>',
+                subscription: mockSub1,
+                createdAt: Date.now() - 2000,
+            })
+            relay.relays.set('relay-2', {
+                id: 'relay-2', channel: 'user', userId: 'user-1',
+                deliverInbox: '_INBOX.b', actualTopic: 'user.user-1.>',
+                subscription: mockSub2,
+                createdAt: Date.now(),
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1', 'relay-2']))
+
+            relay._sweepExpiredRelays()
+
+            expect(relay.relays.size).toBe(1)
+            expect(relay.relays.has('relay-2')).toBe(true)
+            expect(mockSub1.unsubscribe).toHaveBeenCalledTimes(1)
+            expect(mockSub2.unsubscribe).not.toHaveBeenCalled()
+        })
+
+        it('_cleanupAll stops the cleanup timer', () => {
+            relay._cleanupTimer = setInterval(() => {}, 60000)
+            relay._cleanupAll()
+            expect(relay._cleanupTimer).toBeNull()
+        })
+
+        it('new relays include createdAt timestamp', () => {
+            const before = Date.now()
+            const relayEntry = {
+                id: 'relay-1', channel: 'user', userId: 'user-1',
+                deliverInbox: '_INBOX.a', actualTopic: 'user.user-1.>',
+                subscription: { unsubscribe: jest.fn() },
+                createdAt: Date.now(),
+            }
+            relay.relays.set('relay-1', relayEntry)
+
+            expect(relayEntry.createdAt).toBeGreaterThanOrEqual(before)
+            expect(relayEntry.createdAt).toBeLessThanOrEqual(Date.now())
+        })
+    })
+
     describe('NatsAdapter revocation delegation', () => {
         // Test that NatsAdapter.revokeUser delegates to both services
-        const { NatsAdapter } = require('@open-condo/messaging/adapters/nats')
+        const { NatsAdapter } = require('./index')
 
         it('revokeUser delegates to both authService and relayService', () => {
             const adapter = new NatsAdapter()

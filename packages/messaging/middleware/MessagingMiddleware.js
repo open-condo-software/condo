@@ -24,6 +24,10 @@ const GET_EMPLOYEE_QUERY = `
     query getEmployee($id: ID!) {
         employee: OrganizationEmployee(where: { id: $id }) {
             id
+            isAccepted
+            isRejected
+            isBlocked
+            deletedAt
             organization { id }
             user { id }
         }
@@ -82,6 +86,10 @@ function resolveEmployeeContextHandler ({ keystone }) {
 
         const employeeData = employee?.data?.employee
         if (!employeeData || employeeData.user?.id !== req.user.id) {
+            return next(new GQLError(ERRORS.INVALID_ORGANIZATION_SELECTION, { req }))
+        }
+
+        if (!employeeData.isAccepted || employeeData.isRejected || employeeData.isBlocked || employeeData.deletedAt) {
             return next(new GQLError(ERRORS.INVALID_ORGANIZATION_SELECTION, { req }))
         }
 

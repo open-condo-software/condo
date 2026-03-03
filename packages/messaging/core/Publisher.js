@@ -54,7 +54,6 @@ const publish = async ({ topic, data }) => {
 
     try {
         await adapter.publish(topic, data)
-        logger.info({ msg: 'Published', topic })
     } catch (error) {
         logger.error({ msg: 'Publish failed', err: error, topic })
     }

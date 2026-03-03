@@ -2,12 +2,13 @@ const jwt = require('jsonwebtoken')
 const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
+
 const {
     decodeNatsJwt,
     encodeNatsJwt,
     createUserJwt,
     computePermissions,
-} = require('@open-condo/messaging/adapters/nats')
+} = require('./index')
 
 const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
@@ -58,7 +59,7 @@ describe('Auth Callout Service Logic', () => {
             expect(userClaims.nats.pub.allow).toContain('_INBOX.>')
             expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.user.${userId}.>`)
             expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.organization.${organizationId}.>`)
-            expect(userClaims.nats.pub.allow).toContain('_MESSAGING.unsubscribe.*')
+            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.unsubscribe.${userId}.*`)
         })
 
         it('rejects expired application tokens', () => {

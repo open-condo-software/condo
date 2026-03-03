@@ -9,6 +9,7 @@ interface UseMessagingSubscriptionOptions<T> {
     connection: NatsConnection | null
     isConnected: boolean
     enabled?: boolean
+    userId?: string | null
     onMessage?: (data: T, msg: Msg) => void | Promise<void>
 }
 
@@ -38,6 +39,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
         connection,
         isConnected,
         enabled = true,
+        userId,
         onMessage,
     } = options
     const [state, setState] = useState<MessagingSubscriptionState>({
@@ -59,7 +61,10 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
     const unsubscribe = useCallback(() => {
         if (relayIdRef.current && connection && !connection.isClosed()) {
             try {
-                connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${relayIdRef.current}`)
+                const unsub = userId
+                    ? `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${relayIdRef.current}`
+                    : `${RELAY_UNSUBSCRIBE_PREFIX}.${relayIdRef.current}`
+                connection.publish(unsub)
             } catch (error) {
                 console.error('[messaging] Error sending unsubscribe:', error)
             }
@@ -75,7 +80,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 console.error('[messaging] Error unsubscribing:', error)
             }
         }
-    }, [connection])
+    }, [connection, userId])
 
     useEffect(() => {
         if (!enabled || !isConnected || !connection || !topic) {
@@ -112,7 +117,10 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 relayIdRef.current = currentRelayId
 
                 if (!isActiveRef.current) {
-                    connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`)
+                    const unsub = userId
+                        ? `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`
+                        : `${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`
+                    connection.publish(unsub)
                     inboxSub.unsubscribe()
                     return
                 }
@@ -159,7 +167,10 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
             isActiveRef.current = false
             if (currentRelayId && connection && !connection.isClosed()) {
                 try {
-                    connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`)
+                    const unsub = userId
+                        ? `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`
+                        : `${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`
+                    connection.publish(unsub)
                 } catch {
                     // connection may be closed
                 }

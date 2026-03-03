@@ -36,14 +36,10 @@ class NatsClient {
             this.jetstream = this.connection.jetstream()
             this.isConnected = true
 
-            logger.info({ msg: 'NATS connected successfully', url: config.url })
-
             this.connection.closed().then((err) => {
                 this.isConnected = false
                 if (err) {
                     logger.error({ msg: 'NATS connection closed with error', err })
-                } else {
-                    logger.info({ msg: 'NATS connection closed' })
                 }
             })
         } catch (error) {

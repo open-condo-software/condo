@@ -18,6 +18,7 @@ Add one entry to `CHANNEL_DEFINITIONS` in `core/topic.js`:
 ```javascript
 {
     name: 'mychannel',
+    isAvailable: ({ userId }) => !!userId,
     extractUserId: (parts) => parts[0] || null,       // for revocation tracking
     buildActualTopic: (parts) => `mychannel.${parts[0]}.${parts[1] || '>'}`,
     buildRelayPermissions: ({ userId }) => [
@@ -39,7 +40,7 @@ No other files need modification — the relay, JWT permissions, `/messaging/cha
 All messaging settings are provided via a single `MESSAGING_CONFIG` JSON env var:
 
 ```env
-MESSAGING_CONFIG={"enabled":true,"brokerUrl":"nats://localhost:4222","wsUrl":"ws://localhost:8080","tokenSecret":"<secret>","authAccountSeed":"<nkey-seed>","authUser":"auth","authPassword":"<pass>","serverUser":"server","serverPassword":"<pass>"}
+MESSAGING_CONFIG={"enabled":true,"brokerUrl":"nats://localhost:4222","wsUrl":"ws://localhost:8080","tokenSecret":"<secret>","authAccountSeed":"<nkey-seed>","authIssuer":"<nkey-public-key>","authUser":"auth","authPassword":"<pass>","serverUser":"server","serverPassword":"<pass>"}
 ```
 
 | Field | Description | Default |
@@ -47,10 +48,12 @@ MESSAGING_CONFIG={"enabled":true,"brokerUrl":"nats://localhost:4222","wsUrl":"ws
 | `enabled` | Enable messaging subsystem | `false` |
 | `adapter` | Adapter name | `'nats'` |
 | `brokerUrl` | NATS broker URL | — |
+| `brokerToken` | NATS auth token (alternative to user/pass for server connection) | — |
 | `wsUrl` | WebSocket URL for browser clients (passed to Next.js `publicRuntimeConfig`) | — |
 | `tokenSecret` | Secret for signing client JWT tokens | — |
 | `tokenTtl` | Client token TTL | `'24h'` |
-| `authAccountSeed` | NKey seed for auth callout account | — |
+| `authAccountSeed` | NKey seed for auth callout account (private seed) | — |
+| `authIssuer` | NKey public key for auth callout issuer (used by `nats.conf` via `nats-entrypoint.sh`) | — |
 | `authUser` | Auth callout NATS username | — |
 | `authPassword` | Auth callout NATS password | — |
 | `serverUser` | Server connection NATS username | — |
@@ -156,7 +159,7 @@ import { useMessagingConnection, useMessagingSubscription } from '@open-condo/me
 import { useOrganization } from '@open-condo/next/organization'
 
 const { organization } = useOrganization()
-const { connection, isConnected } = useMessagingConnection({
+const { connection, isConnected, userId } = useMessagingConnection({
     enabled: !!organization?.id,
 })
 
@@ -164,9 +167,11 @@ const { isSubscribed, messageCount } = useMessagingSubscription({
     topic: `organization.${organization.id}.ticket`,
     connection,
     isConnected,
+    userId,
     enabled: isConnected,
     onMessage: (data) => {
-        console.log('Entity changed:', data) // { id, operation }
+        // data: { id, operation }
+        refetchTickets()
     },
 })
 ```
@@ -175,9 +180,20 @@ const { isSubscribed, messageCount } = useMessagingSubscription({
 
 | Hook | Purpose |
 |---|---|
-| `useMessagingConnection` | Manages WebSocket connection to NATS (generic, auto-reconnect, ref-counted) |
-| `useMessagingSubscription` | Subscribes to a topic via PUB-gated relay, receives messages on INBOX |
+| `useMessagingConnection` | Manages WebSocket connection to NATS (auto-reconnect, ref-counted). Returns `connection`, `isConnected`, `userId` |
+| `useMessagingSubscription` | Subscribes to a topic via PUB-gated relay, receives messages on INBOX. Accepts `userId` for user-scoped unsubscribe |
 | `useMessagingChannels` | Fetches available channels from `/messaging/channels` |
+
+## Security
+
+### Relay input validation
+
+- **deliverInbox** — relay subscribe requests must provide an inbox starting with `_INBOX.`; arbitrary subjects are rejected
+- **Unsubscribe scoping** — unsubscribe PUB permission is scoped to `_MESSAGING.unsubscribe.<userId>.*`, preventing clients from tearing down other users' relays. The relay service also verifies relay ownership server-side
+
+### Relay TTL cleanup
+
+Relay subscriptions are automatically swept when clients disconnect without sending an explicit unsubscribe (e.g. network failure, tab close, crash). Each relay is assigned a `createdAt` timestamp, and a periodic sweep removes relays older than the configured TTL (default: 5 minutes, sweep interval: 60 seconds). Both values are configurable via `relayTtlMs` and `cleanupIntervalMs` in the relay service `start()` config.
 
 ## Access revocation
 
@@ -218,6 +234,9 @@ packages/messaging/
 │   ├── AccessControl.js     # checkAccess, getAvailableChannels
 │   └── topic.js             # CHANNEL_DEFINITIONS registry + topic builder helpers
 ├── adapters/nats/           # NATS adapter, auth callout, subscription relay
+│   ├── natsJwt.spec.js
+│   ├── natsAuthCalloutService.spec.js
+│   └── messagingRevocation.spec.js
 ├── middleware/               # Express endpoints (/messaging/token, /messaging/channels)
 ├── errors.js                # GQLError definitions for middleware
 ├── plugins/

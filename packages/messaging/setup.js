@@ -21,7 +21,6 @@ async function initMessaging () {
     if (conf.PHASE === 'build') return
 
     if (!MESSAGING_CONFIG.enabled) {
-        logger.info({ msg: 'Messaging disabled (set MESSAGING_CONFIG.enabled to true)' })
         return
     }
 
@@ -43,9 +42,8 @@ async function initMessaging () {
             authUser: MESSAGING_CONFIG.authUser,
             authPass: MESSAGING_CONFIG.authPassword,
         })
-        logger.info({ msg: 'Auth callout service started' })
     } else {
-        logger.info({ msg: 'authAccountSeed not set, auth callout service disabled' })
+        logger.warn({ msg: 'authAccountSeed not set, auth callout service disabled' })
     }
 
     await adapter.connect({
@@ -55,14 +53,12 @@ async function initMessaging () {
     })
 
     await initializePublisher(adapter, { enabled: true })
-    logger.info({ msg: 'Publisher initialized' })
 
     await adapter.startRelayService({
         url: MESSAGING_CONFIG.brokerUrl,
         user: MESSAGING_CONFIG.serverUser,
         pass: MESSAGING_CONFIG.serverPassword,
     })
-    logger.info({ msg: 'Subscription relay service started' })
 }
 
 /**

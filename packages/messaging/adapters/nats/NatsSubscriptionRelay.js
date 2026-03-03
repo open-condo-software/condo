@@ -16,6 +16,8 @@ const logger = getLogger()
 const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
 const RELAY_QUEUE_GROUP = 'messaging-relay'
+const DEFAULT_RELAY_TTL_MS = 5 * 60 * 1000
+const DEFAULT_CLEANUP_INTERVAL_MS = 60 * 1000
 
 /**
  * Server-side subscription relay service.
@@ -40,10 +42,16 @@ class NatsSubscriptionRelay {
         this.revokedUsers = new Set()
         this.relayCounter = 0
         this.jc = JSONCodec()
+        this._cleanupTimer = null
+        this.relayTtlMs = DEFAULT_RELAY_TTL_MS
     }
 
     async start (config = {}) {
         try {
+            if (config.relayTtlMs !== undefined) {
+                this.relayTtlMs = config.relayTtlMs
+            }
+
             this.connection = await connect({
                 servers: config.url || MESSAGING_CONFIG.brokerUrl,
                 user: config.user || MESSAGING_CONFIG.serverUser,
@@ -54,6 +62,8 @@ class NatsSubscriptionRelay {
             })
 
             this.isRunning = true
+
+            this._startCleanupTimer(config.cleanupIntervalMs || DEFAULT_CLEANUP_INTERVAL_MS)
 
             const subscribeSub = this.connection.subscribe(buildRelaySubscribePattern(), { queue: RELAY_QUEUE_GROUP })
             const unsubscribeSub = this.connection.subscribe(buildRelayUnsubscribePattern(), { queue: RELAY_QUEUE_GROUP })
@@ -99,12 +109,9 @@ class NatsSubscriptionRelay {
                 this._cleanupAll()
                 if (err) {
                     logger.error({ msg: 'Relay connection closed with error', err })
-                } else {
-                    logger.info({ msg: 'Relay connection closed' })
                 }
             })
 
-            logger.info({ msg: 'Subscription relay service started' })
         } catch (error) {
             logger.error({ msg: 'Failed to start subscription relay service', err: error })
             throw error
@@ -144,6 +151,11 @@ class NatsSubscriptionRelay {
             return
         }
 
+        if (typeof deliverInbox !== 'string' || !deliverInbox.startsWith('_INBOX.')) {
+            logger.warn({ msg: 'Invalid deliverInbox format', deliverInbox })
+            return
+        }
+
         if (userId && this.revokedUsers.has(userId)) {
             logger.warn({ msg: 'Relay request rejected for revoked user', userId })
             if (msg.reply) {
@@ -162,6 +174,7 @@ class NatsSubscriptionRelay {
             deliverInbox,
             actualTopic,
             subscription: channelSub,
+            createdAt: Date.now(),
         }
 
         this.relays.set(relayId, relay)
@@ -187,17 +200,24 @@ class NatsSubscriptionRelay {
             this.connection.publish(msg.reply, this.jc.encode({ relayId, status: 'ok' }))
         }
 
-        logger.info({
-            msg: 'Relay created',
-            relayId,
-            actualTopic,
-            deliverInbox,
-        })
     }
 
     _handleUnsubscribeRequest (msg) {
         const parts = msg.subject.split('.')
-        const relayId = parts[2]
+        // _MESSAGING.unsubscribe.<userId>.<relayId>
+        if (parts.length < 4) {
+            logger.warn({ msg: 'Invalid unsubscribe request topic', topic: msg.subject })
+            return
+        }
+
+        const userId = parts[2]
+        const relayId = parts[3]
+
+        const relay = this.relays.get(relayId)
+        if (relay && relay.userId && relay.userId !== userId) {
+            logger.warn({ msg: 'Unsubscribe rejected: relay does not belong to user', relayId, userId })
+            return
+        }
 
         this._removeRelay(relayId)
 
@@ -223,7 +243,6 @@ class NatsSubscriptionRelay {
             }
         }
 
-        logger.info({ msg: 'Relay removed', relayId })
         return true
     }
 
@@ -244,7 +263,6 @@ class NatsSubscriptionRelay {
         for (const relayId of ids) {
             if (this._removeRelay(relayId)) count++
         }
-        logger.info({ msg: 'Revoked all relays for user', userId, count })
         return count
     }
 
@@ -256,7 +274,34 @@ class NatsSubscriptionRelay {
         this.revokedUsers.delete(userId)
     }
 
+    _startCleanupTimer (intervalMs) {
+        this._cleanupTimer = setInterval(() => {
+            this._sweepExpiredRelays()
+        }, intervalMs)
+        this._cleanupTimer.unref()
+    }
+
+    _sweepExpiredRelays () {
+        const now = Date.now()
+        const expired = []
+        for (const [relayId, relay] of this.relays) {
+            if (now - relay.createdAt > this.relayTtlMs) {
+                expired.push(relayId)
+            }
+        }
+        for (const relayId of expired) {
+            this._removeRelay(relayId)
+        }
+        if (expired.length > 0) {
+            logger.warn({ msg: 'Swept expired relays', count: expired.length, remaining: this.relays.size })
+        }
+    }
+
     _cleanupAll () {
+        if (this._cleanupTimer) {
+            clearInterval(this._cleanupTimer)
+            this._cleanupTimer = null
+        }
         for (const [relayId, relay] of this.relays) {
             try {
                 relay.subscription.unsubscribe()

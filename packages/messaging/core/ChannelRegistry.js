@@ -1,6 +1,6 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { CHANNEL_USER, CHANNEL_ORGANIZATION } = require('./topic')
+const { CHANNEL_USER, CHANNEL_ORGANIZATION, APP_PREFIX } = require('./topic')
 
 const logger = getLogger()
 
@@ -20,7 +20,7 @@ const CHANNELS = [
     {
         name: CHANNEL_USER,
         ttl: 3600,
-        subjects: [`${CHANNEL_USER}.>`],
+        subjects: [`${APP_PREFIX}.${CHANNEL_USER}.>`],
         storage: 'memory',
         retention: 'interest',
         discard: 'old',
@@ -30,7 +30,7 @@ const CHANNELS = [
     {
         name: CHANNEL_ORGANIZATION,
         ttl: 3600,
-        subjects: [`${CHANNEL_ORGANIZATION}.>`],
+        subjects: [`${APP_PREFIX}.${CHANNEL_ORGANIZATION}.>`],
         storage: 'memory',
         retention: 'interest',
         discard: 'old',
@@ -57,13 +57,10 @@ async function initializeChannels (adapter) {
             const res = await adapter.ensureChannel(config)
             if (res.created) {
                 result.created.push(config.name)
-                logger.info({ msg: 'Channel created', channel: config.name })
             } else if (res.updated) {
                 result.updated.push(config.name)
-                logger.info({ msg: 'Channel updated', channel: config.name })
             } else {
                 result.upToDate.push(config.name)
-                logger.info({ msg: 'Channel up to date', channel: config.name })
             }
         } catch (error) {
             result.failed.push(config.name)

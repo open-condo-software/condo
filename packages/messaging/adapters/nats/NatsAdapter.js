@@ -42,7 +42,7 @@ class NatsAdapter extends BaseAdapter {
 
         const streamConfig = {
             name: channelConfig.name,
-            subjects: channelConfig.topics,
+            subjects: channelConfig.subjects,
             max_age: channelConfig.ttl * 1e9,
             storage: channelConfig.storage,
             retention: channelConfig.retention,
@@ -88,7 +88,6 @@ class NatsAdapter extends BaseAdapter {
         try {
             const jsm = await this.client.connection.jetstreamManager()
             await jsm.streams.delete(name)
-            logger.info({ msg: 'Channel deleted', channel: name })
             return true
         } catch (error) {
             logger.error({ msg: 'Failed to delete channel', channel: name, err: error })
@@ -154,7 +153,6 @@ class NatsAdapter extends BaseAdapter {
     revokeUser (userId) {
         if (this.client?.connection && !this.client.connection.isClosed()) {
             this.client.connection.publish(`${ADMIN_REVOKE_PREFIX}.${userId}`)
-            logger.info({ msg: 'Published revocation via NATS', userId })
         }
         if (this.authService) this.authService.revokeUser(userId)
         if (this.relayService) return this.relayService.revokeUser(userId)

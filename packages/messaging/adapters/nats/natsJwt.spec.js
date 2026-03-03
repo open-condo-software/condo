@@ -6,7 +6,7 @@ const {
     createUserJwt,
     createAuthResponseJwt,
     computePermissions,
-} = require('@open-condo/messaging/adapters/nats')
+} = require('./index')
 
 describe('NATS JWT Utilities', () => {
     let accountKeyPair
@@ -140,7 +140,7 @@ describe('NATS JWT Utilities', () => {
             expect(perms.pub.allow).toContain('_INBOX.>')
             expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-123.>')
             expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-123.>')
-            expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.*')
+            expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.user-123.*')
 
             expect(perms.sub.allow).toEqual(['_INBOX.>'])
         })
