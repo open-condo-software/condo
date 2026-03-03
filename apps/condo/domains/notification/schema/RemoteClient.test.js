@@ -83,14 +83,15 @@ describe('RemoteClient', () => {
         it('fails to read other`s RemoteClient', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeLoggedInClient()
-            const [pushToken] = await createTestRemoteClient(admin, { owner: { connect: { id: client.user.id } } })
+            const anotherClient = await makeLoggedInClient()
+            const [pushToken] = await createTestRemoteClient(admin, { owner: { connect: { id: anotherClient.user.id } } })
 
             await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await RemoteClient.getOne(client, { id: pushToken.id })
             })
         })
 
-        it('allows to read own RemoteClient', async () => {
+        it('fails to read own RemoteClient', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeLoggedInClient()
             const [pushToken] = await createTestRemoteClient(admin, { owner: { connect: { id: client.user.id } } })
