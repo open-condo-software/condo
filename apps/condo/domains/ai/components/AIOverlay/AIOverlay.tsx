@@ -1,9 +1,9 @@
+import classnames from 'classnames'
 import React, { useState, useRef, useEffect } from 'react'
 
 import { Close, RefreshCw, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Typography } from '@open-condo/ui'
-import classnames from 'classnames'
 
 import styles from './AIOverlay.module.css'
 
@@ -30,6 +30,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const [isAtMinWidth, setIsAtMinWidth] = useState(false)
     const [isAtMaxWidth, setIsAtMaxWidth] = useState(false)
     const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
+    const [transientWidth, setTransientWidth] = useState<number | null>(null)
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
@@ -132,7 +133,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             </div>
             <div className={classnames(styles.resizeHandle, {
                 [styles.atMinWidth]: isAtMinWidth,
-                [styles.atMaxWidth]: isAtMaxWidth
+                [styles.atMaxWidth]: isAtMaxWidth,
             })} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
                 <AIChat 
