@@ -189,7 +189,9 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         Object.keys(encryptedDataByAppIdForCurrenyTransport).forEach((appId) => encryptedDataByAppId[appId] = encryptedDataByAppIdForCurrenyTransport[appId])
         const tokensWithNoData = tokens.filter(token => !dataByToken[token])
         tokensWithNoData.forEach(tokenWithNoData => {
-            [appIds, pushTypes, metaByToken].forEach(mapByToken => delete mapByToken[tokenWithNoData])
+            [appIds, pushTypes, metaByToken].forEach(mapByToken => {
+                delete mapByToken[tokenWithNoData]
+            })
         })
         tokens = tokens.filter(token => !!dataByToken[token]) // if encryption failed, do not send it
 
