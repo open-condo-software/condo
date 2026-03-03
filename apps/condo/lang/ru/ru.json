@@ -1593,7 +1593,7 @@
   "news.createNews": "Добавить новость",
   "news.fields.address.label": "Выберите адресатов",
   "news.fields.body.error.length": "Пожалуйста, добавьте основной текст",
-  "news.fields.body.placeholder": "Текст новости появится на главном экране приложения жителя, в разделе «Новости».  Также отправим пользователю push-уведомление.",
+  "news.fields.body.placeholder": "Текст новости появится на главном экране приложения жителя, в разделе «Новости».\nТакже отправим пользователю push-уведомление.",
   "news.fields.emptyTemplate.title": "Без шаблона",
   "news.fields.makeText.label": "Добавьте заголовок и текст",
   "news.fields.period.label": "Выберите время отправки",

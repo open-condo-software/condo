@@ -88,6 +88,23 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.improveText' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+    
+    const toolbarLabels = useMemo(() => ({
+        undo: intl.formatMessage({ id: 'richTextArea.toolbar.undo' }),
+        redo: intl.formatMessage({ id: 'richTextArea.toolbar.redo' }),
+        link: intl.formatMessage({ id: 'richTextArea.toolbar.link' }),
+        bold: intl.formatMessage({ id: 'richTextArea.toolbar.bold' }),
+        italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
+        unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
+        orderedList: intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' }),
+        removeFormatting: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' }),
+    }), [intl])
+
+    const linkModalLabels = useMemo(() => ({
+        urlLabel: intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' }),
+        textLabel: intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' }),
+        submitLabel: intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' }),
+    }), [intl])
 
     const { status: validationStatus } = Form.Item.useStatus()
     const inputHasError = validationStatus === 'error'
@@ -241,25 +258,10 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     value={value}
                     autoSize={{ minRows: 4, maxRows: 4 }}
                     disabled={isRewriteNewsTextLoading}
-                    customLabels={
-                        {
-                            toolbar: {
-                                undo: 'Отменить',
-                                redo: 'Повторить',
-                                link: 'Ссылка',
-                                bold: 'Жирный',
-                                italic: 'Курсив',
-                                unorderedList: 'Неупорядоченный список',
-                                orderedList: 'Упорядоченный список',
-                                removeFormatting: 'Убрать форматирование',
-                            },
-                            linkModal: {
-                                urlLabel: 'Ссылка',
-                                textLabel: 'Текст',
-                                submitLabel: 'OK',
-                            },
-                        }
-                    }
+                    customLabels={{
+                        toolbar: toolbarLabels,
+                        linkModal: linkModalLabels,
+                    }}
                     type='inline'
                     bottomPanelUtils={bottomPanelUtils}
                 />
@@ -426,7 +428,6 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                 <Row gutter={[0, 24]}>
                                     <Col span={24}>
                                         <Form.Item
-                                            labelCol={{ className: styles.customFormItemLabel }}
                                             name='title'
                                             required
                                             rules={titleRule}
