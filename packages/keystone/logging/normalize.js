@@ -1,8 +1,7 @@
 const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|receipt)/i
 const SENSITIVE_KEYS_OVERRIDE = [
     'groupedReceipts',
-]
-const SENSITIVE_KEYS_OVERRIDE_LOWERCASED = SENSITIVE_KEYS_OVERRIDE.map((key) => key.toLowerCase())
+].map((key) => key.toLowerCase())
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -14,7 +13,7 @@ function normalizeQuery (string) {
 function isSensitiveKey (key) {
     if (!SENSITIVE_KEY_REGEX.test(key)) return false
 
-    return !SENSITIVE_KEYS_OVERRIDE_LOWERCASED.includes(key.toLowerCase())
+    return !SENSITIVE_KEYS_OVERRIDE.includes(key.toLowerCase())
 }
 
 function redactSensitiveValues (value) {
