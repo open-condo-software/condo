@@ -133,7 +133,7 @@ function prepareDataByToken ({ adapter, tokens, data, appIds }) {
         const appId = appIds[token]
         const encryptionVersion = PUSH_ADAPTER_SETTINGS.encryption?.[appId]
         if (!encryptionVersion) {
-            dataByToken[token] = data
+            dataByToken[token] = dataForToken
         }
         const encryptedData = encryptPushData(encryptionVersion, dataForToken, { appId })
         if (encryptedData) {

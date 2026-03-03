@@ -41,7 +41,7 @@ function encryptPushData (version, data, options = {}) {
     return VERSIONS[version](data, options)
 }
 
-export {
+module.exports = {
     VERSIONS,
     encryptPushData,
 }
