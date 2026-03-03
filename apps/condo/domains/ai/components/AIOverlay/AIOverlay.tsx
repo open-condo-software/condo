@@ -25,12 +25,12 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
     const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
     const closeLabel = intl.formatMessage({ id: 'Close' })
-    const { aiOverlayWidth, setAIOverlayWidth } = useAIContext()
+    const { aiOverlayWidth, setAIOverlayWidth, openAIOverlay } = useAIContext()
     const [isResizing, setIsResizing] = useState(false)
     const [isAtMinWidth, setIsAtMinWidth] = useState(false)
     const [isAtMaxWidth, setIsAtMaxWidth] = useState(false)
     const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
-    const [transientWidth, setTransientWidth] = useState<number | null>(null)
+    const dragDirectionRef = useRef<'left' | 'right' | null>(null)
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
@@ -42,6 +42,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             
             const newWidth = startWidthRef.current + (startXRef.current - e.clientX)
             const currentDirection = e.clientX > startXRef.current ? 'right' : 'left'
+            dragDirectionRef.current = currentDirection
             setDragDirection(currentDirection)
             
             // Normal resizing when open
@@ -52,9 +53,14 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
             
             // Only close if dragging right consistently and beyond close threshold
-            if (newWidth < CLOSE_THRESHOLD && dragDirection === 'right' && currentDirection === 'right') {
+            if (newWidth < CLOSE_THRESHOLD && dragDirectionRef.current === 'right' && currentDirection === 'right') {
                 onClose()
                 return
+            }
+            
+            // Open overlay if dragging left consistently and crosses open threshold
+            if (newWidth > CLOSE_THRESHOLD && dragDirectionRef.current === 'left' && currentDirection === 'left') {
+                openAIOverlay()
             }
             
             setAIOverlayWidth(clampedWidth)
@@ -63,6 +69,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         const handleMouseUp = () => {
             setIsResizing(false)
             setDragDirection(null)
+            dragDirectionRef.current = null
         }
 
         if (isResizing) {

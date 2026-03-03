@@ -575,7 +575,7 @@ const MyApp = ({ Component, pageProps }) => {
                             </HCaptchaProvider>
                             {!isSnowfallDisabled && <Snowfall />}
                             <AIOverlayWrapper />
-                            <UseDeskWidgetWrapper />
+                            {UseDeskWidgetId && <UseDeskWidgetWrapper />}
                         </LayoutContextProvider>
                     </AIProvider>
                     {yandexMetrikaID && <YandexMetrika />}
