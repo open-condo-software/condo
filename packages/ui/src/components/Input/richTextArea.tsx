@@ -4,7 +4,6 @@ import { Heading } from '@tiptap/extension-heading'
 import { Image } from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
 import { TaskItem, TaskList } from '@tiptap/extension-list'
-import { Paragraph } from '@tiptap/extension-paragraph'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import { Table } from '@tiptap/extension-table'
 import { TableCell } from '@tiptap/extension-table-cell'
@@ -90,27 +89,6 @@ const HeadingNodeView: React.FC<ReactNodeViewProps> = ({ node }) => {
     )
 }
 HeadingNodeView.displayName = 'HeadingNodeView'
-
-const ParagraphNodeView: React.FC<ReactNodeViewProps> = () => {
-    const type = useContext(RichTextTypeContext)
-    if (type === 'inline') {
-        return (
-            <NodeViewWrapper>
-                <Typography.Paragraph type='primary'>
-                    <TypedNodeViewContent as='span' />
-                </Typography.Paragraph>
-            </NodeViewWrapper>
-        )
-    }
-    return (
-        <NodeViewWrapper>
-            <Typography.Paragraph type='secondary'>
-                <TypedNodeViewContent as='span' />
-            </Typography.Paragraph>
-        </NodeViewWrapper>
-    )
-}
-ParagraphNodeView.displayName = 'ParagraphNodeView'
 
 const CodeBlockNodeView: React.FC<ReactNodeViewProps> = ({ node }) => {
     const className = node.attrs?.language ? `language-${node.attrs.language}` : undefined
@@ -338,7 +316,7 @@ const ToolbarButton: React.FC<{
     title: string
     icon: React.ReactNode
 }> = ({ onClick, isActive, disabled, title, icon }) => (
-    <Tooltip title={title} mouseEnterDelay={1} mouseLeaveDelay={0}>
+    <Tooltip title={title} mouseLeaveDelay={0}>
         <Button
             type='secondary'
             minimal
@@ -636,12 +614,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                         {group.map((item) => {
                             const config = BUILTIN_BUTTON_CONFIG[item]
                             const state = buttonStates?.[item]
+                            const isToolbarButtonDisabled = disabled || (state?.isDisabled ?? config.isDisabled?.(editor) ?? false)
                             return (
                                 <ToolbarButton
                                     key={item}
                                     onClick={() => config.action(editor, helpers)}
                                     isActive={state?.isActive}
-                                    disabled={disabled || state?.isDisabled}
+                                    disabled={isToolbarButtonDisabled}
                                     title={labels[config.labelKey]}
                                     icon={config.icon}
                                 />
@@ -740,14 +719,13 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             StarterKit.configure({
                 heading: false,
                 codeBlock: false,
-                paragraph: false,
             }),
-            Paragraph.extend({ addNodeView: () => ReactNodeViewRenderer(ParagraphNodeView) }),
             Heading.extend({ addNodeView: () => ReactNodeViewRenderer(HeadingNodeView) })
                 .configure({ levels: [1, 2, 3, 4, 5, 6] }),
             CodeBlock.extend({ addNodeView: () => ReactNodeViewRenderer(CodeBlockNodeView) }),
             Link.configure({
                 openOnClick: false,
+                autolink: false,
                 HTMLAttributes: {
                     rel: 'noopener noreferrer',
                     target: '_blank',

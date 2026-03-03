@@ -3821,5 +3821,16 @@
   "tour.viewGuide": "Ver guía",
   "trial.startPeriod": "Empezar período de prueba",
   "trial.subTitle": "Y después...",
-  "trial.title": "Periodo gratuito de 14 días"
+  "trial.title": "Período gratuito de 14 días",
+  "richTextArea.toolbar.undo": "Deshacer",
+  "richTextArea.toolbar.redo": "Rehacer",
+  "richTextArea.toolbar.link": "Enlace",
+  "richTextArea.toolbar.bold": "Negrita",
+  "richTextArea.toolbar.italic": "Cursiva",
+  "richTextArea.toolbar.unorderedList": "Lista con viñetas",
+  "richTextArea.toolbar.orderedList": "Lista numerada",
+  "richTextArea.toolbar.removeFormatting": "Quitar formato",
+  "richTextArea.linkModal.urlLabel": "Enlace",
+  "richTextArea.linkModal.textLabel": "Texto",
+  "richTextArea.linkModal.submitLabel": "Ok"
 }

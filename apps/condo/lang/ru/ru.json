@@ -3821,5 +3821,16 @@
   "tour.viewGuide": "Смотреть гайд",
   "trial.startPeriod": "Начать пробный период",
   "trial.subTitle": "А после...",
-  "trial.title": "Бесплатный период 14 дней"
+  "trial.title": "Бесплатный период 14 дней",
+  "richTextArea.toolbar.undo": "Шаг назад",
+  "richTextArea.toolbar.redo": "Шаг вперед",
+  "richTextArea.toolbar.link": "Вставить ссылку",
+  "richTextArea.toolbar.bold": "Полужирный текст",
+  "richTextArea.toolbar.italic": "Курсивный текст",
+  "richTextArea.toolbar.unorderedList": "Маркированный список",
+  "richTextArea.toolbar.orderedList": "Нумерованный список",
+  "richTextArea.toolbar.removeFormatting": "Очистить форматирование",
+  "richTextArea.linkModal.urlLabel": "Ссылка",
+  "richTextArea.linkModal.textLabel": "Текст",
+  "richTextArea.linkModal.submitLabel": "Ок"
 }
