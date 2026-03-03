@@ -5,7 +5,6 @@ import set from 'lodash/set'
 import getConfig from 'next/config'
 import React, { useEffect, useMemo } from 'react'
 
-
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -26,7 +25,7 @@ const getUsedeskMessenger = () => {
     return get(window, 'usedeskMessenger', null)
 }
 
-const UseDeskWidget: React.FC = () => {
+const UseDeskWidget: React.FC<{ hide?: boolean }> = ({ hide = false }) => {
     const { link } = useOrganization()
     const { user } = useAuth()
 
@@ -96,6 +95,23 @@ const UseDeskWidget: React.FC = () => {
             console.error('Failed to load widget "UseDesk"', e)
         }
     }, [link, userIdentify, user, messenger])
+
+    useEffect(() => {
+        if (!UseDeskWidgetId) return
+
+        const messenger = getUsedeskMessenger()
+        if (!messenger) return
+
+        try {
+            if (hide) {
+                messenger.toggle(false)
+            } else {
+                messenger.toggle(true)
+            }
+        } catch (e) {
+            console.error('Failed to toggle UseDesk widget visibility', e)
+        }
+    }, [hide])
 
     return UseDeskWidgetId ?
         <script async src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}></script> : null

@@ -59,7 +59,7 @@
 }
 
 /* Resize handle - full height like VSCode/Windsurf */
-.resize-handle {
+.resizeHandle {
   position: absolute;
   top: 0;
   left: 0;
@@ -69,16 +69,27 @@
   background: transparent;
   border-left: 1px solid var(--condo-global-color-gray-3);
   cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.resize-handle:hover {
+.resizeHandle:hover {
   background: var(--condo-global-color-green-5);
   border-left: 2px solid var(--condo-global-color-green-5);
 }
 
-.resize-handle:active {
+.resizeHandle:active {
   background: var(--condo-global-color-green-5);
   border-left: 2px solid var(--condo-global-color-green-5);
+}
+
+.resizeHandle.atMinWidth {
+  cursor: w-resize;
+}
+
+.resizeHandle.atMaxWidth {
+  cursor: e-resize;
 }
 
 /* Content area */
