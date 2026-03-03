@@ -59,12 +59,9 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
     }, [onMessage])
 
     const unsubscribe = useCallback(() => {
-        if (relayIdRef.current && connection && !connection.isClosed()) {
+        if (relayIdRef.current && userId && connection && !connection.isClosed()) {
             try {
-                const unsub = userId
-                    ? `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${relayIdRef.current}`
-                    : `${RELAY_UNSUBSCRIBE_PREFIX}.${relayIdRef.current}`
-                connection.publish(unsub)
+                connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${relayIdRef.current}`)
             } catch (error) {
                 console.error('[messaging] Error sending unsubscribe:', error)
             }
@@ -75,7 +72,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 subscriptionRef.current.unsubscribe()
                 subscriptionRef.current = null
                 setState(prev => ({ ...prev, isSubscribed: false }))
-                console.log('[messaging] Unsubscribed from relay')
+
             } catch (error) {
                 console.error('[messaging] Error unsubscribing:', error)
             }
@@ -100,15 +97,13 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
 
                 const deliverInbox = createInbox()
 
-                console.log(`[messaging] Setting up relay for ${topic}`)
-
                 inboxSub = connection.subscribe(deliverInbox)
                 subscriptionRef.current = inboxSub
 
                 const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${topic}`
                 const response = await connection.request(
                     relayTopic,
-                    JSON.stringify({ deliverInbox }),
+                    JSON.stringify({ deliverInbox, requestingUserId: userId || undefined }),
                     { timeout: 5000 }
                 )
 
@@ -117,10 +112,9 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 relayIdRef.current = currentRelayId
 
                 if (!isActiveRef.current) {
-                    const unsub = userId
-                        ? `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`
-                        : `${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`
-                    connection.publish(unsub)
+                    if (userId) {
+                        connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`)
+                    }
                     inboxSub.unsubscribe()
                     return
                 }
@@ -130,8 +124,6 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                     isSubscribed: true,
                     isSubscribing: false,
                 }))
-
-                console.log(`[messaging] Relay active: ${currentRelayId} → ${deliverInbox}`)
 
                 ;(async () => {
                     for await (const msg of inboxSub) {
@@ -165,12 +157,9 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
 
         return () => {
             isActiveRef.current = false
-            if (currentRelayId && connection && !connection.isClosed()) {
+            if (currentRelayId && userId && connection && !connection.isClosed()) {
                 try {
-                    const unsub = userId
-                        ? `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`
-                        : `${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`
-                    connection.publish(unsub)
+                    connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`)
                 } catch {
                     // connection may be closed
                 }

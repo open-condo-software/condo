@@ -145,7 +145,7 @@ class NatsSubscriptionRelay {
             return
         }
 
-        const { deliverInbox } = data
+        const { deliverInbox, requestingUserId } = data
         if (!deliverInbox) {
             logger.warn({ msg: 'Missing deliverInbox in subscribe request' })
             return
@@ -171,6 +171,7 @@ class NatsSubscriptionRelay {
             id: relayId,
             channel,
             userId,
+            requestingUserId: requestingUserId || userId || null,
             deliverInbox,
             actualTopic,
             subscription: channelSub,
@@ -214,7 +215,7 @@ class NatsSubscriptionRelay {
         const relayId = parts[3]
 
         const relay = this.relays.get(relayId)
-        if (relay && relay.userId && relay.userId !== userId) {
+        if (relay && relay.requestingUserId !== userId) {
             logger.warn({ msg: 'Unsubscribe rejected: relay does not belong to user', relayId, userId })
             return
         }

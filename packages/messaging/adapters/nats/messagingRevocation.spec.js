@@ -241,6 +241,68 @@ describe('Messaging Revocation — unit tests', () => {
         })
     })
 
+    describe('NatsSubscriptionRelay unsubscribe ownership', () => {
+        let relay
+
+        beforeEach(() => {
+            relay = new NatsSubscriptionRelay()
+            relay.relayCounter = 0
+        })
+
+        it('_handleUnsubscribeRequest rejects when requestingUserId does not match', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'organization', userId: null,
+                requestingUserId: 'user-A',
+                deliverInbox: '_INBOX.a', actualTopic: 'organization.org-1.>',
+                subscription: mockSub, createdAt: Date.now(),
+            })
+
+            const msg = { subject: '_MESSAGING.unsubscribe.user-B.relay-1' }
+            relay._handleUnsubscribeRequest(msg)
+
+            expect(relay.relays.size).toBe(1)
+            expect(mockSub.unsubscribe).not.toHaveBeenCalled()
+        })
+
+        it('_handleUnsubscribeRequest allows when requestingUserId matches', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'organization', userId: null,
+                requestingUserId: 'user-A',
+                deliverInbox: '_INBOX.a', actualTopic: 'organization.org-1.>',
+                subscription: mockSub, createdAt: Date.now(),
+            })
+
+            const msg = { subject: '_MESSAGING.unsubscribe.user-A.relay-1' }
+            relay._handleUnsubscribeRequest(msg)
+
+            expect(relay.relays.size).toBe(0)
+            expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
+        })
+
+        it('_handleUnsubscribeRequest rejects 3-segment topic (missing userId)', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'user', userId: 'user-1',
+                requestingUserId: 'user-1',
+                deliverInbox: '_INBOX.a', actualTopic: 'user.user-1.>',
+                subscription: mockSub, createdAt: Date.now(),
+            })
+
+            const msg = { subject: '_MESSAGING.unsubscribe.relay-1' }
+            relay._handleUnsubscribeRequest(msg)
+
+            expect(relay.relays.size).toBe(1)
+            expect(mockSub.unsubscribe).not.toHaveBeenCalled()
+        })
+
+        it('_handleUnsubscribeRequest handles non-existent relay gracefully', () => {
+            const msg = { subject: '_MESSAGING.unsubscribe.user-A.relay-999' }
+            expect(() => relay._handleUnsubscribeRequest(msg)).not.toThrow()
+        })
+    })
+
     describe('NatsAdapter revocation delegation', () => {
         // Test that NatsAdapter.revokeUser delegates to both services
         const { NatsAdapter } = require('./index')

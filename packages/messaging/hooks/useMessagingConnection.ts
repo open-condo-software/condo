@@ -69,7 +69,6 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 globalUserId = userId || null
 
                 nc.closed().then((err) => {
-                    console.log('[messaging] Connection closed', err || '')
                     globalConnection = null
                     globalConnectionPromise = null
                     globalUserId = null
@@ -89,7 +88,6 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                 }
                 notifySubscribers(connectedState)
 
-                console.log('[messaging] Connected successfully')
                 return nc
             } catch (error) {
                 globalConnectionPromise = null

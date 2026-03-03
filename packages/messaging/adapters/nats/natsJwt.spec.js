@@ -137,7 +137,7 @@ describe('NATS JWT Utilities', () => {
         it('computes correct PUB-gated relay permissions for user and organization', () => {
             const perms = computePermissions('user-123', 'org-123')
 
-            expect(perms.pub.allow).toContain('_INBOX.>')
+            expect(perms.pub.allow).not.toContain('_INBOX.>')
             expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-123.>')
             expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-123.>')
             expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.user-123.*')

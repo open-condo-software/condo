@@ -186,10 +186,20 @@ const { isSubscribed, messageCount } = useMessagingSubscription({
 
 ## Security
 
+### PUB/SUB permission model
+
+Clients are granted only the minimum permissions needed:
+
+- **PUB** — relay subscribe topics (`_MESSAGING.subscribe.<channel>.<id>.>`), relay unsubscribe topic (`_MESSAGING.unsubscribe.<userId>.*`)
+- **SUB** — `_INBOX.>` only (for receiving relayed messages and request/reply responses)
+
+Clients do **not** have PUB permission on `_INBOX.>`. NATS `request()` embeds reply-to in the PUB header — the server publishes the response, not the client. This prevents authenticated clients from injecting messages into other users' delivery inboxes.
+
 ### Relay input validation
 
 - **deliverInbox** — relay subscribe requests must provide an inbox starting with `_INBOX.`; arbitrary subjects are rejected
-- **Unsubscribe scoping** — unsubscribe PUB permission is scoped to `_MESSAGING.unsubscribe.<userId>.*`, preventing clients from tearing down other users' relays. The relay service also verifies relay ownership server-side
+- **Unsubscribe scoping** — unsubscribe PUB permission is scoped to `_MESSAGING.unsubscribe.<userId>.*`, preventing clients from tearing down other users' relays
+- **Relay ownership** — every relay tracks a `requestingUserId` (sent by the client in the subscribe body). On unsubscribe, the relay service verifies the requesting userId matches the relay owner. This covers both user-channel and organization-channel relays (where the channel-derived userId is null)
 
 ### Relay TTL cleanup
 

@@ -1,4 +1,4 @@
-const { connect, StringCodec, JSONCodec } = require('nats')
+const { connect, JSONCodec } = require('nats')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -10,7 +10,6 @@ const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFI
 class NatsClient {
     connection = null
     jetstream = null
-    stringCodec = StringCodec()
     jsonCodec = JSONCodec()
     isConnected = false
 

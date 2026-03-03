@@ -56,7 +56,7 @@ describe('Auth Callout Service Logic', () => {
 
             expect(userClaims.nats.sub.allow).toEqual(['_INBOX.>'])
 
-            expect(userClaims.nats.pub.allow).toContain('_INBOX.>')
+            expect(userClaims.nats.pub.allow).not.toContain('_INBOX.>')
             expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.user.${userId}.>`)
             expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.organization.${organizationId}.>`)
             expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.unsubscribe.${userId}.*`)

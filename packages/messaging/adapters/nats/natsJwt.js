@@ -146,8 +146,8 @@ function createAuthResponseJwt ({ userNkey, serverId, accountPublicKey, userJwt,
  * that returns the PUB patterns for relay subscribe topics.
  *
  * Also grants:
- *   - _MESSAGING.unsubscribe.*  (unsubscribe from relays)
- *   - _INBOX.>                  (receive relayed messages)
+ *   - PUB _MESSAGING.unsubscribe.<userId>.*  (unsubscribe own relays)
+ *   - SUB _INBOX.>                            (receive relayed messages)
  *
  * @param {string} userId
  * @param {string} organizationId
@@ -160,7 +160,6 @@ function computePermissions (userId, organizationId) {
         .flatMap(ch => ch.buildRelayPermissions(context))
 
     const pubAllow = [
-        '_INBOX.>',
         ...channelPermissions,
         `${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.*`,
     ]
