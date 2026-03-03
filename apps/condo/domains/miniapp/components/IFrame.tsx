@@ -177,12 +177,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         }
     }, [frameId, addEventHandler, requestAuth])
 
-    const containerStyle = useMemo<CSSProperties>(() => ({
-        height: frameHeight,
-        overflowY: 'hidden',
-        transition: 'height 200ms ease',
-        display: hidden ? 'none' : 'block',
-    }), [frameHeight, hidden])
 
     const sendActionClickEvent = useCallback((actionId: string) => {
         if (!actionsSource || !actionsOrigin) return
@@ -218,6 +212,17 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
     const shouldShowActionBar = isActionOwner && actionsOrigin && Boolean(actions?.length)
+
+    const containerStyle = useMemo<CSSProperties>(() => {
+        const shouldAnimateHeight = withResize && !shouldShowActionBar
+
+        return {
+            height: frameHeight,
+            overflowY: 'hidden',
+            transition: shouldAnimateHeight ? 'height 200ms ease' : 'none',
+            display: hidden ? 'none' : 'block',
+        }
+    }, [frameHeight, hidden, shouldShowActionBar, withResize])
 
     return (
         <>
