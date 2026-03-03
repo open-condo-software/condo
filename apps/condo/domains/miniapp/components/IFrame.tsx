@@ -177,12 +177,13 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         }
     }, [frameId, addEventHandler, requestAuth])
 
+    const shouldAnimateHeight = withResize && !actions?.length
     const containerStyle = useMemo<CSSProperties>(() => ({
         height: frameHeight,
         overflowY: 'hidden',
-        transition: 'height 200ms ease',
+        transition: shouldAnimateHeight ? 'height 200ms ease' : 'none',
         display: hidden ? 'none' : 'block',
-    }), [frameHeight, hidden])
+    }), [frameHeight, hidden, shouldAnimateHeight])
 
     const sendActionClickEvent = useCallback((actionId: string) => {
         if (!actionsSource || !actionsOrigin) return
