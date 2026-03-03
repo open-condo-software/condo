@@ -303,6 +303,60 @@ describe('Messaging Revocation — unit tests', () => {
         })
     })
 
+    describe('NatsSubscriptionRelay org relay revocation via requestingUserId', () => {
+        let relay
+
+        beforeEach(() => {
+            relay = new NatsSubscriptionRelay()
+            relay.relayCounter = 0
+        })
+
+        it('revokeUser tears down org relays tracked by requestingUserId', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            const relayEntry = {
+                id: 'relay-1', channel: 'organization', userId: null,
+                requestingUserId: 'user-A',
+                deliverInbox: '_INBOX.a', actualTopic: 'organization.org-1.>',
+                subscription: mockSub, createdAt: Date.now(),
+            }
+            relay.relays.set('relay-1', relayEntry)
+            relay.userRelays.set('user-A', new Set(['relay-1']))
+
+            const count = relay.revokeUser('user-A')
+
+            expect(count).toBe(1)
+            expect(relay.relays.size).toBe(0)
+            expect(relay.userRelays.has('user-A')).toBe(false)
+            expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
+        })
+
+        it('revokeUser tears down mixed user + org relays for the same requestingUserId', () => {
+            const mockSub1 = { unsubscribe: jest.fn() }
+            const mockSub2 = { unsubscribe: jest.fn() }
+
+            relay.relays.set('relay-1', {
+                id: 'relay-1', channel: 'user', userId: 'user-A',
+                requestingUserId: 'user-A',
+                deliverInbox: '_INBOX.a', actualTopic: 'user.user-A.>',
+                subscription: mockSub1, createdAt: Date.now(),
+            })
+            relay.relays.set('relay-2', {
+                id: 'relay-2', channel: 'organization', userId: null,
+                requestingUserId: 'user-A',
+                deliverInbox: '_INBOX.b', actualTopic: 'organization.org-1.>',
+                subscription: mockSub2, createdAt: Date.now(),
+            })
+            relay.userRelays.set('user-A', new Set(['relay-1', 'relay-2']))
+
+            const count = relay.revokeUser('user-A')
+
+            expect(count).toBe(2)
+            expect(relay.relays.size).toBe(0)
+            expect(mockSub1.unsubscribe).toHaveBeenCalledTimes(1)
+            expect(mockSub2.unsubscribe).toHaveBeenCalledTimes(1)
+        })
+    })
+
     describe('NatsAdapter revocation delegation', () => {
         // Test that NatsAdapter.revokeUser delegates to both services
         const { NatsAdapter } = require('./index')

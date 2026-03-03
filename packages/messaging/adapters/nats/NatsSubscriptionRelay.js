@@ -156,7 +156,7 @@ class NatsSubscriptionRelay {
             return
         }
 
-        if (userId && this.revokedUsers.has(userId)) {
+        if ((userId && this.revokedUsers.has(userId)) || (requestingUserId && this.revokedUsers.has(requestingUserId))) {
             logger.warn({ msg: 'Relay request rejected for revoked user', userId })
             if (msg.reply) {
                 this.connection.publish(msg.reply, this.jc.encode({ status: 'error', reason: 'access revoked' }))
@@ -179,11 +179,12 @@ class NatsSubscriptionRelay {
         }
 
         this.relays.set(relayId, relay)
-        if (userId) {
-            if (!this.userRelays.has(userId)) {
-                this.userRelays.set(userId, new Set())
+        const trackingUserId = relay.requestingUserId || userId
+        if (trackingUserId) {
+            if (!this.userRelays.has(trackingUserId)) {
+                this.userRelays.set(trackingUserId, new Set())
             }
-            this.userRelays.get(userId).add(relayId)
+            this.userRelays.get(trackingUserId).add(relayId)
         }
 
         (async () => {
@@ -234,12 +235,13 @@ class NatsSubscriptionRelay {
         relay.subscription.unsubscribe()
         this.relays.delete(relayId)
 
-        if (relay.userId) {
-            const userSet = this.userRelays.get(relay.userId)
+        const trackingUserId = relay.requestingUserId || relay.userId
+        if (trackingUserId) {
+            const userSet = this.userRelays.get(trackingUserId)
             if (userSet) {
                 userSet.delete(relayId)
                 if (userSet.size === 0) {
-                    this.userRelays.delete(relay.userId)
+                    this.userRelays.delete(trackingUserId)
                 }
             }
         }

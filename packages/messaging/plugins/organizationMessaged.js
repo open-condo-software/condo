@@ -39,6 +39,10 @@ const organizationMessaged = (config = {}) => plugin(({ fields = {}, hooks: { af
     const { fromField } = config
     const entityName = schemaName.charAt(0).toLowerCase() + schemaName.slice(1)
 
+    if (fromField && !fields[fromField]) {
+        throw new Error(`organizationMessaged plugin for "${schemaName}": fromField "${fromField}" does not exist in schema fields`)
+    }
+
     const resolveOrganizationId = async (updatedItem) => {
         if (fromField) {
             const relatedId = updatedItem[fromField]

@@ -255,7 +255,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             }
 
             const isBlockOperation = operation === 'update' && !existingItem.isBlocked && updatedItem.isBlocked
-            if ((isSoftDeleteOperation || isBlockOperation) && updatedUserId) {
+            const isRejectOperation = operation === 'update' && !existingItem.isRejected && updatedItem.isRejected
+            if ((isSoftDeleteOperation || isBlockOperation || isRejectOperation) && updatedUserId) {
                 revokeMessagingUser(updatedUserId)
             }
         },

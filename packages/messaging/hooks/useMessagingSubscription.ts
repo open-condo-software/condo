@@ -143,6 +143,11 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                     }
                 })()
             } catch (error) {
+                if (inboxSub) {
+                    inboxSub.unsubscribe()
+                    inboxSub = null
+                    subscriptionRef.current = null
+                }
                 const err = error instanceof Error ? error : new Error(String(error))
                 console.error('[messaging] Subscription relay error:', err)
                 setState(prev => ({
@@ -168,7 +173,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 inboxSub.unsubscribe()
             }
         }
-    }, [enabled, isConnected, connection, topic])
+    }, [enabled, isConnected, connection, topic, userId])
 
     return {
         isSubscribed: state.isSubscribed,
