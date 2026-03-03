@@ -1,10 +1,6 @@
 const { normalizeVariables } = require('./normalize')
 
 describe('normalizeVariables', () => {
-    afterEach(() => {
-        delete process.env.LOG_SENSITIVE_KEYS_OVERRIDE
-    })
-
     it('redacts sensitive keys recursively', () => {
         const input = {
             password: 'secret',
@@ -33,46 +29,35 @@ describe('normalizeVariables', () => {
         expect(result.list[1].value).toBe('ok')
     })
 
-
-    it('supports case-insensitive and trimmed override keys', () => {
-        process.env.LOG_SENSITIVE_KEYS_OVERRIDE = ' GROUPEDRECEIPTS ,   ToKeN '
-
+    it('keeps groupedReceipts visible by code override', () => {
         const input = {
             groupedReceipts: 'visible',
-            token: 'visible too',
-            receiptToken: 'hidden',
-        }
-
-        const result = JSON.parse(normalizeVariables(input))
-
-        expect(result.groupedReceipts).toBe('visible')
-        expect(result.token).toBe('visible too')
-        expect(result.receiptToken).toBe('***')
-    })
-
-    it('does not redact overridden sensitive keys', () => {
-        process.env.LOG_SENSITIVE_KEYS_OVERRIDE = 'groupedReceipts, token'
-
-        const input = {
-            groupedReceipts: 'visible',
-            token: 'visible too',
-            receipt: 'hidden',
             nested: {
                 groupedReceipts: {
                     id: 'receipt-id',
                 },
-                token: 'nested visible',
-                secret: 'hidden',
+                receipt: 'hidden',
             },
         }
 
         const result = JSON.parse(normalizeVariables(input))
 
         expect(result.groupedReceipts).toBe('visible')
-        expect(result.token).toBe('visible too')
-        expect(result.receipt).toBe('***')
         expect(result.nested.groupedReceipts.id).toBe('receipt-id')
-        expect(result.nested.token).toBe('nested visible')
-        expect(result.nested.secret).toBe('***')
+        expect(result.nested.receipt).toBe('***')
+    })
+
+    it('still redacts non-overridden sensitive keys', () => {
+        const input = {
+            token: 'hidden',
+            secret: 'hidden',
+            receiptToken: 'hidden',
+        }
+
+        const result = JSON.parse(normalizeVariables(input))
+
+        expect(result.token).toBe('***')
+        expect(result.secret).toBe('***')
+        expect(result.receiptToken).toBe('***')
     })
 })

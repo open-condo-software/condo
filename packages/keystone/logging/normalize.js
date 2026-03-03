@@ -1,6 +1,8 @@
-const conf = require('@open-condo/config')
-
 const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|receipt)/i
+const SENSITIVE_KEYS_OVERRIDE = [
+    'groupedReceipts',
+]
+const SENSITIVE_KEYS_OVERRIDE_LOWERCASED = SENSITIVE_KEYS_OVERRIDE.map((key) => key.toLowerCase())
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -9,20 +11,10 @@ function normalizeQuery (string) {
     return string.replace(/[\s,]+/g, ' ').trim()
 }
 
-function getOverrideKeys () {
-    const keys = conf['LOG_SENSITIVE_KEYS_OVERRIDE']
-    if (!keys) return []
-
-    return keys
-        .toLowerCase()
-        .split(',')
-        .map((key) => key.trim())
-        .filter(Boolean)
-}
-
 function isSensitiveKey (key) {
     if (!SENSITIVE_KEY_REGEX.test(key)) return false
-    return !getOverrideKeys().includes(key.toLowerCase())
+
+    return !SENSITIVE_KEYS_OVERRIDE_LOWERCASED.includes(key.toLowerCase())
 }
 
 function redactSensitiveValues (value) {
