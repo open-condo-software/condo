@@ -316,7 +316,7 @@ const ToolbarButton: React.FC<{
     title: string
     icon: React.ReactNode
 }> = ({ onClick, isActive, disabled, title, icon }) => (
-    <Tooltip title={title} mouseEnterDelay={1} mouseLeaveDelay={0}>
+    <Tooltip title={title} mouseLeaveDelay={0}>
         <Button
             type='secondary'
             minimal
@@ -614,12 +614,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                         {group.map((item) => {
                             const config = BUILTIN_BUTTON_CONFIG[item]
                             const state = buttonStates?.[item]
+                            const isToolbarButtonDisabled = disabled || (state?.isDisabled ?? config.isDisabled?.(editor) ?? false)
                             return (
                                 <ToolbarButton
                                     key={item}
                                     onClick={() => config.action(editor, helpers)}
                                     isActive={state?.isActive}
-                                    disabled={disabled || state?.isDisabled}
+                                    disabled={isToolbarButtonDisabled}
                                     title={labels[config.labelKey]}
                                     icon={config.icon}
                                 />
