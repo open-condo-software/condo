@@ -59,36 +59,36 @@
 }
 
 /* Resize handle - full height like VSCode/Windsurf */
-.resizeHandle {
+.resize-handle {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 4px;
   height: 100%;
   background: transparent;
   border-left: 1px solid var(--condo-global-color-gray-3);
   cursor: col-resize;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.resizeHandle:hover {
+.resize-handle:hover {
   background: var(--condo-global-color-green-5);
   border-left: 2px solid var(--condo-global-color-green-5);
 }
 
-.resizeHandle:active {
+.resize-handle:active {
   background: var(--condo-global-color-green-5);
   border-left: 2px solid var(--condo-global-color-green-5);
 }
 
-.resizeHandle.atMinWidth {
+.resize-handle.at-min-width {
   cursor: w-resize;
 }
 
-.resizeHandle.atMaxWidth {
+.resize-handle.at-max-width {
   cursor: e-resize;
 }
 
