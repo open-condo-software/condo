@@ -94,7 +94,9 @@ class WebhookAdapter {
 
         tokens.forEach((pushToken) => {
             const pushType = pushTypes?.[pushToken] ?? PUSH_TYPE_DEFAULT
-            const data = dataByToken[pushToken] || {}
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const appId = get(appIds, pushToken)
             const pushData = {
                 token: pushToken,
@@ -108,7 +110,7 @@ class WebhookAdapter {
             }
 
             if (
-                !APPS_WITH_DISABLED_NOTIFICATIONS.includes[appId]
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(appId)
                 && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
             ) notifications.push(pushData)
         })

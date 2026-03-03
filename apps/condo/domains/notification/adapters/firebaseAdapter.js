@@ -77,6 +77,7 @@ class FirebaseAdapter {
     /**
      * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
      * @param data
+     * @param token {string}
      */
     static prepareData (data = {}, token) {
         const result = { token }
@@ -185,7 +186,9 @@ class FirebaseAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const data = dataByToken[pushToken] || {}
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,

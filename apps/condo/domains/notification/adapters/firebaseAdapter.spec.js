@@ -39,9 +39,11 @@ describe('Firebase adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: {
+                    app: 'condo',
+                    type: 'notification',
+                },
             },
         })
 
@@ -90,9 +92,11 @@ describe('Firebase adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_FAIL]: {
+                    app: 'condo',
+                    type: 'notification',
+                },
             },
         })
 
@@ -109,15 +113,19 @@ describe('Firebase adapter utils', () => {
     })
 
     it('should succeed sending push notification to fake success and fail push token ', async () => {
+        const data = {
+            app : 'condo',
+            type: 'notification',
+        }
         const [isOk, result] = await adapter.sendNotification({
             tokens: [PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL],
             notification: {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: data,
+                [PUSH_FAKE_TOKEN_FAIL]: data,
             },
         })
 
@@ -144,9 +152,11 @@ describe('Firebase adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: {
+                    app: 'condo',
+                    type: 'notification',
+                },
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
@@ -177,9 +187,11 @@ describe('Firebase adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: {
+                    app: 'condo',
+                    type: 'notification',
+                },
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
@@ -213,9 +225,11 @@ describe('Firebase adapter utils', () => {
             },
             // data.app is set only in tests
             // in real flow data is set without data.app
-            data: {
-                app : 'condo.app.clients',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: {
+                    app: 'condo.app.clients',
+                    type: 'notification',
+                },
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
@@ -249,9 +263,11 @@ describe('Firebase adapter utils', () => {
                 notification: {
                     body: `${dayjs().format()} Condo greets you!`,
                 },
-                data: {
-                    app : 'condo',
-                    type: 'notification',
+                dataByToken: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: {
+                        app: 'condo',
+                        type: 'notification',
+                    },
                 },
             })
         ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
@@ -264,9 +280,11 @@ describe('Firebase adapter utils', () => {
                 notification: {
                     title: 'Condo',
                 },
-                data: {
-                    app : 'condo',
-                    type: 'notification',
+                dataByToken: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: {
+                        app: 'condo',
+                        type: 'notification',
+                    },
                 },
             })
         ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
@@ -289,9 +307,11 @@ describe('Firebase adapter utils', () => {
             title: 'Condo',
             body: `${dayjs().format()} Condo greets you!`,
         }
-        const data = {
-            app: 'condo',
-            type: 'notification',
+        const dataByToken = {
+            [PUSH_FAKE_TOKEN_SUCCESS]: {
+                app: 'condo',
+                type: 'notification',
+            },
         }
         const appIds = {
             [PUSH_FAKE_TOKEN_SUCCESS]: 'condo.app.main',
@@ -306,7 +326,7 @@ describe('Firebase adapter utils', () => {
 
         const buildPayload = (pushType, isVoIP = false) => FirebaseAdapter.prepareBatchData(
             notification,
-            data,
+            dataByToken,
             tokens,
             { [PUSH_FAKE_TOKEN_SUCCESS]: pushType },
             isVoIP,

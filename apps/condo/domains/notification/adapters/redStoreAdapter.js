@@ -118,7 +118,9 @@ class RedStoreAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const data = dataByToken[pushToken] || {}
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const pushData = {
                 token: pushToken,
                 data: data,
