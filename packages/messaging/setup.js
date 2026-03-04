@@ -2,6 +2,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { NatsAdapter } = require('./adapters/nats')
+const { initializeChannels } = require('./core/ChannelRegistry')
 const { initializePublisher } = require('./core/Publisher')
 const { configure } = require('./utils')
 
@@ -52,6 +53,7 @@ async function initMessaging () {
         pass: MESSAGING_CONFIG.serverPassword,
     })
 
+    await initializeChannels(adapter)
     await initializePublisher(adapter, { enabled: true })
 
     await adapter.startRelayService({

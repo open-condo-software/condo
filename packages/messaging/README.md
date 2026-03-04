@@ -216,9 +216,23 @@ Clients do **not** have PUB permission on `_INBOX.>`. NATS `request()` embeds re
 
 The `/messaging/token` and `/messaging/channels` endpoints are rate-limited by both IP address and authenticated user ID. This prevents abuse from shared IPs (NAT/proxy) and per-user flooding independently. Configurable via `rateLimitMax` and `rateLimitWindowSec`.
 
+### JetStream consumers and gap replay
+
+The relay creates **ephemeral JetStream push consumers** (not core NATS subscriptions) for each relay. This enables message replay when a client briefly disconnects:
+
+1. Both channel streams use `limits` retention with `max_age: 1h` — messages are buffered in memory regardless of active consumers
+2. On re-subscribe, the client can pass `startTime` (ISO 8601) in the relay request body to replay messages from the gap:
+   ```javascript
+   connection.request(relayTopic, JSON.stringify({ deliverInbox, startTime: '2025-01-01T12:00:00.000Z' }))
+   ```
+3. If `startTime` is omitted, the consumer uses `deliver_policy: new` (only future messages)
+4. The `useMessagingSubscription` hook tracks `lastMessageTime` automatically and passes it on re-subscribe after a relay-closed sentinel
+
 ### Relay TTL cleanup
 
-Relay subscriptions are automatically swept when clients disconnect without sending an explicit unsubscribe (e.g. network failure, tab close, crash). Each relay is assigned a `createdAt` timestamp, and a periodic sweep removes relays older than the configured TTL (default: 5 minutes, sweep interval: 60 seconds). Both values are configurable via `relayTtlMs` and `cleanupIntervalMs` in the relay service `start()` config.
+Relay subscriptions are automatically swept when clients disconnect without sending an explicit unsubscribe (e.g. network failure, tab close, crash). Each relay is assigned a `createdAt` timestamp (refreshed on every forwarded message), and a periodic sweep removes relays older than the configured TTL (default: 5 minutes, sweep interval: 60 seconds). Both values are configurable via `relayTtlMs` and `cleanupIntervalMs` in the relay service `start()` config.
+
+When a relay is swept (or revoked), a sentinel message `{ __relay_closed: true, relayId, reason }` is sent to the client's `deliverInbox` before teardown, allowing the client to detect the closure and re-subscribe.
 
 ## Access revocation
 

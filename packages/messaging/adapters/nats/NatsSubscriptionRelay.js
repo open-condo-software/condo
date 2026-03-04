@@ -1,6 +1,6 @@
 const crypto = require('crypto')
 
-const { connect, JSONCodec } = require('nats')
+const { connect, JSONCodec, consumerOpts, createInbox } = require('nats')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -69,6 +69,7 @@ class NatsSubscriptionRelay {
             })
 
             this.isRunning = true
+            this.js = this.connection.jetstream()
 
             this._startCleanupTimer(config.cleanupIntervalMs || DEFAULT_CLEANUP_INTERVAL_MS)
 
@@ -78,7 +79,7 @@ class NatsSubscriptionRelay {
             ;(async () => {
                 for await (const msg of subscribeSub) {
                     try {
-                        this._handleSubscribeRequest(msg)
+                        await this._handleSubscribeRequest(msg)
                     } catch (error) {
                         logger.error({ msg: 'Error handling subscribe request', err: error })
                     }
@@ -143,7 +144,7 @@ class NatsSubscriptionRelay {
         }
     }
 
-    _handleSubscribeRequest (msg) {
+    async _handleSubscribeRequest (msg) {
         const parts = msg.subject.split('.')
         // _MESSAGING.subscribe.<userId>.<actualTopic...>
         if (parts.length < 4) {
@@ -215,7 +216,28 @@ class NatsSubscriptionRelay {
 
         const relayId = `relay-${crypto.randomBytes(12).toString('hex')}`
 
-        const channelSub = this.connection.subscribe(actualTopic)
+        let channelSub
+        try {
+            const opts = consumerOpts()
+            opts.ackNone()
+            opts.filterSubject(actualTopic)
+            opts.deliverTo(createInbox())
+
+            if (data.startTime) {
+                opts.startTime(new Date(data.startTime))
+            } else {
+                opts.deliverNew()
+            }
+
+            channelSub = await this.js.subscribe(actualTopic, opts)
+        } catch (error) {
+            logger.error({ msg: 'Failed to create JetStream consumer for relay', relayId, actualTopic, err: error })
+            if (msg.reply) {
+                this.connection.publish(msg.reply, this.jc.encode({ status: 'error', reason: 'stream not available' }))
+            }
+            return
+        }
+
         const relay = {
             id: relayId,
             requestingUserId,

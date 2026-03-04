@@ -87,6 +87,24 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             }
         })()
 
+        // Ensure JetStream streams exist before relay starts (relay uses JS consumers)
+        const serverNc = await connect({
+            servers: BROKER_URL,
+            user: MESSAGING_CONFIG.serverUser,
+            pass: MESSAGING_CONFIG.serverPassword,
+            name: 'test-stream-init',
+        })
+        const jsm = await serverNc.jetstreamManager()
+        for (const streamConfig of [
+            { name: 'user', subjects: ['condo.user.>'], retention: 'limits', storage: 'memory', max_age: 3600e9 },
+            { name: 'organization', subjects: ['condo.organization.>'], retention: 'limits', storage: 'memory', max_age: 3600e9 },
+        ]) {
+            try { await jsm.streams.info(streamConfig.name) } catch {
+                await jsm.streams.add(streamConfig)
+            }
+        }
+        await serverNc.close()
+
         relayService = new NatsSubscriptionRelay()
         await relayService.start({
             url: BROKER_URL,

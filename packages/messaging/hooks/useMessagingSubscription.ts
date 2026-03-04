@@ -57,6 +57,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
     const relayIdRef = useRef<string | null>(null)
     const isActiveRef = useRef(true)
     const onMessageRef = useRef(onMessage)
+    const lastMessageTimeRef = useRef<string | null>(null)
 
     useEffect(() => {
         onMessageRef.current = onMessage
@@ -112,9 +113,14 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 subscriptionRef.current = inboxSub
 
                 const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${topic}`
+                const requestBody: Record<string, string> = { deliverInbox }
+                if (lastMessageTimeRef.current) {
+                    requestBody.startTime = lastMessageTimeRef.current
+                }
+
                 const response = await connection.request(
                     relayTopic,
-                    JSON.stringify({ deliverInbox }),
+                    JSON.stringify(requestBody),
                     { timeout: 5000 }
                 )
 
@@ -161,6 +167,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                                 return
                             }
 
+                            lastMessageTimeRef.current = new Date().toISOString()
                             setState(prev => ({ ...prev, messageCount: prev.messageCount + 1 }))
 
                             if (onMessageRef.current) {

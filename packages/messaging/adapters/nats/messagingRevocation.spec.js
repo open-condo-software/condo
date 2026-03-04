@@ -351,7 +351,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay.maxRelaysPerUser = 3
         })
 
-        it('rejects relay request when user has reached maxRelaysPerUser', () => {
+        it('rejects relay request when user has reached maxRelaysPerUser', async () => {
             relay.userRelays.set('user-1', new Set(['r-1', 'r-2', 'r-3']))
 
             const replyData = []
@@ -361,36 +361,32 @@ describe('Messaging Revocation — unit tests', () => {
                 reply: 'reply-subject',
             }
             relay.connection = {
-                subscribe: jest.fn(),
                 publish: jest.fn((subject, data) => {
                     if (subject === 'reply-subject') replyData.push(relay.jc.decode(data))
                 }),
             }
 
-            relay._handleSubscribeRequest(mockMsg)
+            await relay._handleSubscribeRequest(mockMsg)
 
-            expect(relay.connection.subscribe).not.toHaveBeenCalled()
             expect(replyData).toHaveLength(1)
             expect(replyData[0].status).toBe('error')
             expect(replyData[0].reason).toBe('relay limit reached')
         })
 
-        it('allows relay request when user is below maxRelaysPerUser', () => {
+        it('allows relay request when user is below maxRelaysPerUser', async () => {
             relay.userRelays.set('user-1', new Set(['r-1', 'r-2']))
 
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) }
-            relay.connection = {
-                subscribe: jest.fn().mockReturnValue(mockSub),
-                publish: jest.fn(),
-            }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
+            relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.organization.org-1.ticket`,
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
             })
 
-            expect(relay.connection.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.organization.org-1.ticket`)
+            expect(relay.js.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.organization.org-1.ticket`, expect.anything())
         })
     })
 
@@ -402,17 +398,17 @@ describe('Messaging Revocation — unit tests', () => {
             relay.maxRelaysPerUser = 50
         })
 
-        it('generates relay IDs with crypto-random hex suffix', () => {
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) }
+        it('generates relay IDs with crypto-random hex suffix', async () => {
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
             const publishedReplies = []
             relay.connection = {
-                subscribe: jest.fn().mockReturnValue(mockSub),
                 publish: jest.fn((subject, data) => {
                     if (data) publishedReplies.push(relay.jc.decode(data))
                 }),
             }
+            relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.user.user-1.notification`,
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
@@ -423,11 +419,10 @@ describe('Messaging Revocation — unit tests', () => {
             expect(relayId).toMatch(/^relay-[0-9a-f]{24}$/)
         })
 
-        it('generates unique relay IDs across multiple requests', () => {
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) }
+        it('generates unique relay IDs across multiple requests', async () => {
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
             const relayIds = []
             relay.connection = {
-                subscribe: jest.fn().mockReturnValue(mockSub),
                 publish: jest.fn((subject, data) => {
                     if (data) {
                         const decoded = relay.jc.decode(data)
@@ -435,9 +430,10 @@ describe('Messaging Revocation — unit tests', () => {
                     }
                 }),
             }
+            relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
             for (let i = 0; i < 5; i++) {
-                relay._handleSubscribeRequest({
+                await relay._handleSubscribeRequest({
                     subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.user.user-1.notification`,
                     data: relay.jc.encode({ deliverInbox: `_INBOX.test-${i}` }),
                     reply: `reply-${i}`,
@@ -456,41 +452,37 @@ describe('Messaging Revocation — unit tests', () => {
             relay.maxRelaysPerUser = 50
         })
 
-        it('rejects topic that does not start with APP_PREFIX', () => {
+        it('rejects topic that does not start with APP_PREFIX', async () => {
             const replyData = []
             relay.connection = {
-                subscribe: jest.fn(),
                 publish: jest.fn((subject, data) => {
                     if (data) replyData.push(relay.jc.decode(data))
                 }),
             }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: '_MESSAGING.subscribe.user-1.evil_prefix.organization.org-1.ticket',
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
             })
 
-            expect(relay.connection.subscribe).not.toHaveBeenCalled()
             expect(replyData).toHaveLength(1)
             expect(replyData[0].status).toBe('error')
             expect(replyData[0].reason).toBe('invalid topic')
         })
 
-        it('accepts topic that starts with APP_PREFIX', () => {
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) }
-            relay.connection = {
-                subscribe: jest.fn().mockReturnValue(mockSub),
-                publish: jest.fn(),
-            }
+        it('accepts topic that starts with APP_PREFIX', async () => {
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
+            relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.organization.org-1.ticket`,
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
             })
 
-            expect(relay.connection.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.organization.org-1.ticket`)
+            expect(relay.js.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.organization.org-1.ticket`, expect.anything())
         })
     })
 
@@ -611,63 +603,57 @@ describe('Messaging Revocation — unit tests', () => {
             expect(relay.revokedUserOrgs.has('user-1')).toBe(false)
         })
 
-        it('rejects new relay request for revoked user-organization', () => {
+        it('rejects new relay request for revoked user-organization', async () => {
             relay.revokeUserOrganization('user-1', 'org-1')
 
             const replyData = []
             relay.connection = {
-                subscribe: jest.fn(),
                 publish: jest.fn((subject, data) => {
                     if (data) replyData.push(relay.jc.decode(data))
                 }),
             }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.organization.org-1.ticket`,
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
             })
 
-            expect(relay.connection.subscribe).not.toHaveBeenCalled()
             expect(replyData).toHaveLength(1)
             expect(replyData[0].status).toBe('error')
             expect(replyData[0].reason).toBe('organization access revoked')
         })
 
-        it('allows relay request for non-revoked org after revoking another org', () => {
+        it('allows relay request for non-revoked org after revoking another org', async () => {
             relay.revokeUserOrganization('user-1', 'org-1')
 
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) }
-            relay.connection = {
-                subscribe: jest.fn().mockReturnValue(mockSub),
-                publish: jest.fn(),
-            }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
+            relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.organization.org-2.ticket`,
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
             })
 
-            expect(relay.connection.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.organization.org-2.ticket`)
+            expect(relay.js.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.organization.org-2.ticket`, expect.anything())
         })
 
-        it('allows user-channel relay request when org is revoked', () => {
+        it('allows user-channel relay request when org is revoked', async () => {
             relay.revokeUserOrganization('user-1', 'org-1')
 
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }) }
-            relay.connection = {
-                subscribe: jest.fn().mockReturnValue(mockSub),
-                publish: jest.fn(),
-            }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
+            relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
-            relay._handleSubscribeRequest({
+            await relay._handleSubscribeRequest({
                 subject: `_MESSAGING.subscribe.user-1.${APP_PREFIX}.user.user-1.notification`,
                 data: relay.jc.encode({ deliverInbox: '_INBOX.test' }),
                 reply: 'reply-subject',
             })
 
-            expect(relay.connection.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.user.user-1.notification`)
+            expect(relay.js.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.user.user-1.notification`, expect.anything())
         })
 
         it('_cleanupAll clears revokedUserOrgs', () => {
