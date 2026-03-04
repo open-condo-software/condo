@@ -21,7 +21,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             const { deviceId, appId } = payload
             const [result] = await disconnectUserFromRemoteClientByTestClient(client, { deviceId, appId })
@@ -40,7 +41,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             const { deviceId, appId } = payload
             const [result] = await disconnectUserFromRemoteClientByTestClient(client, { deviceId: deviceId + 'X', appId })
@@ -48,6 +50,7 @@ describe('DisconnectUserFromRemoteClientService', () => {
             expect(result.status).toEqual('ok')
 
             const device2 = await RemoteClient.getOne(admin, { id: device.id })
+            expect(device2.owner).not.toBeNull()
             expect(device2.owner.id).toEqual(user.user.id)
         })
 
@@ -58,7 +61,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             await expectToThrowGraphQLRequestError(
                 async () => await disconnectUserFromRemoteClientByTestClient(client, { deviceId: undefined, appId: 'xxxx-xxxx-xxxx-xxxxx' }),
@@ -73,7 +77,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             await expectToThrowGraphQLRequestError(
                 async () => await disconnectUserFromRemoteClientByTestClient(client, { appId: undefined, deviceId: 'xxxx-xxxx-xxxx-xxxxx' }),
@@ -91,7 +96,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             const { deviceId, appId } = payload
             const [result] = await disconnectUserFromRemoteClientByTestClient(user1, { deviceId, appId })
@@ -111,7 +117,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             const { deviceId, appId } = payload
             const [result] = await disconnectUserFromRemoteClientByTestClient(user1, { deviceId: deviceId + 'X', appId })
@@ -119,6 +126,7 @@ describe('DisconnectUserFromRemoteClientService', () => {
             expect(result.status).toEqual('ok')
 
             const device2 = await RemoteClient.getOne(admin, { id: device.id })
+            expect(device2.owner).not.toBeNull()
             expect(device2.owner.id).toEqual(user.user.id)
         })
 
@@ -129,7 +137,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             await expectToThrowGraphQLRequestError(
                 async () => await disconnectUserFromRemoteClientByTestClient(user1, { deviceId: undefined, appId: 'xxxx-xxxx-xxxx-xxxxx' }),
@@ -144,7 +153,8 @@ describe('DisconnectUserFromRemoteClientService', () => {
             const [device] = await syncRemoteClientByTestClient(user, payload)
 
             expect(device.id).toBeDefined()
-            expect(device.owner.id).toEqual(user.user.id)
+            // NOTE: sensitive fields are not available to read
+            expect(device.owner).toBeNull()
 
             await expectToThrowGraphQLRequestError(
                 async () => await disconnectUserFromRemoteClientByTestClient(user1, { appId: undefined, deviceId: 'xxxx-xxxx-xxxx-xxxxx' }),
