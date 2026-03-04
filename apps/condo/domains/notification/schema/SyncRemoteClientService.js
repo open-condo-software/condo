@@ -5,10 +5,14 @@ const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
 const pickBy = require('lodash/pickBy')
 
-const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
+const { PUSH_TYPE_DEFAULT } = require('@condo/domains/notification/constants/constants')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { getPushTokensValidationError, deduplicatePushTokens } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
+const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('../constants/constants')
 
@@ -43,7 +47,45 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
         },
         {
             access: true,
-            type: 'input SyncRemoteClientInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, appId: String!, pushToken: String, pushTransport: PushTransportType, devicePlatform: DevicePlatformType, pushType: PushType, meta: JSON, pushTokenVoIP: String, pushTransportVoIP: PushTransportType, pushTypeVoIP: PushType }',
+            type: `input PushToken {
+                    token: String!,
+                    transport: PushTransportType!,
+                    pushType: PushType!,
+                    """
+                    Pass "true" if we can use this token to send VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true" 
+                    """
+                    canBeUsedAsVoIP: Boolean!,
+                    """
+                    Pass "true" if we can use this token to send not VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true"
+                    """
+                    canBeUsedAsSimplePush: Boolean!
+                }
+            `,
+        },
+        {
+            access: true,
+            type: `input SyncRemoteClientInput { 
+                dv: Int!, 
+                sender: SenderFieldInput!,
+                deviceId: String!,
+                appId: String!,
+                pushToken: String,
+                pushTransport: PushTransportType = ${PUSH_TYPE_DEFAULT},
+                devicePlatform: DevicePlatformType,
+                pushType: PushType,
+                meta: JSON,
+                pushTokenVoIP: String,
+                pushTransportVoIP: PushTransportType = ${PUSH_TYPE_DEFAULT},
+                pushTypeVoIP: PushType,
+                """
+                No-op for now, later we will sync all push tokens passed here and move on from tokens inside this type
+                """
+                pushTokens: [PushToken!],
+                """
+                Same idea as "deviceId", but it's as secret as password. Will be required in future
+                """
+                deviceKey: String
+            }`,
         },
     ],
 
@@ -55,10 +97,74 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 const {
                     data: {
                         dv, sender, deviceId, appId,
-                        pushToken, pushTransport, devicePlatform, pushType, meta,
-                        pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
+                        pushToken, pushTransport, devicePlatform, meta,
+                        pushTokenVoIP, pushTransportVoIP,
+
+                        deviceKey, pushTokens: pushTokensRaw = [],
                     },
                 } = args
+                let { data: { pushType, pushTypeVoIP } } = args
+
+                if (!pushType && !pushTypeVoIP) {
+                    pushType = PUSH_TYPE_DEFAULT
+                    pushTypeVoIP = PUSH_TYPE_DEFAULT
+                } else if (!pushType && pushTypeVoIP || pushType && !pushTypeVoIP) {
+                    const provided = pushType || pushTypeVoIP
+                    pushType = provided
+                    pushTypeVoIP = provided
+                }
+
+                if (pushToken) {
+                    pushTokensRaw.push({
+                        token: pushToken,
+                        pushType: pushType,
+                        transport: pushTransport,
+                        canBeUsedAsVoIP: false,
+                        canBeUsedAsSimplePush: true,
+                    })
+                }
+                if (pushTokenVoIP) {
+                    pushTokensRaw.push({
+                        token: pushTokenVoIP,
+                        pushType: pushTypeVoIP,
+                        transport: pushTransportVoIP,
+                        canBeUsedAsVoIP: true,
+                        canBeUsedAsSimplePush: false,
+                    })
+                }
+
+                // --- VALIDATING ONY IF PROVIDED FOR TESTS BEFORE MIGRATION
+
+                const pushTokensValidationError = getPushTokensValidationError(pushTokensRaw)
+                if (pushTokensValidationError) {
+                    throw new GQLError(pushTokensValidationError, context)
+                }
+                // TODO(YEgorLu): DOMA-13021 sync new models using this data, do not put tokens data in RemoteClient anymore
+                const _pushTokens = deduplicatePushTokens(pushTokensRaw)
+
+                // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
+                if (typeof deviceKey === 'string') {
+                    // NOTE: maybe add another errors
+                    await passwordValidations(context, deviceKey)
+                    const { keystone } = getSchemaCtx('User')
+                    try {
+                        keystone.lists['User'].fieldsByPath.password.validateNewPassword(deviceKey)
+                    } catch (err) {
+                        const isNormalErrorMessageFromValidator = /^\[\w+\] /.test(err.message)
+                        if (isNormalErrorMessageFromValidator) {
+                            const errorMessageWithoutModelPart = err.message.split('] ').slice(1).join('] ')
+                            throw new GQLError({
+                                code: 'BAD_USER_INPUT',
+                                type: 'DEVICE_KEY_VALIDATION_ERROR',
+                                message: errorMessageWithoutModelPart,
+                            }, context)
+                        }
+                        throw err
+                    }
+                }
+
+                // --- END VALIDATING ONY IF PROVIDED FOR TESTS BEFORE MIGRATION
+
 
                 const userId = get(context, 'authedItem.id', null)
                 const existing = await getByCondition('RemoteClient', { deviceId, appId })
