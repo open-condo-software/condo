@@ -91,6 +91,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
         [PUSH_TRANSPORT_HUAWEI]: [],
         [PUSH_TRANSPORT_APPLE]: [],
         [PUSH_TRANSPORT_WEBHOOK]: [],
+        [PUSH_TRANSPORT_ONESIGNAL]: [],
     }
     const pushTypes = {}
     const appIds = {}
