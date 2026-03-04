@@ -45,7 +45,7 @@ class OneSignalAdapter {
     }
 
     /**
-     * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
+     * Providers expect data to be Record<string, string>
      * @param data
      */
     static prepareData (data = {}) {
@@ -165,7 +165,7 @@ class OneSignalAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = OneSignalAdapter.prepareData(data, pushToken)
+            const preparedData = OneSignalAdapter.prepareData(data)
             const appId = appIds[pushToken]
 
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
@@ -276,10 +276,6 @@ class OneSignalAdapter {
             const notificationsByAppId = {}
             for (const notification of notifications) {
                 const appId = notification.appId
-                if (!Object.values(appIds).includes(appId)) {
-                    logger.error({ msg: 'appId is not set for the pushToken', data: { notification } })
-                    continue
-                }
                 if (!notificationsByAppId[appId]) notificationsByAppId[appId] = []
                 notificationsByAppId[appId].push(notification)
             }
