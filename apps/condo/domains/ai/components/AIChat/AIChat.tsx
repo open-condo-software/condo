@@ -8,7 +8,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Input, Typography, Space } from '@open-condo/ui'
 import { Markdown } from '@open-condo/ui'
 
-
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
@@ -17,6 +16,12 @@ import { LocalStorageManager } from '@condo/domains/common/utils/localStorageMan
 import styles from './AIChat.module.css'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
+const SESSION_KEY = 'condo-ai-assistant-session-id'
+
+// Tools that require user action or data from condo can be run recursively
+// -- this setting clamps the maximum depth for these tool calls
+const MAX_TOOL_CALL_DEPTH = 5
+
 const storageManager = new LocalStorageManager<Record<string, any[]>>()
 
 export type Message = {
@@ -24,7 +29,7 @@ export type Message = {
     content: string
     role: 'user' | 'assistant'
     timestamp: Date
-    status?: 'sending' | 'sent' | 'error' | 'action_requested'
+    status?: 'sending' | 'sent' | 'error'
     actionRequest?: {
         type: string
         meta: any
@@ -39,6 +44,8 @@ type AIChatProps = {
 export type AIChatRef = {
     handleResetHistory: () => void
     handleSaveConversation: () => void
+    checkForActiveTask: () => void
+    scrollToBottom: () => void
 }
 
 export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
@@ -48,7 +55,19 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const client = useApolloClient()
     
     const [inputValue, setInputValue] = useState('')
-    const [aiSessionId, setAiSessionId] = useState(uuidV4())
+    // Get or create persistent session ID from localStorage
+    const [aiSessionId, setAiSessionId] = useState(() => {
+        if (typeof window === 'undefined') return uuidV4()
+        
+        let sessionId = storageManager.getItem(SESSION_KEY)
+        
+        if (!sessionId) {
+            sessionId = uuidV4()
+            storageManager.setItem(SESSION_KEY, sessionId)
+        }
+        
+        return sessionId
+    })
     const [messages, setMessages] = useState<Message[]>([])
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
@@ -65,11 +84,21 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
 
     // Load chat history from local storage on component mount
+    // Right now chat history is stored like this:
+    // aiSessionId = some uuid
+    // STORAGE_KEY: { <aiSessionId>: [ ... ] }
+    // Only last conversation is stored, this is by design.
+    // Multiple chat conversations should be stored server side
+    // Todo: @toplenboren (DOMA-13019) add server side ai conversation storage
     useEffect(() => {
         if (typeof window === 'undefined') return
         
-        const history = storageManager.getItem(STORAGE_KEY)
-        const savedHistory = history?.[aiSessionId] || []
+        let savedHistory = storageManager.getItem(STORAGE_KEY) || []
+
+        if (!Array.isArray(savedHistory)) {
+            savedHistory = []
+            storageManager.setItem(STORAGE_KEY, { [aiSessionId]: [] })
+        }
         
         if (savedHistory.length > 0) {
             // Convert timestamp strings back to Date objects
@@ -79,16 +108,14 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
             }))
             setMessages(historyWithDates)
         }
-    }, [aiSessionId])
+    }, [])
 
     const addMessage = (newMessage: Message) => {
         setMessages(prev => {
             const updated = [...prev, newMessage]
             // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY) || {}
-                history[aiSessionId] = updated
-                storageManager.setItem(STORAGE_KEY, history)
+                storageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -99,9 +126,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
             const updated = prev.map(msg => msg.id === messageId ? updatedMessage : msg)
             // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY) || {}
-                history[aiSessionId] = updated
-                storageManager.setItem(STORAGE_KEY, history)
+                storageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -112,16 +137,18 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
             const updated = prev.filter(msg => msg.id !== messageId)
             // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY) || {}
-                history[aiSessionId] = updated
-                storageManager.setItem(STORAGE_KEY, history)
+                storageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
     }
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        const messagesContainer = messagesEndRef.current?.parentElement
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
+            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+        }
     }
 
     useEffect(() => {
@@ -137,9 +164,27 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     useImperativeHandle(ref, () => ({
         handleResetHistory,
         handleSaveConversation,
+        checkForActiveTask,
+        scrollToBottom,
     }))
 
-    const MAX_TOOL_CALL_DEPTH = 5
+    const checkForActiveTask = () => {
+
+        setMessages(prev => {
+            const hasActiveTask = prev.some(msg => msg.status === 'sending')
+            if (hasActiveTask) {
+                // Ensure the last assistant message shows loading state
+                const lastAssistantMessage = prev.findLast(msg => msg.role === 'assistant')
+                if (lastAssistantMessage && lastAssistantMessage.content !== loadingLabel) {
+                    const updated = [...prev]
+                    lastAssistantMessage.status = 'sending'
+                    lastAssistantMessage.content = loadingLabel
+                    return updated
+                }
+            }
+            return prev
+        })
+    }
 
     const executeAIMessage = async (userInput: string, additionalContext?: any, toolCallDepth = 0) => {
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
@@ -229,10 +274,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
 
                     const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
                     
-                    // Remove thinking message
                     removeMessage(thinkingMessage.id)
                     
-                    // Compile results message
                     const resultsMessage = toolCallResults
                         .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
                         .filter(Boolean)
@@ -314,18 +357,18 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     }
 
     const handleResetHistory = () => {
-        // Clear current session from local storage
         if (typeof window !== 'undefined') {
-            const history = storageManager.getItem(STORAGE_KEY)
-            if (history) {
-                delete history[aiSessionId]
-                storageManager.setItem(STORAGE_KEY, history)
-            }
+            storageManager.setItem(STORAGE_KEY, { [aiSessionId]: [] })
+            localStorage.removeItem(SESSION_KEY)
         }
         
-        // Generate new session ID and clear messages
         const newSessionId = uuidV4()
         setAiSessionId(newSessionId)
+        
+        if (typeof window !== 'undefined') {
+            storageManager.setItem(SESSION_KEY, newSessionId)
+        }
+        
         setMessages([])
         
         // Focus input after reset
@@ -349,7 +392,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = `condo-ai-conversation-${new Date().toISOString().split('T')[0]}.txt`
+        link.download = `ai-assistant-${new Date().toISOString().split('T')[0]}.txt`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
