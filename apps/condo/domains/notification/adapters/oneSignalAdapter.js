@@ -9,16 +9,19 @@ const { generateUUIDv4 } = require('@open-condo/miniapp-utils/helpers/uuid')
 const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
-    EMPTY_ONESIGNAL_CONFIG_ERROR,
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
+    ONESIGNAL_CONFIG_ENV,
 } = require('@condo/domains/notification/constants/constants')
-const {  EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
+const {
+    EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
+    EMPTY_ONESIGNAL_CONFIG_ERROR,
+} = require('@condo/domains/notification/constants/errors')
 
 const { OneSignalNotificationSender } = require('./oneSignal/oneSignalNotificationSender')
 
-const ONESIGNAL_CONFIG = JSON.parse(conf.ONESIGNAL_CONFIG || '{}')
+const ONESIGNAL_CONFIG = JSON.parse(conf[ONESIGNAL_CONFIG_ENV] || '{}')
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 
 const logger = getLogger()
@@ -44,10 +47,9 @@ class OneSignalAdapter {
     /**
      * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
      * @param data
-     * @param token
      */
-    static prepareData (data = {}, token) {
-        const result = { token }
+    static prepareData (data = {}) {
+        const result = {}
 
         for (const key in data) {
             if (data.hasOwnProperty(key)) result[key] = String(data[key])
@@ -252,8 +254,7 @@ class OneSignalAdapter {
      * @param tokens
      * @param data
      * @param pushTypes
-     +     * @param appIds - Object mapping pushToken to appId for routing notifications to the correct Firebase app
-     * @param appIds
+     * @param appIds - Object mapping pushToken to appId for routing notifications to the correct OneSignal app
      * @param metaByToken
      * @param isVoIP
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
@@ -285,7 +286,7 @@ class OneSignalAdapter {
             
             const sendByAppIdPromises = await Promise.allSettled(
                 Object.entries(notificationsByAppId).map(async ([appId, notificationsBatchForApp]) => {
-                    await this.sendNotificationsForApp({
+                    return await this.sendNotificationsForApp({
                         appId,
                         notificationsBatchForApp,
                         appIds,
