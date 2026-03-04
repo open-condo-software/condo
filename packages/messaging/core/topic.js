@@ -54,8 +54,9 @@ const APP_PREFIX = getAppPrefix()
  * @property {string} name - Channel name constant (e.g. 'user', 'organization')
  * @property {function({userId: string, organizationId: string}): string[]} buildRelayPermissions -
  *   Given user context, return PUB allow patterns for relay subscribe topics.
- * @property {function({userId: string, organizationId: string}): {name: string, topic: string}} buildAvailableChannel -
+ * @property {function({userId: string, organizationId: string}): {name: string, topicPrefix: string}} buildAvailableChannel -
  *   Given user context, return the channel info for the /messaging/channels endpoint.
+ *   topicPrefix is a concrete prefix (no wildcards) — consumers must append an entity name.
  * @property {function({userId: string, organizationId: string}): boolean} isAvailable -
  *   Given user context, return true if this channel should be included.
  */
@@ -68,7 +69,7 @@ const CHANNEL_DEFINITIONS = [
         ],
         buildAvailableChannel: ({ userId }) => ({
             name: CHANNEL_USER,
-            topic: `${APP_PREFIX}.${CHANNEL_USER}.${userId}.>`,
+            topicPrefix: `${APP_PREFIX}.${CHANNEL_USER}.${userId}`,
         }),
     },
     {
@@ -79,7 +80,7 @@ const CHANNEL_DEFINITIONS = [
         ],
         buildAvailableChannel: ({ organizationId }) => ({
             name: CHANNEL_ORGANIZATION,
-            topic: `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.>`,
+            topicPrefix: `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}`,
         }),
     },
 ]

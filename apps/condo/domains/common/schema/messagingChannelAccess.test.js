@@ -141,10 +141,10 @@ describe('Messaging Access Control', () => {
             expect(channels).toHaveLength(2)
 
             const userChannel = channels.find(c => c.name === 'user')
-            expect(userChannel.topic).toBe(`condo.user.${userId}.>`)
+            expect(userChannel.topicPrefix).toBe(`condo.user.${userId}`)
 
             const orgChannel = channels.find(c => c.name === 'organization')
-            expect(orgChannel.topic).toBe(`condo.organization.${organizationId}.>`)
+            expect(orgChannel.topicPrefix).toBe(`condo.organization.${organizationId}`)
         })
 
         it('returns only user channel for non-employee', async () => {

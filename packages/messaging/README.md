@@ -24,12 +24,20 @@ Add one entry to `CHANNEL_DEFINITIONS` in `core/topic.js`:
     ],
     buildAvailableChannel: ({ userId }) => ({
         name: 'mychannel',
-        topic: `${APP_PREFIX}.mychannel.${userId}.>`,
+        topicPrefix: `${APP_PREFIX}.mychannel.${userId}`,
     }),
 }
 ```
 
 The relay subscribe topic mirrors the actual NATS topic: `_MESSAGING.subscribe.<userId>.<actualTopic>`. The relay handler extracts `actualTopic` directly from the subject — no channel-specific topic building is needed.
+
+`topicPrefix` is a concrete NATS subject prefix (no wildcards). Consumers must append an entity name to construct a subscribable topic:
+
+```javascript
+const topic = `${channel.topicPrefix}.ticket`  // e.g. condo.organization.org-1.ticket
+```
+
+Do **not** pass `topicPrefix` directly to `useMessagingSubscription` — the hook validates that topics contain no NATS wildcards (`>`, `*`).
 
 No other files need modification — the relay, JWT permissions, `/messaging/channels` endpoint, and access control read from this registry.
 

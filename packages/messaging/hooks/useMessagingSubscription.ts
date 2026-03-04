@@ -97,6 +97,13 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                     return
                 }
 
+                if (/[>*]/.test(topic)) {
+                    throw new Error(
+                        `Topic "${topic}" contains NATS wildcards (> or *). ` +
+                        'Use a concrete topic (e.g. topicPrefix + ".entity") instead of a subscription pattern.'
+                    )
+                }
+
                 setState(prev => ({ ...prev, isSubscribing: true, error: null }))
 
                 const deliverInbox = createInbox()

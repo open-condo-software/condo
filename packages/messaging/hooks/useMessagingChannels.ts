@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 interface MessagingChannel {
     name: string
-    topic: string
+    topicPrefix: string
 }
 
 interface MessagingChannelsResponse {
