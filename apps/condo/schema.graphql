@@ -43445,6 +43445,7 @@ enum RemoteClientPushTransportType {
   huawei
   redstore
   webhook
+  onesignal
 }
 
 enum RemoteClientDevicePlatformType {
@@ -43464,6 +43465,7 @@ enum RemoteClientPushTransportVoIPType {
   huawei
   redstore
   webhook
+  onesignal
 }
 
 enum RemoteClientPushTypeVoIPType {
@@ -91157,6 +91159,7 @@ enum PushTransportType {
   huawei
   redstore
   webhook
+  onesignal
 }
 
 enum DevicePlatformType {
