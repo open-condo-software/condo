@@ -47,15 +47,28 @@ function rateLimitHandler () {
     const kvClient = getKVClient('guards')
     return async function (req, res, next) {
         const ip = req.ip || req.socket?.remoteAddress || 'unknown'
-        const key = `messaging_rate:${ip}`
+        const ipKey = `messaging_rate:ip:${ip}`
         try {
-            const count = await kvClient.incr(key)
-            if (count === 1) {
-                await kvClient.expire(key, RATE_LIMIT_WINDOW_SEC)
+            const ipCount = await kvClient.incr(ipKey)
+            if (ipCount === 1) {
+                await kvClient.expire(ipKey, RATE_LIMIT_WINDOW_SEC)
             }
-            if (count > RATE_LIMIT_MAX_REQUESTS) {
-                logger.warn({ msg: 'Rate limit exceeded', ip, path: req.path })
+            if (ipCount > RATE_LIMIT_MAX_REQUESTS) {
+                logger.warn({ msg: 'Rate limit exceeded (IP)', ip, path: req.path })
                 return next(new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req }))
+            }
+
+            const userId = req.user?.id
+            if (userId) {
+                const userKey = `messaging_rate:user:${userId}`
+                const userCount = await kvClient.incr(userKey)
+                if (userCount === 1) {
+                    await kvClient.expire(userKey, RATE_LIMIT_WINDOW_SEC)
+                }
+                if (userCount > RATE_LIMIT_MAX_REQUESTS) {
+                    logger.warn({ msg: 'Rate limit exceeded (user)', userId, path: req.path })
+                    return next(new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req }))
+                }
             }
         } catch (err) {
             logger.error({ msg: 'Rate limit check failed, allowing request', err })

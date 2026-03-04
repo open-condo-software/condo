@@ -7,7 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
 
-const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX, ADMIN_REVOKE_ORG_PREFIX, ADMIN_UNREVOKE_ORG_PREFIX } = require('../../core/topic')
 
 
 const logger = getLogger()
@@ -23,6 +23,7 @@ class NatsAuthCalloutService {
         this.accountPublicKey = null
         this.isRunning = false
         this.revokedUsers = new Set()
+        this.revokedUserOrgs = new Map()
     }
 
     /**
@@ -90,6 +91,24 @@ class NatsAuthCalloutService {
                 }
             })()
 
+            const revokeOrgSub = this.connection.subscribe(`${ADMIN_REVOKE_ORG_PREFIX}.>`)
+            ;(async () => {
+                for await (const msg of revokeOrgSub) {
+                    const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
+                    const [userId, organizationId] = rest.split('.')
+                    if (userId && organizationId) this.revokeUserOrganization(userId, organizationId)
+                }
+            })()
+
+            const unrevokeOrgSub = this.connection.subscribe(`${ADMIN_UNREVOKE_ORG_PREFIX}.>`)
+            ;(async () => {
+                for await (const msg of unrevokeOrgSub) {
+                    const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
+                    const [userId, organizationId] = rest.split('.')
+                    if (userId && organizationId) this.unrevokeUserOrganization(userId, organizationId)
+                }
+            })()
+
             this.connection.closed().then((err) => {
                 this.isRunning = false
                 if (err) {
@@ -138,6 +157,15 @@ class NatsAuthCalloutService {
             return
         }
 
+        if (organizationId) {
+            const revokedOrgs = this.revokedUserOrgs.get(userId)
+            if (revokedOrgs && revokedOrgs.has(organizationId)) {
+                logger.warn({ msg: 'Auth callout: access denied for revoked user-organization', userId, organizationId })
+                this._respondError(msg, user_nkey, serverId, 'Organization access revoked')
+                return
+            }
+        }
+
         const permissions = computePermissions(userId, organizationId)
         const signingConfig = { algorithm: this.algorithm, keyPair: this.accountKeyPair }
 
@@ -182,6 +210,23 @@ class NatsAuthCalloutService {
 
     unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
+    }
+
+    revokeUserOrganization (userId, organizationId) {
+        if (!this.revokedUserOrgs.has(userId)) {
+            this.revokedUserOrgs.set(userId, new Set())
+        }
+        this.revokedUserOrgs.get(userId).add(organizationId)
+    }
+
+    unrevokeUserOrganization (userId, organizationId) {
+        const orgs = this.revokedUserOrgs.get(userId)
+        if (orgs) {
+            orgs.delete(organizationId)
+            if (orgs.size === 0) {
+                this.revokedUserOrgs.delete(userId)
+            }
+        }
     }
 
     async stop () {

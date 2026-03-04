@@ -5,7 +5,7 @@ const { NatsClient } = require('./NatsClient')
 const { NatsSubscriptionRelay } = require('./NatsSubscriptionRelay')
 
 const { BaseAdapter } = require('../../core/BaseAdapter')
-const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('../../core/topic')
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX, ADMIN_REVOKE_ORG_PREFIX, ADMIN_UNREVOKE_ORG_PREFIX } = require('../../core/topic')
 
 const logger = getLogger()
 
@@ -169,6 +169,36 @@ class NatsAdapter extends BaseAdapter {
         }
         if (this.authService) this.authService.unrevokeUser(userId)
         if (this.relayService) this.relayService.unrevokeUser(userId)
+    }
+
+    /**
+     * Revokes a user's messaging access for a specific organization.
+     * - Auth callout rejects future connections with this organizationId
+     * - Relay service tears down existing org-scoped relays and rejects new ones
+     * @param {string} userId
+     * @param {string} organizationId
+     * @returns {number} Number of relays torn down
+     */
+    revokeUserOrganization (userId, organizationId) {
+        if (this.client?.connection && !this.client.connection.isClosed()) {
+            this.client.connection.publish(`${ADMIN_REVOKE_ORG_PREFIX}.${userId}.${organizationId}`)
+        }
+        if (this.authService) this.authService.revokeUserOrganization(userId, organizationId)
+        if (this.relayService) return this.relayService.revokeUserOrganization(userId, organizationId)
+        return 0
+    }
+
+    /**
+     * Re-enables a previously revoked user-organization messaging access.
+     * @param {string} userId
+     * @param {string} organizationId
+     */
+    unrevokeUserOrganization (userId, organizationId) {
+        if (this.client?.connection && !this.client.connection.isClosed()) {
+            this.client.connection.publish(`${ADMIN_UNREVOKE_ORG_PREFIX}.${userId}.${organizationId}`)
+        }
+        if (this.authService) this.authService.unrevokeUserOrganization(userId, organizationId)
+        if (this.relayService) this.relayService.unrevokeUserOrganization(userId, organizationId)
     }
 }
 

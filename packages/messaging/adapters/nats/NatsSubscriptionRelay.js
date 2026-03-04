@@ -1,12 +1,17 @@
+const crypto = require('crypto')
+
 const { connect, JSONCodec } = require('nats')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const {
-    CHANNEL_DEFINITIONS_BY_NAME,
     ADMIN_REVOKE_PREFIX,
     ADMIN_UNREVOKE_PREFIX,
+    ADMIN_REVOKE_ORG_PREFIX,
+    ADMIN_UNREVOKE_ORG_PREFIX,
+    APP_PREFIX,
+    CHANNEL_ORGANIZATION,
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
 } = require('../../core/topic')
@@ -18,6 +23,7 @@ const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFI
 const RELAY_QUEUE_GROUP = 'messaging-relay'
 const DEFAULT_RELAY_TTL_MS = 5 * 60 * 1000
 const DEFAULT_CLEANUP_INTERVAL_MS = 60 * 1000
+const DEFAULT_MAX_RELAYS_PER_USER = 50
 
 /**
  * Server-side subscription relay service.
@@ -26,9 +32,9 @@ const DEFAULT_CLEANUP_INTERVAL_MS = 60 * 1000
  * this service uses PUB permissions (which ARE enforced) as the access control mechanism.
  *
  * Flow:
- * 1. Client publishes to `_MESSAGING.subscribe.user.<userId>.<entity>` or
- *    `_MESSAGING.subscribe.organization.<orgId>.<entity>` with `{ deliverInbox }` in body
- *    - PUB permission for these topics is user/org-scoped → NATS enforces it
+ * 1. Client publishes to `_MESSAGING.subscribe.<userId>.<actualTopic>` with `{ deliverInbox }` in body
+ *    (e.g. `_MESSAGING.subscribe.<userId>.condo.user.<userId>.notification`)
+ *    - PUB permission includes userId + actual topic → NATS enforces identity + access
  * 2. This service receives the request, subscribes to the actual topic on behalf of the client
  * 3. Forwards matching messages to the client's `deliverInbox`
  * 4. Client publishes to `_MESSAGING.unsubscribe.{relayId}` to stop
@@ -40,7 +46,7 @@ class NatsSubscriptionRelay {
         this.relays = new Map()
         this.userRelays = new Map()
         this.revokedUsers = new Set()
-        this.relayCounter = 0
+        this.revokedUserOrgs = new Map()
         this.jc = JSONCodec()
         this._cleanupTimer = null
         this.relayTtlMs = DEFAULT_RELAY_TTL_MS
@@ -51,6 +57,7 @@ class NatsSubscriptionRelay {
             if (config.relayTtlMs !== undefined) {
                 this.relayTtlMs = config.relayTtlMs
             }
+            this.maxRelaysPerUser = config.maxRelaysPerUser || DEFAULT_MAX_RELAYS_PER_USER
 
             this.connection = await connect({
                 servers: config.url || MESSAGING_CONFIG.brokerUrl,
@@ -104,6 +111,24 @@ class NatsSubscriptionRelay {
                 }
             })()
 
+            const revokeOrgSub = this.connection.subscribe(`${ADMIN_REVOKE_ORG_PREFIX}.>`)
+            ;(async () => {
+                for await (const msg of revokeOrgSub) {
+                    const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
+                    const [userId, organizationId] = rest.split('.')
+                    if (userId && organizationId) this.revokeUserOrganization(userId, organizationId)
+                }
+            })()
+
+            const unrevokeOrgSub = this.connection.subscribe(`${ADMIN_UNREVOKE_ORG_PREFIX}.>`)
+            ;(async () => {
+                for await (const msg of unrevokeOrgSub) {
+                    const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
+                    const [userId, organizationId] = rest.split('.')
+                    if (userId && organizationId) this.unrevokeUserOrganization(userId, organizationId)
+                }
+            })()
+
             this.connection.closed().then((err) => {
                 this.isRunning = false
                 this._cleanupAll()
@@ -120,22 +145,14 @@ class NatsSubscriptionRelay {
 
     _handleSubscribeRequest (msg) {
         const parts = msg.subject.split('.')
-        // _MESSAGING.subscribe.<channel>.<id>[.<entity>]
+        // _MESSAGING.subscribe.<userId>.<actualTopic...>
         if (parts.length < 4) {
             logger.warn({ msg: 'Invalid subscribe request topic', topic: msg.subject })
             return
         }
 
-        const channel = parts[2]
-        const channelDef = CHANNEL_DEFINITIONS_BY_NAME[channel]
-        if (!channelDef) {
-            logger.warn({ msg: 'Unknown channel in subscribe request', channel, topic: msg.subject })
-            return
-        }
-
-        const channelParts = parts.slice(3)
-        const actualTopic = channelDef.buildActualTopic(channelParts)
-        const userId = channelDef.extractUserId(channelParts)
+        const requestingUserId = parts[2]
+        const actualTopic = parts.slice(3).join('.')
 
         let data
         try {
@@ -145,7 +162,7 @@ class NatsSubscriptionRelay {
             return
         }
 
-        const { deliverInbox, requestingUserId } = data
+        const { deliverInbox } = data
         if (!deliverInbox) {
             logger.warn({ msg: 'Missing deliverInbox in subscribe request' })
             return
@@ -156,22 +173,52 @@ class NatsSubscriptionRelay {
             return
         }
 
-        if ((userId && this.revokedUsers.has(userId)) || (requestingUserId && this.revokedUsers.has(requestingUserId))) {
-            logger.warn({ msg: 'Relay request rejected for revoked user', userId })
+        if (this.revokedUsers.has(requestingUserId)) {
+            logger.warn({ msg: 'Relay request rejected for revoked user', userId: requestingUserId })
             if (msg.reply) {
                 this.connection.publish(msg.reply, this.jc.encode({ status: 'error', reason: 'access revoked' }))
             }
             return
         }
 
-        const relayId = `relay-${++this.relayCounter}`
+        const revokedOrgs = this.revokedUserOrgs.get(requestingUserId)
+        if (revokedOrgs) {
+            const orgPrefix = `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.`
+            if (actualTopic.startsWith(orgPrefix)) {
+                const orgId = actualTopic.slice(orgPrefix.length).split('.')[0]
+                if (revokedOrgs.has(orgId)) {
+                    logger.warn({ msg: 'Relay request rejected for revoked user-organization', userId: requestingUserId, organizationId: orgId })
+                    if (msg.reply) {
+                        this.connection.publish(msg.reply, this.jc.encode({ status: 'error', reason: 'organization access revoked' }))
+                    }
+                    return
+                }
+            }
+        }
+
+        if (!actualTopic.startsWith(`${APP_PREFIX}.`)) {
+            logger.warn({ msg: 'Relay request rejected: topic does not start with app prefix', actualTopic })
+            if (msg.reply) {
+                this.connection.publish(msg.reply, this.jc.encode({ status: 'error', reason: 'invalid topic' }))
+            }
+            return
+        }
+
+        const userRelaySet = this.userRelays.get(requestingUserId)
+        if (userRelaySet && userRelaySet.size >= this.maxRelaysPerUser) {
+            logger.warn({ msg: 'Relay limit reached for user', userId: requestingUserId, limit: this.maxRelaysPerUser })
+            if (msg.reply) {
+                this.connection.publish(msg.reply, this.jc.encode({ status: 'error', reason: 'relay limit reached' }))
+            }
+            return
+        }
+
+        const relayId = `relay-${crypto.randomBytes(12).toString('hex')}`
 
         const channelSub = this.connection.subscribe(actualTopic)
         const relay = {
             id: relayId,
-            channel,
-            userId,
-            requestingUserId: requestingUserId || userId || null,
+            requestingUserId,
             deliverInbox,
             actualTopic,
             subscription: channelSub,
@@ -179,15 +226,12 @@ class NatsSubscriptionRelay {
         }
 
         this.relays.set(relayId, relay)
-        const trackingUserId = relay.requestingUserId || userId
-        if (trackingUserId) {
-            if (!this.userRelays.has(trackingUserId)) {
-                this.userRelays.set(trackingUserId, new Set())
-            }
-            this.userRelays.get(trackingUserId).add(relayId)
+        if (!this.userRelays.has(requestingUserId)) {
+            this.userRelays.set(requestingUserId, new Set())
         }
+        this.userRelays.get(requestingUserId).add(relayId)
 
-        (async () => {
+        ;(async () => {
             for await (const channelMsg of channelSub) {
                 try {
                     this.connection.publish(deliverInbox, channelMsg.data)
@@ -235,18 +279,60 @@ class NatsSubscriptionRelay {
         relay.subscription.unsubscribe()
         this.relays.delete(relayId)
 
-        const trackingUserId = relay.requestingUserId || relay.userId
-        if (trackingUserId) {
-            const userSet = this.userRelays.get(trackingUserId)
+        if (relay.requestingUserId) {
+            const userSet = this.userRelays.get(relay.requestingUserId)
             if (userSet) {
                 userSet.delete(relayId)
                 if (userSet.size === 0) {
-                    this.userRelays.delete(trackingUserId)
+                    this.userRelays.delete(relay.requestingUserId)
                 }
             }
         }
 
         return true
+    }
+
+    /**
+     * Immediately revokes relay subscriptions for a user in a specific organization.
+     * Tears down only relays whose actualTopic matches the organization prefix.
+     * @param {string} userId
+     * @param {string} organizationId
+     * @returns {number} Number of relays revoked
+     */
+    revokeUserOrganization (userId, organizationId) {
+        if (!this.revokedUserOrgs.has(userId)) {
+            this.revokedUserOrgs.set(userId, new Set())
+        }
+        this.revokedUserOrgs.get(userId).add(organizationId)
+
+        const relayIds = this.userRelays.get(userId)
+        if (!relayIds || relayIds.size === 0) return 0
+
+        const orgTopicPrefix = `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.`
+        const ids = [...relayIds]
+        let count = 0
+        for (const relayId of ids) {
+            const relay = this.relays.get(relayId)
+            if (relay && relay.actualTopic.startsWith(orgTopicPrefix)) {
+                if (this._removeRelay(relayId)) count++
+            }
+        }
+        return count
+    }
+
+    /**
+     * Removes a user-organization pair from the revoked set.
+     * @param {string} userId
+     * @param {string} organizationId
+     */
+    unrevokeUserOrganization (userId, organizationId) {
+        const orgs = this.revokedUserOrgs.get(userId)
+        if (orgs) {
+            orgs.delete(organizationId)
+            if (orgs.size === 0) {
+                this.revokedUserOrgs.delete(userId)
+            }
+        }
     }
 
     /**
@@ -315,6 +401,7 @@ class NatsSubscriptionRelay {
         this.relays.clear()
         this.userRelays.clear()
         this.revokedUsers.clear()
+        this.revokedUserOrgs.clear()
     }
 
     async stop () {

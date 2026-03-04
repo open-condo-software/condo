@@ -1,4 +1,3 @@
-const { faker } = require('@faker-js/faker')
 const jwt = require('jsonwebtoken')
 const { connect, JSONCodec, createInbox } = require('nats')
 
@@ -8,7 +7,7 @@ const { find } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { configure, buildOrganizationTopic, buildUserTopic } = require('@open-condo/messaging')
 
-const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -295,7 +294,7 @@ describe('Messaging Integration Tests', () => {
                 const deliverInbox = createInbox()
                 nc.subscribe(deliverInbox)
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.organization.${client.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${client.user.id}.condo.organization.${client.organization.id}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -316,7 +315,7 @@ describe('Messaging Integration Tests', () => {
             const jc = JSONCodec()
             try {
                 await expect(nc.request(
-                    `_MESSAGING.subscribe.organization.${clientB.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${clientA.user.id}.condo.organization.${clientB.organization.id}.ticket`,
                     jc.encode({ deliverInbox: createInbox() }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -352,7 +351,7 @@ describe('Messaging Integration Tests', () => {
                 })()
 
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.organization.${clientA.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${clientA.user.id}.condo.organization.${clientA.organization.id}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -422,14 +421,14 @@ describe('Messaging Integration Tests', () => {
                 })()
 
                 const respA = await ncA.request(
-                    `_MESSAGING.subscribe.organization.${clientA.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${clientA.user.id}.condo.organization.${clientA.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxA }),
                     { timeout: 5000 }
                 )
                 expect(jc.decode(respA.data).status).toBe('ok')
 
                 const respB = await ncB.request(
-                    `_MESSAGING.subscribe.organization.${clientB.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${clientB.user.id}.condo.organization.${clientB.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxB }),
                     { timeout: 5000 }
                 )
@@ -437,14 +436,14 @@ describe('Messaging Integration Tests', () => {
 
                 // User A CANNOT subscribe to User B's org
                 await expect(ncA.request(
-                    `_MESSAGING.subscribe.organization.${clientB.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${clientA.user.id}.condo.organization.${clientB.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxA }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
 
                 // User B CANNOT subscribe to User A's org
                 await expect(ncB.request(
-                    `_MESSAGING.subscribe.organization.${clientA.organization.id}.ticket`,
+                    `_MESSAGING.subscribe.${clientB.user.id}.condo.organization.${clientA.organization.id}.ticket`,
                     jc.encode({ deliverInbox: inboxB }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -529,7 +528,7 @@ describe('Messaging Integration Tests', () => {
                 })()
 
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.user.${client.user.id}.notification`,
+                    `_MESSAGING.subscribe.${client.user.id}.condo.user.${client.user.id}.notification`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -583,7 +582,7 @@ describe('Messaging Integration Tests', () => {
                 const deliverInbox2 = createInbox()
                 nc.subscribe(deliverInbox2)
                 const retryResponse = await nc.request(
-                    `_MESSAGING.subscribe.user.${client.user.id}.notification`,
+                    `_MESSAGING.subscribe.${client.user.id}.condo.user.${client.user.id}.notification`,
                     jc.encode({ deliverInbox: deliverInbox2 }),
                     { timeout: 5000 }
                 )

@@ -137,7 +137,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 const deliverInbox = createInbox()
                 const sub = nc.subscribe(deliverInbox)
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.organization.${ORG_A}.ticket`,
+                    `_MESSAGING.subscribe.test-user.condo.organization.${ORG_A}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -157,7 +157,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             try {
                 const deliverInbox = createInbox()
                 await expect(nc.request(
-                    `_MESSAGING.subscribe.organization.${ORG_B}.ticket`,
+                    `_MESSAGING.subscribe.test-user.condo.organization.${ORG_B}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -201,7 +201,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 })()
 
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.organization.${ORG_A}.ticket`,
+                    `_MESSAGING.subscribe.test-user.condo.organization.${ORG_A}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -244,7 +244,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             const jc = JSONCodec()
             try {
                 await expect(nc.request(
-                    `_MESSAGING.subscribe.organization.${ORG_B}.ticket`,
+                    `_MESSAGING.subscribe.test-user.condo.organization.${ORG_B}.ticket`,
                     jc.encode({ deliverInbox: createInbox() }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -277,7 +277,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 })()
 
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.organization.${ORG_A}.ticket`,
+                    `_MESSAGING.subscribe.test-user.condo.organization.${ORG_A}.ticket`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -319,8 +319,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
 
             relayService.relays.set(relayId, {
                 id: relayId,
-                channel: 'organization',
-                userId,
+                requestingUserId: userId,
                 deliverInbox: '_INBOX.test',
                 actualTopic: 'organization.test-org.ticket',
                 subscription: mockSub,
@@ -378,7 +377,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                     const deliverInbox = createInbox()
                     try {
                         const response = await nc.request(
-                            `_MESSAGING.subscribe.user.${USER_B}.notification`,
+                            `_MESSAGING.subscribe.${USER_B}.condo.user.${USER_B}.notification`,
                             jc.encode({ deliverInbox }),
                             { timeout: 3000 }
                         )
@@ -409,7 +408,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
 
                 const deliverInbox = createInbox()
                 const response = await nc.request(
-                    `_MESSAGING.subscribe.user.${USER_C}.notification`,
+                    `_MESSAGING.subscribe.${USER_C}.condo.user.${USER_C}.notification`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )

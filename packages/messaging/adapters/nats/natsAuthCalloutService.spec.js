@@ -3,6 +3,8 @@ const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
 
+const { APP_PREFIX } = require('../../core/topic')
+
 const {
     decodeNatsJwt,
     encodeNatsJwt,
@@ -57,8 +59,8 @@ describe('Auth Callout Service Logic', () => {
             expect(userClaims.nats.sub.allow).toEqual(['_INBOX.>'])
 
             expect(userClaims.nats.pub.allow).not.toContain('_INBOX.>')
-            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.user.${userId}.>`)
-            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.organization.${organizationId}.>`)
+            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.${userId}.${APP_PREFIX}.user.${userId}.>`)
+            expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.subscribe.${userId}.${APP_PREFIX}.organization.${organizationId}.>`)
             expect(userClaims.nats.pub.allow).toContain(`_MESSAGING.unsubscribe.${userId}.*`)
         })
 
@@ -149,10 +151,10 @@ describe('Auth Callout Service Logic', () => {
         it('scopes relay PUB permissions to user and organization', () => {
             const perms = computePermissions('user-abc', 'org-abc')
 
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.user.user-abc.>')
-            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.organization.org-abc.>')
-            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.organization.org-xyz.>')
-            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.user.user-xyz.>')
+            expect(perms.pub.allow).toContain(`_MESSAGING.subscribe.user-abc.${APP_PREFIX}.user.user-abc.>`)
+            expect(perms.pub.allow).toContain(`_MESSAGING.subscribe.user-abc.${APP_PREFIX}.organization.org-abc.>`)
+            expect(perms.pub.allow).not.toContain(`_MESSAGING.subscribe.user-abc.${APP_PREFIX}.organization.org-xyz.>`)
+            expect(perms.pub.allow).not.toContain(`_MESSAGING.subscribe.user-xyz.${APP_PREFIX}.user.user-xyz.>`)
         })
 
         it('does not grant JetStream API or direct stream access', () => {

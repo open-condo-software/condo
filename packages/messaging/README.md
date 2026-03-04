@@ -6,8 +6,8 @@ Real-time messaging package for the condo platform. Delivers entity change notif
 
 Two built-in channel types:
 
-- **`user.<userId>.<entity>`** — personal data for a single user
-- **`organization.<orgId>.<entity>`** — entity changes visible to all active employees of an organization
+- **`<app>.user.<userId>.<entity>`** — personal data for a single user (e.g. `condo.user.abc-123.notification`)
+- **`<app>.organization.<orgId>.<entity>`** — entity changes visible to all active employees of an organization (e.g. `condo.organization.org-1.ticket`)
 
 All channels are defined in a single registry (`CHANNEL_DEFINITIONS` in `core/topic.js`). The relay, permission computation, middleware, and access control all consume this registry automatically.
 
@@ -19,17 +19,17 @@ Add one entry to `CHANNEL_DEFINITIONS` in `core/topic.js`:
 {
     name: 'mychannel',
     isAvailable: ({ userId }) => !!userId,
-    extractUserId: (parts) => parts[0] || null,       // for revocation tracking
-    buildActualTopic: (parts) => `mychannel.${parts[0]}.${parts[1] || '>'}`,
     buildRelayPermissions: ({ userId }) => [
-        `${RELAY_SUBSCRIBE_PREFIX}.mychannel.${userId}.>`,
+        `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${APP_PREFIX}.mychannel.${userId}.>`,
     ],
     buildAvailableChannel: ({ userId }) => ({
         name: 'mychannel',
-        topic: `mychannel.${userId}.>`,
+        topic: `${APP_PREFIX}.mychannel.${userId}.>`,
     }),
 }
 ```
+
+The relay subscribe topic mirrors the actual NATS topic: `_MESSAGING.subscribe.<userId>.<actualTopic>`. The relay handler extracts `actualTopic` directly from the subject — no channel-specific topic building is needed.
 
 No other files need modification — the relay, JWT permissions, `/messaging/channels` endpoint, and access control read from this registry.
 
@@ -190,7 +190,7 @@ const { isSubscribed, messageCount } = useMessagingSubscription({
 
 Clients are granted only the minimum permissions needed:
 
-- **PUB** — relay subscribe topics (`_MESSAGING.subscribe.<channel>.<id>.>`), relay unsubscribe topic (`_MESSAGING.unsubscribe.<userId>.*`)
+- **PUB** — relay subscribe topics (`_MESSAGING.subscribe.<userId>.<app>.<channel>.<id>.>`), relay unsubscribe topic (`_MESSAGING.unsubscribe.<userId>.*`)
 - **SUB** — `_INBOX.>` only (for receiving relayed messages and request/reply responses)
 
 Clients do **not** have PUB permission on `_INBOX.>`. NATS `request()` embeds reply-to in the PUB header — the server publishes the response, not the client. This prevents authenticated clients from injecting messages into other users' delivery inboxes.
@@ -198,8 +198,15 @@ Clients do **not** have PUB permission on `_INBOX.>`. NATS `request()` embeds re
 ### Relay input validation
 
 - **deliverInbox** — relay subscribe requests must provide an inbox starting with `_INBOX.`; arbitrary subjects are rejected
+- **Topic format validation** — the relay verifies that the `actualTopic` starts with the expected `APP_PREFIX` before subscribing, preventing subscription to arbitrary NATS subjects even if PUB permissions are misconfigured
 - **Unsubscribe scoping** — unsubscribe PUB permission is scoped to `_MESSAGING.unsubscribe.<userId>.*`, preventing clients from tearing down other users' relays
-- **Relay ownership** — every relay tracks a `requestingUserId` (sent by the client in the subscribe body). On unsubscribe, the relay service verifies the requesting userId matches the relay owner. This covers both user-channel and organization-channel relays (where the channel-derived userId is null)
+- **Relay ownership** — every relay tracks a `requestingUserId` extracted from the PUB-enforced subject (`_MESSAGING.subscribe.<userId>.…`). Since NATS enforces PUB permissions, the userId in the subject is guaranteed to match the authenticated user — it cannot be spoofed. On unsubscribe, the relay service verifies the requesting userId matches the relay owner
+- **Per-user relay limit** — each user is limited to `maxRelaysPerUser` (default: 50) concurrent relay subscriptions, preventing resource exhaustion from malicious or runaway clients
+- **Crypto-random relay IDs** — relay IDs use `crypto.randomBytes` hex encoding, preventing enumeration attacks
+
+### Rate limiting
+
+The `/messaging/token` and `/messaging/channels` endpoints are rate-limited by both IP address and authenticated user ID. This prevents abuse from shared IPs (NAT/proxy) and per-user flooding independently. Configurable via `rateLimitMax` and `rateLimitWindowSec`.
 
 ### Relay TTL cleanup
 
@@ -207,16 +214,35 @@ Relay subscriptions are automatically swept when clients disconnect without send
 
 ## Access revocation
 
+### User-level revocation
+
 When a user is deleted or blocked, revoke their messaging access instantly:
 
 ```javascript
 const { revokeMessagingUser, unrevokeMessagingUser } = require('@open-condo/messaging')
 
-revokeMessagingUser(userId)       // tears down relays + blocks new connections
+revokeMessagingUser(userId)       // tears down all relays + blocks new connections
 unrevokeMessagingUser(userId)     // re-enables access
 ```
 
-Revocation is propagated cross-process via admin topics (`_MESSAGING.admin.revoke.<userId>`, `_MESSAGING.admin.unrevoke.<userId>`). These topics are restricted to the server connection only — regular clients cannot publish to them.
+### Organization-level revocation
+
+When a user is removed from an organization (e.g. employee blocked/rejected), revoke only their org-scoped access:
+
+```javascript
+const { revokeMessagingUserOrganization, unrevokeMessagingUserOrganization } = require('@open-condo/messaging')
+
+revokeMessagingUserOrganization(userId, organizationId)   // tears down org relays + blocks new org connections
+unrevokeMessagingUserOrganization(userId, organizationId) // re-enables org access
+```
+
+Org-level revocation only affects relays for the specified organization — user-channel relays and other organizations remain active.
+
+Both levels are propagated cross-process via admin topics:
+- `_MESSAGING.admin.revoke.<userId>` / `_MESSAGING.admin.unrevoke.<userId>` — user-level
+- `_MESSAGING.admin.revokeOrg.<userId>.<organizationId>` / `_MESSAGING.admin.unrevokeOrg.<userId>.<organizationId>` — org-level
+
+These topics are restricted to the server connection only — regular clients cannot publish to them.
 
 ## Error handling
 

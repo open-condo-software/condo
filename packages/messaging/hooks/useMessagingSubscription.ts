@@ -80,7 +80,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
     }, [connection, userId])
 
     useEffect(() => {
-        if (!enabled || !isConnected || !connection || !topic) {
+        if (!enabled || !isConnected || !connection || !topic || !userId) {
             return
         }
         isActiveRef.current = true
@@ -100,10 +100,10 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 inboxSub = connection.subscribe(deliverInbox)
                 subscriptionRef.current = inboxSub
 
-                const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${topic}`
+                const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${topic}`
                 const response = await connection.request(
                     relayTopic,
-                    JSON.stringify({ deliverInbox, requestingUserId: userId || undefined }),
+                    JSON.stringify({ deliverInbox }),
                     { timeout: 5000 }
                 )
 

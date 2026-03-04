@@ -9,6 +9,8 @@ const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
 const ADMIN_REVOKE_PREFIX = '_MESSAGING.admin.revoke'
 const ADMIN_UNREVOKE_PREFIX = '_MESSAGING.admin.unrevoke'
+const ADMIN_REVOKE_ORG_PREFIX = '_MESSAGING.admin.revokeOrg'
+const ADMIN_UNREVOKE_ORG_PREFIX = '_MESSAGING.admin.unrevokeOrg'
 
 /**
  * Derives an app-specific prefix from the nearest package.json name.
@@ -50,10 +52,6 @@ const APP_PREFIX = getAppPrefix()
  *
  * @typedef {Object} ChannelDefinition
  * @property {string} name - Channel name constant (e.g. 'user', 'organization')
- * @property {function(string[]): string|null} extractUserId - Given relay subject parts after channel name,
- *   return the userId to track for revocation, or null if this channel doesn't track userId.
- * @property {function(string[]): string} buildActualTopic - Given relay subject parts after channel name,
- *   return the actual NATS topic to subscribe to.
  * @property {function({userId: string, organizationId: string}): string[]} buildRelayPermissions -
  *   Given user context, return PUB allow patterns for relay subscribe topics.
  * @property {function({userId: string, organizationId: string}): {name: string, topic: string}} buildAvailableChannel -
@@ -65,46 +63,26 @@ const CHANNEL_DEFINITIONS = [
     {
         name: CHANNEL_USER,
         isAvailable: ({ userId }) => !!userId,
-        extractUserId: (parts) => parts[0] || null,
-        buildActualTopic: (parts) => {
-            const userId = parts[0]
-            const rest = parts.slice(1)
-            return rest.length > 0
-                ? `${APP_PREFIX}.${CHANNEL_USER}.${userId}.${rest.join('.')}`
-                : `${APP_PREFIX}.${CHANNEL_USER}.${userId}.>`
-        },
         buildRelayPermissions: ({ userId }) => [
-            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_USER}.${userId}.>`,
+            `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${APP_PREFIX}.${CHANNEL_USER}.${userId}.>`,
         ],
         buildAvailableChannel: ({ userId }) => ({
             name: CHANNEL_USER,
-            topic: `${CHANNEL_USER}.${userId}.>`,
+            topic: `${APP_PREFIX}.${CHANNEL_USER}.${userId}.>`,
         }),
     },
     {
         name: CHANNEL_ORGANIZATION,
         isAvailable: ({ organizationId }) => !!organizationId,
-        extractUserId: () => null,
-        buildActualTopic: (parts) => {
-            const orgId = parts[0]
-            const rest = parts.slice(1)
-            return rest.length > 0
-                ? `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${orgId}.${rest.join('.')}`
-                : `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${orgId}.>`
-        },
-        buildRelayPermissions: ({ organizationId }) => [
-            `${RELAY_SUBSCRIBE_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.>`,
+        buildRelayPermissions: ({ userId, organizationId }) => [
+            `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.>`,
         ],
         buildAvailableChannel: ({ organizationId }) => ({
             name: CHANNEL_ORGANIZATION,
-            topic: `${CHANNEL_ORGANIZATION}.${organizationId}.>`,
+            topic: `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.>`,
         }),
     },
 ]
-
-const CHANNEL_DEFINITIONS_BY_NAME = Object.fromEntries(
-    CHANNEL_DEFINITIONS.map(ch => [ch.name, ch])
-)
 
 /**
  * Build a user channel topic (auto-prefixed with app name).
@@ -155,11 +133,12 @@ module.exports = {
     CHANNEL_USER,
     CHANNEL_ORGANIZATION,
     CHANNEL_DEFINITIONS,
-    CHANNEL_DEFINITIONS_BY_NAME,
     RELAY_SUBSCRIBE_PREFIX,
     RELAY_UNSUBSCRIBE_PREFIX,
     ADMIN_REVOKE_PREFIX,
     ADMIN_UNREVOKE_PREFIX,
+    ADMIN_REVOKE_ORG_PREFIX,
+    ADMIN_UNREVOKE_ORG_PREFIX,
     APP_PREFIX,
     getAppPrefix,
     buildUserTopic,
