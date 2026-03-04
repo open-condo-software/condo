@@ -40,8 +40,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     
     const aiChatRef = useRef<{ 
         handleResetHistory: () => void, 
-        handleSaveConversation: () => void,
-        checkForActiveTask: () => void,
+        handleSaveConversation: () => void
+        checkForActiveTask: () => void
         scrollToBottom: () => void
     }>(null)
 
@@ -122,7 +122,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             style={{ 
                 width: open ? `${aiOverlayWidth}px` : '0px',
                 visibility: open ? 'visible' : 'hidden',
-                overflow: 'hidden'
+                overflow: 'hidden',
             }}
         >
             <div className={styles.header}>
