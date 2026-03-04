@@ -12,6 +12,7 @@ const { NEWS_SENDING_TTL_IN_SEC, MESSAGE_TITLE_MAX_LEN, MESSAGE_BODY_MAX_LEN } =
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
+const { stripMarkdown } = require('@condo/domains/news/utils/stripMarkdown')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -88,6 +89,18 @@ async function sendNotifications (newsItem) {
         ],
     }), {})
 
+    const pushTitle = truncate(newsItem.title, {
+        length: MESSAGE_TITLE_MAX_LEN,
+        separator: ' ',
+        omission: '...',
+    })
+    
+    const pushBody = truncate(stripMarkdown(newsItem.body), {
+        length: MESSAGE_BODY_MAX_LEN,
+        separator: ' ',
+        omission: '...',
+    })
+
     const { keystone: contextMessage } = getSchemaCtx('Message')
     for (const resident of residentsData) {
         try {
@@ -98,8 +111,8 @@ async function sendNotifications (newsItem) {
                 type: defineMessageType(newsItem),
                 meta: {
                     dv: 1,
-                    title: truncate(newsItem.title, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
-                    body: truncate(newsItem.body, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                    title: pushTitle,
+                    body: pushBody,
                     data: {
                         newsItemId: newsItem.id,
                         organizationId: newsItem.organization.id,

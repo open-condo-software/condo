@@ -23,6 +23,7 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { stripMarkdown } from '@condo/domains/news/utils/stripMarkdown'
 
 import styles from './InputStepForm.module.css'
 
@@ -88,23 +89,34 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.improveText' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
-    
+    const UndoTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.undo' })
+    const RedoTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.redo' })
+    const BoldTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.bold' })
+    const ItalicTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.italic' })
+    const OrderedListTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' })
+    const UnorderedListTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' })
+    const RemoveFormattingTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' })
+    const LinkTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.link' })
+    const LinkModalUrlLabel = intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' })
+    const LinkModalTextLabel = intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' })
+    const LinkModalSubmitLabel = intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' })
+
     const toolbarLabels = useMemo(() => ({
-        undo: intl.formatMessage({ id: 'richTextArea.toolbar.undo' }),
-        redo: intl.formatMessage({ id: 'richTextArea.toolbar.redo' }),
-        link: intl.formatMessage({ id: 'richTextArea.toolbar.link' }),
-        bold: intl.formatMessage({ id: 'richTextArea.toolbar.bold' }),
-        italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
-        unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
-        orderedList: intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' }),
-        removeFormatting: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' }),
-    }), [intl])
+        undo: UndoTooltipText,
+        redo: RedoTooltipText,
+        bold: BoldTooltipText,
+        italic: ItalicTooltipText,
+        orderedList: OrderedListTooltipText,
+        link: LinkTooltipText,
+        unorderedList: UnorderedListTooltipText,
+        removeFormatting: RemoveFormattingTooltipText,
+    }), [LinkTooltipText, UnorderedListTooltipText, RemoveFormattingTooltipText, OrderedListTooltipText, BoldTooltipText, ItalicTooltipText, RedoTooltipText, UndoTooltipText])
 
     const linkModalLabels = useMemo(() => ({
-        urlLabel: intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' }),
-        textLabel: intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' }),
-        submitLabel: intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' }),
-    }), [intl])
+        urlLabel: LinkModalUrlLabel,
+        textLabel: LinkModalTextLabel,
+        submitLabel: LinkModalSubmitLabel,
+    }), [LinkModalUrlLabel, LinkModalTextLabel, LinkModalSubmitLabel])
 
     const { status: validationStatus } = Form.Item.useStatus()
     const inputHasError = validationStatus === 'error'
@@ -195,16 +207,18 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
 
     const handleCopyTextClick = useCallback(async () => {
         if (copied) return
-
+    
+        const plainText = useRichText ? stripMarkdown(value) : value
+    
         try {
-            await navigator.clipboard.writeText(value)
+            await navigator.clipboard.writeText(plainText)
             setCopied(true)
-
+    
             setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
         } catch (e) {
             console.error('Unable to copy to clipboard', e)
         }
-    }, [copied, value])
+    }, [copied, useRichText, value])
 
     const bottomPanelUtils = [
         <Tooltip
@@ -258,6 +272,15 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     value={value}
                     autoSize={{ minRows: 4, maxRows: 4 }}
                     disabled={isRewriteNewsTextLoading}
+                    // Remove after testing
+                    toolbarGroups={[
+                        ['undo', 'redo'],
+                        ['heading', 'bold', 'italic', 'strikethrough'],
+                        ['link', 'image'],
+                        ['unorderedList', 'orderedList', 'taskList', 'blockquote'],
+                        ['table'],
+                        ['removeFormatting'],
+                    ]}
                     customLabels={{
                         toolbar: toolbarLabels,
                         linkModal: linkModalLabels,
