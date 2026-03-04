@@ -19,6 +19,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
+const { organizationMessaged } = require('@open-condo/messaging/plugins')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const {
@@ -123,7 +124,7 @@ const ERRORS = {
  * User should not be able to create more than $DAILY_TICKET_LIMIT tickets to 1 organization.
  * User should not be able to create more than $DAILY_SAME_TICKET_LIMIT tickets to 1 organization.
  * Pushes for bulk operations are disabled in this scheme.
- * 
+ *
  * $USERS_WITHOUT_TICKET_LIMITS phones are excluded from this rule.
  *
  * @param {string} phone
@@ -385,7 +386,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
-            many: true, 
+            many: true,
             // NOTE: We need to allow create and update observers from ticket, because we need to create TicketChange
             // NOTE: We don't need to read observers from ticket, because we can read them from allTicketObserver
             access: {
@@ -677,7 +678,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(), organizationMessaged()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
@@ -1021,7 +1022,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 fields: ['organization', 'status'],
                 name: 'ticket_organization_status',
             },
-            // NOTE: default CRM sorting on /ticket page 
+            // NOTE: default CRM sorting on /ticket page
             {
                 type: 'BTreeIndex',
                 fields: ['order', '-createdAt'],

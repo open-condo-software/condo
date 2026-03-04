@@ -8,6 +8,7 @@ const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, tracked, softDeleted, uuided, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, find } = require('@open-condo/keystone/schema')
+const { revokeMessagingUser } = require('@open-condo/messaging')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
@@ -251,6 +252,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             // TODO(DOMA-4440): we need to make a tool for automatic cascading soft deletion of related objects
             if (isSoftDeleteOperation) {
                 await softDeletePropertyScopeOrganizationEmployee(context, updatedItem)
+            }
+
+            const isBlockOperation = operation === 'update' && !existingItem.isBlocked && updatedItem.isBlocked
+            const isRejectOperation = operation === 'update' && !existingItem.isRejected && updatedItem.isRejected
+            if ((isSoftDeleteOperation || isBlockOperation || isRejectOperation) && updatedUserId) {
+                revokeMessagingUser(updatedUserId)
             }
         },
     },
