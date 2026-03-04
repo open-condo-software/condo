@@ -263,6 +263,11 @@ class NatsSubscriptionRelay {
                 }
             }
             this.relays.delete(relayId)
+            const userSet = this.userRelays.get(relay.requestingUserId)
+            if (userSet) {
+                userSet.delete(relayId)
+                if (userSet.size === 0) this.userRelays.delete(relay.requestingUserId)
+            }
         })()
 
         if (msg.reply) {
