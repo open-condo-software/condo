@@ -27,8 +27,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -38,9 +40,11 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).not.toBeFalsy()
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
 
@@ -49,10 +53,12 @@ describe('SyncRemoteClientService', () => {
             expect(device2.id).not.toBeFalsy()
             expect(device2.deviceId).toEqual(payload2.deviceId)
             expect(device2.appId).toEqual(payload2.appId)
-            expect(device2.pushTransport).toEqual(payload2.pushTransport)
             expect(device2.devicePlatform).toEqual(payload2.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device2.pushTransport).toBeNull()
             expect(device2.pushToken).toBeNull()
-            expect(device2.meta).toEqual(payload2.meta)
+            expect(device2.meta).toBeNull()
             expect(device2.owner).toBeNull()
 
             const [device3] = await syncRemoteClientByTestClient(client, payload3)
@@ -60,10 +66,12 @@ describe('SyncRemoteClientService', () => {
             expect(device3.id).not.toBeFalsy()
             expect(device3.deviceId).toEqual(payload3.deviceId)
             expect(device3.appId).toEqual(payload3.appId)
-            expect(device3.pushTransport).toEqual(payload3.pushTransport)
             expect(device3.devicePlatform).toEqual(payload3.devicePlatform)
-            expect(device3.pushToken).toEqual(payload3.pushToken)
-            expect(device3.meta).toEqual(payload3.meta)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device3.pushTransport).toBeNull()
+            expect(device3.pushToken).toBeNull()
+            expect(device3.meta).toBeNull()
             expect(device3.owner).toBeNull()
 
             const [device4] = await syncRemoteClientByTestClient(client, payload4)
@@ -71,10 +79,13 @@ describe('SyncRemoteClientService', () => {
             expect(device4.id).not.toBeFalsy()
             expect(device4.deviceId).toEqual(payload4.deviceId)
             expect(device4.appId).toEqual(payload4.appId)
-            expect(device4.pushTransport).toEqual(payload4.pushTransport)
             expect(device4.devicePlatform).toEqual(payload4.devicePlatform)
-            expect(device4.pushToken).toEqual(payload4.pushToken)
-            expect(device4.pushType).toEqual(payload4.pushType)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device4.pushTransport).toBeNull()
+            expect(device4.pushToken).toBeNull()
+            expect(device4.pushType).toBeNull()
+            expect(device4.meta).toBeNull()
             expect(device4.owner).toBeNull()
 
         })
@@ -88,8 +99,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -106,9 +119,11 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(device.deviceId)
             expect(device1.appId).toEqual(device.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
         })
@@ -122,8 +137,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -140,10 +157,12 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(device.deviceId)
             expect(device1.appId).toEqual(device.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
             expect(device1.pushToken).toBeNull()
-            expect(device1.meta).toEqual(payload1.meta)
+            expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
         })
 
@@ -156,8 +175,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -176,10 +197,12 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(device.deviceId)
             expect(device1.appId).toEqual(device.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
-            expect(device1.meta).toEqual(payload1.meta)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
+            expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
         })
 
@@ -199,8 +222,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -210,12 +235,13 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(device.deviceId)
             expect(device1.appId).toEqual(device.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
             expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+            expect(device1.owner).toBeNull()
         })
 
         it('registers deviceId + pushTransport & updates pushToken + connects to user', async () => {
@@ -235,8 +261,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -246,12 +274,13 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+            expect(device1.owner).toBeNull()
         })
 
         it('registers deviceId + pushTransport & updates meta + connects to user', async () => {
@@ -271,8 +300,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -282,12 +313,13 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
             expect(device1.pushToken).toBeNull()
-            expect(device1.meta).toEqual(payload1.meta)
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
         })
 
         it('registers deviceId + pushTransport & updates pushToken + meta + connects to user', async () => {
@@ -306,8 +338,10 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
@@ -317,12 +351,13 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
-            expect(device1.meta).toEqual(payload1.meta)
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
         })
 
         it('registers two devices and clears previously registered pushToken that is being reused for second device', async () => {
@@ -336,9 +371,11 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
-            expect(device.pushToken).toEqual(payload.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
+            expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
 
@@ -346,9 +383,11 @@ describe('SyncRemoteClientService', () => {
 
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
 
@@ -374,9 +413,11 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransportVoIP).toEqual(payload.pushTransportVoIP)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
-            expect(device.pushTokenVoIP).toEqual(payload.pushTokenVoIP)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransportVoIP).toBeNull()
+            expect(device.pushTokenVoIP).toBeNull()
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
 
@@ -384,9 +425,11 @@ describe('SyncRemoteClientService', () => {
 
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransportVoIP).toEqual(payload1.pushTransportVoIP)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushTokenVoIP).toEqual(payload1.pushTokenVoIP)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransportVoIP).toBeNull()
+            expect(device1.pushTokenVoIP).toBeNull()
             expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
 
@@ -418,12 +461,13 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
-            expect(device.owner).not.toBeNull()
-            expect(device.owner.id).toEqual(user.user.id)
+            expect(device.owner).toBeNull()
         })
 
         it('registers deviceId + pushTransport & reconnects to different user', async () => {
@@ -435,12 +479,13 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
-            expect(device.owner).not.toBeNull()
-            expect(device.owner.id).toEqual(user.user.id)
+            expect(device.owner).toBeNull()
 
             const payload1 = {
                 deviceId: payload.deviceId,
@@ -453,12 +498,13 @@ describe('SyncRemoteClientService', () => {
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(device.deviceId)
             expect(device1.appId).toEqual(device.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
             expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user1.user.id)
+            expect(device1.owner).toBeNull()
         })
 
         it('registers deviceId + pushTransport + (pushToken | meta | pushToken + meta) & connects to user', async () => {
@@ -472,36 +518,39 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
-            expect(device.pushToken).toEqual(payload.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
+            expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
-            expect(device.owner).not.toBeNull()
-            expect(device.owner.id).toEqual(user.user.id)
+            expect(device.owner).toBeNull()
 
             const [device1] = await syncRemoteClientByTestClient(user, payload1)
 
             expect(device1.id).not.toBeFalsy()
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
             expect(device1.pushToken).toBeNull()
-            expect(device1.meta).toEqual(payload1.meta)
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
 
             const [device2] = await syncRemoteClientByTestClient(user, payload2)
 
             expect(device2.id).not.toBeFalsy()
             expect(device2.deviceId).toEqual(payload2.deviceId)
             expect(device2.appId).toEqual(payload2.appId)
-            expect(device2.pushTransport).toEqual(payload2.pushTransport)
             expect(device2.devicePlatform).toEqual(payload2.devicePlatform)
-            expect(device2.pushToken).toEqual(payload2.pushToken)
-            expect(device2.meta).toEqual(payload2.meta)
-            expect(device2.owner).not.toBeNull()
-            expect(device2.owner.id).toEqual(user.user.id)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device2.pushTransport).toBeNull()
+            expect(device2.pushToken).toBeNull()
+            expect(device2.meta).toBeNull()
+            expect(device2.owner).toBeNull()
         })
 
         it('registers deviceId + pushTransport & updates pushToken + reconnects to different user', async () => {
@@ -521,24 +570,26 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
-            expect(device.owner).not.toBeNull()
-            expect(device.owner.id).toEqual(client.user.id)
+            expect(device.owner).toBeNull()
 
             const [device1] = await syncRemoteClientByTestClient(user, payload1)
 
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
             expect(device1.meta).toBeNull()
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+            expect(device1.owner).toBeNull()
         })
 
         it('register deviceId + pushTransport & update meta + reconnect to different user', async () => {
@@ -558,24 +609,26 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
-            expect(device.owner).not.toBeNull()
-            expect(device.owner.id).toEqual(client.user.id)
+            expect(device.owner).toBeNull()
 
             const [device1] = await syncRemoteClientByTestClient(user, payload1)
 
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
             expect(device1.pushToken).toBeNull()
-            expect(device1.meta).toEqual(payload1.meta)
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
         })
 
 
@@ -595,24 +648,26 @@ describe('SyncRemoteClientService', () => {
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
             expect(device.appId).toEqual(payload.appId)
-            expect(device.pushTransport).toEqual(payload.pushTransport)
             expect(device.devicePlatform).toEqual(payload.devicePlatform)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device.pushTransport).toBeNull()
             expect(device.pushToken).toBeNull()
             expect(device.meta).toBeNull()
-            expect(device.owner).not.toBeNull()
-            expect(device.owner.id).toEqual(client.user.id)
+            expect(device.owner).toBeNull()
 
             const [device1] = await syncRemoteClientByTestClient(user, payload1)
 
             expect(device1.id).toEqual(device.id)
             expect(device1.deviceId).toEqual(payload1.deviceId)
             expect(device1.appId).toEqual(payload1.appId)
-            expect(device1.pushTransport).toEqual(payload1.pushTransport)
             expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
-            expect(device1.pushToken).toEqual(payload1.pushToken)
-            expect(device1.meta).toEqual(payload1.meta)
-            expect(device1.owner).not.toBeNull()
-            expect(device1.owner.id).toEqual(user.user.id)
+
+            // NOTE: sensitive fields are not available to read
+            expect(device1.pushTransport).toBeNull()
+            expect(device1.pushToken).toBeNull()
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
         })
 
         it('does not update record if values are unchanged', async () => {
