@@ -25,12 +25,12 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     
     const [isAIOverlayOpen, setIsAIOverlayOpen] = useState(false)
     const [aiOverlayWidth, setAIOverlayWidthState] = useState(() => {
-        return storage.getItem('aiOverlayWidth') || 600
+        return storage.getItem('ai-assistant-overlay-width')
     })
 
     const setAIOverlayWidth = (width: number) => {
         setAIOverlayWidthState(width)
-        storage.setItem('aiOverlayWidth', width)
+        storage.setItem('ai-assistant-overlay-width', width)
     }
 
     const openAIOverlay = () => setIsAIOverlayOpen(true)

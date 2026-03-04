@@ -21,11 +21,14 @@ const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
+
     const title = intl.formatMessage({ id: 'ai.chat.title' })
     const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
     const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
     const closeLabel = intl.formatMessage({ id: 'Close' })
+
     const { aiOverlayWidth, setAIOverlayWidth, openAIOverlay } = useAIContext()
+
     const [isResizing, setIsResizing] = useState(false)
     const [isAtMinWidth, setIsAtMinWidth] = useState(false)
     const [isAtMaxWidth, setIsAtMaxWidth] = useState(false)
@@ -34,7 +37,25 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
-    const aiChatRef = useRef<{ handleResetHistory: () => void, handleSaveConversation: () => void }>(null)
+    
+    const aiChatRef = useRef<{ 
+        handleResetHistory: () => void, 
+        handleSaveConversation: () => void,
+        checkForActiveTask: () => void,
+        scrollToBottom: () => void
+    }>(null)
+
+    // Check for active tasks when component mounts or overlay opens
+    useEffect(() => {
+        if (open && aiChatRef.current) {
+            console.log('AI Overlay opened, checking for active tasks and scrolling to bottom')
+            aiChatRef.current.checkForActiveTask()
+            const attemptScroll = () => {
+                console.log('Attempting to scroll to bottom')
+                aiChatRef.current?.scrollToBottom()
+            }
+        }
+    }, [open])
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -45,10 +66,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             dragDirectionRef.current = currentDirection
             setDragDirection(currentDirection)
             
-            // Normal resizing when open
             const clampedWidth = Math.max(MIN_OVERLAY_WIDTH, Math.min(MAX_OVERLAY_WIDTH, newWidth))
             
-            // Check if we're at minimum or maximum width
             setIsAtMinWidth(clampedWidth <= MIN_OVERLAY_WIDTH)
             setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
             
@@ -58,7 +77,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                 return
             }
             
-            // Open overlay if dragging left consistently and crosses open threshold
+            // Open overlay if dragging left consistently and beyond close threshold
             if (newWidth > CLOSE_THRESHOLD && dragDirectionRef.current === 'left' && currentDirection === 'left') {
                 openAIOverlay()
             }
@@ -96,13 +115,15 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         startWidthRef.current = aiOverlayWidth
     }
 
-    if (!open) return null
-
     return (
         <div 
             ref={drawerRef}
             className={styles.aiDrawer}
-            style={{ width: `${aiOverlayWidth}px` }}
+            style={{ 
+                width: open ? `${aiOverlayWidth}px` : '0px',
+                visibility: open ? 'visible' : 'hidden',
+                overflow: 'hidden'
+            }}
         >
             <div className={styles.header}>
                 <div className={styles.leftSection}>
