@@ -105,6 +105,14 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                 className={styles.newsItemCard}
             >
                 <Row gutter={[0, 16]}>
+                    <Col span={12}>
+                        <Typography.Text strong type='secondary'>{TypeLabel}</Typography.Text><br/>
+                        <Typography.Paragraph type='secondary'>{typeTranslation}</Typography.Paragraph>
+                    </Col>
+                    <Col span={12}>
+                        <Typography.Text strong type='secondary'>{ValidBeforeLabel}</Typography.Text><br/>
+                        <Typography.Paragraph type='secondary'>{validBeforeFormatted}</Typography.Paragraph>
+                    </Col>
                     <Col span={24}>
                         <Typography.Text strong>{TitleLabel}</Typography.Text><br/>
                         <Typography.Paragraph>{title}</Typography.Paragraph>
