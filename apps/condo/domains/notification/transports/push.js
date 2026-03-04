@@ -126,25 +126,34 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP })
 
 function prepareDataByToken ({ adapter, tokens, data, appIds }) {
     /** @type {Record<string, { success: boolean, encryptedData?: Record<string, unknown> | null }>} */
-    const encryptedDataByAppId = {}
+    const encryptionStatsInfo = {}
     const dataByToken = {}
-    for (const token of tokens) {
-        const dataForToken = adapter.constructor.prepareData(data, token)
+
+    const tokensWhichNeedEncryption = tokens.filter(token => !!PUSH_ADAPTER_SETTINGS.encryption?.[appIds[token]])
+    const tokensWhichDoNotNeedEncryption = tokens.filter(token => !PUSH_ADAPTER_SETTINGS.encryption?.[appIds[token]])
+
+    // prepare data for simple tokens
+    tokensWhichDoNotNeedEncryption.forEach(token => {
+        // NOTE(YEgorLu): Class.staticMethod() === new Class().constructor.staticMethod()
+        dataByToken[token] = adapter.constructor.prepareData(data, token)
+    })
+
+    // encrypt data for needed tokens if possible
+    tokensWhichNeedEncryption.forEach(token => {
         const appId = appIds[token]
-        const encryptionVersion = PUSH_ADAPTER_SETTINGS.encryption?.[appId]
-        if (!encryptionVersion) {
-            dataByToken[token] = dataForToken
-            continue
-        }
-        const encryptedData = encryptPushData(encryptionVersion, dataForToken, { appId })
-        if (encryptedData) {
-            encryptedDataByAppId[appId] = { success: true, encryptedData }
-            dataByToken[token] = encryptedData
+        const preparedDataForToken = adapter.constructor.prepareData(data, token)
+        const encryptionVersion = PUSH_ADAPTER_SETTINGS.encryption[appId]
+        const encryptedDataForToken = encryptPushData(encryptionVersion, preparedDataForToken, { appId })
+
+        if (encryptedDataForToken) {
+            encryptionStatsInfo[appId] = { success: true, appId: appIds[token], encryptedData: encryptedDataForToken }
+            dataByToken[token] = encryptedDataForToken
         } else {
-            encryptedDataByAppId[appId] = { success: false }
+            encryptionStatsInfo[appId] = { success: false, appId: appIds[token], encryptedData: null }
         }
-    }
-    return { dataByToken, encryptedDataByAppId }
+    })
+
+    return { dataByToken, encryptionStatsInfo }
 }
 
 /**
@@ -171,7 +180,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         )
     )
 
-    const encryptedDataByAppId = {}
+    const encryptionStatsInfo = {}
     let container = {}
     let _isOk = false
 
@@ -184,23 +193,33 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         let tokens = tokensByTransport[transport]
         if (isEmpty(tokens)) return null
         const adapter = ADAPTERS[transport]
-        // NOTE(YEgorLu): Class.staticMethod() === new Class().constructor.staticMethod()
-        const { dataByToken, encryptedDataByAppId: encryptedDataByAppIdForCurrenyTransport } = prepareDataByToken({ adapter, tokens, data, appIds })
-        Object.keys(encryptedDataByAppIdForCurrenyTransport).forEach((appId) => encryptedDataByAppId[appId] = encryptedDataByAppIdForCurrenyTransport[appId])
-        const tokensWithNoData = tokens.filter(token => !dataByToken[token])
-        tokensWithNoData.forEach(tokenWithNoData => {
-            [appIds, pushTypes, metaByToken].forEach(mapByToken => {
-                delete mapByToken[tokenWithNoData]
-            })
+
+        const { dataByToken, encryptionStatsInfo: encryptionStatsInfoForCurrentTransport } = prepareDataByToken({ adapter, tokens, data, appIds })
+        Object.keys(encryptionStatsInfoForCurrentTransport).forEach((token) => {
+            encryptionStatsInfo[token] = encryptionStatsInfoForCurrentTransport[token]
         })
+        const tokensWithNoData = tokens.filter(token => !dataByToken[token])
         tokens = tokens.filter(token => !!dataByToken[token]) // if encryption failed, do not send it
 
+        const tokensWithNoDataResponses = tokensWithNoData.map(token => ({
+            success: false,
+            pushToken: token,
+            appId: appIds[token],
+            pushType: pushTypes[token],
+            error: 'empty data for token',
+        }))
+
         if (tokens.length === 0) {
-            return [false, { successCount: 0, failureCount: tokensWithNoData.length, responses: [] }, transport]
+            return [false, { successCount: 0, failureCount: tokensWithNoData.length, responses: tokensWithNoDataResponses }, transport]
         }
 
         const payload = { tokens, pushTypes, appIds, notification, dataByToken, metaByToken }
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
+
+        result.failureCount ??= 0
+        result.failureCount += tokensWithNoData.length
+        result.responses ??= []
+        result.responses.push(...tokensWithNoDataResponses)
 
         await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })
 
@@ -209,7 +228,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         return sendNotificationResult
     }))
 
-    logger.info({ msg: 'encrypted data', entity: 'Message', entityId: data.notificationId, data: { encryptedDataByAppId } })
+    logger.info({ msg: 'encryptionStatsInfo', entity: 'Message', entityId: data.notificationId, data: { encryptionStatsInfo } })
 
     for (const p of promises) {
         if (p.status !== 'fulfilled') continue
