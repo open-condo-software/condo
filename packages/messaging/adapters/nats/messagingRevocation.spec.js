@@ -1,6 +1,7 @@
+const { APP_PREFIX } = require('../../core/topic')
+
 const { NatsAuthCalloutService, NatsSubscriptionRelay } = require('./index')
 
-const { APP_PREFIX } = require('../../core/topic')
 
 
 describe('Messaging Revocation — unit tests', () => {
@@ -62,6 +63,7 @@ describe('Messaging Revocation — unit tests', () => {
 
         it('revokeUser tears down existing relays for that user', () => {
             const mockSub = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
             const relayEntry = {
                 id: 'relay-1',
                 requestingUserId: 'user-1',
@@ -83,6 +85,7 @@ describe('Messaging Revocation — unit tests', () => {
         it('revokeUser tears down multiple relays for the same user', () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
 
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -107,6 +110,7 @@ describe('Messaging Revocation — unit tests', () => {
         it('revokeUser does NOT affect other users relays', () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
 
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -162,6 +166,7 @@ describe('Messaging Revocation — unit tests', () => {
 
         it('_sweepExpiredRelays removes relays older than TTL', () => {
             const mockSub = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
                 deliverInbox: '_INBOX.a', actualTopic: 'user.user-1.>',
@@ -196,6 +201,7 @@ describe('Messaging Revocation — unit tests', () => {
         it('_sweepExpiredRelays removes only expired relays in mixed set', () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
 
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -544,6 +550,7 @@ describe('Messaging Revocation — unit tests', () => {
         it('revokeUserOrganization tears down only org-scoped relays', () => {
             const mockSubOrg = { unsubscribe: jest.fn() }
             const mockSubUser = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
 
             relay.relays.set('relay-org', {
                 id: 'relay-org', requestingUserId: 'user-1',
@@ -569,6 +576,7 @@ describe('Messaging Revocation — unit tests', () => {
         it('revokeUserOrganization does NOT affect other orgs', () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
+            relay.connection = { publish: jest.fn() }
 
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -680,6 +688,7 @@ describe('Messaging Revocation — unit tests', () => {
             // Set up mock services
             adapter.authService = new NatsAuthCalloutService()
             adapter.relayService = new NatsSubscriptionRelay()
+            adapter.relayService.connection = { publish: jest.fn() }
 
             // Add a relay for the user
             const mockSub = { unsubscribe: jest.fn() }
@@ -722,6 +731,7 @@ describe('Messaging Revocation — unit tests', () => {
             const adapter = new NatsAdapter()
             adapter.authService = new NatsAuthCalloutService()
             adapter.relayService = new NatsSubscriptionRelay()
+            adapter.relayService.connection = { publish: jest.fn() }
 
             const mockSub = { unsubscribe: jest.fn() }
             adapter.relayService.relays.set('relay-1', {
@@ -757,6 +767,100 @@ describe('Messaging Revocation — unit tests', () => {
             const adapter = new NatsAdapter()
             expect(() => adapter.revokeUserOrganization('user-1', 'org-1')).not.toThrow()
             expect(adapter.revokeUserOrganization('user-1', 'org-1')).toBe(0)
+        })
+    })
+
+    describe('Sentinel notifications on relay teardown', () => {
+        let relay
+
+        beforeEach(() => {
+            relay = new NatsSubscriptionRelay()
+            relay.relayTtlMs = 1000
+            relay.connection = { publish: jest.fn() }
+        })
+
+        it('revokeUser sends __relay_closed sentinel to each relay deliverInbox', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', requestingUserId: 'user-1',
+                deliverInbox: '_INBOX.test', actualTopic: 'user.user-1.>',
+                subscription: mockSub,
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1']))
+
+            relay.revokeUser('user-1')
+
+            const sentinelCall = relay.connection.publish.mock.calls.find(
+                ([subject]) => subject === '_INBOX.test'
+            )
+            expect(sentinelCall).toBeDefined()
+            const decoded = relay.jc.decode(sentinelCall[1])
+            expect(decoded.__relay_closed).toBe(true)
+            expect(decoded.relayId).toBe('relay-1')
+            expect(decoded.reason).toBe('access revoked')
+        })
+
+        it('_sweepExpiredRelays sends __relay_closed sentinel with reason expired', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', requestingUserId: 'user-1',
+                deliverInbox: '_INBOX.sweep', actualTopic: 'user.user-1.>',
+                subscription: mockSub,
+                createdAt: Date.now() - 2000,
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1']))
+
+            relay._sweepExpiredRelays()
+
+            const sentinelCall = relay.connection.publish.mock.calls.find(
+                ([subject]) => subject === '_INBOX.sweep'
+            )
+            expect(sentinelCall).toBeDefined()
+            const decoded = relay.jc.decode(sentinelCall[1])
+            expect(decoded.__relay_closed).toBe(true)
+            expect(decoded.reason).toBe('expired')
+        })
+
+        it('revokeUserOrganization sends __relay_closed sentinel with org reason', () => {
+            relay.maxRelaysPerUser = 50
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', requestingUserId: 'user-1',
+                deliverInbox: '_INBOX.org', actualTopic: `${APP_PREFIX}.organization.org-1.ticket`,
+                subscription: mockSub,
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1']))
+
+            relay.revokeUserOrganization('user-1', 'org-1')
+
+            const sentinelCall = relay.connection.publish.mock.calls.find(
+                ([subject]) => subject === '_INBOX.org'
+            )
+            expect(sentinelCall).toBeDefined()
+            const decoded = relay.jc.decode(sentinelCall[1])
+            expect(decoded.__relay_closed).toBe(true)
+            expect(decoded.reason).toBe('organization access revoked')
+        })
+
+        it('explicit _handleUnsubscribeRequest does NOT send sentinel (client-initiated)', () => {
+            const mockSub = { unsubscribe: jest.fn() }
+            relay.relays.set('relay-1', {
+                id: 'relay-1', requestingUserId: 'user-1',
+                deliverInbox: '_INBOX.unsub', actualTopic: 'user.user-1.>',
+                subscription: mockSub,
+            })
+            relay.userRelays.set('user-1', new Set(['relay-1']))
+
+            relay._handleUnsubscribeRequest({
+                subject: '_MESSAGING.unsubscribe.user-1.relay-1',
+                reply: 'reply-subject',
+            })
+
+            const sentinelCall = relay.connection.publish.mock.calls.find(
+                ([subject]) => subject === '_INBOX.unsub'
+            )
+            expect(sentinelCall).toBeUndefined()
+            expect(relay.relays.size).toBe(0)
         })
     })
 })

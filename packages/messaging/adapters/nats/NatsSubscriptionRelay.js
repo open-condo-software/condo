@@ -234,6 +234,7 @@ class NatsSubscriptionRelay {
         ;(async () => {
             for await (const channelMsg of channelSub) {
                 try {
+                    relay.createdAt = Date.now()
                     this.connection.publish(deliverInbox, channelMsg.data)
                 } catch (error) {
                     logger.error({ msg: 'Error forwarding message', relayId, err: error })
@@ -292,6 +293,22 @@ class NatsSubscriptionRelay {
         return true
     }
 
+    _notifyAndRemoveRelay (relayId, reason) {
+        const relay = this.relays.get(relayId)
+        if (!relay) return false
+
+        try {
+            this.connection.publish(
+                relay.deliverInbox,
+                this.jc.encode({ __relay_closed: true, relayId, reason })
+            )
+        } catch (error) {
+            logger.error({ msg: 'Error sending relay closed notification', relayId, err: error })
+        }
+
+        return this._removeRelay(relayId)
+    }
+
     /**
      * Immediately revokes relay subscriptions for a user in a specific organization.
      * Tears down only relays whose actualTopic matches the organization prefix.
@@ -314,7 +331,7 @@ class NatsSubscriptionRelay {
         for (const relayId of ids) {
             const relay = this.relays.get(relayId)
             if (relay && relay.actualTopic.startsWith(orgTopicPrefix)) {
-                if (this._removeRelay(relayId)) count++
+                if (this._notifyAndRemoveRelay(relayId, 'organization access revoked')) count++
             }
         }
         return count
@@ -350,7 +367,7 @@ class NatsSubscriptionRelay {
         const ids = [...relayIds]
         let count = 0
         for (const relayId of ids) {
-            if (this._removeRelay(relayId)) count++
+            if (this._notifyAndRemoveRelay(relayId, 'access revoked')) count++
         }
         return count
     }
@@ -379,7 +396,7 @@ class NatsSubscriptionRelay {
             }
         }
         for (const relayId of expired) {
-            this._removeRelay(relayId)
+            this._notifyAndRemoveRelay(relayId, 'expired')
         }
         if (expired.length > 0) {
             logger.warn({ msg: 'Swept expired relays', count: expired.length, remaining: this.relays.size })

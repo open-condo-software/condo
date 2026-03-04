@@ -1,7 +1,7 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { CHANNEL_USER, CHANNEL_DEFINITIONS } = require('./topic')
+const { CHANNEL_USER, CHANNEL_DEFINITIONS, APP_PREFIX } = require('./topic')
 
 const logger = getLogger()
 
@@ -56,7 +56,8 @@ function configure (config = {}) {
 async function checkAccess (context, userId, topic) {
     try {
         const parts = topic.split('.')
-        const channel = parts[0]
+        const channelStart = parts[0] === APP_PREFIX ? 1 : 0
+        const channel = parts[channelStart]
 
         const user = await getById('User', userId)
         if (!user || user.deletedAt) {
@@ -64,14 +65,14 @@ async function checkAccess (context, userId, topic) {
         }
 
         if (channel === CHANNEL_USER) {
-            const topicUserId = parts[1]
+            const topicUserId = parts[channelStart + 1]
             if (topicUserId !== userId) {
                 return { allowed: false, reason: 'Cannot access other user channel' }
             }
             return { allowed: true, user: userId }
         }
 
-        const targetId = parts[1]
+        const targetId = parts[channelStart + 1]
         if (!targetId) {
             return { allowed: false, reason: `Invalid ${channel} topic: missing target ID` }
         }

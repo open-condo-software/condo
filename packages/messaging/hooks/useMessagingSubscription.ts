@@ -10,6 +10,7 @@ interface UseMessagingSubscriptionOptions<T> {
     isConnected: boolean
     enabled?: boolean
     userId?: string | null
+    resubscribeDelay?: number
     onMessage?: (data: T, msg: Msg) => void | Promise<void>
 }
 
@@ -18,6 +19,7 @@ interface MessagingSubscriptionState {
     isSubscribing: boolean
     error: Error | null
     messageCount: number
+    retryCount: number
 }
 
 /**
@@ -40,6 +42,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
         isConnected,
         enabled = true,
         userId,
+        resubscribeDelay = 1000,
         onMessage,
     } = options
     const [state, setState] = useState<MessagingSubscriptionState>({
@@ -47,6 +50,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
         isSubscribing: false,
         error: null,
         messageCount: 0,
+        retryCount: 0,
     })
 
     const subscriptionRef = useRef<Subscription | null>(null)
@@ -130,12 +134,30 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                         if (!isActiveRef.current) break
 
                         try {
-                            const data = msg.json<T>()
+                            const data = msg.json<Record<string, unknown>>()
+
+                            if (data.__relay_closed) {
+                                console.warn('[messaging] Relay closed by server:', data.reason)
+                                inboxSub.unsubscribe()
+                                subscriptionRef.current = null
+                                relayIdRef.current = null
+                                currentRelayId = null
+                                setTimeout(() => {
+                                    if (isActiveRef.current) {
+                                        setState(prev => ({
+                                            ...prev,
+                                            isSubscribed: false,
+                                            retryCount: prev.retryCount + 1,
+                                        }))
+                                    }
+                                }, resubscribeDelay)
+                                return
+                            }
 
                             setState(prev => ({ ...prev, messageCount: prev.messageCount + 1 }))
 
                             if (onMessageRef.current) {
-                                await onMessageRef.current(data, msg)
+                                await onMessageRef.current(data as unknown as T, msg)
                             }
                         } catch (error) {
                             console.error('[messaging] Error processing message:', error)
@@ -173,13 +195,14 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 inboxSub.unsubscribe()
             }
         }
-    }, [enabled, isConnected, connection, topic, userId])
+    }, [enabled, isConnected, connection, topic, userId, state.retryCount])
 
     return {
         isSubscribed: state.isSubscribed,
         isSubscribing: state.isSubscribing,
         error: state.error,
         messageCount: state.messageCount,
+        retryCount: state.retryCount,
         unsubscribe,
     }
 }
