@@ -20,6 +20,7 @@ import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -27,6 +28,7 @@ import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { Link as LinkIcon } from '@open-condo/icons'
+import { useMessagingConnection, useMessagingChannels, useMessagingSubscription } from '@open-condo/messaging/hooks'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -104,6 +106,8 @@ import {
 import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
+const { publicRuntimeConfig } = getConfig()
 
 
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -594,6 +598,38 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
     const { persistor } = useCachePersistor()
+
+    // -- Messaging test: subscribe to org ticket channel and log data --
+    
+    const { connection, isConnected, userId: messagingUserId } = useMessagingConnection({
+        wsUrl: publicRuntimeConfig?.messagingWsUrl,
+    })
+    const { channels } = useMessagingChannels({ enabled: isConnected })
+    const orgChannel = useMemo(
+        () => channels.find(c => c.name === 'organization'),
+        [channels]
+    )
+    const ticketTopic = useMemo(
+        () => orgChannel ? `${orgChannel.topicPrefix}.ticket` : '',
+        [orgChannel]
+    )
+    const { isSubscribed, messageCount, retryCount, error: subError } = useMessagingSubscription({
+        topic: ticketTopic,
+        connection,
+        isConnected,
+        enabled: !!ticketTopic,
+        userId: messagingUserId,
+        onMessage: useCallback((data) => {
+            console.log('[messaging-test] Ticket channel message:', data)
+        }, []),
+    })
+    useEffect(() => {
+        console.log('[messaging-test] Subscription state:', {
+            isConnected, isSubscribed, messageCount, retryCount, ticketTopic,
+            error: subError?.message,
+        })
+    }, [isConnected, isSubscribed, messageCount, retryCount, ticketTopic, subError])
+    // -- End messaging test --
 
     const id = useMemo(() => ticket?.id, [ticket?.id])
 
