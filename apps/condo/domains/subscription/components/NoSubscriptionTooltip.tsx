@@ -176,25 +176,18 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     }, [])
 
     if (skipTooltip) {
-        console.log(1, featureProp)
         return children
     }
 
     if (path && !requiredFeature) {
-        console.log(2, featureProp)
-
         return children
     }
 
     if (path && !hasSubscription) {
-        console.log(3, featureProp)
-
         return children
     }
 
     if (recentlyActivatedTrialPlan) {
-        console.log(4, featureProp)
-
         return (
             <Tour.Provider>
                 <TrialActivatedTooltip
@@ -210,10 +203,8 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     }
 
     if (isAvailable) {
-        console.log(5, featureProp)
         return children
     }
-    console.log(6, featureProp)
 
     return (
         <Tooltip
