@@ -10,7 +10,7 @@ const PUSH_TOKENS_VALIDATION_ERRORS = {
     TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED: {
         code: BAD_USER_INPUT,
         type: TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED,
-        message: 'Any push token must set "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" or both as "true"',
+        message: 'Any push token must set "isVoIP" or "isPush" or both as "true"',
     },
     PUSH_TOKENS_TOKEN_MUST_NOT_BE_EMPTY: {
         code: BAD_USER_INPUT,
@@ -30,9 +30,9 @@ const PUSH_TOKENS_VALIDATION_ERRORS = {
  * }}
  * */
 function _groupPushTokensByTransportAndToken (pushTokens) {
-    const pushTokensByTransportAndToken = {}
+    const pushTokensByTransportAndToken = Object.create(null)
     pushTokens.forEach(pushToken => {
-        if (!pushTokensByTransportAndToken[pushToken.transport]) pushTokensByTransportAndToken[pushToken.transport] = {}
+        if (!pushTokensByTransportAndToken[pushToken.transport]) pushTokensByTransportAndToken[pushToken.transport] = Object.create(null)
         if (!pushTokensByTransportAndToken[pushToken.transport][pushToken.token]) pushTokensByTransportAndToken[pushToken.transport][pushToken.token] = []
         pushTokensByTransportAndToken[pushToken.transport][pushToken.token].push(pushToken)
     })
@@ -43,15 +43,15 @@ function reducePushTokensWithSameTokenToOneObject (pushTokensWithSameToken) {
     return pushTokensWithSameToken.reduce((uniquePushToken, currentPushTokenDuplicate) => {
         return {
             ...uniquePushToken,
-            canBeUsedAsVoIP: uniquePushToken.canBeUsedAsVoIP || currentPushTokenDuplicate.canBeUsedAsVoIP,
-            canBeUsedAsSimplePush: uniquePushToken.canBeUsedAsSimplePush || currentPushTokenDuplicate.canBeUsedAsSimplePush,
+            isVoIP: uniquePushToken.isVoIP || currentPushTokenDuplicate.isVoIP,
+            isPush: uniquePushToken.isPush || currentPushTokenDuplicate.isPush,
         }
     })
 }
 
 function getPushTokensValidationError (pushTokens) {
-    const tokenWithoutAllowedVoIPAndSimplePush = pushTokens.find(pushToken => !pushToken.canBeUsedAsVoIP && !pushToken.canBeUsedAsSimplePush)
-    if (tokenWithoutAllowedVoIPAndSimplePush) {
+    const tokenWithoutAllowedVoIPAndDefaultPush = pushTokens.find(pushToken => !pushToken.isVoIP && !pushToken.isPush)
+    if (tokenWithoutAllowedVoIPAndDefaultPush) {
         return PUSH_TOKENS_VALIDATION_ERRORS.TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED
     }
 
@@ -65,9 +65,9 @@ function getPushTokensValidationError (pushTokens) {
     for (const pushTokensByToken of Object.values(pushTokensByTransportAndToken)) {
         const allPushTokensForTransport = Object.values(pushTokensByToken)
             .map(pushTokensWithSameToken => reducePushTokensWithSameTokenToOneObject(pushTokensWithSameToken))
-        const voipTokens = allPushTokensForTransport.filter(token => token.canBeUsedAsVoIP)
-        const simpleTokens = allPushTokensForTransport.filter(token => token.canBeUsedAsSimplePush)
-        if (voipTokens.length > 1 || simpleTokens.length > 1) {
+        const voipTokens = allPushTokensForTransport.filter(token => token.isVoIP)
+        const defaultTokens = allPushTokensForTransport.filter(token => token.isPush)
+        if (voipTokens.length > 1 || defaultTokens.length > 1) {
             return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT
         }
     }

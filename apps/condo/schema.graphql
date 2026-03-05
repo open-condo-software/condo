@@ -91177,40 +91177,34 @@ input PushToken {
   token: String!
   transport: PushTransportType!
 
-  """
-  Pass "true" if we can use this token to send VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true" 
-  """
-  canBeUsedAsVoIP: Boolean!
+  """Specifies if token can be used to receive default push messages"""
+  isPush: Boolean!
 
-  """
-  Pass "true" if we can use this token to send not VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true"
-  """
-  canBeUsedAsSimplePush: Boolean!
+  """Specifies if token can be used to receive VoIP push messages"""
+  isVoIP: Boolean!
 }
 
 input SyncRemoteClientInput {
   dv: Int!
   sender: SenderFieldInput!
-  deviceId: String!
   appId: String!
-  pushToken: String
-  pushTransport: PushTransportType
-  devicePlatform: DevicePlatformType
-  pushType: PushType
-  meta: JSON
-  pushTokenVoIP: String
-  pushTransportVoIP: PushTransportType
-  pushTypeVoIP: PushType
+  deviceId: String!
 
   """
-  No-op for now, later we will sync all push tokens passed here and move on from tokens inside this type
-  """
-  pushTokens: [PushToken!]
-
-  """
-  Same idea as "deviceId", but it's as secret as password. Will be required in future
+  Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
   """
   deviceKey: String
+  devicePlatform: DevicePlatformType
+  pushToken: String @deprecated(reason: "Use pushTokens instead")
+  pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead")
+  pushType: PushType
+  pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead")
+  pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead")
+  pushTypeVoIP: PushType
+
+  """List of tokens received from messaging providers / sdks"""
+  pushTokens: [PushToken!]
+  meta: JSON
 }
 
 input DisconnectUserFromRemoteClientInput {
@@ -105728,7 +105722,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED",
-    "message": "Any push token must set \"canBeUsedAsVoIP\" or \"canBeUsedAsSimplePush\" or both as \"true\""
+    "message": "Any push token must set \"isVoIP\" or \"isPush\" or both as \"true\""
   }`
   
   `{
@@ -105745,29 +105739,26 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "WRONG_PASSWORD_FORMAT",
-    "message": "\"deviceKey\" must be in string format",
-    "messageForUser": "Password must be in string format"
+    "type": "WRONG_DEVICE_KEY_FORMAT",
+    "message": "\"deviceKey\" must be in string format"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "INVALID_PASSWORD_LENGTH",
-    "message": "\"deviceKey\" length must be between 8 and 128 characters",
-    "messageForUser": "Password length must be between 8 and 128 characters"
+    "type": "INVALID_DEVICE_KEY_LENGTH",
+    "message": "\"deviceKey\" length must be between 8 and 128 characters"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
-    "message": "\"deviceKey\" must contain at least 4 different characters",
-    "messageForUser": "Password must contain at least 4 different characters"
+    "type": "DEVICE_KEY_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "\"deviceKey\" must contain at least 4 different characters"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "DYNAMIC_DEVICE_KEY_VALIDATION_ERROR",
-    "message": "dynamic error message will be added if this error throws"
+    "message": "dynamic error for \"deviceKey\" validation, look at the inner errors"
   }`
   """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient

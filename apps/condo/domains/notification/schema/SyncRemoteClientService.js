@@ -5,48 +5,31 @@ const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
 const pickBy = require('lodash/pickBy')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { wrapWithGQLError } = require('@open-condo/keystone/utils/errors/wrapWithGQLError')
 
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK,
+} = require('@condo/domains/notification/constants/constants')
 const { DYNAMIC_DEVICE_KEY_VALIDATION_ERROR } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { getDeviceKeyValidationError, DEVICE_KEY_VALIDATIONS_ERRORS } = require('@condo/domains/notification/utils/serverSchema/remoteClient/validateHelpers')
 const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
-const { GQL_ERRORS: USER_GQL_ERRORS } = require('@condo/domains/user/constants/errors')
-const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
-
-const PASSWORD_VALIDATIONS_ERRORS = {
-    WRONG_PASSWORD_FORMAT: {
-        ...USER_GQL_ERRORS.WRONG_PASSWORD_FORMAT,
-        variable: ['data', 'deviceKey'],
-        message: '"deviceKey" must be in string format',
-    },
-    INVALID_PASSWORD_LENGTH: {
-        ...USER_GQL_ERRORS.INVALID_PASSWORD_LENGTH,
-        variable: ['data', 'deviceKey'],
-        message: '"deviceKey" length must be between {min} and {max} characters',
-    },
-    PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS: {
-        ...USER_GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
-        variable: ['data', 'deviceKey'],
-        message: '"deviceKey" must contain at least {min} different characters',
-    },
-}
 
 const ERRORS = {
     ...PUSH_TOKENS_VALIDATION_ERRORS,
-    ...PASSWORD_VALIDATIONS_ERRORS,
+    ...DEVICE_KEY_VALIDATIONS_ERRORS,
     DYNAMIC_DEVICE_KEY_VALIDATION_ERROR: {
         code: BAD_USER_INPUT,
         type: DYNAMIC_DEVICE_KEY_VALIDATION_ERROR,
-        message: 'dynamic error message will be added if this error throws',
+        message: 'dynamic error for "deviceKey" validation, look at the inner errors',
     },
 }
 
-/** @type {Record<string, { voip?: string, simple?: string }>} appId to pushTransport for voip / simple pushes */
-const TEMP_PREFERRED_PUSH_TRANSPORTS_BY_APP_ID = JSON.parse(conf.TEMP_PREFERRED_PUSH_TRANSPORTS_BY_APP_ID || '{}')
+const TEMP_PREFERRED_PUSH_TRANSPORTS_ORDER = [PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK]
+const TEMP_TRANSPORT_PREFERENCE_INDEXES = Object.fromEntries(TEMP_PREFERRED_PUSH_TRANSPORTS_ORDER.map((transport, idx) => [transport, idx]))
 
 const SENSITIVE_FIELDS = [
     /^push/,
@@ -63,22 +46,15 @@ function _cleanRemoteClient (rawClient) {
     )
 }
 
-function isErrorMessageFromValidator (errorMessage) {
-    // as in [someField:someError] you have made an error
-    return /^\[\w+\] /.test(errorMessage)
-}
-
-function pickPushTokenToReplaceOldOne ({ pushTokens, appId, isVoIP }) {
-    const voipOrSimpleKey = isVoIP ? 'canBeUsedAsVoIP' : 'canBeUsedAsSimplePush'
-    const allPushTokensForVoIPType = pushTokens.filter(pushToken => pushToken[voipOrSimpleKey])
-    let pushTokenToReplace = allPushTokensForVoIPType[0]
-
-    const pushTransportToFind = TEMP_PREFERRED_PUSH_TRANSPORTS_BY_APP_ID?.[appId]?.[isVoIP ? 'voip' : 'simple']
-    if (pushTransportToFind) {
-        pushTokenToReplace = allPushTokensForVoIPType.find(pushToken => pushToken.transport === pushTransportToFind)
-    }
-
-    return pushTokenToReplace || null
+function pickPushTokenToReplaceOldOne ({ pushTokens, isVoIP }) {
+    const voipOrDefaultKey = isVoIP ? 'isVoIP' : 'isPush'
+    const orderedByPreferencePushTokens = [...pushTokens].sort(({ transport: transportA }, { transport: transportB }) => {
+        const preferenceIndexA = TEMP_TRANSPORT_PREFERENCE_INDEXES[transportA]
+        const preferenceIndexB = TEMP_TRANSPORT_PREFERENCE_INDEXES[transportB]
+        return preferenceIndexA - preferenceIndexB
+    })
+    const allPushTokensForVoIPType = orderedByPreferencePushTokens.filter(pushToken => pushToken[voipOrDefaultKey])
+    return allPushTokensForVoIPType[0] || null
 }
 
 
@@ -102,13 +78,13 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     token: String!,
                     transport: PushTransportType!,
                     """
-                    Pass "true" if we can use this token to send VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true" 
+                    Specifies if token can be used to receive default push messages
                     """
-                    canBeUsedAsVoIP: Boolean!,
+                    isPush: Boolean!
+                     """
+                    Specifies if token can be used to receive VoIP push messages
                     """
-                    Pass "true" if we can use this token to send not VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true"
-                    """
-                    canBeUsedAsSimplePush: Boolean!
+                    isVoIP: Boolean!,
                 }
             `,
         },
@@ -117,24 +93,29 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
             type: `input SyncRemoteClientInput { 
                 dv: Int!, 
                 sender: SenderFieldInput!,
-                deviceId: String!,
+                
                 appId: String!,
-                pushToken: String,
-                pushTransport: PushTransportType,
-                devicePlatform: DevicePlatformType,
-                pushType: PushType,
-                meta: JSON,
-                pushTokenVoIP: String,
-                pushTransportVoIP: PushTransportType,
-                pushTypeVoIP: PushType,
+                deviceId: String!,
                 """
-                No-op for now, later we will sync all push tokens passed here and move on from tokens inside this type
+                Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
+                """
+                deviceKey: String,
+                devicePlatform: DevicePlatformType,
+                
+                pushToken: String @deprecated(reason: "Use pushTokens instead"),
+                pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead"),
+                pushType: PushType,
+                
+                pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead"),
+                pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead"),
+                pushTypeVoIP: PushType,
+                
+                """
+                List of tokens received from messaging providers / sdks
                 """
                 pushTokens: [PushToken!],
-                """
-                Same idea as "deviceId", but it's as secret as password. Will be required in future
-                """
-                deviceKey: String
+                
+                meta: JSON,
             }`,
         },
     ],
@@ -162,20 +143,20 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 // AI says that direct modification can affect logs
                 const pushTokensInput = [...pushTokensRaw]
 
-                if (pushToken) {
-                    pushTokensInput.unshift({
+                if (pushToken && pushTransport) {
+                    pushTokensInput.push({
                         token: pushToken,
                         transport: pushTransport,
-                        canBeUsedAsVoIP: false,
-                        canBeUsedAsSimplePush: true,
+                        isVoIP: false,
+                        isPush: true,
                     })
                 }
-                if (pushTokenVoIP) {
-                    pushTokensInput.unshift({
+                if (pushTokenVoIP && pushTransportVoIP) {
+                    pushTokensInput.push({
                         token: pushTokenVoIP,
                         transport: pushTransportVoIP,
-                        canBeUsedAsVoIP: true,
-                        canBeUsedAsSimplePush: false,
+                        isVoIP: true,
+                        isPush: false,
                     })
                 }
 
@@ -191,21 +172,17 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
                 if (typeof deviceKey === 'string') {
                     // NOTE: maybe add another errors
-                    await passwordValidations(context, deviceKey, null, null, PASSWORD_VALIDATIONS_ERRORS)
+                    const deviceKeyValidationError = getDeviceKeyValidationError(deviceKey)
+                    if (deviceKeyValidationError) {
+                        throw new GQLError(deviceKeyValidationError, context)
+                    }
                     // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
                     const { keystone } = getSchemaCtx('User')
                     try {
                         // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
                         keystone.lists['User'].fieldsByPath.password.validateNewPassword(deviceKey)
                     } catch (err) {
-                        if (isErrorMessageFromValidator(err.message)) {
-                            const errorMessageWithoutModelPart = err.message.split('] ').slice(1).join('] ')
-                            throw new GQLError({
-                                ...ERRORS.DYNAMIC_DEVICE_KEY_VALIDATION_ERROR,
-                                message: errorMessageWithoutModelPart,
-                            }, context)
-                        }
-                        throw err
+                        throw wrapWithGQLError(err, context, ERRORS.DYNAMIC_DEVICE_KEY_VALIDATION_ERROR)
                     }
                 }
 
@@ -213,14 +190,14 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
 
                 // --- THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
                 if (!pushToken) {
-                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, appId, isVoIP: false })
+                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, isVoIP: false })
                     if (pushTokenToReplace) {
                         pushToken = pushTokenToReplace.token
                         pushTransport = pushTokenToReplace.transport
                     }
                 }
                 if (!pushTokenVoIP) {
-                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, appId, isVoIP: true })
+                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, isVoIP: true })
                     if (pushTokenToReplace) {
                         pushTokenVoIP = pushTokenToReplace.token
                         pushTransportVoIP = pushTokenToReplace.transport
