@@ -282,7 +282,6 @@ jobs:
         env:
           NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_SERVER }}
         run: |
-          set -euo pipefail
           npm i -g turbo
 
           echo "Registry (before): $(yarn config get npmRegistryServer)"
@@ -362,7 +361,6 @@ jobs:
           cache: 'yarn'
       - name: Install packages
         run: |
-          set -euo pipefail
           pip install Django psycopg2-binary
           npm i -g turbo
 
@@ -814,7 +812,6 @@ jobs:
           ref: ${{ env.REF }}
       - name: Install packages
         run: |
-          set -euo pipefail
           npm i -g turbo
 
           echo "Registry (before): $(yarn config get npmRegistryServer)"
@@ -849,7 +846,6 @@ jobs:
           ref: ${{ env.REF }}
       - name: Install packages
         run: |
-          set -euo pipefail
           npm i -g turbo
 
           echo "Registry (before): $(yarn config get npmRegistryServer)"
@@ -989,7 +985,6 @@ jobs:
           ref: ${{ env.REF }}
       - name: Install packages
         run: |
-          set -euo pipefail
           npm i -g turbo
 
           echo "Registry (before): $(yarn config get npmRegistryServer)"
@@ -1024,7 +1019,6 @@ jobs:
           ref: ${{ env.REF }}
       - name: Install packages
         run: |
-          set -euo pipefail
           npm i -g turbo
 
           echo "Registry (before): $(yarn config get npmRegistryServer)"

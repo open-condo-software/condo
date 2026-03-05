@@ -44,8 +44,6 @@ COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
 
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
     bash -ceu '
-      set -o pipefail
-
       echo "Registry from env: ${NPM_REGISTRY_SERVER}"
 
       yarn install --immutable --inline-builds || {
