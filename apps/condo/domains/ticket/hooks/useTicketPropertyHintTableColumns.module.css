@@ -1,0 +1,7 @@
+.ticket-property-hint-content {
+  max-width: 300px;
+  max-height: 6.5em;
+  overflow: hidden;
+  white-space: inherit;
+  word-break: break-word;
+}
