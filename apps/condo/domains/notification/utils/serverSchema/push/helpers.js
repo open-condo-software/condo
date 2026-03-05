@@ -2,8 +2,14 @@ const isEmpty = require('lodash/isEmpty')
 
 const { find } = require('@open-condo/keystone/schema')
 
-const { PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_APPLE,
-    PUSH_TRANSPORT_WEBHOOK, PUSH_TRANSPORT_TYPES,
+const {
+    PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_REDSTORE,
+    PUSH_TRANSPORT_HUAWEI,
+    PUSH_TRANSPORT_APPLE,
+    PUSH_TRANSPORT_WEBHOOK,
+    PUSH_TRANSPORT_ONESIGNAL,
+    PUSH_TRANSPORT_TYPES,
 } = require('@condo/domains/notification/constants/constants')
 
 /**
@@ -50,6 +56,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
         [PUSH_TRANSPORT_HUAWEI]: [],
         [PUSH_TRANSPORT_APPLE]: [],
         [PUSH_TRANSPORT_WEBHOOK]: [],
+        [PUSH_TRANSPORT_ONESIGNAL]: [],
     }
     const pushTypes = {}
     const appIds = {}
