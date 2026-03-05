@@ -43,16 +43,7 @@ COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
 
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    bash -euo pipefail -c ' \
-      echo "Registry from env: ${NPM_REGISTRY_SERVER:-<empty>}"; \
-      yarn install --immutable --inline-builds || { \
-        echo "Primary registry failed -> fallback to npmjs"; \
-        export NPM_REGISTRY_SERVER="https://registry.npmjs.org"; \
-        export NPM_ALWAYS_AUTH="false"; \
-        export NPM_AUTH_TOKEN=""; \
-        yarn install --immutable --inline-builds; \
-      }; \
-    '
+    yarn install --immutable --inline-builds
 
 # Builder
 FROM base as builder
