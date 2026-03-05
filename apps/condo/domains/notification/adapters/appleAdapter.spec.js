@@ -39,16 +39,19 @@ describe('Apple adapter utils', () => {
 
     it('should succeed sending push notification to fake success push token', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const dataByToken = Object.fromEntries(
+            tokens.map(token => [token, {
+                app : 'condo',
+                type: 'notification',
+            }])
+        )
         const [isOk, result] = await adapter.sendNotification({
             tokens,
             notification: {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
-            },
+            dataByToken: dataByToken,
         })
 
         expect(isOk).toBeTruthy()
@@ -153,9 +156,11 @@ describe('Apple adapter utils', () => {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_FAIL]: {
+                    app: 'condo',
+                    type: 'notification',
+                },
             },
         })
 
@@ -171,15 +176,19 @@ describe('Apple adapter utils', () => {
     })
 
     it('should succeed sending push notification to fake success and fake fail push tokens', async () => {
+        const data = {
+            app : 'condo',
+            type: 'notification',
+        }
         const [isOk, result] = await adapter.sendNotification({
             tokens: [PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL],
             notification: {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: data,
+                [PUSH_FAKE_TOKEN_FAIL]: data,
             },
         })
 
@@ -206,9 +215,11 @@ describe('Apple adapter utils', () => {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: {
+                    app : 'condo',
+                    type: 'notification',
+                },
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
@@ -239,9 +250,11 @@ describe('Apple adapter utils', () => {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo',
-                type: 'notification',
+            dataByToken: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: {
+                    app: 'condo',
+                    type: 'notification',
+                },
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
@@ -272,9 +285,11 @@ describe('Apple adapter utils', () => {
                 notification: {
                     body: `${dayjs().format()} Condo greets you!`,
                 },
-                data: {
-                    app : 'condo',
-                    type: 'notification',
+                dataByToken: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: {
+                        app: 'condo',
+                        type: 'notification',
+                    },
                 },
             })
         ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
@@ -287,9 +302,11 @@ describe('Apple adapter utils', () => {
                 notification: {
                     title: 'Doma.ai',
                 },
-                data: {
-                    app : 'condo',
-                    type: 'notification',
+                dataByToken: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: {
+                        app: 'condo',
+                        type: 'notification',
+                    },
                 },
             })
         ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)

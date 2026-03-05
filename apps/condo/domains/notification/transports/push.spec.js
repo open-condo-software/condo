@@ -1,6 +1,29 @@
 /**
  * @jest-environment node
  */
+jest.mock('@open-condo/config', () => {
+    const actual = jest.requireActual('@open-condo/config')
+    return new Proxy(actual, {
+        set () {},
+        get (_, p) {
+            if (p === 'PUSH_ADAPTER_SETTINGS') {
+                return JSON.stringify({
+                    encryption: {
+                        'test-encrypted-app-with-invalid-version': 'non-existent-encryption-version',
+                        'test-encrypted-app': 'v1',
+                    },
+                })
+            }
+            return actual[p]
+        },
+    })
+})
+const ENCRYPTED_APP_ID = 'test-encrypted-app'
+const ALWAYS_INVALID_ENCRYPTION_APP_ID = 'test-encrypted-app-with-invalid-version'
+const TEST_ENCRYPTION_VERSIONS = {
+    [ENCRYPTED_APP_ID]: 'v1',
+}
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -8,6 +31,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
+const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
 const {
     CUSTOM_CONTENT_MESSAGE_TYPE,
@@ -783,6 +807,225 @@ describe('push transport', () => {
                 expect(responsesByTransportAdapterType[PUSH_TRANSPORT_FIREBASE]).toHaveLength(3)
                 expect(responsesByTransportAdapterType[PUSH_TRANSPORT_HUAWEI]).toHaveLength(3)
             })
+        })
+    })
+    
+    describe('Encryption', () => {
+
+        const mockGetTokens = jest.fn()
+        // Create a mock adapter to capture the sendNotification call
+        const mockFirebaseAdapter = {
+            constructor: {
+                prepareData: jest.fn((data, token) => FirebaseAdapter.prepareData(data, token)),
+            },
+            sendNotification: jest.fn(async (payload) => {
+                return new FirebaseAdapter().sendNotification(payload)
+            }),
+        }
+        const testGenericSendPushArguments = {
+            notification: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) },
+            data: { message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
+            user: { id: faker.datatype.uuid() },
+        }
+
+        beforeAll(() => {
+            // Mock modules
+            jest.doMock('@condo/domains/notification/utils/serverSchema/push/helpers', () => {
+                const actual = jest.requireActual('@condo/domains/notification/utils/serverSchema/push/helpers')
+                return {
+                    ...actual,
+                    getTokens: mockGetTokens,
+                }
+            })
+            jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
+                FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
+            }))
+        })
+
+        afterEach(() => {
+            mockGetTokens.mockReset()
+            mockFirebaseAdapter.constructor.prepareData.mockClear()
+            mockFirebaseAdapter.sendNotification.mockClear()
+        })
+
+        it('should encrypt data when sending to encrypted app', async () => {
+            const token = getRandomFakeSuccessToken()
+            // Mock the getTokens function
+            mockGetTokens.mockResolvedValue({
+                tokensByTransport: {
+                    [PUSH_TRANSPORT_FIREBASE]: [token],
+                },
+                pushTypes: { [token]: PUSH_TYPE_DEFAULT },
+                appIds: { [token]: ENCRYPTED_APP_ID },
+                metaByToken: { [token]: {} },
+                count: 1,
+            })
+            
+            // // Mock modules
+            // jest.doMock('@condo/domains/notification/utils/serverSchema/push/helpers', () => {
+            //     const actual = jest.requireActual('@condo/domains/notification/utils/serverSchema/push/helpers')
+            //     return {
+            //         ...actual,
+            //         getTokens: mockGetTokens,
+            //     }
+            // })
+            // jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
+            //     FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
+            // }))
+    
+            // Reload push transport to apply the mocks
+            jest.resetModules()
+            const { send } = require('@condo/domains/notification/transports/push')
+    
+            // Prepare test data
+            const testData = {
+                notification: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) },
+                data: { message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
+                user: { id: faker.datatype.uuid() },
+            }
+    
+            // Call send function
+            const [isOk] = await send(testData)
+    
+            // Verify the results
+            expect(isOk).toBe(true)
+                
+            // Verify that encryption happened correctly
+            const callArgs = mockFirebaseAdapter.sendNotification.mock.calls[0][0]
+            const { dataByToken } = callArgs
+                
+            // The data should be encrypted under the appId key
+            expect(dataByToken[token][ENCRYPTED_APP_ID]).toBeDefined()
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+            expect(dataByToken[token][ENCRYPTED_APP_ID]).toMatch(new RegExp(`^${TEST_ENCRYPTION_VERSIONS[ENCRYPTED_APP_ID]}_`)) // NOSONAR
+        })
+    
+        it('should encrypt data for encrypted app but not for other apps when sending to both', async () => {
+            const encryptedToken = getRandomFakeSuccessToken()
+            const regularToken = getRandomFakeSuccessToken()
+            // Mock the getTokens function
+            mockGetTokens.mockResolvedValue({
+                tokensByTransport: {
+                    [PUSH_TRANSPORT_FIREBASE]: [encryptedToken, regularToken],
+                },
+                pushTypes: {
+                    [encryptedToken]: PUSH_TYPE_DEFAULT,
+                    [regularToken]: PUSH_TYPE_DEFAULT,
+                },
+                appIds: {
+                    [encryptedToken]: ENCRYPTED_APP_ID,
+                    [regularToken]: APP_RESIDENT_ID_ANDROID,
+                },
+                metaByToken: {
+                    [encryptedToken]: {},
+                    [regularToken]: {},
+                },
+                count: 2,
+            })
+
+            // Reload push transport to apply the mocks
+            jest.resetModules()
+            const { send } = require('@condo/domains/notification/transports/push')
+    
+            // Call send function
+            const [isOk] = await send(testGenericSendPushArguments)
+            // Verify the results
+            expect(isOk).toBe(true)
+
+            // Verify that encryption happened correctly for encrypted app
+            const callArgs = mockFirebaseAdapter.sendNotification.mock.calls[0][0]
+            const { dataByToken } = callArgs
+            // Check encrypted app data
+            expect(dataByToken[encryptedToken][ENCRYPTED_APP_ID]).toBeDefined()
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+            expect(dataByToken[encryptedToken][ENCRYPTED_APP_ID]).toMatch(new RegExp(`^${TEST_ENCRYPTION_VERSIONS[ENCRYPTED_APP_ID]}_`)) // NOSONAR
+
+            // Check regular app data - should not be encrypted
+            expect(dataByToken[regularToken][ENCRYPTED_APP_ID]).toBeUndefined()
+            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.data))
+        })
+    
+        it('should not send push to app if encryption fails', async () => {
+            const invalidEncryptionToken = getRandomFakeSuccessToken()
+            // Mock the getTokens function
+            mockGetTokens.mockResolvedValue({
+                tokensByTransport: {
+                    [PUSH_TRANSPORT_FIREBASE]: [invalidEncryptionToken],
+                },
+                pushTypes: { [invalidEncryptionToken]: PUSH_TYPE_DEFAULT },
+                appIds: { [invalidEncryptionToken]: ALWAYS_INVALID_ENCRYPTION_APP_ID },
+                metaByToken: { [invalidEncryptionToken]: {} },
+                count: 1,
+            })
+
+            // Reload push transport to apply the mocks
+            jest.resetModules()
+            const { send } = require('@condo/domains/notification/transports/push')
+    
+            // Call send function
+            const [isOk, result] = await send(testGenericSendPushArguments)
+    
+            // Verify the results
+            expect(isOk).toBe(false)
+            expect(mockFirebaseAdapter.sendNotification).not.toHaveBeenCalled()
+            
+            expect(result.successCount).toBe(0)
+            expect(result.failureCount).toBe(1)
+        })
+
+        it('should skip apps when encryption fails', async () => {
+            const invalidEncryptionToken = getRandomFakeSuccessToken()
+            const encryptedToken = getRandomFakeSuccessToken()
+            const regularToken = getRandomFakeSuccessToken()
+
+            // Mock the getTokens function
+            mockGetTokens.mockResolvedValue({
+                tokensByTransport: {
+                    [PUSH_TRANSPORT_FIREBASE]: [invalidEncryptionToken, encryptedToken, regularToken],
+                },
+                pushTypes: { 
+                    [invalidEncryptionToken]: PUSH_TYPE_DEFAULT,
+                    [encryptedToken]: PUSH_TYPE_DEFAULT,
+                    [regularToken]: PUSH_TYPE_DEFAULT,
+                },
+                appIds: { 
+                    [invalidEncryptionToken]: ALWAYS_INVALID_ENCRYPTION_APP_ID,
+                    [encryptedToken]: ENCRYPTED_APP_ID,
+                    [regularToken]: APP_RESIDENT_ID_ANDROID,
+                },
+                metaByToken: { 
+                    [invalidEncryptionToken]: {},
+                    [encryptedToken]: {},
+                    [regularToken]: {},
+                },
+                count: 3,
+            })
+
+            // Reload push transport to apply the mocks
+            jest.resetModules()
+            const { send } = require('@condo/domains/notification/transports/push')
+
+            // Call send function
+            const [isOk] = await send(testGenericSendPushArguments)
+
+            // Verify the results
+            expect(isOk).toBe(true)
+            expect(mockFirebaseAdapter.sendNotification).toHaveBeenCalled()
+
+            const callArgs = mockFirebaseAdapter.sendNotification.mock.calls[0][0]
+            const { dataByToken } = callArgs
+
+            expect(Object.keys(dataByToken)).toHaveLength(2)
+            // Check encrypted app data
+            expect(dataByToken[encryptedToken][ENCRYPTED_APP_ID]).toBeDefined()
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+            expect(dataByToken[encryptedToken][ENCRYPTED_APP_ID]).toMatch(new RegExp(`^${TEST_ENCRYPTION_VERSIONS[ENCRYPTED_APP_ID]}_`)) // NOSONAR
+
+            // Check regular app data - should not be encrypted
+            expect(dataByToken[regularToken][ENCRYPTED_APP_ID]).toBeUndefined()
+            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.data))
+
+            expect(dataByToken[invalidEncryptionToken]).toBeUndefined()
         })
     })
 })
