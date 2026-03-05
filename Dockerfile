@@ -22,8 +22,18 @@ RUN set -ex \
 	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
     && echo "OK"
 
+ENV YARN_CACHE_FOLDER=/usr/local/share/.cache/yarn
+
 # Installer
 FROM base AS installer
+
+ARG NPM_REGISTRY_SERVER
+ARG NPM_ALWAYS_AUTH
+ARG NPM_AUTH_TOKEN
+
+ENV NPM_REGISTRY_SERVER=$NPM_REGISTRY_SERVER
+ENV NPM_ALWAYS_AUTH=$NPM_ALWAYS_AUTH
+ENV NPM_AUTH_TOKEN=$NPM_AUTH_TOKEN
 
 WORKDIR /app
 # Copy pruned monorepo (only package.json + yarn.lock)
@@ -31,8 +41,19 @@ COPY --chown=app:app ./out /app
 # Copy yarn berry
 COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
+
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    yarn install --immutable --inline-builds
+    bash -ceu '
+      set -o pipefail
+
+      echo "Registry from env: ${NPM_REGISTRY_SERVER}"
+
+      yarn install --immutable --inline-builds || {
+        echo "Primary registry failed -> fallback to npmjs"
+        export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+        yarn install --immutable --inline-builds
+      }
+    '
 
 # Builder
 FROM base as builder
