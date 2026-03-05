@@ -79,45 +79,47 @@ describe('pushTokensInput', () => {
 
         test.each([
             {
-                testName: 'more than 3 different tokens for same transport',
+                testName: 'exactly 2 voip tokens for same transport',
+                tokens: [
+                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                    { token: 'token2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                ],
+            },
+            {
+                testName: 'more than 2 different tokens for same transport',
                 tokens: [
                     { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
-                    { token: 'token2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
+                    { token: 'token2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: true, pushType: 'simple' },
                     { token: 'token3', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
                 ],
                 expectedError: PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT,
             },
             {
-                testName: 'same token has different push types',
+                testName: 'exactly 2 voip and 1 simple tokens for same transport',
                 tokens: [
-                    { token: 'same-token', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
-                    { token: 'same-token', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'voip' },
-                ],
-                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.DIFFERENT_PUSH_TYPES_FOR_SAME_TOKENS_NOT_SUPPORTED,
-            },
-        ])('should return $expectedError.type error when $testName', ({ tokens, expectedError }) => {
-            const error = getPushTokensValidationError(tokens)
-            expect(error).toEqual(expectedError)
-        })
-
-        test.each([
-            {
-                testName: 'exactly 2 different tokens for same transport',
-                tokens: [
-                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
-                    { token: 'token2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
+                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                    { token: 'token2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                    { token: 'token3', transport: 'ios', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true },
                 ],
             },
             {
-                testName: 'different tokens have different push types',
+                testName: '1 token for everything in different objects and 1 simple token for same transport',
                 tokens: [
-                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple' },
-                    { token: 'token2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'voip' },
+                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true },
+                    { token: 'token3', transport: 'ios', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true },
                 ],
             },
-        ])('should not return error when $testName', ({ tokens }) => {
+            {
+                testName: 'exactly 1 token for everything and 1 simple token for same transport',
+                tokens: [
+                    { token: 'token1', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: true },
+                    { token: 'token3', transport: 'ios', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true },
+                ],
+            },
+        ])('should return TOO_MANY_TOKENS_FOR_TRANSPORT error when $testName', ({ tokens }) => {
             const error = getPushTokensValidationError(tokens)
-            expect(error).toBeNull()
+            expect(error).toEqual(PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT)
         })
     })
 
@@ -203,22 +205,33 @@ describe('pushTokensInput', () => {
             expect(result).toEqual([])
         })
 
-        test('should preserve the first occurrence properties when deduplicating', () => {
-            const tokens = [
-                { token: 'same-token', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false, pushType: 'simple', extraProp: 'first' },
-                { token: 'same-token', transport: 'ios', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true, pushType: 'simple', extraProp: 'second' },
+        test('tries to preserve original order', () => {
+            // Test that duplicate tokens are merged while preserving the order of first occurrence
+            const inputTokens = [
+                { token: '3', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                { token: '4', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: true },
+                { token: '1', transport: 'android', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true },
+                { token: '3', transport: 'ios', canBeUsedAsVoIP: false, canBeUsedAsSimplePush: true }, // duplicate of first
+                { token: '2', transport: 'ios', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false },
+                { token: '1', transport: 'android', canBeUsedAsVoIP: true, canBeUsedAsSimplePush: false }, // duplicate of second
             ]
-
-            const result = deduplicatePushTokens(tokens)
-            expect(result).toHaveLength(1)
-            expect(result[0]).toMatchObject({
-                token: 'same-token',
-                transport: 'ios',
-                canBeUsedAsVoIP: true, // OR-ed value
-                canBeUsedAsSimplePush: true, // OR-ed value
-                pushType: 'simple', // from first occurrence
-                extraProp: 'first', // from first occurrence
-            })
+            
+            const result = deduplicatePushTokens(inputTokens)
+            
+            // Should have 4 tokens after deduplication (one for each unique token)
+            expect(result).toHaveLength(4)
+            
+            // The order should preserve the first occurrence position of each unique token
+            // Token '3' appears first in original array, so it should be at index 0 after deduplication
+            // Token '4' appears second in original array, so it should be at index 1
+            // Token '1' appears third in original array, so it should be at index 2
+            // Token '2' appears fourth in original array, so it should be at index 3
+            expect(result[0].token).toBe('3')
+            expect(result[1].token).toBe('4')
+            expect(result[2].token).toBe('1')
+            expect(result[3].token).toBe('2')
+            
         })
+
     })
 })

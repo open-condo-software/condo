@@ -68,31 +68,33 @@ const getStringLength = (str) => {
 }
 
 
-const passwordValidations = async (context, pass, email, phone) => {
+const passwordValidations = async (context, pass, email, phone, errorMapping = {}) => {
+    const getError = (errorKey) => errorMapping[errorKey] || ERRORS[errorKey]
+
     // Password must be in string format
     if (!isString(pass)) {
-        throw new GQLError(ERRORS.WRONG_PASSWORD_FORMAT, context)
+        throw new GQLError(getError('WRONG_PASSWORD_FORMAT'), context)
     }
 
     // Password must be of the appropriate length
     const passwordLength = getStringLength(pass)
     if (passwordLength < MIN_PASSWORD_LENGTH || passwordLength > MAX_PASSWORD_LENGTH) {
-        throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
+        throw new GQLError(getError('INVALID_PASSWORD_LENGTH'), context)
     }
 
     // Password must contain at least 4 different characters
     if (!hasDifferentCharacters(pass, MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD)) {
-        throw new GQLError(ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS, context)
+        throw new GQLError(getError('PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS'), context)
     }
 
     // Password must not contain email
     if (hasCaseInsensitiveSubstring(pass, email)) {
-        throw new GQLError(ERRORS.PASSWORD_CONTAINS_EMAIL, context)
+        throw new GQLError(getError('PASSWORD_CONTAINS_EMAIL'), context)
     }
 
     // Password must not contain phone
     if (hasCaseInsensitiveSubstring(pass, phone)) {
-        throw new GQLError(ERRORS.PASSWORD_CONTAINS_PHONE, context)
+        throw new GQLError(getError('PASSWORD_CONTAINS_PHONE'), context)
     }
 }
 

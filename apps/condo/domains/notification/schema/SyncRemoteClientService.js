@@ -5,16 +5,48 @@ const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
 const pickBy = require('lodash/pickBy')
 
-const { GQLError } = require('@open-condo/keystone/errors')
+const conf = require('@open-condo/config')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
-const { PUSH_TYPE_DEFAULT } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('@condo/domains/notification/constants/constants')
+const { DYNAMIC_DEVICE_KEY_VALIDATION_ERROR } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { getPushTokensValidationError, deduplicatePushTokens } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
+const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
+const { GQL_ERRORS: USER_GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('../constants/constants')
+const PASSWORD_VALIDATIONS_ERRORS = {
+    WRONG_PASSWORD_FORMAT: {
+        ...USER_GQL_ERRORS.WRONG_PASSWORD_FORMAT,
+        variable: ['data', 'deviceKey'],
+        message: '"deviceKey" must be in string format',
+    },
+    INVALID_PASSWORD_LENGTH: {
+        ...USER_GQL_ERRORS.INVALID_PASSWORD_LENGTH,
+        variable: ['data', 'deviceKey'],
+        message: '"deviceKey" length must be between {min} and {max} characters',
+    },
+    PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS: {
+        ...USER_GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+        variable: ['data', 'deviceKey'],
+        message: '"deviceKey" must contain at least {min} different characters',
+    },
+}
+
+const ERRORS = {
+    ...PUSH_TOKENS_VALIDATION_ERRORS,
+    ...PASSWORD_VALIDATIONS_ERRORS,
+    DYNAMIC_DEVICE_KEY_VALIDATION_ERROR: {
+        code: BAD_USER_INPUT,
+        type: DYNAMIC_DEVICE_KEY_VALIDATION_ERROR,
+        message: 'dynamic error message will be added if this error throws',
+    },
+}
+
+/** @type {Record<string, { voip?: string, simple?: string }>} appId to pushTransport for voip / simple pushes */
+const TEMP_PREFERRED_PUSH_TRANSPORTS_BY_APP_ID = JSON.parse(conf.TEMP_PREFERRED_PUSH_TRANSPORTS_BY_APP_ID || '{}')
 
 const SENSITIVE_FIELDS = [
     /^push/,
@@ -30,6 +62,25 @@ function _cleanRemoteClient (rawClient) {
         ]))
     )
 }
+
+function isErrorMessageFromValidator (errorMessage) {
+    // as in [someField:someError] you have made an error
+    return /^\[\w+\] /.test(errorMessage)
+}
+
+function pickPushTokenToReplaceOldOne ({ pushTokens, appId, isVoIP }) {
+    const voipOrSimpleKey = isVoIP ? 'canBeUsedAsVoIP' : 'canBeUsedAsSimplePush'
+    const allPushTokensForVoIPType = pushTokens.filter(pushToken => pushToken[voipOrSimpleKey])
+    let pushTokenToReplace = allPushTokensForVoIPType[0]
+
+    const pushTransportToFind = TEMP_PREFERRED_PUSH_TRANSPORTS_BY_APP_ID?.[appId]?.[isVoIP ? 'voip' : 'simple']
+    if (pushTransportToFind) {
+        pushTokenToReplace = allPushTokensForVoIPType.find(pushToken => pushToken.transport === pushTransportToFind)
+    }
+
+    return pushTokenToReplace || null
+}
+
 
 const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
     types: [
@@ -50,7 +101,6 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
             type: `input PushToken {
                     token: String!,
                     transport: PushTransportType!,
-                    pushType: PushType!,
                     """
                     Pass "true" if we can use this token to send VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true" 
                     """
@@ -70,12 +120,12 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 deviceId: String!,
                 appId: String!,
                 pushToken: String,
-                pushTransport: PushTransportType = ${PUSH_TYPE_DEFAULT},
+                pushTransport: PushTransportType,
                 devicePlatform: DevicePlatformType,
                 pushType: PushType,
                 meta: JSON,
                 pushTokenVoIP: String,
-                pushTransportVoIP: PushTransportType = ${PUSH_TYPE_DEFAULT},
+                pushTransportVoIP: PushTransportType,
                 pushTypeVoIP: PushType,
                 """
                 No-op for now, later we will sync all push tokens passed here and move on from tokens inside this type
@@ -93,69 +143,65 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
         {
             access: access.canSyncRemoteClient,
             schema: 'syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient',
+            doc: {
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
                 const {
                     data: {
-                        dv, sender, deviceId, appId,
-                        pushToken, pushTransport, devicePlatform, meta,
-                        pushTokenVoIP, pushTransportVoIP,
-
+                        dv, sender, deviceId, appId, devicePlatform, meta,
+                        pushType,
+                        pushTypeVoIP,
                         deviceKey, pushTokens: pushTokensRaw = [],
                     },
                 } = args
-                let { data: { pushType, pushTypeVoIP } } = args
+                let {
+                    data: { pushToken, pushTransport, pushTokenVoIP, pushTransportVoIP },
+                } = args
 
-                if (!pushType && !pushTypeVoIP) {
-                    pushType = PUSH_TYPE_DEFAULT
-                    pushTypeVoIP = PUSH_TYPE_DEFAULT
-                } else if (!pushType && pushTypeVoIP || pushType && !pushTypeVoIP) {
-                    const provided = pushType || pushTypeVoIP
-                    pushType = provided
-                    pushTypeVoIP = provided
-                }
+                // AI says that direct modification can affect logs
+                const pushTokensInput = [...pushTokensRaw]
 
                 if (pushToken) {
-                    pushTokensRaw.push({
+                    pushTokensInput.unshift({
                         token: pushToken,
-                        pushType: pushType,
                         transport: pushTransport,
                         canBeUsedAsVoIP: false,
                         canBeUsedAsSimplePush: true,
                     })
                 }
                 if (pushTokenVoIP) {
-                    pushTokensRaw.push({
+                    pushTokensInput.unshift({
                         token: pushTokenVoIP,
-                        pushType: pushTypeVoIP,
                         transport: pushTransportVoIP,
                         canBeUsedAsVoIP: true,
                         canBeUsedAsSimplePush: false,
                     })
                 }
 
-                // --- VALIDATING ONY IF PROVIDED FOR TESTS BEFORE MIGRATION
+                // --- VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
 
-                const pushTokensValidationError = getPushTokensValidationError(pushTokensRaw)
+                const pushTokensValidationError = getPushTokensValidationError(pushTokensInput)
                 if (pushTokensValidationError) {
                     throw new GQLError(pushTokensValidationError, context)
                 }
                 // TODO(YEgorLu): DOMA-13021 sync new models using this data, do not put tokens data in RemoteClient anymore
-                const _pushTokens = deduplicatePushTokens(pushTokensRaw)
+                const pushTokens = deduplicatePushTokens(pushTokensInput)
 
                 // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
                 if (typeof deviceKey === 'string') {
                     // NOTE: maybe add another errors
-                    await passwordValidations(context, deviceKey)
+                    await passwordValidations(context, deviceKey, null, null, PASSWORD_VALIDATIONS_ERRORS)
+                    // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
                     const { keystone } = getSchemaCtx('User')
                     try {
+                        // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
                         keystone.lists['User'].fieldsByPath.password.validateNewPassword(deviceKey)
                     } catch (err) {
-                        const isNormalErrorMessageFromValidator = /^\[\w+\] /.test(err.message)
-                        if (isNormalErrorMessageFromValidator) {
+                        if (isErrorMessageFromValidator(err.message)) {
                             const errorMessageWithoutModelPart = err.message.split('] ').slice(1).join('] ')
                             throw new GQLError({
-                                code: 'BAD_USER_INPUT',
-                                type: 'DEVICE_KEY_VALIDATION_ERROR',
+                                ...ERRORS.DYNAMIC_DEVICE_KEY_VALIDATION_ERROR,
                                 message: errorMessageWithoutModelPart,
                             }, context)
                         }
@@ -163,7 +209,24 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     }
                 }
 
-                // --- END VALIDATING ONY IF PROVIDED FOR TESTS BEFORE MIGRATION
+                // --- END VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
+
+                // --- THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
+                if (!pushToken) {
+                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, appId, isVoIP: false })
+                    if (pushTokenToReplace) {
+                        pushToken = pushTokenToReplace.token
+                        pushTransport = pushTokenToReplace.transport
+                    }
+                }
+                if (!pushTokenVoIP) {
+                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, appId, isVoIP: true })
+                    if (pushTokenToReplace) {
+                        pushTokenVoIP = pushTokenToReplace.token
+                        pushTransportVoIP = pushTokenToReplace.transport
+                    }
+                }
+                // --- END THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
 
 
                 const userId = get(context, 'authedItem.id', null)
