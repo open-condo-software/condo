@@ -38,6 +38,7 @@ async function findOrganizationByAddressKey (organization, { addressKey }) {
         type: organization.type,
         receipts,
         meters: meterResourceOwners.map(({ resource }) => ({ resource })),
+        subscription: organization.subscription || null,
     }
 }
 
@@ -73,6 +74,7 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
         type: organization.type,
         receipts,
         meters,
+        subscription: organization.subscription || null,
     }
 }
 
@@ -126,6 +128,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
         type: organization.type,
         receipts,
         meters,
+        subscription: organization.subscription || null,
     }
 }
 

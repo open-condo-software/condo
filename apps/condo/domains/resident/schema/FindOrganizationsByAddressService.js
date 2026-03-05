@@ -4,6 +4,7 @@
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_SUBSCRIPTION_FIELD } = require('@condo/domains/organization/schema/fields/subscription')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
@@ -46,7 +47,11 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType]!, meters: [FindOrganizationByAddressMeterType]! }',
+            type: ORGANIZATION_SUBSCRIPTION_FIELD.extendGraphQLTypes,
+        },
+        {
+            access: true,
+            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType]!, meters: [FindOrganizationByAddressMeterType]!, subscription: OrganizationSubscriptionFeatures }',
         },
     ],
     queries: [
@@ -106,6 +111,13 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     Here, we should have all the necessary data.
                  */
 
+                const organizationsWithSubscription = await Promise.all(
+                    organizations.map(async (organization) => {
+                        const subscription = await ORGANIZATION_SUBSCRIPTION_FIELD.resolver(organization, {}, context)
+                        return { ...organization, subscription }
+                    })
+                )
+
                 const fetchOrganizationData = async (organization) => {
                     if (tin && accountNumber) {
                         const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
@@ -118,7 +130,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     }
                 }
 
-                const result = await Promise.all(organizations.map(fetchOrganizationData))
+                const result = await Promise.all(organizationsWithSubscription.map(fetchOrganizationData))
 
                 return result.filter(Boolean)
             },

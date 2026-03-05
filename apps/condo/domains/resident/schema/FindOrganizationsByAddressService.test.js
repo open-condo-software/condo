@@ -7,6 +7,7 @@
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 const express = require('express')
 
 const { initTestExpressApp, getTestExpressApp, setFeatureFlag } = require('@open-condo/keystone/test.utils')
@@ -47,6 +48,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
 
 function getOnlyResourceMeterTest (resource) {
@@ -896,6 +898,72 @@ describe('FindOrganizationsByAddress', () => {
                 addressKey: utils.property.addressKey,
             })
             expect(organizations).not.toHaveLength(0)
+        })
+    })
+
+    describe('Subscription field', () => {
+        test('Should return organization with subscription data', async () => {
+            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
+
+            const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const [subscriptionPlan] = await createTestSubscriptionPlan(utils.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                payments: true,
+                meters: true,
+                tickets: true,
+                news: false,
+                marketplace: true,
+                support: false,
+                ai: true,
+            })
+
+            await createTestSubscriptionContext(utils.clients.admin, utils.organization, subscriptionPlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+            })
+
+            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+
+            const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+            expect(found).toBeDefined()
+            expect(found.subscription).toBeDefined()
+            expect(found.subscription.paymentsEndAt).toBe(endAt)
+            expect(found.subscription.metersEndAt).toBe(endAt)
+            expect(found.subscription.ticketsEndAt).toBe(endAt)
+            expect(found.subscription.newsEndAt).toBeNull()
+            expect(found.subscription.marketplaceEndAt).toBe(endAt)
+            expect(found.subscription.supportEndAt).toBeNull()
+            expect(found.subscription.aiEndAt).toBe(endAt)
+            expect(found.subscription.activeSubscriptionContextId).toBeDefined()
+            expect(found.subscription.activeSubscriptionEndAt).toBe(endAt)
+        })
+
+        test('Should return organization with null subscription when no contexts exist', async () => {
+            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
+
+            await createTestSubscriptionPlan(utils.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+            })
+
+            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+
+            const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+            expect(found).toBeDefined()
+            expect(found.subscription).toBeDefined()
+            expect(found.subscription.paymentsEndAt).toBeNull()
+            expect(found.subscription.metersEndAt).toBeNull()
+            expect(found.subscription.activeSubscriptionContextId).toBeNull()
         })
     })
 })
