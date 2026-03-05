@@ -91173,6 +91173,21 @@ enum PushType {
   silent_data
 }
 
+input PushToken {
+  token: String!
+  transport: PushTransportType!
+
+  """
+  Pass "true" if we can use this token to send VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true" 
+  """
+  canBeUsedAsVoIP: Boolean!
+
+  """
+  Pass "true" if we can use this token to send not VoIP push messages. "canBeUsedAsVoIP" or "canBeUsedAsSimplePush" must be "true"
+  """
+  canBeUsedAsSimplePush: Boolean!
+}
+
 input SyncRemoteClientInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -91186,6 +91201,16 @@ input SyncRemoteClientInput {
   pushTokenVoIP: String
   pushTransportVoIP: PushTransportType
   pushTypeVoIP: PushType
+
+  """
+  No-op for now, later we will sync all push tokens passed here and move on from tokens inside this type
+  """
+  pushTokens: [PushToken!]
+
+  """
+  Same idea as "deviceId", but it's as secret as password. Will be required in future
+  """
+  deviceKey: String
 }
 
 input DisconnectUserFromRemoteClientInput {
@@ -105694,6 +105719,57 @@ type Mutation {
   """
   sendMessage(data: SendMessageInput!): SendMessageOutput
   resendMessage(data: ResendMessageInput!): ResendMessageOutput
+
+  """
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED",
+    "message": "Any push token must set \"canBeUsedAsVoIP\" or \"canBeUsedAsSimplePush\" or both as \"true\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PUSH_TOKENS_TOKEN_MUST_NOT_BE_EMPTY",
+    "message": "Push token must contain non-empty \"token\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MANY_TOKENS_FOR_TRANSPORT",
+    "message": "Each transport can have maximum 2 different tokens: <=1 for simple pushes and <=1 for voip pushes"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_PASSWORD_FORMAT",
+    "message": "\"deviceKey\" must be in string format",
+    "messageForUser": "Password must be in string format"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "\"deviceKey\" length must be between 8 and 128 characters",
+    "messageForUser": "Password length must be between 8 and 128 characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "\"deviceKey\" must contain at least 4 different characters",
+    "messageForUser": "Password must contain at least 4 different characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DYNAMIC_DEVICE_KEY_VALIDATION_ERROR",
+    "message": "dynamic error message will be added if this error throws"
+  }`
+  """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
