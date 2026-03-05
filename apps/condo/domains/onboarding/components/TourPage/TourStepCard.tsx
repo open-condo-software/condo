@@ -16,7 +16,7 @@ import {
     COMPLETED_STEP_LINK,
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { FeatureGate } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
@@ -125,35 +125,26 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
 
         return CompletePreviousStepMessage
     }, [CompletePreviousStepMessage, NoPermissionsMessage, SettingsMessage, hasPermission])
-    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || !hasRequiredFeature || disabled, [disabled, hasPermission, hasRequiredFeature, stepStatus])
+    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || disabled, [disabled, hasPermission, stepStatus])
+    const isDisabledWithRequiredFeature = isDisabledStatus || !hasRequiredFeature
 
     const cardContent = (
         <StyledCardButton
             status={stepStatus}
             header={{
-                progressIndicator: { disabled: isDisabledStatus, steps: innerSteps },
+                progressIndicator: { disabled: isDisabledWithRequiredFeature, steps: innerSteps },
                 headingTitle: CardTitle,
                 mainLink: completedStepLink,
             }}
-            body={!isDisabledStatus && BodyDescription && {
+            body={!isDisabledWithRequiredFeature && BodyDescription && {
                 description: BodyDescription,
             }}
             onClick={onClick}
-            disabled={isDisabledStatus}
-            accent={!isDisabledStatus && isInnerTodoStep}
+            disabled={isDisabledWithRequiredFeature}
+            accent={!isDisabledWithRequiredFeature && isInnerTodoStep}
             id={step.type}
         />
     )
-
-    if (!hasRequiredFeature) {
-        return (
-            <NoSubscriptionTooltip key={step.id}>
-                <div style={{ width: '100%' }}>
-                    {cardContent}
-                </div>
-            </NoSubscriptionTooltip>
-        )
-    }
 
     if (isDisabledStatus) {
         return (
@@ -165,5 +156,19 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         )
     }
 
-    return cardContent
+    return <FeatureGate
+        key={step.id}
+        feature={requiredFeature}
+        id={`tour-step-${step.type}`}
+        skipTooltip={requiredFeature === undefined}
+        fallback={
+            <div style={{ width: '100%' }}>
+                {cardContent}
+            </div>
+        }
+    >
+        <div style={{ width: '100%' }}>
+            {cardContent}
+        </div>
+    </FeatureGate>
 }

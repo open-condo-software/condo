@@ -66,7 +66,7 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { FeatureGate } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -216,29 +216,30 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
         return null
     }
 
-    if (!hasMarketplaceFeature) {
-        return (
-            <NoSubscriptionTooltip>
-                <div>
-                    <Col style={{ cursor: 'not-allowed' }}>
-                        <Space size={4} direction='horizontal'>
-                            <PlusCircle />
-                            <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
-                        </Space>
-                    </Col>
-                </div>
-            </NoSubscriptionTooltip>
-        )
-    }
-
     return (
         <>
-            <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
-                <Space size={4} direction='horizontal'>
-                    <PlusCircle />
-                    <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
-                </Space>
-            </Col>
+            <FeatureGate
+                feature='marketplace'
+                id='ticket-form-add-invoice'
+                placement='left'
+                fallback={
+                    <div>
+                        <Col style={{ cursor: 'not-allowed' }}>
+                            <Space size={4} direction='horizontal'>
+                                <PlusCircle />
+                                <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
+                            </Space>
+                        </Col>
+                    </div>
+                }
+            >
+                <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
+                    <Space size={4} direction='horizontal'>
+                        <PlusCircle />
+                        <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                    </Space>
+                </Col>
+            </FeatureGate>
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm

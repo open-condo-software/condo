@@ -12,7 +12,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { FeatureGate } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
@@ -405,7 +405,25 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     />
                                 </Tooltip>,
                                 ...(rewriteCommentEnabled ? [
-                                    hasAiFeature ? (
+                                    <FeatureGate
+                                        key='10'
+                                        feature='ai'
+                                        id='comment-form-rewrite-text'
+                                        getPopupContainer={() => commentsContainerRef.current}
+                                        fallback={<div>
+                                            <Button
+                                                compact
+                                                minimal
+                                                type='secondary'
+                                                size='medium'
+                                                disabled
+                                                icon={<Sparkles size='small'/>}
+                                                className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+                                            >
+                                                {UpdateTextMessage}
+                                            </Button>
+                                        </div>}
+                                    >
                                         <RewriteTextButton
                                             commentsContainerRef={commentsContainerRef}
                                             key='rewriteButton'
@@ -414,23 +432,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                             rewriteTextLoading={rewriteTextLoading}
                                             onClick={handleUpdateComment}
                                         />
-                                    ) : (
-                                        <NoSubscriptionTooltip key='rewriteButton'>
-                                            <div>
-                                                <Button
-                                                    compact
-                                                    minimal
-                                                    type='secondary'
-                                                    size='medium'
-                                                    disabled
-                                                    icon={<Sparkles size='small' />}
-                                                    className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
-                                                >
-                                                    {UpdateTextMessage}
-                                                </Button>
-                                            </div>
-                                        </NoSubscriptionTooltip>
-                                    ),
+                                    </FeatureGate>,
                                 ] : []),
                             ]}
                         />

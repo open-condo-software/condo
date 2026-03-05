@@ -19,6 +19,7 @@ import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { FeatureGate } from '@condo/domains/subscription/components'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
 
 import type { FormRule as Rule } from 'antd'
@@ -173,26 +174,45 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                 <Space size={16} direction='horizontal'>
                                     {
                                         (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems && isActual) && (
-                                            <LabeledField
+                                            <FeatureGate
                                                 key='generateNews'
-                                                hint={GenerateNewsSwitchHint}
+                                                feature={['ai', 'news']}
+                                                id='incident-update-status-generate-news'
+                                                fallback={
+                                                    <div>
+                                                        <LabeledField hint={GenerateNewsSwitchHint}>
+                                                            <Space size={8}>
+                                                                <Switch
+                                                                    id='generateNews'
+                                                                    size='small'
+                                                                    disabled
+                                                                />
+                                                                <Typography.Text type='secondary'>
+                                                                    {GenerateNewsSwitchLabel}
+                                                                </Typography.Text>
+                                                            </Space>
+                                                        </LabeledField>
+                                                    </div>
+                                                }
                                             >
-                                                <Space size={8}>
-                                                    <Form.Item
-                                                        initialValue={true}
-                                                        valuePropName='checked'
-                                                        name='generateNews'
-                                                    >
-                                                        <Switch
-                                                            size='small'
-                                                            id='generateNews'
-                                                        />
-                                                    </Form.Item>
-                                                    <Typography.Text>
-                                                        {GenerateNewsSwitchLabel}
-                                                    </Typography.Text>
-                                                </Space>
-                                            </LabeledField>
+                                                <LabeledField hint={GenerateNewsSwitchHint}>
+                                                    <Space size={8}>
+                                                        <Form.Item
+                                                            initialValue={true}
+                                                            valuePropName='checked'
+                                                            name='generateNews'
+                                                        >
+                                                            <Switch
+                                                                size='small'
+                                                                id='generateNews'
+                                                            />
+                                                        </Form.Item>
+                                                        <Typography.Text>
+                                                            {GenerateNewsSwitchLabel}
+                                                        </Typography.Text>
+                                                    </Space>
+                                                </LabeledField>
+                                            </FeatureGate>
                                         )
                                     }
                                     <Button

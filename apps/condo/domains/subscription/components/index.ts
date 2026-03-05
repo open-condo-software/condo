@@ -1,5 +1,6 @@
 export { NoSubscriptionTooltip } from './NoSubscriptionTooltip'
 export type { NoSubscriptionTooltipProps } from './NoSubscriptionTooltip'
+export { FeatureGate } from './FeatureGate'
 export { SubscriptionAccessGuard } from './SubscriptionAccessGuard'
 export { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 export { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
