@@ -46,7 +46,6 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                         <FeatureGate
                             key='generateNews'
                             feature={['ai', 'news']}
-                            id='incident-form-generate-news'
                             fallback={
                                 <div>
                                     <LabeledField hint={GenerateNewsHint}>

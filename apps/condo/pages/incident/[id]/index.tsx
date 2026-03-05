@@ -632,7 +632,6 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         <FeatureGate
                                             key='generateNews'
                                             feature={['ai', 'news']}
-                                            id='incident-detail-generate-news'
                                             fallback={
                                                 <div>
                                                     <Button

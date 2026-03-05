@@ -113,7 +113,6 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                             showGenerateAnswerButton && lastComment?.id === comment.id && (
                                 <FeatureGate
                                     feature='ai'
-                                    id='comments-generate-response'
                                     placement='left'
                                     fallback={
                                         <div className={styles.generateAnswerButtonWrapper}>
@@ -174,7 +173,6 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                             {showGenerateCommentWithoutComments && (
                                 <FeatureGate
                                     feature='ai'
-                                    id='comments-generate-comment-empty'
                                     placement='left'
                                     fallback={
                                         <div className={styles.generateCommentInnerButtonWrapper}>

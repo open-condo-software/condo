@@ -408,8 +408,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     <FeatureGate
                                         key='10'
                                         feature='ai'
-                                        id='comment-form-rewrite-text'
-                                        getPopupContainer={() => commentsContainerRef.current}
                                         fallback={<div>
                                             <Button
                                                 compact

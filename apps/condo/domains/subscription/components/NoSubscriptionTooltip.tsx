@@ -1,51 +1,33 @@
 import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Space, Tooltip, Tour, Typography } from '@open-condo/ui'
+import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
-import { TrialActivatedTooltip } from '@condo/domains/subscription/components/TrialActivatedTooltip'
 import { getRequiredFeature } from '@condo/domains/subscription/constants/routeFeatureMapping'
 import { useActivateSubscriptions, useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
-const TRIAL_POPUP_PLAN_KEY = 'active_trial_popup_plan'
-const TRIAL_POPUP_INSTANCE_KEY = 'active_trial_popup_instance'
-
 export interface NoSubscriptionTooltipProps {
     children: React.ReactElement
     placement?: 'top' | 'bottom' | 'left' | 'right'
     feature?: AvailableFeature | AvailableFeature[]
-    id?: string
     path?: string
-    getPopupContainer?: () => HTMLElement
     skipTooltip?: boolean
 }
 
-export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, getPopupContainer, id, skipTooltip }) => {
+export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, skipTooltip }) => {
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
     const { trialSubscriptions, activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
     const { isFeatureAvailable, hasSubscription } = useOrganizationSubscription()
     const [isActivating, setIsActivating] = useState(false)
-    const [recentlyActivatedTrialPlan, setRecentlyActivatedTrialPlan] = useState<string | null>(null)
-    
-    useEffect(() => {
-        if (!id) return
-        
-        const storedPlan = sessionStorage.getItem(TRIAL_POPUP_PLAN_KEY)
-        const storedInstance = sessionStorage.getItem(TRIAL_POPUP_INSTANCE_KEY)
-        
-        if (storedPlan && storedInstance === id) {
-            setRecentlyActivatedTrialPlan(storedPlan)
-        }
-    }, [id])
 
     const requiredFeature = path ? getRequiredFeature(path) : null
     const feature = (featureProp || requiredFeature) as AvailableFeature | undefined | null
@@ -132,16 +114,10 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
                 trialDays: bestPlanWithFeature.plan?.trialDays || 0,
                 isCustomPrice: false,
             })
-
-            if (id) {
-                sessionStorage.setItem(TRIAL_POPUP_PLAN_KEY, planName)
-                sessionStorage.setItem(TRIAL_POPUP_INSTANCE_KEY, id)
-            }
-            setRecentlyActivatedTrialPlan(planName)
         } finally {
             setIsActivating(false)
         }
-    }, [bestPlanWithFeature, handleActivatePlan, router, id])
+    }, [bestPlanWithFeature, handleActivatePlan, router])
 
     const handleViewPlans = useCallback(async () => {
         await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
@@ -169,12 +145,6 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         </Space>
     )
 
-    const handleClearRecentlyActivatedTrial = useCallback(() => {
-        sessionStorage.removeItem(TRIAL_POPUP_PLAN_KEY)
-        sessionStorage.removeItem(TRIAL_POPUP_INSTANCE_KEY)
-        setRecentlyActivatedTrialPlan(null)
-    }, [])
-
     if (skipTooltip) {
         return children
     }
@@ -185,21 +155,6 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
 
     if (path && !hasSubscription) {
         return children
-    }
-
-    if (recentlyActivatedTrialPlan) {
-        return (
-            <Tour.Provider>
-                <TrialActivatedTooltip
-                    planName={recentlyActivatedTrialPlan}
-                    placement={placement}
-                    onClose={handleClearRecentlyActivatedTrial}
-                    getPopupContainer={getPopupContainer}
-                >
-                    {children}
-                </TrialActivatedTooltip>
-            </Tour.Provider>
-        )
     }
 
     if (isAvailable) {

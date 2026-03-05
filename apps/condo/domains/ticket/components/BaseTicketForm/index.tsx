@@ -222,7 +222,6 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
         <>
             <FeatureGate
                 feature='marketplace'
-                id='ticket-form-add-invoice'
                 placement='left'
                 fallback={
                     <div>

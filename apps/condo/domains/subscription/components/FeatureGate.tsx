@@ -7,15 +7,13 @@ interface FeatureGateProps extends Omit<NoSubscriptionTooltipProps, 'children'> 
     children: React.ReactElement
     feature: NoSubscriptionTooltipProps['feature']
     fallback: React.ReactElement
-    id: string
 }
 
 export const FeatureGate: React.FC<FeatureGateProps> = ({ 
     children, 
     feature,
     fallback,
-    id,
-    ...tooltipProps 
+    ...tooltipProps
 }) => {
     const { isFeatureAvailable } = useOrganizationSubscription()
 
@@ -23,9 +21,13 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
         ? feature.every(f => isFeatureAvailable(f))
         : isFeatureAvailable(feature)
 
+    if (hasFeature) {
+        return children
+    }
+
     return (
-        <NoSubscriptionTooltip feature={feature} id={id} {...tooltipProps}>
-            {hasFeature ? children : fallback}
+        <NoSubscriptionTooltip feature={feature} {...tooltipProps}>
+            {fallback}
         </NoSubscriptionTooltip>
     )
 }

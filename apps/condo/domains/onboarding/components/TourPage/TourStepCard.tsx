@@ -161,7 +161,6 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     return <FeatureGate
         key={step.id}
         feature={requiredFeature}
-        id={`tour-step-${step.type}`}
         skipTooltip={requiredFeature === undefined}
         fallback={
             <div className={styles.fullWidth}>

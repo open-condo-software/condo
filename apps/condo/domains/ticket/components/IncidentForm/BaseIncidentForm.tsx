@@ -482,7 +482,6 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                             <FeatureGate
                                                 key='improveButton'
                                                 feature='ai'
-                                                id='incident-form-improve-text'
                                                 fallback={
                                                     <div>
                                                         <Button

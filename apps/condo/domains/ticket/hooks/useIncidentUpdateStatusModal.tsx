@@ -177,7 +177,6 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                             <FeatureGate
                                                 key='generateNews'
                                                 feature={['ai', 'news']}
-                                                id='incident-update-status-generate-news'
                                                 fallback={
                                                     <div>
                                                         <LabeledField hint={GenerateNewsSwitchHint}>
