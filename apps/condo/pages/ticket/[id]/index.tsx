@@ -105,6 +105,8 @@ import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
+import styles from './index.module.css'
+
 
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -499,7 +501,6 @@ const TicketActionBar = ({
     )
 }
 
-const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CopyMessageStyle: CSSProperties = { flexShrink: 1, whiteSpace: 'nowrap' }
 
@@ -846,8 +847,8 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
                             <TicketPropertyHintCard
                                 propertyId={ticketPropertyId}
-                                hintContentStyle={HINT_CARD_STYLE}
                                 colProps={HINTS_COL_PROPS}
+                                className={styles.ticketPropertyHintCard}
                             />
                         )
                     }

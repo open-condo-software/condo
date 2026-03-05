@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Input } from '@open-condo/ui'
 
@@ -124,6 +125,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     }), [intl])
 
     const router = useRouter()
+    const client = useApolloClient()
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -212,8 +214,16 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
             }
         }
 
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketPropertyHints' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketPropertyHintProperties' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'TicketPropertyHint' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'TicketPropertyHintProperty' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketPropertyHintsMeta' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketPropertyHintPropertiesMeta' })
+        client.cache.gc()
+
         await router.push('/settings/hint')
-    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction])
+    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction, client.cache])
 
     if (organizationTicketPropertyHintPropertiesLoading) {
         return (
