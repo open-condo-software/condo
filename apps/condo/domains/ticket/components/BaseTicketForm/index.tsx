@@ -84,10 +84,12 @@ import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 import styles from './index.module.css'
+import styles from './BaseTicketForm.module.css'
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
+
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME = 'condoTicketCurrentFormValues'
@@ -719,6 +721,7 @@ export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
 }
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
+const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
 const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }
 const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
@@ -929,8 +932,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <TicketPropertyHintCard
                 propertyId={selectedPropertyId}
+                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
                 colProps={HINTS_COL_PROPS}
-                className={styles.ticketPropertyHintCard}
             />
             <IncidentHintsBlock
                 organizationId={organizationId}

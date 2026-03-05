@@ -5,6 +5,7 @@ import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 interface FeatureGateProps extends Omit<NoSubscriptionTooltipProps, 'children'> {
     children: React.ReactElement
+    feature: NoSubscriptionTooltipProps['feature']
     fallback: React.ReactElement
     id: string
 }

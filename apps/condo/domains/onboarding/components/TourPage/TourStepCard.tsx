@@ -19,6 +19,8 @@ import {
 import { FeatureGate } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
+import styles from './TourStepCard.module.css'
+
 import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
 /**
@@ -149,7 +151,7 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     if (isDisabledStatus) {
         return (
             <Tooltip title={disabledMessage}>
-                <div style={{ width: '100%' }}>
+                <div className={styles.fullWidth}>
                     {cardContent}
                 </div>
             </Tooltip>
@@ -162,12 +164,12 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         id={`tour-step-${step.type}`}
         skipTooltip={requiredFeature === undefined}
         fallback={
-            <div style={{ width: '100%' }}>
+            <div className={styles.fullWidth}>
                 {cardContent}
             </div>
         }
     >
-        <div style={{ width: '100%' }}>
+        <div className={styles.fullWidth}>
             {cardContent}
         </div>
     </FeatureGate>

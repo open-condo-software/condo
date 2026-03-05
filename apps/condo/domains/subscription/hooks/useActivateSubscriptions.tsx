@@ -52,6 +52,51 @@ export const useActivateSubscriptions = () => {
     const pendingRequests = pendingRequestsData?.pendingRequests || []
     const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
 
+    const showSuccessNotification = useCallback((isTrial: boolean, planName: string, trialDays: number, isCustomPrice: boolean) => {
+        if (isTrial) {
+            notification.success({
+                message: (
+                    <Typography.Text strong size='large'>
+                        {intl.formatMessage({ id: 'subscription.activation.trial.title' }, { planName })}
+                    </Typography.Text>
+                ),
+                description: intl.formatMessage({ id: 'subscription.activation.trial.description' }, { planName, days: trialDays }),
+                duration: 5,
+            })
+        } else if (isCustomPrice) {
+            notification.success({
+                message: (
+                    <Typography.Text strong size='large'>
+                        {intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName })}
+                    </Typography.Text>
+                ),
+                description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
+                duration: 5,
+            })
+        } else {
+            notification.success({
+                message: (
+                    <Typography.Text strong size='large'>
+                        {intl.formatMessage({ id: 'subscription.activation.paid.standard.title' })}
+                    </Typography.Text>
+                ),
+                description: intl.formatMessage({ id: 'subscription.activation.paid.standard.description' }),
+                duration: 5,
+            })
+        }
+    }, [intl])
+
+    const refetchData = useCallback(async (isTrial: boolean) => {
+        await refetchPendingRequests()
+        if (isTrial) {
+            await refetchTrialSubscriptions()
+            await refetchActivatedSubscriptions()
+            if (employee?.id) {
+                await selectEmployee(employee.id)
+            }
+        }
+    }, [refetchPendingRequests, refetchTrialSubscriptions, refetchActivatedSubscriptions, employee?.id, selectEmployee])
+
     const handleActivatePlan = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false }: ActivatePlanParams) => {
         if (!organization) return
 
@@ -69,46 +114,8 @@ export const useActivateSubscriptions = () => {
                 },
             })
 
-            if (isTrial) {
-                await refetchTrialSubscriptions()
-                await refetchPendingRequests()
-                await refetchActivatedSubscriptions()
-                if (employee?.id) {
-                    await selectEmployee(employee.id)
-                }
-                notification.success({
-                    message: (
-                        <Typography.Text strong size='large'>
-                            {intl.formatMessage({ id: 'subscription.activation.trial.title' }, { planName })}
-                        </Typography.Text>
-                    ),
-                    description: intl.formatMessage({ id: 'subscription.activation.trial.description' }, { planName, days: trialDays }),
-                    duration: 5,
-                })
-            } else {
-                await refetchPendingRequests()
-                if (isCustomPrice) {
-                    notification.success({
-                        message: (
-                            <Typography.Text strong size='large'>
-                                {intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName })}
-                            </Typography.Text>
-                        ),
-                        description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
-                        duration: 5,
-                    })
-                } else {
-                    notification.success({
-                        message: (
-                            <Typography.Text strong size='large'>
-                                {intl.formatMessage({ id: 'subscription.activation.paid.standard.title' })}
-                            </Typography.Text>
-                        ),
-                        description: intl.formatMessage({ id: 'subscription.activation.paid.standard.description' }),
-                        duration: 5,
-                    })
-                }
-            }
+            await refetchData(isTrial)
+            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice)
         } catch (error) {
             console.error('Failed to activate subscription:', error)
             notification.error({
@@ -119,7 +126,7 @@ export const useActivateSubscriptions = () => {
         } finally {
             setActivateLoading(false)
         }
-    }, [organization, activateSubscriptionPlan, refetchTrialSubscriptions, refetchPendingRequests, refetchActivatedSubscriptions, employee?.id, intl, selectEmployee, ActivationErrorTitle, ActivationErrorMessage])
+    }, [organization, activateSubscriptionPlan, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
 
     return {
         handleActivatePlan,
