@@ -459,13 +459,13 @@ const TicketsTableContainer = ({
         }
         setIsRefetching(false)
     }, [refetch, refetchUserTicketCommentReadTimes])
-    
+
     const shouldRefetchOnFocusRef = useRef(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
-    
+
     useEffect(() => {
         if (!isRefetchTicketsFeatureEnabled) return
-    
+
         const scheduleNext = () => {
             timerRef.current = setTimeout(async () => {
                 if (document.hidden) {
@@ -482,7 +482,7 @@ const TicketsTableContainer = ({
                 scheduleNext()
             }, refetchInterval)
         }
-    
+
         const onVisibilityChange = async () => {
             if (!document.hidden && shouldRefetchOnFocusRef.current) {
                 await refetchTickets()
@@ -492,10 +492,10 @@ const TicketsTableContainer = ({
                 scheduleNext()
             }
         }
-    
+
         scheduleNext()
         document.addEventListener('visibilitychange', onVisibilityChange)
-    
+
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current)
             document.removeEventListener('visibilitychange', onVisibilityChange)
@@ -871,7 +871,7 @@ export const TicketsPageContent = ({
         ...baseTicketsQuery,
         ...filtersToWhere(omit(filters, 'status')),
     }), [baseTicketsQuery, filters, filtersToWhere])
-    
+
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)

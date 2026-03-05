@@ -10,7 +10,7 @@ This is a comprehensive guide for AI coding agents working on the Condo project 
 
 - **Repository:** https://github.com/open-condo-software/condo
 - **License:** MIT
-- **Architecture:** Monorepo with Yarn workspaces
+- **Architecture:** Monorepo with yarn workspaces
 - **Primary Stack:** KeystoneJS, NextJS, ApolloGraphQL, PostgreSQL, Redis
 
 ## Monorepo Structure

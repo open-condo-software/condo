@@ -12,18 +12,20 @@
     type GetLaunchParamsData = {
         condoUserId: string | null                       // ID текущего пользователя
         condoUserType: 'staff' | 'resident'              // Тип пользователя
-        condoLocale: string                              // Текущая локаль пользователя. ("en" / "ru")
         condoContextEntity: 'Organization' | 'Resident'  // Тип контекстной сущности пользователя
         condoContextEntityId: string | null              // ID контекстной сущности пользователя
+        condoDeviceId: string                            // ID устройства
+        condoLocale: string                              // Текущая локаль пользователя. ("en" / "ru")
     }
     ```
     ```json
     {
       "condoUserId": "8c427089-9392-4a3b-bdf5-db87ba516118",
       "condoUserType":"staff",
-      "condoLocale":"en",
       "condoContextEntity":"Organization",
-      "condoContextEntityId":"495d6ef0-d8fb-4beb-8760-2a049ddf97fd"
+      "condoContextEntityId":"495d6ef0-d8fb-4beb-8760-2a049ddf97fd",
+      "condoDeviceId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "condoLocale":"en",
     }
     ```
 </Tabs>

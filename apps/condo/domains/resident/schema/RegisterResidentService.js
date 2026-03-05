@@ -96,6 +96,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     first: 1,
                 })
 
+                // This logic should not be changed without changing clients
                 const [property] = await PropertyAPI.getAll(context, {
                     addressKey: addressItem.addressKey,
                     organization: { type: MANAGING_COMPANY_TYPE },

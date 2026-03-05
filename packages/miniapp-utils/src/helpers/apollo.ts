@@ -98,10 +98,16 @@ export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRCo
 
     const clientIp = getRequestIp(req, () => true)
 
+    const headers: Record<string, string> = {
+        'cookie': cookieHeader,
+    }
+
+    if (req.headers['accept-language']) {
+        headers['accept-language'] = req.headers['accept-language']
+    }
+
     return {
-        headers: {
-            cookie: cookieHeader,
-        },
+        headers,
         defaultContext: {
             clientIp,
         },

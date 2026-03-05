@@ -25,7 +25,6 @@ const googleTagManagerId  = conf['GOOGLE_TAG_MANAGER_ID']
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
-const TinyMceApiKey = conf['TINY_MCE_API_KEY']
 const UseDeskWidgetId = conf['USE_DESK_WIDGET_ID']
 const HelpRequisites = (conf['HELP_REQUISITES'] && JSON.parse(conf['HELP_REQUISITES'])) || {}
 const popupSmartConfig = JSON.parse(conf['POPUP_SMART_CONFIG'] || '{}')
@@ -36,6 +35,8 @@ const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
 const condoRBDomain = conf['RB_DOMAIN']
+const messagingConfig = conf['MESSAGING_CONFIG'] ? JSON.parse(conf['MESSAGING_CONFIG']) : {}
+const messagingWsUrl = messagingConfig.wsUrl || ''
 const apolloBatchingEnabled = conf['APOLLO_BATCHING_ENABLED'] === 'true'
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
 const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
@@ -107,7 +108,6 @@ const nextConfig: NextConfig = {
         defaultLocale,
         insuranceAppUrl,
         JivoSiteWidgetId,
-        TinyMceApiKey,
         UseDeskWidgetId,
         HelpRequisites,
         popupSmartConfig,
@@ -149,6 +149,7 @@ const nextConfig: NextConfig = {
         subscriptionFeatureHelpLinks,
         subscriptionPayUrl,
         cardIssuerImages,
+        messagingWsUrl,
     },
     serverRuntimeConfig: {
         proxyName,

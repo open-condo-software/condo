@@ -8,6 +8,7 @@ const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
+const { OneSignalAdapter } = require('@condo/domains/notification/adapters/oneSignalAdapter')
 const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const { WebhookAdapter } = require('@condo/domains/notification/adapters/webhookAdapter')
 const {
@@ -18,6 +19,7 @@ const {
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TRANSPORT_REDSTORE,
     PUSH_TRANSPORT_WEBHOOK,
+    PUSH_TRANSPORT_ONESIGNAL,
     TICKET_CREATED_TYPE,
     TICKET_COMMENT_CREATED_TYPE,
     PASS_TICKET_CREATED_MESSAGE_TYPE,
@@ -42,6 +44,7 @@ const ADAPTERS = {
     [PUSH_TRANSPORT_HUAWEI]: new HCMAdapter(),
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
     [PUSH_TRANSPORT_WEBHOOK]: new WebhookAdapter(),
+    [PUSH_TRANSPORT_ONESIGNAL]: new OneSignalAdapter(),
 }
 
 /**
@@ -88,6 +91,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
         [PUSH_TRANSPORT_HUAWEI]: [],
         [PUSH_TRANSPORT_APPLE]: [],
         [PUSH_TRANSPORT_WEBHOOK]: [],
+        [PUSH_TRANSPORT_ONESIGNAL]: [],
     }
     const pushTypes = {}
     const appIds = {}

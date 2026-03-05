@@ -32,7 +32,7 @@ describe('SetMessageStatusService', () => {
         // Register fake success pushToken in order for user to be able to receive push notifications
         const [device] = await syncRemoteClientByTestClient(assignee, payload)
 
-        expect(device.pushTransport).toEqual(payload.pushTransport)
+        expect(device).toHaveProperty('id')
 
         const ticketId = faker.datatype.uuid()
         const extraAttrs = {

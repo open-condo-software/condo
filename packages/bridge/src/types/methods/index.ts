@@ -6,6 +6,7 @@ import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchPara
 import type { RedirectData, RedirectParams } from './Redirect'
 import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+import type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
 import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
@@ -24,6 +25,7 @@ export type { ShowNotificationParams, ShowNotificationData } from './ShowNotific
 export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 export type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
+export type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
 
 /**
  * Mapping for event -> request payload
@@ -36,6 +38,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppRedirect: RedirectParams
     CondoWebAppRequestAuth: RequestAuthParams
     CondoWebAppResizeWindow: ResizeWindowParams
+    CondoWebAppSetPageActions: SetPageActionsParams
     CondoWebAppShowModalWindow: ShowModalWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
     CondoWebAppShowProgressBar: ShowProgressBarParams
@@ -54,12 +57,14 @@ export type ResultResponseDataMap = {
     CondoWebAppRequestAuth: RequestAuthData
     CondoWebAppRedirect: RedirectData
     CondoWebAppResizeWindow: ResizeWindowData
+    CondoWebAppSetPageActions: SetPageActionsData
     CondoWebAppShowModalWindow: ShowModalWindowData
     CondoWebAppShowNotification: ShowNotificationData
     CondoWebAppShowProgressBar: ShowProgressBarData
     CondoWebAppUpdateModalWindow: UpdateModalWindowData
     CondoWebAppUpdateProgressBar: UpdateProgressBarData
 }
+
 
 type ResponseEventNames<Method extends keyof RequestMethodsParamsMap> = {
     result: `${Method}Result`

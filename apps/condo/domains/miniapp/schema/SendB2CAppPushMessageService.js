@@ -196,7 +196,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                const userExisted = await User.getOne(context, { id: user.id, deletedAt: null })
+                const userExisted = await User.getOne(context, { id: user.id, deletedAt: null }, 'id locale')
 
                 if (!userExisted) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
@@ -209,7 +209,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     user: { id: user.id },
                     deletedAt: null,
                 }
-                const residentExisted = await Resident.getOne(context, residentWhere)
+                const residentExisted = await Resident.getOne(context, residentWhere, 'id address')
 
                 if (!residentExisted) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
 
@@ -246,8 +246,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 const metaData = Object.fromEntries(
                     Object.keys(requiredMetaData).map((key) => [key, argsData.data[key]])
                 )
-                Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId })
-
+                Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId, address: residentExisted.address })
 
                 const messageAttrs = {
                     uniqKey,

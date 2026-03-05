@@ -40,14 +40,22 @@ export type GetExecutionAiFlowTaskByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null> | null };
+export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null } | null> | null };
 
 export type CreateExecutionAiFlowTaskMutationVariables = Types.Exact<{
   data: Types.ExecutionAiFlowTaskCreateInput;
 }>;
 
 
-export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null };
+export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null } | null };
+
+export type UpdateExecutionAiFlowTaskMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.ExecutionAiFlowTaskUpdateInput;
+}>;
+
+
+export type UpdateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null } | null };
 
 export type GetBankAccountReportTasksQueryVariables = Types.Exact<{
   where: Types.BankAccountReportTaskWhereInput;
@@ -767,6 +775,14 @@ export type GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables = Types.
 
 export type GetAllPropertyWithoutMapCountByOrganizationIdQuery = { __typename?: 'Query', _allPropertiesMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetPropertiesQueryVariables = Types.Exact<{
+  where: Types.PropertyWhereInput;
+  first: Types.Scalars['Int']['input'];
+}>;
+
+
+export type GetPropertiesQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, createdAt?: string | null, updatedAt?: string | null, name?: string | null, address?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null> | null };
+
 export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
   propertyScopeIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
 }>;
@@ -801,7 +817,7 @@ export type GetAvailableSubscriptionPlansQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, tickets?: boolean | null, meters?: boolean | null, payments?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, enabledB2BApps?: any | null, enabledB2CApps?: any | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
+export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, tickets?: boolean | null, meters?: boolean | null, payments?: boolean | null, news?: boolean | null, marketplace?: boolean | null, analytics?: boolean | null, properties?: boolean | null, support?: boolean | null, ai?: boolean | null, enabledB2BApps?: any | null, enabledB2CApps?: any | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
 
 export type GetOrganizationMetaQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];

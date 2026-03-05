@@ -12,6 +12,21 @@ const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema
 
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('../constants/constants')
 
+const SENSITIVE_FIELDS = [
+    /^push/,
+    /^meta$/,
+    /^owner$/,
+]
+
+function _cleanRemoteClient (rawClient) {
+    return Object.fromEntries(
+        Object.entries(rawClient).map(([key, value]) => ([
+            key,
+            SENSITIVE_FIELDS.some(field => field.test(key)) ? null : value,
+        ]))
+    )
+}
+
 const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
     types: [
         {
@@ -115,7 +130,8 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     }
                 }
 
-                return await getById('RemoteClient', result.id)
+                const client = await getById('RemoteClient', result.id)
+                return _cleanRemoteClient(client)
             },
         },
     ],

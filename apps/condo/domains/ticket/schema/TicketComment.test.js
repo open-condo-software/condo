@@ -15,6 +15,7 @@ const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     MESSAGE_SENT_STATUS,
     TICKET_COMMENT_ADDED_TYPE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID, APP_MASTER_ID_ANDROID,
+    PUSH_TRANSPORT_FIREBASE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { syncRemoteClientWithPushTokenByTestClient, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
@@ -1243,6 +1244,7 @@ describe('TicketComment', () => {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_RESIDENT_ID_ANDROID,
                     pushToken: getRandomFakeSuccessToken(),
+                    pushTransport: PUSH_TRANSPORT_FIREBASE,
                 })
 
                 await syncRemoteClientByTestClient(residentClient, payload)

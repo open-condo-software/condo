@@ -25,7 +25,16 @@ export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
 
 export { Input } from './components/Input'
-export type { InputType, BaseInputProps, InputProps, PasswordInputProps, PhoneInputProps } from './components/Input'
+export type { 
+    InputType, 
+    BaseInputProps, 
+    InputProps, 
+    PasswordInputProps, 
+    PhoneInputProps,
+    RichTextAreaProps,
+    RichTextAreaCustomLabels,
+    ToolbarGroup,
+} from './components/Input'
 
 export { List } from './components/List'
 export type { ListProps } from './components/List'

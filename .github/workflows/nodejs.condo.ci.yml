@@ -22,6 +22,7 @@ concurrency:
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  CONDO_TEST_SHARD_TOTAL: 20
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
@@ -52,8 +53,9 @@ jobs:
           sudo apt update && sudo apt install -y git
       - name: Set registry variables
         run: |
-          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
-          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
+          ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
+          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref}" >> $GITHUB_ENV
+          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref},mode=max,image-manifest=true" >> $GITHUB_ENV
       - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
@@ -415,34 +417,37 @@ jobs:
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
+  generate-condo-test-shards:
+    name: Generate Condo test shards
+    needs: authorize
+    runs-on: ubuntu-22.04
+    outputs:
+      ids: ${{ steps.generate.outputs.ids }}
+      total: ${{ steps.generate.outputs.total }}
+    steps:
+      - name: Generate shard indexes
+        id: generate
+        env:
+          SHARD_TOTAL: ${{ env.CONDO_TEST_SHARD_TOTAL }}
+        run: |
+          echo "ids=$(jq -c -n --argjson total "$SHARD_TOTAL" '[range(1; $total + 1)]')" >> "$GITHUB_OUTPUT"
+          echo "total=$SHARD_TOTAL" >> "$GITHUB_OUTPUT"
+
   run-condo-tests:
     name: Condo Tests
     needs:
       - authorize
       - build-image
+      - generate-condo-test-shards
     strategy:
       # TODO: remove this back
       fail-fast: false
       matrix:
-        domain:
-          - organization
-          - user
-          - scope
-          - property
-          - acquiring
-          - billing
-          - miniapp
-          - banking
-          - ticket
-          - meter
-          - contact
-          - resident
-          - notification
-          - common
-          - others
+        shard_index: ${{ fromJSON(needs.generate-condo-test-shards.outputs.ids) }}
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
-      domain_name: ${{ matrix.domain }}
+      shard_index: ${{ matrix.shard_index }}
+      shard_total: ${{ fromJSON(needs.generate-condo-test-shards.outputs.total) }}
       runs-on: test-runners
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit

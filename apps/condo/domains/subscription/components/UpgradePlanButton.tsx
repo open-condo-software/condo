@@ -1,21 +1,28 @@
 import { useGetAvailableSubscriptionPlansQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
+import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import styles from './UpgradePlanButton.module.css'
 
+
+const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 export const UpgradePlanButton: React.FC = () => {
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
     const { subscriptionContext } = useOrganizationSubscription()
+    const { useFlag } = useFeatureFlags()
+    const isSubscriptionsFlagEnabled = useFlag(SUBSCRIPTIONS)
 
     const { data: plansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
         variables: {
@@ -78,7 +85,9 @@ export const UpgradePlanButton: React.FC = () => {
         router.push('/settings?tab=subscription')
     }
 
-    if (!buttonText) return null
+    const isSubscriptionsEnabled = enableSubscriptions && isSubscriptionsFlagEnabled
+
+    if (!buttonText || !isSubscriptionsEnabled) return null
     /*TODO DOMA-12785 move to ui kit*/
     return (
         <Button

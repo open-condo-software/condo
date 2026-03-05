@@ -3,8 +3,7 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import set from 'lodash/set'
 import getConfig from 'next/config'
-import React, { useEffect, useMemo } from 'react'
-
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -26,7 +25,8 @@ const getUsedeskMessenger = () => {
     return get(window, 'usedeskMessenger', null)
 }
 
-const UseDeskWidget: React.FC = () => {
+const UseDeskWidget: React.FC<{ hide?: boolean }> = ({ hide = false }) => {
+    const [isWidgetScriptLoaded, setIsWidgetScriptLoaded] = useState(false)
     const { link } = useOrganization()
     const { user } = useAuth()
 
@@ -97,7 +97,29 @@ const UseDeskWidget: React.FC = () => {
         }
     }, [link, userIdentify, user, messenger])
 
-    return UseDeskWidgetId ?
-        <script async src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}></script> : null
+    useEffect(() => {
+        if (!UseDeskWidgetId || !isWidgetScriptLoaded) return
+
+        const messenger = getUsedeskMessenger()
+        if (!messenger) return
+
+        try {
+            if (hide) {
+                messenger.toggle(false)
+            } else {
+                messenger.toggle(true)
+            }
+        } catch (e) {
+            console.error('Failed to toggle UseDesk widget visibility', e)
+        }
+    }, [hide, isWidgetScriptLoaded])
+
+    return UseDeskWidgetId ? (
+        <script
+            async
+            src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}
+            onLoad={() => setIsWidgetScriptLoaded(true)}
+        />
+    ) : null
 }
 export default UseDeskWidget

@@ -8,7 +8,12 @@ import { Tag } from '../Tag'
 export const CodeWrapper: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({ className, children, ...restProps }) => {
     const ref = useRef<HTMLDivElement>(null)
     const [copied, setCopied] = useState(false)
-    const languageClass = (className || '').split(' ').find(name => name.startsWith('language'))
+    const firstChild = React.Children.toArray(children)[0]
+    const childClassName = React.isValidElement<{ className?: string }>(firstChild)
+        ? firstChild.props.className
+        : undefined
+    const classNames = [className, childClassName].filter(Boolean).join(' ')
+    const languageClass = classNames.split(' ').find(name => name.startsWith('language-'))
     const language = languageClass ? languageClass.replace('language-', '') : ''
 
     const handleCopy = useCallback(() => {
@@ -29,7 +34,7 @@ export const CodeWrapper: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({ cl
             <div className='code-container' ref={ref}>
                 {children}
             </div>
-            <Icon size='medium' className='copy-text-icon' onClick={handleCopy}/>
+            <Icon size='medium' color={colors.gray['7']} className='copy-text-icon' onClick={handleCopy}/>
         </pre>
     )
 }

@@ -104,7 +104,7 @@ export const RegisterContextProvider: React.FC<React.PropsWithChildren> = ({ chi
         } else {
             setIsConfirmed(false)
         }
-    }, [queryToken, executeCaptcha, loadPhoneTokenInfo, identifier, loadEmailTokenInfo])
+    }, [queryToken, executeCaptcha, loadPhoneTokenInfo, loadEmailTokenInfo])
 
     return (
         <RegisterContext.Provider

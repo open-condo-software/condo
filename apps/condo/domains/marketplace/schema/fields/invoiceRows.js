@@ -86,7 +86,6 @@ const metaFieldFragment = `meta { ${Object.keys(invoiceRowMetaSchemaFields).join
 const INVOICE_ROWS_FIELD = {
     schemaDoc: 'The list of paid items',
     type: 'Json',
-    sensitive: true,
     isRequired: true,
     hooks: {
         resolveInput: async ({ operation, resolvedData, fieldPath, existingItem }) => {
