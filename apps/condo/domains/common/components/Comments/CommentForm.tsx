@@ -12,7 +12,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
@@ -405,7 +405,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     />
                                 </Tooltip>,
                                 ...(rewriteCommentEnabled ? [
-                                    <SubscriptionFeatureGuard
+                                    <SubscriptionGuardWithTooltip
                                         key='10'
                                         feature='ai'
                                         fallback={<div>
@@ -430,7 +430,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                             rewriteTextLoading={rewriteTextLoading}
                                             onClick={handleUpdateComment}
                                         />
-                                    </SubscriptionFeatureGuard>,
+                                    </SubscriptionGuardWithTooltip>,
                                 ] : []),
                             ]}
                         />

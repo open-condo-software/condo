@@ -9,7 +9,26 @@ interface SubscriptionFeatureGuardProps extends Omit<NoSubscriptionTooltipProps,
     fallback: React.ReactElement
 }
 
-export const SubscriptionFeatureGuard: React.FC<SubscriptionFeatureGuardProps> = ({
+/**
+ * Component that conditionally renders content based on subscription feature availability.
+ * 
+ * If the organization has access to the specified feature(s), renders the children.
+ * Otherwise, renders the fallback element wrapped in a NoSubscriptionTooltip.
+ * 
+ * @param children - Element to render when feature is available
+ * @param feature - Feature name or array of feature names to check
+ * @param fallback - Element to render when feature is not available (will be wrapped in tooltip)
+ * @param tooltipProps - Additional props passed to NoSubscriptionTooltip
+ * 
+ * @example
+ * <SubscriptionGuardWithTooltip
+ *   feature="analytics"
+ *   fallback={<Button disabled>Analytics</Button>}
+ * >
+ *   <Button>Analytics</Button>
+ * </SubscriptionGuardWithTooltip>
+ */
+export const SubscriptionGuardWithTooltip: React.FC<SubscriptionFeatureGuardProps> = ({
     children, 
     feature,
     fallback,

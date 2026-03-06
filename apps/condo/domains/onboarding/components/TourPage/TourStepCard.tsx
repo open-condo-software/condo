@@ -16,7 +16,7 @@ import {
     COMPLETED_STEP_LINK,
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
-import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import styles from './TourStepCard.module.css'
@@ -158,7 +158,7 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         )
     }
 
-    return <SubscriptionFeatureGuard
+    return <SubscriptionGuardWithTooltip
         key={step.id}
         feature={requiredFeature}
         skipTooltip={requiredFeature === undefined}
@@ -171,5 +171,5 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         <div className={styles.fullWidth}>
             {cardContent}
         </div>
-    </SubscriptionFeatureGuard>
+    </SubscriptionGuardWithTooltip>
 }

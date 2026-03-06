@@ -12,7 +12,7 @@ import { Tooltip, Tour, Typography } from '@open-condo/ui'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import { Comment } from './Comment'
@@ -111,7 +111,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                         />
                         {
                             showGenerateAnswerButton && lastComment?.id === comment.id && (
-                                <SubscriptionFeatureGuard
+                                <SubscriptionGuardWithTooltip
                                     feature='ai'
                                     placement='left'
                                     fallback={
@@ -132,7 +132,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                             </AIFlowButton>
                                         </div>
                                     </Tooltip>
-                                </SubscriptionFeatureGuard>
+                                </SubscriptionGuardWithTooltip>
                             )
                         }
                     </React.Fragment>
@@ -171,7 +171,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                         PromptDescriptionMessage={PromptDescriptionMessage}
                         AiButton={<div className={styles.generateCommentButtonWrapper}>
                             {showGenerateCommentWithoutComments && (
-                                <SubscriptionFeatureGuard
+                                <SubscriptionGuardWithTooltip
                                     feature='ai'
                                     placement='left'
                                     fallback={
@@ -197,7 +197,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                             </AIFlowButton>
                                         </div>
                                     </Tour.TourStep>
-                                </SubscriptionFeatureGuard>
+                                </SubscriptionGuardWithTooltip>
                             )}
                         </div> }
                     />

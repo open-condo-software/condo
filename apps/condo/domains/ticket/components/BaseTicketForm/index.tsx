@@ -66,7 +66,7 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
-import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -219,7 +219,7 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
 
     return (
         <>
-            <SubscriptionFeatureGuard
+            <SubscriptionGuardWithTooltip
                 feature='marketplace'
                 placement='left'
                 fallback={
@@ -239,7 +239,7 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
                         <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
                     </Space>
                 </Col>
-            </SubscriptionFeatureGuard>
+            </SubscriptionGuardWithTooltip>
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm
