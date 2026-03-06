@@ -328,9 +328,11 @@ describe('TicketExportTask', () => {
         it('cannot be updated by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj, attrs] = await createTestTicketExportTask(adminClient, adminClient.user)
+            console.log('Created TicketExportTask', obj, attrs)
             const newAttrs = {
                 status: difference(EXPORT_STATUS_VALUES, [attrs.status])[0],
             }
+            console.log('newAttrs TicketExportTask', newAttrs)
             const [updatedObj] = await updateTestTicketExportTask(adminClient, obj.id, newAttrs)
             expect(updatedObj.status).toEqual(newAttrs.status)
         })

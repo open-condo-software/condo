@@ -107,6 +107,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
                 entityId: taskId,
                 entity: taskSchemaName,
             })
+            console.log('TicketExportTask updated to completed')
             task = await taskServerUtils.update(context, taskId, {
                 ...baseAttrs,
                 totalRecordsCount: offset,
@@ -121,6 +122,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
 
         if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL || offset >= totalRecordsCount) {
             lastProgress = Date.now()
+            console.log('TicketExportTask updated to completed')
             task = await taskServerUtils.update(context, taskId, {
                 ...baseAttrs,
                 totalRecordsCount,
@@ -146,7 +148,7 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
     })
 
     const file = buildUploadInputFrom(await buildExportFile(rows))
-
+    console.log('TicketExportTask updated to completed')
     await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
         status: COMPLETED,
@@ -184,7 +186,7 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
         meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
     })
-
+    console.log('TicketExportTask updated to completed')
     return await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
         status: COMPLETED,
