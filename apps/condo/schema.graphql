@@ -91193,7 +91193,7 @@ input SyncRemoteClientInput {
   """
   Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
   """
-  deviceKey: String
+  deviceKey: ID
   devicePlatform: DevicePlatformType
 
   """Preferred way to receive default push messages on this device"""
@@ -105743,26 +105743,14 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "WRONG_DEVICE_KEY_FORMAT",
-    "message": "\"deviceKey\" must be in string format"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_DEVICE_KEY_LENGTH",
-    "message": "\"deviceKey\" length must be between 24 and 128 characters"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "DEVICE_KEY_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
-    "message": "\"deviceKey\" must contain at least 4 different characters"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
     "type": "DEVICE_KEY_VALIDATION_ERROR",
     "message": "\"deviceKey\" validation error"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_DEVICE_KEY",
+    "message": "\"deviceKey\" should be a valid UUID"
   }`
   """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient

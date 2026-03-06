@@ -692,148 +692,146 @@ describe('SyncRemoteClientService', () => {
     })
 
     describe('Validation', () => {
-        test.each([
-            {
-                testName: 'pushTokens contains invalid token (isVoIP and isPush are false)',
-                payloadModifier: (payload) => ({
-                    ...payload,
-                    pushTokens: [
-                        getRandomPushTokenData({
-                            isVoIP: false,
-                            isPush: false,
-                        }),
-                    ],
-                }),
-                expectedError: 'Any push token must set "isVoIP" or "isPush" or both as "true"',
-            },
-            {
-                testName: 'pushTokens contains empty token',
-                payloadModifier: (payload) => ({
-                    ...payload,
-                    pushTokens: [
-                        getRandomPushTokenData({
-                            token: '',
-                        }),
-                    ],
-                }),
-                expectedError: 'Push token must contain non-empty "token"',
-            },
-            {
-                testName: 'pushTokens contains more than 2 tokens for same transport and type',
-                payloadModifier: (payload) => {
-                    const samplePushToken = pick(getRandomPushTokenData(), ['isVoIP', 'isPush', 'transport'])
-                    return {
+        
+        describe('pushTokens', () => {
+            test.each([
+                {
+                    testName: 'pushTokens contains invalid token (isVoIP and isPush are false)',
+                    payloadModifier: (payload) => ({
                         ...payload,
                         pushTokens: [
-                            {
-                                token: 'token1',
-                                ...samplePushToken,
-                            },
-                            {
-                                token: 'token2',
-                                ...samplePushToken,
-                            },
-                            {
-                                token: 'token3',
-                                ...samplePushToken,
-                            },
+                            getRandomPushTokenData({
+                                isVoIP: false,
+                                isPush: false,
+                            }),
                         ],
-                    }
+                    }),
+                    expectedError: 'Any push token must set "isVoIP" or "isPush" or both as "true"',
                 },
-                expectedError: 'Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages',
-            },
-        ])('fails when $testName', async ({ payloadModifier, expectedError }) => {
-            const client = await makeClient()
-            const payload = getRandomTokenData({ pushToken: null, meta: null })
-            const invalidPayload = payloadModifier(payload)
-
-            await expect(syncRemoteClientByTestClient(client, invalidPayload))
-                .rejects
-                .toThrow(expectedError)
-        })
-
-        it('passes when pushTokens are valid', async () => {
-            const client = await makeClient()
-            const payload = getRandomTokenData({ pushTransport: 'redstore', pushTransportVoIP: 'redstore', pushToken: null, meta: null })
-
-            const validPayload = {
-                ...payload,
-                pushTokens: [
-                    {
-                        token: 'valid-token-1',
-                        transport: 'firebase',
-                        isVoIP: true,
-                        isPush: false,
+                {
+                    testName: 'pushTokens contains empty token',
+                    payloadModifier: (payload) => ({
+                        ...payload,
+                        pushTokens: [
+                            getRandomPushTokenData({
+                                token: '',
+                            }),
+                        ],
+                    }),
+                    expectedError: 'Push token must contain non-empty "token"',
+                },
+                {
+                    testName: 'pushTokens contains more than 2 tokens for same transport and type',
+                    payloadModifier: (payload) => {
+                        const samplePushToken = pick(getRandomPushTokenData(), ['isVoIP', 'isPush', 'transport'])
+                        return {
+                            ...payload,
+                            pushTokens: [
+                                {
+                                    token: 'token1',
+                                    ...samplePushToken,
+                                },
+                                {
+                                    token: 'token2',
+                                    ...samplePushToken,
+                                },
+                                {
+                                    token: 'token3',
+                                    ...samplePushToken,
+                                },
+                            ],
+                        }
                     },
-                    {
-                        token: 'valid-token-2',
-                        transport: 'apple',
-                        isVoIP: false,
-                        isPush: true,
-                    },
-                ],
-            }
+                    expectedError: 'Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages',
+                },
+            ])('fails when $testName', async ({ payloadModifier, expectedError }) => {
+                const client = await makeClient()
+                const payload = getRandomTokenData({ pushToken: null, meta: null })
+                const invalidPayload = payloadModifier(payload)
 
-            const [device] = await syncRemoteClientByTestClient(client, validPayload)
+                await expect(syncRemoteClientByTestClient(client, invalidPayload))
+                    .rejects
+                    .toThrow(expectedError)
+            })
 
-            expect(device.id).not.toBeFalsy()
-            expect(device.deviceId).toEqual(validPayload.deviceId)
-            expect(device.appId).toEqual(validPayload.appId)
-            expect(device.devicePlatform).toEqual(validPayload.devicePlatform)
+            it('passes when pushTokens are valid', async () => {
+                const client = await makeClient()
+                const payload = getRandomTokenData({ pushTransport: 'redstore', pushTransportVoIP: 'redstore', pushToken: null, meta: null })
+
+                const validPayload = {
+                    ...payload,
+                    pushTokens: [
+                        {
+                            token: 'valid-token-1',
+                            transport: 'firebase',
+                            isVoIP: true,
+                            isPush: false,
+                        },
+                        {
+                            token: 'valid-token-2',
+                            transport: 'apple',
+                            isVoIP: false,
+                            isPush: true,
+                        },
+                    ],
+                }
+
+                const [device] = await syncRemoteClientByTestClient(client, validPayload)
+
+                expect(device.id).not.toBeFalsy()
+                expect(device.deviceId).toEqual(validPayload.deviceId)
+                expect(device.appId).toEqual(validPayload.appId)
+                expect(device.devicePlatform).toEqual(validPayload.devicePlatform)
+            })
+
         })
 
-        test.each([
-            {
-                testName: 'deviceKey is too short',
-                deviceKey: 'ab', // Too short
-                expectedError: 'length must be between',
-            },
-            {
-                testName: 'deviceKey has too few unique characters',
-                deviceKey: 'aaaaaaaabbbbbbbbbccccccccc', // Not enough unique characters
-                expectedError: 'must contain at least',
-            },
-        ])('fails when $testName', async ({ deviceKey, expectedError }) => {
-            const client = await makeClient()
-            const payload = getRandomTokenData({ pushToken: null, meta: null })
+        describe('deviceKey', () => {
+            
+            test.each([
+                {
+                    testName: 'empty string',
+                    deviceKey: '',
+                },
+                {
+                    testName: 'not a uuid',
+                    deviceKey: 'aaaaaaaabbbbbbbbbccccccccc',
+                },
+                {
+                    testName: 'not a uuid 2',
+                    deviceKey: faker.random.alphaNumeric(faker.datatype.uuid().length),
+                },
+            ])('fails when deviceKey is $testName', async ({ deviceKey }) => {
+                const client = await makeClient()
+                const payload = getRandomTokenData({ pushToken: null, meta: null })
 
-            const invalidPayload = {
-                ...payload,
-                deviceKey: deviceKey,
-            }
+                const invalidPayload = {
+                    ...payload,
+                    deviceKey: deviceKey,
+                }
 
-            await expect(syncRemoteClientByTestClient(client, invalidPayload))
-                .rejects
-                .toThrow(expectedError)
-        })
+                await expect(syncRemoteClientByTestClient(client, invalidPayload))
+                    .rejects
+                    .toThrow('should be a valid UUID')
+            })
 
-        it('passes when deviceKey is valid', async () => {
-            const client = await makeClient()
-            const payload = getRandomTokenData({ pushToken: null, meta: null })
+            it('passes when deviceKey is valid', async () => {
+                const client = await makeClient()
+                const payload = getRandomTokenData({ pushToken: null, meta: null })
 
-            const validPayload1 = {
-                ...payload,
-                deviceKey: 'validDeviceKey123!@#._=qwerty', // Valid key
-            }
+                const validPayload = {
+                    ...payload,
+                    deviceKey: faker.datatype.uuid(), // UUID passes
+                }
 
-            const [device] = await syncRemoteClientByTestClient(client, validPayload1)
+                const [device] = await syncRemoteClientByTestClient(client, validPayload)
 
-            expect(device.id).not.toBeFalsy()
-            expect(device.deviceId).toEqual(validPayload1.deviceId)
-            expect(device.appId).toEqual(validPayload1.appId)
-            expect(device.devicePlatform).toEqual(validPayload1.devicePlatform)
+                expect(device.id).not.toBeFalsy()
+                expect(device.deviceId).toEqual(validPayload.deviceId)
+                expect(device.appId).toEqual(validPayload.appId)
+                expect(device.devicePlatform).toEqual(validPayload.devicePlatform)
+            })
 
-            const validPayload2 = {
-                ...payload,
-                deviceKey: faker.datatype.uuid(), // UUID passes
-            }
-
-            const [device2] = await syncRemoteClientByTestClient(client, validPayload2)
-
-            expect(device2.id).not.toBeFalsy()
-            expect(device2.deviceId).toEqual(validPayload2.deviceId)
-            expect(device2.appId).toEqual(validPayload2.appId)
-            expect(device2.devicePlatform).toEqual(validPayload2.devicePlatform)
         })
     })
 

@@ -9,22 +9,26 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { GQLCustomSchema, getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { wrapWithGQLError } = require('@open-condo/keystone/utils/errors/wrapWithGQLError')
 
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK,
 } = require('@condo/domains/notification/constants/constants')
-const { DEVICE_KEY_VALIDATION_ERROR } = require('@condo/domains/notification/constants/errors')
+const { DEVICE_KEY_VALIDATION_ERROR, INVALID_DEVICE_KEY } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { getDeviceKeyValidationError, DEVICE_KEY_VALIDATIONS_ERRORS } = require('@condo/domains/notification/utils/serverSchema/remoteClient/validateHelpers')
 const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
 
 const ERRORS = {
     ...PUSH_TOKENS_VALIDATION_ERRORS,
-    ...DEVICE_KEY_VALIDATIONS_ERRORS,
     DEVICE_KEY_VALIDATION_ERROR: {
         code: BAD_USER_INPUT,
         type: DEVICE_KEY_VALIDATION_ERROR,
         message: '"deviceKey" validation error',
+    },
+    INVALID_DEVICE_KEY: {
+        code: BAD_USER_INPUT,
+        type: INVALID_DEVICE_KEY,
+        message: '"deviceKey" should be a valid UUID',
     },
 }
 
@@ -99,7 +103,7 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 """
                 Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
                 """
-                deviceKey: String,
+                deviceKey: ID,
                 devicePlatform: DevicePlatformType,
                 
                 """
@@ -166,7 +170,7 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                         isPush: false,
                     })
                 }
-
+                
                 // --- VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
 
                 const pushTokensValidationError = getPushTokensValidationError(pushTokensInput)
@@ -178,10 +182,9 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
 
                 // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
                 if (typeof deviceKey === 'string') {
-                    // NOTE: maybe add another errors
-                    const deviceKeyValidationError = getDeviceKeyValidationError(deviceKey)
-                    if (deviceKeyValidationError) {
-                        throw new GQLError(deviceKeyValidationError, context)
+                    const isValidUuid = UUID_REGEXP.test(deviceKey)
+                    if (!isValidUuid) {
+                        throw new GQLError(ERRORS.INVALID_DEVICE_KEY, context)
                     }
                     // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
                     const { keystone } = getSchemaCtx('User')

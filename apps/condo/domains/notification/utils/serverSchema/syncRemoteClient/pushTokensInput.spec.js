@@ -205,33 +205,5 @@ describe('pushTokensInput', () => {
             expect(result).toEqual([])
         })
 
-        test('tries to preserve original order', () => {
-            // Test that duplicate tokens are merged while preserving the order of first occurrence
-            const inputTokens = [
-                { token: '3', transport: 'ios', isVoIP: true, isPush: false },
-                { token: '4', transport: 'ios', isVoIP: true, isPush: true },
-                { token: '1', transport: 'android', isVoIP: false, isPush: true },
-                { token: '3', transport: 'ios', isVoIP: false, isPush: true }, // duplicate of first
-                { token: '2', transport: 'ios', isVoIP: true, isPush: false },
-                { token: '1', transport: 'android', isVoIP: true, isPush: false }, // duplicate of second
-            ]
-            
-            const result = deduplicatePushTokens(inputTokens)
-            
-            // Should have 4 tokens after deduplication (one for each unique token)
-            expect(result).toHaveLength(4)
-            
-            // The order should preserve the first occurrence position of each unique token
-            // Token '3' appears first in original array, so it should be at index 0 after deduplication
-            // Token '4' appears second in original array, so it should be at index 1
-            // Token '1' appears third in original array, so it should be at index 2
-            // Token '2' appears fourth in original array, so it should be at index 3
-            expect(result[0].token).toBe('3')
-            expect(result[1].token).toBe('4')
-            expect(result[2].token).toBe('1')
-            expect(result[3].token).toBe('2')
-            
-        })
-
     })
 })

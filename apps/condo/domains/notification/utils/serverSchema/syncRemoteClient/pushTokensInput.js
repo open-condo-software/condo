@@ -25,10 +25,15 @@ const PUSH_TOKENS_VALIDATION_ERRORS = {
 }
 
 /**
- * @returns {{
- * [transport: string]: { [token: string]: PushTokenWithSameTokenAndTransport[] }
- * }}
+ * @typedef PushToken
+ * @type {import('@app/condo/schema').PushToken}
  * */
+
+/**
+ * @param pushTokens {PushToken[]}
+ * @returns {PushToken[][][]} pushTokens grouped by "transport" and then by "token"
+ * @private
+ */
 function _groupPushTokensByTransportAndToken (pushTokens) {
     const pushTokensByTransportAndToken = Object.create(null)
     for (const pushToken of pushTokens) {
@@ -36,19 +41,30 @@ function _groupPushTokensByTransportAndToken (pushTokens) {
         if (!pushTokensByTransportAndToken[pushToken.transport][pushToken.token]) pushTokensByTransportAndToken[pushToken.transport][pushToken.token] = []
         pushTokensByTransportAndToken[pushToken.transport][pushToken.token].push(pushToken)
     }
-    return pushTokensByTransportAndToken
+    return Object.values(pushTokensByTransportAndToken).map(Object.values)
 }
 
+/**
+ * @param pushTokensWithSameToken {PushToken[]}
+ * @returns {PushToken}
+ * */
 function reducePushTokensWithSameTokenToOneObject (pushTokensWithSameToken) {
-    return pushTokensWithSameToken.reduce((uniquePushToken, currentPushTokenDuplicate) => {
-        return {
-            ...uniquePushToken,
-            isVoIP: uniquePushToken.isVoIP || currentPushTokenDuplicate.isVoIP,
-            isPush: uniquePushToken.isPush || currentPushTokenDuplicate.isPush,
-        }
-    })
+    const firstToken = pushTokensWithSameToken[0]
+    if (!firstToken) return null
+
+    const isVoIP = !!pushTokensWithSameToken.find(pushToken => pushToken.isVoIP)
+    const isPush = !!pushTokensWithSameToken.find(pushToken => pushToken.isPush)
+    return {
+        ...firstToken,
+        isVoIP,
+        isPush,
+    }
 }
 
+/**
+ * @param pushTokens {PushToken[]}
+ * @returns {{code: GQLErrorCode|String, type: string, message: string}|{code: GQLErrorCode|String, type: string, message: string}|{code: GQLErrorCode|String, type: string, message: string}|null}
+ */
 function getPushTokensValidationError (pushTokens) {
     const tokenWithoutAllowedVoIPAndDefaultPush = pushTokens.find(pushToken => !pushToken.isVoIP && !pushToken.isPush)
     if (tokenWithoutAllowedVoIPAndDefaultPush) {
@@ -62,9 +78,10 @@ function getPushTokensValidationError (pushTokens) {
 
     const pushTokensByTransportAndToken = _groupPushTokensByTransportAndToken(pushTokens)
 
-    for (const pushTokensByToken of Object.values(pushTokensByTransportAndToken)) {
-        const allPushTokensForTransport = Object.values(pushTokensByToken)
-            .map(pushTokensWithSameToken => reducePushTokensWithSameTokenToOneObject(pushTokensWithSameToken))
+    for (const transportsGroup of pushTokensByTransportAndToken) {
+        const allPushTokensForTransport = transportsGroup
+            .map(reducePushTokensWithSameTokenToOneObject)
+            .filter(Boolean)
         const voipTokens = allPushTokensForTransport.filter(token => token.isVoIP)
         const defaultTokens = allPushTokensForTransport.filter(token => token.isPush)
         if (voipTokens.length > 1 || defaultTokens.length > 1) {
@@ -74,33 +91,16 @@ function getPushTokensValidationError (pushTokens) {
     return null
 }
 
+/**
+ * @param pushTokens {PushToken[]}
+ * @returns {PushToken[]}
+ */
 function deduplicatePushTokens (pushTokens) {
     const pushTokensByTransportAndToken = _groupPushTokensByTransportAndToken(pushTokens)
-    const deduplicatedPushTokenByTransportAndToken = Object.fromEntries(
-        Object.entries(pushTokensByTransportAndToken)
-            .map(([transport, pushTokensByToken]) => {
-                return [
-                    transport,
-                    Object.fromEntries(
-                        Object.entries(pushTokensByToken)
-                            .map(([token, pushTokensWithSameToken]) => {
-                                return [token, reducePushTokensWithSameTokenToOneObject(pushTokensWithSameToken)]
-                            })
-                    ),
-                ]
-            })
-    )
-    // ordering
-    const usedTokensPlusTransports = new Set()
-    const orderedDeduplicatedPushTokens = []
-    for (const { transport, token } of pushTokens) {
-        const key = `${token}:${transport}`
-        if (usedTokensPlusTransports.has(key)) continue
-        usedTokensPlusTransports.add(key)
-        const deduplicatedPushToken = deduplicatedPushTokenByTransportAndToken[transport][token]
-        orderedDeduplicatedPushTokens.push(deduplicatedPushToken)
-    }
-    return orderedDeduplicatedPushTokens.filter(Boolean)
+    return pushTokensByTransportAndToken
+        .flat()
+        .map(reducePushTokensWithSameTokenToOneObject)
+        .filter(Boolean)
 }
 
 module.exports = {
