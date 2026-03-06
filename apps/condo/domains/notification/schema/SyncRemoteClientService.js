@@ -13,7 +13,7 @@ const access = require('@condo/domains/notification/access/SyncRemoteClientServi
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK,
 } = require('@condo/domains/notification/constants/constants')
-const { DYNAMIC_DEVICE_KEY_VALIDATION_ERROR } = require('@condo/domains/notification/constants/errors')
+const { DEVICE_KEY_VALIDATION_ERROR } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { getDeviceKeyValidationError, DEVICE_KEY_VALIDATIONS_ERRORS } = require('@condo/domains/notification/utils/serverSchema/remoteClient/validateHelpers')
 const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
@@ -21,10 +21,10 @@ const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDAT
 const ERRORS = {
     ...PUSH_TOKENS_VALIDATION_ERRORS,
     ...DEVICE_KEY_VALIDATIONS_ERRORS,
-    DYNAMIC_DEVICE_KEY_VALIDATION_ERROR: {
+    DEVICE_KEY_VALIDATION_ERROR: {
         code: BAD_USER_INPUT,
-        type: DYNAMIC_DEVICE_KEY_VALIDATION_ERROR,
-        message: 'dynamic error for "deviceKey" validation, look at the inner errors',
+        type: DEVICE_KEY_VALIDATION_ERROR,
+        message: '"deviceKey" validation error',
     },
 }
 
@@ -53,8 +53,8 @@ function pickPushTokenToReplaceOldOne ({ pushTokens, isVoIP }) {
         const preferenceIndexB = TEMP_TRANSPORT_PREFERENCE_INDEXES[transportB]
         return preferenceIndexA - preferenceIndexB
     })
-    const allPushTokensForVoIPType = orderedByPreferencePushTokens.filter(pushToken => pushToken[voipOrDefaultKey])
-    return allPushTokensForVoIPType[0] || null
+    const firstPushTokenForVoIPType = orderedByPreferencePushTokens.find(pushToken => pushToken[voipOrDefaultKey])
+    return firstPushTokenForVoIPType || null
 }
 
 
@@ -102,13 +102,20 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 deviceKey: String,
                 devicePlatform: DevicePlatformType,
                 
+                """
+                Preferred way to receive default push messages on this device
+                """
+                pushType: PushType,
+                """
+                Preferred way to receive VoIP push messages on this device
+                """
+                pushTypeVoIP: PushType,
+                
                 pushToken: String @deprecated(reason: "Use pushTokens instead"),
                 pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead"),
-                pushType: PushType,
                 
                 pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead"),
                 pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead"),
-                pushTypeVoIP: PushType,
                 
                 """
                 List of tokens received from messaging providers / sdks

@@ -740,7 +740,7 @@ describe('SyncRemoteClientService', () => {
                         ],
                     }
                 },
-                expectedError: 'Each transport can have maximum 2 different tokens: <=1 for simple pushes and <=1 for voip pushes',
+                expectedError: 'Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages',
             },
         ])('fails when $testName', async ({ payloadModifier, expectedError }) => {
             const client = await makeClient()
@@ -790,7 +790,7 @@ describe('SyncRemoteClientService', () => {
             },
             {
                 testName: 'deviceKey has too few unique characters',
-                deviceKey: 'aaaaaaaabbbbbbcccccc', // Not enough unique characters
+                deviceKey: 'aaaaaaaabbbbbbbbbccccccccc', // Not enough unique characters
                 expectedError: 'must contain at least',
             },
         ])('fails when $testName', async ({ deviceKey, expectedError }) => {
@@ -813,7 +813,7 @@ describe('SyncRemoteClientService', () => {
 
             const validPayload1 = {
                 ...payload,
-                deviceKey: 'validDeviceKey123!@#', // Valid key
+                deviceKey: 'validDeviceKey123!@#._=qwerty', // Valid key
             }
 
             const [device] = await syncRemoteClientByTestClient(client, validPayload1)

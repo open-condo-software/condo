@@ -91195,12 +91195,16 @@ input SyncRemoteClientInput {
   """
   deviceKey: String
   devicePlatform: DevicePlatformType
+
+  """Preferred way to receive default push messages on this device"""
+  pushType: PushType
+
+  """Preferred way to receive VoIP push messages on this device"""
+  pushTypeVoIP: PushType
   pushToken: String @deprecated(reason: "Use pushTokens instead")
   pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead")
-  pushType: PushType
   pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead")
   pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead")
-  pushTypeVoIP: PushType
 
   """List of tokens received from messaging providers / sdks"""
   pushTokens: [PushToken!]
@@ -105721,20 +105725,20 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED",
+    "type": "UNUSABLE_TOKEN_PROVIDED",
     "message": "Any push token must set \"isVoIP\" or \"isPush\" or both as \"true\""
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "PUSH_TOKENS_TOKEN_MUST_NOT_BE_EMPTY",
+    "type": "INVALID_PUSH_TOKEN",
     "message": "Push token must contain non-empty \"token\""
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_TOKENS_FOR_TRANSPORT",
-    "message": "Each transport can have maximum 2 different tokens: <=1 for simple pushes and <=1 for voip pushes"
+    "message": "Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages"
   }`
   
   `{
@@ -105746,7 +105750,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "INVALID_DEVICE_KEY_LENGTH",
-    "message": "\"deviceKey\" length must be between 8 and 128 characters"
+    "message": "\"deviceKey\" length must be between 24 and 128 characters"
   }`
   
   `{
@@ -105757,8 +105761,8 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "DYNAMIC_DEVICE_KEY_VALIDATION_ERROR",
-    "message": "dynamic error for \"deviceKey\" validation, look at the inner errors"
+    "type": "DEVICE_KEY_VALIDATION_ERROR",
+    "message": "\"deviceKey\" validation error"
   }`
   """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient

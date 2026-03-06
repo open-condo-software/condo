@@ -199,7 +199,7 @@ const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
 const MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_DEVICE_KEY = 4
 const MAX_DEVICE_KEY_LENGTH = 128
-const MIN_DEVICE_KEY_LENGTH = 8
+const MIN_DEVICE_KEY_LENGTH = 24
 
 const newsItemMessageMeta = {
     dv: { required: true },

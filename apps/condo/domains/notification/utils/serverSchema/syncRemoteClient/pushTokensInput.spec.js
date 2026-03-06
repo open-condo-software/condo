@@ -38,7 +38,7 @@ describe('pushTokensInput', () => {
                     isPush: false,
                     pushType: 'simple',
                 }],
-                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.TOKEN_WHICH_CANT_BE_USED_IS_NOT_ALLOWED,
+                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.UNUSABLE_TOKEN_PROVIDED,
             },
             {
                 testName: 'token is empty string',
@@ -49,7 +49,7 @@ describe('pushTokensInput', () => {
                     isPush: false,
                     pushType: 'simple',
                 }],
-                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.PUSH_TOKENS_TOKEN_MUST_NOT_BE_EMPTY,
+                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.INVALID_PUSH_TOKEN,
             },
             {
                 testName: 'token is undefined',
@@ -59,7 +59,7 @@ describe('pushTokensInput', () => {
                     isPush: false,
                     pushType: 'simple',
                 }],
-                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.PUSH_TOKENS_TOKEN_MUST_NOT_BE_EMPTY,
+                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.INVALID_PUSH_TOKEN,
             },
             {
                 testName: 'token is null',
@@ -70,7 +70,7 @@ describe('pushTokensInput', () => {
                     isPush: false,
                     pushType: 'simple',
                 }],
-                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.PUSH_TOKENS_TOKEN_MUST_NOT_BE_EMPTY,
+                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.INVALID_PUSH_TOKEN,
             },
         ])('should return appropriate error when $testName', ({ tokenData, expectedError }) => {
             const error = getPushTokensValidationError(tokenData)
