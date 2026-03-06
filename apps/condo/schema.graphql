@@ -91173,19 +91173,42 @@ enum PushType {
   silent_data
 }
 
+input PushToken {
+  token: String!
+  transport: PushTransportType!
+
+  """Specifies if token can be used to receive default push messages"""
+  isPush: Boolean!
+
+  """Specifies if token can be used to receive VoIP push messages"""
+  isVoIP: Boolean!
+}
+
 input SyncRemoteClientInput {
   dv: Int!
   sender: SenderFieldInput!
-  deviceId: String!
   appId: String!
-  pushToken: String
-  pushTransport: PushTransportType
+  deviceId: String!
+
+  """
+  Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
+  """
+  deviceKey: ID
   devicePlatform: DevicePlatformType
+
+  """Preferred way to receive default push messages on this device"""
   pushType: PushType
-  meta: JSON
-  pushTokenVoIP: String
-  pushTransportVoIP: PushTransportType
+
+  """Preferred way to receive VoIP push messages on this device"""
   pushTypeVoIP: PushType
+  pushToken: String @deprecated(reason: "Use pushTokens instead")
+  pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead")
+  pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead")
+  pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead")
+
+  """List of tokens received from messaging providers / sdks"""
+  pushTokens: [PushToken!]
+  meta: JSON
 }
 
 input DisconnectUserFromRemoteClientInput {
@@ -105694,6 +105717,42 @@ type Mutation {
   """
   sendMessage(data: SendMessageInput!): SendMessageOutput
   resendMessage(data: ResendMessageInput!): ResendMessageOutput
+
+  """
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNUSABLE_TOKEN_PROVIDED",
+    "message": "Any push token must set \"isVoIP\" or \"isPush\" or both as \"true\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PUSH_TOKEN",
+    "message": "Push token must contain non-empty \"token\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MANY_TOKENS_FOR_TRANSPORT",
+    "message": "Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DEVICE_KEY_VALIDATION_ERROR",
+    "message": "\"deviceKey\" validation error"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_DEVICE_KEY",
+    "message": "\"deviceKey\" should be a valid UUID"
+  }`
+  """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
