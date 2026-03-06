@@ -5,9 +5,10 @@
 const { faker } = require('@faker-js/faker')
 const pick = require('lodash/pick')
 
-const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeClient, makeLoggedInClient, makeLoggedInAdminClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
+const { ERRORS } = require('@condo/domains/notification/schema/SyncRemoteClientService')
 const {
     RemoteClient, syncRemoteClientByTestClient,
 } = require('@condo/domains/notification/utils/testSchema')
@@ -706,7 +707,7 @@ describe('SyncRemoteClientService', () => {
                             }),
                         ],
                     }),
-                    expectedError: 'Any push token must set "isVoIP" or "isPush" or both as "true"',
+                    expectedError: ERRORS.UNUSABLE_TOKEN_PROVIDED,
                 },
                 {
                     testName: 'pushTokens contains empty token',
@@ -718,7 +719,7 @@ describe('SyncRemoteClientService', () => {
                             }),
                         ],
                     }),
-                    expectedError: 'Push token must contain non-empty "token"',
+                    expectedError: ERRORS.INVALID_PUSH_TOKEN,
                 },
                 {
                     testName: 'pushTokens contains more than 2 tokens for same transport and type',
@@ -742,16 +743,16 @@ describe('SyncRemoteClientService', () => {
                             ],
                         }
                     },
-                    expectedError: 'Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages',
+                    expectedError: ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT,
                 },
             ])('fails when $testName', async ({ payloadModifier, expectedError }) => {
                 const client = await makeClient()
                 const payload = getRandomTokenData({ pushToken: null, meta: null })
                 const invalidPayload = payloadModifier(payload)
 
-                await expect(syncRemoteClientByTestClient(client, invalidPayload))
-                    .rejects
-                    .toThrow(expectedError)
+                await expectToThrowGQLErrorToResult(async () => {
+                    await syncRemoteClientByTestClient(client, invalidPayload)
+                }, expectedError)
             })
 
             it('passes when pushTokens are valid', async () => {
@@ -810,9 +811,9 @@ describe('SyncRemoteClientService', () => {
                     deviceKey: deviceKey,
                 }
 
-                await expect(syncRemoteClientByTestClient(client, invalidPayload))
-                    .rejects
-                    .toThrow('should be a valid UUID')
+                await expectToThrowGQLErrorToResult(async () => {
+                    await syncRemoteClientByTestClient(client, invalidPayload)
+                }, ERRORS.INVALID_DEVICE_KEY)
             })
 
             it('passes when deviceKey is valid', async () => {

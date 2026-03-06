@@ -295,4 +295,5 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
 
 module.exports = {
     SyncRemoteClientService,
+    ERRORS,
 }
