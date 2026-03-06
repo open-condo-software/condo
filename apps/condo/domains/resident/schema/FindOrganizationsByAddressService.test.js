@@ -50,6 +50,8 @@ const { updateTestProperty } = require('@condo/domains/property/utils/testSchema
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
+const { SUBSCRIPTIONS } = require('../../common/constants/featureflags')
+
 
 function getOnlyResourceMeterTest (resource) {
     return {
@@ -902,6 +904,15 @@ describe('FindOrganizationsByAddress', () => {
     })
 
     describe('Subscription field', () => {
+        beforeAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, true)
+        })
+
+        afterAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, false)
+        })
+
+
         test('Should return organization with subscription data', async () => {
             const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
             await utils.init()
