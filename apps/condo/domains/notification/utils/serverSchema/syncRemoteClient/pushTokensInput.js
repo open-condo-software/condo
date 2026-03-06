@@ -1,5 +1,6 @@
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
+const { groupBy } = require('@condo/domains/common/utils/collections')
 const {
     UNUSABLE_TOKEN_PROVIDED,
     INVALID_PUSH_TOKEN,
@@ -25,28 +26,8 @@ const PUSH_TOKENS_VALIDATION_ERRORS = {
 }
 
 /**
- * @typedef PushToken
- * @type {import('@app/condo/schema').PushToken}
- * */
-
-/**
- * @param pushTokens {PushToken[]}
- * @returns {PushToken[][][]} pushTokens grouped by "transport" and then by "token"
- * @private
- */
-function _groupPushTokensByTransportAndToken (pushTokens) {
-    const pushTokensByTransportAndToken = Object.create(null)
-    for (const pushToken of pushTokens) {
-        if (!pushTokensByTransportAndToken[pushToken.transport]) pushTokensByTransportAndToken[pushToken.transport] = Object.create(null)
-        if (!pushTokensByTransportAndToken[pushToken.transport][pushToken.token]) pushTokensByTransportAndToken[pushToken.transport][pushToken.token] = []
-        pushTokensByTransportAndToken[pushToken.transport][pushToken.token].push(pushToken)
-    }
-    return Object.values(pushTokensByTransportAndToken).map(Object.values)
-}
-
-/**
- * @param pushTokensWithSameToken {PushToken[]}
- * @returns {PushToken}
+ * @param pushTokensWithSameToken {import('@app/condo/schema').PushToken[]}
+ * @returns {import('@app/condo/schema').PushToken}
  * */
 function reducePushTokensWithSameTokenToOneObject (pushTokensWithSameToken) {
     const firstToken = pushTokensWithSameToken[0]
@@ -62,7 +43,7 @@ function reducePushTokensWithSameTokenToOneObject (pushTokensWithSameToken) {
 }
 
 /**
- * @param pushTokens {PushToken[]}
+ * @param pushTokens {import('@app/condo/schema').PushToken[]}
  * @returns {{code: GQLErrorCode|String, type: string, message: string}|{code: GQLErrorCode|String, type: string, message: string}|{code: GQLErrorCode|String, type: string, message: string}|null}
  */
 function getPushTokensValidationError (pushTokens) {
@@ -76,10 +57,8 @@ function getPushTokensValidationError (pushTokens) {
         return PUSH_TOKENS_VALIDATION_ERRORS.INVALID_PUSH_TOKEN
     }
 
-    const pushTokensByTransportAndToken = _groupPushTokensByTransportAndToken(pushTokens)
-
-    for (const transportsGroup of pushTokensByTransportAndToken) {
-        const allPushTokensForTransport = transportsGroup
+    for (const transportsGroup of groupBy(pushTokens, ['transport'])) {
+        const allPushTokensForTransport = groupBy(transportsGroup, ['token'])
             .map(reducePushTokensWithSameTokenToOneObject)
             .filter(Boolean)
         const voipTokens = allPushTokensForTransport.filter(token => token.isVoIP)
@@ -92,13 +71,12 @@ function getPushTokensValidationError (pushTokens) {
 }
 
 /**
- * @param pushTokens {PushToken[]}
- * @returns {PushToken[]}
+ * @param pushTokens {import('@app/condo/schema').PushToken[]}
+ * @returns {import('@app/condo/schema').PushToken[]}
  */
 function deduplicatePushTokens (pushTokens) {
-    const pushTokensByTransportAndToken = _groupPushTokensByTransportAndToken(pushTokens)
+    const pushTokensByTransportAndToken = groupBy(pushTokens, ['transport', 'token'])
     return pushTokensByTransportAndToken
-        .flat()
         .map(reducePushTokensWithSameTokenToOneObject)
         .filter(Boolean)
 }
