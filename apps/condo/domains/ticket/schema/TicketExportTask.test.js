@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { exportTickets } = require('@condo/domains/ticket/tasks')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -325,22 +326,38 @@ describe('TicketExportTask', () => {
     })
 
     describe('Update', () => {
-        it('cannot be updated by admin', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const [obj, attrs] = await createTestTicketExportTask(adminClient, adminClient.user)
-            const newAttrs = {
-                status: difference(EXPORT_STATUS_VALUES, [attrs.status])[0],
+        it('can be updated by admin', async () => {
+            //NOTE: Mock `exportTickets.delay` to avoid race with worker updates:
+            // without this spy, the worker can update the task before this test does
+            const delaySpy = jest.spyOn(exportTickets, 'delay').mockResolvedValue(undefined)
+            try {
+                const adminClient = await makeLoggedInAdminClient()
+                const [obj, attrs] = await createTestTicketExportTask(adminClient, adminClient.user)
+                const newAttrs = {
+                    status: difference(EXPORT_STATUS_VALUES, [attrs.status])[0],
+                }
+                const [updatedObj] = await updateTestTicketExportTask(adminClient, obj.id, newAttrs)
+                expect(updatedObj.status).toEqual(newAttrs.status)
+                expect(delaySpy).toHaveBeenCalledWith(obj.id)
+            } finally {
+                delaySpy.mockRestore()
             }
-            const [updatedObj] = await updateTestTicketExportTask(adminClient, obj.id, newAttrs)
-            expect(updatedObj.status).toEqual(newAttrs.status)
         })
 
         it('can be updated by user with specifying "cancelled" value for "status" field', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
-            const [objUpdated] = await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED })
-            expect(objUpdated.status).toEqual(CANCELLED)
+            //NOTE: Mock `exportTickets.delay` to avoid race with worker updates:
+            // without this spy, the worker can update the task before this test does
+            const delaySpy = jest.spyOn(exportTickets, 'delay').mockResolvedValue(undefined)
+            try {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
+                const [objUpdated] = await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED })
+                expect(objUpdated.status).toEqual(CANCELLED)
+                expect(delaySpy).toHaveBeenCalledWith(obj.id)
+            } finally {
+                delaySpy.mockRestore()
+            }
         })
 
         const forbiddenFieldsToUpdateByUser = {
