@@ -95,7 +95,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { SubscriptionAccessGuard } from '@condo/domains/subscription/components'
+import { SubscriptionAccessGuard, NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -381,7 +381,10 @@ const MenuItems: React.FC = () => {
                     {category.items.map((item) => {
                         const isSubscriptionPage = item.path === 'settings'
                         const isDisabled = isSubscriptionPage ? !employee : disabled
-                        
+                        const featureTooltip = ({ element, placement }) => (
+                            <NoSubscriptionTooltip path={`/${item.path}`} children={element} placement={placement} />
+                        )
+
                         return (
                             <MenuItem
                                 id={item.id}
@@ -392,6 +395,7 @@ const MenuItems: React.FC = () => {
                                 disabled={isDisabled}
                                 isCollapsed={isCollapsed}
                                 excludePaths={item.excludePaths}
+                                toolTipDecorator={featureTooltip}
                             />
                         )
                     })}

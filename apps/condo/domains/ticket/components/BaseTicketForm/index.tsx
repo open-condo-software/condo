@@ -66,7 +66,7 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -88,6 +88,7 @@ import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
+
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME = 'condoTicketCurrentFormValues'
@@ -216,29 +217,29 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
         return null
     }
 
-    if (!hasMarketplaceFeature) {
-        return (
-            <NoSubscriptionTooltip>
-                <div>
-                    <Col style={{ cursor: 'not-allowed' }}>
-                        <Space size={4} direction='horizontal'>
-                            <PlusCircle />
-                            <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
-                        </Space>
-                    </Col>
-                </div>
-            </NoSubscriptionTooltip>
-        )
-    }
-
     return (
         <>
-            <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
-                <Space size={4} direction='horizontal'>
-                    <PlusCircle />
-                    <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
-                </Space>
-            </Col>
+            <SubscriptionGuardWithTooltip
+                feature='marketplace'
+                placement='left'
+                fallback={
+                    <div>
+                        <Col className={styles.cursorNotAllowed}>
+                            <Space size={4} direction='horizontal'>
+                                <PlusCircle />
+                                <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
+                            </Space>
+                        </Col>
+                    </div>
+                }
+            >
+                <Col className={styles.cursorPointer} onClick={() => setCreateInvoiceModalOpen(true)}>
+                    <Space size={4} direction='horizontal'>
+                        <PlusCircle />
+                        <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                    </Space>
+                </Col>
+            </SubscriptionGuardWithTooltip>
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm
@@ -319,7 +320,7 @@ const TicketFormInvoicesEmptyContent = ({
                         <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
                     </Col>
                     <Col span={24}>
-                        <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
+                        <Row className={styles.invoiceRow} justify='center' align='middle'>
                             <AddInvoiceButton
                                 initialValues={initialValues}
                                 form={form}
@@ -928,8 +929,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <TicketPropertyHintCard
                 propertyId={selectedPropertyId}
-                colProps={HINTS_COL_PROPS}
                 className={styles.ticketPropertyHintCard}
+                colProps={HINTS_COL_PROPS}
             />
             <IncidentHintsBlock
                 organizationId={organizationId}

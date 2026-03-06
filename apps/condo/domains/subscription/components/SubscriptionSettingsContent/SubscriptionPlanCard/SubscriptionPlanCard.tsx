@@ -92,6 +92,7 @@ interface SubscriptionPlanCardProps {
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
     emoji?: string
+    trialActivateLoading?: boolean
 }
 
 interface SubscriptionPlanBadgeProps {
@@ -172,7 +173,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -186,7 +187,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const { useFlagValue } = useFeatureFlags()
     const { subscriptionContext: activeSubscriptionContext, daysRemaining } = useOrganizationSubscription()
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
-    const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
     
     const { plan, prices } = planInfo
     const price = prices?.[0]
@@ -290,18 +290,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const handleTrialActivateClick = useCallback(async () => {
         if (!price?.id) return
 
-        setTrialActivateLoading(true)
-        try {
-            await handleActivatePlan({
-                priceId: price.id,
-                isTrial: true,
-                planName: plan.name,
-                trialDays: plan.trialDays,
-                isCustomPrice,
-            })
-        } finally {
-            setTrialActivateLoading(false)
-        }
+        await handleActivatePlan({
+            priceId: price.id,
+            isTrial: true,
+            planName: plan.name,
+            trialDays: plan.trialDays,
+            isCustomPrice,
+        })
     }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
 
     const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
@@ -437,7 +432,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                                     type='accent'
                                                     onClick={handleTrialActivateClick} 
                                                     loading={trialActivateLoading}
-                                                    disabled={!canManageSubscriptions}
+                                                    disabled={!canManageSubscriptions || trialActivateLoading}
                                                 >
                                                     {TryFreeMessage}
                                                 </Button>
