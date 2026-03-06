@@ -13,7 +13,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
-const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, COMPLETED, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {
     createTestOrganization,
@@ -326,38 +326,41 @@ describe('TicketExportTask', () => {
     })
 
     describe('Update', () => {
+        // NOTE: ValidationFailureError here is expected: access checks run first (list + field),
+        // so this confirms permissions passed and the mutation was rejected by validation logic.
         it('can be updated by admin', async () => {
-            //NOTE: Mock `exportTickets.delay` to avoid race with worker updates:
-            // without this spy, the worker can update the task before this test does
-            const delaySpy = jest.spyOn(exportTickets, 'delay').mockResolvedValue(undefined)
-            try {
-                const adminClient = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestTicketExportTask(adminClient, adminClient.user)
-                const newAttrs = {
-                    status: difference(EXPORT_STATUS_VALUES, [attrs.status])[0],
-                }
-                const [updatedObj] = await updateTestTicketExportTask(adminClient, obj.id, newAttrs)
-                expect(updatedObj.status).toEqual(newAttrs.status)
-                expect(delaySpy).toHaveBeenCalledWith(obj.id)
-            } finally {
-                delaySpy.mockRestore()
-            }
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
+
+            // NOTE: we cannot guarantee that the task has been cancelled
+            // because the task completion may happen very quickly before we send the task cancellation request
+            await waitFor(async () => {
+                const foundedTask = await TicketExportTask.getOne(adminClient, { id: obj.id })
+                expect(foundedTask).toHaveProperty('status', COMPLETED)
+            })
+            await expectToThrowValidationFailureError(
+                async () => await updateTestTicketExportTask(adminClient, obj.id, { status: CANCELLED }),
+                'status is already completed',
+            )
         })
 
+        // NOTE: ValidationFailureError here is expected: access checks run first (list + field),
+        // so this confirms permissions passed and the mutation was rejected by validation logic.
         it('can be updated by user with specifying "cancelled" value for "status" field', async () => {
-            //NOTE: Mock `exportTickets.delay` to avoid race with worker updates:
-            // without this spy, the worker can update the task before this test does
-            const delaySpy = jest.spyOn(exportTickets, 'delay').mockResolvedValue(undefined)
-            try {
-                const adminClient = await makeLoggedInAdminClient()
-                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
-                const [objUpdated] = await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED })
-                expect(objUpdated.status).toEqual(CANCELLED)
-                expect(delaySpy).toHaveBeenCalledWith(obj.id)
-            } finally {
-                delaySpy.mockRestore()
-            }
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
+
+            // NOTE: we cannot guarantee that the task has been cancelled
+            // because the task completion may happen very quickly before we send the task cancellation request
+            await waitFor(async () => {
+                const foundedTask = await TicketExportTask.getOne(adminClient, { id: obj.id })
+                expect(foundedTask).toHaveProperty('status', COMPLETED)
+            })
+            await expectToThrowValidationFailureError(
+                async () => await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED }),
+                'status is already completed',
+            )
         })
 
         const forbiddenFieldsToUpdateByUser = {
