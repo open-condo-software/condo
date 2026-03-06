@@ -111,6 +111,8 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     Here, we should have all the necessary data.
                  */
 
+                // Enrich organizations with subscription data by calling the virtual field resolver
+                // This is necessary because subscription is a virtual field and cannot be fetched directly via find()
                 const organizationsWithSubscription = await Promise.all(
                     organizations.map(async (organization) => {
                         const subscription = await ORGANIZATION_SUBSCRIPTION_FIELD.resolver(organization, {}, context)
