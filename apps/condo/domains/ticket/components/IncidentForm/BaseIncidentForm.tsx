@@ -55,7 +55,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
-import { FeatureGate } from '@condo/domains/subscription/components'
+import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
@@ -479,7 +479,7 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                         </Tooltip>,
                                         ...
                                         aiEnabled && rewriteIncidentTextForResidentEnabled ? [
-                                            <FeatureGate
+                                            <SubscriptionFeatureGuard
                                                 key='improveButton'
                                                 feature='ai'
                                                 fallback={
@@ -509,7 +509,7 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                                 >
                                                     {UpdateTextMessage}
                                                 </Button>
-                                            </FeatureGate>,
+                                            </SubscriptionFeatureGuard>,
                                         ] : [],
                                     ]}
                                 />

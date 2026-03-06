@@ -3,13 +3,13 @@ import React from 'react'
 import { NoSubscriptionTooltip, NoSubscriptionTooltipProps } from '@condo/domains/subscription/components/NoSubscriptionTooltip'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
-interface FeatureGateProps extends Omit<NoSubscriptionTooltipProps, 'children'> {
+interface SubscriptionFeatureGuardProps extends Omit<NoSubscriptionTooltipProps, 'children'> {
     children: React.ReactElement
     feature: NoSubscriptionTooltipProps['feature']
     fallback: React.ReactElement
 }
 
-export const FeatureGate: React.FC<FeatureGateProps> = ({ 
+export const SubscriptionFeatureGuard: React.FC<SubscriptionFeatureGuardProps> = ({
     children, 
     feature,
     fallback,

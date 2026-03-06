@@ -19,7 +19,7 @@ import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { FeatureGate } from '@condo/domains/subscription/components'
+import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
 
 import type { FormRule as Rule } from 'antd'
@@ -174,7 +174,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                 <Space size={16} direction='horizontal'>
                                     {
                                         (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems && isActual) && (
-                                            <FeatureGate
+                                            <SubscriptionFeatureGuard
                                                 key='generateNews'
                                                 feature={['ai', 'news']}
                                                 fallback={
@@ -211,7 +211,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                                         </Typography.Text>
                                                     </Space>
                                                 </LabeledField>
-                                            </FeatureGate>
+                                            </SubscriptionFeatureGuard>
                                         )
                                     }
                                     <Button

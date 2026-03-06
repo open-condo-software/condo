@@ -3157,8 +3157,6 @@
   "subscription.warns.upgradePlan": "Расширить тариф",
   "subscription.warns.activateSubscriptionButton": "Подробнее о тарифах",
   "subscription.warns.tryTrialButton": "Попробовать за 0{currency}",
-  "subscription.trial.welcome.title": "Добро пожаловать в тариф «{planName}»",
-  "subscription.trial.welcome.description": "Вместе с пробным периодом тарифа «{planName}» мы открыли для вас эту функцию и не только. Попробуйте, как это упрощает задачи.",
   "subscription.period.monthly": "На месяц",
   "subscription.period.yearly": "На год",
   "subscription.features.title": "Подробнее о тарифе",

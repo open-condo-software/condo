@@ -3157,8 +3157,6 @@
   "subscription.warns.upgradePlan": "Actualizar plan",
   "subscription.warns.activateSubscriptionButton": "Más información sobre los planes",
   "subscription.warns.tryTrialButton": "Probar por 0{currency}",
-  "subscription.trial.welcome.title": "Bienvenido al plan «{planName}»",
-  "subscription.trial.welcome.description": "Junto con el período de prueba del plan «{planName}», hemos desbloqueado esta función y más para usted. Pruebe cómo simplifica sus tareas.",
   "subscription.period.monthly": "Mensual",
   "subscription.period.yearly": "Anual",
   "subscription.features.title": "Características del plan",

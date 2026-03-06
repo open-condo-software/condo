@@ -11,7 +11,7 @@ import { ActionBar, Button, Space, Switch, Typography } from '@open-condo/ui'
 import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
-import { FeatureGate } from '@condo/domains/subscription/components'
+import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -43,7 +43,7 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                 />,
                 ...((withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems)
                     ? [
-                        <FeatureGate
+                        <SubscriptionFeatureGuard
                             key='generateNews'
                             feature={['ai', 'news']}
                             fallback={
@@ -80,7 +80,7 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                                     </Typography.Text>
                                 </Space>
                             </LabeledField>
-                        </FeatureGate>,
+                        </SubscriptionFeatureGuard>,
                     ] 
                     : []
                 ),

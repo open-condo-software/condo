@@ -32,7 +32,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
-import { FeatureGate } from '@condo/domains/subscription/components'
+import { SubscriptionFeatureGuard } from '@condo/domains/subscription/components'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
@@ -629,7 +629,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         />
                                     ),
                                     (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems) && (
-                                        <FeatureGate
+                                        <SubscriptionFeatureGuard
                                             key='generateNews'
                                             feature={['ai', 'news']}
                                             fallback={
@@ -651,7 +651,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                                 onClick={handleGenerateNews}
                                                 id='generateNews'
                                             />
-                                        </FeatureGate>
+                                        </SubscriptionFeatureGuard>
                                     ),
                                 ]}
                             />
