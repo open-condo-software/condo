@@ -22,7 +22,6 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { exportTickets } = require('@condo/domains/ticket/tasks')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
