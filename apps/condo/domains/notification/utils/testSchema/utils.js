@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
-const { get, sample } = require('lodash')
+const get = require('lodash/get')
+const sample = require('lodash/sample')
 
 const {
     PUSH_TRANSPORT_TYPES,

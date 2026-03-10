@@ -1,5 +1,5 @@
 const axios = require('axios').default
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')

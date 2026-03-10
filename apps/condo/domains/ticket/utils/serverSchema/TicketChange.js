@@ -1,5 +1,9 @@
 const dayjs = require('dayjs')
-const { get, map, cloneDeep, uniq, difference } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
+const difference = require('lodash/difference')
+const get = require('lodash/get')
+const map = require('lodash/map')
+const uniq = require('lodash/uniq')
 
 const { getById } = require('@open-condo/keystone/schema')
 

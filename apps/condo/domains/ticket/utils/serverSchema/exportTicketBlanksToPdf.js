@@ -1,8 +1,12 @@
 const { Readable } = require('stream')
 
 const dayjs = require('dayjs')
-const { isArray, isEmpty, isBoolean, get } = require('lodash')
-const { isNumber, isString } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isBoolean = require('lodash/isBoolean')
+const isEmpty = require('lodash/isEmpty')
+const isNumber = require('lodash/isNumber')
+const isString = require('lodash/isString')
 const pdfLib = require('pdf-lib')
 const PDFMake = require('pdfmake')
 

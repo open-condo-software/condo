@@ -1,5 +1,8 @@
 const { gql } = require('graphql-tag')
-const { isArray, isEmpty, isString, memoize } = require('lodash')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isString = require('lodash/isString')
+const memoize = require('lodash/memoize')
 const pluralize = require('pluralize')
 
 

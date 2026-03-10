@@ -1,5 +1,7 @@
 const { faker } = require('@faker-js/faker')
-const { max, repeat, get } = require('lodash')
+const get = require('lodash/get')
+const max = require('lodash/max')
+const repeat = require('lodash/repeat')
 const { countryPhoneData } = require('phone')
 
 const { normalizePhone, maskNormalizedPhone } = require('./phone')

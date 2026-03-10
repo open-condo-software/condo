@@ -1,6 +1,8 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, isNil, isUndefined } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
+const isUndefined = require('lodash/isUndefined')
 
 const conf = require('@open-condo/config')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')

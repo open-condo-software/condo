@@ -1,5 +1,6 @@
 const Ajv = require('ajv')
-const { get, isUndefined } = require('lodash')
+const get = require('lodash/get')
+const isUndefined = require('lodash/isUndefined')
 
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 

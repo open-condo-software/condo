@@ -1,4 +1,5 @@
-const { get, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 

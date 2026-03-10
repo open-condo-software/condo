@@ -2,7 +2,10 @@ const fs = require('fs')
 const path = require('path')
 
 const dayjs = require('dayjs')
-const { get, unescape, isObject, isArray } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isObject = require('lodash/isObject')
+const unescape = require('lodash/unescape')
 const mjml2html = require('mjml')
 const Nunjucks = require('nunjucks')
 

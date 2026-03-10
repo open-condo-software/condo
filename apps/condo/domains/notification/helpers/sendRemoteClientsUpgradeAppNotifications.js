@@ -3,7 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')

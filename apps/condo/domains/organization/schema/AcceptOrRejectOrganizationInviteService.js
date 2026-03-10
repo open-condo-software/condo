@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getById, GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')

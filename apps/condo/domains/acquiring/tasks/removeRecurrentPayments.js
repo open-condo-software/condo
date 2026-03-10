@@ -1,4 +1,4 @@
-const { isNil } = require('lodash')
+const isNil = require('lodash/isNil')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 

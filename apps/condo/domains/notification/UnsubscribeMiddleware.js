@@ -1,5 +1,6 @@
 const express = require('express')
-const { get, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')

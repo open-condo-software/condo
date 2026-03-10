@@ -1,4 +1,4 @@
-const { pick } = require('lodash')
+const pick = require('lodash/pick')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')

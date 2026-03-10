@@ -5,7 +5,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')

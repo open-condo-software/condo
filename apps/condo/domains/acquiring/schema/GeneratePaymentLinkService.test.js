@@ -3,7 +3,8 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map, pick } = require('lodash')
+const map = require('lodash/map')
+const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const {

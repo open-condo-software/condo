@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 

@@ -1,4 +1,7 @@
-const { get, isNil, isEmpty, set } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNil = require('lodash/isNil')
+const set = require('lodash/set')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { i18n } = require('@open-condo/locales/loader')

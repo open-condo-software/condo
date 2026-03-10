@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const { isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
