@@ -37,6 +37,7 @@ const {
     MeterTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
@@ -49,8 +50,6 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
-
-const { SUBSCRIPTIONS } = require('../../common/constants/featureflags')
 
 
 function getOnlyResourceMeterTest (resource) {
@@ -904,7 +903,11 @@ describe('FindOrganizationsByAddress', () => {
     })
 
     describe('Subscription field', () => {
-        beforeAll(() => {
+        let utils
+
+        beforeAll(async () => {
+            utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
             setFeatureFlag(SUBSCRIPTIONS, true)
         })
 
@@ -912,11 +915,20 @@ describe('FindOrganizationsByAddress', () => {
             setFeatureFlag(SUBSCRIPTIONS, false)
         })
 
+        test('Should return organization with null subscription when no contexts exist', async () => {
+            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+
+            const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+            expect(found).toBeDefined()
+            expect(found.subscription).toBeDefined()
+            expect(found.subscription.paymentsEndAt).toBeNull()
+            expect(found.subscription.metersEndAt).toBeNull()
+            expect(found.subscription.activeSubscriptionContextId).toBeNull()
+        })
 
         test('Should return organization with subscription data', async () => {
-            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
-            await utils.init()
-
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
             const [subscriptionPlan] = await createTestSubscriptionPlan(utils.clients.admin, {
                 name: faker.commerce.productName(),
@@ -953,28 +965,6 @@ describe('FindOrganizationsByAddress', () => {
             expect(found.subscription.aiEndAt).toBe(endAt)
             expect(found.subscription.activeSubscriptionContextId).toBeDefined()
             expect(found.subscription.activeSubscriptionEndAt).toBe(endAt)
-        })
-
-        test('Should return organization with null subscription when no contexts exist', async () => {
-            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
-            await utils.init()
-
-            await createTestSubscriptionPlan(utils.clients.admin, {
-                name: faker.commerce.productName(),
-                organizationType: MANAGING_COMPANY_TYPE,
-                isHidden: false,
-            })
-
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-
-            const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-            expect(found).toBeDefined()
-            expect(found.subscription).toBeDefined()
-            expect(found.subscription.paymentsEndAt).toBeNull()
-            expect(found.subscription.metersEndAt).toBeNull()
-            expect(found.subscription.activeSubscriptionContextId).toBeNull()
         })
     })
 })
