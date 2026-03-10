@@ -170,7 +170,7 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { hasSubscription } = useOrganizationSubscription()
+    const { hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
     const disabled = !employee || !hasSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
@@ -403,6 +403,19 @@ const MenuItems: React.FC = () => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
+                        const isAppAvailable = isB2BAppEnabled(app.id)
+
+                        const miniappTooltip = ({ element, placement }) => (
+                            <NoSubscriptionTooltip b2bAppId={app.id} children={element} placement={placement} />
+                        )
+                        
+                        let tooltipDecorator = null
+                        if (disabled) {
+                            tooltipDecorator = wrapElementIntoNoOrganizationToolTip
+                        } else if (!isAppAvailable) {
+                            tooltipDecorator = miniappTooltip
+                        }
+
                         return <MenuItem
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
@@ -412,7 +425,7 @@ const MenuItems: React.FC = () => {
                             labelRaw
                             disabled={disabled}
                             isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                            toolTipDecorator={tooltipDecorator}
                             excludePaths={[miniAppsPattern]}
                         />
                     })}

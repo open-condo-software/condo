@@ -15,7 +15,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import { AppLabelTag } from '../AppLabelTag'
@@ -135,12 +135,6 @@ const TopCard = React.memo<TopCardProps>(({
 
     const buttonProps = useMemo<ButtonProps>(() => {
         const btnProps: ButtonProps = { type: 'primary' }
-        
-        if (!isAppAvailableForTariff) {
-            btnProps.children = UnavailableForTariffMessage
-            btnProps.disabled = true
-            return btnProps
-        }
 
         if (!contextStatus) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
@@ -229,13 +223,11 @@ const TopCard = React.memo<TopCardProps>(({
                             </Typography.Title>
                         )}
                     </Space>
-                    {!isAppAvailableForTariff ? (
-                        <NoSubscriptionTooltip>
-                            <span><Button {...buttonProps}/></span>
-                        </NoSubscriptionTooltip>
-                    ) : (
+                    <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                        <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
+                    }>
                         <Button {...buttonProps}/>
-                    )}
+                    </SubscriptionGuardWithTooltip>
                 </Space>
             </Col>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES} ref={setCarouselColRef}>
