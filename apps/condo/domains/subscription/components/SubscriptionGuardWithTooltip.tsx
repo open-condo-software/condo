@@ -6,7 +6,6 @@ import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 interface SubscriptionFeatureGuardProps extends Omit<NoSubscriptionTooltipProps, 'children'> {
     children: React.ReactElement
     feature?: NoSubscriptionTooltipProps['feature']
-    appId?: string
     fallback: React.ReactElement
 }
 
@@ -52,7 +51,7 @@ export const SubscriptionGuardWithTooltip: React.FC<SubscriptionFeatureGuardProp
     const isAppAvailableForTariff = b2bAppId ? isB2BAppEnabled(b2bAppId) : true
 
     const hasFeature = Array.isArray(feature)
-        ? feature.every(f => isFeatureAvailable(f))
+        ? feature.every(isFeatureAvailable)
         : isFeatureAvailable(feature)
 
     if (hasFeature || isAppAvailableForTariff) {

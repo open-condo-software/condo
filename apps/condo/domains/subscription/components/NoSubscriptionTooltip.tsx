@@ -52,13 +52,20 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     })
 
     const hasActivatedAnyTrial = trialSubscriptions.length > 0
-    const isAvailable = b2bAppId
-        ? isAppAvailableForTariff
-        : feature 
-            ? Array.isArray(feature)
-                ? feature.every(f => isFeatureAvailable(f))
-                : isFeatureAvailable(feature)
-            : false
+    
+    const isAvailable = useMemo(() => {
+        if (b2bAppId) {
+            return isAppAvailableForTariff
+        } else if (feature) {
+            if (Array.isArray(feature)) {
+                return feature.every(isFeatureAvailable)
+            } else {
+                return isFeatureAvailable(feature)
+            }
+        } else {
+            return false
+        }
+    }, [b2bAppId, isAppAvailableForTariff, feature, isFeatureAvailable])
 
     const bestPlanWithFeature = useMemo(() => {
         if ((!feature && !b2bAppId) || isAvailable) return null

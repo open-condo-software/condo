@@ -409,6 +409,13 @@ const MenuItems: React.FC = () => {
                             <NoSubscriptionTooltip b2bAppId={app.id} children={element} placement={placement} />
                         )
                         
+                        let tooltipDecorator = null
+                        if (disabled) {
+                            tooltipDecorator = wrapElementIntoNoOrganizationToolTip
+                        } else if (!isAppAvailable) {
+                            tooltipDecorator = miniappTooltip
+                        }
+
                         return <MenuItem
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
@@ -418,7 +425,7 @@ const MenuItems: React.FC = () => {
                             labelRaw
                             disabled={disabled}
                             isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : !isAppAvailable ? miniappTooltip : null}
+                            toolTipDecorator={tooltipDecorator}
                             excludePaths={[miniAppsPattern]}
                         />
                     })}
