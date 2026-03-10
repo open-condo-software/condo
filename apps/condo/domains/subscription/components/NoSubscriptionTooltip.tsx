@@ -19,18 +19,20 @@ export interface NoSubscriptionTooltipProps {
     feature?: AvailableFeature | AvailableFeature[]
     path?: string
     skipTooltip?: boolean
+    b2bAppId?: string
 }
 
-export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, skipTooltip }) => {
+export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, skipTooltip, b2bAppId }) => {
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
     const { trialSubscriptions, activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
-    const { isFeatureAvailable, hasSubscription } = useOrganizationSubscription()
+    const { isFeatureAvailable, hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
     const [isActivating, setIsActivating] = useState(false)
 
     const requiredFeature = path ? getRequiredFeature(path) : null
     const feature = (featureProp || requiredFeature) as AvailableFeature | undefined | null
+    const isAppAvailableForTariff = b2bAppId ? isB2BAppEnabled(b2bAppId) : true
 
     const FeatureLockedMessage = intl.formatMessage({ 
         id: 'subscription.warns.noActiveSubscription',
@@ -50,14 +52,23 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     })
 
     const hasActivatedAnyTrial = trialSubscriptions.length > 0
-    const isAvailable = feature 
-        ? Array.isArray(feature)
-            ? feature.every(f => isFeatureAvailable(f))
-            : isFeatureAvailable(feature)
-        : false
+    
+    const isAvailable = useMemo(() => {
+        if (b2bAppId) {
+            return isAppAvailableForTariff
+        } else if (feature) {
+            if (Array.isArray(feature)) {
+                return feature.every(f => isFeatureAvailable(f))
+            } else {
+                return isFeatureAvailable(feature)
+            }
+        } else {
+            return false
+        }
+    }, [b2bAppId, isAppAvailableForTariff, feature, isFeatureAvailable])
 
     const bestPlanWithFeature = useMemo(() => {
-        if (!feature || isAvailable) return null
+        if ((!feature && !b2bAppId) || isAvailable) return null
         
         const plans = plansData?.result?.plans || []
         
@@ -66,9 +77,17 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
                 const plan = planInfo?.plan
                 if (!plan) return false
                 
-                const hasFeature = Array.isArray(feature)
-                    ? feature.every(f => plan[f] === true)
-                    : plan[feature] === true
+                let hasRequirement = false
+                
+                if (b2bAppId) {
+                    const enabledApps = plan.enabledB2BApps || []
+                    hasRequirement = enabledApps.includes(b2bAppId)
+                } else if (feature) {
+                    hasRequirement = Array.isArray(feature)
+                        ? feature.every(f => plan[f] === true)
+                        : plan[feature] === true
+                }
+                
                 const hasTrialDays = plan.trialDays > 0
                 const prices = planInfo?.prices || []
                 const hasPrice = prices.length > 0
@@ -80,12 +99,12 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
                     )
                 )
 
-                return hasFeature && hasTrialDays && hasPrice && !alreadyActivated
+                return hasRequirement && hasTrialDays && hasPrice && !alreadyActivated
             })
             .sort((a, b) => (b.plan?.priority ?? 0) - (a.plan?.priority ?? 0))
         
         return plansWithFeature[0] || null
-    }, [feature, isAvailable, plansData?.result?.plans, activatedSubscriptions])
+    }, [feature, b2bAppId, isAvailable, plansData?.result?.plans, activatedSubscriptions])
 
     const TryTrialButton = useMemo(() => {
         const currencyCode = bestPlanWithFeature?.prices?.[0]?.currencyCode
@@ -127,11 +146,11 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
 
     const buttonText = hasActivatedAnyTrial ? ViewPlansButton : TryTrialButton
     
-    const buttonAction = !feature || hasActivatedAnyTrial ? handleViewPlans : handleActivateTrial
+    const buttonAction = (!feature && !b2bAppId) || hasActivatedAnyTrial ? handleViewPlans : handleActivateTrial
 
     const tooltipTitle = (
         <Space size={12} direction='vertical'>
-            <Typography.Text size='small'>{hasActivatedAnyTrial ? UpgradePlanMessage : FeatureLockedMessage}</Typography.Text>
+            <Typography.Text size='small'>{hasActivatedAnyTrial && !isLoading ? UpgradePlanMessage : FeatureLockedMessage}</Typography.Text>
             <Button 
                 type='accent' 
                 size='medium'
