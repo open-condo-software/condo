@@ -10,11 +10,14 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ADDRESS_FIELDS = `{ address key meta overrides ${COMMON_FIELDS} }`
+const ADDRESS_FIELDS = `{ address key meta overrides possibleDuplicateOf { id } ${COMMON_FIELDS} }`
 const Address = generateGqlQueries('Address', ADDRESS_FIELDS)
 
 const ADDRESS_INJECTION_FIELDS = `{ country region area city cityDistrict settlement street house block keywords meta ${COMMON_FIELDS} }`
 const AddressInjection = generateGqlQueries('AddressInjection', ADDRESS_INJECTION_FIELDS)
+
+const ADDRESS_HEURISTIC_FIELDS = `{ address { id } type value reliability provider meta enabled ${COMMON_FIELDS} }`
+const AddressHeuristic = generateGqlQueries('AddressHeuristic', ADDRESS_HEURISTIC_FIELDS)
 
 const ADDRESS_SOURCE_FIELDS = `{ source address { id key address } ${COMMON_FIELDS} }`
 const AddressSource = generateGqlQueries('AddressSource', ADDRESS_SOURCE_FIELDS)
@@ -29,6 +32,7 @@ const ACTUALIZE_ADDRESSES_MUTATION = gql`
 
 module.exports = {
     Address,
+    AddressHeuristic,
     AddressInjection,
     AddressSource,
     ACTUALIZE_ADDRESSES_MUTATION,
