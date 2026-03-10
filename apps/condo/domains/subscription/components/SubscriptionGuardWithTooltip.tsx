@@ -51,10 +51,14 @@ export const SubscriptionGuardWithTooltip: React.FC<SubscriptionFeatureGuardProp
     const isAppAvailableForTariff = b2bAppId ? isB2BAppEnabled(b2bAppId) : true
 
     const hasFeature = Array.isArray(feature)
-        ? feature.every(isFeatureAvailable)
+        ? feature.every(f => isFeatureAvailable(f))
         : isFeatureAvailable(feature)
 
-    if (hasFeature || isAppAvailableForTariff) {
+    if (b2bAppId && isAppAvailableForTariff) {
+        return children
+    }
+
+    if (hasFeature) {
         return children
     }
 

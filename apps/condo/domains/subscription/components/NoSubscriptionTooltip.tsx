@@ -58,7 +58,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
             return isAppAvailableForTariff
         } else if (feature) {
             if (Array.isArray(feature)) {
-                return feature.every(isFeatureAvailable)
+                return feature.every(f => isFeatureAvailable(f))
             } else {
                 return isFeatureAvailable(feature)
             }
