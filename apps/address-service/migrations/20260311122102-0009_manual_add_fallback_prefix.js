@@ -10,7 +10,7 @@ SET statement_timeout = '1500s';
 UPDATE "Address"
 SET
     dv = 1,
-    sender = '{"dv":1,"fingerprint":"20260311122102-0009_manual_add_fallback_prefix"}'::jsonb,
+    sender = '{"dv":1,"fingerprint":"0009_add_fallback_prefix"}'::jsonb,
     key = 'fallback:' || "key"
 WHERE
     "deletedAt" IS NULL
@@ -35,7 +35,7 @@ SET statement_timeout = '1500s';
 UPDATE "Address"
 SET
     dv = 1,
-    sender = '{"dv":1,"fingerprint":"20260311122102-0009_manual_add_fallback_prefix_down"}'::jsonb,
+    sender = '{"dv":1,"fingerprint":"0009_add_fallback_prefix_down"}'::jsonb,
     key = CASE
         WHEN "key" LIKE 'fallback:%' THEN substring("key" from 10)
         WHEN "key" LIKE 'coordinates:%' THEN substring("key" from 13)
