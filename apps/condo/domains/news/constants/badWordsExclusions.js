@@ -6,6 +6,7 @@ const BAD_WORDS_EXCLUSIONS = [
     'потребител*',
     'чебоксар*',
     'учеб*',
+    'крендель',
 ]
 
 const BAD_WORDS_EXCLUSIONS_CONFIG = {
