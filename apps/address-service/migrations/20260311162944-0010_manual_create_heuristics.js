@@ -128,16 +128,19 @@ async function setStatementTimeout (knex, timeout) {
     await knex.raw('SELECT set_config(?, ?, false)', ['statement_timeout', timeout])
 }
 
-async function loadAddressPage (knex, offset) {
+async function loadAddressPage (knex, cursor = null) {
+    const hasCursor = Boolean(cursor)
     const result = await knex.raw(`
-        SELECT "id", "key", "meta"
+        SELECT "id", "key", "meta", "createdAt"
         FROM "Address"
         WHERE "deletedAt" IS NULL
             AND "key" IS NOT NULL
-        ORDER BY "createdAt" ASC
-        OFFSET ?
+            ${hasCursor ? 'AND ("createdAt", "id") > (?, ?)' : ''}
+        ORDER BY "createdAt" ASC, "id" ASC
         LIMIT ?
-    `, [offset, PAGE_SIZE])
+    `, hasCursor
+        ? [cursor.createdAt, cursor.id, PAGE_SIZE]
+        : [PAGE_SIZE])
 
     return result.rows || []
 }
@@ -213,18 +216,66 @@ async function loadCoordinateCandidates (knex, coordinateValues) {
     return result.rows || []
 }
 
-function findCoordinateConflict (coordinateCandidates, value) {
+function getCoordinateBucketKey (latitude, longitude) {
+    const latitudeBucket = Math.floor(latitude / COORDINATE_TOLERANCE)
+    const longitudeBucket = Math.floor(longitude / COORDINATE_TOLERANCE)
+
+    return `${latitudeBucket}\u0000${longitudeBucket}`
+}
+
+function addCoordinateCandidateToBuckets (bucketMap, candidate) {
+    const latitude = Number.parseFloat(candidate.latitude)
+    const longitude = Number.parseFloat(candidate.longitude)
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) return
+
+    const key = getCoordinateBucketKey(latitude, longitude)
+    const normalizedCandidate = {
+        ...candidate,
+        latitude,
+        longitude,
+    }
+
+    if (!bucketMap.has(key)) {
+        bucketMap.set(key, [])
+    }
+
+    bucketMap.get(key).push(normalizedCandidate)
+}
+
+function buildCoordinateCandidateBuckets (coordinateCandidates) {
+    const bucketMap = new Map()
+
+    for (const candidate of coordinateCandidates) {
+        addCoordinateCandidateToBuckets(bucketMap, candidate)
+    }
+
+    return bucketMap
+}
+
+function findCoordinateConflict (coordinateCandidateBuckets, value) {
     const coords = parseCoordinates(value)
     if (!coords) return null
 
-    return coordinateCandidates.find((candidate) => {
-        const candidateLatitude = Number.parseFloat(candidate.latitude)
-        const candidateLongitude = Number.parseFloat(candidate.longitude)
-        if (Number.isNaN(candidateLatitude) || Number.isNaN(candidateLongitude)) return false
+    const latitudeBucket = Math.floor(coords.latitude / COORDINATE_TOLERANCE)
+    const longitudeBucket = Math.floor(coords.longitude / COORDINATE_TOLERANCE)
 
-        return Math.abs(candidateLatitude - coords.latitude) <= COORDINATE_TOLERANCE &&
-            Math.abs(candidateLongitude - coords.longitude) <= COORDINATE_TOLERANCE
-    }) || null
+    for (let latitudeDelta = -1; latitudeDelta <= 1; latitudeDelta++) {
+        for (let longitudeDelta = -1; longitudeDelta <= 1; longitudeDelta++) {
+            const bucketKey = `${latitudeBucket + latitudeDelta}\u0000${longitudeBucket + longitudeDelta}`
+            const candidates = coordinateCandidateBuckets.get(bucketKey) || []
+
+            const conflict = candidates.find((candidate) => {
+                return Math.abs(candidate.latitude - coords.latitude) <= COORDINATE_TOLERANCE &&
+                    Math.abs(candidate.longitude - coords.longitude) <= COORDINATE_TOLERANCE
+            })
+
+            if (conflict) {
+                return conflict
+            }
+        }
+    }
+
+    return null
 }
 
 async function findRootAddress (knex, initialAddressId, cache, maxDepth = 10) {
@@ -260,15 +311,24 @@ async function findRootAddress (knex, initialAddressId, cache, maxDepth = 10) {
     return lastAliveAddressId
 }
 
-async function updateAddressPossibleDuplicateOf (knex, addressId, rootAddressId) {
+async function updateAddressPossibleDuplicateOfBatch (knex, duplicateLinksByAddress) {
+    if (duplicateLinksByAddress.size === 0) return
+
+    const updates = [...duplicateLinksByAddress.entries()]
+    const placeholders = updates.map(() => '(?::uuid, ?::uuid)').join(', ')
+    const bindings = updates.flatMap(([addressId, rootAddressId]) => [addressId, rootAddressId])
+
     await knex.raw(`
-        UPDATE "Address"
+        UPDATE "Address" AS "a"
         SET
             "dv" = ?,
             "sender" = ?::jsonb,
-            "possibleDuplicateOf" = ?
-        WHERE "id" = ?
-    `, [dv, JSON.stringify(sender), rootAddressId, addressId])
+            "possibleDuplicateOf" = "v"."root_address_id"
+        FROM (
+            VALUES ${placeholders}
+        ) AS "v" ("address_id", "root_address_id")
+        WHERE "a"."id" = "v"."address_id"
+    `, [dv, JSON.stringify(sender), ...bindings])
 }
 
 async function insertAddressHeuristics (knex, heuristicsToInsert) {
@@ -324,7 +384,7 @@ exports.up = async (knex) => {
         console.info(`Session statement_timeout: ${previousStatementTimeout} -> ${MIGRATION_STATEMENT_TIMEOUT}`)
     }
 
-    let offset = 0
+    let cursor = null
     let totalProcessed = 0
     let totalCreated = 0
     let totalSkipped = 0
@@ -359,7 +419,7 @@ exports.up = async (knex) => {
 
     try {
         while (hasMore) {
-            const addresses = await loadAddressPage(knex, offset)
+            const addresses = await loadAddressPage(knex, cursor)
             if (addresses.length === 0) {
                 hasMore = false
                 continue
@@ -404,7 +464,8 @@ exports.up = async (knex) => {
             const exactHeuristicMap = await loadExactHeuristicMap(knex, exactPairs)
             const coordinateCandidates = await loadCoordinateCandidates(knex, coordinateValues)
             const mutableExactHeuristicMap = new Map(exactHeuristicMap)
-            const mutableCoordinateCandidates = [...coordinateCandidates]
+            const mutableCoordinateCandidateBuckets = buildCoordinateCandidateBuckets(coordinateCandidates)
+            const duplicateLinksByAddress = new Map()
             const heuristicsToInsert = []
 
             for (const item of addressHeuristics) {
@@ -414,7 +475,7 @@ exports.up = async (knex) => {
                     let existing = mutableExactHeuristicMap.get(exactKey)
 
                     if (!existing && heuristic.type === HEURISTIC_TYPE_COORDINATES) {
-                        existing = findCoordinateConflict(mutableCoordinateCandidates, heuristic.value)
+                        existing = findCoordinateConflict(mutableCoordinateCandidateBuckets, heuristic.value)
                     }
 
                     if (existing) {
@@ -427,7 +488,7 @@ exports.up = async (knex) => {
                         conflictsByType[heuristic.type] = (conflictsByType[heuristic.type] || 0) + 1
 
                         const rootAddressId = await findRootAddress(knex, existing.address, rootAddressCache)
-                        await updateAddressPossibleDuplicateOf(knex, item.addressId, rootAddressId)
+                        duplicateLinksByAddress.set(item.addressId, rootAddressId)
                         totalDuplicateLinksSet++
                         continue
                     }
@@ -456,7 +517,7 @@ exports.up = async (knex) => {
                         if (coords) {
                             createData.latitude = String(coords.latitude)
                             createData.longitude = String(coords.longitude)
-                            mutableCoordinateCandidates.push({
+                            addCoordinateCandidateToBuckets(mutableCoordinateCandidateBuckets, {
                                 address: item.addressId,
                                 latitude: createData.latitude,
                                 longitude: createData.longitude,
@@ -474,9 +535,14 @@ exports.up = async (knex) => {
                 }
             }
 
+            await updateAddressPossibleDuplicateOfBatch(knex, duplicateLinksByAddress)
             await insertAddressHeuristics(knex, heuristicsToInsert)
 
-            offset += addresses.length
+            const lastAddress = addresses[addresses.length - 1]
+            cursor = {
+                createdAt: lastAddress.createdAt,
+                id: lastAddress.id,
+            }
             if (pagesProcessed % PROGRESS_LOG_EVERY_PAGES === 0 || totalProcessed >= totalToProcess) {
                 const elapsedMs = Date.now() - startedAt
                 const remainingItems = Math.max(totalToProcess - totalProcessed, 0)
