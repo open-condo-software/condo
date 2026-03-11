@@ -91761,29 +91761,28 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
-input PaymentMethodInput {
-  id: String!
-  type: String!
-  cardMask: String
-  cardType: String
-  title: String
-  cardIssuerCountry: String
-  cardIssuerName: String
+input ActivateSubscriptionContextInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  subscriptionContext: SubscriptionContextWhereUniqueInput!
 }
 
-input ActivateSubscriptionPlanInput {
+type ActivateSubscriptionContextOutput {
+  subscriptionContext: SubscriptionContext
+}
+
+input RegisterSubscriptionContextInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
-  paymentMethod: PaymentMethodInput
-  multiPayment: MultiPaymentWhereUniqueInput
 }
 
-type ActivateSubscriptionPlanOutput {
+type RegisterSubscriptionContextOutput {
   subscriptionContext: SubscriptionContext
-  userHelpRequest: UserHelpRequest
+  directPaymentUrl: String
+  multiPayment: MultiPayment
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -106205,7 +106204,7 @@ type Mutation {
   registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
 
   """
-  Activates a subscription plan for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext. For paid subscriptions (isTrial=false), creates UserHelpRequest for manual processing.
+  Activates a subscription context with status CREATED. Checks that invoice is paid, retrieves payment method from multiPayment, and updates context status to DONE.
   
   
   
@@ -106215,41 +106214,82 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "ORGANIZATION_NOT_FOUND",
+    "type": "SUBSCRIPTION_CONTEXT_NOT_FOUND",
+    "message": "SubscriptionContext not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SUBSCRIPTION_CONTEXT_INVALID_STATUS",
+    "message": "SubscriptionContext must have status CREATED"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVOICE_NOT_FOUND",
+    "message": "Invoice not found for SubscriptionContext"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVOICE_NOT_PAID",
+    "message": "Invoice is not paid"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "MULTI_PAYMENT_NOT_FOUND",
+    "message": "MultiPayment not found for invoice"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PAYMENT_NOT_FOUND",
+    "message": "Payment not found in MultiPayment"
+  }`
+  """
+  activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput
+
+  """
+  Registers a subscription context for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext with status DONE. For paid subscriptions (isTrial=false), creates Invoice + SubscriptionContext with status CREATED + MultiPayment.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
     "message": "Organization not found"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "PRICING_RULE_NOT_FOUND",
-    "message": "Pricing rule not found or inactive"
+    "type": "NOT_FOUND",
+    "message": "Subscription plan pricing rule not found or is hidden"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "INVALID_ORGANIZATION_TYPE",
-    "message": "Plan is not available for this organization type"
+    "type": "NOT_FOUND",
+    "message": "Organization type does not match subscription plan organization type"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "TRIAL_ALREADY_USED",
-    "message": "Trial subscription for this plan has already been used"
+    "type": "NOT_FOUND",
+    "message": "Trial subscription is not available for this plan"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "TRIAL_NOT_AVAILABLE",
-    "message": "Trial is not available for this subscription plan"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_MULTI_PAYMENT",
-    "message": "MultiPayment must contain exactly one payment"
+    "type": "NOT_FOUND",
+    "message": "Trial subscription for this plan was already activated"
   }`
   """
-  activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput
+  registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

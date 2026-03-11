@@ -19,11 +19,10 @@ const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingR
 const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status recurrentPaymentEnabled recurrentPaymentProcessedAt settings { price paymentMethod { id } } daysRemaining ${COMMON_FIELDS} }`
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
-const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
-    mutation activateSubscriptionPlan ($data: ActivateSubscriptionPlanInput!) {
-        result: activateSubscriptionPlan(data: $data) { 
-            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial }
-            userHelpRequest { id type organization { id } subscriptionPlanPricingRule { id } }
+const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`
+    mutation activateSubscriptionContext ($data: ActivateSubscriptionContextInput!) {
+        result: activateSubscriptionContext(data: $data) { 
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status recurrentPaymentEnabled settings }
         }
     }
 `
@@ -48,8 +47,8 @@ module.exports = {
     SubscriptionPlan,
     SubscriptionPlanPricingRule,
     SubscriptionContext,
-    ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
+    ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
-REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+    REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
