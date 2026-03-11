@@ -23,7 +23,10 @@ const {
 const {
     GQL_ERRORS,
 } = require('@condo/domains/acquiring/constants/errors')
-const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const {
+    ACQUIRING_INTEGRATION_IS_DELETED,
+    ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT,
+} = require('@condo/domains/acquiring/constants/errors')
 const {
     ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
 } = require('@condo/domains/acquiring/constants/integration')
@@ -238,27 +241,31 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     id: newItem['integration'],
                     deletedAt: null,
                 })
+                
+                if (acquiringIntegration) {
+                    const isOnlineProcessing = acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE
 
-                const isOnlineProcessing = acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE
-
-                if (isOnlineProcessing) {
-                    const activeContexts = await find('AcquiringIntegrationContext', {
-                        organization: { id: newItem['organization'] },
-                        integration: {
-                            type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                    if (isOnlineProcessing) {
+                        const activeContexts = await find('AcquiringIntegrationContext', {
+                            organization: { id: newItem['organization'] },
+                            integration: {
+                                type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                                deletedAt: null,
+                            },
+                            OR: [
+                                { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
+                                { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
+                            ],
                             deletedAt: null,
-                        },
-                        OR: [
-                            { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
-                            { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
-                        ],
-                        deletedAt: null,
-                        id_not: newItem['id'],
-                    })
+                            id_not: newItem['id'],
+                        })
 
-                    if (activeContexts.length > 0) {
-                        addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+                        if (activeContexts.length > 0) {
+                            addValidationError(ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
+                        }
                     }
+                } else {
+                    addValidationError(ACQUIRING_INTEGRATION_IS_DELETED)
                 }
             }
 

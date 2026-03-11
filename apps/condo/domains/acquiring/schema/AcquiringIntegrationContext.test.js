@@ -22,7 +22,7 @@ const {
     CONTEXT_VERIFICATION_STATUS,
     TAX_REGIME_SIMPLE,
 } = require('@condo/domains/acquiring/constants/context')
-const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     AcquiringIntegrationContext,
@@ -456,28 +456,28 @@ describe('AcquiringIntegrationContext', () => {
                 await updateTestAcquiringIntegrationContext(manager, anotherContext.id, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (same integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (another integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot start new verification while another one is active
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(manager, organization, thirdIntegration, {
                     status: CONTEXT_VERIFICATION_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Verification approved by support team
             const [finished] = await updateTestAcquiringIntegrationContext(support, context.id, {
@@ -490,43 +490,43 @@ describe('AcquiringIntegrationContext', () => {
                 await updateTestAcquiringIntegrationContext(manager, anotherContext.id, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
             await expectToThrowValidationFailureError(async () => {
                 await updateTestAcquiringIntegrationContext(manager, contextWithInvoicePart.id, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (same integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, integration, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (another integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot start new verification while another one is active
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(manager, organization, thirdIntegration, {
                     status: CONTEXT_VERIFICATION_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
         })
         test('vat=0% is not correct for taxRegime=simple', async () => {
             await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, {
@@ -564,7 +564,7 @@ describe('AcquiringIntegrationContext', () => {
                 await createTestAcquiringIntegrationContext(admin, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
-            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             await AcquiringIntegrationContext.softDelete(admin, context1.id)
 
