@@ -13,8 +13,7 @@ SET
     sender = '{"dv":1,"fingerprint":"0009_add_fallback_prefix"}'::jsonb,
     key = 'fallback:' || "key"
 WHERE
-    "deletedAt" IS NULL
-    AND "key" IS NOT NULL
+    "key" IS NOT NULL
     AND "key" NOT LIKE 'fallback:%'
     AND "key" NOT LIKE 'coordinates:%'
     AND "key" NOT LIKE 'google_place_id:%'
@@ -44,8 +43,7 @@ SET
         ELSE "key"
     END
 WHERE
-    "deletedAt" IS NULL
-    AND (
+    (
         "key" LIKE 'fallback:%'
         OR "key" LIKE 'coordinates:%'
         OR "key" LIKE 'google_place_id:%'
