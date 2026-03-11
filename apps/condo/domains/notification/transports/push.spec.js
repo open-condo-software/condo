@@ -1164,9 +1164,7 @@ describe('push transport', () => {
             const { send } = require('@condo/domains/notification/transports/push')
 
             // Call send function
-            const [isOk, res] = await send(testGenericSendPushArguments)
-
-            console.error(JSON.stringify(res, null, 2))
+            const [isOk] = await send(testGenericSendPushArguments)
 
             // Verify the results
             expect(isOk).toBe(true)

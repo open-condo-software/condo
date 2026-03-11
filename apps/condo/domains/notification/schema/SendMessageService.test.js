@@ -359,7 +359,6 @@ describe('SendMessageService', () => {
                     })
 
                     const transportMeta = message.processingMeta.transportsMeta[0]
-                    console.error(JSON.stringify(transportMeta, null, 2))
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(transportMeta.messageContext.baseData.messageCreatedAt).toEqual(message.createdAt)

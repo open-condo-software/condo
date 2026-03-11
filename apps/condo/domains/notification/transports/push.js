@@ -232,7 +232,6 @@ async function send ({ baseData, message, user, remoteClient } = {}, isVoIP = fa
         tokens = tokens.filter(token => !!dataByToken[token]) // if encryption failed, do not send it
 
         const notificationByToken = await prepareNotificationsByToken({ adapter, message, tokens, appIds })
-        console.error('NOTIFICATION_BY_TOKEN', notificationByToken)
         const tokensWithNoNotification = tokens.filter(token => !notificationByToken[token])
         tokens = tokens.filter(token => !!notificationByToken[token])
 
