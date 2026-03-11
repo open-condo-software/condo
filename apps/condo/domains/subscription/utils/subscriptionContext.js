@@ -49,7 +49,38 @@ function selectBestSubscriptionContext (contexts) {
     return sorted[0]
 }
 
+/**
+ * Calculates the start date for a new subscription based on existing contexts.
+ * If there are active contexts that end in the future, the new subscription
+ * will start from the latest end date. Otherwise, it starts from today.
+ * 
+ * @param {Array} existingContexts - Array of existing subscription contexts
+ * @returns {Object} - dayjs object representing the start date
+ */
+function calculateSubscriptionStartDate (existingContexts) {
+    let startAt = dayjs()
+    
+    if (!existingContexts || existingContexts.length === 0) {
+        return startAt
+    }
+
+    const sortedContexts = existingContexts
+        .filter(ctx => ctx.endAt)
+        .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
+
+    if (sortedContexts.length > 0) {
+        const lastContext = sortedContexts[0]
+        const lastEndAt = dayjs(lastContext.endAt)
+        if (lastEndAt.isAfter(dayjs(), 'day')) {
+            startAt = lastEndAt
+        }
+    }
+
+    return startAt
+}
+
 
 module.exports = {
     selectBestSubscriptionContext,
+    calculateSubscriptionStartDate,
 }

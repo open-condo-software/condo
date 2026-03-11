@@ -34,6 +34,14 @@ const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const REGISTER_SUBSCRIPTION_CONTEXT_MUTATION = gql`
+    mutation registerSubscriptionContext ($data: RegisterSubscriptionContextInput!) {
+        result: registerSubscriptionContext(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -42,5 +50,6 @@ module.exports = {
     SubscriptionContext,
     ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

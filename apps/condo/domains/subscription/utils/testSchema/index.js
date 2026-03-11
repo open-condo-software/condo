@@ -16,6 +16,7 @@ const {
     ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 } = require('@condo/domains/subscription/gql')
+const { REGISTER_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateGQLTestUtils(SubscriptionPlanGQL)
@@ -144,6 +145,20 @@ async function getAvailableSubscriptionPlansByTestClient (client, organization) 
     throwIfError(data, errors, { query: GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, variables: { organization: { id: organization.id } } })
     return [data.result, {}]
 }
+
+async function registerSubscriptionContextByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_SUBSCRIPTION_CONTEXT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -152,5 +167,6 @@ module.exports = {
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
     activateSubscriptionPlanByTestClient,
     getAvailableSubscriptionPlansByTestClient,
+    registerSubscriptionContextByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -69,7 +69,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }, [b2bAppsData])
 
     const {
-        handleActivatePlan,
+        registerSubscriptionContext,
         activateLoading,
         pendingRequests,
         activatedSubscriptions,
@@ -107,7 +107,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         <SubscriptionPlanCard 
                             key={planInfo?.plan?.id}
                             planInfo={planInfo}
-                            handleActivatePlan={handleActivatePlan}
+                            registerSubscriptionContext={registerSubscriptionContext}
                             activatedTrial={activatedTrial}
                             pendingRequest={pendingRequest}
                             activatedSubscriptions={activatedSubscriptions}

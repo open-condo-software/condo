@@ -1,5 +1,4 @@
 import { Row, Col, RowProps } from 'antd'
-import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -8,15 +7,10 @@ import { Button, Card, Checkbox, Modal, Typography } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 
-const { publicRuntimeConfig: { subscriptionPayUrl } } = getConfig()
-
-type PaymentMethod = 'card' | 'invoice'
-
+export type PaymentType = 'card' | 'userHelpRequest'
 interface UseSubscriptionPaymentModalProps {
-    handleActivatePlan: () => Promise<void> | void
+    registerSubscriptionContext: (params: { paymentType: PaymentType }) => Promise<void> | void
     activateLoading: boolean
-    organizationId: string
-    pricingRuleId: string
 }
 
 interface UseSubscriptionPaymentModalReturn {
@@ -34,10 +28,8 @@ const CARD_EMOJI = '💳'
 const INVOICE_EMOJI = '📃'
 
 export const useSubscriptionPaymentModal = ({
-    handleActivatePlan,
+    registerSubscriptionContext,
     activateLoading,
-    organizationId,
-    pricingRuleId,
 }: UseSubscriptionPaymentModalProps): UseSubscriptionPaymentModalReturn => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'subscription.paymentModal.title' })
@@ -50,7 +42,7 @@ export const useSubscriptionPaymentModal = ({
     const { breakpoints } = useLayoutContext()
 
     const [open, setOpen] = useState<boolean>(false)
-    const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card')
+    const [selectedMethod, setSelectedMethod] = useState<PaymentType>('card')
 
     const openModal = useCallback(() => {
         setSelectedMethod('card')
@@ -66,32 +58,23 @@ export const useSubscriptionPaymentModal = ({
         setSelectedMethod('card')
     }, [])
 
-    const handleInvoiceSelect = useCallback(() => {
-        setSelectedMethod('invoice')
+    const handleUserHelpRequestSelect = useCallback(() => {
+        setSelectedMethod('userHelpRequest')
     }, [])
 
-    const handleProceedToPayment = useCallback(() => {
-        if (subscriptionPayUrl) {
-            try {
-                const url = new URL(subscriptionPayUrl)
-                url.searchParams.set('organizationId', organizationId)
-                url.searchParams.set('subscriptionPlanPricingRuleId', pricingRuleId)
-                window.open(url.toString(), '_self')
-            } catch (error) {
-                console.error('Link opening error:', error)
-            }
-        }
+    const handleProceedToPayment = useCallback(async () => {
+        await registerSubscriptionContext({ paymentType: 'card' })
         closeModal()
-    }, [closeModal, organizationId, pricingRuleId])
+    }, [registerSubscriptionContext, closeModal])
 
-    const handleIssueInvoice = useCallback(async () => {
-        await handleActivatePlan()
+    const handleCreateUserHelpRequest = useCallback(async () => {
+        await registerSubscriptionContext({ paymentType: 'userHelpRequest' })
         closeModal()
-    }, [handleActivatePlan, closeModal])
+    }, [registerSubscriptionContext, closeModal])
 
     const PaymentModal = useMemo(() => {
         const isCardSelected = selectedMethod === 'card'
-        const isInvoiceSelected = selectedMethod === 'invoice'
+        const isUserHelpRequestSelected = selectedMethod === 'userHelpRequest'
 
         const footerButton = isCardSelected ? (
             <Button
@@ -104,7 +87,7 @@ export const useSubscriptionPaymentModal = ({
         ) : (
             <Button
                 type='primary'
-                onClick={handleIssueInvoice}
+                onClick={handleCreateUserHelpRequest}
                 disabled={activateLoading}
                 loading={activateLoading}
             >
@@ -174,8 +157,8 @@ export const useSubscriptionPaymentModal = ({
                                 <Card
                                     hoverable
                                     bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
-                                    active={isInvoiceSelected}
-                                    onClick={handleInvoiceSelect}
+                                    active={isUserHelpRequestSelected}
+                                    onClick={handleUserHelpRequestSelect}
                                 >
                                     {
                                         breakpoints.TABLET_LARGE
@@ -245,9 +228,9 @@ export const useSubscriptionPaymentModal = ({
         activateLoading,
         closeModal,
         handleCardSelect,
-        handleInvoiceSelect,
+        handleUserHelpRequestSelect,
         handleProceedToPayment,
-        handleIssueInvoice,
+        handleCreateUserHelpRequest,
     ])
 
     return {

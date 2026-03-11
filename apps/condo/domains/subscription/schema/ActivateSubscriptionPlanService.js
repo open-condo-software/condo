@@ -8,13 +8,11 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 
-const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
-const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
-const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
+const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -77,7 +75,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
         },
         {
             access: true,
-            type: 'type ActivateSubscriptionPlanOutput { subscriptionContext: SubscriptionContext, userHelpRequest: UserHelpRequest }',
+            type: 'type ActivateSubscriptionPlanOutput { subscriptionContext: SubscriptionContext }',
         },
     ],
 
@@ -86,7 +84,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             access: access.canActivateSubscriptionPlan,
             schema: 'activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput',
             doc: {
-                summary: 'Activates a subscription plan for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext. For paid subscriptions (isTrial=false), creates UserHelpRequest for manual processing.',
+                summary: 'Activates a subscription plan for an organization. Creates SubscriptionContext with status DONE for both trial and paid subscriptions.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -119,9 +117,6 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
                 }
 
-                const user = await getById('User', context.authedItem.id)
-                const hasDirectAccess = await canDirectlyExecuteService(user, 'activateSubscriptionPlan')
-                
                 let invoice = null
                 if (!isTrial && multiPaymentInput) {
                     const [multiPayment] = await find('MultiPayment', {
@@ -144,89 +139,62 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                 }
                 
                 if (!isTrial) {
-                    if (hasDirectAccess) {
-                        const months = PERIOD_TO_MONTHS[pricingRule.period]
-                        if (!months) {
-                            throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
-                        }
-                        
-                        const existingContexts = await find('SubscriptionContext', {
-                            organization: { id: organization.id },
-                            subscriptionPlan: { id: plan.id },
-                            deletedAt: null,
-                        })
-                        
-                        let startAt = dayjs()
-                        if (existingContexts.length > 0) {
-                            const sortedContexts = existingContexts
-                                .filter(ctx => ctx.endAt)
-                                .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
-                            
-                            if (sortedContexts.length > 0) {
-                                const lastContext = sortedContexts[0]
-                                const lastEndAt = dayjs(lastContext.endAt)
-                                if (lastEndAt.isAfter(dayjs(), 'day')) {
-                                    startAt = lastEndAt
-                                }
-                            }
-                        }
-                        
-                        const endAt = startAt.add(months, 'month')
-                        const createdSubscriptionContext = await SubscriptionContext.create(context, {
-                            dv,
-                            sender,
-                            organization: { connect: { id: organization.id } },
-                            subscriptionPlan: { connect: { id: plan.id } },
-                            subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                            ...(invoice ? { invoice: { connect: { id: invoice } } } : {}),
-                            startAt: startAt.format('YYYY-MM-DD'),
-                            endAt: endAt.format('YYYY-MM-DD'),
-                            isTrial: false,
-                            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                            recurrentPaymentEnabled: Boolean(paymentMethod),
-                            settings: {
-                                price: pricingRule.price,
-                                pricingRuleId: pricingRule.id,
-                                paymentMethod,
-                            },
-                        })
-
-                        // TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
-                        if (paymentMethod) {
-                            const existingPaymentMethods = organization.meta?.paymentMethods || []
-                            const paymentMethodExists = existingPaymentMethods.some(
-                                pm => pm.id === paymentMethod.id
-                            )
-                            
-                            if (!paymentMethodExists) {
-                                await Organization.update(context, organization.id, {
-                                    dv,
-                                    sender,
-                                    meta: {
-                                        ...organization.meta,
-                                        paymentMethods: [
-                                            ...existingPaymentMethods,
-                                            paymentMethod,
-                                        ],
-                                    },
-                                })
-                            }
-                        }
-                        
-                        const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
-                        return { subscriptionContext, userHelpRequest: null }
+                    const months = PERIOD_TO_MONTHS[pricingRule.period]
+                    if (!months) {
+                        throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                     }
                     
-                    const createdHelpRequest = await UserHelpRequest.create(context, {
+                    const existingContexts = await find('SubscriptionContext', {
+                        organization: { id: organization.id },
+                        subscriptionPlan: { id: plan.id },
+                        deletedAt: null,
+                    })
+                    
+                    const startAt = calculateSubscriptionStartDate(existingContexts)
+                    const endAt = startAt.add(months, 'month')
+                    const createdSubscriptionContext = await SubscriptionContext.create(context, {
                         dv,
                         sender,
-                        type: ACTIVATE_SUBSCRIPTION_TYPE,
                         organization: { connect: { id: organization.id } },
+                        subscriptionPlan: { connect: { id: plan.id } },
                         subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                        phone: user.phone,
+                        ...(invoice ? { invoice: { connect: { id: invoice } } } : {}),
+                        startAt: startAt.format('YYYY-MM-DD'),
+                        endAt: endAt.format('YYYY-MM-DD'),
+                        isTrial: false,
+                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                        recurrentPaymentEnabled: Boolean(paymentMethod),
+                        settings: {
+                            price: pricingRule.price,
+                            pricingRuleId: pricingRule.id,
+                            paymentMethod,
+                        },
                     })
-                    const userHelpRequest = await getById('UserHelpRequest', createdHelpRequest.id)
-                    return { subscriptionContext: null, userHelpRequest }
+
+                    // TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
+                    if (paymentMethod) {
+                        const existingPaymentMethods = organization.meta?.paymentMethods || []
+                        const paymentMethodExists = existingPaymentMethods.some(
+                            pm => pm.id === paymentMethod.id
+                        )
+                        
+                        if (!paymentMethodExists) {
+                            await Organization.update(context, organization.id, {
+                                dv,
+                                sender,
+                                meta: {
+                                    ...organization.meta,
+                                    paymentMethods: [
+                                        ...existingPaymentMethods,
+                                        paymentMethod,
+                                    ],
+                                },
+                            })
+                        }
+                    }
+                    
+                    const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
+                    return { subscriptionContext }
                 }
 
                 if (plan.trialDays <= 0) {
@@ -257,7 +225,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                 })
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
-                return { subscriptionContext, userHelpRequest: null }
+                return { subscriptionContext }
             },
         },
     ],

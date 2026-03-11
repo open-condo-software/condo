@@ -82,13 +82,14 @@ interface SubscriptionPlanCardProps {
     activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
     activatedSubscriptions: ActivatedSubscriptionType[]
-    handleActivatePlan: (params: {
+    registerSubscriptionContext: (params: {
         priceId: string
         isTrial?: boolean
         planName?: string
         trialDays?: number
         isCustomPrice?: boolean
-    }) => void
+        paymentType?: import('@condo/domains/subscription/types').PaymentType
+    }) => Promise<void>
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
     emoji?: string
@@ -173,7 +174,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, registerSubscriptionContext, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -264,25 +265,27 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         })
     }, [activatedSubscriptions, plan?.id])
     
-    const handleActivatePlanForModal = useCallback(async () => {
+    const registerSubscriptionContextForModal = useCallback(async ({ paymentType }: { paymentType: import('@condo/domains/subscription/types').PaymentType }) => {
         if (!price?.id) return
 
         setActivateLoading(true)
         try {
-            await handleActivatePlan({
+            await registerSubscriptionContext({
                 priceId: price.id,
                 isTrial: false,
                 planName: plan.name,
                 trialDays: plan.trialDays,
                 isCustomPrice,
+                paymentType,
             })
         } finally {
             setActivateLoading(false)
         }
-    }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [price?.id, plan.name, plan.trialDays, isCustomPrice])
     
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
-        handleActivatePlan: handleActivatePlanForModal,
+        registerSubscriptionContext: registerSubscriptionContextForModal,
         activateLoading,
         organizationId: organization?.id || '',
         pricingRuleId: price?.id || '',
@@ -315,7 +318,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
         setActivateLoading(true)
         try {
-            await handleActivatePlan({
+            await registerSubscriptionContext({
                 priceId: price.id,
                 isTrial: false,
                 planName: plan.name,
@@ -325,19 +328,21 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice, usePaymentModal, openPaymentModal])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [price?.id, plan.name, plan.trialDays, isCustomPrice, usePaymentModal, openPaymentModal])
 
     const handleTrialActivateClick = useCallback(async () => {
         if (!price?.id) return
 
-        await handleActivatePlan({
+        await registerSubscriptionContext({
             priceId: price.id,
             isTrial: true,
             planName: plan.name,
             trialDays: plan.trialDays,
             isCustomPrice,
         })
-    }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [price?.id, plan.name, plan.trialDays, isCustomPrice])
 
     const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
         <FeatureItem 

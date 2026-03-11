@@ -29,7 +29,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
-    const { activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { activatedSubscriptions, registerSubscriptionContext, activateLoading } = useActivateSubscriptions()
     const { trialSubscriptions } = useTrialSubscriptions()
     const { isFeatureAvailable, hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
     const [isActivating, setIsActivating] = useState(false)
@@ -137,7 +137,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         try {
             const planName = bestPlanWithFeature.plan?.name || ''
 
-            await handleActivatePlan({
+            await registerSubscriptionContext({
                 priceId: price.id,
                 isTrial: true,
                 planName,
@@ -147,7 +147,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         } finally {
             setIsActivating(false)
         }
-    }, [bestPlanWithFeature, handleActivatePlan, router])
+    }, [bestPlanWithFeature, registerSubscriptionContext, router])
 
     const handleViewPlans = useCallback(async () => {
         await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
