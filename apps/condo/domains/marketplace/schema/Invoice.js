@@ -74,6 +74,8 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { activateSubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -743,9 +745,30 @@ const Invoice = new GQLListSchema('Invoice', {
             return resolvedData
         },
         afterChange: async (args) => {
-            const { context, originalInput, updatedItem } = args
+            const { context, originalInput, updatedItem, existingItem } = args
             const { client: userId, property: propertyId, unitName, unitType } = updatedItem
             await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
+            
+            const statusChanged = get(existingItem, 'status') !== get(updatedItem, 'status')
+            const isB2BInvoice = get(updatedItem, 'type') === INVOICE_TYPE_B2B
+            const isPaid = get(updatedItem, 'status') === INVOICE_STATUS_PAID
+            
+            if (statusChanged && isB2BInvoice && isPaid) {
+                const sender = { dv: 1, fingerprint: get(context, 'authedItem.sender.fingerprint', 'Invoice_afterChange') }
+                
+                const [subscriptionContext] = await find('SubscriptionContext', {
+                    invoice: { id: updatedItem.id },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    deletedAt: null,
+                })
+                
+                if (subscriptionContext) {
+                    await activateSubscriptionContext(context, {
+                        sender,
+                        subscriptionContext: { id: subscriptionContext.id },
+                    })
+                }
+            }
         },
     },
     plugins: [
