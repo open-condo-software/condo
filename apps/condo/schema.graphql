@@ -59492,6 +59492,7 @@ type SubscriptionContextHistoryRecord {
   recurrentPaymentEnabled: Boolean
   recurrentPaymentProcessedAt: String
   isTrial: Boolean
+  status: String
   settings: JSON
   id: ID!
   v: Int
@@ -59555,6 +59556,24 @@ input SubscriptionContextHistoryRecordWhereInput {
   recurrentPaymentProcessedAt_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
   settings: JSON
   settings_not: JSON
   settings_in: [JSON]
@@ -59652,6 +59671,8 @@ enum SortSubscriptionContextHistoryRecordsBy {
   recurrentPaymentProcessedAt_DESC
   isTrial_ASC
   isTrial_DESC
+  status_ASC
+  status_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59680,6 +59701,7 @@ input SubscriptionContextHistoryRecordUpdateInput {
   recurrentPaymentEnabled: Boolean
   recurrentPaymentProcessedAt: String
   isTrial: Boolean
+  status: String
   settings: JSON
   v: Int
   createdAt: String
@@ -59710,6 +59732,7 @@ input SubscriptionContextHistoryRecordCreateInput {
   recurrentPaymentEnabled: Boolean
   recurrentPaymentProcessedAt: String
   isTrial: Boolean
+  status: String
   settings: JSON
   v: Int
   createdAt: String
@@ -59734,6 +59757,12 @@ input InvoiceRelateToOneInput {
   connect: InvoiceWhereUniqueInput
   disconnect: InvoiceWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum SubscriptionContextStatusType {
+  CREATED
+  DONE
+  ERROR
 }
 
 type PaymentMethod {
@@ -59795,6 +59824,10 @@ type SubscriptionContext {
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
+
+  """ Subscription context status. CREATED - context created but not yet active, DONE - context is fully processed and active, ERROR - processing failed 
+  """
+  status: SubscriptionContextStatusType
 
   """ Subscription settings containing payment method, price, and pricingRuleId 
   """
@@ -59865,6 +59898,10 @@ input SubscriptionContextWhereInput {
   recurrentPaymentProcessedAt_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
+  status: SubscriptionContextStatusType
+  status_not: SubscriptionContextStatusType
+  status_in: [SubscriptionContextStatusType]
+  status_not_in: [SubscriptionContextStatusType]
   settings: JSON
   settings_not: JSON
   settings_in: [JSON]
@@ -59950,6 +59987,8 @@ enum SortSubscriptionContextsBy {
   recurrentPaymentProcessedAt_DESC
   isTrial_ASC
   isTrial_DESC
+  status_ASC
+  status_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59978,6 +60017,7 @@ input SubscriptionContextUpdateInput {
   recurrentPaymentEnabled: Boolean
   recurrentPaymentProcessedAt: String
   isTrial: Boolean
+  status: SubscriptionContextStatusType
   settings: JSON
   v: Int
   createdAt: String
@@ -60005,6 +60045,7 @@ input SubscriptionContextCreateInput {
   recurrentPaymentEnabled: Boolean
   recurrentPaymentProcessedAt: String
   isTrial: Boolean
+  status: SubscriptionContextStatusType
   settings: JSON
   v: Int
   createdAt: String

@@ -15,6 +15,7 @@ const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/consta
 const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionContext,
     createTestSubscriptionContext,
@@ -653,6 +654,75 @@ describe('SubscriptionContext', () => {
             // Check that the other organization's UserHelpRequest is not affected
             const otherUpdated = await UserHelpRequest.getOne(admin, { id: otherHelpRequest.id })
             expect(otherUpdated.deletedAt).toBeNull()
+        })
+    })
+
+    describe('Status field tests', () => {
+        test('status defaults to CREATED when not specified', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: undefined,
+            })
+
+            expect(obj.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('can create subscription with status DONE', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            expect(obj.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('can create subscription with status ERROR', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            expect(obj.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR)
+        })
+
+        test('can update status from CREATED to DONE', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            expect(objCreated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+
+            const [objUpdated] = await updateTestSubscriptionContext(admin, objCreated.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            expect(objUpdated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('can update status from CREATED to ERROR', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            expect(objCreated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+
+            const [objUpdated] = await updateTestSubscriptionContext(admin, objCreated.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            expect(objUpdated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR)
         })
     })
 })

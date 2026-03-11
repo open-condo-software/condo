@@ -5202,7 +5202,7 @@ export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutatio
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
     query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}}
+    where: {organization: {id: $organizationId}, status: DONE}
     sortBy: [createdAt_DESC]
     first: 100
   ) {
@@ -5259,7 +5259,7 @@ export type GetOrganizationActivatedSubscriptionsQueryResult = Apollo.QueryResul
 export const GetOrganizationTrialSubscriptionsDocument = gql`
     query getOrganizationTrialSubscriptions($organizationId: ID!) {
   trialSubscriptions: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, isTrial: true}
+    where: {organization: {id: $organizationId}, isTrial: true, status: DONE}
     sortBy: [createdAt_DESC]
     first: 100
   ) {
@@ -5318,7 +5318,7 @@ export type GetOrganizationTrialSubscriptionsQueryResult = Apollo.QueryResult<Ty
 export const GetLastExpiredSubscriptionContextDocument = gql`
     query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
   lastExpiredContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, endAt_lte: $now}
+    where: {organization: {id: $organizationId}, endAt_lte: $now, status: DONE}
     sortBy: [endAt_DESC]
     first: 1
   ) {

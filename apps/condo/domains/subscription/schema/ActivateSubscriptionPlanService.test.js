@@ -8,6 +8,8 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
@@ -417,10 +419,7 @@ describe('ActivateSubscriptionPlanService', () => {
             })
         })
 
-        test('populates invoice from multiPayment with exactly one payment', async () => {
-            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-            const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
-            
+        test('populates invoice from multiPayment with exactly one payment', async () => {            
             const [invoice] = await createTestInvoice(admin, organization)
             const [multiPayment] = await createTestMultiPayment(admin, organization)
             await createTestPayment(admin, organization, multiPayment, {
@@ -450,9 +449,6 @@ describe('ActivateSubscriptionPlanService', () => {
         })
 
         test('throws error if multiPayment has more than one payment', async () => {
-            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-            const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
-            
             const [invoice1] = await createTestInvoice(admin, organization)
             const [invoice2] = await createTestInvoice(admin, organization)
             const [multiPayment] = await createTestMultiPayment(admin, organization)
@@ -480,8 +476,6 @@ describe('ActivateSubscriptionPlanService', () => {
         })
 
         test('throws error if multiPayment has zero payments', async () => {
-            const { createTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
-            
             const [multiPayment] = await createTestMultiPayment(admin, organization)
 
             await expectToThrowGQLError(
@@ -534,9 +528,6 @@ describe('ActivateSubscriptionPlanService', () => {
         })
 
         test('trial subscription does not accept multiPayment', async () => {
-            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-            const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
-            
             const [invoice] = await createTestInvoice(admin, organization)
             const [multiPayment] = await createTestMultiPayment(admin, organization)
             await createTestPayment(admin, organization, multiPayment, {

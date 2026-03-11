@@ -49,33 +49,7 @@ function selectBestSubscriptionContext (contexts) {
     return sorted[0]
 }
 
-/**
- * Checks if a subscription context is currently active (not expired)
- * 
- * @param {Object} context - Subscription context
- * @returns {boolean} - True if context is active
- */
-function isSubscriptionContextActive (context) {
-    if (!context) return false
-    if (!context.endAt) return true
-    const now = dayjs().startOf('day')
-    const endAt = dayjs(context.endAt)
-    return endAt.isSameOrAfter(now, 'day')
-}
-
-/**
- * Filters subscription contexts to only include active ones
- * 
- * @param {Array} contexts - Array of subscription contexts
- * @returns {Array} - Array of active subscription contexts
- */
-function filterActiveSubscriptionContexts (contexts) {
-    if (!contexts) return []
-    return contexts.filter(isSubscriptionContextActive)
-}
 
 module.exports = {
     selectBestSubscriptionContext,
-    isSubscriptionContextActive,
-    filterActiveSubscriptionContexts,
 }

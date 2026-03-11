@@ -12,6 +12,7 @@ const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/consta
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES } = require('@condo/domains/subscription/constants')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
@@ -147,6 +148,19 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 read: true,
                 create: true,
                 update: false,
+            },
+        },
+
+        status: {
+            schemaDoc: 'Subscription context status. CREATED - context created but not yet active, DONE - context is fully processed and active, ERROR - processing failed',
+            type: 'Select',
+            options: SUBSCRIPTION_CONTEXT_STATUSES.join(', '),
+            defaultValue: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            isRequired: true,
+            access: {
+                read: true,
+                create: true,
+                update: true,
             },
         },
 

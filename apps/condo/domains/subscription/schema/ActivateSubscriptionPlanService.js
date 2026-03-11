@@ -12,7 +12,7 @@ const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/consta
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
-const { PERIOD_TO_MONTHS } = require('@condo/domains/subscription/constants')
+const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
 
@@ -182,6 +182,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             startAt: startAt.format('YYYY-MM-DD'),
                             endAt: endAt.format('YYYY-MM-DD'),
                             isTrial: false,
+                            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                             recurrentPaymentEnabled: Boolean(paymentMethod),
                             settings: {
                                 price: pricingRule.price,
@@ -252,6 +253,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     startAt: startAt.format('YYYY-MM-DD'),
                     endAt: endAt.format('YYYY-MM-DD'),
                     isTrial: true,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 })
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
