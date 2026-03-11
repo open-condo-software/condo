@@ -8,8 +8,12 @@ const path = require('path')
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { escape, isEmpty, get, sample } = require('lodash')
+const escape = require('lodash/escape')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const sample = require('lodash/sample')
 
+const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { getTranslations, getAvailableLocales } = require('@open-condo/locales/loader')
 
@@ -34,6 +38,7 @@ const {
     substituteTranslations,
     TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 } = require('@condo/domains/notification/templates')
+let { renderTemplate } = require('@condo/domains/notification/templates')
 const emailTransport = require('@condo/domains/notification/transports/email')
 const pushTransport = require('@condo/domains/notification/transports/push')
 const smsTransport = require('@condo/domains/notification/transports/sms')
@@ -41,6 +46,7 @@ const { createTestMessage } = require('@condo/domains/notification/utils/testSch
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { SHARE_TICKET_MESSAGE_TYPE, CUSTOMER_IMPORTANT_NOTE_TYPE } = require('./constants/constants')
+
 
 /**
  * The *Relative* path to templates folder
@@ -333,8 +339,8 @@ describe('Templates', () => {
             const preparedMessage = await pushTransport.prepareMessageToSend(message)
             const categoryValue = translations[categoryName]
 
-            expect(preparedMessage.notification.body).toContain(categoryValue)
-            expect(preparedMessage.notification.body).not.toContain(categoryName)
+            expect(preparedMessage.baseNotification.body).toContain(categoryValue)
+            expect(preparedMessage.baseNotification.body).not.toContain(categoryName)
         })
 
         it('Checks that all nested keys in object are translated correctly', async () => {
@@ -367,6 +373,96 @@ describe('Templates', () => {
             expect(translated.meta.data.key3).toEqual(translations[key3])
             expect(translated.meta.data.array[0]).toEqual(translations[key1])
             expect(translated.meta.data.array[1].key2).toEqual(translations[key2])
+        })
+    })
+
+    describe('Push renderer', () => {
+
+
+
+        const APP_ID_EMPTY_REPLACER = 'app-id-empty-replacer'
+        const APP_ID_REPLACER_FOR_BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE = 'app-id-replacer-for-BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE'
+        
+        beforeEach(() => {
+            jest.resetModules()
+            jest.doMock('@open-condo/config', () => {
+                const conf = jest.requireActual('@open-condo/config')
+                return new Proxy(conf, { set: () => {}, get: (_, p) => {
+                    if (p === 'PUSH_MESSAGE_REPLACERS') {
+                        return JSON.stringify({
+                            'app-id-empty-replacer': {},
+                            'app-id-replacer-for-BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE': {
+                                [conf.DEFAULT_LOCALE]: {
+                                    [`notification.messages.${BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE}.${PUSH_TRANSPORT}.title`]: 'custom title, categoryId:{data.categoryId}',
+                                    [`notification.messages.${BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE}.${PUSH_TRANSPORT}.body`]: 'custom body, categoryId:{{message.meta.data.categoryId}}',
+                                },
+                            },
+                        })
+                    }
+                    return conf[p]
+                } })
+            }, { virtual: true })
+            renderTemplate = require('@condo/domains/notification/templates').renderTemplate
+
+        })
+
+        describe('push message replacer', () => {
+
+            const testMessage = {
+                sender: { dv: 1, fingerprint: 'send-resident-message' },
+                type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
+                user: { id: faker.datatype.uuid() },
+                lang: conf.DEFAULT_LOCALE,
+                meta: {
+                    dv: 1,
+                    data: {
+                        userId: faker.datatype.uuid(),
+                        url: faker.random.alphaNumeric(20),
+                        residentId: faker.datatype.uuid(),
+                        propertyId: faker.datatype.uuid(),
+                        period: faker.datatype.uuid(),
+                        categoryId: faker.datatype.uuid(),
+                    },
+                    categoryName: 'categoryName',
+                },
+            }
+
+            describe('Has no replacers for appId', () => {
+
+                test('translates message normally', async () => {
+                    const resWithProvidedAppId = await renderTemplate(PUSH_TRANSPORT, testMessage, { appId: 'app-id-with-no-replacers' })
+                    expect(typeof resWithProvidedAppId.title).toBe('string')
+                    expect(typeof resWithProvidedAppId.body).toBe('string')
+
+                    const resWithoutAppId = await renderTemplate(PUSH_TRANSPORT, testMessage)
+                    expect(typeof resWithoutAppId.title).toBe('string')
+                    expect(typeof resWithoutAppId.body).toBe('string')
+
+                    expect(resWithProvidedAppId.title).toEqual(resWithoutAppId.title)
+                    expect(resWithProvidedAppId.body).toEqual(resWithoutAppId.body)
+                })
+
+            })
+
+            describe('Has replacers for appId', () => {
+
+                test('Replacer for type exists and appId provided', async () => {
+                    const res = await renderTemplate(PUSH_TRANSPORT, testMessage, { appId: APP_ID_REPLACER_FOR_BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE })
+                    expect(res.title).toEqual(`custom title, categoryId:${testMessage.meta.data.categoryId}`)
+                    expect(res.body).toEqual(`custom body, categoryId:${testMessage.meta.data.categoryId}`)
+
+                    const resWithoutAppId = await renderTemplate(PUSH_TRANSPORT, testMessage)
+                    expect(resWithoutAppId.title).not.toEqual(res.title)
+                    expect(resWithoutAppId.body).not.toEqual(res.body)
+                })
+
+                test('Replacer exists, but not for type, and appId provided', async () => {
+                    await expect(() => renderTemplate(PUSH_TRANSPORT, testMessage, { appId: APP_ID_EMPTY_REPLACER }))
+                        .rejects
+                        .toThrow(`Message with type = ${testMessage.type} requires PUSH_MESSAGE_REPLACERS with title and body for appId = ${APP_ID_EMPTY_REPLACER} and locale = ${testMessage.lang}`)
+                })
+
+            })
         })
     })
 })

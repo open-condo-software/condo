@@ -147,7 +147,7 @@ class OneSignalAdapter {
     /**
      * Prepares notification for either/both sending to FireBase and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
+     * @param notificationByTokenRaw
      * @param dataByToken
      * @param tokens
      * @param pushTypes
@@ -155,13 +155,13 @@ class OneSignalAdapter {
      * @param appIds
      * @returns {[import('@onesignal/node-onesignal').Notification[], import('@onesignal/node-onesignal').Notification[], {}]}
      */
-    static prepareBatchData (notificationRaw, dataByToken, tokens = [], pushTypes = {}, isVoIP = false, appIds = {}) {
-        const notification = OneSignalAdapter.validateAndPrepareNotification(notificationRaw)
+    static prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, isVoIP = false, appIds = {}) {
         const notifications = []
         const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
+            const notification = OneSignalAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
@@ -252,7 +252,7 @@ class OneSignalAdapter {
 
     /**
      * Sends notifications in parallel through provider for each appId + unique notification body
-     * @param notification
+     * @param notificationByToken
      * @param tokens
      * @param dataByToken
      * @param pushTypes
@@ -261,11 +261,11 @@ class OneSignalAdapter {
      * @param isVoIP
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = OneSignalAdapter.prepareBatchData(
-            notification,
+            notificationByToken,
             dataByToken,
             tokens,
             pushTypes,

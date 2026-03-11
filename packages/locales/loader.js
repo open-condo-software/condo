@@ -2,7 +2,9 @@ const fs = require('fs')
 const path = require('path')
 const process = require('process')
 
-const { get, template, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const template = require('lodash/template')
 
 const conf = require('@open-condo/config')
 
@@ -90,11 +92,15 @@ const getLocalized = (lang, key) => {
  * // => "Hello, World!"
  */
 const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
-    const { locale = conf.DEFAULT_LOCALE, meta } = options
+    const { locale = conf.DEFAULT_LOCALE } = options
 
     maybeLoadTranslations()
 
-    return template(get(translations, [locale, code], code), { interpolate: VARIABLE_REGEXP })(meta)
+    return renderTranslation(get(translations, [locale, code], code), options)
+}
+
+const renderTranslation = (translationTemplate, options = { meta: {} }) => {
+    return template(translationTemplate, { interpolate: VARIABLE_REGEXP })(options.meta)
 }
 
 module.exports = {
@@ -102,4 +108,6 @@ module.exports = {
     getAvailableLocales,
     getLocalized,
     i18n,
+
+    renderTranslation,
 }

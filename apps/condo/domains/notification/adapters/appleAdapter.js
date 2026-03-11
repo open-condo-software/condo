@@ -1,4 +1,7 @@
-const { isEmpty, isNull, get, isObject } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -51,6 +54,7 @@ class AppleAdapter {
     /**
      * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
      * @param data
+     * @param token
      */
     static prepareData (data = {}, token) {
         const result = { token }
@@ -146,18 +150,20 @@ class AppleAdapter {
     /**
      * Prepares notification for either/both sending to Apple push and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
+     * @param notificationByTokenRaw
      * @param dataByToken
      * @param tokens
+     * @param pushTypes
+     * @param appIds
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, dataByToken = {}, tokens = [], pushTypes = {}, appIds) {
-        const notification = AppleAdapter.validateAndPrepareNotification(notificationRaw)
+    static prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, appIds) {
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
+            const notification = AppleAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
@@ -202,16 +208,19 @@ class AppleAdapter {
      * Would try to send request to Apple only if Apple is initialized and `tokens` array contains real (non-fake) items.
      * Would succeed if at least one real token succeeds in delivering notification through Apple push, or
      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-     * @param notification
+     * @param notificationByToken
+     * @param dataByToken
      * @param tokens
-     * @param data
      * @param pushTypes
+     * @param appIds
+     * @param metaByToken
+     * @param isVoIP
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notification, dataByToken, tokens, pushTypes, appIds)
+        const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notificationByToken, dataByToken, tokens, pushTypes, appIds)
         let result = AppleAdapter.getEmptyResult()
 
         if (!isNull(this.#config) && !isEmpty(notifications)) {

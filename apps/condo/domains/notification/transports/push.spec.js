@@ -14,6 +14,10 @@ jest.mock('@open-condo/config', () => {
                     },
                 })
             }
+            if (p === 'PUSH_MESSAGE_REPLACERS') {
+                return global.__pushMessageReplacers || actual[p]
+            }
+            //if (p === '')
             return actual[p]
         },
     })
@@ -28,12 +32,14 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
 const {
+    BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
     CUSTOM_CONTENT_MESSAGE_TYPE,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     DEVICE_PLATFORM_ANDROID,
@@ -52,6 +58,31 @@ const { prepareMessageData } = require('@condo/domains/notification/tasks/sendMe
 const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+
+
+function mockGetTokensModule (mockGetTokens) {
+    jest.doMock('@condo/domains/notification/utils/serverSchema/push/helpers', () => {
+        const actual = jest.requireActual('@condo/domains/notification/utils/serverSchema/push/helpers')
+        return {
+            ...actual,
+            getTokens: mockGetTokens,
+        }
+    })
+}
+
+function mockFirebaseAdapterModule (mockFirebaseAdapter) {
+    jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
+        FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
+    }))
+}
+
+function requirePushTransportIsolated () {
+    let pushTransport
+    jest.isolateModules(() => {
+        pushTransport = require('@condo/domains/notification/transports/push')
+    })
+    return pushTransport
+}
 
 
 describe('push transport', () => {
@@ -510,6 +541,157 @@ describe('push transport', () => {
         })
     })
 
+    describe('notificationByToken', () => {
+        const mockGetTokens = jest.fn()
+
+        const APP_ID_WITH_NO_REPLACERS = 'app-id-with-no-replacers'
+        const APP_ID_EMPTY_REPLACERS = 'app-id-empty-replacers'
+        const APP_ID_WITH_REPLACERS_OK = 'app-id-with-replacers-ok'
+
+        const testMessageType = BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE
+
+        const tokenNoReplacers = 'token-no-replacers'
+        const tokenEmptyReplacers = 'token-empty-replacers'
+        const tokenReplacersOk = 'token-replacers-ok'
+
+        /** @type {jest.MockedFunction<any>} */
+        let sendNotificationSpy
+
+        beforeEach(() => {
+            jest.resetModules()
+            mockGetTokens.mockReset()
+
+            global.__pushMessageReplacers = JSON.stringify({
+                [APP_ID_EMPTY_REPLACERS]: {},
+                [APP_ID_WITH_REPLACERS_OK]: {
+                    [conf.DEFAULT_LOCALE]: {
+                        [`notification.messages.${testMessageType}.${PUSH_TRANSPORT}.title`]: 'custom title',
+                        [`notification.messages.${testMessageType}.${PUSH_TRANSPORT}.body`]: 'custom body',
+                    },
+                },
+            })
+
+            mockGetTokensModule(mockGetTokens)
+
+            sendNotificationSpy = jest.fn(async (payload) => {
+                return [true, {
+                    successCount: payload.tokens.length,
+                    failureCount: 0,
+                    responses: payload.tokens.map(token => ({ success: true, pushToken: token })),
+                }]
+            })
+
+            const mockFirebaseAdapter = {
+                constructor: {
+                    prepareData: jest.fn((data, token) => FirebaseAdapter.prepareData(data, token)),
+                    validateAndPrepareNotification: jest.fn((notification) => FirebaseAdapter.validateAndPrepareNotification(notification)),
+                },
+                sendNotification: sendNotificationSpy,
+            }
+
+            mockFirebaseAdapterModule(mockFirebaseAdapter)
+        })
+
+        test('does not send push for tokens whose appId has replacers but missing translation for message.type', async () => {
+            mockGetTokens.mockResolvedValue({
+                tokensByTransport: {
+                    [PUSH_TRANSPORT_FIREBASE]: [tokenEmptyReplacers],
+                },
+                pushTypes: {
+                    [tokenEmptyReplacers]: PUSH_TYPE_DEFAULT,
+                },
+                appIds: {
+                    [tokenEmptyReplacers]: APP_ID_EMPTY_REPLACERS,
+                },
+                metaByToken: {},
+                count: 1,
+            })
+
+            const pushTransport = requirePushTransportIsolated()
+
+            const [isOk, result] = await pushTransport.send({
+                baseData: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString() },
+                message: {
+                    id: faker.datatype.uuid(),
+                    type: testMessageType,
+                    lang: conf.DEFAULT_LOCALE,
+                    meta: { dv: 1, data: { categoryId: faker.datatype.uuid() } },
+                },
+                user: { id: faker.datatype.uuid() },
+                remoteClient: { id: faker.datatype.uuid() },
+            })
+
+            expect(isOk).toEqual(false)
+            expect(sendNotificationSpy).not.toHaveBeenCalled()
+            expect(result.successCount).toEqual(0)
+            expect(result.failureCount).toEqual(1)
+            expect(result.responses).toHaveLength(1)
+            expect(result.responses[0]).toMatchObject({
+                success: false,
+                pushToken: tokenEmptyReplacers,
+                appId: APP_ID_EMPTY_REPLACERS,
+                error: 'empty notification for token',
+            })
+        })
+
+        test('sends notifications for tokens without replacers and with valid replacers; skips tokens with missing type translation', async () => {
+            mockGetTokens.mockResolvedValue({
+                tokensByTransport: {
+                    [PUSH_TRANSPORT_FIREBASE]: [tokenNoReplacers, tokenEmptyReplacers, tokenReplacersOk],
+                },
+                pushTypes: {
+                    [tokenNoReplacers]: PUSH_TYPE_DEFAULT,
+                    [tokenEmptyReplacers]: PUSH_TYPE_DEFAULT,
+                    [tokenReplacersOk]: PUSH_TYPE_DEFAULT,
+                },
+                appIds: {
+                    [tokenNoReplacers]: APP_ID_WITH_NO_REPLACERS,
+                    [tokenEmptyReplacers]: APP_ID_EMPTY_REPLACERS,
+                    [tokenReplacersOk]: APP_ID_WITH_REPLACERS_OK,
+                },
+                metaByToken: {},
+                count: 3,
+            })
+
+            const pushTransport = requirePushTransportIsolated()
+
+            const [isOk, result] = await pushTransport.send({
+                baseData: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString(), hello: 'world' },
+                message: {
+                    id: faker.datatype.uuid(),
+                    type: testMessageType,
+                    lang: conf.DEFAULT_LOCALE,
+                    meta: { dv: 1, data: { categoryId: faker.datatype.uuid() } },
+                },
+                user: { id: faker.datatype.uuid() },
+                remoteClient: { id: faker.datatype.uuid() },
+            })
+
+            expect(isOk).toEqual(true)
+
+            expect(sendNotificationSpy).toHaveBeenCalledTimes(1)
+
+            const payload = sendNotificationSpy.mock.calls[0][0]
+            expect(payload.tokens).toEqual([tokenNoReplacers, tokenReplacersOk])
+
+            expect(payload.notificationByToken[tokenReplacersOk]).toMatchObject({
+                title: 'custom title',
+                body: 'custom body',
+            })
+            expect(payload.notificationByToken[tokenNoReplacers]).toBeDefined()
+            expect(payload.notificationByToken[tokenNoReplacers]).not.toMatchObject({
+                title: 'custom title',
+                body: 'custom body',
+            })
+
+            expect(result.failureCount).toEqual(1)
+            expect(result.responses.find(r => r.pushToken === tokenEmptyReplacers)).toMatchObject({
+                success: false,
+                error: 'empty notification for token',
+            })
+        })
+    })
+
     describe('FireBase', () => {
         describe('to resident', () => {
             it('successfully sends fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
@@ -817,29 +999,26 @@ describe('push transport', () => {
         const mockFirebaseAdapter = {
             constructor: {
                 prepareData: jest.fn((data, token) => FirebaseAdapter.prepareData(data, token)),
+                validateAndPrepareNotification: jest.fn((...args) => FirebaseAdapter.validateAndPrepareNotification(...args)),
             },
             sendNotification: jest.fn(async (payload) => {
                 return new FirebaseAdapter().sendNotification(payload)
             }),
         }
+        const testMessageId = faker.datatype.uuid()
         const testGenericSendPushArguments = {
-            notification: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) },
-            data: { message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
+            id: faker.datatype.uuid(),
+            type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, createdAt: new Date().toISOString(),
+            baseNotification: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) },
+            baseData: { notificationId: testMessageId, message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
             user: { id: faker.datatype.uuid() },
+            message: { id: testMessageId, type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, lang: conf.DEFAULT_LOCALE, meta: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) } },
         }
 
         beforeAll(() => {
             // Mock modules
-            jest.doMock('@condo/domains/notification/utils/serverSchema/push/helpers', () => {
-                const actual = jest.requireActual('@condo/domains/notification/utils/serverSchema/push/helpers')
-                return {
-                    ...actual,
-                    getTokens: mockGetTokens,
-                }
-            })
-            jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
-                FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
-            }))
+            mockGetTokensModule(mockGetTokens)
+            mockFirebaseAdapterModule(mockFirebaseAdapter)
         })
 
         afterEach(() => {
@@ -860,34 +1039,13 @@ describe('push transport', () => {
                 metaByToken: { [token]: {} },
                 count: 1,
             })
-            
-            // // Mock modules
-            // jest.doMock('@condo/domains/notification/utils/serverSchema/push/helpers', () => {
-            //     const actual = jest.requireActual('@condo/domains/notification/utils/serverSchema/push/helpers')
-            //     return {
-            //         ...actual,
-            //         getTokens: mockGetTokens,
-            //     }
-            // })
-            // jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
-            //     FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
-            // }))
     
             // Reload push transport to apply the mocks
             jest.resetModules()
             const { send } = require('@condo/domains/notification/transports/push')
     
-            // Prepare test data
-            const testData = {
-                notification: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) },
-                data: { message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
-                user: { id: faker.datatype.uuid() },
-            }
-    
             // Call send function
-            const [isOk] = await send(testData)
-    
-            // Verify the results
+            const [isOk] = await send(testGenericSendPushArguments)
             expect(isOk).toBe(true)
                 
             // Verify that encryption happened correctly
@@ -942,7 +1100,7 @@ describe('push transport', () => {
 
             // Check regular app data - should not be encrypted
             expect(dataByToken[regularToken][ENCRYPTED_APP_ID]).toBeUndefined()
-            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.data))
+            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.baseData))
         })
     
         it('should not send push to app if encryption fails', async () => {
@@ -1006,7 +1164,9 @@ describe('push transport', () => {
             const { send } = require('@condo/domains/notification/transports/push')
 
             // Call send function
-            const [isOk] = await send(testGenericSendPushArguments)
+            const [isOk, res] = await send(testGenericSendPushArguments)
+
+            console.error(JSON.stringify(res, null, 2))
 
             // Verify the results
             expect(isOk).toBe(true)
@@ -1023,10 +1183,14 @@ describe('push transport', () => {
 
             // Check regular app data - should not be encrypted
             expect(dataByToken[regularToken][ENCRYPTED_APP_ID]).toBeUndefined()
-            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.data))
+            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.baseData))
 
             expect(dataByToken[invalidEncryptionToken]).toBeUndefined()
         })
+    })
+
+    describe('Push message replacing', () => {
+        
     })
 })
 
