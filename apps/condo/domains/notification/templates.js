@@ -33,7 +33,7 @@ const HELP_REQUISITES = conf.HELP_REQUISITES ? JSON.parse(conf.HELP_REQUISITES) 
 const SUPPORT_EMAIL = get(HELP_REQUISITES, 'support_email') || ''
 const LANDING_URL = conf.LANDING_URL ? JSON.parse(conf.LANDING_URL) : {}
 
-const PUSH_MESSAGE_REPLACERS = JSON.parse(conf.PUSH_MESSAGE_REPLACERS || '{}')
+const PUSH_MESSAGE_OVERRIDES = JSON.parse(conf.PUSH_MESSAGE_OVERRIDES || '{}')
 
 // config based path
 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
@@ -314,12 +314,11 @@ function emailRenderer ({ message, env }) {
  * @returns {{notification: {title: string, body: string}}}
  */
 function pushRenderer ({ message, env, additionalParams }) {
-    console.error('PUSH_MESSAGE_REPLACERS', JSON.stringify(PUSH_MESSAGE_REPLACERS, null, 2))
     const { lang: locale, type } = message
     const messageTranslated = substituteTranslations(message, locale)
     
     const appId = additionalParams?.appId
-    const replacersForAppId = PUSH_MESSAGE_REPLACERS?.[appId]
+    const overridesForAppId = PUSH_MESSAGE_OVERRIDES?.[appId]
 
     const titleKey = translationStringKeyForPushTitle(type)
     const bodyKey = translationStringKeyForPushBody(type)
@@ -327,12 +326,12 @@ function pushRenderer ({ message, env, additionalParams }) {
     let renderedTitle
     let renderedBody
     
-    if (appId && replacersForAppId) {
-        const replacers = replacersForAppId[locale]
-        const titleTemplate = replacers?.[titleKey]
-        const bodyTemplate = replacers?.[bodyKey]
+    if (appId && overridesForAppId) {
+        const overrides = overridesForAppId[locale]
+        const titleTemplate = overrides?.[titleKey]
+        const bodyTemplate = overrides?.[bodyKey]
         if (!titleTemplate || !bodyTemplate) {
-            throw new Error(`Message with type = ${type} requires PUSH_MESSAGE_REPLACERS with title and body for appId = ${appId} and locale = ${locale}`)
+            throw new Error(`Message with type = ${type} requires PUSH_MESSAGE_OVERRIDES with title and body for appId = ${appId} and locale = ${locale}`)
         }
         renderedTitle = renderTranslation(titleTemplate, { meta: messageTranslated.meta })
         renderedBody = unescape(nunjucks.renderString(bodyTemplate, { message: messageTranslated, env }))

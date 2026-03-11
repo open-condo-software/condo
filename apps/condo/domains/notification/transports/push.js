@@ -67,7 +67,7 @@ async function prepareMessageToSend (message) {
     const { user, remoteClient } = message
     const { id: notificationId, type, createdAt } = message
 
-    const { notification } = await renderTemplate(PUSH_TRANSPORT, message)
+    const notification = await renderTemplate(PUSH_TRANSPORT, message)
 
     return {
         message,

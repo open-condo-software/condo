@@ -14,8 +14,8 @@ jest.mock('@open-condo/config', () => {
                     },
                 })
             }
-            if (p === 'PUSH_MESSAGE_REPLACERS') {
-                return global.__pushMessageReplacers || actual[p]
+            if (p === 'PUSH_MESSAGE_OVERRIDES') {
+                return global.__pushMessageOverrides || actual[p]
             }
             //if (p === '')
             return actual[p]
@@ -544,15 +544,15 @@ describe('push transport', () => {
     describe('notificationByToken', () => {
         const mockGetTokens = jest.fn()
 
-        const APP_ID_WITH_NO_REPLACERS = 'app-id-with-no-replacers'
-        const APP_ID_EMPTY_REPLACERS = 'app-id-empty-replacers'
-        const APP_ID_WITH_REPLACERS_OK = 'app-id-with-replacers-ok'
+        const APP_ID_WITH_NO_OVERRIDES = 'app-id-with-no-overrides'
+        const APP_ID_EMPTY_OVERRIDES = 'app-id-empty-overrides'
+        const APP_ID_WITH_OVERRIDES_OK = 'app-id-with-overrides-ok'
 
         const testMessageType = BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE
 
-        const tokenNoReplacers = 'token-no-replacers'
-        const tokenEmptyReplacers = 'token-empty-replacers'
-        const tokenReplacersOk = 'token-replacers-ok'
+        const tokenNoReplacers = 'token-no-overrides'
+        const tokenEmptyReplacers = 'token-empty-overrides'
+        const tokenReplacersOk = 'token-overrides-ok'
 
         /** @type {jest.MockedFunction<any>} */
         let sendNotificationSpy
@@ -561,9 +561,9 @@ describe('push transport', () => {
             jest.resetModules()
             mockGetTokens.mockReset()
 
-            global.__pushMessageReplacers = JSON.stringify({
-                [APP_ID_EMPTY_REPLACERS]: {},
-                [APP_ID_WITH_REPLACERS_OK]: {
+            global.__pushMessageOverrides = JSON.stringify({
+                [APP_ID_EMPTY_OVERRIDES]: {},
+                [APP_ID_WITH_OVERRIDES_OK]: {
                     [conf.DEFAULT_LOCALE]: {
                         [`notification.messages.${testMessageType}.${PUSH_TRANSPORT}.title`]: 'custom title',
                         [`notification.messages.${testMessageType}.${PUSH_TRANSPORT}.body`]: 'custom body',
@@ -592,7 +592,7 @@ describe('push transport', () => {
             mockFirebaseAdapterModule(mockFirebaseAdapter)
         })
 
-        test('does not send push for tokens whose appId has replacers but missing translation for message.type', async () => {
+        test('does not send push for tokens whose appId has overrides but missing translation for message.type', async () => {
             mockGetTokens.mockResolvedValue({
                 tokensByTransport: {
                     [PUSH_TRANSPORT_FIREBASE]: [tokenEmptyReplacers],
@@ -601,7 +601,7 @@ describe('push transport', () => {
                     [tokenEmptyReplacers]: PUSH_TYPE_DEFAULT,
                 },
                 appIds: {
-                    [tokenEmptyReplacers]: APP_ID_EMPTY_REPLACERS,
+                    [tokenEmptyReplacers]: APP_ID_EMPTY_OVERRIDES,
                 },
                 metaByToken: {},
                 count: 1,
@@ -629,12 +629,12 @@ describe('push transport', () => {
             expect(result.responses[0]).toMatchObject({
                 success: false,
                 pushToken: tokenEmptyReplacers,
-                appId: APP_ID_EMPTY_REPLACERS,
+                appId: APP_ID_EMPTY_OVERRIDES,
                 error: 'empty notification for token',
             })
         })
 
-        test('sends notifications for tokens without replacers and with valid replacers; skips tokens with missing type translation', async () => {
+        test('sends notifications for tokens without overrides and with valid overrides; skips tokens with missing type translation', async () => {
             mockGetTokens.mockResolvedValue({
                 tokensByTransport: {
                     [PUSH_TRANSPORT_FIREBASE]: [tokenNoReplacers, tokenEmptyReplacers, tokenReplacersOk],
@@ -645,9 +645,9 @@ describe('push transport', () => {
                     [tokenReplacersOk]: PUSH_TYPE_DEFAULT,
                 },
                 appIds: {
-                    [tokenNoReplacers]: APP_ID_WITH_NO_REPLACERS,
-                    [tokenEmptyReplacers]: APP_ID_EMPTY_REPLACERS,
-                    [tokenReplacersOk]: APP_ID_WITH_REPLACERS_OK,
+                    [tokenNoReplacers]: APP_ID_WITH_NO_OVERRIDES,
+                    [tokenEmptyReplacers]: APP_ID_EMPTY_OVERRIDES,
+                    [tokenReplacersOk]: APP_ID_WITH_OVERRIDES_OK,
                 },
                 metaByToken: {},
                 count: 3,
@@ -1187,10 +1187,6 @@ describe('push transport', () => {
 
             expect(dataByToken[invalidEncryptionToken]).toBeUndefined()
         })
-    })
-
-    describe('Push message replacing', () => {
-        
     })
 })
 

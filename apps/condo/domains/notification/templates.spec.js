@@ -380,18 +380,18 @@ describe('Templates', () => {
 
 
 
-        const APP_ID_EMPTY_REPLACER = 'app-id-empty-replacer'
-        const APP_ID_REPLACER_FOR_BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE = 'app-id-replacer-for-BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE'
+        const APP_ID_EMPTY_OVERRIDE = 'app-id-empty-override'
+        const APP_ID_OVERRIDE_FOR_BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE = 'app-id-override-for-BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE'
         
         beforeEach(() => {
             jest.resetModules()
             jest.doMock('@open-condo/config', () => {
                 const conf = jest.requireActual('@open-condo/config')
                 return new Proxy(conf, { set: () => {}, get: (_, p) => {
-                    if (p === 'PUSH_MESSAGE_REPLACERS') {
+                    if (p === 'PUSH_MESSAGE_OVERRIDES') {
                         return JSON.stringify({
-                            'app-id-empty-replacer': {},
-                            'app-id-replacer-for-BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE': {
+                            'app-id-empty-override': {},
+                            'app-id-override-for-BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE': {
                                 [conf.DEFAULT_LOCALE]: {
                                     [`notification.messages.${BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE}.${PUSH_TRANSPORT}.title`]: 'custom title, categoryId:{data.categoryId}',
                                     [`notification.messages.${BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE}.${PUSH_TRANSPORT}.body`]: 'custom body, categoryId:{{message.meta.data.categoryId}}',
@@ -406,7 +406,7 @@ describe('Templates', () => {
 
         })
 
-        describe('push message replacer', () => {
+        describe('push message overrides', () => {
 
             const testMessage = {
                 sender: { dv: 1, fingerprint: 'send-resident-message' },
@@ -427,7 +427,7 @@ describe('Templates', () => {
                 },
             }
 
-            describe('Has no replacers for appId', () => {
+            describe('Has no overrides for appId', () => {
 
                 test('translates message normally', async () => {
                     const resWithProvidedAppId = await renderTemplate(PUSH_TRANSPORT, testMessage, { appId: 'app-id-with-no-replacers' })
@@ -446,8 +446,8 @@ describe('Templates', () => {
 
             describe('Has replacers for appId', () => {
 
-                test('Replacer for type exists and appId provided', async () => {
-                    const res = await renderTemplate(PUSH_TRANSPORT, testMessage, { appId: APP_ID_REPLACER_FOR_BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE })
+                test('Override for type exists and appId provided', async () => {
+                    const res = await renderTemplate(PUSH_TRANSPORT, testMessage, { appId: APP_ID_OVERRIDE_FOR_BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE })
                     expect(res.title).toEqual(`custom title, categoryId:${testMessage.meta.data.categoryId}`)
                     expect(res.body).toEqual(`custom body, categoryId:${testMessage.meta.data.categoryId}`)
 
@@ -456,10 +456,10 @@ describe('Templates', () => {
                     expect(resWithoutAppId.body).not.toEqual(res.body)
                 })
 
-                test('Replacer exists, but not for type, and appId provided', async () => {
-                    await expect(() => renderTemplate(PUSH_TRANSPORT, testMessage, { appId: APP_ID_EMPTY_REPLACER }))
+                test('Override exists, but not for type, and appId provided', async () => {
+                    await expect(() => renderTemplate(PUSH_TRANSPORT, testMessage, { appId: APP_ID_EMPTY_OVERRIDE }))
                         .rejects
-                        .toThrow(`Message with type = ${testMessage.type} requires PUSH_MESSAGE_REPLACERS with title and body for appId = ${APP_ID_EMPTY_REPLACER} and locale = ${testMessage.lang}`)
+                        .toThrow(`Message with type = ${testMessage.type} requires PUSH_MESSAGE_OVERRIDES with title and body for appId = ${APP_ID_EMPTY_OVERRIDE} and locale = ${testMessage.lang}`)
                 })
 
             })
