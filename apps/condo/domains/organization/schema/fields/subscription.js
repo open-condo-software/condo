@@ -5,6 +5,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -90,6 +91,7 @@ function filterActiveContexts (contexts, now) {
     const nowDate = dayjs(now).startOf('day')
     return contexts.filter(ctx => {
         if (!ctx.startAt || !ctx.endAt) return false
+        if (ctx.status !== SUBSCRIPTION_CONTEXT_STATUS.DONE) return false
         const startAt = dayjs(ctx.startAt).startOf('day')
         const endAt = dayjs(ctx.endAt).startOf('day')
         return (startAt.isBefore(nowDate) || startAt.isSame(nowDate)) && endAt.isAfter(nowDate)

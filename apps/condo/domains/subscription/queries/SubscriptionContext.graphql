@@ -2,6 +2,7 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
     activatedSubscriptions: allSubscriptionContexts(
         where: {
             organization: { id: $organizationId }
+            status: DONE
         }
         sortBy: [createdAt_DESC]
         first: 100
@@ -24,6 +25,7 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         where: {
             organization: { id: $organizationId }
             isTrial: true
+            status: DONE
         }
         sortBy: [createdAt_DESC]
         first: 100
@@ -47,6 +49,7 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         where: {
             organization: { id: $organizationId }
             endAt_lte: $now
+            status: DONE
         }
         sortBy: [endAt_DESC]
         first: 1

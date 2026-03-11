@@ -37,6 +37,7 @@ const {
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { createTestSubscriptionPlan, createTestSubscriptionContext, SubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
@@ -912,6 +913,86 @@ describe('Organization', () => {
             expect(b2bAppForMCResult.endAt).toBe(endAt)
             expect(b2bAppForSPResult.endAt).toBe(futureDate)
             expect(b2cAppForSPResult.endAt).toBe(futureDate)
+        })
+
+        test('ignores subscription contexts with status CREATED', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.paymentsEndAt).toBeNull()
+            expect(org.subscription.activeSubscriptionContextId).toBeNull()
+        })
+
+        test('ignores subscription contexts with status ERROR', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.paymentsEndAt).toBeNull()
+            expect(org.subscription.activeSubscriptionContextId).toBeNull()
+        })
+
+        test('only considers contexts with status DONE as active', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+                tickets: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(10, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(20, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(5, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(25, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            const doneEndAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: doneEndAt,
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.paymentsEndAt).toBe(doneEndAt)
+            expect(org.subscription.ticketsEndAt).toBe(doneEndAt)
+            expect(org.subscription.activeSubscriptionContextId).toBeDefined()
         })
     })
 })
