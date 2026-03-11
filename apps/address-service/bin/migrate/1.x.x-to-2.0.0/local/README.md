@@ -8,7 +8,7 @@ They connect to condo and address-service as remote GraphQL clients — no local
 1. Copy `.env.example` to `.env` and fill in the credentials:
 
 ```bash
-cp apps/address-service/bin/local/.env.example apps/address-service/bin/local/.env
+cp apps/address-service/bin/migrate/1.x.x-to-2.0.0/local/.env.example apps/address-service/bin/migrate/1.x.x-to-2.0.0/local/.env
 ```
 
 2. Make sure both **condo** and **address-service** are running and accessible at the URLs you specified.
@@ -32,13 +32,13 @@ For each `Address` with `possibleDuplicateOf` set:
 **Usage (from the repo root):**
 
 ```bash
-source apps/address-service/bin/local/.env
+source apps/address-service/bin/migrate/1.x.x-to-2.0.0/local/.env
 
 # Dry run — shows what would happen without making changes
-node apps/address-service/bin/local/merge-duplicate-addresses.js --dry-run
+node apps/address-service/bin/migrate/1.x.x-to-2.0.0/local/merge-duplicate-addresses.js --dry-run
 
 # Actual run
-node apps/address-service/bin/local/merge-duplicate-addresses.js
+node apps/address-service/bin/migrate/1.x.x-to-2.0.0/local/merge-duplicate-addresses.js
 ```
 
 Ambiguous cases (both addresses referenced) should be resolved manually via the address-service admin UI using the duplicate resolution button on the Address detail page.

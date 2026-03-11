@@ -3,6 +3,16 @@ It's a separate service for address processing.
 
 Each property is presented as the Address model instance. Each address may be found by different strings, so several AddressSource model instances may belong to each address.
 
+## Versioning
+
+Current `@app/address-service` version is `2.0.0`.
+
+Version `2.0.0` is a **breaking change** release that introduces heuristics-based address matching and deduplication.
+
+If you are upgrading from `1.x`, follow the migration guide:
+
+- `./docs/migration-guide.md`
+
 ## Models
 - **Address**. A model containing data on the particular building's address.
 - **AddressSource**. A model containing data on the particular building's address origin.
