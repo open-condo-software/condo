@@ -10,8 +10,6 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 
 const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
-const { UserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
@@ -221,7 +219,6 @@ describe('ActivateSubscriptionPlanService', () => {
 
             expect(result.subscriptionContext).toBeDefined()
             expect(result.subscriptionContext.id).toBeDefined()
-            expect(result.userHelpRequest).toBeNull()
 
             const [subscriptionContext] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContext.id })
             expect(subscriptionContext).toBeDefined()
@@ -246,32 +243,28 @@ describe('ActivateSubscriptionPlanService', () => {
     })
 
     describe('Paid Subscription Logic', () => {
-        test('creates UserHelpRequest with pricingRule when isTrial is false for regular users', async () => {
-            const [result] = await activateSubscriptionPlanByTestClient(user, organization, pricingRule, { isTrial: false })
-
-            expect(result.subscriptionContext).toBeNull()
-            expect(result.userHelpRequest).toBeDefined()
-            expect(result.userHelpRequest.type).toBe(ACTIVATE_SUBSCRIPTION_TYPE)
-            expect(result.userHelpRequest.organization.id).toBe(organization.id)
-            expect(result.userHelpRequest.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
-        })
-
-        test('employees can read UserHelpRequest with ACTIVATE_SUBSCRIPTION_TYPE', async () => {
-            const [result] = await activateSubscriptionPlanByTestClient(user, organization, pricingRule, { isTrial: false })
-
-            const helpRequests = await UserHelpRequest.getAll(user, {
-                id: result.userHelpRequest.id,
+        test('service users can activate paid subscriptions directly', async () => {
+            const serviceUser = await makeClientWithServiceUser()
+            const [rightsSet] = await createTestUserRightsSet(admin, {
+                canExecuteActivateSubscriptionPlan: true,
+            })
+            await updateTestUser(admin, serviceUser.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
             })
 
-            expect(helpRequests).toHaveLength(1)
-            expect(helpRequests[0].id).toBe(result.userHelpRequest.id)
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.isTrial).toBe(false)
+            expect(result.subscriptionContext.organization.id).toBe(organization.id)
+            expect(result.subscriptionContext.subscriptionPlan.id).toBe(subscriptionPlan.id)
         })
     })
 
     describe('Subscription Renewal Without Gaps', () => {
         let serviceUser
 
-        beforeEach(async () => {
+        beforeAll(async () => {
             serviceUser = await makeClientWithServiceUser()
             const [rightsSet] = await createTestUserRightsSet(admin, {
                 canExecuteActivateSubscriptionPlan: true,

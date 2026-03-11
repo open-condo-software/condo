@@ -8,6 +8,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 
 const { ACTIVATE_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
 const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
+const { REGISTER_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
@@ -38,6 +39,20 @@ async function getAvailableSubscriptionPlans (context, organizationId) {
     })
 }
 
+async function registerSubscriptionContext (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write registerSubscriptionContext serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerSubscriptionContext',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -46,5 +61,6 @@ module.exports = {
     SubscriptionContext,
     activateSubscriptionPlan,
     getAvailableSubscriptionPlans,
+    registerSubscriptionContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
