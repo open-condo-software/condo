@@ -8,6 +8,7 @@ const { faker } = require('@faker-js/faker')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan: SubscriptionPlanGQL,
     SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
@@ -95,6 +96,7 @@ async function createTestSubscriptionContext (client, organization, subscription
         sender,
         organization: { connect: { id: organization.id } },
         subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
         ...extraAttrs,
     }
     const obj = await SubscriptionContext.create(client, attrs)
