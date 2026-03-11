@@ -10,6 +10,7 @@ and painlessly upgrade a major version at your premises.
 ## Migration guides:
 - [From 2.x to 3.x](#from-2x-to-3x)
 - [From 3.x to 4.x](#from-3x-to-4x)
+- [From 4.x to 5.x](#from-4x-to-5x)
 
 
 ## From 2.x to 3.x
@@ -291,3 +292,137 @@ and not using legacy encryption algorithms, just deploy newer Dockerfile with No
 and you're good to go. 
 
 For forks, custom applications and others, follow the recommendations from breaking changes section.
+
+## From 4.x to 5.x
+
+### Motivation
+
+In 5.0 release we are changing how `address-service` identifies and deduplicates buildings.
+
+Previously, the service relied on `Address.key` as the main deduplication mechanism. That worked only within a single provider format, but different providers such as Dadata, Google, and Pullenti can produce different keys for the same physical building. As a result, the database could accumulate duplicate `Address` records for one real address, and there was no reliable way to detect or resolve such cross-provider duplicates.
+
+To solve this, we introduced a provider-agnostic heuristics-based deduplication system. Instead of depending on one provider-specific key, the service now stores structured heuristics extracted from provider responses, such as FIAS ID, coordinates, Google Place ID, and a fallback key. These heuristics let the system match addresses across providers, reuse existing `Address` records, and flag suspicious duplicates for administrator review.
+
+### What changed
+
+#### `Address.key` format changed
+
+`Address.key` values now use an explicit heuristic prefix:
+
+- `fias_id:<uuid>`
+- `google_place_id:<id>`
+- `coordinates:<lat>,<lng>`
+- `fallback:<legacy-key>`
+
+Code that parses `Address.key` directly must be updated to handle the prefixed format.
+
+#### Heuristics-based matching replaced key-only matching
+
+Address matching and deduplication now rely on `AddressHeuristic` records rather than only on `Address.key`.
+
+When an address is resolved:
+
+1. provider-specific heuristics are extracted from the response
+2. the system tries to match an existing address by heuristic reliability
+3. if a match is found, the existing address is reused and new heuristics are upserted
+4. if no exact match is found, a new address may still be linked through `possibleDuplicateOf`
+
+#### New `AddressHeuristic` model and `Address.possibleDuplicateOf` field
+
+The migration introduces:
+
+- `AddressHeuristic` — a model storing structured identifiers used for cross-provider matching
+- `Address.possibleDuplicateOf` — a relation used to flag likely duplicates for manual review and merge
+
+### Migration guide
+
+Before upgrading from `4.x` to `5.x`, make sure you have a fresh database backup.
+
+#### Upgrade order
+
+1. Pull the `5.x` code
+2. Run the `address-service` database migration
+3. Backfill `AddressHeuristic` records
+4. Review and resolve flagged duplicates if needed
+
+Do not start application code that expects `AddressHeuristic` and `Address.possibleDuplicateOf` before the database migration is applied.
+
+#### Step-by-step migration
+
+##### 1. Pull latest code and install dependencies
+
+```bash
+git pull origin main
+yarn install
+yarn workspace @app/condo build:deps
+```
+
+##### 2. Run database schema migration
+
+This creates the `AddressHeuristic` table, adds `possibleDuplicateOf` to `Address`, and migrates legacy address keys to the `fallback:` format:
+
+```bash
+yarn workspace @app/address-service run migrate
+```
+
+##### 3. Backfill `AddressHeuristic` records
+
+Preview changes:
+
+```bash
+yarn workspace @app/address-service node bin/create-address-heuristics.js --dry-run
+```
+
+Apply changes:
+
+```bash
+yarn workspace @app/address-service node bin/create-address-heuristics.js
+```
+
+This script creates `AddressHeuristic` records from existing `Address.key` and `Address.meta.data` fields, and sets `possibleDuplicateOf` for detected duplicates.
+
+Provider-specific coordinate behavior:
+
+- **Dadata**: coordinate heuristics are created only when `meta.data.qc_geo = 0`
+- **Google**: coordinate heuristics are extracted from `meta.provider.rawData.geometry.location.lat/lng`
+
+##### 4. Resolve flagged duplicates
+
+Review `Address.possibleDuplicateOf` records and resolve ambiguous duplicates via the address-service admin UI.
+
+#### Verification
+
+After migration, verify:
+
+```sql
+SELECT COUNT(*) FROM "AddressHeuristic" WHERE "deletedAt" IS NULL;
+
+SELECT COUNT(*) FROM "Address" WHERE "deletedAt" IS NULL AND "key" NOT LIKE '%:%';
+-- Should return 0
+
+SELECT COUNT(*) FROM "Address" WHERE "deletedAt" IS NULL AND "possibleDuplicateOf" IS NOT NULL;
+```
+
+#### Troubleshooting
+
+##### Handling individual bad heuristics
+
+If a heuristic causes incorrect matches, you can manage it directly in the database or via the Admin UI:
+
+- set `enabled = false` to disable it
+- correct the `value`
+- soft-delete the record by setting `deletedAt`
+
+##### High false-positive rate for Google coordinates
+
+If `GoogleSearchProvider` creates too many false-positive matches because of imprecise coordinates, remove `HEURISTIC_TYPE_COORDINATES` from `extractHeuristics()` in `GoogleSearchProvider.js` and rerun the backfill command.
+
+#### Rollback
+
+To revert the database schema migration:
+
+```bash
+yarn workspace @app/address-service run migrate:down
+```
+
+The heuristic backfill command is idempotent and can be safely rerun after rollback and re-migration.
