@@ -33,6 +33,7 @@ const {
     createTestAcquiringIntegrationContext,
     createTestPaymentStatusChangeWebhookUrl,
     updateTestPaymentStatusChangeWebhookUrl,
+    createTestMultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
@@ -84,6 +85,13 @@ const {
     registerResidentInvoiceByTestClient,
     updateTestResident,
 } = require('@condo/domains/resident/utils/testSchema')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const {
+    createTestSubscriptionPlan,
+    createTestSubscriptionPlanPricingRule,
+    createTestSubscriptionContext,
+    SubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -3399,6 +3407,262 @@ describe('Invoice', () => {
 
                 const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
                 expect(invoices).toHaveLength(0)
+            })
+        })
+
+        describe('subscription context activation', () => {
+            test('activates subscription context when B2B invoice is paid', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient, dummyOrganization)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, payerOrg, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    settings: {
+                        price: pricingRule.price,
+                        pricingRuleId: pricingRule.id,
+                    },
+                })
+
+                expect(subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                expect(updatedContext.recurrentPaymentEnabled).toBe(false)
+            })
+
+            test('activates subscription context with payment method when MultiPayment exists', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient, dummyOrganization)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, payerOrg, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    settings: {
+                        price: pricingRule.price,
+                        pricingRuleId: pricingRule.id,
+                    },
+                })
+
+                const paymentMethod = { type: 'card', last4: '1234' }
+                await createTestMultiPayment(adminClient, dummyOrganization, {
+                    invoice: { connect: { id: invoice.id } },
+                    meta: { paymentMethod },
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                expect(updatedContext.recurrentPaymentEnabled).toBe(true)
+                expect(updatedContext.settings.paymentMethod).toEqual(paymentMethod)
+            })
+
+            test('does not activate subscription context for B2C invoice', async () => {
+                const adminClient2 = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(adminClient2)
+                const [property] = await createTestProperty(adminClient2, organization)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient2, organization)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient2, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                await createTestAcquiringIntegrationContext(adminClient2, organization, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                const [invoice] = await createTestInvoice(adminClient2, organization, {
+                    type: INVOICE_TYPE_B2C,
+                    property: { connect: { id: property.id } },
+                    unitType: FLAT_UNIT_TYPE,
+                    unitName: '1',
+                    client: { connect: { id: userClient.user.id } },
+                    clientName: faker.name.firstName(),
+                    clientPhone: createTestPhone(),
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient2, organization, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    settings: {
+                        price: pricingRule.price,
+                        pricingRuleId: pricingRule.id,
+                    },
+                })
+
+                await updateTestInvoice(adminClient2, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient2, { id: subscriptionContext.id })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            })
+
+            test('does not fail when B2B invoice is paid without subscription context', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedInvoice] = await Invoice.getAll(adminClient, { id: invoice.id })
+                expect(updatedInvoice.status).toBe(INVOICE_STATUS_PAID)
+            })
+
+            test('does not activate subscription context if already DONE', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient, dummyOrganization)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, payerOrg, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    recurrentPaymentEnabled: true,
+                    settings: {
+                        price: pricingRule.price,
+                        pricingRuleId: pricingRule.id,
+                        paymentMethod: { type: 'existing', last4: '9999' },
+                    },
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                expect(updatedContext.settings.paymentMethod.last4).toBe('9999')
+            })
+
+            test('does not activate subscription context when status does not change', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient, dummyOrganization)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, payerOrg, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    settings: {
+                        price: pricingRule.price,
+                        pricingRuleId: pricingRule.id,
+                    },
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
             })
         })
     })
