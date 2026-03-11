@@ -5147,41 +5147,6 @@ export type GetPropertyScopeOrganizationEmployeesQueryHookResult = ReturnType<ty
 export type GetPropertyScopeOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetPropertyScopeOrganizationEmployeesLazyQuery>;
 export type GetPropertyScopeOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetPropertyScopeOrganizationEmployeesSuspenseQuery>;
 export type GetPropertyScopeOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetPropertyScopeOrganizationEmployeesQuery, Types.GetPropertyScopeOrganizationEmployeesQueryVariables>;
-export const ActivateSubscriptionPlanDocument = gql`
-    mutation activateSubscriptionPlan($data: ActivateSubscriptionPlanInput!) {
-  result: activateSubscriptionPlan(data: $data) {
-    subscriptionContext {
-      id
-    }
-  }
-}
-    `;
-export type ActivateSubscriptionPlanMutationFn = Apollo.MutationFunction<Types.ActivateSubscriptionPlanMutation, Types.ActivateSubscriptionPlanMutationVariables>;
-
-/**
- * __useActivateSubscriptionPlanMutation__
- *
- * To run a mutation, you first call `useActivateSubscriptionPlanMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useActivateSubscriptionPlanMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [activateSubscriptionPlanMutation, { data, loading, error }] = useActivateSubscriptionPlanMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useActivateSubscriptionPlanMutation(baseOptions?: Apollo.MutationHookOptions<Types.ActivateSubscriptionPlanMutation, Types.ActivateSubscriptionPlanMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.ActivateSubscriptionPlanMutation, Types.ActivateSubscriptionPlanMutationVariables>(ActivateSubscriptionPlanDocument, options);
-      }
-export type ActivateSubscriptionPlanMutationHookResult = ReturnType<typeof useActivateSubscriptionPlanMutation>;
-export type ActivateSubscriptionPlanMutationResult = Apollo.MutationResult<Types.ActivateSubscriptionPlanMutation>;
-export type ActivateSubscriptionPlanMutationOptions = Apollo.BaseMutationOptions<Types.ActivateSubscriptionPlanMutation, Types.ActivateSubscriptionPlanMutationVariables>;
 export const GetAvailableSubscriptionPlansDocument = gql`
     query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
   result: getAvailableSubscriptionPlans(organization: $organization) {
@@ -5328,6 +5293,49 @@ export function useUpdateOrganizationPaymentMethodsMutation(baseOptions?: Apollo
 export type UpdateOrganizationPaymentMethodsMutationHookResult = ReturnType<typeof useUpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationResult = Apollo.MutationResult<Types.UpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>;
+export const RegisterSubscriptionContextDocument = gql`
+    mutation registerSubscriptionContext($data: RegisterSubscriptionContextInput!) {
+  result: registerSubscriptionContext(data: $data) {
+    subscriptionContext {
+      id
+      startAt
+      endAt
+      isTrial
+      status
+    }
+    directPaymentUrl
+    multiPayment {
+      id
+    }
+  }
+}
+    `;
+export type RegisterSubscriptionContextMutationFn = Apollo.MutationFunction<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>;
+
+/**
+ * __useRegisterSubscriptionContextMutation__
+ *
+ * To run a mutation, you first call `useRegisterSubscriptionContextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterSubscriptionContextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerSubscriptionContextMutation, { data, loading, error }] = useRegisterSubscriptionContextMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRegisterSubscriptionContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>(RegisterSubscriptionContextDocument, options);
+      }
+export type RegisterSubscriptionContextMutationHookResult = ReturnType<typeof useRegisterSubscriptionContextMutation>;
+export type RegisterSubscriptionContextMutationResult = Apollo.MutationResult<Types.RegisterSubscriptionContextMutation>;
+export type RegisterSubscriptionContextMutationOptions = Apollo.BaseMutationOptions<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>;
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
     query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(

@@ -822,13 +822,6 @@ export type GetPropertyScopeOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetPropertyScopeOrganizationEmployeesQuery = { __typename?: 'Query', propertyScopeOrganizationEmployees?: Array<{ __typename?: 'PropertyScopeOrganizationEmployee', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, employee?: { __typename?: 'OrganizationEmployee', id: string } | null } | null> | null };
 
-export type ActivateSubscriptionPlanMutationVariables = Types.Exact<{
-  data: Types.ActivateSubscriptionPlanInput;
-}>;
-
-
-export type ActivateSubscriptionPlanMutation = { __typename?: 'Mutation', result?: { __typename?: 'ActivateSubscriptionPlanOutput', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string } | null } | null };
-
 export type GetAvailableSubscriptionPlansQueryVariables = Types.Exact<{
   organization: Types.OrganizationWhereUniqueInput;
 }>;
@@ -850,6 +843,13 @@ export type UpdateOrganizationPaymentMethodsMutationVariables = Types.Exact<{
 
 
 export type UpdateOrganizationPaymentMethodsMutation = { __typename?: 'Mutation', organization?: { __typename?: 'Organization', id: string, meta?: any | null } | null };
+
+export type RegisterSubscriptionContextMutationVariables = Types.Exact<{
+  data: Types.RegisterSubscriptionContextInput;
+}>;
+
+
+export type RegisterSubscriptionContextMutation = { __typename?: 'Mutation', result?: { __typename?: 'RegisterSubscriptionContextOutput', directPaymentUrl?: string | null, subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, startAt?: string | null, endAt?: string | null, isTrial?: boolean | null, status?: Types.SubscriptionContextStatusType | null } | null, multiPayment?: { __typename?: 'MultiPayment', id: string } | null } | null };
 
 export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
