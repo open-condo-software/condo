@@ -133,8 +133,7 @@ async function loadAddressPage (knex, cursor = null) {
     const result = await knex.raw(`
         SELECT "id", "key", "meta", "createdAt"
         FROM "Address"
-        WHERE "deletedAt" IS NULL
-            AND "key" IS NOT NULL
+        WHERE "key" IS NOT NULL
             ${hasCursor ? 'AND ("createdAt", "id") > (?, ?)' : ''}
         ORDER BY "createdAt" ASC, "id" ASC
         LIMIT ?
@@ -410,8 +409,7 @@ exports.up = async (knex) => {
     const totalAddressesResult = await knex.raw(`
         SELECT count("id") AS count
         FROM "Address"
-        WHERE "deletedAt" IS NULL
-            AND "key" IS NOT NULL
+        WHERE "key" IS NOT NULL
     `)
     const totalToProcess = Number.parseInt(totalAddressesResult.rows?.[0]?.count, 10) || 0
 
