@@ -15,7 +15,10 @@ SET
 WHERE
     "deletedAt" IS NULL
     AND "key" IS NOT NULL
-    AND "key" NOT LIKE 'fallback:%';
+    AND "key" NOT LIKE 'fallback:%'
+    AND "key" NOT LIKE 'coordinates:%'
+    AND "key" NOT LIKE 'google_place_id:%'
+    AND "key" NOT LIKE 'fias_id:%';
 
 SET statement_timeout = '10s';
 
@@ -33,10 +36,21 @@ UPDATE "Address"
 SET
     dv = 1,
     sender = '{"dv":1,"fingerprint":"20260311122102-0009_manual_add_fallback_prefix_down"}'::jsonb,
-    key = substring("key" from 10)
+    key = CASE
+        WHEN "key" LIKE 'fallback:%' THEN substring("key" from 10)
+        WHEN "key" LIKE 'coordinates:%' THEN substring("key" from 13)
+        WHEN "key" LIKE 'google_place_id:%' THEN substring("key" from 17)
+        WHEN "key" LIKE 'fias_id:%' THEN substring("key" from 9)
+        ELSE "key"
+    END
 WHERE
     "deletedAt" IS NULL
-    AND "key" LIKE 'fallback:%';
+    AND (
+        "key" LIKE 'fallback:%'
+        OR "key" LIKE 'coordinates:%'
+        OR "key" LIKE 'google_place_id:%'
+        OR "key" LIKE 'fias_id:%'
+    );
 
 SET statement_timeout = '10s';
 
