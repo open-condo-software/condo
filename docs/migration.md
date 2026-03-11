@@ -342,8 +342,7 @@ Before upgrading from `4.x` to `5.x`, make sure you have a fresh database backup
 
 1. Pull the `5.x` code
 2. Run the `address-service` database migration
-3. Backfill `AddressHeuristic` records
-4. Review and resolve flagged duplicates if needed
+3. Review and resolve flagged duplicates if needed
 
 Do not start application code that expects `AddressHeuristic` and `Address.possibleDuplicateOf` before the database migration is applied.
 
@@ -357,36 +356,20 @@ yarn install
 yarn workspace @app/condo build:deps
 ```
 
-##### 2. Run database schema migration
+##### 2. Run database migration
 
-This creates the `AddressHeuristic` table, adds `possibleDuplicateOf` to `Address`, and migrates legacy address keys to the `fallback:` format:
+This creates the `AddressHeuristic` table, adds `possibleDuplicateOf` to `Address`, migrates legacy address keys to the `fallback:` format, and backfills `AddressHeuristic` records from existing `Address.key` and `Address.meta.data` fields:
 
 ```bash
 yarn workspace @app/address-service run migrate
 ```
 
-##### 3. Backfill `AddressHeuristic` records
-
-Preview changes:
-
-```bash
-yarn workspace @app/address-service node bin/create-address-heuristics.js --dry-run
-```
-
-Apply changes:
-
-```bash
-yarn workspace @app/address-service node bin/create-address-heuristics.js
-```
-
-This script creates `AddressHeuristic` records from existing `Address.key` and `Address.meta.data` fields, and sets `possibleDuplicateOf` for detected duplicates.
-
-Provider-specific coordinate behavior:
+Provider-specific coordinate behavior during the migration:
 
 - **Dadata**: coordinate heuristics are created only when `meta.data.qc_geo = 0`
 - **Google**: coordinate heuristics are extracted from `meta.provider.rawData.geometry.location.lat/lng`
 
-##### 4. Resolve flagged duplicates
+##### 3. Resolve flagged duplicates
 
 Review `Address.possibleDuplicateOf` records and resolve ambiguous duplicates via the address-service admin UI.
 
@@ -415,7 +398,7 @@ If a heuristic causes incorrect matches, you can manage it directly in the datab
 
 ##### High false-positive rate for Google coordinates
 
-If `GoogleSearchProvider` creates too many false-positive matches because of imprecise coordinates, remove `HEURISTIC_TYPE_COORDINATES` from `extractHeuristics()` in `GoogleSearchProvider.js` and rerun the backfill command.
+If `GoogleSearchProvider` creates too many false-positive matches because of imprecise coordinates, remove `HEURISTIC_TYPE_COORDINATES` from `extractHeuristics()` in `GoogleSearchProvider.js` and rerun the migration on a restored backup before rolling the release forward again.
 
 #### Rollback
 
@@ -425,4 +408,4 @@ To revert the database schema migration:
 yarn workspace @app/address-service run migrate:down
 ```
 
-The heuristic backfill command is idempotent and can be safely rerun after rollback and re-migration.
+The heuristic creation now runs as part of the database migration, so re-running the migration after rollback will recreate the heuristics again.
