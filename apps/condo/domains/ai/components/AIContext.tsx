@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
@@ -25,7 +25,7 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     
     const [isAIOverlayOpen, setIsAIOverlayOpen] = useState(false)
     const [aiOverlayWidth, setAIOverlayWidthState] = useState(() => {
-        return storage.getItem('ai-assistant-overlay-width')
+        return storage.getItem('ai-assistant-overlay-width') || 300
     })
 
     const setAIOverlayWidth = (width: number) => {
@@ -33,8 +33,8 @@ export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         storage.setItem('ai-assistant-overlay-width', width)
     }
 
-    const openAIOverlay = () => setIsAIOverlayOpen(true)
-    const closeAIOverlay = () => setIsAIOverlayOpen(false)
+    const openAIOverlay = useCallback(() => setIsAIOverlayOpen(true), [])
+    const closeAIOverlay = useCallback(() => setIsAIOverlayOpen(false), [])
 
     return (
         <AIContext.Provider value={{ isAIOverlayOpen, aiOverlayWidth, openAIOverlay, closeAIOverlay, setAIOverlayWidth }}>

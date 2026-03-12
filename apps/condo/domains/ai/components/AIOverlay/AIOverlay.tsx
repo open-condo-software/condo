@@ -48,12 +48,10 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     // Check for active tasks when component mounts or overlay opens
     useEffect(() => {
         if (open && aiChatRef.current) {
-            console.log('AI Overlay opened, checking for active tasks and scrolling to bottom')
             aiChatRef.current.checkForActiveTask()
-            const attemptScroll = () => {
-                console.log('Attempting to scroll to bottom')
+            setTimeout(() => {
                 aiChatRef.current?.scrollToBottom()
-            }
+            }, 0)
         }
     }, [open])
 
@@ -104,7 +102,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             document.body.style.cursor = ''
             document.body.style.userSelect = ''
         }
-    }, [isResizing, dragDirection, setAIOverlayWidth, onClose])
+    }, [isResizing, dragDirection, setAIOverlayWidth, onClose, openAIOverlay])
 
     const handleResizeStart = (e: React.MouseEvent) => {
         // Only allow resizing when overlay is open
