@@ -5,17 +5,17 @@ jest.mock('@open-condo/config', () => {
     const actual = jest.requireActual('@open-condo/config')
     const mockedValues = {
         TESTS_FAKE_WORKER_MODE: true,
-        PUSH_NOTIFICATION_APP_GROUPS: JSON.stringify({
-            group_1: ['appId_1', 'appId_2', 'appId_3'],
-            group_2: ['appId_4', 'appId_5'],
-            group_3: ['appId_6'],
-        }),
         PUSH_ADAPTER_SETTINGS: JSON.stringify({
             encryption: {
                 'test-encrypted-app-with-invalid-version': 'non-existent-encryption-version',
                 'test-encrypted-app': 'v1',
             },
-        })
+            groups: {
+                group_1: ['appId_1', 'appId_2', 'appId_3'],
+                group_2: ['appId_4', 'appId_5'],
+                group_3: ['appId_6'],
+            },
+        }),
     }
     return new Proxy(actual, {
         set () {},
@@ -865,27 +865,12 @@ describe('push transport', () => {
         it('should encrypt data when sending to encrypted app', async () => {
             const token = getRandomFakeSuccessToken()
             // Mock the getTokens function
-            mockGetTokens.mockResolvedValue({
-                tokensByTransport: {
-                    [PUSH_TRANSPORT_FIREBASE]: [token],
-                },
-                pushTypes: { [token]: PUSH_TYPE_DEFAULT },
-                appIds: { [token]: ENCRYPTED_APP_ID },
-                metaByToken: { [token]: {} },
-                count: 1,
-            })
-
-            // // Mock modules
-            // jest.doMock('@condo/domains/notification/utils/serverSchema/push/helpers', () => {
-            //     const actual = jest.requireActual('@condo/domains/notification/utils/serverSchema/push/helpers')
-            //     return {
-            //         ...actual,
-            //         getTokens: mockGetTokens,
-            //     }
-            // })
-            // jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
-            //     FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
-            // }))
+            mockGetTokens.mockResolvedValue([{
+                appId: ENCRYPTED_APP_ID,
+                transport: PUSH_TRANSPORT_FIREBASE,
+                token,
+                pushType: PUSH_TYPE_DEFAULT,
+            }])
 
             // Reload push transport to apply the mocks
             jest.resetModules()
@@ -918,24 +903,19 @@ describe('push transport', () => {
             const encryptedToken = getRandomFakeSuccessToken()
             const regularToken = getRandomFakeSuccessToken()
             // Mock the getTokens function
-            mockGetTokens.mockResolvedValue({
-                tokensByTransport: {
-                    [PUSH_TRANSPORT_FIREBASE]: [encryptedToken, regularToken],
+            mockGetTokens.mockResolvedValue([
+                {
+                    token: encryptedToken,
+                    appId: ENCRYPTED_APP_ID,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
+                }, {
+                    token: regularToken,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
                 },
-                pushTypes: {
-                    [encryptedToken]: PUSH_TYPE_DEFAULT,
-                    [regularToken]: PUSH_TYPE_DEFAULT,
-                },
-                appIds: {
-                    [encryptedToken]: ENCRYPTED_APP_ID,
-                    [regularToken]: APP_RESIDENT_ID_ANDROID,
-                },
-                metaByToken: {
-                    [encryptedToken]: {},
-                    [regularToken]: {},
-                },
-                count: 2,
-            })
+            ])
 
             // Reload push transport to apply the mocks
             jest.resetModules()
@@ -949,6 +929,8 @@ describe('push transport', () => {
             // Verify that encryption happened correctly for encrypted app
             const callArgs = mockFirebaseAdapter.sendNotification.mock.calls[0][0]
             const { dataByToken } = callArgs
+
+            expect(Object.keys(dataByToken)).toHaveLength(2)
             // Check encrypted app data
             expect(dataByToken[encryptedToken][ENCRYPTED_APP_ID]).toBeDefined()
             // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
@@ -962,15 +944,14 @@ describe('push transport', () => {
         it('should not send push to app if encryption fails', async () => {
             const invalidEncryptionToken = getRandomFakeSuccessToken()
             // Mock the getTokens function
-            mockGetTokens.mockResolvedValue({
-                tokensByTransport: {
-                    [PUSH_TRANSPORT_FIREBASE]: [invalidEncryptionToken],
+            mockGetTokens.mockResolvedValue([
+                {
+                    token: invalidEncryptionToken,
+                    appId: ALWAYS_INVALID_ENCRYPTION_APP_ID,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
                 },
-                pushTypes: { [invalidEncryptionToken]: PUSH_TYPE_DEFAULT },
-                appIds: { [invalidEncryptionToken]: ALWAYS_INVALID_ENCRYPTION_APP_ID },
-                metaByToken: { [invalidEncryptionToken]: {} },
-                count: 1,
-            })
+            ])
 
             // Reload push transport to apply the mocks
             jest.resetModules()
@@ -993,27 +974,26 @@ describe('push transport', () => {
             const regularToken = getRandomFakeSuccessToken()
 
             // Mock the getTokens function
-            mockGetTokens.mockResolvedValue({
-                tokensByTransport: {
-                    [PUSH_TRANSPORT_FIREBASE]: [invalidEncryptionToken, encryptedToken, regularToken],
+            mockGetTokens.mockResolvedValue([
+                {
+                    token: invalidEncryptionToken,
+                    appId: ALWAYS_INVALID_ENCRYPTION_APP_ID,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
                 },
-                pushTypes: {
-                    [invalidEncryptionToken]: PUSH_TYPE_DEFAULT,
-                    [encryptedToken]: PUSH_TYPE_DEFAULT,
-                    [regularToken]: PUSH_TYPE_DEFAULT,
+                {
+                    token: encryptedToken,
+                    appId: ENCRYPTED_APP_ID,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
                 },
-                appIds: {
-                    [invalidEncryptionToken]: ALWAYS_INVALID_ENCRYPTION_APP_ID,
-                    [encryptedToken]: ENCRYPTED_APP_ID,
-                    [regularToken]: APP_RESIDENT_ID_ANDROID,
+                {
+                    token: regularToken,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
                 },
-                metaByToken: {
-                    [invalidEncryptionToken]: {},
-                    [encryptedToken]: {},
-                    [regularToken]: {},
-                },
-                count: 3,
-            })
+            ])
 
             // Reload push transport to apply the mocks
             jest.resetModules()
@@ -1216,7 +1196,7 @@ describe('push transport', () => {
             // Create tokens for different appIds in the same group, but first will return error
             const payload1 = getRandomTokenData({
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
-                pushTransport: PUSH_TRANSPORT_HUAWEI,
+                pushTransport: PUSH_TRANSPORT_FIREBASE,
                 appId: 'appId_1',
                 pushToken: getRandomFakeFailToken(), // This token will return error
             })
@@ -1358,9 +1338,9 @@ describe('push transport', () => {
             // Expect that message is sent both in group (appId_1) and outside group (appId_7)
             expect(responses).toHaveLength(2)
 
-            // Check that one group is 'group_1', another is 'ungrouped_appId_7'
+            // Check that one group is 'group_1', another is 'appId_7'
             const groupedResponse = responses.find(r => r.groupName === 'group_1')
-            const ungroupedResponse = responses.find(r => r.groupName === 'ungrouped_appId_7')
+            const ungroupedResponse = responses.find(r => r.groupName === 'ungrouped')
 
             expect(groupedResponse).toBeDefined()
             expect(ungroupedResponse).toBeDefined()
