@@ -364,7 +364,7 @@ This automatically applies all required `address-service` schema and data migrat
 - `20260311122102-0009_manual_add_fallback_prefix.js` rewrites legacy `Address.key` values to the `fallback:` format
 - `20260311162944-0010_manual_create_heuristics.js` backfills `AddressHeuristic` records and duplicate links from existing address data
 
-For large datasets, `20260311162944-0010_manual_create_heuristics.js` can take about `20` minutes to complete. In practice, this is roughly `26` seconds per `10,000` addresses, though the actual speed depends on server configuration and database performance.
+For large datasets, `20260311162944-0010_manual_create_heuristics.js` can take about `10-15` minutes to complete. In tests, this was roughly `14` seconds per `10,000` addresses, though the actual speed depends on server configuration and database performance.
 
 ```bash
 yarn workspace @app/address-service run migrate
