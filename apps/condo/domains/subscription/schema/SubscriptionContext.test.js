@@ -11,6 +11,12 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
@@ -256,6 +262,14 @@ describe('SubscriptionContext', () => {
         test('trial subscription cannot have invoice', async () => {
             const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+            
             const [invoice] = await createTestInvoice(admin, testOrg)
 
             await expectToThrowGQLError(async () => {
@@ -375,7 +389,8 @@ describe('SubscriptionContext', () => {
             })
 
             expect(obj.settings).toBeDefined()
-            expect(obj.settings.paymentMethod).toEqual(paymentMethod)
+            expect(obj.settings.paymentMethod).toBeDefined()
+            expect(obj.settings.paymentMethod.id).toBe(paymentMethod.id)
         })
 
         test('can set recurrentPaymentEnabled for paid subscription with pricing rule', async () => {

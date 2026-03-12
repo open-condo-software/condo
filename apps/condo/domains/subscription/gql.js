@@ -22,7 +22,7 @@ const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTI
 const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`
     mutation activateSubscriptionContext ($data: ActivateSubscriptionContextInput!) {
         result: activateSubscriptionContext(data: $data) { 
-            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status recurrentPaymentEnabled settings }
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status recurrentPaymentEnabled settings { price paymentMethod { id } } }
         }
     }
 `
@@ -33,11 +33,9 @@ const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
     }
 `
 
-// TODO(codegen): write return type result!
-
 const REGISTER_SUBSCRIPTION_CONTEXT_MUTATION = gql`
     mutation registerSubscriptionContext ($data: RegisterSubscriptionContextInput!) {
-        result: registerSubscriptionContext(data: $data) { id }
+        result: registerSubscriptionContext(data: $data) { subscriptionContext { id organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status } directPaymentUrl multiPayment { id } }
     }
 `
 

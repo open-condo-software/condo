@@ -5,9 +5,18 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { getById } = require('@open-condo/keystone/schema')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, waitFor } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+    updateTestMultiPayment,
+    Payment,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
@@ -18,7 +27,7 @@ const {
     registerSubscriptionContextByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
-    SubscriptionContext,
+    createTestSubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -27,11 +36,27 @@ const { ERRORS } = require('./ActivateSubscriptionContextService')
 describe('ActivateSubscriptionContextService', () => {
     let admin, support, user, anonymous
     let organization, subscriptionPlan, pricingRule
+    let originalSubscriptionPaymentRecipient
+    let recipientOrganization, acquiringIntegration
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
+
+        const [recipientOrg] = await registerNewOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+        recipientOrganization = recipientOrg
+
+        originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = recipientOrganization.id
+
+        const [integration] = await createTestAcquiringIntegration(admin)
+        acquiringIntegration = integration
+        await createTestAcquiringIntegrationContext(admin, recipientOrganization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [],
+        })
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -49,6 +74,14 @@ describe('ActivateSubscriptionContextService', () => {
         pricingRule = rule
     })
 
+    afterAll(() => {
+        if (originalSubscriptionPaymentRecipient !== undefined) {
+            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalSubscriptionPaymentRecipient
+        } else {
+            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        }
+    })
+
     beforeEach(async () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
@@ -56,43 +89,37 @@ describe('ActivateSubscriptionContextService', () => {
     })
 
     async function createPaidSubscriptionContext (client, org, rule) {
-        // Create subscription context with status CREATED
         const [result] = await registerSubscriptionContextByTestClient(client, {
             organization: { id: org.id },
             subscriptionPlanPricingRule: { id: rule.id },
             isTrial: false,
         })
-        
-        return result
+
+        return {
+            subscriptionContext: result.subscriptionContext,
+            invoice: result.subscriptionContext.invoice,
+        }
     }
 
     describe('Access', () => {
-        test('admin can activate subscription context', async () => {
-            const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+        test('admin can call activateSubscriptionContext without access denied error', async () => {
+            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
             
-            await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
-            
-            const [result] = await activateSubscriptionContextByTestClient(admin, subscriptionContext)
-
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            await expectToThrowGQLError(async () => {
+                await activateSubscriptionContextByTestClient(admin, subscriptionContext)
+            }, ERRORS.INVOICE_NOT_PAID, 'result')
         })
 
-        test('support can activate subscription context', async () => {
-            const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+        test('support can call activateSubscriptionContext without access denied error', async () => {
+            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
             
-            await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
-            
-            const [result] = await activateSubscriptionContextByTestClient(support, subscriptionContext)
-
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            await expectToThrowGQLError(async () => {
+                await activateSubscriptionContextByTestClient(support, subscriptionContext)
+            }, ERRORS.INVOICE_NOT_PAID, 'result')
         })
 
         test('regular user cannot activate subscription context', async () => {
-            const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
-            
-            await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
+            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await activateSubscriptionContextByTestClient(user, subscriptionContext)
@@ -100,9 +127,7 @@ describe('ActivateSubscriptionContextService', () => {
         })
 
         test('anonymous cannot activate', async () => {
-            const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
-            
-            await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
+            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
 
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await activateSubscriptionContextByTestClient(anonymous, subscriptionContext)
@@ -120,11 +145,7 @@ describe('ActivateSubscriptionContextService', () => {
         })
 
         test('throws error if subscription context has wrong status', async () => {
-            const [context] = await SubscriptionContext.create(admin, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'test' },
-                organization: { connect: { id: organization.id } },
-                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
@@ -137,11 +158,7 @@ describe('ActivateSubscriptionContextService', () => {
         })
 
         test('throws error if invoice not found', async () => {
-            const [context] = await SubscriptionContext.create(admin, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'test' },
-                organization: { connect: { id: organization.id } },
-                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
@@ -152,30 +169,33 @@ describe('ActivateSubscriptionContextService', () => {
                 await activateSubscriptionContextByTestClient(admin, context)
             }, ERRORS.INVOICE_NOT_FOUND, 'result')
         })
-
-        test('throws error if invoice not paid', async () => {
-            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
-
-            await expectToThrowGQLError(async () => {
-                await activateSubscriptionContextByTestClient(admin, subscriptionContext)
-            }, ERRORS.INVOICE_NOT_PAID, 'result')
-        })
     })
 
     describe('Payment Method Extraction', () => {
         test('extracts payment method from multiPayment and updates context', async () => {
             const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
             
+            const [payment] = await Payment.getAll(admin, {
+                invoice: { id: invoice.id },
+                deletedAt: null,
+            })
+            
+            const testPaymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '4242' }
+            await updateTestMultiPayment(admin, payment.multiPayment.id, {
+                meta: { paymentMethod: testPaymentMethod },
+            })
+            
             await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
             
-            const [result] = await activateSubscriptionContextByTestClient(admin, subscriptionContext)
-
-            const context = result.subscriptionContext
-            expect(context).toBeDefined()
-            expect(context.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
-            expect(context.recurrentPaymentEnabled).toBe(true)
-            expect(context.settings).toBeDefined()
-            expect(context.settings.paymentMethod).toBeDefined()
+            await waitFor(async () => {
+                const updatedContext = await getById('SubscriptionContext', subscriptionContext.id)
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            })
+            
+            const finalContext = await getById('SubscriptionContext', subscriptionContext.id)
+            expect(finalContext.recurrentPaymentEnabled).toBe(true)
+            expect(finalContext.settings).toBeDefined()
+            expect(finalContext.settings.paymentMethod).toEqual(testPaymentMethod)
         })
     })
 })
