@@ -8,6 +8,12 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
@@ -15,18 +21,35 @@ const {
     registerSubscriptionContextByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
-    SubscriptionContext,
+    createTestSubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./RegisterSubscriptionContextService')
 
 describe('RegisterSubscriptionContextService', () => {
     let admin, support, user, anonymous
     let organization, subscriptionPlan, pricingRule
+    let originalSubscriptionPaymentRecipient
+    let recipientOrganization
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
+
+        const [recipientOrg] = await registerNewOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+        recipientOrganization = recipientOrg
+
+        originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = recipientOrganization.id
+
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+        await createTestAcquiringIntegrationContext(admin, recipientOrganization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [],
+        })
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -42,6 +65,14 @@ describe('RegisterSubscriptionContextService', () => {
             currencyCode: 'RUB',
         })
         pricingRule = rule
+    })
+
+    afterAll(() => {
+        if (originalSubscriptionPaymentRecipient !== undefined) {
+            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalSubscriptionPaymentRecipient
+        } else {
+            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        }
     })
 
     beforeEach(async () => {
@@ -149,10 +180,7 @@ describe('RegisterSubscriptionContextService', () => {
                     subscriptionPlanPricingRule: { id: noTrialRule.id },
                     isTrial: true,
                 })
-            }, {
-                type: 'NOT_FOUND',
-                message: 'Trial subscription is not available for this plan',
-            }, 'result')
+            }, ERRORS.TRIAL_NOT_AVAILABLE, 'result')
         })
 
         test('throws error if trial already used', async () => {
@@ -168,10 +196,7 @@ describe('RegisterSubscriptionContextService', () => {
                     subscriptionPlanPricingRule: { id: pricingRule.id },
                     isTrial: true,
                 })
-            }, {
-                type: 'NOT_FOUND',
-                message: 'Trial subscription for this plan was already activated',
-            }, 'result')
+            }, ERRORS.TRIAL_ALREADY_USED, 'result')
         })
     })
 
@@ -217,11 +242,7 @@ describe('RegisterSubscriptionContextService', () => {
 
         test('extends subscription from last active context end date', async () => {
             const existingEndAt = dayjs().add(30, 'days')
-            await SubscriptionContext.create(admin, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'test' },
-                organization: { connect: { id: organization.id } },
-                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: existingEndAt.format('YYYY-MM-DD'),
                 isTrial: false,
@@ -232,7 +253,6 @@ describe('RegisterSubscriptionContextService', () => {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
                 isTrial: false,
-                paymentType: 'online',
             })
 
             const context = result.subscriptionContext
@@ -263,10 +283,7 @@ describe('RegisterSubscriptionContextService', () => {
                     subscriptionPlanPricingRule: fakeRule,
                     isTrial: true,
                 })
-            }, {
-                type: 'NOT_FOUND',
-                message: 'Subscription plan pricing rule not found or is hidden',
-            }, 'result')
+            }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
         })
 
         test('throws error if plan is hidden', async () => {
@@ -288,16 +305,13 @@ describe('RegisterSubscriptionContextService', () => {
                     subscriptionPlanPricingRule: { id: hiddenPlanRule.id },
                     isTrial: true,
                 })
-            }, {
-                type: 'NOT_FOUND',
-                message: 'Subscription plan pricing rule not found or is hidden',
-            }, 'result')
+            }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
         })
 
         test('throws error if organization type does not match plan', async () => {
             const [servicePlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
-                organizationType: 'serviceProvider',
+                organizationType: 'SERVICE_PROVIDER',
                 isHidden: false,
                 trialDays: 14,
             })
@@ -313,10 +327,7 @@ describe('RegisterSubscriptionContextService', () => {
                     subscriptionPlanPricingRule: { id: servicePlanRule.id },
                     isTrial: true,
                 })
-            }, {
-                type: 'NOT_FOUND',
-                message: 'Organization type does not match subscription plan organization type',
-            }, 'result')
+            }, ERRORS.INVALID_ORGANIZATION_TYPE, 'result')
         })
     })
 })

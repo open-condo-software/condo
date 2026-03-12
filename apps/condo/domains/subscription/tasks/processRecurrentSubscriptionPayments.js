@@ -46,8 +46,8 @@ async function processRecurrentSubscriptionPayments () {
 
             const latestContexts = await itemsQuery('SubscriptionContext', {
                 where: {
-                    organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule.id },
+                    organization: { id: organization },
+                    subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 },
@@ -60,14 +60,14 @@ async function processRecurrentSubscriptionPayments () {
                 continue
             }
 
-            logger.info({ msg: 'processing subscription context renewal', data: { subscriptionContextId: id, organizationId: organization.id } })
+            logger.info({ msg: 'processing subscription context renewal', data: { subscriptionContextId: id, organizationId: organization } })
 
             const sender = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
 
             const { subscriptionContext: newContext, directPaymentUrl, multiPayment } = await registerSubscriptionContext(context, {
                 sender,
-                organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule.id },
+                organization: { id: organization },
+                subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule },
                 isTrial: false,
             })
 

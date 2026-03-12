@@ -24,7 +24,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Organization not found',
-        messageForUser: 'api.subscription.registerSubscriptionContext.ORGANIZATION_NOT_FOUND',
     },
     PRICING_RULE_NOT_FOUND: {
         mutation: 'registerSubscriptionContext',
@@ -32,7 +31,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Subscription plan pricing rule not found or is hidden',
-        messageForUser: 'api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND',
     },
     INVALID_ORGANIZATION_TYPE: {
         mutation: 'registerSubscriptionContext',
@@ -40,7 +38,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Organization type does not match subscription plan organization type',
-        messageForUser: 'api.subscription.registerSubscriptionContext.INVALID_ORGANIZATION_TYPE',
     },
     TRIAL_NOT_AVAILABLE: {
         mutation: 'registerSubscriptionContext',
@@ -48,7 +45,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription is not available for this plan',
-        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_NOT_AVAILABLE',
     },
     TRIAL_ALREADY_USED: {
         mutation: 'registerSubscriptionContext',
@@ -56,7 +52,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription for this plan was already activated',
-        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_ALREADY_USED',
     },
 }
 
@@ -130,7 +125,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     const endAt = startAt.add(plan.trialDays, 'day')
                     const createdSubscriptionContext = await SubscriptionContext.create(context, {
                         dv,
-                        sender,
+                        sender: { dv: 1, fingerprint: 'register-subscription-context-service' },
                         organization: { connect: { id: organization.id } },
                         subscriptionPlan: { connect: { id: plan.id } },
                         startAt: startAt.format('YYYY-MM-DD'),
@@ -158,7 +153,6 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 const startAt = calculateSubscriptionStartDate(existingContexts)
                 const endAt = startAt.add(months, 'month')
 
-                // Online payment type
                 const recipientOrganizationId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
                 if (!recipientOrganizationId) {
                     throw new GQLError({
@@ -179,8 +173,8 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                         {
                             name: plan.name,
                             count: 1,
-                            price: pricingRule.price,
                             toPay: pricingRule.price,
+                            isMin: false,
                         },
                     ],
                 })
@@ -188,7 +182,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 const createdSubscriptionContext = await SubscriptionContext.create(context, {
                     dv,
-                    sender,
+                    sender: { dv: 1, fingerprint: 'register-subscription-context-service' },
                     organization: { connect: { id: organization.id } },
                     subscriptionPlan: { connect: { id: plan.id } },
                     subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
@@ -209,10 +203,14 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     sender,
                 })
 
+                const multiPayment = multiPaymentResult.multiPaymentId 
+                    ? await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    : null
+
                 return { 
                     subscriptionContext, 
                     directPaymentUrl: multiPaymentResult.directPaymentUrl,
-                    multiPayment: multiPaymentResult,
+                    multiPayment,
                 }
             },
         },
@@ -222,4 +220,5 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
 module.exports = {
     RegisterSubscriptionContextService,
+    ERRORS,
 }
