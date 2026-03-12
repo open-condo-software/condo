@@ -123,15 +123,15 @@ const mixResult = (container, result, additionalResponsesData = {}) => {
     if (isEmpty(container)) return result
 
     return {
-        successCount: (container.successCount || 0) + result.successCount,
-        failureCount: (container.failureCount || 0) + result.failureCount,
-        responses: container.responses.concat(result.responses),
+        successCount: (container.successCount || 0) + (result.successCount || 0),
+        failureCount: (container.failureCount || 0) + (result.failureCount || 0),
+        responses: container.responses.concat(Array.isArray(result.responses) ? result.responses : []),
         pushContext: container.pushContext || result.pushContext, // NOTE(YEgorLu): legacy, before this happened under magic
     }
 }
 
-async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP }) {
-    if (adapter === PUSH_TRANSPORT_FIREBASE) {
+async function deleteRemoteClientsIfTokenIsInvalid ({ transportType, result, isVoIP }) {
+    if (transportType === PUSH_TRANSPORT_FIREBASE) {
         // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
         if (get(result, 'responses')) {
             for (const res of result.responses) {
@@ -185,8 +185,8 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
 
         const payload = { tokens, pushTypes, appIds, notificationByToken, dataByToken, metaByToken }
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
-
-        await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })
+        
+        await deleteRemoteClientsIfTokenIsInvalid({ transportType, result, isVoIP })
 
         /** @type {[boolean, object, string]} */
         const sendNotificationResult = [isOk, result, transportType]
@@ -275,7 +275,9 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     // If the message has a preferred push type, it takes priority over the value from the remote client.
     const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(data, 'type'))
     if (preferredPushTypeForMessage) {
-        pushTokens.forEach(pushToken => pushToken.pushType = preferredPushTypeForMessage)
+        for (const pushToken of pushTokens) {
+            pushToken.pushType = preferredPushTypeForMessage
+        }
     }
 
     let container = { failureCount: 0, successCount: 0, responses: [] }
