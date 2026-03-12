@@ -142,7 +142,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
             return { content: null, type: null, loading }
         }
 
-        const hasPaymentMethod = Boolean(lastExpiredContext.meta?.paymentMethod)
+        const hasPaymentMethod = Boolean(lastExpiredContext.settings?.paymentMethod)
         if (hasPaymentMethod) {
             return { content: null, type: null, loading }
         }

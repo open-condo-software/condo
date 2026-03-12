@@ -99,7 +99,6 @@ export const useActivateSubscriptions = () => {
         setActivateLoading(true)
         try {
             if (paymentType === 'userHelpRequest') {
-                // For userHelpRequest payment, create UserHelpRequest
                 await createUserHelpRequest({
                     variables: {
                         data: {
@@ -113,7 +112,6 @@ export const useActivateSubscriptions = () => {
                     },
                 })
             } else {
-                // For trial and card payment, use registerSubscriptionContext
                 const result = await registerSubscriptionContextMutation({
                     variables: {
                         data: {
@@ -126,7 +124,6 @@ export const useActivateSubscriptions = () => {
                     },
                 })
 
-                // For card payment, redirect to payment URL
                 if (!isTrial && result.data?.result?.directPaymentUrl) {
                     window.open(result.data.result.directPaymentUrl, '_self')
                     return

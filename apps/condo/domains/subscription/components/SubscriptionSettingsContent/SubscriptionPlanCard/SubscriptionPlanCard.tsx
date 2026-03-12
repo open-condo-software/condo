@@ -89,7 +89,7 @@ interface SubscriptionPlanCardProps {
         planName?: string
         trialDays?: number
         isCustomPrice?: boolean
-        paymentType?: 
+        paymentType?: PaymentType
     }) => Promise<void>
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
@@ -266,7 +266,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         })
     }, [activatedSubscriptions, plan?.id])
     
-    const registerSubscriptionContextForModal = useCallback(async ({ paymentType }: { paymentType: import('@condo/domains/subscription/types').PaymentType }) => {
+    const registerSubscriptionContextForModal = useCallback(async ({ paymentType }: { paymentType: PaymentType }) => {
         if (!price?.id) return
 
         setActivateLoading(true)
@@ -282,14 +282,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [price?.id, plan.name, plan.trialDays, isCustomPrice])
+    }, [price.id, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
     
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerSubscriptionContextForModal,
         activateLoading,
-        organizationId: organization?.id || '',
-        pricingRuleId: price?.id || '',
     })
     
     const contextPaymentMethodId = useMemo(() => {
@@ -302,7 +299,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             })
         
         const lastContext = contextsWithSamePlan[0]
-        return lastContext?.meta?.paymentMethod?.id || null
+        return lastContext?.settings?.paymentMethod?.id || null
     }, [activatedSubscriptions, plan?.id])
     
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
@@ -329,8 +326,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [price?.id, plan.name, plan.trialDays, isCustomPrice, usePaymentModal, openPaymentModal])
+    }, [price?.id, plan.name, plan.trialDays, isCustomPrice, usePaymentModal, openPaymentModal, registerSubscriptionContext])
 
     const handleTrialActivateClick = useCallback(async () => {
         if (!price?.id) return
@@ -342,8 +338,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             trialDays: plan.trialDays,
             isCustomPrice,
         })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [price?.id, plan.name, plan.trialDays, isCustomPrice])
+    }, [price?.id, plan.name, plan.trialDays, isCustomPrice, registerSubscriptionContext])
 
     const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
         <FeatureItem 
@@ -400,14 +395,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             return isActivePlan ? null : price.name
         } else if (isFreeForPartner) {
             return null
-        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.meta?.price !== undefined) {
-            const contextPrice = Math.floor(Number(activeSubscriptionContext.meta.price))
+        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.settings?.price !== undefined) {
+            const contextPrice = Math.floor(Number(activeSubscriptionContext.settings.price))
             const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
             return `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         } else {
             return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         }
-    }, [activeSubscriptionContext?.meta?.price, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
+    }, [activeSubscriptionContext.settings.price, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,

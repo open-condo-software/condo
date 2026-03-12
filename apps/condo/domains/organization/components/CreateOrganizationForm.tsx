@@ -8,8 +8,8 @@ import {
     useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
     SendOrganizationEmployeeRequestMutationResult,
     GetActualOrganizationEmployeesDocument,
-    useActivateSubscriptionPlanMutation,
     useGetAvailableSubscriptionPlansLazyQuery,
+    useRegisterSubscriptionContextMutation,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
@@ -213,7 +213,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         onError,
         fetchPolicy: 'network-only',
     })
-    const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation({
+    const [registerSubscriptionContext] = useRegisterSubscriptionContextMutation({
         onError,
     })
     const [getAvailableSubscriptionPlans] = useGetAvailableSubscriptionPlansLazyQuery({
@@ -317,13 +317,13 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                 const pricingRuleId = targetPlan?.prices?.[0]?.id
                 
                 if (pricingRuleId) {
-                    await activateSubscriptionPlan({
+                    await registerSubscriptionContext({
                         variables: {
                             data: {
                                 dv: 1,
                                 sender: getClientSideSenderInfo(),
                                 organization: { id: organizationId },
-                                pricingRule: { id: pricingRuleId },
+                                subscriptionPlanPricingRule: { id: pricingRuleId },
                                 isTrial: true,
                             },
                         },
@@ -354,7 +354,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         }
         setIsOrganizationCreating(false)
     }, [
-        activateSubscriptionPlan, client, defaultTrialPlanId, findOrganizationsByTin,
+        registerSubscriptionContext, client, defaultTrialPlanId, findOrganizationsByTin,
         getAvailableSubscriptionPlans, getLastActiveOrganizationEmployeeRequest,
         getOrganizationEmployee, onEmployeeSelected, onOrganizationCreated, onSendOrganizationRequest,
         registerNewOrganization, selectEmployee, skipSearchOrganizationByTin, type, userId,
