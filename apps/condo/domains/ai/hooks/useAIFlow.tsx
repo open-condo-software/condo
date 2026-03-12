@@ -31,6 +31,7 @@ type UseAIFlowPropsType<T = object> = {
     modelName?: string
     defaultContext?: object
     timeout?: number
+    taskId?: string // Optional existing task ID to poll instead of creating new task
 }
 
 type UseAIFlowResult<T> = {
@@ -61,6 +62,7 @@ export function useAIFlow<T = object> ({
     itemId,
     defaultContext = {},
     timeout = DEFAULT_TIMEOUT_MS,
+    taskId,
 }: UseAIFlowPropsType<T>): UseAIFlowResultType<T> {
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -74,6 +76,48 @@ export function useAIFlow<T = object> ({
     const [error, setError] = useState<Error | null>(null)
     const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
 
+    const pollForTaskCompletion = useCallback(async (taskId: string): Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string }> => {
+        await new Promise(resolve => setTimeout(resolve, TASK_FIRST_POLL_TIMEOUT_MS))
+
+        const startTime = Date.now()
+
+        while (Date.now() - startTime < timeout) {
+            const pollResult = await getExecutionAiFlowTaskById({
+                variables: { id: taskId },
+                fetchPolicy: 'no-cache',
+            })
+
+            if (!pollResult?.data?.task) {
+                return { data: null, error: new Error('Task not found'), localizedErrorText: null }
+            }
+
+            const task = Array.isArray(pollResult.data.task) ? pollResult.data.task[0] : pollResult.data.task
+            if (!task) { return { data: null, error: new Error('Task not found'), localizedErrorText: null } }
+
+            if (task.status === TASK_STATUSES.COMPLETED) {
+                const result = task.result as T
+                const combinedResult: UseAIFlowResult<T> = {
+                    status: task.status,
+                    aiSessionId: task.aiSessionId,
+                    errorMessage: task.errorMessage,
+                    result,
+                }
+                setData(combinedResult)
+                setCurrentTaskId(null)
+                return { data: combinedResult, error: null, localizedErrorText: null }
+            } else if (task.status === TASK_STATUSES.ERROR || task.status === TASK_STATUSES.CANCELLED) {
+                setCurrentTaskId(null)
+                return { data: null, error: new Error(`Task in ${task.status} state`), localizedErrorText: task.errorMessage || null }
+            }
+
+            await new Promise(resolve => setTimeout(resolve, TASK_POLLING_INTERVAL_MS))
+        }
+
+        setError(new Error('Flow timed out'))
+        setCurrentTaskId(null)
+        return { data: null, error: new Error('Flow timed out'), localizedErrorText: null }
+    }, [timeout, getExecutionAiFlowTaskById])
+
     const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string }> => {
         if (!user?.id) {
             const err = new Error('User is not authenticated')
@@ -85,68 +129,37 @@ export function useAIFlow<T = object> ({
         setError(null)
         setData(null)
 
-        const fullContext = { ...defaultContext, ...context }
-
         try {
-            const createResult = await createExecutionAIFlowMutation({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        flowType,
-                        modelName,
-                        itemId,
-                        organization: { connect: { id: organization.id } },
-                        context: fullContext,
-                        user: { connect: { id: user.id } },
+            let finalTaskId: string
+
+            if (taskId) {
+                // Use existing task ID
+                finalTaskId = taskId
+            } else {
+                // Create new task
+                const fullContext = { ...defaultContext, ...context }
+                const createResult = await createExecutionAIFlowMutation({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            flowType,
+                            modelName,
+                            itemId,
+                            organization: { connect: { id: organization.id } },
+                            context: fullContext,
+                            user: { connect: { id: user.id } },
+                        },
                     },
-                },
-            })
-
-            const taskId = createResult.data?.task?.id
-            if (!taskId) { return { data: null, error: new Error('Failed to create a task'), localizedErrorText: null } }
-
-            setCurrentTaskId(taskId)
-
-            await new Promise(resolve => setTimeout(resolve, TASK_FIRST_POLL_TIMEOUT_MS))
-
-            const startTime = Date.now()
-
-            while (Date.now() - startTime < timeout) {
-                const pollResult = await getExecutionAiFlowTaskById({
-                    variables: { id: taskId },
-                    fetchPolicy: 'no-cache',
                 })
 
-                if (!pollResult?.data?.task) {
-                    return { data: null, error: new Error('Task not found'), localizedErrorText: null }
-                }
-
-                const task = Array.isArray(pollResult.data.task) ? pollResult.data.task[0] : pollResult.data.task
-                if (!task) { return { data: null, error: new Error('Task not found'), localizedErrorText: null } }
-
-                if (task.status === TASK_STATUSES.COMPLETED) {
-                    const result = task.result as T
-                    const combinedResult: UseAIFlowResult<T> = {
-                        status: task.status,
-                        aiSessionId: task.aiSessionId,
-                        errorMessage: task.errorMessage,
-                        result,
-                    }
-                    setData(combinedResult)
-                    setCurrentTaskId(null)
-                    return { data: combinedResult, error: null, localizedErrorText: null }
-                } else if (task.status === TASK_STATUSES.ERROR || task.status === TASK_STATUSES.CANCELLED) {
-                    setCurrentTaskId(null)
-                    return { data: null, error: new Error(`Task in ${task.status} state`), localizedErrorText: task.errorMessage || null }
-                }
-
-                await new Promise(resolve => setTimeout(resolve, TASK_POLLING_INTERVAL_MS))
+                const createdTaskId = createResult.data?.task?.id
+                if (!createdTaskId) { return { data: null, error: new Error('Failed to create a task'), localizedErrorText: null } }
+                finalTaskId = createdTaskId
             }
 
-            setError(new Error('Flow timed out'))
-            setCurrentTaskId(null)
-            return { data: null, error: new Error('Flow timed out'), localizedErrorText: null }
+            setCurrentTaskId(finalTaskId)
+            return await pollForTaskCompletion(finalTaskId)
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())
             setError(wrappedErr)
@@ -156,6 +169,7 @@ export function useAIFlow<T = object> ({
             setLoading(false)
         }
     }, [
+        taskId,
         flowType,
         timeout,
         defaultContext,

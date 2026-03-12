@@ -21,8 +21,10 @@ const SESSION_KEY = 'condo-ai-assistant-session-id'
 // Tools that require user action or data from condo can be run recursively
 // -- this setting clamps the maximum depth for these tool calls
 const MAX_TOOL_CALL_DEPTH = 5
+const AI_FLOW_TIMEOUT_MS = 180000
 
-const storageManager = new LocalStorageManager<Record<string, any[]>>()
+const historyStorageManager = new LocalStorageManager<Record<string, any[]>>()
+const sessionStorageManager = new LocalStorageManager<string>()
 
 export type Message = {
     id: string
@@ -30,6 +32,7 @@ export type Message = {
     role: 'user' | 'assistant'
     timestamp: Date
     status?: 'sending' | 'sent' | 'error'
+    taskId?: string
     actionRequest?: {
         type: string
         meta: any
@@ -59,11 +62,11 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const [aiSessionId, setAiSessionId] = useState(() => {
         if (typeof window === 'undefined') return uuidV4()
         
-        let sessionId = storageManager.getItem(SESSION_KEY)
+        let sessionId = sessionStorageManager.getItem(SESSION_KEY)
         
         if (!sessionId) {
             sessionId = uuidV4()
-            storageManager.setItem(SESSION_KEY, sessionId)
+            sessionStorageManager.setItem(SESSION_KEY, sessionId)
         }
         
         return sessionId
@@ -72,9 +75,17 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
 
-    const [executeAIFlow, { loading }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+    const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+
+    const [executeAIFlow, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
-        timeout: 120000,
+        timeout: AI_FLOW_TIMEOUT_MS,
+    })
+
+    const [resumeAIFlow] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+        flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+        timeout: AI_FLOW_TIMEOUT_MS,
+        taskId: activeTaskId || undefined,
     })
 
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
@@ -93,29 +104,41 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     useEffect(() => {
         if (typeof window === 'undefined') return
         
-        let savedHistory = storageManager.getItem(STORAGE_KEY) || []
-
-        if (!Array.isArray(savedHistory)) {
-            savedHistory = []
-            storageManager.setItem(STORAGE_KEY, { [aiSessionId]: [] })
+        let savedHistory = historyStorageManager.getItem(STORAGE_KEY)
+        let historyArray: any[] = []
+        
+        if (savedHistory && !Array.isArray(savedHistory) && typeof savedHistory === 'object') {
+            historyArray = savedHistory[aiSessionId] || []
         }
         
-        if (savedHistory.length > 0) {
+        if (historyArray.length > 0) {
             // Convert timestamp strings back to Date objects
-            const historyWithDates = savedHistory.map(msg => ({
+            const historyWithDates = historyArray.map(msg => ({
                 ...msg,
                 timestamp: new Date(msg.timestamp),
             }))
             setMessages(historyWithDates)
+            
+            // Check for active task in the last message
+            const lastMessage = historyWithDates[historyWithDates.length - 1]
+            if (lastMessage?.status === 'sending' && lastMessage?.taskId) {
+                setActiveTaskId(lastMessage.taskId)
+            }
         }
     }, [])
+
+    // Sync activeTaskId with currentTaskId from useAIFlow
+    useEffect(() => {
+        if (currentTaskId && currentTaskId !== activeTaskId) {
+            setActiveTaskId(currentTaskId)
+        }
+    }, [currentTaskId, activeTaskId])
 
     const addMessage = (newMessage: Message) => {
         setMessages(prev => {
             const updated = [...prev, newMessage]
-            // Save to local storage
             if (typeof window !== 'undefined') {
-                storageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
+                historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -124,9 +147,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const changeMessage = (messageId: string, updatedMessage: Message) => {
         setMessages(prev => {
             const updated = prev.map(msg => msg.id === messageId ? updatedMessage : msg)
-            // Save to local storage
             if (typeof window !== 'undefined') {
-                storageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
+                historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -135,9 +157,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const removeMessage = (messageId: string) => {
         setMessages(prev => {
             const updated = prev.filter(msg => msg.id !== messageId)
-            // Save to local storage
             if (typeof window !== 'undefined') {
-                storageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
+                historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -169,18 +190,14 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     }))
 
     const checkForActiveTask = () => {
-
         setMessages(prev => {
             const hasActiveTask = prev.some(msg => msg.status === 'sending')
             if (hasActiveTask) {
-                // Ensure the last assistant message shows loading state
-                const lastAssistantMessage = prev.findLast(msg => msg.role === 'assistant')
-                if (lastAssistantMessage && lastAssistantMessage.content !== loadingLabel) {
-                    const updated = [...prev]
-                    lastAssistantMessage.status = 'sending'
-                    lastAssistantMessage.content = loadingLabel
-                    return updated
-                }
+                return prev.map(msg => 
+                    msg.status === 'sending' 
+                        ? { ...msg, content: loadingLabel }
+                        : msg
+                )
             }
             return prev
         })
@@ -208,7 +225,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
         addMessage(assistantMessage)
 
         try {
-            const result = await executeAIFlow({
+            // Use resumeAIFlow if we have an activeTaskId (page refresh case), otherwise create new task
+            const result = await (activeTaskId ? resumeAIFlow : executeAIFlow)({
                 context: {
                     userInput,
                     userData: {
@@ -219,6 +237,19 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                     aiSessionId,
                 },
             })
+            
+            // Clear activeTaskId after resuming
+            if (activeTaskId) {
+                setActiveTaskId(null)
+            }
+            
+            // Update the message with the taskId if available
+            if (currentTaskId) {
+                changeMessage(assistantMessage.id, {
+                    ...assistantMessage,
+                    taskId: currentTaskId,
+                })
+            }
             
             if (!result.data) {
                 changeMessage(assistantMessage.id, {
@@ -303,7 +334,6 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                         await executeAIMessage(userInput, { toolCalls: allToolCallResults }, toolCallDepth + 1)
                     }
                 } catch (error) {
-                    // Remove thinking message and show error
                     removeMessage(thinkingMessage.id)
                     addMessage({
                         id: `tool-error-${Date.now()}`,
@@ -312,6 +342,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                         status: 'sent',
                         timestamp: new Date(),
                     })
+                    setActiveTaskId(null)
                 }
             } else if (result.data?.status === TASK_STATUSES.COMPLETED) {
                 changeMessage(assistantMessage.id, {
@@ -319,6 +350,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                     content: result.data.result.answer || intl.formatMessage({ id: 'ai.chat.noResponse' }),
                     status: 'sent',
                 })
+                setActiveTaskId(null)
             }
         } catch (error) {
             console.error('Error in executeAIMessage:', error)
@@ -327,6 +359,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                 content: errorMessage,
                 status: 'sent',
             })
+            setActiveTaskId(null)
         }
     }
 
@@ -358,7 +391,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
 
     const handleResetHistory = () => {
         if (typeof window !== 'undefined') {
-            storageManager.setItem(STORAGE_KEY, { [aiSessionId]: [] })
+            historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: [] })
             localStorage.removeItem(SESSION_KEY)
         }
         
@@ -366,7 +399,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
         setAiSessionId(newSessionId)
         
         if (typeof window !== 'undefined') {
-            storageManager.setItem(SESSION_KEY, newSessionId)
+            sessionStorageManager.setItem(SESSION_KEY, newSessionId)
         }
         
         setMessages([])

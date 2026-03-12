@@ -574,9 +574,9 @@ const MyApp = ({ Component, pageProps }) => {
                                 </SudoTokenProvider>
                             </HCaptchaProvider>
                             {!isSnowfallDisabled && <Snowfall />}
-                            <AIOverlayWrapper />
-                            {UseDeskWidgetId && <UseDeskWidgetWrapper />}
                         </LayoutContextProvider>
+                        <AIOverlayWrapper />
+                        {UseDeskWidgetId && <UseDeskWidgetWrapper />}
                     </AIProvider>
                     {yandexMetrikaID && <YandexMetrika />}
                     {googleTagManagerId && <GoogleTagManager />}
