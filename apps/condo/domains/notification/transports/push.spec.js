@@ -1179,7 +1179,7 @@ describe('push transport', () => {
             const uniqueGroupNames = [...new Set(responses.map(r => r.groupName))]
             expect(uniqueGroupNames).toHaveLength(1)
             expect(responses[0].groupName).toEqual('group_1')
-            const uniqueAppIds = [...new Set(responses.map(r => r.groupName))]
+            const uniqueAppIds = [...new Set(responses.map(r => r.appId))]
             expect(uniqueAppIds).toHaveLength(1)
             expect(responses[0].appId).toEqual('appId_1')
             expect(successCount).toEqual(payloadsForAppId1.length)
