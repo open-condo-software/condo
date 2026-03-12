@@ -905,7 +905,7 @@ describe('FindOrganizationsByAddress', () => {
     describe('Subscription field', () => {
         let utils
 
-        beforeAll(async () => {
+        beforeEach(async () => {
             utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
             await utils.init()
             setFeatureFlag(SUBSCRIPTIONS, true)
