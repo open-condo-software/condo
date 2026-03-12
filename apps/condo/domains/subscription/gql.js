@@ -8,15 +8,13 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-
-const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays properties analytics news marketplace support ai enabledB2BApps enabledB2CApps customization isHidden priority canBePromoted ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_FIELDS = '{ name description organizationType trialDays properties analytics news marketplace support ai enabledB2BApps enabledB2CApps customization isHidden priority canBePromoted id dv sender { dv fingerprint } v }'
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
-const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = '{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden id dv sender { dv fingerprint } v }'
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status recurrentPaymentEnabled recurrentPaymentProcessedAt settings { price paymentMethod { id } } daysRemaining ${COMMON_FIELDS} }`
+const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status recurrentPaymentEnabled recurrentPaymentProcessedAt settings { price paymentMethod { id } } daysRemaining id dv sender { dv fingerprint } v }'
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`

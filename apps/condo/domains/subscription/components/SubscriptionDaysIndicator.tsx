@@ -21,7 +21,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
     const planName = subscriptionContext?.subscriptionPlan?.name || ''
     const endDate = subscriptionContext?.endAt ? dayjs(subscriptionContext.endAt).format('DD.MM.YY') : ''
 
-    const hasPaymentMethod = Boolean(subscriptionContext?.meta?.paymentMethod)
+    const hasPaymentMethod = Boolean(subscriptionContext?.settings?.paymentMethod)
     
     const shouldShow = useMemo(() => {
         if (!subscriptionContext || daysRemaining === undefined || daysRemaining === null) return false
