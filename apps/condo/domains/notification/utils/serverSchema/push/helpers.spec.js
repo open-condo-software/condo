@@ -50,7 +50,7 @@ describe('groupByAppIdPriorityGroups', () => {
                 'group1': ['app1', 'app2'],
             },
             expectedResult: {
-                'ungrouped': [[{ appId: 'unknown_app1', token: 'token1' }, { appId: 'unknown_app2', token: 'token2' }]]
+                'ungrouped': [[{ appId: 'unknown_app1', token: 'token1' }, { appId: 'unknown_app2', token: 'token2' }]],
             },
         },
         {
