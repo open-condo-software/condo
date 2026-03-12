@@ -60,9 +60,9 @@ const suggestionContexts = {
     },
     boundless: {
         [DADATA_PROVIDER]: {
-            from_bound: null,
-            to_bound: null,
-            restrict_value: null,
+            from_bound: undefined,
+            to_bound: undefined,
+            restrict_value: undefined,
         },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
