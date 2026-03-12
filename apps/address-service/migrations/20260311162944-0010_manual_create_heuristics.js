@@ -3,8 +3,6 @@
 
 const { randomUUID } = require('crypto')
 
-const get = require('lodash/get')
-
 const dv = 1
 const sender = { dv, fingerprint: '0010_create_heuristics' }
 const MIGRATION_STATEMENT_TIMEOUT = '1500s'
@@ -27,7 +25,7 @@ const GOOGLE_PROVIDER = 'google'
  * @returns {boolean}
  */
 function hasExactGeoQuality (meta) {
-    return String(get(meta, ['data', 'qc_geo'])) === '0'
+    return String(meta?.data?.qc_geo) === '0'
 }
 
 /**
@@ -61,10 +59,10 @@ function parseAddressKey (key) {
  */
 function extractAdditionalHeuristics (meta, primaryType) {
     const heuristics = []
-    const data = get(meta, 'data', {})
-    const providerName = get(meta, ['provider', 'name'])
+    const data = meta?.data ?? {}
+    const providerName = meta?.provider?.name
 
-    const houseFiasId = get(data, 'house_fias_id')
+    const houseFiasId = data?.house_fias_id
     if (houseFiasId && primaryType !== HEURISTIC_TYPE_FIAS_ID) {
         heuristics.push({
             type: HEURISTIC_TYPE_FIAS_ID,
@@ -76,10 +74,10 @@ function extractAdditionalHeuristics (meta, primaryType) {
 
     if (primaryType !== HEURISTIC_TYPE_COORDINATES) {
         if (providerName === DADATA_PROVIDER) {
-            const geoLat = get(data, 'geo_lat')
-            const geoLon = get(data, 'geo_lon')
+            const geoLat = data?.geo_lat
+            const geoLon = data?.geo_lon
             if (geoLat != null && geoLon != null && hasExactGeoQuality(meta)) {
-                const qcGeo = get(data, 'qc_geo')
+                const qcGeo = data?.qc_geo
                 heuristics.push({
                     type: HEURISTIC_TYPE_COORDINATES,
                     value: `${geoLat},${geoLon}`,
@@ -90,8 +88,8 @@ function extractAdditionalHeuristics (meta, primaryType) {
         }
 
         if (providerName === GOOGLE_PROVIDER) {
-            const rawGeoLat = get(meta, ['provider', 'rawData', 'geometry', 'location', 'lat'])
-            const rawGeoLon = get(meta, ['provider', 'rawData', 'geometry', 'location', 'lng'])
+            const rawGeoLat = meta?.provider?.rawData?.geometry?.location?.lat
+            const rawGeoLon = meta?.provider?.rawData?.geometry?.location?.lng
             if (rawGeoLat != null && rawGeoLon != null) {
                 heuristics.push({
                     type: HEURISTIC_TYPE_COORDINATES,
@@ -103,7 +101,7 @@ function extractAdditionalHeuristics (meta, primaryType) {
         }
     }
 
-    const placeId = get(meta, ['provider', 'rawData', 'place_id'])
+    const placeId = meta?.provider?.rawData?.place_id
     if (placeId && primaryType !== HEURISTIC_TYPE_GOOGLE_PLACE_ID) {
         heuristics.push({
             type: HEURISTIC_TYPE_GOOGLE_PLACE_ID,
@@ -596,7 +594,7 @@ exports.up = async (knex) => {
             totalProcessed += addresses.length
 
             const addressHeuristics = addresses.map((address) => {
-                const providerName = get(address, ['meta', 'provider', 'name'], 'unknown')
+                const providerName = address?.meta?.provider?.name ?? 'unknown'
                 const primary = parseAddressKey(address.key)
                 const additional = extractAdditionalHeuristics(address.meta, primary.type)
                 const shouldSkipPrimaryCoordinates = primary.type === HEURISTIC_TYPE_COORDINATES &&
