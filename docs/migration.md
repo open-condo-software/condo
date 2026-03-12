@@ -341,10 +341,10 @@ Before upgrading from `4.x` to `5.x`, make sure you have a fresh database backup
 #### Upgrade order
 
 1. Pull the `5.x` code
-2. Run the `address-service` database migration
+2. Run the `address-service` database migrations
 3. Review and resolve flagged duplicates if needed
 
-Do not start application code that expects `AddressHeuristic` and `Address.possibleDuplicateOf` before the database migration is applied.
+Do not start application code that expects `AddressHeuristic` and `Address.possibleDuplicateOf` before the database migrations are applied.
 
 #### Step-by-step migration
 
@@ -358,7 +358,13 @@ yarn workspace @app/condo build:deps
 
 ##### 2. Run database migration
 
-This creates the `AddressHeuristic` table, adds `possibleDuplicateOf` to `Address`, migrates legacy address keys to the `fallback:` format, and backfills `AddressHeuristic` records from existing `Address.key` and `Address.meta.data` fields:
+This automatically applies all required `address-service` schema and data migrations. In particular, it creates the `AddressHeuristic` table, adds `possibleDuplicateOf` to `Address`, migrates legacy address keys to the `fallback:` format, and backfills `AddressHeuristic` records from existing `Address.key` and `Address.meta.data` fields. No separate manual backfill step is required:
+
+- `20260212163711-0008_addressheuristichistoryrecord_and_more.js` creates the `AddressHeuristic` model and adds `Address.possibleDuplicateOf`
+- `20260311122102-0009_manual_add_fallback_prefix.js` rewrites legacy `Address.key` values to the `fallback:` format
+- `20260311162944-0010_manual_create_heuristics.js` backfills `AddressHeuristic` records and duplicate links from existing address data
+
+For large datasets, `20260311162944-0010_manual_create_heuristics.js` can take about `20` minutes to complete. In practice, this is roughly `26` seconds per `10,000` addresses, though the actual speed depends on server configuration and database performance.
 
 ```bash
 yarn workspace @app/address-service run migrate
@@ -380,10 +386,10 @@ After migration, verify:
 ```sql
 SELECT COUNT(*) FROM "AddressHeuristic" WHERE "deletedAt" IS NULL;
 
-SELECT COUNT(*) FROM "Address" WHERE "deletedAt" IS NULL AND "key" NOT LIKE '%:%';
+SELECT COUNT(*) FROM "Address" WHERE "key" NOT LIKE '%:%';
 -- Should return 0
 
-SELECT COUNT(*) FROM "Address" WHERE "deletedAt" IS NULL AND "possibleDuplicateOf" IS NOT NULL;
+SELECT COUNT(*) FROM "Address" WHERE "possibleDuplicateOf" IS NOT NULL;
 ```
 
 #### Troubleshooting
@@ -402,10 +408,10 @@ If `GoogleSearchProvider` creates too many false-positive matches because of imp
 
 #### Rollback
 
-To revert the database schema migration:
+To revert the latest `address-service` migration step:
 
 ```bash
 yarn workspace @app/address-service run migrate:down
 ```
 
-The heuristic creation now runs as part of the database migration, so re-running the migration after rollback will recreate the heuristics again.
+The heuristic creation and key backfill now run automatically as part of the migration chain, so re-running migrations after rollback will apply them again.
