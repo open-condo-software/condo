@@ -128,7 +128,6 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP })
 
 async function sendMessageToTransports ({ recipients, isVoIP }) {
     let container = {}
-    const encryptionStatsInfo = {}
     let _isOk = false
 
     // TODO(YEgorLu): rewrite adapters to use recipients, instead of all these objects by tokens
@@ -173,25 +172,23 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
         _isOk = _isOk || isOk
     }
 
-    return { isOk: _isOk, result: container, encryptionStatsInfo }
+    return { isOk: _isOk, result: container }
 }
 
 async function sendMessageToAppsGroup ({ groupName, recipientsBatchesInGroup, isVoIP }) {
     let container = {}
-    let encryptionStatsInfo = {}
     let _isOk = false
     for (const recipientsBatch of recipientsBatchesInGroup) {
-        const { isOk, result, encryptionStatsInfo: encryptionStatsInfoForChunk } = await sendMessageToTransports({
+        const { isOk, result } = await sendMessageToTransports({
             recipients: recipientsBatch,
             isVoIP,
         })
         container = mixResult(container, result, { groupName })
-        encryptionStatsInfo = { ...encryptionStatsInfo, ...encryptionStatsInfoForChunk }
         // Do not proceed with next chunk (next appId) if this succeeded
         _isOk = _isOk || isOk
         if (isOk) break
     }
-    return { isOk: _isOk, result: container, encryptionStatsInfo }
+    return { isOk: _isOk, result: container }
 }
 
 async function prepareRecipients ({ pushTokens, originalData, originalNotification }) {
@@ -249,7 +246,6 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         pushTokens.forEach(pushToken => pushToken.pushType = preferredPushTypeForMessage)
     }
 
-    let encryptionStatsInfo = {}
     let container = { failureCount: 0, successCount: 0, responses: [] }
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data })
@@ -287,13 +283,12 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         const value = p.value
         if (typeof value !== 'object' || !value) continue
 
-        const { isOk, result, encryptionStatsInfo: encryptionStatsInfoForGroup } = value
+        const { isOk, result } = value
         container = mixResult(container, result)
-        encryptionStatsInfo = { ...encryptionStatsInfo, ...encryptionStatsInfoForGroup }
         _isOk = _isOk || isOk
     }
 
-    logger.info({ msg: 'encryptionStatsInfo', entity: 'Message', entityId: data.notificationId, data: { encryptionStatsInfo } })
+    logger.info({ msg: 'statsInfo', entity: 'Message', entityId: data.notificationId, data: { statsInfo } })
 
     return [_isOk, container]
 }

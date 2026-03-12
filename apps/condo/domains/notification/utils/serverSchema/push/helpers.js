@@ -39,10 +39,9 @@ function getTokensConditions (ownerId, remoteClientId, isVoIP) {
  * @param ownerId
  * @param remoteClientId
  * @param isVoIP
- * @param appGroups appId-priority groups (key - group name, value - order of preferred appIds)
  * @returns {Promise<{appId, token, transport, pushType, remoteClientMeta}[]>}
  */
-async function getTokens (ownerId, remoteClientId, isVoIP = false, appGroups = {}) {
+async function getTokens (ownerId, remoteClientId, isVoIP = false) {
     if (!ownerId && !remoteClientId) return []
 
     const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
