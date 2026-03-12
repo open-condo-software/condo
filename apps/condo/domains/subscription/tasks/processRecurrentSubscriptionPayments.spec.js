@@ -27,17 +27,21 @@ describe('processRecurrentSubscriptionPayments', () => {
     setFakeClientMode(index)
 
     let adminClient
-    let organization
+    let recipientOrganization
     let subscriptionPlan
     let pricingRule
+    let originalSubscriptionPaymentRecipient
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         
-        const [org] = await createTestOrganization(adminClient)
-        organization = org
+        const [recipientOrg] = await createTestOrganization(adminClient)
+        recipientOrganization = recipientOrg
 
-        const [plan] = await createTestSubscriptionPlan(adminClient, organization)
+        originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = recipientOrganization.id
+
+        const [plan] = await createTestSubscriptionPlan(adminClient)
         subscriptionPlan = plan
 
         const [rule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
@@ -47,16 +51,27 @@ describe('processRecurrentSubscriptionPayments', () => {
         pricingRule = rule
 
         const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
-        await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
+        await createTestAcquiringIntegrationContext(adminClient, recipientOrganization, acquiringIntegration, {
             invoiceStatus: CONTEXT_FINISHED_STATUS,
             invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [],
         })
+    })
+
+    afterAll(() => {
+        if (originalSubscriptionPaymentRecipient !== undefined) {
+            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalSubscriptionPaymentRecipient
+        } else {
+            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        }
     })
 
     describe('subscription context selection', () => {
         test('processes subscription context ending yesterday with recurrent payment enabled', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '1234' }
-            const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(2, 'days').format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
@@ -85,6 +100,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
 
         test('processes subscription context ending within buffer period', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '5678' }
             const endAt = dayjs().subtract(3, 'days').format('YYYY-MM-DD')
 
@@ -114,6 +131,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
 
         test('does not process subscription context ending today (not yet expired)', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '0000' }
             const endAt = dayjs().format('YYYY-MM-DD')
 
@@ -150,6 +169,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
 
         test('does not process subscription context ending beyond buffer period', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '9999' }
             const endAt = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD')
 
@@ -184,6 +205,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
 
         test('does not process subscription context with recurrentPaymentEnabled: false', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const endAt = dayjs().format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -218,6 +241,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
 
         test('does not process subscription context with status CREATED', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '1111' }
             const endAt = dayjs().format('YYYY-MM-DD')
 
@@ -252,6 +277,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
 
         test('skips subscription context without payment method', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const endAt = dayjs().format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -288,6 +315,8 @@ describe('processRecurrentSubscriptionPayments', () => {
 
     describe('latest context check', () => {
         test('processes only the latest subscription context for organization and pricing rule', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '2222' }
             
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -332,6 +361,8 @@ describe('processRecurrentSubscriptionPayments', () => {
 
     describe('invoice and payment creation', () => {
         test('creates invoice and multiPayment for new subscription context', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
             const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '3333' }
             const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
 
@@ -361,7 +392,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             const newContext = contexts[contexts.length - 1]
             expect(newContext.invoice).toBeDefined()
 
-            const invoices = await Invoice.getAll(adminClient, { id: newContext.invoice })
+            const invoices = await Invoice.getAll(adminClient, { id: newContext.invoice.id })
             expect(invoices).toHaveLength(1)
             expect(invoices[0].status).toBe(INVOICE_STATUS_PUBLISHED)
         })

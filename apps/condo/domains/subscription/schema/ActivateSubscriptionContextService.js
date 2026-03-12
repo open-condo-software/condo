@@ -106,8 +106,16 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     throw new GQLError(ERRORS.INVOICE_NOT_PAID, context)
                 }
 
-                const [multiPayment] = await find('MultiPayment', {
+                const [payment] = await find('Payment', {
                     invoice: { id: invoice.id },
+                    deletedAt: null,
+                })
+                if (!payment) {
+                    throw new GQLError(ERRORS.MULTI_PAYMENT_NOT_FOUND, context)
+                }
+
+                const [multiPayment] = await find('MultiPayment', {
+                    id: payment.multiPayment,
                     deletedAt: null,
                 })
                 if (!multiPayment) {

@@ -23,6 +23,7 @@ import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from 
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
+import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
 import styles from './SubscriptionPlanCard.module.css'
 
@@ -88,7 +89,7 @@ interface SubscriptionPlanCardProps {
         planName?: string
         trialDays?: number
         isCustomPrice?: boolean
-        paymentType?: import('@condo/domains/subscription/types').PaymentType
+        paymentType?: 
     }) => Promise<void>
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
