@@ -339,8 +339,8 @@ describe('Templates', () => {
             const preparedMessage = await pushTransport.prepareMessageToSend(message)
             const categoryValue = translations[categoryName]
 
-            expect(preparedMessage.baseNotification.body).toContain(categoryValue)
-            expect(preparedMessage.baseNotification.body).not.toContain(categoryName)
+            expect(preparedMessage.notification.body).toContain(categoryValue)
+            expect(preparedMessage.notification.body).not.toContain(categoryName)
         })
 
         it('Checks that all nested keys in object are translated correctly', async () => {

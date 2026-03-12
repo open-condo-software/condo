@@ -610,7 +610,7 @@ describe('push transport', () => {
             const pushTransport = requirePushTransportIsolated()
 
             const [isOk, result] = await pushTransport.send({
-                baseData: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString() },
+                data: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString() },
                 message: {
                     id: faker.datatype.uuid(),
                     type: testMessageType,
@@ -656,7 +656,7 @@ describe('push transport', () => {
             const pushTransport = requirePushTransportIsolated()
 
             const [isOk, result] = await pushTransport.send({
-                baseData: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString(), hello: 'world' },
+                data: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString(), hello: 'world' },
                 message: {
                     id: faker.datatype.uuid(),
                     type: testMessageType,
@@ -1009,8 +1009,7 @@ describe('push transport', () => {
         const testGenericSendPushArguments = {
             id: faker.datatype.uuid(),
             type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, createdAt: new Date().toISOString(),
-            baseNotification: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) },
-            baseData: { notificationId: testMessageId, message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
+            data: { notificationId: testMessageId, message: faker.random.alphaNumeric(10), title: faker.random.alphaNumeric(10), type: CUSTOM_CONTENT_MESSAGE_TYPE },
             user: { id: faker.datatype.uuid() },
             message: { id: testMessageId, type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, lang: conf.DEFAULT_LOCALE, meta: { title: faker.random.alphaNumeric(10), body: faker.random.alphaNumeric(10) } },
         }
@@ -1100,7 +1099,7 @@ describe('push transport', () => {
 
             // Check regular app data - should not be encrypted
             expect(dataByToken[regularToken][ENCRYPTED_APP_ID]).toBeUndefined()
-            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.baseData))
+            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.data))
         })
     
         it('should not send push to app if encryption fails', async () => {
@@ -1181,7 +1180,7 @@ describe('push transport', () => {
 
             // Check regular app data - should not be encrypted
             expect(dataByToken[regularToken][ENCRYPTED_APP_ID]).toBeUndefined()
-            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.baseData))
+            expect(dataByToken[regularToken]).toEqual(expect.objectContaining(testGenericSendPushArguments.data))
 
             expect(dataByToken[invalidEncryptionToken]).toBeUndefined()
         })

@@ -311,7 +311,7 @@ function emailRenderer ({ message, env }) {
  * @param message
  * @param env
  * @param additionalParams {Record<string, unknown>}
- * @returns {{notification: {title: string, body: string}}}
+ * @returns {{title: string, body: string}}
  */
 function pushRenderer ({ message, env, additionalParams }) {
     const { lang: locale, type } = message
