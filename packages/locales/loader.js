@@ -12,7 +12,7 @@ const VARIABLE_REGEXP = /{([\s\S]+?)}/g
 
 let translations = {}
 
-const loadTranslations = () => {
+function loadTranslations () {
     const translationsDir = path.join(process.cwd(), 'lang')
     const availableLocales = fs.readdirSync(translationsDir, { withFileTypes: true })
 
@@ -53,21 +53,21 @@ const loadTranslations = () => {
     }))
 }
 
-const maybeLoadTranslations = () => {
+function maybeLoadTranslations () {
     if (isEmpty(translations)) loadTranslations()
 }
 
-const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
+function getTranslations (lang = conf.DEFAULT_LOCALE) {
     maybeLoadTranslations()
     return translations[lang] || translations[conf.DEFAULT_LOCALE]
 }
 
-const getAvailableLocales = () => {
+function getAvailableLocales () {
     maybeLoadTranslations()
     return Object.keys(translations)
 }
 
-const getLocalized = (lang, key) => {
+function getLocalized (lang, key) {
     const translations = getTranslations(lang)
     return get(translations, key, key)
 }
@@ -91,7 +91,7 @@ const getLocalized = (lang, key) => {
  * i18n('greeting', { meta: { name: 'World' } })
  * // => "Hello, World!"
  */
-const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
+function i18n (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) {
     const { locale = conf.DEFAULT_LOCALE } = options
 
     maybeLoadTranslations()
@@ -99,7 +99,7 @@ const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
     return renderTranslation(get(translations, [locale, code], code), options)
 }
 
-const renderTranslation = (translationTemplate, options = { meta: {} }) => {
+function renderTranslation (translationTemplate, options = { meta: {} }) {
     return template(translationTemplate, { interpolate: VARIABLE_REGEXP })(options.meta)
 }
 
