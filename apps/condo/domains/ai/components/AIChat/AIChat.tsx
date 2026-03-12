@@ -404,6 +404,9 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
         
         setMessages([])
         
+        // Clear active AI task when resetting
+        setActiveTaskId(null)
+        
         // Focus input after reset
         setTimeout(() => {
             inputRef.current?.focus()
