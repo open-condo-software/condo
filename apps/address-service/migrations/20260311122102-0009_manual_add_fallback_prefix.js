@@ -35,20 +35,9 @@ UPDATE "Address"
 SET
     dv = 1,
     sender = '{"dv":1,"fingerprint":"0009_add_fallback_prefix_down"}'::jsonb,
-    key = CASE
-        WHEN "key" LIKE 'fallback:%' THEN substring("key" from 10)
-        WHEN "key" LIKE 'coordinates:%' THEN substring("key" from 13)
-        WHEN "key" LIKE 'google_place_id:%' THEN substring("key" from 17)
-        WHEN "key" LIKE 'fias_id:%' THEN substring("key" from 9)
-        ELSE "key"
-    END
+    key = substring("key" from 10)
 WHERE
-    (
-        "key" LIKE 'fallback:%'
-        OR "key" LIKE 'coordinates:%'
-        OR "key" LIKE 'google_place_id:%'
-        OR "key" LIKE 'fias_id:%'
-    );
+    "key" LIKE 'fallback:%';
 
 SET statement_timeout = '10s';
 
