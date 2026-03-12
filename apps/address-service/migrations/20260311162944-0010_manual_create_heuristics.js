@@ -20,10 +20,22 @@ const HEURISTIC_TYPE_FALLBACK = 'fallback'
 const DADATA_PROVIDER = 'dadata'
 const GOOGLE_PROVIDER = 'google'
 
+/**
+ * Checks whether Dadata returned exact enough geo quality for coordinate heuristics.
+ *
+ * @param {object} meta
+ * @returns {boolean}
+ */
 function hasExactGeoQuality (meta) {
     return String(get(meta, ['data', 'qc_geo'])) === '0'
 }
 
+/**
+ * Parses the prefixed Address.key value into a heuristic descriptor with reliability.
+ *
+ * @param {string} key
+ * @returns {{ type: string, value: string, reliability: number }}
+ */
 function parseAddressKey (key) {
     if (key.startsWith('fallback:')) {
         return { type: HEURISTIC_TYPE_FALLBACK, value: key.slice('fallback:'.length), reliability: 10 }
@@ -40,6 +52,13 @@ function parseAddressKey (key) {
     return { type: HEURISTIC_TYPE_FALLBACK, value: key, reliability: 10 }
 }
 
+/**
+ * Extracts additional heuristics from provider-specific metadata for backfill.
+ *
+ * @param {object} meta
+ * @param {string} primaryType
+ * @returns {Array<{ type: string, value: string, reliability: number, meta: object | null }>}
+ */
 function extractAdditionalHeuristics (meta, primaryType) {
     const heuristics = []
     const data = get(meta, 'data', {})
@@ -97,12 +116,24 @@ function extractAdditionalHeuristics (meta, primaryType) {
     return heuristics
 }
 
+/**
+ * Parses a coordinate heuristic value into numeric latitude/longitude parts.
+ *
+ * @param {string} value
+ * @returns {{ latitude: number, longitude: number } | null}
+ */
 function parseCoordinates (value) {
     const [latitude, longitude] = String(value).split(',').map(parseFloat)
     if (Number.isNaN(latitude) || Number.isNaN(longitude)) return null
     return { latitude, longitude }
 }
 
+/**
+ * Formats a duration in milliseconds for progress and summary logging.
+ *
+ * @param {number} durationMs
+ * @returns {string}
+ */
 function formatDuration (durationMs) {
     const totalSeconds = Math.floor(durationMs / 1000)
     const hours = Math.floor(totalSeconds / 3600)
@@ -114,20 +145,47 @@ function formatDuration (durationMs) {
         .join(':')
 }
 
+/**
+ * Formats the processed item ratio as a percentage string for progress logs.
+ *
+ * @param {number} processed
+ * @param {number} total
+ * @returns {string}
+ */
 function formatProgressPercent (processed, total) {
     if (total <= 0) return '100.00'
     return ((processed / total) * 100).toFixed(2)
 }
 
+/**
+ * Reads the current PostgreSQL statement_timeout so it can be restored later.
+ *
+ * @param {object} knex
+ * @returns {Promise<string | null>}
+ */
 async function getStatementTimeout (knex) {
     const result = await knex.raw('SHOW statement_timeout')
     return result.rows?.[0]?.statement_timeout || null
 }
 
+/**
+ * Sets the PostgreSQL statement_timeout for the current migration session.
+ *
+ * @param {object} knex
+ * @param {string} timeout
+ * @returns {Promise<void>}
+ */
 async function setStatementTimeout (knex, timeout) {
     await knex.raw('SELECT set_config(?, ?, false)', ['statement_timeout', timeout])
 }
 
+/**
+ * Loads one keyset-paginated page of addresses to backfill heuristics for.
+ *
+ * @param {object} knex
+ * @param {{ createdAt: string, id: string } | null} [cursor=null]
+ * @returns {Promise<Array<{ id: string, key: string, meta: object, createdAt: string }>>}
+ */
 async function loadAddressPage (knex, cursor = null) {
     const hasCursor = Boolean(cursor)
     const result = await knex.raw(`
@@ -144,10 +202,24 @@ async function loadAddressPage (knex, cursor = null) {
     return result.rows || []
 }
 
+/**
+ * Builds a stable composite key for exact heuristic lookups in Maps.
+ *
+ * @param {string} type
+ * @param {string} value
+ * @returns {string}
+ */
 function getHeuristicKey (type, value) {
     return `${type}\u0000${value}`
 }
 
+/**
+ * Loads active exact heuristics for the current page and indexes them by type/value.
+ *
+ * @param {object} knex
+ * @param {Array<{ type: string, value: string }>} heuristicPairs
+ * @returns {Promise<Map<string, { id: string, address: string, type: string, value: string }>>}
+ */
 async function loadExactHeuristicMap (knex, heuristicPairs) {
     if (heuristicPairs.length === 0) return new Map()
 
@@ -179,6 +251,13 @@ async function loadExactHeuristicMap (knex, heuristicPairs) {
     return result
 }
 
+/**
+ * Loads active coordinate heuristics from the bounding box covering the current page.
+ *
+ * @param {object} knex
+ * @param {string[]} coordinateValues
+ * @returns {Promise<Array<{ id: string, address: string, latitude: string, longitude: string }>>}
+ */
 async function loadCoordinateCandidates (knex, coordinateValues) {
     const parsedCoordinates = coordinateValues
         .map(parseCoordinates)
@@ -215,13 +294,29 @@ async function loadCoordinateCandidates (knex, coordinateValues) {
     return result.rows || []
 }
 
+/**
+ * Converts coordinates into a tolerance-sized spatial bucket key.
+ *
+ * @param {number} latitude
+ * @param {number} longitude
+ * @returns {string}
+ */
 function getCoordinateBucketKey (latitude, longitude) {
+    // We quantize coordinates into a tolerance-sized grid so near points
+    // land in the same bucket or one of the adjacent buckets.
     const latitudeBucket = Math.floor(latitude / COORDINATE_TOLERANCE)
     const longitudeBucket = Math.floor(longitude / COORDINATE_TOLERANCE)
 
     return `${latitudeBucket}\u0000${longitudeBucket}`
 }
 
+/**
+ * Normalizes and inserts one coordinate candidate into the in-memory bucket index.
+ *
+ * @param {Map<string, Array<{ address: string, latitude: number, longitude: number, sequence: number }>>} bucketMap
+ * @param {{ address: string, latitude: string | number, longitude: string | number, sequence?: number }} candidate
+ * @returns {void}
+ */
 function addCoordinateCandidateToBuckets (bucketMap, candidate) {
     const latitude = Number.parseFloat(candidate.latitude)
     const longitude = Number.parseFloat(candidate.longitude)
@@ -232,6 +327,7 @@ function addCoordinateCandidateToBuckets (bucketMap, candidate) {
         ...candidate,
         latitude,
         longitude,
+        sequence: candidate.sequence,
     }
 
     if (!bucketMap.has(key)) {
@@ -241,42 +337,81 @@ function addCoordinateCandidateToBuckets (bucketMap, candidate) {
     bucketMap.get(key).push(normalizedCandidate)
 }
 
+/**
+ * Builds the in-memory bucket index used for fast coordinate conflict lookup.
+ *
+ * @param {Array<{ address: string, latitude: string, longitude: string }>} coordinateCandidates
+ * @returns {Map<string, Array<{ address: string, latitude: number, longitude: number, sequence: number }>>}
+ */
 function buildCoordinateCandidateBuckets (coordinateCandidates) {
     const bucketMap = new Map()
 
-    for (const candidate of coordinateCandidates) {
-        addCoordinateCandidateToBuckets(bucketMap, candidate)
+    for (const [sequence, candidate] of coordinateCandidates.entries()) {
+        addCoordinateCandidateToBuckets(bucketMap, {
+            ...candidate,
+            sequence,
+        })
     }
 
     return bucketMap
 }
 
+/**
+ * Finds the earliest matching coordinate conflict from the relevant 3x3 bucket area.
+ * The search only needs the current bucket plus the 8 immediate neighbors because
+ * each bucket side length is exactly equal to COORDINATE_TOLERANCE. If two points
+ * match, then both their latitude difference and longitude difference are each
+ * less than or equal to that tolerance. That means each coordinate can shift by
+ * at most one bucket index in either direction, so a valid candidate cannot be
+ * farther away than one bucket horizontally, vertically, or diagonally. Any
+ * bucket outside this 3x3 window is guaranteed to be more than one tolerance
+ * step away on at least one axis, so it cannot contain a true match.
+ *
+ * @param {Map<string, Array<{ address: string, latitude: number, longitude: number, sequence: number }>>} coordinateCandidateBuckets
+ * @param {string} value
+ * @returns {{ address: string, latitude: number, longitude: number, sequence: number } | null}
+ */
 function findCoordinateConflict (coordinateCandidateBuckets, value) {
     const coords = parseCoordinates(value)
     if (!coords) return null
 
     const latitudeBucket = Math.floor(coords.latitude / COORDINATE_TOLERANCE)
     const longitudeBucket = Math.floor(coords.longitude / COORDINATE_TOLERANCE)
+    let bestConflict = null
 
+    // Because the bucket size equals COORDINATE_TOLERANCE, any valid match
+    // can only be in the current bucket or one of the 8 neighboring buckets.
     for (let latitudeDelta = -1; latitudeDelta <= 1; latitudeDelta++) {
         for (let longitudeDelta = -1; longitudeDelta <= 1; longitudeDelta++) {
             const bucketKey = `${latitudeBucket + latitudeDelta}\u0000${longitudeBucket + longitudeDelta}`
             const candidates = coordinateCandidateBuckets.get(bucketKey) || []
 
-            const conflict = candidates.find((candidate) => {
-                return Math.abs(candidate.latitude - coords.latitude) <= COORDINATE_TOLERANCE &&
+            // Buckets are only a pre-filter. We still apply the exact
+            // tolerance check here before treating a candidate as a conflict.
+            for (const candidate of candidates) {
+                const matches = Math.abs(candidate.latitude - coords.latitude) <= COORDINATE_TOLERANCE &&
                     Math.abs(candidate.longitude - coords.longitude) <= COORDINATE_TOLERANCE
-            })
+                if (!matches) continue
 
-            if (conflict) {
-                return conflict
+                if (!bestConflict || candidate.sequence < bestConflict.sequence) {
+                    bestConflict = candidate
+                }
             }
         }
     }
 
-    return null
+    return bestConflict
 }
 
+/**
+ * Resolves the alive root address for a possibleDuplicateOf chain with caching.
+ *
+ * @param {object} knex
+ * @param {string} initialAddressId
+ * @param {Map<string, string>} cache
+ * @param {number} [maxDepth=10]
+ * @returns {Promise<string>}
+ */
 async function findRootAddress (knex, initialAddressId, cache, maxDepth = 10) {
     if (cache.has(initialAddressId)) return cache.get(initialAddressId)
 
@@ -310,6 +445,13 @@ async function findRootAddress (knex, initialAddressId, cache, maxDepth = 10) {
     return lastAliveAddressId
 }
 
+/**
+ * Applies accumulated possibleDuplicateOf updates in one batched SQL statement.
+ *
+ * @param {object} knex
+ * @param {Map<string, string>} duplicateLinksByAddress
+ * @returns {Promise<void>}
+ */
 async function updateAddressPossibleDuplicateOfBatch (knex, duplicateLinksByAddress) {
     if (duplicateLinksByAddress.size === 0) return
 
@@ -330,6 +472,27 @@ async function updateAddressPossibleDuplicateOfBatch (knex, duplicateLinksByAddr
     `, [dv, JSON.stringify(sender), ...bindings])
 }
 
+/**
+ * Inserts all new heuristic rows for the current page in a single batched query.
+ *
+ * @param {object} knex
+ * @param {Array<{
+ *   id: string,
+ *   v: number,
+ *   dv: number,
+ *   sender: object,
+ *   address: string,
+ *   type: string,
+ *   value: string,
+ *   reliability: number,
+ *   provider: string,
+ *   meta: object | null,
+ *   enabled: boolean,
+ *   latitude: string | null,
+ *   longitude: string | null
+ * }>} heuristicsToInsert
+ * @returns {Promise<void>}
+ */
 async function insertAddressHeuristics (knex, heuristicsToInsert) {
     if (heuristicsToInsert.length === 0) return
 
@@ -373,6 +536,12 @@ async function insertAddressHeuristics (knex, heuristicsToInsert) {
     `, bindings)
 }
 
+/**
+ * Backfills AddressHeuristic rows and possibleDuplicateOf links for all existing addresses.
+ *
+ * @param {object} knex
+ * @returns {Promise<void>}
+ */
 exports.up = async (knex) => {
     const startedAt = Date.now()
 
@@ -461,6 +630,7 @@ exports.up = async (knex) => {
 
             const exactHeuristicMap = await loadExactHeuristicMap(knex, exactPairs)
             const coordinateCandidates = await loadCoordinateCandidates(knex, coordinateValues)
+            let nextInMemoryCoordinateSequence = coordinateCandidates.length
             const mutableExactHeuristicMap = new Map(exactHeuristicMap)
             const mutableCoordinateCandidateBuckets = buildCoordinateCandidateBuckets(coordinateCandidates)
             const duplicateLinksByAddress = new Map()
@@ -486,8 +656,13 @@ exports.up = async (knex) => {
                         conflictsByType[heuristic.type] = (conflictsByType[heuristic.type] || 0) + 1
 
                         const rootAddressId = await findRootAddress(knex, existing.address, rootAddressCache)
-                        duplicateLinksByAddress.set(item.addressId, rootAddressId)
-                        totalDuplicateLinksSet++
+                        const currentBestConflict = duplicateLinksByAddress.get(item.addressId)
+                        if (!currentBestConflict || heuristic.reliability > currentBestConflict.reliability) {
+                            duplicateLinksByAddress.set(item.addressId, {
+                                rootAddressId,
+                                reliability: heuristic.reliability,
+                            })
+                        }
                         continue
                     }
 
@@ -519,6 +694,7 @@ exports.up = async (knex) => {
                                 address: item.addressId,
                                 latitude: createData.latitude,
                                 longitude: createData.longitude,
+                                sequence: nextInMemoryCoordinateSequence++,
                             })
                         }
                     }
@@ -533,7 +709,13 @@ exports.up = async (knex) => {
                 }
             }
 
-            await updateAddressPossibleDuplicateOfBatch(knex, duplicateLinksByAddress)
+            const duplicateLinkUpdates = new Map(
+                [...duplicateLinksByAddress.entries()]
+                    .map(([addressId, { rootAddressId }]) => [addressId, rootAddressId])
+            )
+            totalDuplicateLinksSet += duplicateLinkUpdates.size
+
+            await updateAddressPossibleDuplicateOfBatch(knex, duplicateLinkUpdates)
             await insertAddressHeuristics(knex, heuristicsToInsert)
 
             const lastAddress = addresses[addresses.length - 1]
@@ -581,6 +763,12 @@ exports.up = async (knex) => {
     console.info(`Execution time: ${formatDuration(Date.now() - startedAt)}`)
 }
 
+/**
+ * No-op rollback for the data backfill step. Schema rollback is handled by earlier migrations.
+ *
+ * @param {object} knex
+ * @returns {Promise<void>}
+ */
 exports.down = async (knex) => {
     return
 }
