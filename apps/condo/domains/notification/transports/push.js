@@ -92,7 +92,7 @@ async function prepareNotificationsByToken ({ adapter, message, tokens, appIds: 
     for (let i = 0; i < notificationsByAppIdPromisesResults.length; i += 1) {
         const appId = uniqAppIds[i]
         if (notificationsByAppIdPromisesResults[i].status !== 'fulfilled') {
-            logger.error({ msg: 'renderTemplate error', entityName: 'Message', entityId: message.id, err: notificationsByAppIdPromisesResults[i].reason, data: { appId } })
+            logger.error({ msg: 'renderTemplate error', entity: 'Message', entityId: message.id, err: notificationsByAppIdPromisesResults[i].reason, data: { appId } })
             continue
         }
         notificationsByAppId[appId] = notificationsByAppIdPromisesResults[i].value
