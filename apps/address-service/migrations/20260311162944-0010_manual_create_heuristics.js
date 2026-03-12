@@ -18,6 +18,33 @@ const HEURISTIC_TYPE_FALLBACK = 'fallback'
 const DADATA_PROVIDER = 'dadata'
 const GOOGLE_PROVIDER = 'google'
 
+function toSqlStringLiteral (value) {
+    return `'${String(value).replace(/'/g, '\'\'')}'`
+}
+
+function toSqlLiteral (value) {
+    if (value == null) return 'NULL'
+    if (value instanceof Date) return toSqlStringLiteral(value.toISOString())
+    if (typeof value === 'number') return String(value)
+    if (typeof value === 'boolean') return value ? 'true' : 'false'
+    return toSqlStringLiteral(value)
+}
+
+function toSqlTimestampLiteral (value) {
+    if (value == null) return 'NULL::timestamptz'
+    const normalizedValue = value instanceof Date ? value.toISOString() : value
+    return `${toSqlStringLiteral(normalizedValue)}::timestamptz`
+}
+
+function toSqlUuidLiteral (value) {
+    return `${toSqlStringLiteral(value)}::uuid`
+}
+
+function toSqlJsonbLiteral (value) {
+    if (value == null) return 'NULL::jsonb'
+    return `${toSqlStringLiteral(JSON.stringify(value))}::jsonb`
+}
+
 /**
  * Checks whether Dadata returned exact enough geo quality for coordinate heuristics.
  *
@@ -174,7 +201,7 @@ async function getStatementTimeout (knex) {
  * @returns {Promise<void>}
  */
 async function setStatementTimeout (knex, timeout) {
-    await knex.raw('SELECT set_config(?, ?, false)', ['statement_timeout', timeout])
+    await knex.raw(`SELECT set_config('statement_timeout', ${toSqlLiteral(timeout)}, false)`)
 }
 
 /**
@@ -190,12 +217,10 @@ async function loadAddressPage (knex, cursor = null) {
         SELECT "id", "key", "meta", "createdAt"
         FROM "Address"
         WHERE "key" IS NOT NULL
-            ${hasCursor ? 'AND ("createdAt", "id") > (?, ?)' : ''}
+            ${hasCursor ? `AND ("createdAt", "id") > (${toSqlTimestampLiteral(cursor.createdAt)}, ${toSqlUuidLiteral(cursor.id)})` : ''}
         ORDER BY "createdAt" ASC, "id" ASC
-        LIMIT ?
-    `, hasCursor
-        ? [cursor.createdAt, cursor.id, PAGE_SIZE]
-        : [PAGE_SIZE])
+        LIMIT ${PAGE_SIZE}
+    `)
 
     return result.rows || []
 }
@@ -227,15 +252,16 @@ async function loadExactHeuristicMap (knex, heuristicPairs) {
     }
 
     const uniquePairs = [...uniquePairsMap.values()]
-    const valuePlaceholders = uniquePairs.map(() => '(?, ?)').join(', ')
-    const bindings = uniquePairs.flatMap(({ type, value }) => [type, value])
+    const valuePlaceholders = uniquePairs
+        .map(({ type, value }) => `(${toSqlLiteral(type)}, ${toSqlLiteral(value)})`)
+        .join(', ')
     const rowsResult = await knex.raw(`
         SELECT "id", "address", "type", "value"
         FROM "AddressHeuristic"
         WHERE "deletedAt" IS NULL
             AND "enabled" = true
             AND ("type", "value") IN (${valuePlaceholders})
-    `, bindings)
+    `)
     const rows = rowsResult.rows || []
 
     const result = new Map()
@@ -276,18 +302,12 @@ async function loadCoordinateCandidates (knex, coordinateValues) {
         FROM "AddressHeuristic"
         WHERE "deletedAt" IS NULL
             AND "enabled" = true
-            AND "type" = ?
-            AND "latitude" >= ?
-            AND "latitude" <= ?
-            AND "longitude" >= ?
-            AND "longitude" <= ?
-    `, [
-        HEURISTIC_TYPE_COORDINATES,
-        minLatitude,
-        maxLatitude,
-        minLongitude,
-        maxLongitude,
-    ])
+            AND "type" = ${toSqlLiteral(HEURISTIC_TYPE_COORDINATES)}
+            AND "latitude" >= ${toSqlLiteral(minLatitude)}
+            AND "latitude" <= ${toSqlLiteral(maxLatitude)}
+            AND "longitude" >= ${toSqlLiteral(minLongitude)}
+            AND "longitude" <= ${toSqlLiteral(maxLongitude)}
+    `)
 
     return result.rows || []
 }
@@ -421,9 +441,9 @@ async function findRootAddress (knex, initialAddressId, cache, maxDepth = 10) {
         const addressResult = await knex.raw(`
             SELECT "id", "possibleDuplicateOf", "deletedAt"
             FROM "Address"
-            WHERE "id" = ?
+            WHERE "id" = ${toSqlUuidLiteral(currentAddressId)}
             LIMIT 1
-        `, [currentAddressId])
+        `)
         const address = addressResult.rows?.[0]
 
         if (!address || address.deletedAt) break
@@ -454,20 +474,21 @@ async function updateAddressPossibleDuplicateOfBatch (knex, duplicateLinksByAddr
     if (duplicateLinksByAddress.size === 0) return
 
     const updates = [...duplicateLinksByAddress.entries()]
-    const placeholders = updates.map(() => '(?::uuid, ?::uuid)').join(', ')
-    const bindings = updates.flatMap(([addressId, rootAddressId]) => [addressId, rootAddressId])
+    const placeholders = updates
+        .map(([addressId, rootAddressId]) => `(${toSqlUuidLiteral(addressId)}, ${toSqlUuidLiteral(rootAddressId)})`)
+        .join(', ')
 
     await knex.raw(`
         UPDATE "Address" AS "a"
         SET
-            "dv" = ?,
-            "sender" = ?::jsonb,
+            "dv" = ${dv},
+            "sender" = ${toSqlJsonbLiteral(sender)},
             "possibleDuplicateOf" = "v"."root_address_id"
         FROM (
             VALUES ${placeholders}
         ) AS "v" ("address_id", "root_address_id")
         WHERE "a"."id" = "v"."address_id"
-    `, [dv, JSON.stringify(sender), ...bindings])
+    `)
 }
 
 /**
@@ -495,24 +516,22 @@ async function insertAddressHeuristics (knex, heuristicsToInsert) {
     if (heuristicsToInsert.length === 0) return
 
     const placeholders = heuristicsToInsert
-        .map(() => '(?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?)')
+        .map((heuristic) => `(
+            ${toSqlUuidLiteral(heuristic.id)},
+            ${toSqlLiteral(heuristic.v)},
+            ${toSqlLiteral(heuristic.dv)},
+            ${toSqlJsonbLiteral(heuristic.sender)},
+            ${toSqlUuidLiteral(heuristic.address)},
+            ${toSqlLiteral(heuristic.type)},
+            ${toSqlLiteral(heuristic.value)},
+            ${toSqlLiteral(heuristic.reliability)},
+            ${toSqlLiteral(heuristic.provider)},
+            ${toSqlJsonbLiteral(heuristic.meta)},
+            ${toSqlLiteral(heuristic.enabled)},
+            ${toSqlLiteral(heuristic.latitude)},
+            ${toSqlLiteral(heuristic.longitude)}
+        )`)
         .join(', ')
-
-    const bindings = heuristicsToInsert.flatMap((heuristic) => [
-        heuristic.id,
-        heuristic.v,
-        heuristic.dv,
-        JSON.stringify(heuristic.sender),
-        heuristic.address,
-        heuristic.type,
-        heuristic.value,
-        heuristic.reliability,
-        heuristic.provider,
-        heuristic.meta ? JSON.stringify(heuristic.meta) : null,
-        heuristic.enabled,
-        heuristic.latitude,
-        heuristic.longitude,
-    ])
 
     await knex.raw(`
         INSERT INTO "AddressHeuristic" (
@@ -531,7 +550,7 @@ async function insertAddressHeuristics (knex, heuristicsToInsert) {
             "longitude"
         )
         VALUES ${placeholders}
-    `, bindings)
+    `)
 }
 
 /**
