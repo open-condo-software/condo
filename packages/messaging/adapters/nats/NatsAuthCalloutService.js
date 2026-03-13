@@ -16,6 +16,9 @@ const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFI
 
 const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
 
+const MAX_RESTART_DELAY_MS = 30000
+const INITIAL_RESTART_DELAY_MS = 1000
+
 class NatsAuthCalloutService {
     constructor () {
         this.connection = null
@@ -24,6 +27,10 @@ class NatsAuthCalloutService {
         this.isRunning = false
         this.revokedUsers = new Set()
         this.revokedUserOrgs = new Map()
+        this._restartTimer = null
+        this._restartDelay = INITIAL_RESTART_DELAY_MS
+        this._intentionalStop = false
+        this._lastConfig = {}
     }
 
     /**
@@ -38,6 +45,9 @@ class NatsAuthCalloutService {
      * @param {number} [config.userJwtTtl] - User JWT TTL in seconds (default: 1h)
      */
     async start (config = {}) {
+        this._lastConfig = config
+        this._intentionalStop = false
+
         const seed = config.accountSeed || MESSAGING_CONFIG.authAccountSeed
         if (!seed) {
             logger.warn({ msg: 'authAccountSeed not configured, auth callout service disabled' })
@@ -59,6 +69,9 @@ class NatsAuthCalloutService {
                 pass: config.authPass || MESSAGING_CONFIG.authPassword,
                 reconnect: true,
                 maxReconnectAttempts: -1,
+                reconnectTimeWait: 2000,
+                reconnectJitter: 1000,
+                reconnectJitterTLS: 2000,
             })
 
             const sub = this.connection.subscribe('$SYS.REQ.USER.AUTH')
@@ -114,7 +127,12 @@ class NatsAuthCalloutService {
                 if (err) {
                     logger.error({ msg: 'Auth callout connection closed with error', err })
                 }
+                if (!this._intentionalStop) {
+                    this._scheduleRestart()
+                }
             })
+
+            this._restartDelay = INITIAL_RESTART_DELAY_MS
         } catch (error) {
             logger.error({ msg: 'Failed to start auth callout service', err: error })
             throw error
@@ -229,7 +247,30 @@ class NatsAuthCalloutService {
         }
     }
 
+    _scheduleRestart () {
+        if (this._restartTimer) return
+        const delay = Math.min(this._restartDelay, MAX_RESTART_DELAY_MS)
+        logger.warn({ msg: 'Scheduling auth callout service restart', delayMs: delay })
+        this._restartTimer = setTimeout(async () => {
+            this._restartTimer = null
+            try {
+                await this.start(this._lastConfig)
+                logger.info({ msg: 'Auth callout service restarted successfully' })
+            } catch (err) {
+                logger.error({ msg: 'Auth callout service restart failed, will retry', err: err.message })
+                this._restartDelay = Math.min(this._restartDelay * 2, MAX_RESTART_DELAY_MS)
+                this._scheduleRestart()
+            }
+        }, delay)
+        this._restartTimer.unref()
+    }
+
     async stop () {
+        this._intentionalStop = true
+        if (this._restartTimer) {
+            clearTimeout(this._restartTimer)
+            this._restartTimer = null
+        }
         if (this.connection) {
             await this.connection.drain()
             await this.connection.close()

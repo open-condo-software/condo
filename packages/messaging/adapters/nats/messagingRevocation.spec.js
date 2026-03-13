@@ -50,18 +50,18 @@ describe('Messaging Revocation — unit tests', () => {
             // Simulate initialized state without a real NATS connection
         })
 
-        it('revokeUser adds userId to revokedUsers set', () => {
-            relay.revokeUser('user-1')
+        it('revokeUser adds userId to revokedUsers set', async () => {
+            await relay.revokeUser('user-1')
             expect(relay.revokedUsers.has('user-1')).toBe(true)
         })
 
-        it('unrevokeUser removes userId from revokedUsers set', () => {
-            relay.revokeUser('user-1')
+        it('unrevokeUser removes userId from revokedUsers set', async () => {
+            await relay.revokeUser('user-1')
             relay.unrevokeUser('user-1')
             expect(relay.revokedUsers.has('user-1')).toBe(false)
         })
 
-        it('revokeUser tears down existing relays for that user', () => {
+        it('revokeUser tears down existing relays for that user', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
             const relayEntry = {
@@ -74,7 +74,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay.relays.set('relay-1', relayEntry)
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            const count = relay.revokeUser('user-1')
+            const count = await relay.revokeUser('user-1')
 
             expect(count).toBe(1)
             expect(relay.relays.size).toBe(0)
@@ -82,7 +82,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
         })
 
-        it('revokeUser tears down multiple relays for the same user', () => {
+        it('revokeUser tears down multiple relays for the same user', async () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
@@ -99,7 +99,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1', 'relay-2']))
 
-            const count = relay.revokeUser('user-1')
+            const count = await relay.revokeUser('user-1')
 
             expect(count).toBe(2)
             expect(relay.relays.size).toBe(0)
@@ -107,7 +107,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(mockSub2.unsubscribe).toHaveBeenCalledTimes(1)
         })
 
-        it('revokeUser does NOT affect other users relays', () => {
+        it('revokeUser does NOT affect other users relays', async () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
@@ -125,7 +125,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay.userRelays.set('user-1', new Set(['relay-1']))
             relay.userRelays.set('user-2', new Set(['relay-2']))
 
-            relay.revokeUser('user-1')
+            await relay.revokeUser('user-1')
 
             expect(relay.relays.size).toBe(1)
             expect(relay.relays.has('relay-2')).toBe(true)
@@ -133,23 +133,23 @@ describe('Messaging Revocation — unit tests', () => {
             expect(mockSub2.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('revokeUser returns 0 for user with no relays', () => {
-            const count = relay.revokeUser('nonexistent-user')
+        it('revokeUser returns 0 for user with no relays', async () => {
+            const count = await relay.revokeUser('nonexistent-user')
             expect(count).toBe(0)
             expect(relay.revokedUsers.has('nonexistent-user')).toBe(true)
         })
 
-        it('unrevokeUser allows the user to be re-admitted', () => {
-            relay.revokeUser('user-1')
+        it('unrevokeUser allows the user to be re-admitted', async () => {
+            await relay.revokeUser('user-1')
             expect(relay.revokedUsers.has('user-1')).toBe(true)
             relay.unrevokeUser('user-1')
             expect(relay.revokedUsers.has('user-1')).toBe(false)
         })
 
-        it('_cleanupAll clears revokedUsers along with relays', () => {
-            relay.revokeUser('user-1')
-            relay.revokeUser('user-2')
-            relay._cleanupAll()
+        it('_cleanupAll clears revokedUsers along with relays', async () => {
+            await relay.revokeUser('user-1')
+            await relay.revokeUser('user-2')
+            await relay._cleanupAll()
             expect(relay.revokedUsers.size).toBe(0)
             expect(relay.relays.size).toBe(0)
             expect(relay.userRelays.size).toBe(0)
@@ -164,7 +164,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay.relayTtlMs = 1000
         })
 
-        it('_sweepExpiredRelays removes relays older than TTL', () => {
+        it('_sweepExpiredRelays removes relays older than TTL', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
             relay.relays.set('relay-1', {
@@ -175,14 +175,14 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            relay._sweepExpiredRelays()
+            await relay._sweepExpiredRelays()
 
             expect(relay.relays.size).toBe(0)
             expect(relay.userRelays.has('user-1')).toBe(false)
             expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
         })
 
-        it('_sweepExpiredRelays keeps relays within TTL', () => {
+        it('_sweepExpiredRelays keeps relays within TTL', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -192,13 +192,13 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            relay._sweepExpiredRelays()
+            await relay._sweepExpiredRelays()
 
             expect(relay.relays.size).toBe(1)
             expect(mockSub.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('_sweepExpiredRelays removes only expired relays in mixed set', () => {
+        it('_sweepExpiredRelays removes only expired relays in mixed set', async () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
@@ -217,7 +217,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1', 'relay-2']))
 
-            relay._sweepExpiredRelays()
+            await relay._sweepExpiredRelays()
 
             expect(relay.relays.size).toBe(1)
             expect(relay.relays.has('relay-2')).toBe(true)
@@ -225,9 +225,9 @@ describe('Messaging Revocation — unit tests', () => {
             expect(mockSub2.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('_cleanupAll stops the cleanup timer', () => {
+        it('_cleanupAll stops the cleanup timer', async () => {
             relay._cleanupTimer = setInterval(() => {}, 60000)
-            relay._cleanupAll()
+            await relay._cleanupAll()
             expect(relay._cleanupTimer).toBeNull()
         })
 
@@ -253,7 +253,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay = new NatsSubscriptionRelay()
         })
 
-        it('_handleUnsubscribeRequest rejects when requestingUserId does not match', () => {
+        it('_handleUnsubscribeRequest rejects when requestingUserId does not match', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1',
@@ -262,13 +262,13 @@ describe('Messaging Revocation — unit tests', () => {
                 subscription: mockSub, createdAt: Date.now(),
             })
 
-            relay._handleUnsubscribeRequest({ subject: '_MESSAGING.unsubscribe.user-B.relay-1' })
+            await relay._handleUnsubscribeRequest({ subject: '_MESSAGING.unsubscribe.user-B.relay-1' })
 
             expect(relay.relays.has('relay-1')).toBe(true)
             expect(mockSub.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('_handleUnsubscribeRequest allows when requestingUserId matches', () => {
+        it('_handleUnsubscribeRequest allows when requestingUserId matches', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1',
@@ -277,13 +277,13 @@ describe('Messaging Revocation — unit tests', () => {
                 subscription: mockSub, createdAt: Date.now(),
             })
 
-            relay._handleUnsubscribeRequest({ subject: '_MESSAGING.unsubscribe.user-A.relay-1' })
+            await relay._handleUnsubscribeRequest({ subject: '_MESSAGING.unsubscribe.user-A.relay-1' })
 
             expect(relay.relays.has('relay-1')).toBe(false)
             expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
         })
 
-        it('_handleUnsubscribeRequest rejects 3-segment topic (missing userId)', () => {
+        it('_handleUnsubscribeRequest rejects 3-segment topic (missing userId)', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1',
@@ -292,13 +292,13 @@ describe('Messaging Revocation — unit tests', () => {
                 subscription: mockSub, createdAt: Date.now(),
             })
 
-            relay._handleUnsubscribeRequest({ subject: '_MESSAGING.unsubscribe.relay-1' })
+            await relay._handleUnsubscribeRequest({ subject: '_MESSAGING.unsubscribe.relay-1' })
 
             expect(relay.relays.has('relay-1')).toBe(true)
             expect(mockSub.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('revokeUser tears down org relays tracked by requestingUserId', () => {
+        it('revokeUser tears down org relays tracked by requestingUserId', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             const relayEntry = {
                 id: 'relay-1',
@@ -309,14 +309,14 @@ describe('Messaging Revocation — unit tests', () => {
             relay.relays.set('relay-1', relayEntry)
             relay.userRelays.set('user-A', new Set(['relay-1']))
 
-            relay.revokeUser('user-A')
+            await relay.revokeUser('user-A')
 
             expect(relay.relays.size).toBe(0)
             expect(relay.userRelays.has('user-A')).toBe(false)
             expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
         })
 
-        it('revokeUser tears down mixed user + org relays for the same requestingUserId', () => {
+        it('revokeUser tears down mixed user + org relays for the same requestingUserId', async () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
 
@@ -334,7 +334,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-A', new Set(['relay-1', 'relay-2']))
 
-            const count = relay.revokeUser('user-A')
+            const count = await relay.revokeUser('user-A')
 
             expect(count).toBe(2)
             expect(relay.relays.size).toBe(0)
@@ -376,7 +376,7 @@ describe('Messaging Revocation — unit tests', () => {
         it('allows relay request when user is below maxRelaysPerUser', async () => {
             relay.userRelays.set('user-1', new Set(['r-1', 'r-2']))
 
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn(), consumerInfo: jest.fn().mockResolvedValue({ name: 'test-consumer', stream_name: 'test-stream' }) }
             relay.connection = { publish: jest.fn() }
             relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
@@ -399,7 +399,7 @@ describe('Messaging Revocation — unit tests', () => {
         })
 
         it('generates relay IDs with crypto-random hex suffix', async () => {
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn(), consumerInfo: jest.fn().mockResolvedValue({ name: 'test-consumer', stream_name: 'test-stream' }) }
             const publishedReplies = []
             relay.connection = {
                 publish: jest.fn((subject, data) => {
@@ -420,7 +420,7 @@ describe('Messaging Revocation — unit tests', () => {
         })
 
         it('generates unique relay IDs across multiple requests', async () => {
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn(), consumerInfo: jest.fn().mockResolvedValue({ name: 'test-consumer', stream_name: 'test-stream' }) }
             const relayIds = []
             relay.connection = {
                 publish: jest.fn((subject, data) => {
@@ -472,7 +472,7 @@ describe('Messaging Revocation — unit tests', () => {
         })
 
         it('accepts topic that starts with APP_PREFIX', async () => {
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn(), consumerInfo: jest.fn().mockResolvedValue({ name: 'test-consumer', stream_name: 'test-stream' }) }
             relay.connection = { publish: jest.fn() }
             relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
@@ -539,7 +539,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay.maxRelaysPerUser = 50
         })
 
-        it('revokeUserOrganization tears down only org-scoped relays', () => {
+        it('revokeUserOrganization tears down only org-scoped relays', async () => {
             const mockSubOrg = { unsubscribe: jest.fn() }
             const mockSubUser = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
@@ -556,7 +556,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-org', 'relay-user']))
 
-            const count = relay.revokeUserOrganization('user-1', 'org-1')
+            const count = await relay.revokeUserOrganization('user-1', 'org-1')
 
             expect(count).toBe(1)
             expect(relay.relays.has('relay-org')).toBe(false)
@@ -565,7 +565,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(mockSubUser.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('revokeUserOrganization does NOT affect other orgs', () => {
+        it('revokeUserOrganization does NOT affect other orgs', async () => {
             const mockSub1 = { unsubscribe: jest.fn() }
             const mockSub2 = { unsubscribe: jest.fn() }
             relay.connection = { publish: jest.fn() }
@@ -582,7 +582,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1', 'relay-2']))
 
-            relay.revokeUserOrganization('user-1', 'org-1')
+            await relay.revokeUserOrganization('user-1', 'org-1')
 
             expect(relay.relays.has('relay-1')).toBe(false)
             expect(relay.relays.has('relay-2')).toBe(true)
@@ -590,21 +590,21 @@ describe('Messaging Revocation — unit tests', () => {
             expect(mockSub2.unsubscribe).not.toHaveBeenCalled()
         })
 
-        it('revokeUserOrganization returns 0 for user with no relays', () => {
-            const count = relay.revokeUserOrganization('user-1', 'org-1')
+        it('revokeUserOrganization returns 0 for user with no relays', async () => {
+            const count = await relay.revokeUserOrganization('user-1', 'org-1')
             expect(count).toBe(0)
             expect(relay.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
         })
 
-        it('unrevokeUserOrganization removes the org from revokedUserOrgs', () => {
-            relay.revokeUserOrganization('user-1', 'org-1')
+        it('unrevokeUserOrganization removes the org from revokedUserOrgs', async () => {
+            await relay.revokeUserOrganization('user-1', 'org-1')
             expect(relay.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
             relay.unrevokeUserOrganization('user-1', 'org-1')
             expect(relay.revokedUserOrgs.has('user-1')).toBe(false)
         })
 
         it('rejects new relay request for revoked user-organization', async () => {
-            relay.revokeUserOrganization('user-1', 'org-1')
+            await relay.revokeUserOrganization('user-1', 'org-1')
 
             const replyData = []
             relay.connection = {
@@ -625,9 +625,9 @@ describe('Messaging Revocation — unit tests', () => {
         })
 
         it('allows relay request for non-revoked org after revoking another org', async () => {
-            relay.revokeUserOrganization('user-1', 'org-1')
+            await relay.revokeUserOrganization('user-1', 'org-1')
 
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn(), consumerInfo: jest.fn().mockResolvedValue({ name: 'test-consumer', stream_name: 'test-stream' }) }
             relay.connection = { publish: jest.fn() }
             relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
@@ -641,9 +641,9 @@ describe('Messaging Revocation — unit tests', () => {
         })
 
         it('allows user-channel relay request when org is revoked', async () => {
-            relay.revokeUserOrganization('user-1', 'org-1')
+            await relay.revokeUserOrganization('user-1', 'org-1')
 
-            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn() }
+            const mockSub = { [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }), unsubscribe: jest.fn(), consumerInfo: jest.fn().mockResolvedValue({ name: 'test-consumer', stream_name: 'test-stream' }) }
             relay.connection = { publish: jest.fn() }
             relay.js = { subscribe: jest.fn().mockResolvedValue(mockSub) }
 
@@ -656,10 +656,10 @@ describe('Messaging Revocation — unit tests', () => {
             expect(relay.js.subscribe).toHaveBeenCalledWith(`${APP_PREFIX}.user.user-1.notification`, expect.anything())
         })
 
-        it('_cleanupAll clears revokedUserOrgs', () => {
-            relay.revokeUserOrganization('user-1', 'org-1')
-            relay.revokeUserOrganization('user-2', 'org-2')
-            relay._cleanupAll()
+        it('_cleanupAll clears revokedUserOrgs', async () => {
+            await relay.revokeUserOrganization('user-1', 'org-1')
+            await relay.revokeUserOrganization('user-2', 'org-2')
+            await relay._cleanupAll()
             expect(relay.revokedUserOrgs.size).toBe(0)
         })
     })
@@ -668,7 +668,7 @@ describe('Messaging Revocation — unit tests', () => {
         // Test that NatsAdapter.revokeUser delegates to both services
         const { NatsAdapter } = require('./index')
 
-        it('revokeUser delegates to both authService and relayService', () => {
+        it('revokeUser delegates to both authService and relayService', async () => {
             const adapter = new NatsAdapter()
 
             // Set up mock services
@@ -685,7 +685,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             adapter.relayService.userRelays.set('user-1', new Set(['relay-1']))
 
-            const count = adapter.revokeUser('user-1')
+            const count = await adapter.revokeUser('user-1')
 
             expect(count).toBe(1)
             expect(adapter.authService.revokedUsers.has('user-1')).toBe(true)
@@ -693,12 +693,12 @@ describe('Messaging Revocation — unit tests', () => {
             expect(adapter.relayService.relays.size).toBe(0)
         })
 
-        it('unrevokeUser delegates to both services', () => {
+        it('unrevokeUser delegates to both services', async () => {
             const adapter = new NatsAdapter()
             adapter.authService = new NatsAuthCalloutService()
             adapter.relayService = new NatsSubscriptionRelay()
 
-            adapter.revokeUser('user-1')
+            await adapter.revokeUser('user-1')
             expect(adapter.authService.revokedUsers.has('user-1')).toBe(true)
             expect(adapter.relayService.revokedUsers.has('user-1')).toBe(true)
 
@@ -707,13 +707,13 @@ describe('Messaging Revocation — unit tests', () => {
             expect(adapter.relayService.revokedUsers.has('user-1')).toBe(false)
         })
 
-        it('revokeUser works when services are not initialized', () => {
+        it('revokeUser works when services are not initialized', async () => {
             const adapter = new NatsAdapter()
-            expect(() => adapter.revokeUser('user-1')).not.toThrow()
-            expect(adapter.revokeUser('user-1')).toBe(0)
+            await expect(adapter.revokeUser('user-1')).resolves.not.toThrow()
+            expect(await adapter.revokeUser('user-1')).toBe(0)
         })
 
-        it('revokeUserOrganization delegates to both authService and relayService', () => {
+        it('revokeUserOrganization delegates to both authService and relayService', async () => {
             const adapter = new NatsAdapter()
             adapter.authService = new NatsAuthCalloutService()
             adapter.relayService = new NatsSubscriptionRelay()
@@ -727,7 +727,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             adapter.relayService.userRelays.set('user-1', new Set(['relay-1']))
 
-            const count = adapter.revokeUserOrganization('user-1', 'org-1')
+            const count = await adapter.revokeUserOrganization('user-1', 'org-1')
 
             expect(count).toBe(1)
             expect(adapter.authService.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
@@ -735,12 +735,12 @@ describe('Messaging Revocation — unit tests', () => {
             expect(adapter.relayService.relays.size).toBe(0)
         })
 
-        it('unrevokeUserOrganization delegates to both services', () => {
+        it('unrevokeUserOrganization delegates to both services', async () => {
             const adapter = new NatsAdapter()
             adapter.authService = new NatsAuthCalloutService()
             adapter.relayService = new NatsSubscriptionRelay()
 
-            adapter.revokeUserOrganization('user-1', 'org-1')
+            await adapter.revokeUserOrganization('user-1', 'org-1')
             expect(adapter.authService.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
             expect(adapter.relayService.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
 
@@ -749,10 +749,10 @@ describe('Messaging Revocation — unit tests', () => {
             expect(adapter.relayService.revokedUserOrgs.has('user-1')).toBe(false)
         })
 
-        it('revokeUserOrganization works when services are not initialized', () => {
+        it('revokeUserOrganization works when services are not initialized', async () => {
             const adapter = new NatsAdapter()
-            expect(() => adapter.revokeUserOrganization('user-1', 'org-1')).not.toThrow()
-            expect(adapter.revokeUserOrganization('user-1', 'org-1')).toBe(0)
+            await expect(adapter.revokeUserOrganization('user-1', 'org-1')).resolves.not.toThrow()
+            expect(await adapter.revokeUserOrganization('user-1', 'org-1')).toBe(0)
         })
     })
 
@@ -765,7 +765,7 @@ describe('Messaging Revocation — unit tests', () => {
             relay.connection = { publish: jest.fn() }
         })
 
-        it('revokeUser sends __relay_closed sentinel to each relay deliverInbox', () => {
+        it('revokeUser sends __relay_closed sentinel to each relay deliverInbox', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -774,7 +774,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            relay.revokeUser('user-1')
+            await relay.revokeUser('user-1')
 
             const sentinelCall = relay.connection.publish.mock.calls.find(
                 ([subject]) => subject === '_INBOX.test'
@@ -786,7 +786,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(decoded.reason).toBe('access revoked')
         })
 
-        it('_sweepExpiredRelays sends __relay_closed sentinel with reason expired', () => {
+        it('_sweepExpiredRelays sends __relay_closed sentinel with reason expired', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -796,7 +796,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            relay._sweepExpiredRelays()
+            await relay._sweepExpiredRelays()
 
             const sentinelCall = relay.connection.publish.mock.calls.find(
                 ([subject]) => subject === '_INBOX.sweep'
@@ -807,7 +807,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(decoded.reason).toBe('expired')
         })
 
-        it('revokeUserOrganization sends __relay_closed sentinel with org reason', () => {
+        it('revokeUserOrganization sends __relay_closed sentinel with org reason', async () => {
             relay.maxRelaysPerUser = 50
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
@@ -817,7 +817,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            relay.revokeUserOrganization('user-1', 'org-1')
+            await relay.revokeUserOrganization('user-1', 'org-1')
 
             const sentinelCall = relay.connection.publish.mock.calls.find(
                 ([subject]) => subject === '_INBOX.org'
@@ -828,7 +828,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(decoded.reason).toBe('organization access revoked')
         })
 
-        it('explicit _handleUnsubscribeRequest does NOT send sentinel (client-initiated)', () => {
+        it('explicit _handleUnsubscribeRequest does NOT send sentinel (client-initiated)', async () => {
             const mockSub = { unsubscribe: jest.fn() }
             relay.relays.set('relay-1', {
                 id: 'relay-1', requestingUserId: 'user-1',
@@ -837,7 +837,7 @@ describe('Messaging Revocation — unit tests', () => {
             })
             relay.userRelays.set('user-1', new Set(['relay-1']))
 
-            relay._handleUnsubscribeRequest({
+            await relay._handleUnsubscribeRequest({
                 subject: '_MESSAGING.unsubscribe.user-1.relay-1',
                 reply: 'reply-subject',
             })
