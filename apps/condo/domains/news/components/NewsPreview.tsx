@@ -8,8 +8,8 @@ import { colors } from '@open-condo/ui/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { stripMarkdown } from '@condo/domains/news/utils/stripMarkdown'
 
 import type { RowProps } from 'antd'
 
