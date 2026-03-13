@@ -2,12 +2,15 @@ const fs = require('fs')
 const path = require('path')
 
 const dayjs = require('dayjs')
-const { get, unescape, isObject, isArray } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isObject = require('lodash/isObject')
+const unescape = require('lodash/unescape')
 const mjml2html = require('mjml')
 const Nunjucks = require('nunjucks')
 
 const conf = require('@open-condo/config')
-const { i18n, getLocalized } = require('@open-condo/locales/loader')
+const { i18n, getLocalized, renderTranslation } = require('@open-condo/locales/loader')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 
@@ -29,6 +32,8 @@ const SOCIAL_MEDIA_LINKS = conf.SOCIAL_MEDIA_LINKS ? JSON.parse(conf.SOCIAL_MEDI
 const HELP_REQUISITES = conf.HELP_REQUISITES ? JSON.parse(conf.HELP_REQUISITES) : {}
 const SUPPORT_EMAIL = get(HELP_REQUISITES, 'support_email') || ''
 const LANDING_URL = conf.LANDING_URL ? JSON.parse(conf.LANDING_URL) : {}
+
+const PUSH_MESSAGE_OVERRIDES = JSON.parse(conf.PUSH_MESSAGE_OVERRIDES || '{}')
 
 // config based path
 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
@@ -178,6 +183,14 @@ function translationStringKeyForPushTitle (messageType) {
  * @param {string} messageType
  * @returns {string}
  */
+function translationStringKeyForPushBody (messageType) {
+    return `notification.messages.${messageType}.${PUSH_TRANSPORT}.body`
+}
+
+/**
+ * @param {string} messageType
+ * @returns {string}
+ */
 function translationStringKeyForTelegramUrlMessage (messageType) {
     return `notification.messages.${messageType}.${TELEGRAM_TRANSPORT}.urlMessage`
 }
@@ -297,25 +310,44 @@ function emailRenderer ({ message, env }) {
  * Renders message template for push
  * @param message
  * @param env
- * @returns {{notification: {title: string, body}, data: {[p: string]: *}}}
+ * @param additionalParams {Record<string, unknown>}
+ * @returns {{title: string, body: string}}
  */
-function pushRenderer ({ message, env }) {
-    const { id: notificationId, lang: locale, type, createdAt } = message
+function pushRenderer ({ message, env, additionalParams }) {
+    const { lang: locale, type } = message
     const messageTranslated = substituteTranslations(message, locale)
+    
+    const appId = additionalParams?.appId
+    const overridesForAppId = PUSH_MESSAGE_OVERRIDES?.[appId]
 
-    const renderedTitle = i18n(translationStringKeyForPushTitle(type), { locale, meta: messageTranslated.meta })
+    const titleKey = translationStringKeyForPushTitle(type)
+    const bodyKey = translationStringKeyForPushBody(type)
+    
+    let renderedTitle
+    let renderedBody
+    
+    if (appId && overridesForAppId) {
+        const overrides = overridesForAppId[locale]
+        const titleTemplate = overrides?.[titleKey]
+        const bodyTemplate = overrides?.[bodyKey]
+        if (!titleTemplate || !bodyTemplate) {
+            throw new Error(`Message with type = ${type} requires PUSH_MESSAGE_OVERRIDES with title and body for appId = ${appId} and locale = ${locale}`)
+        }
+        renderedTitle = renderTranslation(titleTemplate, { meta: messageTranslated.meta })
+        renderedBody = unescape(nunjucks.renderString(bodyTemplate, { message: messageTranslated, env }))
+    } else {
+        renderedTitle = i18n(titleKey, { locale, meta: messageTranslated.meta })
 
-    // For push messages emails we unescape message to prevent HTML entities in push body
-    // See https://lodash.com/docs/4.17.15#unescape
-    // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
-    const renderedBody =  unescape(nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, env  }))
+        // For push messages emails we unescape message to prevent HTML entities in push body
+        // See https://lodash.com/docs/4.17.15#unescape
+        // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
+        renderedBody =  unescape(nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, env  }))
+
+    }
 
     return {
-        notification: {
-            title: renderedTitle,
-            body: renderedBody,
-        },
-        data: { ...get(message, ['meta', 'data'], {}), notificationId, type, messageCreatedAt: createdAt },
+        title: renderedTitle,
+        body: renderedBody,
     }
 }
 
@@ -338,7 +370,7 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
 
 const TRANSPORT_RENDERER_KEYS = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)
 
-async function renderTemplate (transport, message) {
+async function renderTemplate (transport, message, additionalParams = {}) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
     if (!TRANSPORT_RENDERER_KEYS.includes(transport)) throw new Error(`No renderer for ${transport} messages`)
 
@@ -353,7 +385,7 @@ async function renderTemplate (transport, message) {
     }
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
 
-    return renderMessage({ message, env })
+    return renderMessage({ message, env, additionalParams })
 }
 
 module.exports = {

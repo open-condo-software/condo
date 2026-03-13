@@ -5,14 +5,18 @@
 
 const { ActualizeAddressesService } = require('./ActualizeAddressesService')
 const { Address } = require('./Address')
+const { AddressHeuristic } = require('./AddressHeuristic')
 const { AddressInjection } = require('./AddressInjection')
 const { AddressSource } = require('./AddressSource')
+const { ResolveAddressDuplicateService } = require('./ResolveAddressDuplicateService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Address,
+    AddressHeuristic,
     AddressInjection,
     AddressSource,
     ActualizeAddressesService,
+    ResolveAddressDuplicateService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

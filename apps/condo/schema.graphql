@@ -39935,6 +39935,7 @@ type CallRecordHistoryRecord {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   id: ID!
   v: Int
   createdAt: String
@@ -40033,6 +40034,24 @@ input CallRecordHistoryRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  transcript: String
+  transcript_not: String
+  transcript_contains: String
+  transcript_not_contains: String
+  transcript_starts_with: String
+  transcript_not_starts_with: String
+  transcript_ends_with: String
+  transcript_not_ends_with: String
+  transcript_i: String
+  transcript_not_i: String
+  transcript_contains_i: String
+  transcript_not_contains_i: String
+  transcript_starts_with_i: String
+  transcript_not_starts_with_i: String
+  transcript_ends_with_i: String
+  transcript_not_ends_with_i: String
+  transcript_in: [String]
+  transcript_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40128,6 +40147,8 @@ enum SortCallRecordHistoryRecordsBy {
   isIncomingCall_DESC
   importId_ASC
   importId_DESC
+  transcript_ASC
+  transcript_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40155,6 +40176,7 @@ input CallRecordHistoryRecordUpdateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40183,6 +40205,7 @@ input CallRecordHistoryRecordCreateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40235,6 +40258,9 @@ type CallRecord {
 
   """ Call unique identifier """
   importId: String
+
+  """ Call transcription """
+  transcript: String
   id: ID!
   v: Int
   createdAt: String
@@ -40339,6 +40365,24 @@ input CallRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  transcript: String
+  transcript_not: String
+  transcript_contains: String
+  transcript_not_contains: String
+  transcript_starts_with: String
+  transcript_not_starts_with: String
+  transcript_ends_with: String
+  transcript_not_ends_with: String
+  transcript_i: String
+  transcript_not_i: String
+  transcript_contains_i: String
+  transcript_not_contains_i: String
+  transcript_starts_with_i: String
+  transcript_not_starts_with_i: String
+  transcript_ends_with_i: String
+  transcript_not_ends_with_i: String
+  transcript_in: [String]
+  transcript_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40416,6 +40460,8 @@ enum SortCallRecordsBy {
   isIncomingCall_DESC
   importId_ASC
   importId_DESC
+  transcript_ASC
+  transcript_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40443,6 +40489,7 @@ input CallRecordUpdateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40468,6 +40515,7 @@ input CallRecordCreateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -43445,6 +43493,7 @@ enum RemoteClientPushTransportType {
   huawei
   redstore
   webhook
+  onesignal
 }
 
 enum RemoteClientDevicePlatformType {
@@ -43464,6 +43513,7 @@ enum RemoteClientPushTransportVoIPType {
   huawei
   redstore
   webhook
+  onesignal
 }
 
 enum RemoteClientPushTypeVoIPType {
@@ -91157,6 +91207,7 @@ enum PushTransportType {
   huawei
   redstore
   webhook
+  onesignal
 }
 
 enum DevicePlatformType {
@@ -91170,19 +91221,42 @@ enum PushType {
   silent_data
 }
 
+input PushToken {
+  token: String!
+  transport: PushTransportType!
+
+  """Specifies if token can be used to receive default push messages"""
+  isPush: Boolean!
+
+  """Specifies if token can be used to receive VoIP push messages"""
+  isVoIP: Boolean!
+}
+
 input SyncRemoteClientInput {
   dv: Int!
   sender: SenderFieldInput!
-  deviceId: String!
   appId: String!
-  pushToken: String
-  pushTransport: PushTransportType
+  deviceId: String!
+
+  """
+  Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
+  """
+  deviceKey: ID
   devicePlatform: DevicePlatformType
+
+  """Preferred way to receive default push messages on this device"""
   pushType: PushType
-  meta: JSON
-  pushTokenVoIP: String
-  pushTransportVoIP: PushTransportType
+
+  """Preferred way to receive VoIP push messages on this device"""
   pushTypeVoIP: PushType
+  pushToken: String @deprecated(reason: "Use pushTokens instead")
+  pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead")
+  pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead")
+  pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead")
+
+  """List of tokens received from messaging providers / sdks"""
+  pushTokens: [PushToken!]
+  meta: JSON
 }
 
 input DisconnectUserFromRemoteClientInput {
@@ -105691,6 +105765,42 @@ type Mutation {
   """
   sendMessage(data: SendMessageInput!): SendMessageOutput
   resendMessage(data: ResendMessageInput!): ResendMessageOutput
+
+  """
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNUSABLE_TOKEN_PROVIDED",
+    "message": "Any push token must set \"isVoIP\" or \"isPush\" or both as \"true\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PUSH_TOKEN",
+    "message": "Push token must contain non-empty \"token\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MANY_TOKENS_FOR_TRANSPORT",
+    "message": "Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DEVICE_KEY_VALIDATION_ERROR",
+    "message": "\"deviceKey\" validation error"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_DEVICE_KEY",
+    "message": "\"deviceKey\" should be a valid UUID"
+  }`
+  """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput

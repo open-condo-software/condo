@@ -1,14 +1,12 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetB2BAppsByIdsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
-import { notification } from 'antd'
-import dayjs from 'dayjs'
+import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetB2BAppsByIdsQuery } from '@app/condo/gql'
 import React, { useState, useMemo } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Space, Radio, Typography } from '@open-condo/ui'
+import { Space, Radio } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
+import { useActivateSubscriptions } from '@condo/domains/subscription/hooks'
 
 import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionPlanCard } from './SubscriptionPlanCard/SubscriptionPlanCard'
@@ -22,12 +20,10 @@ const PLAN_CARD_EMOJIS = ['🏠', '🚀', '👑']
 
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
-    const { organization, employee, selectEmployee } = useOrganization()
+    const { organization } = useOrganization()
 
     const YearlyLabel = intl.formatMessage({ id: 'subscription.period.yearly' })
     const MonthlyLabel = intl.formatMessage({ id: 'subscription.period.monthly' })
-    const ActivationErrorTitle = intl.formatMessage({ id: 'subscription.activation.errorTitle' })
-    const ActivationErrorMessage = intl.formatMessage({ id: 'subscription.activation.error' })
 
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
@@ -73,108 +69,15 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }, [b2bAppsData])
 
     const {
-        data: trialSubscriptionsData,
-        loading: trialSubscriptionsLoading,
-        refetch: refetchTrialSubscriptions, 
-    } = useGetOrganizationTrialSubscriptionsQuery({
-        variables: {
-            organizationId: organization?.id,
-        },
-        skip: !organization?.id,
-    })
+        handleActivatePlan,
+        activateLoading,
+        trialSubscriptions,
+        pendingRequests,
+        activatedSubscriptions,
+        isLoading: trialActivationLoading,
+    } = useActivateSubscriptions()
 
-    const { data: pendingRequestsData, loading: pendingRequestsLoading, refetch: refetchPendingRequests } = useGetPendingSubscriptionRequestsQuery({
-        variables: { organizationId: organization?.id },
-        skip: !organization?.id,
-    })
-
-    const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading, refetch: refetchActivatedSubscriptions } = useGetOrganizationActivatedSubscriptionsQuery({
-        variables: { 
-            organizationId: organization?.id || '',
-        },
-        skip: !organization?.id,
-    })
-
-    const trialSubscriptions = trialSubscriptionsData?.trialSubscriptions || []
-    const pendingRequests = pendingRequestsData?.pendingRequests || []
-    const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
-
-    const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
-
-    const handleActivatePlan = async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false }: {
-        priceId: string
-        isTrial?: boolean
-        planName?: string
-        trialDays?: number
-        isCustomPrice?: boolean
-    }) => {
-        if (!organization) return
-
-        try {
-            await activateSubscriptionPlan({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        organization: { id: organization.id },
-                        pricingRule: { id: priceId },
-                        isTrial,
-                    },
-                },
-            })
-
-            if (isTrial) {
-                await refetchTrialSubscriptions()
-                await refetchPendingRequests()
-                await refetchActivatedSubscriptions()
-                if (employee?.id) {
-                    await selectEmployee(employee.id)
-                }
-                notification.success({
-                    message: (
-                        <Typography.Text strong size='large'>
-                            {intl.formatMessage({ id: 'subscription.activation.trial.title' }, { planName })}
-                        </Typography.Text>
-                    ),
-                    description: intl.formatMessage({ id: 'subscription.activation.trial.description' }, { planName, days: trialDays }),
-                    duration: 5,
-                })
-            } else {
-                await refetchPendingRequests()
-                if (isCustomPrice) {
-                    notification.success({
-                        message: (
-                            <Typography.Text strong size='large'>
-                                {intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName })}
-                            </Typography.Text>
-                        ),
-                        description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
-                        duration: 5,
-                    })
-                } else {
-                    notification.success({
-                        message: (
-                            <Typography.Text strong size='large'>
-                                {intl.formatMessage({ id: 'subscription.activation.paid.standard.title' })}
-                            </Typography.Text>
-                        ),
-                        description: intl.formatMessage({ id: 'subscription.activation.paid.standard.description' }),
-                        duration: 5,
-                    })
-                }
-            }
-        } catch (error) {
-            console.error('Failed to activate subscription:', error)
-            notification.error({
-                message: ActivationErrorTitle,
-                description: error?.message || ActivationErrorMessage,
-                duration: 5,
-            })
-        }
-    }
-    
-
-    const isLoading = plansLoading || trialSubscriptionsLoading || pendingRequestsLoading || activatedSubscriptionsLoading
+    const isLoading = plansLoading || trialActivationLoading
     if (isLoading) return <Loader />
 
     return (
@@ -210,6 +113,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             b2bAppsMap={b2bAppsMap}
                             allB2BAppIds={allB2BAppIds}
                             emoji={PLAN_CARD_EMOJIS?.[index]}
+                            trialActivateLoading={activateLoading}
                         />
                     )
                 })}

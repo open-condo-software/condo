@@ -64,6 +64,11 @@ const CallRecord = new GQLListSchema('CallRecord', {
             type: 'Text',
             isRequired: true,
         },
+        transcript: {
+            schemaDoc: 'Call transcription',
+            type: 'Text',
+            sensitive: true,
+        },
     },
     hooks: {
         afterChange: fileMetaAfterChange,

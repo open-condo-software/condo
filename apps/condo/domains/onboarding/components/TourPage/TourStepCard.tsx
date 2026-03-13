@@ -16,8 +16,10 @@ import {
     COMPLETED_STEP_LINK,
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+
+import styles from './TourStepCard.module.css'
 
 import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
@@ -125,45 +127,49 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
 
         return CompletePreviousStepMessage
     }, [CompletePreviousStepMessage, NoPermissionsMessage, SettingsMessage, hasPermission])
-    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || !hasRequiredFeature || disabled, [disabled, hasPermission, hasRequiredFeature, stepStatus])
+    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || disabled, [disabled, hasPermission, stepStatus])
+    const isDisabledWithRequiredFeature = isDisabledStatus || !hasRequiredFeature
 
     const cardContent = (
         <StyledCardButton
             status={stepStatus}
             header={{
-                progressIndicator: { disabled: isDisabledStatus, steps: innerSteps },
+                progressIndicator: { disabled: isDisabledWithRequiredFeature, steps: innerSteps },
                 headingTitle: CardTitle,
                 mainLink: completedStepLink,
             }}
-            body={!isDisabledStatus && BodyDescription && {
+            body={!isDisabledWithRequiredFeature && BodyDescription && {
                 description: BodyDescription,
             }}
             onClick={onClick}
-            disabled={isDisabledStatus}
-            accent={!isDisabledStatus && isInnerTodoStep}
+            disabled={isDisabledWithRequiredFeature}
+            accent={!isDisabledWithRequiredFeature && isInnerTodoStep}
             id={step.type}
         />
     )
 
-    if (!hasRequiredFeature) {
-        return (
-            <NoSubscriptionTooltip key={step.id}>
-                <div style={{ width: '100%' }}>
-                    {cardContent}
-                </div>
-            </NoSubscriptionTooltip>
-        )
-    }
-
     if (isDisabledStatus) {
         return (
             <Tooltip title={disabledMessage}>
-                <div style={{ width: '100%' }}>
+                <div className={styles.fullWidth}>
                     {cardContent}
                 </div>
             </Tooltip>
         )
     }
 
-    return cardContent
+    return <SubscriptionGuardWithTooltip
+        key={step.id}
+        feature={requiredFeature}
+        skipTooltip={requiredFeature === undefined}
+        fallback={
+            <div className={styles.fullWidth}>
+                {cardContent}
+            </div>
+        }
+    >
+        <div className={styles.fullWidth}>
+            {cardContent}
+        </div>
+    </SubscriptionGuardWithTooltip>
 }

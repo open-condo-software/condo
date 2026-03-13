@@ -77,6 +77,7 @@ class FirebaseAdapter {
     /**
      * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
      * @param data
+     * @param token {string}
      */
     static prepareData (data = {}, token) {
         const result = { token }
@@ -169,28 +170,33 @@ class FirebaseAdapter {
     /**
      * Prepares notification for either/both sending to FireBase and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
-     * @param data
+     * @param notificationByTokenRaw
+     * @param dataByToken
      * @param tokens
+     * @param pushTypes
+     * @param isVoIP
+     * @param appIds
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, isVoIP = false, appIds = {}) {
-        const notification = FirebaseAdapter.validateAndPrepareNotification(notificationRaw)
+    static prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, isVoIP = false, appIds = {}) {
         const notifications = []
         const fakeNotifications = []
         const pushContext = {}
         const extraPayload = isVoIP ? HIGH_PRIORITY_SETTINGS : {}
 
         tokens.forEach((pushToken) => {
+            const notification = FirebaseAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = FirebaseAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
                     data: {
-                        ...preparedData,
+                        ...data,
                         '_title': notification.title,
                         '_body': notification.body,
                     },
@@ -199,16 +205,18 @@ class FirebaseAdapter {
                 }
                 : {
                     token: pushToken,
-                    data: preparedData,
+                    data: data,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                     ...extraPayload,
                 }
 
             // appId is set for each pushToken, so we can check if the app is disabled
-            // data.app is also checked for backward compatibility, as it was used in the old implementation
             const appId = appIds[pushToken]
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appId) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(appId)
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -217,25 +225,27 @@ class FirebaseAdapter {
     }
 
     /**
-      * Manages to send notification to all available pushTokens of the user.
-      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
-      * Would try to send request to FireBase only if FireBase is initialized and `tokens` array contains real (non-fake) items.
-      * Would succeed if at least one real token succeeds in delivering notification through FireBase, or
-      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-      * @param notification
-      * @param tokens
-      * @param data
-      * @param pushTypes
-+     * @param appIds - Object mapping pushToken to appId for routing notifications to the correct Firebase app
-      * @param metaByToken
-      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
-      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
+     * Manages to send notification to all available pushTokens of the user.
+     * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
+     * Would try to send request to FireBase only if FireBase is initialized and `tokens` array contains real (non-fake) items.
+     * Would succeed if at least one real token succeeds in delivering notification through FireBase, or
+     * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
+     * @param notificationByToken
+     * @param tokens
+     * @param dataByToken
+     * @param pushTypes
+     +     * @param appIds - Object mapping pushToken to appId for routing notifications to the correct Firebase app
+     * @param appIds
+     * @param metaByToken
+     * @param isVoIP
+     * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
+     */
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = FirebaseAdapter.prepareBatchData(
-            notification, 
-            data, 
+            notificationByToken,
+            dataByToken,
             tokens, 
             pushTypes, 
             isVoIP, 

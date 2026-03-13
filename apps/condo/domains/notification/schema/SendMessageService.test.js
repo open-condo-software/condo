@@ -1,5 +1,5 @@
 const { faker } = require('@faker-js/faker')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
@@ -359,7 +359,6 @@ describe('SendMessageService', () => {
                     })
 
                     const transportMeta = message.processingMeta.transportsMeta[0]
-
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(transportMeta.messageContext.data.messageCreatedAt).toEqual(message.createdAt)

@@ -1,6 +1,6 @@
 {
   "name": "@app/address-service",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "private": true,
   "scripts": {
     "test": "jest",
@@ -14,6 +14,7 @@
     "makemigrations": "python3 ./../../bin/kmigrator.py makemigrations",
     "migrate": "python3 ./../../bin/kmigrator.py migrate",
     "migrate:down": "python3 ./../../bin/kmigrator.py down",
+    "migrate:unlock": "python3 ./../../bin/kmigrator.py unlock",
     "maketypes": "mkdir -p dist/admin && node ./../../bin/create-graphql-schema.js && ./../../node_modules/.bin/graphql-codegen -c codegen.yaml",
     "createschema": "./../../bin/createschema",
     "createservice": "node ./../../bin/createservice"
@@ -26,6 +27,7 @@
     "@open-condo/config": "workspace:^",
     "@open-condo/icons": "workspace:^",
     "@open-condo/keystone": "workspace:^",
+    "@open-condo/ui": "workspace:^",
     "@open-keystone/app-admin-ui": "^9.0.5",
     "express": "^4.17.1",
     "fast-xml-parser": "^5.4.0",

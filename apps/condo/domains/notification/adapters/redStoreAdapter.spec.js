@@ -10,6 +10,7 @@ const {
     PUSH_TYPE_DEFAULT,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { buildPushDataByToken } = require('@condo/domains/notification/utils/testSchema/utils')
 
 const {
     RedStoreAdapter,
@@ -67,15 +68,16 @@ describe('redStore adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const [isOk, result] = await adapter.sendNotification({
-            tokens,
-            notification: {
-                title: 'Condo',
-                body: `${dayjs().format()} Condo greets you!`,
-            },
-            data: {
-                appId: 'condo',
-                type: 'notification',
-            },
+            ...buildPushDataByToken(tokens, {
+                notification: {
+                    title: 'Condo',
+                    body: `${dayjs().format()} Condo greets you!`,
+                },
+                data: {
+                    appId: 'condo',
+                    type: 'notification',
+                },
+            }),
             appIds: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
             },
@@ -102,12 +104,14 @@ describe('redStore adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                // app: 'condo',
-                // type: 'notification',
-                recurrentPaymentContextId: faker.datatype.uuid(),
-                recurrentPaymentContext: { id: faker.datatype.uuid() },
-                errorCode: 'test2',
+            dataByToken: {
+                [REDSTORE_TEST_PUSHTOKEN]: {
+                    // app: 'condo',
+                    // type: 'notification',
+                    recurrentPaymentContextId: faker.datatype.uuid(),
+                    recurrentPaymentContext: { id: faker.datatype.uuid() },
+                    errorCode: 'test2',
+                },
             },
         })
 
@@ -121,15 +125,16 @@ describe('redStore adapter utils', () => {
 
     it('should fail sending push notification to fake fail push token ', async () => {
         const [isOk, result] = await adapter.sendNotification({
-            tokens: [PUSH_FAKE_TOKEN_FAIL],
-            notification: {
-                title: 'Condo',
-                body: `${dayjs().format()} Condo greets you!`,
-            },
-            data: {
-                appId: 'condo',
-                type: 'notification',
-            },
+            ...buildPushDataByToken([PUSH_FAKE_TOKEN_FAIL], {
+                notification: {
+                    title: 'Condo',
+                    body: `${dayjs().format()} Condo greets you!`,
+                },
+                data: {
+                    appId: 'condo',
+                    type: 'notification',
+                },
+            }),
             appIds: {
                 [PUSH_FAKE_TOKEN_FAIL]: 'condo',
             },
@@ -149,15 +154,16 @@ describe('redStore adapter utils', () => {
 
     it('should succeed sending push notification to fake success and fail push token ', async () => {
         const [isOk, result] = await adapter.sendNotification({
-            tokens: [PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL],
-            notification: {
-                title: 'Condo',
-                body: `${dayjs().format()} Condo greets you!`,
-            },
-            data: {
-                appId: 'condo',
-                type: 'notification',
-            },
+            ...buildPushDataByToken([PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL], {
+                notification: {
+                    title: 'Condo',
+                    body: `${dayjs().format()} Condo greets you!`,
+                },
+                data: {
+                    appId: 'condo',
+                    type: 'notification',
+                },
+            }),
             appIds: {
                 [PUSH_FAKE_TOKEN_FAIL]: 'condo',
                 [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
@@ -184,15 +190,16 @@ describe('redStore adapter utils', () => {
 
     it('sends push notification of proper structure on pushType = PUSH_TYPE_DEFAULT', async () => {
         const pushData = {
-            tokens: [PUSH_FAKE_TOKEN_SUCCESS],
-            notification: {
-                title: 'Condo',
-                body: `${dayjs().format()} Condo greets you!`,
-            },
-            data: {
-                appId: 'condo',
-                type: 'notification',
-            },
+            ...buildPushDataByToken([PUSH_FAKE_TOKEN_SUCCESS], {
+                notification: {
+                    title: 'Condo',
+                    body: `${dayjs().format()} Condo greets you!`,
+                },
+                data: {
+                    appId: 'condo',
+                    type: 'notification',
+                },
+            }),
             appIds: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
             },
@@ -213,8 +220,8 @@ describe('redStore adapter utils', () => {
 
         expect(pushContext).toBeDefined()
         expect(pushContext.notification).toBeDefined()
-        expect(pushContext.notification.title).toEqual(pushData.notification.title)
-        expect(pushContext.notification.body).toEqual(pushData.notification.body)
+        expect(pushContext.notification.title).toEqual(pushData.notificationByToken[PUSH_FAKE_TOKEN_SUCCESS].title)
+        expect(pushContext.notification.body).toEqual(pushData.notificationByToken[PUSH_FAKE_TOKEN_SUCCESS].body)
     })
 
     it.skip('doesnt send push notification to app with disabled notifications', async () => {
@@ -252,9 +259,11 @@ describe('redStore adapter utils', () => {
                 notification: {
                     body: `${dayjs().format()} Condo greets you!`,
                 },
-                data: {
-                    appId: 'condo',
-                    type: 'notification',
+                dataByToken: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: {
+                        appId: 'condo',
+                        type: 'notification',
+                    },
                 },
                 appIds: {
                     [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
@@ -273,9 +282,11 @@ describe('redStore adapter utils', () => {
                 notification: {
                     title: 'condo',
                 },
-                data: {
-                    appId: 'condo',
-                    type: 'notification',
+                dataByToken: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: {
+                        appId: 'condo',
+                        type: 'notification',
+                    },
                 },
                 appIds: {
                     [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',

@@ -95,7 +95,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { SubscriptionAccessGuard } from '@condo/domains/subscription/components'
+import { SubscriptionAccessGuard, NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -170,7 +170,7 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { hasSubscription } = useOrganizationSubscription()
+    const { hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
     const disabled = !employee || !hasSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
@@ -381,7 +381,10 @@ const MenuItems: React.FC = () => {
                     {category.items.map((item) => {
                         const isSubscriptionPage = item.path === 'settings'
                         const isDisabled = isSubscriptionPage ? !employee : disabled
-                        
+                        const featureTooltip = ({ element, placement }) => (
+                            <NoSubscriptionTooltip path={`/${item.path}`} children={element} placement={placement} />
+                        )
+
                         return (
                             <MenuItem
                                 id={item.id}
@@ -392,6 +395,7 @@ const MenuItems: React.FC = () => {
                                 disabled={isDisabled}
                                 isCollapsed={isCollapsed}
                                 excludePaths={item.excludePaths}
+                                toolTipDecorator={featureTooltip}
                             />
                         )
                     })}
@@ -399,6 +403,19 @@ const MenuItems: React.FC = () => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
+                        const isAppAvailable = isB2BAppEnabled(app.id)
+
+                        const miniappTooltip = ({ element, placement }) => (
+                            <NoSubscriptionTooltip b2bAppId={app.id} children={element} placement={placement} />
+                        )
+                        
+                        let tooltipDecorator = null
+                        if (disabled) {
+                            tooltipDecorator = wrapElementIntoNoOrganizationToolTip
+                        } else if (!isAppAvailable) {
+                            tooltipDecorator = miniappTooltip
+                        }
+
                         return <MenuItem
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
@@ -408,7 +425,7 @@ const MenuItems: React.FC = () => {
                             labelRaw
                             disabled={disabled}
                             isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                            toolTipDecorator={tooltipDecorator}
                             excludePaths={[miniAppsPattern]}
                         />
                     })}

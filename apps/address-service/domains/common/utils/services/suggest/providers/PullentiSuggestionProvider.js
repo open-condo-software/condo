@@ -1,7 +1,9 @@
+const get = require('lodash/get')
 const uniqBy = require('lodash/uniqBy')
 
 const { createInstance } = require('@open-condo/clients/pullenti-client')
 
+const { HEURISTIC_TYPE_FIAS_ID, HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { getXmlParser, normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
 const { maybeBoostQueryWithTin } = require('@address-service/domains/common/utils/services/utils/pullenti/queryBooster')
@@ -70,6 +72,29 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
         const uniqNorm = uniqBy(norm.filter(Boolean), (item) => item.value)
 
         return uniqNorm
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Pullenti provider uses house_fias_id as unique identifier when available.
+     * Falls back to parent implementation if house_fias_id is not present.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string|null}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
+
+        if (houseFiasId) {
+            return `${HEURISTIC_TYPE_FIAS_ID}:${houseFiasId}`
+        }
+
+        const fallbackKey = super.generateAddressKey(normalizedBuilding)
+        if (fallbackKey) {
+            return `${HEURISTIC_TYPE_FALLBACK}:${fallbackKey}`
+        }
+
+        return fallbackKey
     }
 }
 

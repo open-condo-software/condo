@@ -29,6 +29,17 @@ const getRandomTokenData = (extraAttrs = {}) => {
     }
 }
 
+const getRandomPushTokenData = (extraAttrs = {}) => {
+    const isVoIP = extraAttrs.isVoIP || !extraAttrs.isPush ||  faker.datatype.boolean()
+    return {
+        token: faker.datatype.uuid(),
+        transport: get(extraAttrs, 'pushTransport') || sample(PUSH_TRANSPORT_TYPES),
+        isVoIP,
+        isPush: !isVoIP,
+        ...extraAttrs,
+    }
+}
+
 /**
  * Mimics redStore request result
  * @returns {{responses: *[], successCount: number, failureCount: number}}
@@ -71,6 +82,16 @@ function getFakeSuccessResponse () {
     }
 }
 
+function buildPushDataByToken (tokens, { notification, data }) {
+    const dataByToken = Object.fromEntries(
+        tokens.map(token => [token, data])
+    )
+    const notificationByToken = Object.fromEntries(
+        tokens.map(token => [token, notification])
+    )
+    return { dataByToken, notificationByToken, tokens }
+}
+
 module.exports = {
     getRandomTokenData,
     getRandomFakeSuccessToken,
@@ -78,4 +99,7 @@ module.exports = {
     getEmptyResult,
     getFakeErrorResponse,
     getFakeSuccessResponse,
+    getRandomPushTokenData,
+
+    buildPushDataByToken,
 }

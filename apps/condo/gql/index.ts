@@ -5213,6 +5213,7 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
       priority
     }
     isTrial
+    startAt
     endAt
     meta
   }

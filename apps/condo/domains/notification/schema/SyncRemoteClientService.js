@@ -5,12 +5,62 @@ const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
 const pickBy = require('lodash/pickBy')
 
-const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { wrapWithGQLError } = require('@open-condo/keystone/utils/errors/wrapWithGQLError')
 
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
+const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK,
+} = require('@condo/domains/notification/constants/constants')
+const { DEVICE_KEY_VALIDATION_ERROR, INVALID_DEVICE_KEY } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
 
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('../constants/constants')
+const ERRORS = {
+    ...PUSH_TOKENS_VALIDATION_ERRORS,
+    DEVICE_KEY_VALIDATION_ERROR: {
+        code: BAD_USER_INPUT,
+        type: DEVICE_KEY_VALIDATION_ERROR,
+        message: '"deviceKey" validation error',
+    },
+    INVALID_DEVICE_KEY: {
+        code: BAD_USER_INPUT,
+        type: INVALID_DEVICE_KEY,
+        message: '"deviceKey" should be a valid UUID',
+    },
+}
+
+const TEMP_PREFERRED_PUSH_TRANSPORTS_ORDER = [PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK]
+const TEMP_TRANSPORT_PREFERENCE_INDEXES = Object.fromEntries(TEMP_PREFERRED_PUSH_TRANSPORTS_ORDER.map((transport, idx) => [transport, idx]))
+
+const SENSITIVE_FIELDS = [
+    /^push/,
+    /^meta$/,
+    /^owner$/,
+]
+
+function _cleanRemoteClient (rawClient) {
+    return Object.fromEntries(
+        Object.entries(rawClient).map(([key, value]) => ([
+            key,
+            SENSITIVE_FIELDS.some(field => field.test(key)) ? null : value,
+        ]))
+    )
+}
+
+function pickPushTokenToReplaceOldOne ({ pushTokens, isVoIP }) {
+    const voipOrDefaultKey = isVoIP ? 'isVoIP' : 'isPush'
+    const orderedByPreferencePushTokens = [...pushTokens].sort(({ transport: transportA }, { transport: transportB }) => {
+        const preferenceIndexA = TEMP_TRANSPORT_PREFERENCE_INDEXES[transportA]
+        const preferenceIndexB = TEMP_TRANSPORT_PREFERENCE_INDEXES[transportB]
+        return preferenceIndexA - preferenceIndexB
+    })
+    const firstPushTokenForVoIPType = orderedByPreferencePushTokens.find(pushToken => pushToken[voipOrDefaultKey])
+    return firstPushTokenForVoIPType || null
+}
+
 
 const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
     types: [
@@ -28,7 +78,56 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
         },
         {
             access: true,
-            type: 'input SyncRemoteClientInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, appId: String!, pushToken: String, pushTransport: PushTransportType, devicePlatform: DevicePlatformType, pushType: PushType, meta: JSON, pushTokenVoIP: String, pushTransportVoIP: PushTransportType, pushTypeVoIP: PushType }',
+            type: `input PushToken {
+                    token: String!,
+                    transport: PushTransportType!,
+                    """
+                    Specifies if token can be used to receive default push messages
+                    """
+                    isPush: Boolean!
+                     """
+                    Specifies if token can be used to receive VoIP push messages
+                    """
+                    isVoIP: Boolean!,
+                }
+            `,
+        },
+        {
+            access: true,
+            type: `input SyncRemoteClientInput { 
+                dv: Int!, 
+                sender: SenderFieldInput!,
+                
+                appId: String!,
+                deviceId: String!,
+                """
+                Second private factor of ownership to remote client, since deviceId is treated as public info. If not provided or changed, existing tokens will be deleted
+                """
+                deviceKey: ID,
+                devicePlatform: DevicePlatformType,
+                
+                """
+                Preferred way to receive default push messages on this device
+                """
+                pushType: PushType,
+                """
+                Preferred way to receive VoIP push messages on this device
+                """
+                pushTypeVoIP: PushType,
+                
+                pushToken: String @deprecated(reason: "Use pushTokens instead"),
+                pushTransport: PushTransportType @deprecated(reason: "Use pushTokens instead"),
+                
+                pushTokenVoIP: String @deprecated(reason: "Use pushTokens instead"),
+                pushTransportVoIP: PushTransportType @deprecated(reason: "Use pushTokens instead"),
+                
+                """
+                List of tokens received from messaging providers / sdks
+                """
+                pushTokens: [PushToken!],
+                
+                meta: JSON,
+            }`,
         },
     ],
 
@@ -36,14 +135,86 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
         {
             access: access.canSyncRemoteClient,
             schema: 'syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient',
+            doc: {
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
                 const {
                     data: {
-                        dv, sender, deviceId, appId,
-                        pushToken, pushTransport, devicePlatform, pushType, meta,
-                        pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
+                        dv, sender, deviceId, appId, devicePlatform, meta,
+                        pushType,
+                        pushTypeVoIP,
+                        deviceKey, pushTokens: pushTokensRaw = [],
                     },
                 } = args
+                let {
+                    data: { pushToken, pushTransport, pushTokenVoIP, pushTransportVoIP },
+                } = args
+
+                // AI says that direct modification can affect logs
+                const pushTokensInput = [...pushTokensRaw]
+
+                if (pushToken && pushTransport) {
+                    pushTokensInput.push({
+                        token: pushToken,
+                        transport: pushTransport,
+                        isVoIP: false,
+                        isPush: true,
+                    })
+                }
+                if (pushTokenVoIP && pushTransportVoIP) {
+                    pushTokensInput.push({
+                        token: pushTokenVoIP,
+                        transport: pushTransportVoIP,
+                        isVoIP: true,
+                        isPush: false,
+                    })
+                }
+                
+                // --- VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
+
+                const pushTokensValidationError = getPushTokensValidationError(pushTokensInput)
+                if (pushTokensValidationError) {
+                    throw new GQLError(pushTokensValidationError, context)
+                }
+                // TODO(YEgorLu): DOMA-13021 sync new models using this data, do not put tokens data in RemoteClient anymore
+                const pushTokens = deduplicatePushTokens(pushTokensInput)
+
+                // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
+                if (typeof deviceKey === 'string') {
+                    const isValidUuid = UUID_REGEXP.test(deviceKey)
+                    if (!isValidUuid) {
+                        throw new GQLError(ERRORS.INVALID_DEVICE_KEY, context)
+                    }
+                    // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
+                    const { keystone } = getSchemaCtx('User')
+                    try {
+                        // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
+                        keystone.lists['User'].fieldsByPath.password.validateNewPassword(deviceKey)
+                    } catch (err) {
+                        throw wrapWithGQLError(err, context, ERRORS.DYNAMIC_DEVICE_KEY_VALIDATION_ERROR)
+                    }
+                }
+
+                // --- END VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
+
+                // --- THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
+                if (!pushToken) {
+                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, isVoIP: false })
+                    if (pushTokenToReplace) {
+                        pushToken = pushTokenToReplace.token
+                        pushTransport = pushTokenToReplace.transport
+                    }
+                }
+                if (!pushTokenVoIP) {
+                    const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, isVoIP: true })
+                    if (pushTokenToReplace) {
+                        pushTokenVoIP = pushTokenToReplace.token
+                        pushTransportVoIP = pushTokenToReplace.transport
+                    }
+                }
+                // --- END THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
+
 
                 const userId = get(context, 'authedItem.id', null)
                 const existing = await getByCondition('RemoteClient', { deviceId, appId })
@@ -115,7 +286,8 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     }
                 }
 
-                return await getById('RemoteClient', result.id)
+                const client = await getById('RemoteClient', result.id)
+                return _cleanRemoteClient(client)
             },
         },
     ],
@@ -123,4 +295,5 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
 
 module.exports = {
     SyncRemoteClientService,
+    ERRORS,
 }

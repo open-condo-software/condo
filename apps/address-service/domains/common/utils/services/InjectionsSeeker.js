@@ -4,7 +4,12 @@ const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('@address-service/domains/add
 const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
+const { HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+
+const JOINER = '~'
+const SPACE_REPLACER = '_'
+const SPECIAL_SYMBOLS_TO_REMOVE_REGEX = /[!@#$%^&*)(+=.,_:;"'`[\]{}№|<>~]/g
 
 /**
  * A class used to search injections within database.
@@ -199,6 +204,86 @@ class InjectionsSeeker {
             '{ typeShort typeFull name } cityDistrict { typeShort typeFull name } settlement { typeShort typeFull name } ' +
             'street { typeShort typeFull name } house { typeShort typeFull name } block { typeShort typeFull name }'
         )
+    }
+
+    /**
+     * Generates a fallback key from address parts.
+     * Used as the lowest-reliability heuristic when no provider-specific ID is available.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string}
+     * @protected
+     */
+    generateFallbackKey (normalizedBuilding) {
+        const data = normalizedBuilding.data
+
+        /**
+         * @type {string[]}
+         */
+        const parts = [
+            get(data, 'country'),
+            get(data, 'region'),
+            get(data, 'area'),
+            get(data, 'city'),
+            get(data, 'city_district'),
+            get(data, 'settlement'),
+            get(data, 'street_type_full'),
+            get(data, 'street'),
+            get(data, 'house'),
+            get(data, 'block_type_full'),
+            get(data, 'block'),
+        ]
+
+        return parts
+            // Remove empty parts
+            .filter(Boolean)
+            // Keep single space between words
+            .map(
+                (part) => (
+                    String(part)
+                        .replace(SPECIAL_SYMBOLS_TO_REMOVE_REGEX, '')
+                        .split(/\s/)
+                        .filter((word) => Boolean(word.trim()))
+                        .join(' ')
+                        .replace(/\s/g, SPACE_REPLACER)
+                ),
+            )
+            // Remove newly appeared empty parts
+            .filter(Boolean)
+            .join(JOINER)
+            .toLowerCase()
+    }
+
+    /**
+     * Extract all possible heuristic identifiers from normalized data.
+     * Injections only have fallback key (no external IDs available).
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
+     */
+    extractHeuristics (normalizedBuilding) {
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        if (!fallbackKey) return []
+
+        return [{
+            type: HEURISTIC_TYPE_FALLBACK,
+            value: fallbackKey,
+            reliability: 10,
+            meta: null,
+        }]
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Uses the best (highest reliability) heuristic as the key.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const heuristics = this.extractHeuristics(normalizedBuilding)
+        if (!heuristics.length) return null
+
+        const best = heuristics.sort((a, b) => b.reliability - a.reliability)[0]
+        return `${best.type}:${best.value}`
     }
 }
 

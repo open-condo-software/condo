@@ -16,6 +16,7 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const {
     PUSH_TYPE_DEFAULT,
 } = require('@condo/domains/notification/constants/constants')
+const { buildPushDataByToken } = require('@condo/domains/notification/utils/testSchema/utils')
 
 const { WebhookAdapter } = require('./webhookAdapter.js')
 
@@ -69,9 +70,7 @@ describe('WebhookAdapter', () => {
             const appIds = { [TOKEN]: APP_ID }
 
             const [isOk, result] = await adapter.sendNotification({
-                notification,
-                data,
-                tokens,
+                ...buildPushDataByToken(tokens, { notification, data }),
                 pushTypes,
                 appIds,
             })
@@ -101,7 +100,7 @@ describe('WebhookAdapter', () => {
 
             expect(posted.data).toBeDefined()
             expect(posted.data.type).toBe(NOTIFICATION_TYPE)
-            expect(posted.data.ticketNumber).toBe(String(ticketNumber))
+            expect(posted.data.ticketNumber).toBe(ticketNumber)
             expect(posted.data._title).toBe(notification.title)
             expect(posted.data._body).toBe(notification.body)
         })
@@ -128,9 +127,7 @@ describe('WebhookAdapter', () => {
             const appIds = { [TOKEN]: APP_ID }
 
             const [isOk, result] = await adapter.sendNotification({
-                notification,
-                data,
-                tokens,
+                ...buildPushDataByToken(tokens, { notification, data }),
                 pushTypes,
                 appIds,
             })
@@ -161,7 +158,7 @@ describe('WebhookAdapter', () => {
 
             expect(posted.data).toBeDefined()
             expect(posted.data.type).toBe(NOTIFICATION_TYPE)
-            expect(posted.data.ticketNumber).toBe(String(ticketNumber))
+            expect(posted.data.ticketNumber).toBe(ticketNumber)
             expect(posted.data._title).toBe(notification.title)
             expect(posted.data._body).toBe(notification.body)
         })
@@ -171,9 +168,10 @@ describe('WebhookAdapter', () => {
             const appIds = Object.fromEntries(tokens.map(t => [t, APP_ID]))
 
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'x', body: 'y' },
-                data: { type: NOTIFICATION_TYPE },
-                tokens,
+                ...buildPushDataByToken(tokens, {
+                    notification: { title: 'x', body: 'y' },
+                    data: { type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds,
             })
@@ -199,12 +197,14 @@ describe('WebhookAdapter', () => {
 
             const tokenA = `tok_${faker.random.alphaNumeric(12)}`
             const tokenB = `tok_${faker.random.alphaNumeric(12)}`
+            const tokens = [tokenA, tokenB]
             const appIds = { [tokenA]: APP_ID, [tokenB]: APP_ID2 }
 
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'multi', body: 'apps' },
-                data: { type: NOTIFICATION_TYPE },
-                tokens: [tokenA, tokenB],
+                ...buildPushDataByToken(tokens, {
+                    notification: { title: 'multi', body: 'apps' },
+                    data: { type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds,
             })
@@ -234,9 +234,10 @@ describe('WebhookAdapter', () => {
             const appIds = { [tokenA]: APP_ID }
 
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'multi', body: 'apps' },
-                data: { type: NOTIFICATION_TYPE },
-                tokens: [tokenA],
+                ...buildPushDataByToken([tokenA], {
+                    notification: { title: 'multi', body: 'apps' },
+                    data: { type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds,
             })
@@ -250,9 +251,10 @@ describe('WebhookAdapter', () => {
             expect(urls).toEqual([URL].sort())
 
             const [isOk2, result2] = await adapter.sendNotification({
-                notification: { title: 'multi', body: 'apps' },
-                data: { type: NOTIFICATION_TYPE2 },
-                tokens: [tokenA],
+                ...buildPushDataByToken([tokenA], {
+                    notification: { title: 'multi', body: 'apps' },
+                    data: { type: NOTIFICATION_TYPE2 },
+                }),
                 pushTypes: {},
                 appIds,
             })
@@ -263,9 +265,10 @@ describe('WebhookAdapter', () => {
             expect(fetch).toHaveBeenCalledTimes(2)
 
             const [isOk3, result3] = await adapter.sendNotification({
-                notification: { title: 'multi', body: 'apps' },
-                data: { type: NON_EXISTING_NOTIFICATION_TYPE },
-                tokens: [tokenA],
+                ...buildPushDataByToken([tokenA], {
+                    notification: { title: 'multi', body: 'apps' },
+                    data: { type: NON_EXISTING_NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds,
             })
@@ -283,9 +286,10 @@ describe('WebhookAdapter', () => {
     describe('disabled apps', () => {
         it('does not send when data.app is in APPS_WITH_DISABLED_NOTIFICATIONS', async () => {
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'blocked', body: 'by policy' },
-                data: { app: 'condo.app.clients', type: NOTIFICATION_TYPE },
-                tokens: [TOKEN],
+                ...buildPushDataByToken([TOKEN], {
+                    notification: { title: 'blocked', body: 'by policy' },
+                    data: { app: 'condo.app.clients', type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds: { [TOKEN]: APP_ID },
             })
@@ -313,9 +317,10 @@ describe('WebhookAdapter', () => {
             const appIds = { [tokenA]: APP_ID }
 
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'bad', body: 'server' },
-                data: { type: NOTIFICATION_TYPE },
-                tokens: [tokenA],
+                ...buildPushDataByToken([tokenA], {
+                    notification: { title: 'bad', body: 'server' },
+                    data: { type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds,
             })
@@ -333,9 +338,10 @@ describe('WebhookAdapter', () => {
             const tokenMissing = `tok_${faker.random.alphaNumeric(12)}`
 
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'x', body: 'y' },
-                data: { type: NOTIFICATION_TYPE },
-                tokens: [tokenMissing],
+                ...buildPushDataByToken([tokenMissing], {
+                    notification: { title: 'x', body: 'y' },
+                    data: { type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds: { [tokenMissing]: MISSING_APP_ID },
             })
@@ -374,10 +380,13 @@ describe('WebhookAdapter', () => {
                     json: jest.fn().mockResolvedValue({ error: 'bang' }),
                 })
 
+            const tokens = [tokenOk, tokenFail]
+
             const [isOk, result] = await adapter.sendNotification({
-                notification: { title: 'mix', body: 'batch' },
-                data: { app: 'condo', type: NOTIFICATION_TYPE },
-                tokens: [tokenOk, tokenFail],
+                ...buildPushDataByToken(tokens, {
+                    notification: { title: 'mix', body: 'batch' },
+                    data: { app: 'condo', type: NOTIFICATION_TYPE },
+                }),
                 pushTypes: {},
                 appIds: { [tokenOk]: APP_ID, [tokenFail]: APP_ID2 },
             })
@@ -393,9 +402,10 @@ describe('WebhookAdapter', () => {
     describe('validation & utilities', () => {
         it('throws when title is missing', async () => {
             await expect(adapter.sendNotification({
-                tokens: [TOKEN],
-                notification: { body: faker.lorem.sentence() },
-                data: { app: 'condo', type: NOTIFICATION_TYPE },
+                ...buildPushDataByToken([TOKEN], {
+                    notification: { body: faker.lorem.sentence() },
+                    data: { app: 'condo', type: NOTIFICATION_TYPE },
+                }),
                 appIds: { [TOKEN]: APP_ID },
                 pushTypes: {},
             })).rejects.toThrow()
@@ -403,9 +413,10 @@ describe('WebhookAdapter', () => {
 
         it('throws when body is missing', async () => {
             await expect(adapter.sendNotification({
-                tokens: [TOKEN],
-                notification: { title: 'x' },
-                data: { app: 'condo', type: NOTIFICATION_TYPE },
+                ...buildPushDataByToken([TOKEN], {
+                    notification: { title: 'x' },
+                    data: { app: 'condo', type: NOTIFICATION_TYPE },
+                }),
                 appIds: { [TOKEN]: APP_ID },
                 pushTypes: {},
             })).rejects.toThrow()

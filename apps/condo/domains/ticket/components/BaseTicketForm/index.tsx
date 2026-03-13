@@ -66,7 +66,7 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
-import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -83,10 +83,12 @@ import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticke
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
+import styles from './index.module.css'
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
+
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME = 'condoTicketCurrentFormValues'
@@ -215,29 +217,29 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
         return null
     }
 
-    if (!hasMarketplaceFeature) {
-        return (
-            <NoSubscriptionTooltip>
-                <div>
-                    <Col style={{ cursor: 'not-allowed' }}>
-                        <Space size={4} direction='horizontal'>
-                            <PlusCircle />
-                            <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
-                        </Space>
-                    </Col>
-                </div>
-            </NoSubscriptionTooltip>
-        )
-    }
-
     return (
         <>
-            <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
-                <Space size={4} direction='horizontal'>
-                    <PlusCircle />
-                    <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
-                </Space>
-            </Col>
+            <SubscriptionGuardWithTooltip
+                feature='marketplace'
+                placement='left'
+                fallback={
+                    <div>
+                        <Col className={styles.cursorNotAllowed}>
+                            <Space size={4} direction='horizontal'>
+                                <PlusCircle />
+                                <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
+                            </Space>
+                        </Col>
+                    </div>
+                }
+            >
+                <Col className={styles.cursorPointer} onClick={() => setCreateInvoiceModalOpen(true)}>
+                    <Space size={4} direction='horizontal'>
+                        <PlusCircle />
+                        <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                    </Space>
+                </Col>
+            </SubscriptionGuardWithTooltip>
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm
@@ -318,7 +320,7 @@ const TicketFormInvoicesEmptyContent = ({
                         <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
                     </Col>
                     <Col span={24}>
-                        <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
+                        <Row className={styles.invoiceRow} justify='center' align='middle'>
                             <AddInvoiceButton
                                 initialValues={initialValues}
                                 form={form}
@@ -717,7 +719,6 @@ export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
 }
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
-const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
 const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }
 const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
@@ -928,7 +929,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <TicketPropertyHintCard
                 propertyId={selectedPropertyId}
-                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                className={styles.ticketPropertyHintCard}
                 colProps={HINTS_COL_PROPS}
             />
             <IncidentHintsBlock

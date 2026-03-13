@@ -58,6 +58,15 @@ const suggestionContexts = {
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
+    boundless: {
+        [DADATA_PROVIDER]: {
+            from_bound: undefined,
+            to_bound: undefined,
+            restrict_value: undefined,
+        },
+        [GOOGLE_PROVIDER]: {},
+        [YANDEX_PROVIDER]: {},
+    },
 }
 
 const searchContexts = {

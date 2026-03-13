@@ -51,12 +51,15 @@ describe('PaymentsFile', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
-        anonymous = await makeClient();
+        anonymous = await makeClient()
 
-        [organization] = await createTestOrganization(admin)
-        await createTestBillingIntegration(admin);
-        [integration] = await createTestAcquiringIntegration(admin);
-        [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+        await createTestBillingIntegration(admin)
+        const organizationResult = await createTestOrganization(admin)
+        const integrationResult = await createTestAcquiringIntegration(admin)
+        const contextResult = await createTestAcquiringIntegrationContext(admin, organizationResult[0], integrationResult[0])
+        organization = organizationResult[0]
+        integration = integrationResult[0]
+        context = contextResult[0]
 
     })
 

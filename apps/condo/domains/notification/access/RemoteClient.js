@@ -5,9 +5,9 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 /**
- * Manages native readability of schema. Is readable by admin and and authorized owner user.
+ * Manages native readability of schema. Is readable by admin only
  * @param user
- * @returns {Promise<{}|boolean|{owner: {id}}>}
+ * @returns {Promise<{}|boolean>}
  */
 async function canReadRemoteClients ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -15,8 +15,9 @@ async function canReadRemoteClients ({ authentication: { item: user } }) {
 
     if (user.isAdmin) return {}
 
-    // User allowed to read own device info
-    return { owner: { id: user.id } }
+    // NOTE: since user on device might change during reauthentication
+    // we don't allow to read remote clients for non-admin users
+    return false
 }
 
 /**

@@ -1,4 +1,8 @@
-const { isEmpty, isObject, isNull, get, cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -131,6 +135,7 @@ class HCMAdapter {
     /**
      * Mimics HMS failure response
      * @param token
+     * @param appType
      * @returns {{msg: string, code: string, requestId}}
      */
     static getFakeErrorResponse (token, appType) {
@@ -165,6 +170,7 @@ class HCMAdapter {
      * because it's almost impossible to get real FireBase push token in automated way.
      * @param result
      * @param fakeNotifications
+     * @param appIds
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications, appIds) {
@@ -190,30 +196,32 @@ class HCMAdapter {
     /**
      * Prepares notification for either/both sending to HMS and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
-     * @param data
+     * @param notificationByTokenRaw
+     * @param dataByToken
      * @param tokens
      * @param pushTypes
      * @param appIds
      * @returns {Promise<[[], [], {}]>}
      */
-    static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}) {
+    static async prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}) {
         const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
-        const notification = HCMAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
+            const notification = HCMAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = HCMAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const pushData = isSilentDataPushEnabled && pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
                     data: JSON.stringify({
-                        ...preparedData,
+                        ...data,
                         '_title': notification.title,
                         '_body': notification.body,
                     }),
@@ -221,12 +229,15 @@ class HCMAdapter {
                 }
                 : {
                     token: pushToken,
-                    data: preparedData,
+                    data: data,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken]) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken])
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -240,23 +251,24 @@ class HCMAdapter {
      * Would try to send request to HMS only if HMS is initialized and `tokens` array contains real (non-fake) items.
      * Would succeed if at least one real token succeeds in delivering notification through HMS, or
      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-     * @param notification
-     * @param data
+     * @param notificationByToken
+     * @param dataByToken
      * @param tokens
      * @param pushTypes
      * @param appIds
+     * @param metaByToken
      * @returns {Promise<[boolean, {error: string}]|[boolean, (*&{pushContext: (*[]|{})})]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}) {
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}) {
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
+        const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notificationByToken, dataByToken, tokens, pushTypes, appIds)
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
         logger.info({
             msg: 'sendNotification prepareBatchData done',
             data: {
-                args: { notification, data, tokens, pushTypes },
+                args: { notificationByToken, dataByToken, tokens, pushTypes },
                 result: { notifications, fakeNotifications, pushContext },
             },
         })
@@ -354,7 +366,7 @@ class HCMAdapter {
                 msg: 'sendNotification end',
                 data: {
                     result: hcmResult,
-                    args: { notification, notifications, fakeNotifications, appIds },
+                    args: { notifications, fakeNotifications, appIds },
                 },
             })
 

@@ -2,22 +2,24 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
+const { OneSignalAdapter } = require('@condo/domains/notification/adapters/oneSignalAdapter')
 const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const { WebhookAdapter } = require('@condo/domains/notification/adapters/webhookAdapter')
 const {
     PUSH_TRANSPORT,
-    PUSH_TRANSPORT_TYPES,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TRANSPORT_REDSTORE,
     PUSH_TRANSPORT_WEBHOOK,
+    PUSH_TRANSPORT_ONESIGNAL,
     TICKET_CREATED_TYPE,
     TICKET_COMMENT_CREATED_TYPE,
     PASS_TICKET_CREATED_MESSAGE_TYPE,
@@ -26,8 +28,19 @@ const {
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
-
+const { encryptPushData } = require('@condo/domains/notification/utils/serverSchema/push/encryption')
+const { getTokens } = require('@condo/domains/notification/utils/serverSchema/push/helpers')
 const logger = getLogger()
+
+/**
+ * @typedef PushAdapterSettings
+ * @type {{
+ *     encryption?: Record<string, string> // - appId to encryptionVersion
+ * }}
+ */
+
+/** @type {PushAdapterSettings} */
+const PUSH_ADAPTER_SETTINGS = JSON.parse(conf.PUSH_ADAPTER_SETTINGS || '{}')
 
 const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
     TICKET_CREATED_TYPE,
@@ -42,76 +55,7 @@ const ADAPTERS = {
     [PUSH_TRANSPORT_HUAWEI]: new HCMAdapter(),
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
     [PUSH_TRANSPORT_WEBHOOK]: new WebhookAdapter(),
-}
-
-/**
- * Prepares conditions
- * @param ownerId
- * @param remoteClientId
- * @param isVoIP
- * @returns {{deletedAt: null, pushToken_not?: null, pushTransport_in?: [string, string, string]}|{deletedAt: null, pushTokenVoIP_not?: null, pushTransportVoIP_in?: [string, string, string]}}
- */
-function getTokensConditions (ownerId, remoteClientId, isVoIP) {
-    const conditions = {
-        deletedAt: null,
-    }
-
-    if (ownerId) conditions.owner = { id: ownerId }
-    if (remoteClientId) conditions.id_in = [remoteClientId]
-
-    if (isVoIP) {
-        conditions.pushTokenVoIP_not = null
-        conditions.pushTransportVoIP_in = PUSH_TRANSPORT_TYPES
-    } else {
-        conditions.pushToken_not =  null
-        conditions.pushTransport_in = PUSH_TRANSPORT_TYPES
-    }
-
-    return conditions
-}
-
-/**
- * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions. isVoIP flag is used to substitute VoIP pushToken, pushType and pushTransport fields.
- * @param ownerId
- * @param remoteClientId
- * @param isVoIP
- * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
- */
-async function getTokens (ownerId, remoteClientId, isVoIP = false) {
-    if (!ownerId && !remoteClientId) return []
-
-    const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
-    const remoteClients =  await find('RemoteClient', conditions)
-    const tokensByTransport = {
-        [PUSH_TRANSPORT_FIREBASE]: [],
-        [PUSH_TRANSPORT_REDSTORE]: [],
-        [PUSH_TRANSPORT_HUAWEI]: [],
-        [PUSH_TRANSPORT_APPLE]: [],
-        [PUSH_TRANSPORT_WEBHOOK]: [],
-    }
-    const pushTypes = {}
-    const appIds = {}
-    const metaByToken = {}
-
-    if (!isEmpty(remoteClients)) {
-        remoteClients.forEach((remoteClient) => {
-            const {
-                appId, pushToken, pushType, pushTransport,
-                pushTokenVoIP, pushTypeVoIP, pushTransportVoIP,
-                meta,
-            } = remoteClient
-            const transport = isVoIP ? pushTransportVoIP : pushTransport
-            const token = isVoIP ? pushTokenVoIP : pushToken
-            const type = isVoIP ? pushTypeVoIP : pushType
-
-            tokensByTransport[transport].push(token)
-            pushTypes[token] = type
-            appIds[token] = appId
-            metaByToken[token] = meta
-        })
-    }
-
-    return { tokensByTransport, pushTypes, appIds, metaByToken, count: remoteClients.length }
+    [PUSH_TRANSPORT_ONESIGNAL]: new OneSignalAdapter(),
 }
 
 /**
@@ -121,20 +65,53 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
  */
 async function prepareMessageToSend (message) {
     const { user, remoteClient } = message
-    const { notification, data } = await renderTemplate(PUSH_TRANSPORT, message)
+    const { id: notificationId, type, createdAt } = message
+
+    const originalNotification = await renderTemplate(PUSH_TRANSPORT, message)
 
     return {
-        notification,
-        data,
+        message,
+        /** "original notification", using only in processing meta, will be changed for each RemoteClient */
+        notification: originalNotification,
+        /** "original data", may change for each RemoteClient */
+        data: { ...get(message, ['meta', 'data'], {}), notificationId, type, messageCreatedAt: createdAt },
         user: pick(user, ['id']),
         remoteClient,
     }
+}
+
+async function prepareNotificationsByToken ({ adapter, message, tokens, appIds: appIdByToken }) {
+    const uniqAppIds = [...new Set(Object.values(appIdByToken))]
+    const notificationsByAppIdPromises = uniqAppIds.map(async appId => {
+        const notificationRaw = await renderTemplate(PUSH_TRANSPORT, message, { appId })
+        return adapter.constructor.validateAndPrepareNotification(notificationRaw)
+    })
+    const notificationsByAppIdPromisesResults = await Promise.allSettled(notificationsByAppIdPromises)
+    const notificationsByAppId = {}
+
+    for (let i = 0; i < notificationsByAppIdPromisesResults.length; i += 1) {
+        const appId = uniqAppIds[i]
+        if (notificationsByAppIdPromisesResults[i].status !== 'fulfilled') {
+            logger.error({ msg: 'renderTemplate error', entity: 'Message', entityId: message.id, err: notificationsByAppIdPromisesResults[i].reason, data: { appId } })
+            continue
+        }
+        notificationsByAppId[appId] = notificationsByAppIdPromisesResults[i].value
+    }
+
+    const notificationByToken = {}
+    for (const token of tokens) {
+        const appId = appIdByToken[token]
+        notificationByToken[token] = notificationsByAppId[appId]
+    }
+
+    return notificationByToken
 }
 
 /**
  * Mixes results from different push adapter to single result container
  * @param container
  * @param result
+ * @param transport
  * @returns {*}
  */
 const mixResult = (container, result, transport) => {
@@ -179,6 +156,38 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP })
     // TODO: handle invalid / expired tokens for apple and others
 }
 
+function prepareDataByToken ({ adapter, tokens, baseData, appIds }) {
+    /** @type {Record<string, { success: boolean, encryptedData?: Record<string, unknown> | null }>} */
+    const encryptionStatsInfo = {}
+    const dataByToken = {}
+
+    const tokensWhichNeedEncryption = tokens.filter(token => !!PUSH_ADAPTER_SETTINGS.encryption?.[appIds[token]])
+    const tokensWhichDoNotNeedEncryption = tokens.filter(token => !PUSH_ADAPTER_SETTINGS.encryption?.[appIds[token]])
+
+    // prepare data for simple tokens
+    tokensWhichDoNotNeedEncryption.forEach(token => {
+        // NOTE(YEgorLu): Class.staticMethod() === new Class().constructor.staticMethod()
+        dataByToken[token] = adapter.constructor.prepareData(baseData, token)
+    })
+
+    // encrypt data for needed tokens if possible
+    tokensWhichNeedEncryption.forEach(token => {
+        const appId = appIds[token]
+        const preparedDataForToken = adapter.constructor.prepareData(baseData, token)
+        const encryptionVersion = PUSH_ADAPTER_SETTINGS.encryption[appId]
+        const encryptedDataForToken = encryptPushData(encryptionVersion, preparedDataForToken, { appId })
+
+        if (encryptedDataForToken) {
+            encryptionStatsInfo[appId] = { success: true, appId: appIds[token], encryptedData: encryptedDataForToken }
+            dataByToken[token] = encryptedDataForToken
+        } else {
+            encryptionStatsInfo[appId] = { success: false, appId: appIds[token], encryptedData: null }
+        }
+    })
+
+    return { dataByToken, encryptionStatsInfo }
+}
+
 /**
  * Send notification using corresponding transports (depending on FireBase/Huawei/Apple, appId, isVoIP)
  * @param notification
@@ -188,7 +197,7 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP })
  * @param isVoIP
  * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
  */
-async function send ({ notification, data, user, remoteClient } = {}, isVoIP = false) {
+async function send ({ data, message, user, remoteClient } = {}, isVoIP = false) {
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
     const { tokensByTransport, pushTypes: initialPushTypes, appIds, metaByToken, count } = await getTokens(userId, remoteClientId, isVoIP)
@@ -196,28 +205,66 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
 
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.
-    const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(data, 'type'))
+    const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(message, 'type'))
     const pushTypes = Object.fromEntries(
         Object.entries(initialPushTypes).map(([key, value]) =>
             preferredPushTypeForMessage ? [key, preferredPushTypeForMessage] : [key, value]
         )
     )
 
+    const encryptionStatsInfo = {}
     let container = {}
     let _isOk = false
 
-    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(data, 'type'))) {
+    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(message, 'type'))) {
         return [false, { error: 'Disabled type for push transport' }]
     }
     if (!count) return [false, { error: 'No pushTokens available.' }]
 
     const promises = await Promise.allSettled(Object.keys(tokensByTransport).map(async transport => {
-        const tokens = tokensByTransport[transport]
+        let tokens = tokensByTransport[transport]
         if (isEmpty(tokens)) return null
-
         const adapter = ADAPTERS[transport]
-        const payload = { tokens, pushTypes, appIds, notification, data, metaByToken }
+
+        const { dataByToken, encryptionStatsInfo: encryptionStatsInfoForCurrentTransport } = prepareDataByToken({ adapter, tokens, baseData: data, appIds })
+        Object.keys(encryptionStatsInfoForCurrentTransport).forEach((token) => {
+            encryptionStatsInfo[token] = encryptionStatsInfoForCurrentTransport[token]
+        })
+        const tokensWithNoData = tokens.filter(token => !dataByToken[token])
+        tokens = tokens.filter(token => !!dataByToken[token]) // if encryption failed, do not send it
+
+        const notificationByToken = await prepareNotificationsByToken({ adapter, message, tokens, appIds })
+        // NOTE(YEgorLu): case when there is no notification for RemoteClient: translation overrides for appId assigned in env, but in these overrides there is no translation for message type, logic doesn't fall back and return missing. (Have key for appId - must have translation)
+        const tokensWithNoNotification = tokens.filter(token => !notificationByToken[token])
+        tokens = tokens.filter(token => !!notificationByToken[token])
+
+        const tokensWithNoDataResponses = tokensWithNoData.map(token => ({
+            success: false,
+            pushToken: token,
+            appId: appIds[token],
+            pushType: pushTypes[token],
+            error: 'empty data for token',
+        }))
+
+        const tokensWithNoNotificationResponses = tokensWithNoNotification.map(token => ({
+            success: false,
+            pushToken: token,
+            appId: appIds[token],
+            pushType: pushTypes[token],
+            error: 'empty notification for token',
+        }))
+
+        if (tokens.length === 0) {
+            return [false, { successCount: 0, failureCount: tokensWithNoData.length + tokensWithNoNotification.length, responses: tokensWithNoDataResponses.concat(tokensWithNoNotificationResponses) }, transport]
+        }
+
+        const payload = { tokens, pushTypes, appIds, notificationByToken, dataByToken, metaByToken }
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
+
+        result.failureCount ??= 0
+        result.failureCount += tokensWithNoData.length + tokensWithNoNotification.length
+        result.responses ??= []
+        result.responses.push(...tokensWithNoDataResponses, ...tokensWithNoNotificationResponses)
 
         await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })
 
@@ -225,6 +272,8 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         const sendNotificationResult = [isOk, result, transport]
         return sendNotificationResult
     }))
+
+    logger.info({ msg: 'encryptionStatsInfo', entity: 'Message', entityId: data.notificationId, data: { encryptionStatsInfo } })
 
     for (const p of promises) {
         if (p.status !== 'fulfilled') continue
@@ -243,4 +292,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
 module.exports = {
     prepareMessageToSend,
     send,
+
+    // for tests
+    prepareDataByToken,
 }

@@ -92,6 +92,7 @@ interface SubscriptionPlanCardProps {
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
     emoji?: string
+    trialActivateLoading?: boolean
 }
 
 interface SubscriptionPlanBadgeProps {
@@ -172,7 +173,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -186,7 +187,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const { useFlagValue } = useFeatureFlags()
     const { subscriptionContext: activeSubscriptionContext, daysRemaining } = useOrganizationSubscription()
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
-    const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
     
     const { plan, prices } = planInfo
     const price = prices?.[0]
@@ -220,9 +220,37 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     
     const canManageSubscriptions = role?.canManageSubscriptions
     const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
-    const activePlanPriority = activeSubscriptionContext?.subscriptionPlan?.priority
     const currentPlanPriority = plan?.priority
-    const isLowerPriorityThanActive = activePlanPriority !== undefined && currentPlanPriority !== undefined && currentPlanPriority < activePlanPriority
+    
+    const hasHigherPriorityPaidSubscription = useMemo(() => {
+        if (currentPlanPriority === undefined) return false
+        
+        const now = new Date()
+        
+        return activatedSubscriptions.some(ctx => {
+            const isPaid = !ctx.isTrial
+            const ctxPriority = ctx.subscriptionPlan?.priority
+            const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
+            const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
+            const isActive = hasStarted && hasNotEnded
+            
+            return isPaid && isActive && ctxPriority !== undefined && ctxPriority > currentPlanPriority
+        })
+    }, [activatedSubscriptions, currentPlanPriority])
+    
+    const isActivePaidPlan = useMemo(() => {
+        const now = new Date()
+        
+        return activatedSubscriptions.some(ctx => {
+            const isCurrentPlan = ctx.subscriptionPlan?.id === plan?.id
+            const isPaid = !ctx.isTrial
+            const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
+            const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
+            const isActive = hasStarted && hasNotEnded
+            
+            return isCurrentPlan && isPaid && isActive
+        })
+    }, [activatedSubscriptions, plan?.id])
     
     const handleActivatePlanForModal = useCallback(async () => {
         if (!price?.id) return
@@ -290,18 +318,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const handleTrialActivateClick = useCallback(async () => {
         if (!price?.id) return
 
-        setTrialActivateLoading(true)
-        try {
-            await handleActivatePlan({
-                priceId: price.id,
-                isTrial: true,
-                planName: plan.name,
-                trialDays: plan.trialDays,
-                isCustomPrice,
-            })
-        } finally {
-            setTrialActivateLoading(false)
-        }
+        await handleActivatePlan({
+            priceId: price.id,
+            isTrial: true,
+            planName: plan.name,
+            trialDays: plan.trialDays,
+            isCustomPrice,
+        })
     }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
 
     const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
@@ -400,7 +423,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     </Typography.Paragraph>
                                 </div>
                             </Space>
-                            {!isLowerPriorityThanActive && (
+                            {!hasHigherPriorityPaidSubscription && (
                                 <Space size={24} direction='vertical' width='100%'>
                                     <Space size={24} direction='vertical'>
                                         <Space size={4} direction='horizontal'>
@@ -420,7 +443,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Link>
                                         )}
                                     </Space>
-                                    {!isLowerPriorityThanActive && !isFreeForPartner && (!isActivePlan || shouldShowPayButtonForActivePlan) && (
+                                    {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (
                                         <Space size={16} direction='vertical' width='100%'>
                                             <Button
                                                 block
@@ -437,7 +460,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                                     type='accent'
                                                     onClick={handleTrialActivateClick} 
                                                     loading={trialActivateLoading}
-                                                    disabled={!canManageSubscriptions}
+                                                    disabled={!canManageSubscriptions || trialActivateLoading}
                                                 >
                                                     {TryFreeMessage}
                                                 </Button>

@@ -536,6 +536,7 @@ __metadata:
     "@accruals-gateway/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
     "@graphql-codegen/typescript": ^4.0.9
+    "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -549,6 +550,7 @@ __metadata:
     mkdirp: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
+    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -563,6 +565,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@open-keystone/app-admin-ui": ^9.0.5
     "@types/jest": ^29.5.14
     "@types/node": ^22
@@ -739,6 +742,7 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@hcaptcha/react-hcaptcha": ^1.10.1
     "@metro-fs/analytics-plugin-posthog": ^1.14.0
+    "@onesignal/node-onesignal": 5.4.0-beta1
     "@open-condo/apollo": "workspace:^"
     "@open-condo/billing": "workspace:^"
     "@open-condo/bridge": "workspace:^"
@@ -750,6 +754,7 @@ __metadata:
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    "@open-condo/messaging": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -10670,6 +10675,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nats-io/nats-core@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@nats-io/nats-core@npm:3.3.1"
+  dependencies:
+    "@nats-io/nkeys": 2.0.3
+    "@nats-io/nuid": 2.0.3
+  checksum: 5e3904b16dbc7f094e4a9679b9faaf53b7796a5a4df235a82526621a7b4836cd8cb1cbd2d4e7826e4e3f531be82265ab939747108147ddb55efd656bda1b4c50
+  languageName: node
+  linkType: hard
+
+"@nats-io/nkeys@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@nats-io/nkeys@npm:2.0.3"
+  dependencies:
+    tweetnacl: ^1.0.3
+  checksum: bc00502688aad5c3f1c01b24e4828dda145a1b102f81287f9ad71745343ebce61324a555e7303d08929330a546167eb2902d1c38628189fda78373bf8c5db15a
+  languageName: node
+  linkType: hard
+
+"@nats-io/nuid@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@nats-io/nuid@npm:2.0.3"
+  checksum: 7f19f1e90a51a9f136fa2719cc577b349093514c13c7fcc48737228b64c7b1fc04a8650b358629ef23af04bb95994a20d8d0879deda8579bcb8546c9788c4692
+  languageName: node
+  linkType: hard
+
 "@neoconfetti/react@npm:^1.0.0":
   version: 1.0.0
   resolution: "@neoconfetti/react@npm:1.0.0"
@@ -11087,6 +11118,18 @@ __metadata:
   version: 0.1.1
   resolution: "@one-ini/wasm@npm:0.1.1"
   checksum: 11de17108eae57c797e552e36b259398aede999b4a689d78be6459652edc37f3428472410590a9d328011a8751b771063a5648dd5c4205631c55d1d58e313156
+  languageName: node
+  linkType: hard
+
+"@onesignal/node-onesignal@npm:5.4.0-beta1":
+  version: 5.4.0-beta1
+  resolution: "@onesignal/node-onesignal@npm:5.4.0-beta1"
+  dependencies:
+    btoa: ^1.2.1
+    es6-promise: ^4.2.4
+    form-data: ^2.5.0
+    url-parse: ^1.4.3
+  checksum: 87cf608e87aa53a460397d823eee636b1c6cef5f6a067b3abed939652953b4f2b0a81b6d611c302904855c40efe9353aae94508ac492c77a401fb72f5651cbd7
   languageName: node
   linkType: hard
 
@@ -11977,6 +12020,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/messaging@workspace:^, @open-condo/messaging@workspace:packages/messaging":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/messaging@workspace:packages/messaging"
+  dependencies:
+    "@nats-io/nats-core": ^3.3.1
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    express: ^4.21.2
+    jsonwebtoken: ^9.0.0
+    nats: ^2.28.2
+    next-cookies: ^2.0.3
+    nkeys.js: ^1.1.0
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/migrator@workspace:packages/migrator":
   version: 0.0.0-use.local
   resolution: "@open-condo/migrator@workspace:packages/migrator"
@@ -12805,14 +12865,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/core@npm:2.5.0":
-  version: 2.5.0
-  resolution: "@opentelemetry/core@npm:2.5.0"
+"@opentelemetry/core@npm:2.6.0":
+  version: 2.6.0
+  resolution: "@opentelemetry/core@npm:2.6.0"
   dependencies:
     "@opentelemetry/semantic-conventions": ^1.29.0
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.10.0"
-  checksum: b609e923075b61b523aeba60ed91c9889cb6eda813bc635a1a7f62143f77ef41cf95f7f913d36dba4157a8ffafa1137644b460dbdee858466f563ca3198dc915
+  checksum: 4a939e08152833e828fa9ce64c3ac8cbb372aa9ae814183aa4f4be761c60b17ef4115fd9317d5ce3ab8c7c5a9b281a726b7297c558c5ca9a5693e4e7e59c7986
   languageName: node
   linkType: hard
 
@@ -13099,14 +13159,14 @@ __metadata:
   linkType: hard
 
 "@opentelemetry/resources@npm:^2.2.0":
-  version: 2.5.0
-  resolution: "@opentelemetry/resources@npm:2.5.0"
+  version: 2.6.0
+  resolution: "@opentelemetry/resources@npm:2.6.0"
   dependencies:
-    "@opentelemetry/core": 2.5.0
+    "@opentelemetry/core": 2.6.0
     "@opentelemetry/semantic-conventions": ^1.29.0
   peerDependencies:
     "@opentelemetry/api": ">=1.3.0 <1.10.0"
-  checksum: 313b2ba0be0c1f55c75441905d0f92c71f39af730bad35d9a37940a775b63743c124b67def9eb7f44aa17bd3fecc70482957f8ce2e2816fa11c25adf67fbfbe2
+  checksum: 822b34551377d3b3faf9d723f20a0d50a32efd9b8c7cd5d7ce4c264df403127cc979e740e53681e50e490ef674cc8e2ca264b2a3e8975aac555dbb074b9d2e82
   languageName: node
   linkType: hard
 
@@ -13242,9 +13302,9 @@ __metadata:
   linkType: hard
 
 "@opentelemetry/semantic-conventions@npm:^1.29.0":
-  version: 1.39.0
-  resolution: "@opentelemetry/semantic-conventions@npm:1.39.0"
-  checksum: 1e7c5241b2b088b0ab822471974188dfe01f635a0f798a2e8cd8b46a68f21e45ed7f385f222237e73117521d7041dfbce8bee01e8a8e59a69d00a4dc64494116
+  version: 1.40.0
+  resolution: "@opentelemetry/semantic-conventions@npm:1.40.0"
+  checksum: e823ab2d8f4c809770485b8b7b30174c047714ed5da047b0c1d07ed0f98c5ac158fce665b7057f2bc942cde659b76e29251d42a52a44b8e77a5f776516d0bc54
   languageName: node
   linkType: hard
 
@@ -13662,19 +13722,19 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@posthog/core@npm:1.23.1":
-  version: 1.23.1
-  resolution: "@posthog/core@npm:1.23.1"
+"@posthog/core@npm:1.23.2":
+  version: 1.23.2
+  resolution: "@posthog/core@npm:1.23.2"
   dependencies:
     cross-spawn: ^7.0.6
-  checksum: d6bb5c59f948b0c1c87b2bd0a682fa20f938dce58433bc0374f8d0b6920f5f089cff37ea50230485089620b827dd529b083587668130054ab219699cd12b4206
+  checksum: 0171e02ae4fbeab2abbbae65f5e2a0ecff1b5f7f86a4e77c0f743a7316d670b9e5b48293ad7196ad919ed9c6f3c61c02f2554a5e274c8bd72a78b7fe437d4565
   languageName: node
   linkType: hard
 
-"@posthog/types@npm:1.351.3":
-  version: 1.351.3
-  resolution: "@posthog/types@npm:1.351.3"
-  checksum: 345f0823b8998d247ed60d4f895957ad4a8b7ed046b20e67beea961af92183526de64289b8f076c71b01992e4dab9661759f8037b56df595bb3ed7a24f3c84b4
+"@posthog/types@npm:1.358.0":
+  version: 1.358.0
+  resolution: "@posthog/types@npm:1.358.0"
+  checksum: 2d2f6bd86ffe8e543aa4b2ed13b8acc020fc0fd3e0c3b16e195cb58c6c14fa995de92f549a9ef08f80bc494a3a36e84566db3d5b7d16bf79cb10b0adc42557a6
   languageName: node
   linkType: hard
 
@@ -20182,6 +20242,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"btoa@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "btoa@npm:1.2.1"
+  bin:
+    btoa: bin/btoa.js
+  checksum: afbf004fb1b1d530e053ffa66ef5bd3878b101c59d808ac947fcff96810b4452abba2b54be687adadea2ba9efc7af48b04228742789bf824ef93f103767e690c
+  languageName: node
+  linkType: hard
+
 "buffer-alloc-unsafe@npm:^1.1.0":
   version: 1.1.0
   resolution: "buffer-alloc-unsafe@npm:1.1.0"
@@ -24632,6 +24701,13 @@ __metadata:
     prettier-plugin-sort-re-exports@0.0.1:
       unplugged: true
   checksum: 67dc43feff6843bd32f0ee419788552fe8ec3cea1fad558c155a5ac842e7eec5ad5f8a45fb3004bcb309a55e0fd71689a907684644c31447a539f29886b09f46
+  languageName: node
+  linkType: hard
+
+"es6-promise@npm:^4.2.4":
+  version: 4.2.8
+  resolution: "es6-promise@npm:4.2.8"
+  checksum: 95614a88873611cb9165a85d36afa7268af5c03a378b35ca7bda9508e1d4f1f6f19a788d4bc755b3fd37c8ebba40782018e02034564ff24c9d6fa37e959ad57d
   languageName: node
   linkType: hard
 
@@ -35352,6 +35428,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nats@npm:^2.28.2":
+  version: 2.29.3
+  resolution: "nats@npm:2.29.3"
+  dependencies:
+    nkeys.js: 1.1.0
+  checksum: 3e530e1237ccc42f015731fedb1bbef8d2f61750d67570d28a1cafc6fb82f7c5256c5f3906a33a927d8264f1cec5d4b2ac351006006c930c005dd71314569fea
+  languageName: node
+  linkType: hard
+
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -35521,6 +35606,15 @@ __metadata:
   bin:
     next: dist/bin/next
   checksum: ad59f966a28cff60051740391cee8b2d7974283a4f85fb644c38c211f5a294c9bc90479adec25adaec8a89205c4d36cbc8cfc5362d90665da7905b017ab61d44
+  languageName: node
+  linkType: hard
+
+"nkeys.js@npm:1.1.0, nkeys.js@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "nkeys.js@npm:1.1.0"
+  dependencies:
+    tweetnacl: 1.0.3
+  checksum: 01de5355ae77973b70d0b96c8c5772bce32b20329229b11bfc2b3cfe8ecbd1b2f097ee77875efd987ff1ee0b559a8df2214821c7a39a297cb7c8f4dff4b5744e
   languageName: node
   linkType: hard
 
@@ -38924,23 +39018,23 @@ __metadata:
   linkType: hard
 
 "posthog-js@npm:^1.351.3":
-  version: 1.351.3
-  resolution: "posthog-js@npm:1.351.3"
+  version: 1.358.0
+  resolution: "posthog-js@npm:1.358.0"
   dependencies:
     "@opentelemetry/api": ^1.9.0
     "@opentelemetry/api-logs": ^0.208.0
     "@opentelemetry/exporter-logs-otlp-http": ^0.208.0
     "@opentelemetry/resources": ^2.2.0
     "@opentelemetry/sdk-logs": ^0.208.0
-    "@posthog/core": 1.23.1
-    "@posthog/types": 1.351.3
+    "@posthog/core": 1.23.2
+    "@posthog/types": 1.358.0
     core-js: ^3.38.1
     dompurify: ^3.3.1
     fflate: ^0.4.8
     preact: ^10.28.2
     query-selector-shadow-dom: ^1.0.1
     web-vitals: ^5.1.0
-  checksum: f1834f1e69df3659e866eae750710d72d7e26c58a08e60efdb6d22b5b21f986ed3f6e7ee13740e333b14cbf1b50533fd01c8c9b96c6576b0a563d7d6defe55cf
+  checksum: 4554ac602ec1640245abead252fb237937c858d0d87bddf92984680ace0e8a0b4a980d1d6f125c0118ccf4d0d5936180fae26eb1231013a89855a3c5bdaa405b
   languageName: node
   linkType: hard
 
@@ -38959,9 +39053,9 @@ __metadata:
   linkType: hard
 
 "preact@npm:^10.28.2":
-  version: 10.28.3
-  resolution: "preact@npm:10.28.3"
-  checksum: 8847b538127ff9f4dc86d7f3ffecd416137eaea868b559b9663a4c5a43bc1fcef77f8db41ee1fc55565bf339d9d951ffe90d11f3749726e6217315b3d658599a
+  version: 10.28.4
+  resolution: "preact@npm:10.28.4"
+  checksum: 63d0c36e856bebf2d3722dad257c31cdea2dc18562d6c2800046264d2e52f1be5e2dfbba149e7188df37e3587ab8e6c5c13843c31cf958a513a575da72a1795d
   languageName: node
   linkType: hard
 
@@ -47422,6 +47516,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tweetnacl@npm:1.0.3, tweetnacl@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "tweetnacl@npm:1.0.3"
+  checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c
+  languageName: node
+  linkType: hard
+
 "tweetnacl@npm:^0.14.3, tweetnacl@npm:~0.14.0":
   version: 0.14.5
   resolution: "tweetnacl@npm:0.14.5"
@@ -48457,7 +48558,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"url-parse@npm:^1.5.3":
+"url-parse@npm:^1.4.3, url-parse@npm:^1.5.3":
   version: 1.5.10
   resolution: "url-parse@npm:1.5.10"
   dependencies:

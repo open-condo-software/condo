@@ -32,6 +32,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
@@ -628,15 +629,29 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         />
                                     ),
                                     (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems) && (
-                                        <Button
+                                        <SubscriptionGuardWithTooltip
                                             key='generateNews'
-                                            disabled={generateNewsLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
-                                            loading={generateNewsLoading}
-                                            type='secondary'
-                                            children={GenerateNewsLabel}
-                                            onClick={handleGenerateNews}
-                                            id='generateNews'
-                                        />
+                                            feature={['ai', 'news']}
+                                            fallback={
+                                                <div>
+                                                    <Button
+                                                        disabled
+                                                        type='secondary'
+                                                        children={GenerateNewsLabel}
+                                                        id='generateNews'
+                                                    />
+                                                </div>
+                                            }
+                                        >
+                                            <Button
+                                                disabled={generateNewsLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
+                                                loading={generateNewsLoading}
+                                                type='secondary'
+                                                children={GenerateNewsLabel}
+                                                onClick={handleGenerateNews}
+                                                id='generateNews'
+                                            />
+                                        </SubscriptionGuardWithTooltip>
                                     ),
                                 ]}
                             />

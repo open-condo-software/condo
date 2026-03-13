@@ -13,6 +13,7 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
             priority
         }
         isTrial
+        startAt
         endAt
         meta
     }
