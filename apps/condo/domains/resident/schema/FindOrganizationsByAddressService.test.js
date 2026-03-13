@@ -903,11 +903,7 @@ describe('FindOrganizationsByAddress', () => {
     })
 
     describe('Subscription field', () => {
-        let utils
-
-        beforeEach(async () => {
-            utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
-            await utils.init()
+        beforeAll(async () => {
             setFeatureFlag(SUBSCRIPTIONS, true)
         })
 
@@ -916,6 +912,8 @@ describe('FindOrganizationsByAddress', () => {
         })
 
         test('Should return organization with null subscription when no contexts exist', async () => {
+            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
             const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                 addressKey: utils.property.addressKey,
             })
@@ -929,6 +927,8 @@ describe('FindOrganizationsByAddress', () => {
         })
 
         test('Should return organization with subscription data', async () => {
+            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
             const [subscriptionPlan] = await createTestSubscriptionPlan(utils.clients.admin, {
                 name: faker.commerce.productName(),
