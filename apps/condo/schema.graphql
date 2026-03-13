@@ -46720,6 +46720,473 @@ input NotificationAnonymousSettingsCreateInput {
   data: NotificationAnonymousSettingCreateInput
 }
 
+enum RemoteClientPushTokenHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type RemoteClientPushTokenHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the RemoteClientPushTokenHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the RemoteClientPushTokenHistoryRecord List config, or
+   3. As an alias to a 'name' field on the RemoteClientPushTokenHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the RemoteClientPushTokenHistoryRecord List.
+  """
+  _label_: String
+  remoteClient: String
+  token: String
+  transport: String
+  isVoIP: Boolean
+  isPush: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: RemoteClientPushTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input RemoteClientPushTokenHistoryRecordWhereInput {
+  AND: [RemoteClientPushTokenHistoryRecordWhereInput]
+  OR: [RemoteClientPushTokenHistoryRecordWhereInput]
+  remoteClient: String
+  remoteClient_not: String
+  remoteClient_in: [String]
+  remoteClient_not_in: [String]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  transport: String
+  transport_not: String
+  transport_contains: String
+  transport_not_contains: String
+  transport_starts_with: String
+  transport_not_starts_with: String
+  transport_ends_with: String
+  transport_not_ends_with: String
+  transport_i: String
+  transport_not_i: String
+  transport_contains_i: String
+  transport_not_contains_i: String
+  transport_starts_with_i: String
+  transport_not_starts_with_i: String
+  transport_ends_with_i: String
+  transport_not_ends_with_i: String
+  transport_in: [String]
+  transport_not_in: [String]
+  isVoIP: Boolean
+  isVoIP_not: Boolean
+  isPush: Boolean
+  isPush_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: RemoteClientPushTokenHistoryRecordHistoryActionType
+  history_action_not: RemoteClientPushTokenHistoryRecordHistoryActionType
+  history_action_in: [RemoteClientPushTokenHistoryRecordHistoryActionType]
+  history_action_not_in: [RemoteClientPushTokenHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input RemoteClientPushTokenHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortRemoteClientPushTokenHistoryRecordsBy {
+  token_ASC
+  token_DESC
+  transport_ASC
+  transport_DESC
+  isVoIP_ASC
+  isVoIP_DESC
+  isPush_ASC
+  isPush_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input RemoteClientPushTokenHistoryRecordUpdateInput {
+  remoteClient: String
+  token: String
+  transport: String
+  isVoIP: Boolean
+  isPush: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: RemoteClientPushTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input RemoteClientPushTokenHistoryRecordsUpdateInput {
+  id: ID!
+  data: RemoteClientPushTokenHistoryRecordUpdateInput
+}
+
+input RemoteClientPushTokenHistoryRecordCreateInput {
+  remoteClient: String
+  token: String
+  transport: String
+  isVoIP: Boolean
+  isPush: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: RemoteClientPushTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input RemoteClientPushTokenHistoryRecordsCreateInput {
+  data: RemoteClientPushTokenHistoryRecordCreateInput
+}
+
+enum RemoteClientPushTokenTransportType {
+  firebase
+  apple
+  huawei
+  redstore
+  webhook
+  onesignal
+}
+
+""" Represents one push token, available on one RemoteClient (device) """
+type RemoteClientPushToken {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the RemoteClientPushToken List config, or
+   2. As an alias to the field set on 'labelField' in the RemoteClientPushToken List config, or
+   3. As an alias to a 'name' field on the RemoteClientPushToken List (if one exists), or
+   4. As an alias to the 'id' field on the RemoteClientPushToken List.
+  """
+  _label_: String
+
+  """ Connected device """
+  remoteClient: RemoteClient
+
+  """ Used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices. 
+  """
+  token: String
+
+  """ Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase. 
+  """
+  transport: RemoteClientPushTokenTransportType
+
+  """ Can this token be used to send VoIP notifications (for Apple it is whole different app and token, for Android it most likely always can) 
+  """
+  isVoIP: Boolean
+
+  """ Can this token be used to send non-VoIP notifications (most likely on Apple you need different tokens for isVoIP and isPush) 
+  """
+  isPush: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input RemoteClientPushTokenWhereInput {
+  AND: [RemoteClientPushTokenWhereInput]
+  OR: [RemoteClientPushTokenWhereInput]
+  remoteClient: RemoteClientWhereInput
+  remoteClient_is_null: Boolean
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  transport: RemoteClientPushTokenTransportType
+  transport_not: RemoteClientPushTokenTransportType
+  transport_in: [RemoteClientPushTokenTransportType]
+  transport_not_in: [RemoteClientPushTokenTransportType]
+  isVoIP: Boolean
+  isVoIP_not: Boolean
+  isPush: Boolean
+  isPush_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input RemoteClientPushTokenWhereUniqueInput {
+  id: ID!
+}
+
+enum SortRemoteClientPushTokensBy {
+  remoteClient_ASC
+  remoteClient_DESC
+  token_ASC
+  token_DESC
+  transport_ASC
+  transport_DESC
+  isVoIP_ASC
+  isVoIP_DESC
+  isPush_ASC
+  isPush_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input RemoteClientPushTokenUpdateInput {
+  remoteClient: RemoteClientRelateToOneInput
+  token: String
+  transport: RemoteClientPushTokenTransportType
+  isVoIP: Boolean
+  isPush: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input RemoteClientPushTokensUpdateInput {
+  id: ID!
+  data: RemoteClientPushTokenUpdateInput
+}
+
+input RemoteClientPushTokenCreateInput {
+  remoteClient: RemoteClientRelateToOneInput
+  token: String
+  transport: RemoteClientPushTokenTransportType
+  isVoIP: Boolean
+  isPush: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input RemoteClientPushTokensCreateInput {
+  data: RemoteClientPushTokenCreateInput
+}
+
 enum ContactHistoryRecordHistoryActionType {
   c
   u
@@ -94824,6 +95291,36 @@ type Query {
   """ Retrieve the meta-data for the NotificationAnonymousSetting list. """
   _NotificationAnonymousSettingsMeta: _ListMeta
 
+  """ Search for all RemoteClientPushTokenHistoryRecord items which match the where clause. 
+  """
+  allRemoteClientPushTokenHistoryRecords(where: RemoteClientPushTokenHistoryRecordWhereInput, search: String, sortBy: [SortRemoteClientPushTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [RemoteClientPushTokenHistoryRecord]
+
+  """ Search for the RemoteClientPushTokenHistoryRecord item with the matching ID. 
+  """
+  RemoteClientPushTokenHistoryRecord(where: RemoteClientPushTokenHistoryRecordWhereUniqueInput!): RemoteClientPushTokenHistoryRecord
+
+  """ Perform a meta-query on all RemoteClientPushTokenHistoryRecord items which match the where clause. 
+  """
+  _allRemoteClientPushTokenHistoryRecordsMeta(where: RemoteClientPushTokenHistoryRecordWhereInput, search: String, sortBy: [SortRemoteClientPushTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the RemoteClientPushTokenHistoryRecord list. 
+  """
+  _RemoteClientPushTokenHistoryRecordsMeta: _ListMeta
+
+  """ Search for all RemoteClientPushToken items which match the where clause. 
+  """
+  allRemoteClientPushTokens(where: RemoteClientPushTokenWhereInput, search: String, sortBy: [SortRemoteClientPushTokensBy!], orderBy: String, first: Int, skip: Int): [RemoteClientPushToken]
+
+  """ Search for the RemoteClientPushToken item with the matching ID. """
+  RemoteClientPushToken(where: RemoteClientPushTokenWhereUniqueInput!): RemoteClientPushToken
+
+  """ Perform a meta-query on all RemoteClientPushToken items which match the where clause. 
+  """
+  _allRemoteClientPushTokensMeta(where: RemoteClientPushTokenWhereInput, search: String, sortBy: [SortRemoteClientPushTokensBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the RemoteClientPushToken list. """
+  _RemoteClientPushTokensMeta: _ListMeta
+
   """ Search for all ContactHistoryRecord items which match the where clause. 
   """
   allContactHistoryRecords(where: ContactHistoryRecordWhereInput, search: String, sortBy: [SortContactHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ContactHistoryRecord]
@@ -100018,6 +100515,42 @@ type Mutation {
 
   """ Delete multiple NotificationAnonymousSetting items by ID. """
   deleteNotificationAnonymousSettings(ids: [ID!]): [NotificationAnonymousSetting]
+
+  """ Create a single RemoteClientPushTokenHistoryRecord item. """
+  createRemoteClientPushTokenHistoryRecord(data: RemoteClientPushTokenHistoryRecordCreateInput): RemoteClientPushTokenHistoryRecord
+
+  """ Create multiple RemoteClientPushTokenHistoryRecord items. """
+  createRemoteClientPushTokenHistoryRecords(data: [RemoteClientPushTokenHistoryRecordsCreateInput]): [RemoteClientPushTokenHistoryRecord]
+
+  """ Update a single RemoteClientPushTokenHistoryRecord item by ID. """
+  updateRemoteClientPushTokenHistoryRecord(id: ID!, data: RemoteClientPushTokenHistoryRecordUpdateInput): RemoteClientPushTokenHistoryRecord
+
+  """ Update multiple RemoteClientPushTokenHistoryRecord items by ID. """
+  updateRemoteClientPushTokenHistoryRecords(data: [RemoteClientPushTokenHistoryRecordsUpdateInput]): [RemoteClientPushTokenHistoryRecord]
+
+  """ Delete a single RemoteClientPushTokenHistoryRecord item by ID. """
+  deleteRemoteClientPushTokenHistoryRecord(id: ID!): RemoteClientPushTokenHistoryRecord
+
+  """ Delete multiple RemoteClientPushTokenHistoryRecord items by ID. """
+  deleteRemoteClientPushTokenHistoryRecords(ids: [ID!]): [RemoteClientPushTokenHistoryRecord]
+
+  """ Create a single RemoteClientPushToken item. """
+  createRemoteClientPushToken(data: RemoteClientPushTokenCreateInput): RemoteClientPushToken
+
+  """ Create multiple RemoteClientPushToken items. """
+  createRemoteClientPushTokens(data: [RemoteClientPushTokensCreateInput]): [RemoteClientPushToken]
+
+  """ Update a single RemoteClientPushToken item by ID. """
+  updateRemoteClientPushToken(id: ID!, data: RemoteClientPushTokenUpdateInput): RemoteClientPushToken
+
+  """ Update multiple RemoteClientPushToken items by ID. """
+  updateRemoteClientPushTokens(data: [RemoteClientPushTokensUpdateInput]): [RemoteClientPushToken]
+
+  """ Delete a single RemoteClientPushToken item by ID. """
+  deleteRemoteClientPushToken(id: ID!): RemoteClientPushToken
+
+  """ Delete multiple RemoteClientPushToken items by ID. """
+  deleteRemoteClientPushTokens(ids: [ID!]): [RemoteClientPushToken]
 
   """ Create a single ContactHistoryRecord item. """
   createContactHistoryRecord(data: ContactHistoryRecordCreateInput): ContactHistoryRecord
