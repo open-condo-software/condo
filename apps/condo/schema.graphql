@@ -39935,6 +39935,7 @@ type CallRecordHistoryRecord {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   id: ID!
   v: Int
   createdAt: String
@@ -40033,6 +40034,24 @@ input CallRecordHistoryRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  transcript: String
+  transcript_not: String
+  transcript_contains: String
+  transcript_not_contains: String
+  transcript_starts_with: String
+  transcript_not_starts_with: String
+  transcript_ends_with: String
+  transcript_not_ends_with: String
+  transcript_i: String
+  transcript_not_i: String
+  transcript_contains_i: String
+  transcript_not_contains_i: String
+  transcript_starts_with_i: String
+  transcript_not_starts_with_i: String
+  transcript_ends_with_i: String
+  transcript_not_ends_with_i: String
+  transcript_in: [String]
+  transcript_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40128,6 +40147,8 @@ enum SortCallRecordHistoryRecordsBy {
   isIncomingCall_DESC
   importId_ASC
   importId_DESC
+  transcript_ASC
+  transcript_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40155,6 +40176,7 @@ input CallRecordHistoryRecordUpdateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40183,6 +40205,7 @@ input CallRecordHistoryRecordCreateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40235,6 +40258,9 @@ type CallRecord {
 
   """ Call unique identifier """
   importId: String
+
+  """ Call transcription """
+  transcript: String
   id: ID!
   v: Int
   createdAt: String
@@ -40339,6 +40365,24 @@ input CallRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  transcript: String
+  transcript_not: String
+  transcript_contains: String
+  transcript_not_contains: String
+  transcript_starts_with: String
+  transcript_not_starts_with: String
+  transcript_ends_with: String
+  transcript_not_ends_with: String
+  transcript_i: String
+  transcript_not_i: String
+  transcript_contains_i: String
+  transcript_not_contains_i: String
+  transcript_starts_with_i: String
+  transcript_not_starts_with_i: String
+  transcript_ends_with_i: String
+  transcript_not_ends_with_i: String
+  transcript_in: [String]
+  transcript_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40416,6 +40460,8 @@ enum SortCallRecordsBy {
   isIncomingCall_DESC
   importId_ASC
   importId_DESC
+  transcript_ASC
+  transcript_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40443,6 +40489,7 @@ input CallRecordUpdateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40468,6 +40515,7 @@ input CallRecordCreateInput {
   startedAt: String
   isIncomingCall: Boolean
   importId: String
+  transcript: String
   v: Int
   createdAt: String
   updatedAt: String
