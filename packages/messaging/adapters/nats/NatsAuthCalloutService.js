@@ -8,6 +8,14 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
 
 const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX, ADMIN_REVOKE_ORG_PREFIX, ADMIN_UNREVOKE_ORG_PREFIX } = require('../../core/topic')
+const {
+    loadRevokedUsers,
+    loadRevokedUserOrgs,
+    addRevokedUser,
+    removeRevokedUser,
+    addRevokedUserOrg,
+    removeRevokedUserOrg,
+} = require('./RevocationStore')
 
 
 const logger = getLogger()
@@ -122,6 +130,26 @@ class NatsAuthCalloutService {
                 }
             })()
 
+            try {
+                const [persistedUsers, persistedOrgs] = await Promise.all([
+                    loadRevokedUsers(),
+                    loadRevokedUserOrgs(),
+                ])
+                for (const userId of persistedUsers) {
+                    this.revokedUsers.add(userId)
+                }
+                for (const [userId, orgIds] of persistedOrgs) {
+                    if (!this.revokedUserOrgs.has(userId)) {
+                        this.revokedUserOrgs.set(userId, new Set())
+                    }
+                    for (const orgId of orgIds) {
+                        this.revokedUserOrgs.get(userId).add(orgId)
+                    }
+                }
+            } catch (err) {
+                logger.error({ msg: 'Failed to load persisted revocation state', err })
+            }
+
             this.connection.closed().then((err) => {
                 this.isRunning = false
                 if (err) {
@@ -224,10 +252,12 @@ class NatsAuthCalloutService {
 
     revokeUser (userId) {
         this.revokedUsers.add(userId)
+        addRevokedUser(userId)
     }
 
     unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
+        removeRevokedUser(userId)
     }
 
     revokeUserOrganization (userId, organizationId) {
@@ -235,6 +265,7 @@ class NatsAuthCalloutService {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
+        addRevokedUserOrg(userId, organizationId)
     }
 
     unrevokeUserOrganization (userId, organizationId) {
@@ -245,6 +276,7 @@ class NatsAuthCalloutService {
                 this.revokedUserOrgs.delete(userId)
             }
         }
+        removeRevokedUserOrg(userId, organizationId)
     }
 
     _scheduleRestart () {

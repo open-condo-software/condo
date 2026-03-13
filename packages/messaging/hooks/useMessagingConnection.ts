@@ -32,11 +32,16 @@ function notifySubscribers (state: MessagingConnectionState) {
     }
 }
 
+function shouldReconnect () {
+    return !intentionalDisconnect && connectionRefCount > 0
+}
+
 function scheduleReconnect () {
-    if (reconnectTimer) return
+    if (reconnectTimer || !shouldReconnect()) return
     const delay = Math.min(reconnectDelay, MAX_RECONNECT_DELAY)
     reconnectTimer = setTimeout(async () => {
         reconnectTimer = null
+        if (!shouldReconnect()) return
         try {
             globalConnectionPromise = null
             const tokenResponse = await fetch('/messaging/token')
@@ -44,6 +49,8 @@ function scheduleReconnect () {
                 throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
             }
             const { token, userId } = await tokenResponse.json()
+
+            if (!shouldReconnect()) return
 
             const nc = await wsconnect({
                 servers: globalWsUrl || 'ws://localhost:8080',
@@ -69,7 +76,7 @@ function scheduleReconnect () {
                     isConnecting: false,
                     error: err ? new Error(String(err)) : null,
                 })
-                if (!intentionalDisconnect && connectionRefCount > 0) {
+                if (shouldReconnect()) {
                     scheduleReconnect()
                 }
             })
@@ -83,7 +90,9 @@ function scheduleReconnect () {
         } catch (err) {
             console.error('[messaging] Reconnect failed, will retry:', err)
             reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY)
-            scheduleReconnect()
+            if (shouldReconnect()) {
+                scheduleReconnect()
+            }
         }
     }, delay)
 }
@@ -144,7 +153,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                         isConnecting: false,
                         error: err ? new Error(String(err)) : null,
                     })
-                    if (!intentionalDisconnect && connectionRefCount > 0) {
+                    if (shouldReconnect()) {
                         scheduleReconnect()
                     }
                 })

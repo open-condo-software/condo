@@ -15,6 +15,14 @@ const {
     buildRelaySubscribePattern,
     buildRelayUnsubscribePattern,
 } = require('../../core/topic')
+const {
+    loadRevokedUsers,
+    loadRevokedUserOrgs,
+    addRevokedUser,
+    removeRevokedUser,
+    addRevokedUserOrg,
+    removeRevokedUserOrg,
+} = require('./RevocationStore')
 
 const logger = getLogger()
 
@@ -143,13 +151,39 @@ class NatsSubscriptionRelay {
                 }
             })()
 
+            try {
+                const [persistedUsers, persistedOrgs] = await Promise.all([
+                    loadRevokedUsers(),
+                    loadRevokedUserOrgs(),
+                ])
+                for (const userId of persistedUsers) {
+                    this.revokedUsers.add(userId)
+                }
+                for (const [userId, orgIds] of persistedOrgs) {
+                    if (!this.revokedUserOrgs.has(userId)) {
+                        this.revokedUserOrgs.set(userId, new Set())
+                    }
+                    for (const orgId of orgIds) {
+                        this.revokedUserOrgs.get(userId).add(orgId)
+                    }
+                }
+            } catch (err) {
+                logger.error({ msg: 'Failed to load persisted revocation state', err })
+            }
+
             this.connection.closed().then(async (err) => {
                 this.isRunning = false
+                const savedRevokedUsers = new Set(this.revokedUsers)
+                const savedRevokedUserOrgs = new Map(
+                    [...this.revokedUserOrgs].map(([k, v]) => [k, new Set(v)])
+                )
                 await this._cleanupAll()
                 if (err) {
                     logger.error({ msg: 'Relay connection closed with error', err })
                 }
                 if (!this._intentionalStop) {
+                    this.revokedUsers = savedRevokedUsers
+                    this.revokedUserOrgs = savedRevokedUserOrgs
                     this._scheduleRestart()
                 }
             })
@@ -395,6 +429,7 @@ class NatsSubscriptionRelay {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
+        addRevokedUserOrg(userId, organizationId)
 
         const relayIds = this.userRelays.get(userId)
         if (!relayIds || relayIds.size === 0) return 0
@@ -424,6 +459,7 @@ class NatsSubscriptionRelay {
                 this.revokedUserOrgs.delete(userId)
             }
         }
+        removeRevokedUserOrg(userId, organizationId)
     }
 
     /**
@@ -434,6 +470,7 @@ class NatsSubscriptionRelay {
      */
     async revokeUser (userId) {
         this.revokedUsers.add(userId)
+        addRevokedUser(userId)
 
         const relayIds = this.userRelays.get(userId)
         if (!relayIds || relayIds.size === 0) return 0
@@ -452,6 +489,7 @@ class NatsSubscriptionRelay {
      */
     unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
+        removeRevokedUser(userId)
     }
 
     _startCleanupTimer (intervalMs) {

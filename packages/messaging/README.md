@@ -226,6 +226,16 @@ All NATS connections (relay service, auth callout, publisher client, browser Web
 
 Intentional shutdown via `stop()` / `disconnect()` disables auto-restart.
 
+### Revocation persistence (Redis)
+
+Revocation state (`revokedUsers`, `revokedUserOrgs`) is persisted to Redis so it survives full pod restarts in multi-replica k8s deployments. On startup, each relay and auth callout service loads persisted revocation state from Redis and merges it with any local state.
+
+- **Redis keys:** `messaging:revokedUsers` (SET), `messaging:revokedUserOrgs` (HASH with `userId:orgId` fields)
+- **Writes are fire-and-forget** — Redis failure does not block revocation
+- **Reads happen once on `start()`** — merged into local state
+- **No additional env vars needed** — uses the existing `REDIS_URL` / `KV_URL` via `getKVClient('messaging')`
+- **Graceful fallback** — if Redis is unavailable, the system works as before with in-memory-only state and NATS broadcast for cross-pod sync
+
 ### JetStream consumers and gap replay
 
 The relay creates **ephemeral JetStream push consumers** (not core NATS subscriptions) for each relay. This enables message replay when a client briefly disconnects:
