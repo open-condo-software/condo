@@ -17,6 +17,7 @@ const {
 const {
     getRandomTokenData,
     getRandomFakeSuccessToken,
+    getRandomPushTokenData,
 } = require('@condo/domains/notification/utils/testSchema/utils')
 
 const {
@@ -40,6 +41,7 @@ const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/
 const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require('@condo/domains/notification/gql')
 const { APP_RESIDENT_KEY } = require('@condo/domains/notification/constants/constants')
 const { _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION } = require('@condo/domains/notification/gql')
+const { RemoteClientPushToken: RemoteClientPushTokenGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -52,6 +54,7 @@ const MessageBatch = generateGQLTestUtils(MessageBatchGQL)
 const NotificationUserSetting = generateGQLTestUtils(NotificationUserSettingGQL)
 const TelegramUserChat = generateGQLTestUtils(TelegramUserChatGQL)
 const NotificationAnonymousSetting = generateGQLTestUtils(NotificationAnonymousSettingGQL)
+const RemoteClientPushToken = generateGQLTestUtils(RemoteClientPushTokenGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -430,6 +433,41 @@ async function _internalSendHashedResidentPhonesByTestClient(client, extraAttrs 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestRemoteClientPushToken (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const pushTokenData = getRandomPushTokenData(extraAttrs)
+    const remoteClientId = get(extraAttrs, 'remoteClient.connect.id')
+    const remoteClient = remoteClientId
+        ? { id: remoteClientId }
+        : (await createTestRemoteClient(client))[0]
+
+    const attrs = {
+        dv: 1,
+        sender,
+        remoteClient: { connect: { id: remoteClient.id } },
+        ...pushTokenData,
+        ...extraAttrs,
+    }
+    const obj = await RemoteClientPushToken.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestRemoteClientPushToken (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await RemoteClientPushToken.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -447,5 +485,6 @@ module.exports = {
     NotificationAnonymousSetting, createTestNotificationAnonymousSetting, updateTestNotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersionByTestClient,
     _internalSendHashedResidentPhonesByTestClient,
+    RemoteClientPushToken, createTestRemoteClientPushToken, updateTestRemoteClientPushToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
