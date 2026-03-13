@@ -1,12 +1,19 @@
 # Description
 It's a separate service for address processing.
 
-Each property is presented as the Address model instance. Each address may be found by different strings, so several AddressSource model instances may belong to each address.
+Each property is represented by an `Address` record. Different provider responses and user inputs can still point to the same physical building, so the service stores multiple lookup sources and heuristics for matching, deduplication, and manual duplicate resolution.
 
 ## Models
-- **Address**. A model containing data on the particular building's address.
-- **AddressSource**. A model containing data on the particular building's address origin.
+- **Address**. Normalized building address data. Can be flagged with `possibleDuplicateOf` when the service detects a likely duplicate.
+- **AddressSource**. Stores source strings that were used to resolve an address.
+- **AddressHeuristic**. Stores provider-generated identifiers such as `fias_id`, `coordinates`, `google_place_id`, and `fallback` for cross-provider address matching.
 - **AddressInjection**. Addresses that do not exist in external providers.
+
+## Duplicate resolution
+
+Potential duplicates are flagged on `Address.possibleDuplicateOf`.
+
+Administrators can review them and resolve them through `ResolveAddressDuplicateService`, which supports duplicate dismissal and merge flows.
 
 ## Endpoints
 
