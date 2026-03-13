@@ -25,6 +25,7 @@ import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/com
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
@@ -283,9 +284,11 @@ export const getTicketDetailsRender = (search?: FilterValue) => {
     return function render (details: string, ticket: Ticket) {
         const address = get(ticket, ['property', 'address'])
         const maxDetailsLength = address ? address.length : details.length
-        const trimmedDetails = details.length > maxDetailsLength ? `${details.substring(0, maxDetailsLength)}…` : details
+        
+        const cleanedDetails = stripMarkdown(details)
+        const trimmedDetails = cleanedDetails.length > maxDetailsLength ? `${cleanedDetails.substring(0, maxDetailsLength)}…` : cleanedDetails
 
-        return getTableCellRenderer({ search, extraTitle: details })(trimmedDetails)
+        return getTableCellRenderer({ search, extraTitle: cleanedDetails })(trimmedDetails)
     }
 }
 

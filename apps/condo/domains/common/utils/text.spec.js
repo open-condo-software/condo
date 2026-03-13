@@ -37,7 +37,7 @@ describe('normalizeText()', () => {
 
     test('squashes sequential blank lines into one', () => {
         expect(normalizeText('123\n\n\n\n123\n\n456'))
-            .toEqual('123\n123\n456')
+            .toEqual('123\n\n123\n\n456') // should preserve paragraph breaks
     })
 
     test('removes extra spaces around punctuations', () => {
@@ -81,5 +81,15 @@ describe('normalizeText()', () => {
 
         expect(normalizeText(`Client link ${url}. So what do you think.It ok?`)).toEqual(`Client link ${url}. So what do you think. It ok?`)
         expect(normalizeText(`Client send a link.Here it is - ${url}.`)).toEqual(`Client send a link. Here it is - ${url}.`)
+    })
+
+    it('should preserve line breaks in text', () => {
+        const input = 'Line 1\nLine 2\n\nLine 3'
+        expect(normalizeText(input)).toEqual('Line 1\nLine 2\n\nLine 3')
+    })
+
+    it('should handle tabs and multiple spaces while preserving line breaks', () => {
+        const input = 'Line 1\t  with   spaces\nLine 2\n\nLine 3'
+        expect(normalizeText(input)).toEqual('Line 1 with spaces\nLine 2\n\nLine 3')
     })
 })
