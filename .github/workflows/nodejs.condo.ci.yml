@@ -97,6 +97,9 @@ jobs:
             TURBO_REMOTE_ONLY=true
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
             TURBO_API=${{ secrets.TURBO_API }}
+            NPM_REGISTRY_SERVER=${{ secrets.NPM_REGISTRY_SERVER }}
+            NPM_ALWAYS_AUTH=true
+            NPM_AUTH_TOKEN=${{ secrets.NPM_AUTH_TOKEN }}
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}
@@ -276,9 +279,18 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
       - name: Install packages
+        env:
+          NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_SERVER }}
         run: |
           npm i -g turbo
-          yarn install --immutable
+
+          echo "Registry (before): $(yarn config get npmRegistryServer)"
+          yarn install --immutable || {
+            echo "Local registry failed -> fallback to npmjs"
+            export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+            echo "Registry (fallback): $(yarn config get npmRegistryServer)"
+            yarn install --immutable
+          }
       - name: Check missing & redundant dependencies
         run: |
           yarn lint:deps
@@ -351,7 +363,14 @@ jobs:
         run: |
           pip install Django psycopg2-binary
           npm i -g turbo
-          yarn --no-immutable
+
+          echo "Registry (before): $(yarn config get npmRegistryServer)"
+          yarn install --immutable || {
+            echo "Local registry failed -> fallback to npmjs"
+            export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+            echo "Registry (fallback): $(yarn config get npmRegistryServer)"
+            yarn install --immutable
+          }
       - name: Build condo dependencies
         run: |
           yarn workspace @app/condo build:deps
@@ -794,7 +813,14 @@ jobs:
       - name: Install packages
         run: |
           npm i -g turbo
-          yarn install --immutable
+
+          echo "Registry (before): $(yarn config get npmRegistryServer)"
+          yarn install --immutable || {
+            echo "Local registry failed -> fallback to npmjs"
+            export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+            echo "Registry (fallback): $(yarn config get npmRegistryServer)"
+            yarn install --immutable
+          }
       - name: Run @open-condo/migrator tests
         run: yarn workspace @open-condo/migrator test
         env:
@@ -821,7 +847,14 @@ jobs:
       - name: Install packages
         run: |
           npm i -g turbo
-          yarn install --immutable
+
+          echo "Registry (before): $(yarn config get npmRegistryServer)"
+          yarn install --immutable || {
+            echo "Local registry failed -> fallback to npmjs"
+            export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+            echo "Registry (fallback): $(yarn config get npmRegistryServer)"
+            yarn install --immutable
+          }
       - name: Run @open-condo/miniapp-utils tests
         run: yarn workspace @open-condo/miniapp-utils test
         env:
@@ -953,7 +986,14 @@ jobs:
       - name: Install packages
         run: |
           npm i -g turbo
-          yarn install --immutable
+
+          echo "Registry (before): $(yarn config get npmRegistryServer)"
+          yarn install --immutable || {
+            echo "Local registry failed -> fallback to npmjs"
+            export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+            echo "Registry (fallback): $(yarn config get npmRegistryServer)"
+            yarn install --immutable
+          }
       - name: Run @app/resident-app tests
         run: yarn workspace @app/resident-app test
         env:
@@ -980,7 +1020,14 @@ jobs:
       - name: Install packages
         run: |
           npm i -g turbo
-          yarn install --immutable
+
+          echo "Registry (before): $(yarn config get npmRegistryServer)"
+          yarn install --immutable || {
+            echo "Local registry failed -> fallback to npmjs"
+            export NPM_REGISTRY_SERVER="https://registry.npmjs.org"
+            echo "Registry (fallback): $(yarn config get npmRegistryServer)"
+            yarn install --immutable
+          }
       - name: Test webhooks utils
         run: yarn workspace @open-condo/webhooks test
         env:
