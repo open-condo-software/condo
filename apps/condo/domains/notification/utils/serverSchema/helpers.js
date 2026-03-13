@@ -1,4 +1,5 @@
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const {
     MESSAGE_DELIVERY_OPTIONS,
@@ -166,6 +167,8 @@ function getMessageOptions (type) {
 
     return { strategy, transports: defaultTransports, isVoIP, throttlePeriodForUser }
 }
+
+
 
 /**
  * Gets value customPushType from MESSAGE_DELIVERY_OPTIONS[type] if it exists
