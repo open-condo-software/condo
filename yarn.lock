@@ -536,6 +536,7 @@ __metadata:
     "@accruals-gateway/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
     "@graphql-codegen/typescript": ^4.0.9
+    "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -549,6 +550,7 @@ __metadata:
     mkdirp: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
+    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
