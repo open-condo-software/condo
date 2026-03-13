@@ -402,7 +402,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } else {
             return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         }
-    }, [activeSubscriptionContext.settings.price, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
+    }, [activeSubscriptionContext?.settings?.price, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
