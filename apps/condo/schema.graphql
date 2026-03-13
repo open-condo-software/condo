@@ -59797,7 +59797,7 @@ type SubscriptionContext {
   """ Subscription start date """
   startAt: String
 
-  """ Subscription end date. If null, subscription is unlimited """
+  """ Subscription end date """
   endAt: String
 
   """ Base price from the subscription plan (before any rules applied). Not required for trial subscriptions 
