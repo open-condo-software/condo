@@ -30,19 +30,23 @@ function getRedis () {
 
 async function loadRevokedUsers () {
     const client = getRedis()
-    if (!client) return new Set()
+    if (!client) {
+        throw new Error(`Redis client not available for loading ${REVOKED_USERS_KEY}`)
+    }
     try {
         const members = await client.smembers(REVOKED_USERS_KEY)
         return new Set(members)
     } catch (err) {
-        logger.error({ msg: 'Failed to load revoked users from Redis', err })
-        return new Set()
+        logger.error({ msg: `Failed to load ${REVOKED_USERS_KEY} from Redis`, err })
+        throw err
     }
 }
 
 async function loadRevokedUserOrgs () {
     const client = getRedis()
-    if (!client) return new Map()
+    if (!client) {
+        throw new Error(`Redis client not available for loading ${REVOKED_USER_ORGS_KEY}`)
+    }
     try {
         const entries = await client.hgetall(REVOKED_USER_ORGS_KEY)
         const map = new Map()
@@ -56,41 +60,53 @@ async function loadRevokedUserOrgs () {
         }
         return map
     } catch (err) {
-        logger.error({ msg: 'Failed to load revoked user orgs from Redis', err })
-        return new Map()
+        logger.error({ msg: `Failed to load ${REVOKED_USER_ORGS_KEY} from Redis`, err })
+        throw err
     }
 }
 
-function addRevokedUser (userId) {
+async function addRevokedUser (userId) {
     const client = getRedis()
     if (!client) return
-    client.sadd(REVOKED_USERS_KEY, userId).catch((err) => {
+    try {
+        await client.sadd(REVOKED_USERS_KEY, userId)
+    } catch (err) {
         logger.error({ msg: 'Failed to persist user revocation to Redis', err, data: { userId } })
-    })
+        throw err
+    }
 }
 
-function removeRevokedUser (userId) {
+async function removeRevokedUser (userId) {
     const client = getRedis()
     if (!client) return
-    client.srem(REVOKED_USERS_KEY, userId).catch((err) => {
+    try {
+        await client.srem(REVOKED_USERS_KEY, userId)
+    } catch (err) {
         logger.error({ msg: 'Failed to remove user revocation from Redis', err, data: { userId } })
-    })
+        throw err
+    }
 }
 
-function addRevokedUserOrg (userId, organizationId) {
+async function addRevokedUserOrg (userId, organizationId) {
     const client = getRedis()
     if (!client) return
-    client.hset(REVOKED_USER_ORGS_KEY, `${userId}:${organizationId}`, '1').catch((err) => {
+    try {
+        await client.hset(REVOKED_USER_ORGS_KEY, `${userId}:${organizationId}`, '1')
+    } catch (err) {
         logger.error({ msg: 'Failed to persist user-org revocation to Redis', err, data: { userId, organizationId } })
-    })
+        throw err
+    }
 }
 
-function removeRevokedUserOrg (userId, organizationId) {
+async function removeRevokedUserOrg (userId, organizationId) {
     const client = getRedis()
     if (!client) return
-    client.hdel(REVOKED_USER_ORGS_KEY, `${userId}:${organizationId}`).catch((err) => {
+    try {
+        await client.hdel(REVOKED_USER_ORGS_KEY, `${userId}:${organizationId}`)
+    } catch (err) {
         logger.error({ msg: 'Failed to remove user-org revocation from Redis', err, data: { userId, organizationId } })
-    })
+        throw err
+    }
 }
 
 module.exports = {

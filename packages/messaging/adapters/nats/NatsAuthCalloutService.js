@@ -6,8 +6,6 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
-
-const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX, ADMIN_REVOKE_ORG_PREFIX, ADMIN_UNREVOKE_ORG_PREFIX } = require('../../core/topic')
 const {
     loadRevokedUsers,
     loadRevokedUserOrgs,
@@ -16,6 +14,8 @@ const {
     addRevokedUserOrg,
     removeRevokedUserOrg,
 } = require('./RevocationStore')
+
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX, ADMIN_REVOKE_ORG_PREFIX, ADMIN_UNREVOKE_ORG_PREFIX } = require('../../core/topic')
 
 
 const logger = getLogger()
@@ -99,34 +99,50 @@ class NatsAuthCalloutService {
             const revokeSub = this.connection.subscribe(`${ADMIN_REVOKE_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of revokeSub) {
-                    const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
-                    if (userId) this.revokeUser(userId)
+                    try {
+                        const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
+                        if (userId) await this.revokeUser(userId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling revoke message', err: error })
+                    }
                 }
             })()
 
             const unrevokeSub = this.connection.subscribe(`${ADMIN_UNREVOKE_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of unrevokeSub) {
-                    const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
-                    if (userId) this.unrevokeUser(userId)
+                    try {
+                        const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
+                        if (userId) await this.unrevokeUser(userId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling unrevoke message', err: error })
+                    }
                 }
             })()
 
             const revokeOrgSub = this.connection.subscribe(`${ADMIN_REVOKE_ORG_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of revokeOrgSub) {
-                    const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
-                    const [userId, organizationId] = rest.split('.')
-                    if (userId && organizationId) this.revokeUserOrganization(userId, organizationId)
+                    try {
+                        const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
+                        const [userId, organizationId] = rest.split('.')
+                        if (userId && organizationId) await this.revokeUserOrganization(userId, organizationId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling revoke org message', err: error })
+                    }
                 }
             })()
 
             const unrevokeOrgSub = this.connection.subscribe(`${ADMIN_UNREVOKE_ORG_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of unrevokeOrgSub) {
-                    const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
-                    const [userId, organizationId] = rest.split('.')
-                    if (userId && organizationId) this.unrevokeUserOrganization(userId, organizationId)
+                    try {
+                        const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
+                        const [userId, organizationId] = rest.split('.')
+                        if (userId && organizationId) await this.unrevokeUserOrganization(userId, organizationId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling unrevoke org message', err: error })
+                    }
                 }
             })()
 
@@ -250,25 +266,25 @@ class NatsAuthCalloutService {
         msg.respond(new TextEncoder().encode(responseJwt))
     }
 
-    revokeUser (userId) {
+    async revokeUser (userId) {
         this.revokedUsers.add(userId)
-        addRevokedUser(userId)
+        await addRevokedUser(userId).catch(() => {})
     }
 
-    unrevokeUser (userId) {
+    async unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
-        removeRevokedUser(userId)
+        await removeRevokedUser(userId).catch(() => {})
     }
 
-    revokeUserOrganization (userId, organizationId) {
+    async revokeUserOrganization (userId, organizationId) {
         if (!this.revokedUserOrgs.has(userId)) {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
-        addRevokedUserOrg(userId, organizationId)
+        await addRevokedUserOrg(userId, organizationId).catch(() => {})
     }
 
-    unrevokeUserOrganization (userId, organizationId) {
+    async unrevokeUserOrganization (userId, organizationId) {
         const orgs = this.revokedUserOrgs.get(userId)
         if (orgs) {
             orgs.delete(organizationId)
@@ -276,7 +292,7 @@ class NatsAuthCalloutService {
                 this.revokedUserOrgs.delete(userId)
             }
         }
-        removeRevokedUserOrg(userId, organizationId)
+        await removeRevokedUserOrg(userId, organizationId).catch(() => {})
     }
 
     _scheduleRestart () {

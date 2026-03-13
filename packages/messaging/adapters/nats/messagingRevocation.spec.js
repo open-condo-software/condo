@@ -702,7 +702,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(adapter.authService.revokedUsers.has('user-1')).toBe(true)
             expect(adapter.relayService.revokedUsers.has('user-1')).toBe(true)
 
-            adapter.unrevokeUser('user-1')
+            await adapter.unrevokeUser('user-1')
             expect(adapter.authService.revokedUsers.has('user-1')).toBe(false)
             expect(adapter.relayService.revokedUsers.has('user-1')).toBe(false)
         })
@@ -744,7 +744,7 @@ describe('Messaging Revocation — unit tests', () => {
             expect(adapter.authService.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
             expect(adapter.relayService.revokedUserOrgs.get('user-1').has('org-1')).toBe(true)
 
-            adapter.unrevokeUserOrganization('user-1', 'org-1')
+            await adapter.unrevokeUserOrganization('user-1', 'org-1')
             expect(adapter.authService.revokedUserOrgs.has('user-1')).toBe(false)
             expect(adapter.relayService.revokedUserOrgs.has('user-1')).toBe(false)
         })
