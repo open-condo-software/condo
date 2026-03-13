@@ -220,9 +220,37 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     
     const canManageSubscriptions = role?.canManageSubscriptions
     const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
-    const activePlanPriority = activeSubscriptionContext?.subscriptionPlan?.priority
     const currentPlanPriority = plan?.priority
-    const isLowerPriorityThanActive = activePlanPriority !== undefined && currentPlanPriority !== undefined && currentPlanPriority < activePlanPriority
+    
+    const hasHigherPriorityPaidSubscription = useMemo(() => {
+        if (currentPlanPriority === undefined) return false
+        
+        const now = new Date()
+        
+        return activatedSubscriptions.some(ctx => {
+            const isPaid = !ctx.isTrial
+            const ctxPriority = ctx.subscriptionPlan?.priority
+            const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
+            const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
+            const isActive = hasStarted && hasNotEnded
+            
+            return isPaid && isActive && ctxPriority !== undefined && ctxPriority > currentPlanPriority
+        })
+    }, [activatedSubscriptions, currentPlanPriority])
+    
+    const isActivePaidPlan = useMemo(() => {
+        const now = new Date()
+        
+        return activatedSubscriptions.some(ctx => {
+            const isThisPlan = ctx.subscriptionPlan?.id === plan?.id
+            const isPaid = !ctx.isTrial
+            const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
+            const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
+            const isActive = hasStarted && hasNotEnded
+            
+            return isThisPlan && isPaid && isActive
+        })
+    }, [activatedSubscriptions, plan?.id])
     
     const handleActivatePlanForModal = useCallback(async () => {
         if (!price?.id) return
@@ -395,7 +423,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     </Typography.Paragraph>
                                 </div>
                             </Space>
-                            {!isLowerPriorityThanActive && (
+                            {!hasHigherPriorityPaidSubscription && (
                                 <Space size={24} direction='vertical' width='100%'>
                                     <Space size={24} direction='vertical'>
                                         <Space size={4} direction='horizontal'>
@@ -415,7 +443,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Link>
                                         )}
                                     </Space>
-                                    {!isLowerPriorityThanActive && !isFreeForPartner && (!isActivePlan || shouldShowPayButtonForActivePlan) && (
+                                    {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (
                                         <Space size={16} direction='vertical' width='100%'>
                                             <Button
                                                 block
