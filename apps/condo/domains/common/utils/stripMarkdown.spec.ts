@@ -4,7 +4,7 @@ describe('stripMarkdown', () => {
     it('returns empty string for empty input', () => {
         expect(stripMarkdown('')).toBe('')
         expect(stripMarkdown(null)).toBe('')
-        expect(stripMarkdown(undefined)).toBe('')
+        expect(stripMarkdown()).toBe('')
     })
 
     it('removes emphasis and inline formatting', () => {

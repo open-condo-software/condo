@@ -4,14 +4,14 @@ export const stripMarkdown = (input?: string | null): string => {
     }
 
     return input
-        .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
-        .replace(/\*\*|__|[_*`~]/g, '')
-        .replace(/^\s{0,3}>\s?/gm, '')
-        .replace(/^#{1,6}\s*/gm, '')
-        .replace(/^\s*[-+*]\s+/gm, '')
-        .replace(/^\s*\d+\.\s+/gm, '')
-        .replace(/\n+/g, ' ')
-        .replace(/\s{2,}/g, ' ')
+        .replaceAll(/!\[[^\]]*?\]\([^)]*?\)/g, '')
+        .replaceAll(/\[([^\]]+?)\]\(([^)]+?)\)/g, '$1')
+        .replaceAll(/\*\*|__|[_*`~]/g, '')
+        .replaceAll(/^\s{0,3}>\s?/gm, '')
+        .replaceAll(/^#{1,6}\s*/gm, '')
+        .replaceAll(/^\s{0,3}[-+*]\s+/gm, '')
+        .replaceAll(/^\s{0,3}\d+\.\s+/gm, '')
+        .replaceAll(/\n+/g, ' ')
+        .replaceAll(/\s{2,}/g, ' ')
         .trim()
 }
