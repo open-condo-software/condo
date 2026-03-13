@@ -51,8 +51,6 @@ const { updateTestProperty } = require('@condo/domains/property/utils/testSchema
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
-const { SubscriptionPlan } = require('../../subscription/utils/testSchema')
-
 
 function getOnlyResourceMeterTest (resource) {
     return {
