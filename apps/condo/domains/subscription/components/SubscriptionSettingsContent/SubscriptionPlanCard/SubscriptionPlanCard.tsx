@@ -242,13 +242,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         const now = new Date()
         
         return activatedSubscriptions.some(ctx => {
-            const isThisPlan = ctx.subscriptionPlan?.id === plan?.id
+            const isCurrentPlan = ctx.subscriptionPlan?.id === plan?.id
             const isPaid = !ctx.isTrial
             const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
             const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
             const isActive = hasStarted && hasNotEnded
             
-            return isThisPlan && isPaid && isActive
+            return isCurrentPlan && isPaid && isActive
         })
     }, [activatedSubscriptions, plan?.id])
     
