@@ -51,6 +51,8 @@ const { updateTestProperty } = require('@condo/domains/property/utils/testSchema
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
+const { SubscriptionPlan } = require('../../subscription/utils/testSchema')
+
 
 function getOnlyResourceMeterTest (resource) {
     return {
@@ -914,6 +916,20 @@ describe('FindOrganizationsByAddress', () => {
         test('Should return organization with null subscription when no contexts exist', async () => {
             const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
             await utils.init()
+
+            await createTestSubscriptionPlan(utils.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                payments: true,
+                meters: false,
+                tickets: true,
+                news: true,
+                marketplace: false,
+                support: true,
+                ai: false,
+            })
+
             const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                 addressKey: utils.property.addressKey,
             })
