@@ -82,6 +82,16 @@ function getFakeSuccessResponse () {
     }
 }
 
+function buildPushDataByToken (tokens, { notification, data }) {
+    const dataByToken = Object.fromEntries(
+        tokens.map(token => [token, data])
+    )
+    const notificationByToken = Object.fromEntries(
+        tokens.map(token => [token, notification])
+    )
+    return { dataByToken, notificationByToken, tokens }
+}
+
 module.exports = {
     getRandomTokenData,
     getRandomFakeSuccessToken,
@@ -90,4 +100,6 @@ module.exports = {
     getFakeErrorResponse,
     getFakeSuccessResponse,
     getRandomPushTokenData,
+
+    buildPushDataByToken,
 }

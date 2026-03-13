@@ -1,4 +1,6 @@
-const { isEmpty, isNull, get, isObject } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -108,13 +110,14 @@ class RedStoreAdapter {
      * Prepares notification for either/both sending to redStore
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      */
-    static prepareBatchData (notificationRaw, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}, isVoIP = false) {
-        const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
+    static prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}, isVoIP = false) {
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
+            const notification = RedStoreAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
+
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
@@ -146,10 +149,10 @@ class RedStoreAdapter {
     /**
      * Manages to send notification to all available pushTokens of the user.
      */
-    async sendNotification ({ notification, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, dataByToken, tokens, pushTypes, appIds, isVoIP)
+        const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notificationByToken, dataByToken, tokens, pushTypes, appIds, isVoIP)
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
