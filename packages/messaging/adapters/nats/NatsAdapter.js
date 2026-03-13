@@ -150,12 +150,12 @@ class NatsAdapter extends BaseAdapter {
      * @param {string} userId
      * @returns {number} Number of relays torn down
      */
-    revokeUser (userId) {
+    async revokeUser (userId) {
         if (this.client?.connection && !this.client.connection.isClosed()) {
             this.client.connection.publish(`${ADMIN_REVOKE_PREFIX}.${userId}`)
         }
         if (this.authService) this.authService.revokeUser(userId)
-        if (this.relayService) return this.relayService.revokeUser(userId)
+        if (this.relayService) return await this.relayService.revokeUser(userId)
         return 0
     }
 
@@ -179,12 +179,12 @@ class NatsAdapter extends BaseAdapter {
      * @param {string} organizationId
      * @returns {number} Number of relays torn down
      */
-    revokeUserOrganization (userId, organizationId) {
+    async revokeUserOrganization (userId, organizationId) {
         if (this.client?.connection && !this.client.connection.isClosed()) {
             this.client.connection.publish(`${ADMIN_REVOKE_ORG_PREFIX}.${userId}.${organizationId}`)
         }
         if (this.authService) this.authService.revokeUserOrganization(userId, organizationId)
-        if (this.relayService) return this.relayService.revokeUserOrganization(userId, organizationId)
+        if (this.relayService) return await this.relayService.revokeUserOrganization(userId, organizationId)
         return 0
     }
 

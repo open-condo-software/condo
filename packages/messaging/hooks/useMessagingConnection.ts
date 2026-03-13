@@ -20,6 +20,10 @@ let globalConnection: NatsConnection | null = null
 let globalConnectionPromise: Promise<NatsConnection> | null = null
 let globalUserId: string | null = null
 let connectionRefCount = 0
+let intentionalDisconnect = false
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let reconnectDelay = 1000
+const MAX_RECONNECT_DELAY = 30000
 const subscribers = new Set<StateUpdater>()
 
 function notifySubscribers (state: MessagingConnectionState) {
@@ -27,6 +31,66 @@ function notifySubscribers (state: MessagingConnectionState) {
         setter(state)
     }
 }
+
+function scheduleReconnect () {
+    if (reconnectTimer) return
+    const delay = Math.min(reconnectDelay, MAX_RECONNECT_DELAY)
+    console.warn(`[messaging] Connection lost, reconnecting in ${delay}ms...`)
+    reconnectTimer = setTimeout(async () => {
+        reconnectTimer = null
+        try {
+            globalConnectionPromise = null
+            const tokenResponse = await fetch('/messaging/token')
+            if (!tokenResponse.ok) {
+                throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
+            }
+            const { token, userId } = await tokenResponse.json()
+
+            const nc = await wsconnect({
+                servers: globalWsUrl || 'ws://localhost:8080',
+                token,
+                reconnect: true,
+                maxReconnectAttempts: -1,
+                reconnectTimeWait: 2000,
+                reconnectJitter: 1000,
+                pingInterval: 25_000,
+            })
+
+            globalConnection = nc
+            globalUserId = userId || null
+            reconnectDelay = 1000
+
+            nc.closed().then((err) => {
+                globalConnection = null
+                globalConnectionPromise = null
+                globalUserId = null
+                notifySubscribers({
+                    connection: null,
+                    isConnected: false,
+                    isConnecting: false,
+                    error: err ? new Error(String(err)) : null,
+                })
+                if (!intentionalDisconnect && connectionRefCount > 0) {
+                    scheduleReconnect()
+                }
+            })
+
+            notifySubscribers({
+                connection: nc,
+                isConnected: true,
+                isConnecting: false,
+                error: null,
+            })
+            console.info('[messaging] Reconnected successfully')
+        } catch (err) {
+            console.error('[messaging] Reconnect failed, will retry:', err)
+            reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY)
+            scheduleReconnect()
+        }
+    }, delay)
+}
+
+let globalWsUrl: string | undefined
 
 export const useMessagingConnection = (options: UseMessagingConnectionOptions = {}) => {
     const { enabled = true, autoConnect = true, wsUrl } = options
@@ -46,6 +110,9 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
             return globalConnectionPromise
         }
 
+        intentionalDisconnect = false
+        globalWsUrl = wsUrl
+
         notifySubscribers({ connection: null, isConnected: false, isConnecting: true, error: null })
 
         globalConnectionPromise = (async () => {
@@ -62,6 +129,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                     reconnect: true,
                     maxReconnectAttempts: -1,
                     reconnectTimeWait: 2000,
+                    reconnectJitter: 1000,
                     pingInterval: 25_000,
                 })
 
@@ -78,7 +146,12 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
                         isConnecting: false,
                         error: err ? new Error(String(err)) : null,
                     })
+                    if (!intentionalDisconnect && connectionRefCount > 0) {
+                        scheduleReconnect()
+                    }
                 })
+
+                reconnectDelay = 1000
 
                 const connectedState: MessagingConnectionState = {
                     connection: nc,
@@ -107,6 +180,11 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
     }, [])
 
     const disconnect = useCallback(async () => {
+        intentionalDisconnect = true
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer)
+            reconnectTimer = null
+        }
         if (globalConnection && !globalConnection.isClosed()) {
             await globalConnection.drain()
             await globalConnection.close()

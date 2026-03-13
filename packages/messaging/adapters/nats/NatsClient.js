@@ -7,20 +7,33 @@ const logger = getLogger()
 
 const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
+const MAX_RECONNECT_DELAY_MS = 30000
+const INITIAL_RECONNECT_DELAY_MS = 1000
+
 class NatsClient {
     connection = null
     jetstream = null
     jsonCodec = JSONCodec()
     isConnected = false
+    _reconnectTimer = null
+    _reconnectDelay = INITIAL_RECONNECT_DELAY_MS
+    _intentionalClose = false
+    _lastConfig = {}
 
     async connect (config) {
         if (this.isConnected) return
+
+        this._lastConfig = config
+        this._intentionalClose = false
 
         try {
             const connectOpts = {
                 servers: config.url || MESSAGING_CONFIG.brokerUrl,
                 reconnect: true,
                 maxReconnectAttempts: -1,
+                reconnectTimeWait: 2000,
+                reconnectJitter: 1000,
+                reconnectJitterTLS: 2000,
             }
 
             if (config.user && config.pass) {
@@ -40,11 +53,34 @@ class NatsClient {
                 if (err) {
                     logger.error({ msg: 'NATS connection closed with error', err })
                 }
+                if (!this._intentionalClose) {
+                    this._scheduleReconnect()
+                }
             })
+
+            this._reconnectDelay = INITIAL_RECONNECT_DELAY_MS
         } catch (error) {
             logger.error({ msg: 'NATS connection error', err: error })
             throw error
         }
+    }
+
+    _scheduleReconnect () {
+        if (this._reconnectTimer) return
+        const delay = Math.min(this._reconnectDelay, MAX_RECONNECT_DELAY_MS)
+        logger.warn({ msg: 'Scheduling NATS client reconnect', delayMs: delay })
+        this._reconnectTimer = setTimeout(async () => {
+            this._reconnectTimer = null
+            try {
+                await this.connect(this._lastConfig)
+                logger.info({ msg: 'NATS client reconnected successfully' })
+            } catch (err) {
+                logger.error({ msg: 'NATS client reconnect failed, will retry', err: err.message })
+                this._reconnectDelay = Math.min(this._reconnectDelay * 2, MAX_RECONNECT_DELAY_MS)
+                this._scheduleReconnect()
+            }
+        }, delay)
+        this._reconnectTimer.unref()
     }
 
     async publish (topic, data) {
@@ -63,6 +99,11 @@ class NatsClient {
     }
 
     async close () {
+        this._intentionalClose = true
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer)
+            this._reconnectTimer = null
+        }
         if (this.connection) {
             await this.connection.close()
             this.isConnected = false
