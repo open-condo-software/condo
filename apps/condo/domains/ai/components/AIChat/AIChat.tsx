@@ -8,7 +8,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Input, Typography, Space } from '@open-condo/ui'
 import { Markdown } from '@open-condo/ui'
 
-
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
@@ -17,14 +16,23 @@ import { LocalStorageManager } from '@condo/domains/common/utils/localStorageMan
 import styles from './AIChat.module.css'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
-const storageManager = new LocalStorageManager<Record<string, any[]>>()
+const SESSION_KEY = 'condo-ai-assistant-session-id'
+
+// Tools that require user action or data from condo can be run recursively
+// -- this setting clamps the maximum depth for these tool calls
+const MAX_TOOL_CALL_DEPTH = 5
+const AI_FLOW_TIMEOUT_MS = 180000
+
+const historyStorageManager = new LocalStorageManager<Record<string, any[]>>()
+const sessionStorageManager = new LocalStorageManager<string>()
 
 export type Message = {
     id: string
     content: string
     role: 'user' | 'assistant'
     timestamp: Date
-    status?: 'sending' | 'sent' | 'error' | 'action_requested'
+    status?: 'sending' | 'sent' | 'error'
+    taskId?: string
     actionRequest?: {
         type: string
         meta: any
@@ -39,6 +47,8 @@ type AIChatProps = {
 export type AIChatRef = {
     handleResetHistory: () => void
     handleSaveConversation: () => void
+    checkForActiveTask: () => void
+    scrollToBottom: () => void
 }
 
 export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
@@ -48,14 +58,34 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const client = useApolloClient()
     
     const [inputValue, setInputValue] = useState('')
-    const [aiSessionId, setAiSessionId] = useState(uuidV4())
+    // Get or create persistent session ID from localStorage
+    const [aiSessionId, setAiSessionId] = useState(() => {
+        if (typeof window === 'undefined') return uuidV4()
+        
+        let sessionId = sessionStorageManager.getItem(SESSION_KEY)
+        
+        if (!sessionId) {
+            sessionId = uuidV4()
+            sessionStorageManager.setItem(SESSION_KEY, sessionId)
+        }
+        
+        return sessionId
+    })
     const [messages, setMessages] = useState<Message[]>([])
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
 
-    const [executeAIFlow, { loading }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+    const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+
+    const [executeAIFlow, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
-        timeout: 120000,
+        timeout: AI_FLOW_TIMEOUT_MS,
+    })
+
+    const [resumeAIFlow] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+        flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+        timeout: AI_FLOW_TIMEOUT_MS,
+        taskId: activeTaskId || undefined,
     })
 
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
@@ -65,30 +95,50 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
 
     // Load chat history from local storage on component mount
+    // Right now chat history is stored like this:
+    // aiSessionId = some uuid
+    // STORAGE_KEY: { <aiSessionId>: [ ... ] }
+    // Only last conversation is stored, this is by design.
+    // Multiple chat conversations should be stored server side
+    // Todo: @toplenboren (DOMA-13019) add server side ai conversation storage
     useEffect(() => {
         if (typeof window === 'undefined') return
         
-        const history = storageManager.getItem(STORAGE_KEY)
-        const savedHistory = history?.[aiSessionId] || []
+        let savedHistory = historyStorageManager.getItem(STORAGE_KEY)
+        let historyArray: any[] = []
         
-        if (savedHistory.length > 0) {
+        if (savedHistory && !Array.isArray(savedHistory) && typeof savedHistory === 'object') {
+            historyArray = savedHistory[aiSessionId] || []
+        }
+        
+        if (historyArray.length > 0) {
             // Convert timestamp strings back to Date objects
-            const historyWithDates = savedHistory.map(msg => ({
+            const historyWithDates = historyArray.map(msg => ({
                 ...msg,
                 timestamp: new Date(msg.timestamp),
             }))
             setMessages(historyWithDates)
+            
+            // Check for active task in the last message
+            const lastMessage = historyWithDates[historyWithDates.length - 1]
+            if (lastMessage?.status === 'sending' && lastMessage?.taskId) {
+                setActiveTaskId(lastMessage.taskId)
+            }
         }
-    }, [aiSessionId])
+    }, [])
+
+    // Sync activeTaskId with currentTaskId from useAIFlow
+    useEffect(() => {
+        if (currentTaskId && currentTaskId !== activeTaskId) {
+            setActiveTaskId(currentTaskId)
+        }
+    }, [currentTaskId, activeTaskId])
 
     const addMessage = (newMessage: Message) => {
         setMessages(prev => {
             const updated = [...prev, newMessage]
-            // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY) || {}
-                history[aiSessionId] = updated
-                storageManager.setItem(STORAGE_KEY, history)
+                historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -97,11 +147,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const changeMessage = (messageId: string, updatedMessage: Message) => {
         setMessages(prev => {
             const updated = prev.map(msg => msg.id === messageId ? updatedMessage : msg)
-            // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY) || {}
-                history[aiSessionId] = updated
-                storageManager.setItem(STORAGE_KEY, history)
+                historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
@@ -110,18 +157,19 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const removeMessage = (messageId: string) => {
         setMessages(prev => {
             const updated = prev.filter(msg => msg.id !== messageId)
-            // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY) || {}
-                history[aiSessionId] = updated
-                storageManager.setItem(STORAGE_KEY, history)
+                historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: updated })
             }
             return updated
         })
     }
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        const messagesContainer = messagesEndRef.current?.parentElement
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
+            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+        }
     }
 
     useEffect(() => {
@@ -137,9 +185,23 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     useImperativeHandle(ref, () => ({
         handleResetHistory,
         handleSaveConversation,
+        checkForActiveTask,
+        scrollToBottom,
     }))
 
-    const MAX_TOOL_CALL_DEPTH = 5
+    const checkForActiveTask = () => {
+        setMessages(prev => {
+            const hasActiveTask = prev.some(msg => msg.status === 'sending')
+            if (hasActiveTask) {
+                return prev.map(msg => 
+                    msg.status === 'sending' 
+                        ? { ...msg, content: loadingLabel }
+                        : msg
+                )
+            }
+            return prev
+        })
+    }
 
     const executeAIMessage = async (userInput: string, additionalContext?: any, toolCallDepth = 0) => {
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
@@ -163,7 +225,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
         addMessage(assistantMessage)
 
         try {
-            const result = await executeAIFlow({
+            // Use resumeAIFlow if we have an activeTaskId (page refresh case), otherwise create new task
+            const result = await (activeTaskId ? resumeAIFlow : executeAIFlow)({
                 context: {
                     userInput,
                     userData: {
@@ -174,6 +237,19 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                     aiSessionId,
                 },
             })
+            
+            // Clear activeTaskId after resuming
+            if (activeTaskId) {
+                setActiveTaskId(null)
+            }
+            
+            // Update the message with the taskId if available
+            if (currentTaskId) {
+                changeMessage(assistantMessage.id, {
+                    ...assistantMessage,
+                    taskId: currentTaskId,
+                })
+            }
             
             if (!result.data) {
                 changeMessage(assistantMessage.id, {
@@ -229,10 +305,8 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
 
                     const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
                     
-                    // Remove thinking message
                     removeMessage(thinkingMessage.id)
                     
-                    // Compile results message
                     const resultsMessage = toolCallResults
                         .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
                         .filter(Boolean)
@@ -260,7 +334,6 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                         await executeAIMessage(userInput, { toolCalls: allToolCallResults }, toolCallDepth + 1)
                     }
                 } catch (error) {
-                    // Remove thinking message and show error
                     removeMessage(thinkingMessage.id)
                     addMessage({
                         id: `tool-error-${Date.now()}`,
@@ -269,6 +342,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                         status: 'sent',
                         timestamp: new Date(),
                     })
+                    setActiveTaskId(null)
                 }
             } else if (result.data?.status === TASK_STATUSES.COMPLETED) {
                 changeMessage(assistantMessage.id, {
@@ -276,6 +350,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                     content: result.data.result.answer || intl.formatMessage({ id: 'ai.chat.noResponse' }),
                     status: 'sent',
                 })
+                setActiveTaskId(null)
             }
         } catch (error) {
             console.error('Error in executeAIMessage:', error)
@@ -284,6 +359,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                 content: errorMessage,
                 status: 'sent',
             })
+            setActiveTaskId(null)
         }
     }
 
@@ -314,19 +390,22 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     }
 
     const handleResetHistory = () => {
-        // Clear current session from local storage
         if (typeof window !== 'undefined') {
-            const history = storageManager.getItem(STORAGE_KEY)
-            if (history) {
-                delete history[aiSessionId]
-                storageManager.setItem(STORAGE_KEY, history)
-            }
+            historyStorageManager.setItem(STORAGE_KEY, { [aiSessionId]: [] })
+            localStorage.removeItem(SESSION_KEY)
         }
         
-        // Generate new session ID and clear messages
         const newSessionId = uuidV4()
         setAiSessionId(newSessionId)
+        
+        if (typeof window !== 'undefined') {
+            sessionStorageManager.setItem(SESSION_KEY, newSessionId)
+        }
+        
         setMessages([])
+        
+        // Clear active AI task when resetting
+        setActiveTaskId(null)
         
         // Focus input after reset
         setTimeout(() => {
@@ -349,7 +428,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = `condo-ai-conversation-${new Date().toISOString().split('T')[0]}.txt`
+        link.download = `ai-assistant-${new Date().toISOString().split('T')[0]}.txt`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
