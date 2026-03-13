@@ -7,6 +7,7 @@
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 const express = require('express')
 
 const { initTestExpressApp, getTestExpressApp, setFeatureFlag } = require('@open-condo/keystone/test.utils')
@@ -36,6 +37,7 @@ const {
     MeterTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
@@ -47,6 +49,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
 
 function getOnlyResourceMeterTest (resource) {
@@ -896,6 +899,167 @@ describe('FindOrganizationsByAddress', () => {
                 addressKey: utils.property.addressKey,
             })
             expect(organizations).not.toHaveLength(0)
+        })
+    })
+
+    describe('Subscription field', () => {
+        beforeAll(async () => {
+            setFeatureFlag(SUBSCRIPTIONS, true)
+        })
+
+        afterAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, false)
+        })
+
+        test('Should return organization with null subscription when no contexts exist', async () => {
+            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
+
+            await createTestSubscriptionPlan(utils.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                payments: true,
+                meters: false,
+                tickets: true,
+                news: true,
+                marketplace: false,
+                support: true,
+                ai: false,
+            })
+
+            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+
+            const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+            expect(found).toBeDefined()
+            expect(found.subscription).toBeDefined()
+            expect(found.subscription.paymentsEndAt).toBeNull()
+            expect(found.subscription.metersEndAt).toBeNull()
+            expect(found.subscription.activeSubscriptionContextId).toBeNull()
+        })
+
+        test('Should return organization with subscription data', async () => {
+            const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils.init()
+            const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const [subscriptionPlan] = await createTestSubscriptionPlan(utils.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                payments: true,
+                meters: true,
+                tickets: true,
+                news: false,
+                marketplace: true,
+                support: false,
+                ai: true,
+            })
+
+            await createTestSubscriptionContext(utils.clients.admin, utils.organization, subscriptionPlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+            })
+
+            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+
+            const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+            expect(found).toBeDefined()
+            expect(found.subscription).toBeDefined()
+            expect(found.subscription.paymentsEndAt).toBe(endAt)
+            expect(found.subscription.metersEndAt).toBe(endAt)
+            expect(found.subscription.ticketsEndAt).toBe(endAt)
+            expect(found.subscription.newsEndAt).toBeNull()
+            expect(found.subscription.marketplaceEndAt).toBe(endAt)
+            expect(found.subscription.supportEndAt).toBeNull()
+            expect(found.subscription.aiEndAt).toBe(endAt)
+            expect(found.subscription.activeSubscriptionContextId).toBeDefined()
+            expect(found.subscription.activeSubscriptionEndAt).toBe(endAt)
+        })
+
+        test('Should return multiple organizations with their own subscription data', async () => {
+            const utils1 = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            const utils2 = new TestUtils([ResidentTestMixin, MeterTestMixin])
+            await utils1.init()
+            await utils2.init()
+
+            const endAt1 = dayjs().add(15, 'days').format('YYYY-MM-DD')
+            const endAt2 = dayjs().add(60, 'days').format('YYYY-MM-DD')
+
+            const [subscriptionPlan1] = await createTestSubscriptionPlan(utils1.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                payments: true,
+                meters: false,
+                tickets: true,
+                news: true,
+                marketplace: false,
+                support: true,
+                ai: false,
+            })
+
+            const [subscriptionPlan2] = await createTestSubscriptionPlan(utils2.clients.admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                payments: false,
+                meters: true,
+                tickets: false,
+                news: false,
+                marketplace: true,
+                support: false,
+                ai: true,
+            })
+
+            await createTestSubscriptionContext(utils1.clients.admin, utils1.organization, subscriptionPlan1, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: endAt1,
+                isTrial: false,
+            })
+
+            await createTestSubscriptionContext(utils2.clients.admin, utils2.organization, subscriptionPlan2, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: endAt2,
+                isTrial: false,
+            })
+
+            await updateTestProperty(utils2.clients.admin, utils2.property.id, {
+                address: utils1.property.address,
+                addressMeta: utils1.property.addressMeta,
+            })
+
+            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils1.clients.resident, {
+                addressKey: utils1.property.addressKey,
+            })
+
+            expect(foundOrganizations.length).toBeGreaterThanOrEqual(2)
+
+            const found1 = foundOrganizations.find(({ id }) => id === utils1.organization.id)
+            expect(found1).toBeDefined()
+            expect(found1.subscription).toBeDefined()
+            expect(found1.subscription.paymentsEndAt).toBe(endAt1)
+            expect(found1.subscription.metersEndAt).toBeNull()
+            expect(found1.subscription.ticketsEndAt).toBe(endAt1)
+            expect(found1.subscription.newsEndAt).toBe(endAt1)
+            expect(found1.subscription.marketplaceEndAt).toBeNull()
+            expect(found1.subscription.supportEndAt).toBe(endAt1)
+            expect(found1.subscription.aiEndAt).toBeNull()
+
+            const found2 = foundOrganizations.find(({ id }) => id === utils2.organization.id)
+            expect(found2).toBeDefined()
+            expect(found2.subscription).toBeDefined()
+            expect(found2.subscription.paymentsEndAt).toBeNull()
+            expect(found2.subscription.metersEndAt).toBe(endAt2)
+            expect(found2.subscription.ticketsEndAt).toBeNull()
+            expect(found2.subscription.newsEndAt).toBeNull()
+            expect(found2.subscription.marketplaceEndAt).toBe(endAt2)
+            expect(found2.subscription.supportEndAt).toBeNull()
+            expect(found2.subscription.aiEndAt).toBe(endAt2)
         })
     })
 })

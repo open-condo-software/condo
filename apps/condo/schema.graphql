@@ -91470,6 +91470,7 @@ type FindOrganizationByAddressOutput {
   type: OrganizationTypeType!
   receipts: [FindOrganizationByAddressReceiptType]!
   meters: [FindOrganizationByAddressMeterType]!
+  subscription: OrganizationSubscriptionFeatures
 }
 
 input SuggestServiceProviderInput {
