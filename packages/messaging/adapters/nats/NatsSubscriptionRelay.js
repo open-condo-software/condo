@@ -447,20 +447,21 @@ class NatsSubscriptionRelay {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
-        await addRevokedUserOrg(userId, organizationId)
 
         const relayIds = this.userRelays.get(userId)
-        if (!relayIds || relayIds.size === 0) return 0
-
-        const orgTopicPrefix = `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.`
-        const ids = [...relayIds]
         let count = 0
-        for (const relayId of ids) {
-            const relay = this.relays.get(relayId)
-            if (relay && relay.actualTopic.startsWith(orgTopicPrefix)) {
-                if (await this._notifyAndRemoveRelay(relayId, 'organization access revoked')) count++
+        if (relayIds && relayIds.size > 0) {
+            const orgTopicPrefix = `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.`
+            const ids = [...relayIds]
+            for (const relayId of ids) {
+                const relay = this.relays.get(relayId)
+                if (relay && relay.actualTopic.startsWith(orgTopicPrefix)) {
+                    if (await this._notifyAndRemoveRelay(relayId, 'organization access revoked')) count++
+                }
             }
         }
+
+        await addRevokedUserOrg(userId, organizationId)
         return count
     }
 
@@ -488,16 +489,17 @@ class NatsSubscriptionRelay {
      */
     async revokeUser (userId) {
         this.revokedUsers.add(userId)
-        await addRevokedUser(userId)
 
         const relayIds = this.userRelays.get(userId)
-        if (!relayIds || relayIds.size === 0) return 0
-
-        const ids = [...relayIds]
         let count = 0
-        for (const relayId of ids) {
-            if (await this._notifyAndRemoveRelay(relayId, 'access revoked')) count++
+        if (relayIds && relayIds.size > 0) {
+            const ids = [...relayIds]
+            for (const relayId of ids) {
+                if (await this._notifyAndRemoveRelay(relayId, 'access revoked')) count++
+            }
         }
+
+        await addRevokedUser(userId)
         return count
     }
 
