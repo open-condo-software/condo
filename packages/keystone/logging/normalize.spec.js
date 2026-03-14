@@ -28,4 +28,36 @@ describe('normalizeVariables', () => {
         expect(result.list[0].phoneNumber).toBe('***')
         expect(result.list[1].value).toBe('ok')
     })
+
+    it('keeps groupedReceipts visible by code override', () => {
+        const input = {
+            groupedReceipts: 'visible',
+            nested: {
+                groupedReceipts: {
+                    id: 'receipt-id',
+                },
+                receipt: 'hidden',
+            },
+        }
+
+        const result = JSON.parse(normalizeVariables(input))
+
+        expect(result.groupedReceipts).toBe('visible')
+        expect(result.nested.groupedReceipts.id).toBe('receipt-id')
+        expect(result.nested.receipt).toBe('***')
+    })
+
+    it('still redacts non-overridden sensitive keys', () => {
+        const input = {
+            token: 'hidden',
+            secret: 'hidden',
+            receiptToken: 'hidden',
+        }
+
+        const result = JSON.parse(normalizeVariables(input))
+
+        expect(result.token).toBe('***')
+        expect(result.secret).toBe('***')
+        expect(result.receiptToken).toBe('***')
+    })
 })
