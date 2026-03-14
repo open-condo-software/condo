@@ -216,6 +216,26 @@ Clients do **not** have PUB permission on `_INBOX.>`. NATS `request()` embeds re
 
 The `/messaging/token` and `/messaging/channels` endpoints are rate-limited by both IP address and authenticated user ID. This prevents abuse from shared IPs (NAT/proxy) and per-user flooding independently. Configurable via `rateLimitMax` and `rateLimitWindowSec`.
 
+### Connection resilience
+
+All NATS connections (relay service, auth callout, publisher client, browser WebSocket) are configured with:
+
+- **Reconnect jitter** — `reconnectTimeWait: 2000ms`, `reconnectJitter: 1000ms`, `reconnectJitterTLS: 2000ms` to prevent thundering-herd connection storms
+- **Infinite reconnect attempts** — `maxReconnectAttempts: -1` for transient disconnects (TCP drops, brief server restarts)
+- **Auto-restart on permanent close** — if the NATS client library gives up (auth failure on reconnect, protocol error, server-side kick), all backend services and the frontend hook automatically re-establish the connection with exponential backoff (1s → 2s → 4s → ... → 30s cap). The frontend re-fetches a fresh `/messaging/token` before reconnecting
+
+Intentional shutdown via `stop()` / `disconnect()` disables auto-restart.
+
+### Revocation persistence (Redis)
+
+Revocation state (`revokedUsers`, `revokedUserOrgs`) is persisted to Redis so it survives full pod restarts in multi-replica k8s deployments. On startup, each relay and auth callout service loads persisted revocation state from Redis and merges it with any local state.
+
+- **Redis keys:** `messaging:revokedUsers` (SET), `messaging:revokedUserOrgs` (HASH with `userId:orgId` fields)
+- **Writes are fire-and-forget** — Redis failure does not block revocation
+- **Reads happen once on `start()`** — merged into local state
+- **No additional env vars needed** — uses the existing `REDIS_URL` / `KV_URL` via `getKVClient('messaging')`
+- **Graceful fallback** — if Redis is unavailable, the system works as before with in-memory-only state and NATS broadcast for cross-pod sync
+
 ### JetStream consumers and gap replay
 
 The relay creates **ephemeral JetStream push consumers** (not core NATS subscriptions) for each relay. This enables message replay when a client briefly disconnects:
@@ -227,6 +247,10 @@ The relay creates **ephemeral JetStream push consumers** (not core NATS subscrip
    ```
 3. If `startTime` is omitted, the consumer uses `deliver_policy: new` (only future messages)
 4. The `useMessagingSubscription` hook tracks `lastMessageTime` automatically and passes it on re-subscribe after a relay-closed sentinel
+
+### JetStream consumer cleanup
+
+When a relay is removed (unsubscribe, revocation, TTL expiry, or service shutdown), the server-side JetStream consumer is explicitly destroyed via `jsm.consumers.delete()`. This prevents orphaned ephemeral consumers from accumulating on the NATS server and consuming resources. On service shutdown (`_cleanupAll`), all consumer deletions run in parallel via `Promise.allSettled` for best-effort cleanup.
 
 ### Relay TTL cleanup
 
@@ -243,9 +267,11 @@ When a user is deleted or blocked, revoke their messaging access instantly:
 ```javascript
 const { revokeMessagingUser, unrevokeMessagingUser } = require('@open-condo/messaging')
 
-revokeMessagingUser(userId)       // tears down all relays + blocks new connections
+await revokeMessagingUser(userId)  // tears down all relays + blocks new connections
 unrevokeMessagingUser(userId)     // re-enables access
 ```
+
+> **Note:** `revokeMessagingUser` is async — it awaits server-side JetStream consumer cleanup. Always `await` it to ensure consumers are destroyed before returning.
 
 ### Organization-level revocation
 
@@ -254,8 +280,8 @@ When a user is removed from an organization (e.g. employee blocked/rejected), re
 ```javascript
 const { revokeMessagingUserOrganization, unrevokeMessagingUserOrganization } = require('@open-condo/messaging')
 
-revokeMessagingUserOrganization(userId, organizationId)   // tears down org relays + blocks new org connections
-unrevokeMessagingUserOrganization(userId, organizationId) // re-enables org access
+await revokeMessagingUserOrganization(userId, organizationId)   // tears down org relays + blocks new org connections
+unrevokeMessagingUserOrganization(userId, organizationId)       // re-enables org access
 ```
 
 Org-level revocation only affects relays for the specified organization — user-channel relays and other organizations remain active.

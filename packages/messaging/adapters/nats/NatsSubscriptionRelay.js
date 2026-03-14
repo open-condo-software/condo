@@ -6,6 +6,15 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const {
+    loadRevokedUsers,
+    loadRevokedUserOrgs,
+    addRevokedUser,
+    removeRevokedUser,
+    addRevokedUserOrg,
+    removeRevokedUserOrg,
+} = require('./RevocationStore')
+
+const {
     ADMIN_REVOKE_PREFIX,
     ADMIN_UNREVOKE_PREFIX,
     ADMIN_REVOKE_ORG_PREFIX,
@@ -39,6 +48,9 @@ const DEFAULT_MAX_RELAYS_PER_USER = 50
  * 3. Forwards matching messages to the client's `deliverInbox`
  * 4. Client publishes to `_MESSAGING.unsubscribe.{relayId}` to stop
  */
+const MAX_RESTART_DELAY_MS = 30000
+const INITIAL_RESTART_DELAY_MS = 1000
+
 class NatsSubscriptionRelay {
     constructor () {
         this.connection = null
@@ -49,11 +61,18 @@ class NatsSubscriptionRelay {
         this.revokedUserOrgs = new Map()
         this.jc = JSONCodec()
         this._cleanupTimer = null
+        this._restartTimer = null
+        this._restartDelay = INITIAL_RESTART_DELAY_MS
+        this._intentionalStop = false
+        this._lastConfig = {}
         this.relayTtlMs = DEFAULT_RELAY_TTL_MS
     }
 
     async start (config = {}) {
         try {
+            this._lastConfig = config
+            this._intentionalStop = false
+
             if (config.relayTtlMs !== undefined) {
                 this.relayTtlMs = config.relayTtlMs
             }
@@ -66,6 +85,9 @@ class NatsSubscriptionRelay {
                 name: 'subscription-relay',
                 reconnect: true,
                 maxReconnectAttempts: -1,
+                reconnectTimeWait: 2000,
+                reconnectJitter: 1000,
+                reconnectJitterTLS: 2000,
             })
 
             this.isRunning = true
@@ -89,7 +111,7 @@ class NatsSubscriptionRelay {
             ;(async () => {
                 for await (const msg of unsubscribeSub) {
                     try {
-                        this._handleUnsubscribeRequest(msg)
+                        await this._handleUnsubscribeRequest(msg)
                     } catch (error) {
                         logger.error({ msg: 'Error handling unsubscribe request', err: error })
                     }
@@ -99,44 +121,92 @@ class NatsSubscriptionRelay {
             const revokeSub = this.connection.subscribe(`${ADMIN_REVOKE_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of revokeSub) {
-                    const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
-                    if (userId) this.revokeUser(userId)
+                    try {
+                        const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
+                        if (userId) await this.revokeUser(userId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling revoke message', err: error })
+                    }
                 }
             })()
 
             const unrevokeSub = this.connection.subscribe(`${ADMIN_UNREVOKE_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of unrevokeSub) {
-                    const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
-                    if (userId) this.unrevokeUser(userId)
+                    try {
+                        const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
+                        if (userId) await this.unrevokeUser(userId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling unrevoke message', err: error })
+                    }
                 }
             })()
 
             const revokeOrgSub = this.connection.subscribe(`${ADMIN_REVOKE_ORG_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of revokeOrgSub) {
-                    const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
-                    const [userId, organizationId] = rest.split('.')
-                    if (userId && organizationId) this.revokeUserOrganization(userId, organizationId)
+                    try {
+                        const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
+                        const [userId, organizationId] = rest.split('.')
+                        if (userId && organizationId) await this.revokeUserOrganization(userId, organizationId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling revoke org message', err: error })
+                    }
                 }
             })()
 
             const unrevokeOrgSub = this.connection.subscribe(`${ADMIN_UNREVOKE_ORG_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of unrevokeOrgSub) {
-                    const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
-                    const [userId, organizationId] = rest.split('.')
-                    if (userId && organizationId) this.unrevokeUserOrganization(userId, organizationId)
+                    try {
+                        const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
+                        const [userId, organizationId] = rest.split('.')
+                        if (userId && organizationId) await this.unrevokeUserOrganization(userId, organizationId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling unrevoke org message', err: error })
+                    }
                 }
             })()
 
-            this.connection.closed().then((err) => {
+            try {
+                const [persistedUsers, persistedOrgs] = await Promise.all([
+                    loadRevokedUsers(),
+                    loadRevokedUserOrgs(),
+                ])
+                for (const userId of persistedUsers) {
+                    this.revokedUsers.add(userId)
+                }
+                for (const [userId, orgIds] of persistedOrgs) {
+                    if (!this.revokedUserOrgs.has(userId)) {
+                        this.revokedUserOrgs.set(userId, new Set())
+                    }
+                    for (const orgId of orgIds) {
+                        this.revokedUserOrgs.get(userId).add(orgId)
+                    }
+                }
+            } catch (err) {
+                logger.error({ msg: 'Failed to load persisted revocation state', err })
+                throw err
+            }
+
+            this.connection.closed().then(async (err) => {
                 this.isRunning = false
-                this._cleanupAll()
+                const savedRevokedUsers = new Set(this.revokedUsers)
+                const savedRevokedUserOrgs = new Map(
+                    [...this.revokedUserOrgs].map(([k, v]) => [k, new Set(v)])
+                )
+                await this._cleanupAll()
                 if (err) {
                     logger.error({ msg: 'Relay connection closed with error', err })
                 }
+                if (!this._intentionalStop) {
+                    this.revokedUsers = savedRevokedUsers
+                    this.revokedUserOrgs = savedRevokedUserOrgs
+                    this._scheduleRestart()
+                }
             })
+
+            this._restartDelay = INITIAL_RESTART_DELAY_MS
 
         } catch (error) {
             logger.error({ msg: 'Failed to start subscription relay service', err: error })
@@ -238,12 +308,25 @@ class NatsSubscriptionRelay {
             return
         }
 
+        // Retrieve the consumer name so we can destroy it during cleanup
+        let consumerName = null
+        let streamName = null
+        try {
+            const ci = await channelSub.consumerInfo()
+            consumerName = ci.name
+            streamName = ci.stream_name
+        } catch (err) {
+            logger.warn({ msg: 'Could not retrieve consumer info for relay', relayId, err: err.message })
+        }
+
         const relay = {
             id: relayId,
             requestingUserId,
             deliverInbox,
             actualTopic,
             subscription: channelSub,
+            consumerName,
+            streamName,
             createdAt: Date.now(),
         }
 
@@ -276,7 +359,7 @@ class NatsSubscriptionRelay {
 
     }
 
-    _handleUnsubscribeRequest (msg) {
+    async _handleUnsubscribeRequest (msg) {
         const parts = msg.subject.split('.')
         // _MESSAGING.unsubscribe.<userId>.<relayId>
         if (parts.length < 4) {
@@ -293,18 +376,34 @@ class NatsSubscriptionRelay {
             return
         }
 
-        this._removeRelay(relayId)
+        await this._removeRelay(relayId)
 
         if (msg.reply) {
             this.connection.publish(msg.reply, this.jc.encode({ status: 'ok' }))
         }
     }
 
-    _removeRelay (relayId) {
+    async _removeRelay (relayId) {
         const relay = this.relays.get(relayId)
         if (!relay) return false
 
-        relay.subscription.unsubscribe()
+        try {
+            relay.subscription.unsubscribe()
+        } catch (err) {
+            logger.error({ msg: 'Error unsubscribing relay', relayId, err })
+        }
+
+        // Destroy the server-side JetStream consumer to prevent resource leaks
+        if (relay.consumerName && relay.streamName) {
+            try {
+                const jsm = await this.connection.jetstreamManager()
+                await jsm.consumers.delete(relay.streamName, relay.consumerName)
+            } catch (err) {
+                // Consumer may already be gone (ephemeral timeout or server restart)
+                logger.warn({ msg: 'Could not delete JetStream consumer (may already be cleaned up)', relayId, consumer: relay.consumerName, err: err.message })
+            }
+        }
+
         this.relays.delete(relayId)
 
         if (relay.requestingUserId) {
@@ -320,7 +419,7 @@ class NatsSubscriptionRelay {
         return true
     }
 
-    _notifyAndRemoveRelay (relayId, reason) {
+    async _notifyAndRemoveRelay (relayId, reason) {
         const relay = this.relays.get(relayId)
         if (!relay) return false
 
@@ -343,24 +442,26 @@ class NatsSubscriptionRelay {
      * @param {string} organizationId
      * @returns {number} Number of relays revoked
      */
-    revokeUserOrganization (userId, organizationId) {
+    async revokeUserOrganization (userId, organizationId) {
         if (!this.revokedUserOrgs.has(userId)) {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
 
         const relayIds = this.userRelays.get(userId)
-        if (!relayIds || relayIds.size === 0) return 0
-
-        const orgTopicPrefix = `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.`
-        const ids = [...relayIds]
         let count = 0
-        for (const relayId of ids) {
-            const relay = this.relays.get(relayId)
-            if (relay && relay.actualTopic.startsWith(orgTopicPrefix)) {
-                if (this._notifyAndRemoveRelay(relayId, 'organization access revoked')) count++
+        if (relayIds && relayIds.size > 0) {
+            const orgTopicPrefix = `${APP_PREFIX}.${CHANNEL_ORGANIZATION}.${organizationId}.`
+            const ids = [...relayIds]
+            for (const relayId of ids) {
+                const relay = this.relays.get(relayId)
+                if (relay && relay.actualTopic.startsWith(orgTopicPrefix)) {
+                    if (await this._notifyAndRemoveRelay(relayId, 'organization access revoked')) count++
+                }
             }
         }
+
+        await addRevokedUserOrg(userId, organizationId)
         return count
     }
 
@@ -369,7 +470,7 @@ class NatsSubscriptionRelay {
      * @param {string} userId
      * @param {string} organizationId
      */
-    unrevokeUserOrganization (userId, organizationId) {
+    async unrevokeUserOrganization (userId, organizationId) {
         const orgs = this.revokedUserOrgs.get(userId)
         if (orgs) {
             orgs.delete(organizationId)
@@ -377,6 +478,7 @@ class NatsSubscriptionRelay {
                 this.revokedUserOrgs.delete(userId)
             }
         }
+        await removeRevokedUserOrg(userId, organizationId)
     }
 
     /**
@@ -385,17 +487,19 @@ class NatsSubscriptionRelay {
      * @param {string} userId
      * @returns {number} Number of relays revoked
      */
-    revokeUser (userId) {
+    async revokeUser (userId) {
         this.revokedUsers.add(userId)
 
         const relayIds = this.userRelays.get(userId)
-        if (!relayIds || relayIds.size === 0) return 0
-
-        const ids = [...relayIds]
         let count = 0
-        for (const relayId of ids) {
-            if (this._notifyAndRemoveRelay(relayId, 'access revoked')) count++
+        if (relayIds && relayIds.size > 0) {
+            const ids = [...relayIds]
+            for (const relayId of ids) {
+                if (await this._notifyAndRemoveRelay(relayId, 'access revoked')) count++
+            }
         }
+
+        await addRevokedUser(userId)
         return count
     }
 
@@ -403,8 +507,9 @@ class NatsSubscriptionRelay {
      * Removes a user from the revoked set (e.g. if they are re-activated).
      * @param {string} userId
      */
-    unrevokeUser (userId) {
+    async unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
+        await removeRevokedUser(userId)
     }
 
     _startCleanupTimer (intervalMs) {
@@ -414,7 +519,7 @@ class NatsSubscriptionRelay {
         this._cleanupTimer.unref()
     }
 
-    _sweepExpiredRelays () {
+    async _sweepExpiredRelays () {
         const now = Date.now()
         const expired = []
         for (const [relayId, relay] of this.relays) {
@@ -423,33 +528,66 @@ class NatsSubscriptionRelay {
             }
         }
         for (const relayId of expired) {
-            this._notifyAndRemoveRelay(relayId, 'expired')
+            await this._notifyAndRemoveRelay(relayId, 'expired')
         }
         if (expired.length > 0) {
             logger.warn({ msg: 'Swept expired relays', count: expired.length, remaining: this.relays.size })
         }
     }
 
-    _cleanupAll () {
+    async _cleanupAll () {
         if (this._cleanupTimer) {
             clearInterval(this._cleanupTimer)
             this._cleanupTimer = null
         }
+        const cleanupPromises = []
         for (const [relayId, relay] of this.relays) {
             try {
                 relay.subscription.unsubscribe()
             } catch {
                 // ignore
             }
+            // Best-effort destroy of server-side JetStream consumers
+            if (relay.consumerName && relay.streamName && this.connection && !this.connection.isClosed()) {
+                cleanupPromises.push(
+                    this.connection.jetstreamManager()
+                        .then(jsm => jsm.consumers.delete(relay.streamName, relay.consumerName))
+                        .catch(() => { /* consumer may already be gone */ })
+                )
+            }
         }
+        await Promise.allSettled(cleanupPromises)
         this.relays.clear()
         this.userRelays.clear()
         this.revokedUsers.clear()
         this.revokedUserOrgs.clear()
     }
 
+    _scheduleRestart () {
+        if (this._restartTimer) return
+        const delay = Math.min(this._restartDelay, MAX_RESTART_DELAY_MS)
+        logger.warn({ msg: 'Scheduling relay service restart', delayMs: delay })
+        this._restartTimer = setTimeout(async () => {
+            this._restartTimer = null
+            try {
+                await this.start(this._lastConfig)
+                logger.info({ msg: 'Relay service restarted successfully' })
+            } catch (err) {
+                logger.error({ msg: 'Relay service restart failed, will retry', err: err.message })
+                this._restartDelay = Math.min(this._restartDelay * 2, MAX_RESTART_DELAY_MS)
+                this._scheduleRestart()
+            }
+        }, delay)
+        this._restartTimer.unref()
+    }
+
     async stop () {
-        this._cleanupAll()
+        this._intentionalStop = true
+        if (this._restartTimer) {
+            clearTimeout(this._restartTimer)
+            this._restartTimer = null
+        }
+        await this._cleanupAll()
         if (this.connection) {
             await this.connection.drain()
             await this.connection.close()
