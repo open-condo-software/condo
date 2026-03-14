@@ -67,7 +67,10 @@ async function loadRevokedUserOrgs () {
 
 async function addRevokedUser (userId) {
     const client = getRedis()
-    if (!client) return
+    if (!client) {
+        logger.warn({ msg: 'Redis client not available, skipping persist', data: { userId, key: REVOKED_USERS_KEY } })
+        return
+    }
     try {
         await client.sadd(REVOKED_USERS_KEY, userId)
     } catch (err) {
@@ -78,7 +81,10 @@ async function addRevokedUser (userId) {
 
 async function removeRevokedUser (userId) {
     const client = getRedis()
-    if (!client) return
+    if (!client) {
+        logger.warn({ msg: 'Redis client not available, skipping remove', data: { userId, key: REVOKED_USERS_KEY } })
+        return
+    }
     try {
         await client.srem(REVOKED_USERS_KEY, userId)
     } catch (err) {
@@ -89,7 +95,10 @@ async function removeRevokedUser (userId) {
 
 async function addRevokedUserOrg (userId, organizationId) {
     const client = getRedis()
-    if (!client) return
+    if (!client) {
+        logger.warn({ msg: 'Redis client not available, skipping persist', data: { userId, organizationId, key: REVOKED_USER_ORGS_KEY } })
+        return
+    }
     try {
         await client.hset(REVOKED_USER_ORGS_KEY, `${userId}:${organizationId}`, '1')
     } catch (err) {
@@ -100,7 +109,10 @@ async function addRevokedUserOrg (userId, organizationId) {
 
 async function removeRevokedUserOrg (userId, organizationId) {
     const client = getRedis()
-    if (!client) return
+    if (!client) {
+        logger.warn({ msg: 'Redis client not available, skipping remove', data: { userId, organizationId, key: REVOKED_USER_ORGS_KEY } })
+        return
+    }
     try {
         await client.hdel(REVOKED_USER_ORGS_KEY, `${userId}:${organizationId}`)
     } catch (err) {

@@ -164,6 +164,7 @@ class NatsAuthCalloutService {
                 }
             } catch (err) {
                 logger.error({ msg: 'Failed to load persisted revocation state', err })
+                throw err
             }
 
             this.connection.closed().then((err) => {
@@ -268,12 +269,12 @@ class NatsAuthCalloutService {
 
     async revokeUser (userId) {
         this.revokedUsers.add(userId)
-        await addRevokedUser(userId).catch(() => {})
+        await addRevokedUser(userId)
     }
 
     async unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
-        await removeRevokedUser(userId).catch(() => {})
+        await removeRevokedUser(userId)
     }
 
     async revokeUserOrganization (userId, organizationId) {
@@ -281,7 +282,7 @@ class NatsAuthCalloutService {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
-        await addRevokedUserOrg(userId, organizationId).catch(() => {})
+        await addRevokedUserOrg(userId, organizationId)
     }
 
     async unrevokeUserOrganization (userId, organizationId) {
@@ -292,7 +293,7 @@ class NatsAuthCalloutService {
                 this.revokedUserOrgs.delete(userId)
             }
         }
-        await removeRevokedUserOrg(userId, organizationId).catch(() => {})
+        await removeRevokedUserOrg(userId, organizationId)
     }
 
     _scheduleRestart () {

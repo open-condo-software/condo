@@ -34,9 +34,23 @@ function notifySubscribers (state: MessagingConnectionState) {
     }
 }
 
+async function fetchMessagingTokenWithTimeout (): Promise<{ token: string, userId: string }> {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), TOKEN_FETCH_TIMEOUT_MS)
+    try {
+        const tokenResponse = await fetch('/messaging/token', { signal: controller.signal })
+        if (!tokenResponse.ok) {
+            throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
+        }
+        return await tokenResponse.json()
+    } finally {
+        clearTimeout(timeoutId)
+    }
+}
+
 function shouldReconnect () {
     return !intentionalDisconnect && connectionRefCount > 0 && !isReconnecting
-        && !globalConnection && !globalConnectionPromise
+        && globalConnection === null && globalConnectionPromise === null
 }
 
 function scheduleReconnect () {
@@ -51,20 +65,13 @@ function scheduleReconnect () {
         try {
             globalConnectionPromise = null
 
-            const controller = new AbortController()
-            const timeoutId = setTimeout(() => controller.abort(), TOKEN_FETCH_TIMEOUT_MS)
-            let tokenResponse: Response
-            try {
-                tokenResponse = await fetch('/messaging/token', { signal: controller.signal })
-            } finally {
-                clearTimeout(timeoutId)
-            }
-            if (!tokenResponse.ok) {
-                throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
-            }
-            const { token, userId } = await tokenResponse.json()
+            const { token, userId } = await fetchMessagingTokenWithTimeout()
 
-            if (intentionalDisconnect || connectionRefCount <= 0) return
+            if (intentionalDisconnect || connectionRefCount <= 0) {
+                isReconnecting = false
+                reconnectTimer = null
+                return
+            }
 
             const nc = await wsconnect({
                 servers: globalWsUrl || 'ws://localhost:8080',
@@ -78,12 +85,16 @@ function scheduleReconnect () {
 
             if (intentionalDisconnect || connectionRefCount <= 0) {
                 await nc.close()
+                isReconnecting = false
+                reconnectTimer = null
                 return
             }
 
             globalConnection = nc
             globalUserId = userId || null
             reconnectDelay = 1000
+            isReconnecting = false
+            reconnectTimer = null
 
             nc.closed().then((err) => {
                 globalConnection = null
@@ -109,15 +120,11 @@ function scheduleReconnect () {
         } catch (err) {
             console.error('[messaging] Reconnect failed, will retry:', err)
             reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY)
-            if (!intentionalDisconnect && connectionRefCount > 0) {
-                reconnectTimer = null
-                isReconnecting = false
-                scheduleReconnect()
-                return
-            }
-        } finally {
             isReconnecting = false
             reconnectTimer = null
+            if (!intentionalDisconnect && connectionRefCount > 0) {
+                scheduleReconnect()
+            }
         }
     }, delay)
 }
@@ -149,11 +156,7 @@ export const useMessagingConnection = (options: UseMessagingConnectionOptions = 
 
         globalConnectionPromise = (async () => {
             try {
-                const tokenResponse = await fetch('/messaging/token')
-                if (!tokenResponse.ok) {
-                    throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
-                }
-                const { token, userId } = await tokenResponse.json()
+                const { token, userId } = await fetchMessagingTokenWithTimeout()
 
                 const nc = await wsconnect({
                     servers: wsUrl || 'ws://localhost:8080',

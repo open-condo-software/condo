@@ -111,7 +111,7 @@ class NatsSubscriptionRelay {
             ;(async () => {
                 for await (const msg of unsubscribeSub) {
                     try {
-                        this._handleUnsubscribeRequest(msg)
+                        await this._handleUnsubscribeRequest(msg)
                     } catch (error) {
                         logger.error({ msg: 'Error handling unsubscribe request', err: error })
                     }
@@ -186,6 +186,7 @@ class NatsSubscriptionRelay {
                 }
             } catch (err) {
                 logger.error({ msg: 'Failed to load persisted revocation state', err })
+                throw err
             }
 
             this.connection.closed().then(async (err) => {
@@ -446,7 +447,7 @@ class NatsSubscriptionRelay {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
-        await addRevokedUserOrg(userId, organizationId).catch(() => {})
+        await addRevokedUserOrg(userId, organizationId)
 
         const relayIds = this.userRelays.get(userId)
         if (!relayIds || relayIds.size === 0) return 0
@@ -476,7 +477,7 @@ class NatsSubscriptionRelay {
                 this.revokedUserOrgs.delete(userId)
             }
         }
-        await removeRevokedUserOrg(userId, organizationId).catch(() => {})
+        await removeRevokedUserOrg(userId, organizationId)
     }
 
     /**
@@ -487,7 +488,7 @@ class NatsSubscriptionRelay {
      */
     async revokeUser (userId) {
         this.revokedUsers.add(userId)
-        await addRevokedUser(userId).catch(() => {})
+        await addRevokedUser(userId)
 
         const relayIds = this.userRelays.get(userId)
         if (!relayIds || relayIds.size === 0) return 0
@@ -506,7 +507,7 @@ class NatsSubscriptionRelay {
      */
     async unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
-        await removeRevokedUser(userId).catch(() => {})
+        await removeRevokedUser(userId)
     }
 
     _startCleanupTimer (intervalMs) {
