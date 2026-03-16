@@ -82,6 +82,7 @@ const sendAppMetrics = () => {
     metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
     metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
     metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
+    metrics.gauge({ name: 'processMemoryUsage.arrayBuffers', value: memUsage.arrayBuffers })
 
     if (IS_WORKER_PROCESS && taskQueues.size > 0) {
         Array.from(taskQueues.entries()).forEach(([queueName, queue]) => {
