@@ -36,6 +36,7 @@ const ALWAYS_INVALID_ENCRYPTION_APP_ID = 'test-encrypted-app-with-invalid-versio
 const TEST_ENCRYPTION_VERSIONS = {
     [ENCRYPTED_APP_ID]: 'v1',
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PUSH_NOTIFICATION_APP_GROUPS_SETTINGS = {
     group_1: ['appId_1', 'appId_2', 'appId_3'],
     group_2: ['appId_4', 'appId_5'],

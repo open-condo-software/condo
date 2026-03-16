@@ -243,7 +243,7 @@ async function prepareRecipients ({ pushTokens, originalData, originalNotificati
         const dataEncryptionVersion = PUSH_ADAPTER_SETTINGS.encryption?.[pushToken.appId]
         const needsDataEncryption = !!dataEncryptionVersion
         if (needsDataEncryption) {
-            data = encryptPushData(dataEncryptionVersion, data, {appId: pushToken.appId})
+            data = encryptPushData(dataEncryptionVersion, data, { appId: pushToken.appId })
             statsInfo.encryption[pushToken.appId] = {
                 success: !!data,
                 encryptedData: data,
@@ -263,6 +263,7 @@ async function prepareRecipients ({ pushTokens, originalData, originalNotificati
 /**
  * Send notification using corresponding transports (depending on FireBase/Huawei/Apple, appId, isVoIP)
  * @param notification
+ * @param message
  * @param data
  * @param user
  * @param remoteClient
