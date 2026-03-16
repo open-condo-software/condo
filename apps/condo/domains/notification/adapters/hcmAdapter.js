@@ -138,8 +138,9 @@ class HCMAdapter {
      * @param appType
      * @returns {{msg: string, code: string, requestId}}
      */
-    static getFakeErrorResponse (token, appType) {
+    static getFakeErrorResponse (token, appType, additionalProperties = {}) {
         return {
+            ...additionalProperties,
             code: PUSH_PARTIAL_SUCCESS_CODE,
             msg: `{"success":0,"failure":1,"illegal_tokens":["${token}"]}`,
             type: 'Fake',
@@ -153,8 +154,9 @@ class HCMAdapter {
      * Mimics HMS success response
      * @returns {{msg: string, code: string, requestId}}
      */
-    static getFakeSuccessResponse (token, appType) {
+    static getFakeSuccessResponse (token, appType, additionalProperties = {}) {
         return {
+            ...additionalProperties,
             code: PUSH_SUCCESS_CODE,
             msg: 'Success',
             type: 'Fake',
@@ -173,7 +175,7 @@ class HCMAdapter {
      * @param appIds
      * @returns {*}
      */
-    static injectFakeResults (result, fakeNotifications, appIds) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? HCMAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
@@ -181,12 +183,12 @@ class HCMAdapter {
 
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(HCMAdapter.getFakeSuccessResponse(token, appType))
+                mixed.responses.push(HCMAdapter.getFakeSuccessResponse(token, appType, { appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(HCMAdapter.getFakeErrorResponse(token, appType))
+                mixed.responses.push(HCMAdapter.getFakeErrorResponse(token, appType, { appId: appIds[token] }))
             }
         })
 
