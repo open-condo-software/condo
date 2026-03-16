@@ -88,6 +88,69 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
     }
 }
 
+query getTicketsForAIAssistant ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
+    tickets: allTickets(
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+        skip: $skip
+    ) {
+        id
+        number
+        createdAt
+        isEmergency
+        isPayable
+        isWarranty
+        statusReopenedCounter
+        statusUpdatedAt
+        completedAt
+        deadline
+        lastResidentCommentAt
+        lastCommentWithResidentTypeAt
+        lastCommentWithOrganizationTypeAt
+        lastCommentWithResidentTypeCreatedByUserType
+        propertyAddress
+        sectionType
+        sectionName
+        floorName
+        unitType
+        unitName
+        details
+        clientName
+        clientPhone
+        classifier {
+            category {
+                name
+            }
+            place {
+                name
+            }
+        }
+        contact {
+            name
+        }
+        executor {
+            name
+        }
+        assignee {
+            name
+        }
+        status {
+            name
+        }
+        createdBy {
+            name
+        }
+        source {
+            name
+        }
+    }
+
+    meta: _allTicketsMeta (where: $where) {
+        count
+    }
+}
+
 query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
     tickets: allTickets(
         where: $where,

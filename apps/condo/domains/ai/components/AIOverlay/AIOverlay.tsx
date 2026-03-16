@@ -4,7 +4,7 @@ import { v4 as uuidV4 } from 'uuid'
 
 import { Close, RefreshCw, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Typography, Space } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
@@ -44,10 +44,11 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const startWidthRef = useRef<number>(0)
     
     const [aiSessionId, setAiSessionId] = useState<string | null>(null)
-    const messagesRef = useRef<Array<{ id: string, content: string, role: 'user' | 'assistant', timestamp: Date }>>([])
 
     const handleResetHistory = () => {
-        setAiSessionId(null)
+        const newSessionId = uuidV4()
+        sessionStorage.setItem(AI_SESSION_STORAGE_KEY, newSessionId)
+        setAiSessionId(newSessionId)
     }
 
     const sessionStorage = new LocalStorageManager<string | null>()
@@ -61,7 +62,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             sessionStorage.setItem(AI_SESSION_STORAGE_KEY, newSessionId)
             setAiSessionId(newSessionId)
         }
-    }, [])
+    }, [sessionStorage])
 
     useEffect(() => {
         if (aiSessionId) {
@@ -177,10 +178,11 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                 [styles.atMaxWidth]: isAtMaxWidth,
             })} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
-                <AIChat 
-                    aiSessionId={aiSessionId}
-                    onSessionChange={setAiSessionId}
-                />
+                {aiSessionId && (
+                    <AIChat 
+                        aiSessionId={aiSessionId}
+                    />
+                )}
             </div>
         </div>
     )

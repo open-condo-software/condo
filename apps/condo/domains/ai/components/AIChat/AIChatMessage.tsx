@@ -1,7 +1,6 @@
 import React from 'react'
 
-import { Typography } from '@open-condo/ui'
-import { Markdown } from '@open-condo/ui'
+import { Typography, Markdown } from '@open-condo/ui'
 
 import styles from './AIChat.module.css'
 

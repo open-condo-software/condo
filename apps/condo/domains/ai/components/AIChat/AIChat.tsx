@@ -1,11 +1,11 @@
 import { useApolloClient } from '@apollo/client'
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Input, Typography, Space } from '@open-condo/ui'
+import { Input, Space, Typography } from '@open-condo/ui'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
@@ -38,8 +38,8 @@ export type Message = {
 }
 
 type AIChatProps = {
-    aiSessionId: string | null
-    onSessionChange?: (sessionId: string | null) => void
+    aiSessionId: string
+    onSessionChange?: (sessionId: string) => void
     onDownloadText?: (messages: Message[]) => void
 }
 
@@ -47,6 +47,16 @@ export const AIChat: React.FC<AIChatProps> = ({
     aiSessionId,
 }) => {
     const intl = useIntl()
+    const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
+    const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
+    const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
+    const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
+    const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
+    const toolDepthExceededMessage = intl.formatMessage({ id: 'ai.chat.toolDepthExceeded' })
+    const noResponseMessage = intl.formatMessage({ id: 'ai.chat.noResponse' })
+    const executingToolsMessage = intl.formatMessage({ id: 'ai.chat.executingTools' })
+    const errorExecutingToolsMessage = intl.formatMessage({ id: 'ai.chat.errorExecutingTools' })
+
     const { user } = useAuth()
     const { organization } = useOrganization()
     const client = useApolloClient()
@@ -58,32 +68,14 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
 
-    const [executeAIFlow, { loading, currentTaskId, cancelCurrentTask: cancelExecuteAIFlow }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+    const [executeAIFlow, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+        aiSessionId: aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
     })
-
-    const [resumeAIFlow, { cancelCurrentTask: cancelResumeAIFlow }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
-        flowType: CHAT_WITH_CONDO_FLOW_TYPE,
-        timeout: AI_FLOW_TIMEOUT_MS,
-        taskId: activeTaskId || undefined,
-    })
-
-    const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
-    const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
-    const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
-    const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
-    const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
 
     // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
-        if (typeof window === 'undefined' || !aiSessionId) {
-            setMessages([])
-            setActiveTaskId(null)
-            // TODO: @toplenboren what to do if no session? Can there be no session?
-            return
-        }
-
         const savedHistory = historyStorageManager.getItem(STORAGE_KEY_PREFIX + aiSessionId)
         if (!savedHistory || typeof savedHistory !== 'object') {
             setMessages([])
@@ -107,8 +99,8 @@ export const AIChat: React.FC<AIChatProps> = ({
         
         // Check for active task in the last message
         const lastMessage = historyWithDates[historyWithDates.length - 1]
-        if (lastMessage?.status === 'sending' && lastMessage?.taskId) {
-            setActiveTaskId(lastMessage.taskId)
+        if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
+            setActiveTaskId(lastMessage.executionAIFlowTaskId)
         } else {
             setActiveTaskId(null)
         }
@@ -122,23 +114,23 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [currentTaskId, activeTaskId])
 
     const addMessage = useCallback((newMessage: Message) => {
+        console.log('addMessage', newMessage)
         setMessages(prev => {
-            const updated = [...prev, newMessage]
-            return updated
+            return [...prev, newMessage]
         })
     }, [])
 
     const changeMessage = useCallback((messageId: string, updatedMessage: Message) => {
+        console.log('changeMessage', messageId, updatedMessage)
         setMessages(prev => {
-            const updated = prev.map(msg => msg.id === messageId ? updatedMessage : msg)
-            return updated
+            return prev.map(msg => msg.id === messageId ? updatedMessage : msg)
         })
     }, [])
 
     const removeMessage = useCallback((messageId: string) => {
+        console.log('removeMessage', messageId)
         setMessages(prev => {
-            const updated = prev.filter(msg => msg.id !== messageId)
-            return updated
+            return prev.filter(msg => msg.id !== messageId)
         })
     }, [])
 
@@ -160,30 +152,19 @@ export const AIChat: React.FC<AIChatProps> = ({
         }, 100)
     }, [])
 
-    // Cleanup when session is cleared
-    useEffect(() => {
-        if (!aiSessionId) {
-            cancelExecuteAIFlow()
-            cancelResumeAIFlow()
-            setMessages([])
-            setActiveTaskId(null)
-        }
-    }, [aiSessionId, cancelExecuteAIFlow, cancelResumeAIFlow])
-
     const executeAIMessage = useCallback(async (userInput: string, additionalContext?: any, toolCallDepth = 0) => {
+        console.log('executeAIMessage', userInput, additionalContext, toolCallDepth)
+
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
             addMessage({
                 id: `depth-error-${Date.now()}`,
                 role: 'assistant',
-                content: { text: intl.formatMessage({ id: 'ai.chat.toolDepthExceeded' }) },
+                content: { text: toolDepthExceededMessage },
                 status: 'sent',
                 timestamp: new Date(),
             })
             return
         }
-        
-        // No active session - don't process
-        if (!aiSessionId) return
         
         const assistantMessage: Message = {
             id: uuidV4(),
@@ -196,20 +177,18 @@ export const AIChat: React.FC<AIChatProps> = ({
         addMessage(assistantMessage)
 
         try {
-            // Use resumeAIFlow if we have an activeTaskId (page refresh case), otherwise create new task
-            const result = await (activeTaskId ? resumeAIFlow : executeAIFlow)({
-                context: {
-                    userInput,
-                    userData: {
-                        userId: user.id,
-                        organizationId: organization?.id,
-                        ...additionalContext,
-                    },
-                    aiSessionId,
+            const taskContext = {
+                userInput,
+                userData: {
+                    userId: user.id,
+                    organizationId: organization?.id,
+                    ...additionalContext,
                 },
-            })
-            
-            // Update the message with the taskId if available
+                aiSessionId,
+            }
+
+            const result = await executeAIFlow({ context: taskContext })
+
             if (currentTaskId) {
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
@@ -217,6 +196,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 })
             }
             
+            // If no data returned - show error and return
             if (!result.data) {
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
@@ -225,29 +205,27 @@ export const AIChat: React.FC<AIChatProps> = ({
                 })
                 return
             }
+            
+            // Data is received - show answer
+            changeMessage(assistantMessage.id, {
+                ...assistantMessage,
+                content: { text: result.data.result?.answer ?? noResponseMessage },
+                status: 'sent',
+            })
 
-            // If we have any toolCalls -- we need to do this:
-            // 1. Execute any known tools that are requested
-            // 2. Create new ExecutionAIFlowTask with toolCalls result
+            // If had toolcalls -> add message about toolcalls and start executing toolcalls
             if (result.data?.status === TASK_STATUSES.COMPLETED && result.data?.result?.toolCalls) {
-                // Thinking... -> result.data.answer 
-                changeMessage(assistantMessage.id, {
-                    ...assistantMessage,
-                    content: { text: result.data.result.answer ?? '' },
-                    status: 'sent',
-                })
-
                 const toolCalls = result.data.result.toolCalls
                 
-                // Show thinking message while tools are executing
-                const thinkingMessage: Message = {
-                    id: `thinking-${Date.now()}`,
-                    content: { text: intl.formatMessage({ id: 'ai.chat.executingTools' }) },
+                // Create new message for tool execution
+                const toolExecutionMessage: Message = {
+                    id: `tool-execution-${Date.now()}`,
+                    content: { text: executingToolsMessage },
                     role: 'assistant',
                     timestamp: new Date(),
                     status: 'sending',
                 }
-                changeMessage(assistantMessage.id, thinkingMessage)
+                addMessage(toolExecutionMessage)
 
                 try {
                     if (!organization?.id || !user?.id) {
@@ -271,17 +249,14 @@ export const AIChat: React.FC<AIChatProps> = ({
 
                     const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
                     
-                    // No active session - don't process results
-                    if (!aiSessionId) return
-                    
                     const resultsMessage = toolCallResults
                         .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
                         .filter(Boolean)
                         .join('\n')
 
                     if (resultsMessage) {
-                        changeMessage(assistantMessage.id, {
-                            ...assistantMessage,
+                        changeMessage(toolExecutionMessage.id, {
+                            ...toolExecutionMessage,
                             content: { text: resultsMessage },
                             status: 'sent',
                             timestamp: new Date(),
@@ -297,26 +272,19 @@ export const AIChat: React.FC<AIChatProps> = ({
                         }))
 
                     if (allToolCallResults.length > 0) {
-                        await executeAIMessage(userInput, { toolCalls: allToolCallResults }, toolCallDepth + 1)
+                        await executeAIMessage('toolCalls:', { toolCalls: allToolCallResults }, toolCallDepth + 1)
                     }
                 } catch (error) {
-                    removeMessage(thinkingMessage.id)
+                    removeMessage(toolExecutionMessage.id)
                     addMessage({
                         id: `tool-error-${Date.now()}`,
                         role: 'assistant',
-                        content: { text: intl.formatMessage({ id: 'ai.chat.errorExecutingTools' }, { error: error instanceof Error ? error.message : 'Unknown error' }) },
+                        content: { text: errorExecutingToolsMessage },
                         status: 'sent',
                         timestamp: new Date(),
                     })
                     setActiveTaskId(null)
                 }
-            } else if (result.data?.status === TASK_STATUSES.COMPLETED) {
-                changeMessage(assistantMessage.id, {
-                    ...assistantMessage,
-                    content: { text: result.data.result.answer || intl.formatMessage({ id: 'ai.chat.noResponse' }) },
-                    status: 'sent',
-                })
-                setActiveTaskId(null)
             }
         } catch (error) {
             console.error('Error in executeAIMessage:', error)
@@ -327,7 +295,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             })
             setActiveTaskId(null)
         }
-    }, [aiSessionId, activeTaskId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, executeAIFlow, resumeAIFlow])
+    }, [aiSessionId, activeTaskId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, executeAIFlow])
 
     const handleSendMessage = async () => {
         if (!inputValue.trim() || loading || !user) return

@@ -32,6 +32,7 @@ type UseAIFlowPropsType<T = object> = {
     defaultContext?: object
     timeout?: number
     taskId?: string // Optional existing task ID to poll instead of creating new task
+    aiSessionId?: string // Optional session id to group AI requests in one session
 }
 
 type UseAIFlowResult<T> = {
@@ -63,6 +64,7 @@ export function useAIFlow<T = object> ({
     defaultContext = {},
     timeout = DEFAULT_TIMEOUT_MS,
     taskId,
+    aiSessionId,
 }: UseAIFlowPropsType<T>): UseAIFlowResultType<T> {
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -133,24 +135,23 @@ export function useAIFlow<T = object> ({
             let finalTaskId: string
 
             if (taskId) {
-                // Use existing task ID
                 finalTaskId = taskId
             } else {
-                // Create new task
-                const fullContext = { ...defaultContext, ...context }
+                const data = {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    flowType,
+                    modelName,
+                    itemId,
+                    organization: { connect: { id: organization.id } },
+                    user: { connect: { id: user.id } },
+                }
+
+                data['context'] = { ...defaultContext, ...context }
+                if (aiSessionId) { data['aiSessionId'] = aiSessionId }
+
                 const createResult = await createExecutionAIFlowMutation({
-                    variables: {
-                        data: {
-                            dv: 1,
-                            sender: getClientSideSenderInfo(),
-                            flowType,
-                            modelName,
-                            itemId,
-                            organization: { connect: { id: organization.id } },
-                            context: fullContext,
-                            user: { connect: { id: user.id } },
-                        },
-                    },
+                    variables: { data },
                 })
 
                 const createdTaskId = createResult.data?.task?.id
