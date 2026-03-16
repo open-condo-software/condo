@@ -98,6 +98,7 @@ export type EventsData = {
 type UserData = {
     name?: string | null
     type?: string | null
+    latest_organization_id?: string | null
 }
 
 type AppGroups =
@@ -118,6 +119,8 @@ function initAnalytics (): Analytics<EventsData, UserData, AppGroups> {
                 //  why 308 are not followed correctly
                 // api_host: '/api/ph',
                 api_host: posthogApiHost,
+                opt_in_site_apps: true,
+                advanced_enable_surveys: true,
                 debug: isDebug(),
                 autocapture: false,
             },

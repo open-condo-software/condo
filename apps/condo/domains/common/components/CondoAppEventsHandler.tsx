@@ -3,9 +3,10 @@ import { useCallback, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
+import { useAnalyticsUserData } from '@open-condo/next/useAnalyticsUserData'
 
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { STAFF } from '@condo/domains/user/constants/common'
+import { clearPostHogInlineStyles, createSurveyBackdrop, injectPostHogSurveyStyles } from '@condo/domains/common/utils/posthogSurveyStyles'
 
 import { usePostMessageContext } from './PostMessageProvider'
 
@@ -17,20 +18,22 @@ export const CondoAppEventsHandler: FC = () => {
     const { isLoading: userLoading, user } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
+    const analyticsUserData = useAnalyticsUserData()
 
     // User tracking
     useEffect(() => {
         if (!userLoading) {
             if (user) {
-                analytics.identify(user.id, {
-                    name: user?.name,
-                    type: user?.type || STAFF,
+                analytics.identify(analyticsUserData.userId, {
+                    name: analyticsUserData.userName,
+                    type: analyticsUserData.userType,
+                    latest_organization_id: analyticsUserData.organizationId,
                 })
             } else {
                 analytics.reset()
             }
         }
-    }, [userLoading, user])
+    }, [userLoading, user, analyticsUserData])
 
     // Routing tracking
     useEffect(() => {
@@ -78,6 +81,27 @@ export const CondoAppEventsHandler: FC = () => {
             analytics.removeGroup('employee.role')
         }
     }, [employee])
+
+
+    useEffect(() => {
+        const overrideSurveyStyles = () => {
+            clearPostHogInlineStyles()
+            injectPostHogSurveyStyles()
+            createSurveyBackdrop()
+        }
+
+        const surveyObserver = new MutationObserver(() => {
+            overrideSurveyStyles()
+        })
+
+        surveyObserver.observe(document.body, {
+            childList: true,
+        })
+
+        return () => {
+            surveyObserver?.disconnect()
+        }
+    }, [])
 
     return null
 }
