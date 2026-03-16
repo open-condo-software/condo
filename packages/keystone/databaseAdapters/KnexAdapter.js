@@ -12,8 +12,7 @@ class KnexAdapter extends OriginalKnexAdapter {
     async _connect () {
         const { knexOptions = {} } = this.config
         const { connection } = knexOptions
-        let knexConnection =
-            connection || process.env.CONNECT_TO || process.env.DATABASE_URL || process.env.KNEX_URI
+        let knexConnection = connection || process.env.DATABASE_URL
 
         if (!knexConnection) {
             throw new Error('No Knex connection URI specified.')
