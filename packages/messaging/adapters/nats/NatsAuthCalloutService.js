@@ -6,6 +6,14 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
+const {
+    loadRevokedUsers,
+    loadRevokedUserOrgs,
+    addRevokedUser,
+    removeRevokedUser,
+    addRevokedUserOrg,
+    removeRevokedUserOrg,
+} = require('./RevocationStore')
 
 const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX, ADMIN_REVOKE_ORG_PREFIX, ADMIN_UNREVOKE_ORG_PREFIX } = require('../../core/topic')
 
@@ -16,6 +24,9 @@ const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFI
 
 const TOKEN_SECRET = MESSAGING_CONFIG.tokenSecret
 
+const MAX_RESTART_DELAY_MS = 30000
+const INITIAL_RESTART_DELAY_MS = 1000
+
 class NatsAuthCalloutService {
     constructor () {
         this.connection = null
@@ -24,6 +35,10 @@ class NatsAuthCalloutService {
         this.isRunning = false
         this.revokedUsers = new Set()
         this.revokedUserOrgs = new Map()
+        this._restartTimer = null
+        this._restartDelay = INITIAL_RESTART_DELAY_MS
+        this._intentionalStop = false
+        this._lastConfig = {}
     }
 
     /**
@@ -38,6 +53,9 @@ class NatsAuthCalloutService {
      * @param {number} [config.userJwtTtl] - User JWT TTL in seconds (default: 1h)
      */
     async start (config = {}) {
+        this._lastConfig = config
+        this._intentionalStop = false
+
         const seed = config.accountSeed || MESSAGING_CONFIG.authAccountSeed
         if (!seed) {
             logger.warn({ msg: 'authAccountSeed not configured, auth callout service disabled' })
@@ -59,6 +77,9 @@ class NatsAuthCalloutService {
                 pass: config.authPass || MESSAGING_CONFIG.authPassword,
                 reconnect: true,
                 maxReconnectAttempts: -1,
+                reconnectTimeWait: 2000,
+                reconnectJitter: 1000,
+                reconnectJitterTLS: 2000,
             })
 
             const sub = this.connection.subscribe('$SYS.REQ.USER.AUTH')
@@ -78,43 +99,85 @@ class NatsAuthCalloutService {
             const revokeSub = this.connection.subscribe(`${ADMIN_REVOKE_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of revokeSub) {
-                    const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
-                    if (userId) this.revokeUser(userId)
+                    try {
+                        const userId = msg.subject.slice(ADMIN_REVOKE_PREFIX.length + 1)
+                        if (userId) await this.revokeUser(userId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling revoke message', err: error })
+                    }
                 }
             })()
 
             const unrevokeSub = this.connection.subscribe(`${ADMIN_UNREVOKE_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of unrevokeSub) {
-                    const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
-                    if (userId) this.unrevokeUser(userId)
+                    try {
+                        const userId = msg.subject.slice(ADMIN_UNREVOKE_PREFIX.length + 1)
+                        if (userId) await this.unrevokeUser(userId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling unrevoke message', err: error })
+                    }
                 }
             })()
 
             const revokeOrgSub = this.connection.subscribe(`${ADMIN_REVOKE_ORG_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of revokeOrgSub) {
-                    const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
-                    const [userId, organizationId] = rest.split('.')
-                    if (userId && organizationId) this.revokeUserOrganization(userId, organizationId)
+                    try {
+                        const rest = msg.subject.slice(ADMIN_REVOKE_ORG_PREFIX.length + 1)
+                        const [userId, organizationId] = rest.split('.')
+                        if (userId && organizationId) await this.revokeUserOrganization(userId, organizationId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling revoke org message', err: error })
+                    }
                 }
             })()
 
             const unrevokeOrgSub = this.connection.subscribe(`${ADMIN_UNREVOKE_ORG_PREFIX}.>`)
             ;(async () => {
                 for await (const msg of unrevokeOrgSub) {
-                    const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
-                    const [userId, organizationId] = rest.split('.')
-                    if (userId && organizationId) this.unrevokeUserOrganization(userId, organizationId)
+                    try {
+                        const rest = msg.subject.slice(ADMIN_UNREVOKE_ORG_PREFIX.length + 1)
+                        const [userId, organizationId] = rest.split('.')
+                        if (userId && organizationId) await this.unrevokeUserOrganization(userId, organizationId)
+                    } catch (error) {
+                        logger.error({ msg: 'Error handling unrevoke org message', err: error })
+                    }
                 }
             })()
+
+            try {
+                const [persistedUsers, persistedOrgs] = await Promise.all([
+                    loadRevokedUsers(),
+                    loadRevokedUserOrgs(),
+                ])
+                for (const userId of persistedUsers) {
+                    this.revokedUsers.add(userId)
+                }
+                for (const [userId, orgIds] of persistedOrgs) {
+                    if (!this.revokedUserOrgs.has(userId)) {
+                        this.revokedUserOrgs.set(userId, new Set())
+                    }
+                    for (const orgId of orgIds) {
+                        this.revokedUserOrgs.get(userId).add(orgId)
+                    }
+                }
+            } catch (err) {
+                logger.error({ msg: 'Failed to load persisted revocation state', err })
+                throw err
+            }
 
             this.connection.closed().then((err) => {
                 this.isRunning = false
                 if (err) {
                     logger.error({ msg: 'Auth callout connection closed with error', err })
                 }
+                if (!this._intentionalStop) {
+                    this._scheduleRestart()
+                }
             })
+
+            this._restartDelay = INITIAL_RESTART_DELAY_MS
         } catch (error) {
             logger.error({ msg: 'Failed to start auth callout service', err: error })
             throw error
@@ -204,22 +267,25 @@ class NatsAuthCalloutService {
         msg.respond(new TextEncoder().encode(responseJwt))
     }
 
-    revokeUser (userId) {
+    async revokeUser (userId) {
         this.revokedUsers.add(userId)
+        await addRevokedUser(userId)
     }
 
-    unrevokeUser (userId) {
+    async unrevokeUser (userId) {
         this.revokedUsers.delete(userId)
+        await removeRevokedUser(userId)
     }
 
-    revokeUserOrganization (userId, organizationId) {
+    async revokeUserOrganization (userId, organizationId) {
         if (!this.revokedUserOrgs.has(userId)) {
             this.revokedUserOrgs.set(userId, new Set())
         }
         this.revokedUserOrgs.get(userId).add(organizationId)
+        await addRevokedUserOrg(userId, organizationId)
     }
 
-    unrevokeUserOrganization (userId, organizationId) {
+    async unrevokeUserOrganization (userId, organizationId) {
         const orgs = this.revokedUserOrgs.get(userId)
         if (orgs) {
             orgs.delete(organizationId)
@@ -227,9 +293,33 @@ class NatsAuthCalloutService {
                 this.revokedUserOrgs.delete(userId)
             }
         }
+        await removeRevokedUserOrg(userId, organizationId)
+    }
+
+    _scheduleRestart () {
+        if (this._restartTimer) return
+        const delay = Math.min(this._restartDelay, MAX_RESTART_DELAY_MS)
+        logger.warn({ msg: 'Scheduling auth callout service restart', delayMs: delay })
+        this._restartTimer = setTimeout(async () => {
+            this._restartTimer = null
+            try {
+                await this.start(this._lastConfig)
+                logger.info({ msg: 'Auth callout service restarted successfully' })
+            } catch (err) {
+                logger.error({ msg: 'Auth callout service restart failed, will retry', err: err.message })
+                this._restartDelay = Math.min(this._restartDelay * 2, MAX_RESTART_DELAY_MS)
+                this._scheduleRestart()
+            }
+        }, delay)
+        this._restartTimer.unref()
     }
 
     async stop () {
+        this._intentionalStop = true
+        if (this._restartTimer) {
+            clearTimeout(this._restartTimer)
+            this._restartTimer = null
+        }
         if (this.connection) {
             await this.connection.drain()
             await this.connection.close()

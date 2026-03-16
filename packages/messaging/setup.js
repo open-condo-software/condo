@@ -85,9 +85,9 @@ async function closeMessaging () {
  * @param {string} userId
  * @returns {number} Number of relays torn down (0 if messaging not initialized)
  */
-function revokeMessagingUser (userId) {
+async function revokeMessagingUser (userId) {
     if (!adapter) return 0
-    return adapter.revokeUser(userId)
+    return await adapter.revokeUser(userId)
 }
 
 /**

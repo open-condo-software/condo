@@ -328,7 +328,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
     })
 
     describe('User revocation — relay state management', () => {
-        it('revokeUser tears down relays tracked by this relay service', () => {
+        it('revokeUser tears down relays tracked by this relay service', async () => {
             // Directly test state management without depending on which relay
             // instance handles queue-group-distributed subscribe requests
             const mockSub = { unsubscribe: jest.fn() }
@@ -344,7 +344,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             })
             relayService.userRelays.set(userId, new Set([relayId]))
 
-            const count = relayService.revokeUser(userId)
+            const count = await relayService.revokeUser(userId)
 
             expect(count).toBe(1)
             expect(relayService.relays.has(relayId)).toBe(false)
@@ -355,9 +355,9 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             relayService.unrevokeUser(userId)
         })
 
-        it('revokeUser adds to revokedUsers even with no active relays', () => {
+        it('revokeUser adds to revokedUsers even with no active relays', async () => {
             const userId = 'no-relays-user'
-            const count = relayService.revokeUser(userId)
+            const count = await relayService.revokeUser(userId)
 
             expect(count).toBe(0)
             expect(relayService.revokedUsers.has(userId)).toBe(true)
@@ -365,9 +365,9 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             relayService.unrevokeUser(userId)
         })
 
-        it('unrevokeUser removes from revokedUsers set', () => {
+        it('unrevokeUser removes from revokedUsers set', async () => {
             const userId = 'unrevoke-user'
-            relayService.revokeUser(userId)
+            await relayService.revokeUser(userId)
             expect(relayService.revokedUsers.has(userId)).toBe(true)
 
             relayService.unrevokeUser(userId)
@@ -380,7 +380,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
 
         it('revoked user gets error when creating new relay via this service', async () => {
             const USER_B = 'revoke-test-user-2'
-            relayService.revokeUser(USER_B)
+            await relayService.revokeUser(USER_B)
 
             let nc
             try {
@@ -388,10 +388,11 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 nc = await connectWithToken(token, 'revoke-new-relay')
                 const jc = JSONCodec()
 
-                // Try multiple times to ensure our relay instance handles it
-                // (queue group distributes across instances)
+                // With a single relay service instance, the queue group has one member,
+                // so all requests are handled by this instance. Retry is only needed
+                // as a safety margin for timing.
                 let gotRejected = false
-                for (let attempt = 0; attempt < 5; attempt++) {
+                for (let attempt = 0; attempt < 10; attempt++) {
                     const deliverInbox = createInbox()
                     try {
                         const response = await nc.request(
@@ -405,7 +406,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                             break
                         }
                     } catch {
-                        // timeout — another instance handled it, retry
+                        // timeout — retry
                     }
                 }
                 expect(gotRejected).toBe(true)
