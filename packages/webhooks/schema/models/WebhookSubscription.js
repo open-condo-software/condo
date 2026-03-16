@@ -3,6 +3,7 @@ const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@open-condo/webhooks/constants')
 const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@open-condo/webhooks/model-validator')
+const { modeled } = require('@open-condo/webhooks/plugins/modeled')
 const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
 
 const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
@@ -15,9 +16,14 @@ function getWebhookSubscriptionModel (schemaPath) {
     }
 
     const validator = getModelValidator()
+    const hasAvailableModels = () => Boolean(validator && validator.models.length > 0)
 
     const validateFields = ({ resolvedData, existingItem, addFieldValidationError }) => {
         const newItem = { ...existingItem, ...resolvedData }
+
+        if (!hasAvailableModels()) {
+            return
+        }
 
         if (!validator) {
             return addFieldValidationError(`Invalid fields for model "${newItem.model}" was provided. Details: ["Validator for this model is not specified!"]`)
@@ -39,6 +45,10 @@ function getWebhookSubscriptionModel (schemaPath) {
     const validateFilters = ({ resolvedData, existingItem, addFieldValidationError }) => {
         const newItem = { ...existingItem, ...resolvedData }
 
+        if (!hasAvailableModels()) {
+            return
+        }
+
         if (!validator) {
             return addFieldValidationError(`Invalid filters for model "${newItem.model}" was provided. Details: ["Validator for this model is not specified!"]`)
         }
@@ -48,7 +58,6 @@ function getWebhookSubscriptionModel (schemaPath) {
             return addFieldValidationError(`Invalid filters for model "${newItem.model}" was provided. Details: ${JSON.stringify(errors)}`)
         }
     }
-
 
     return new GQLListSchema('WebhookSubscription', {
         schemaDoc: 'Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook',
@@ -112,19 +121,6 @@ function getWebhookSubscriptionModel (schemaPath) {
                     },
                 },
             },
-            model: {
-                schemaDoc: 'The data model (schema) that the webhook is subscribed to',
-                type: 'Select',
-                dataType: 'string',
-                isRequired: true,
-                options: validator.models,
-                hooks: {
-                    validateInput: (args) => {
-                        validateFields(args)
-                        validateFilters(args)
-                    },
-                },
-            },
             fields: {
                 schemaDoc: 'String representing list of model fields in graphql-query format. ' +
                     'Exactly the fields specified here will be sent by the webhook. ' +
@@ -170,7 +166,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                 },
             },
         },
-        plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+        plugins: [modeled({ validator, validateFields, validateFilters }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
         access: {
             read: access.canReadWebhookSubscriptions,
             create: access.canManageWebhookSubscriptions,
