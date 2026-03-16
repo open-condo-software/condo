@@ -178,6 +178,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 'type SubscriptionContextSettings { price: String, pricingRuleId: String, paymentMethod: PaymentMethod, paymentId: String }',
             ],
             graphQLReturnType: 'SubscriptionContextSettings',
+            graphQLAdminFragment: '{ price pricingRuleId paymentMethod { id type cardMask cardType title cardIssuerCountry cardIssuerName } paymentId }',
             access: {
                 read: true,
                 create: true,
