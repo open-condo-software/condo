@@ -5829,6 +5829,9 @@ export function useAllB2BAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2BAppsQuery, AllB2BAppsQueryVariables>(AllB2BAppsDocument, options);
         }
+// @ts-ignore
+export function useAllB2BAppsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2BAppsQuery, AllB2BAppsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppsQuery, AllB2BAppsQueryVariables>;
+export function useAllB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppsQuery, AllB2BAppsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppsQuery | undefined, AllB2BAppsQueryVariables>;
 export function useAllB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppsQuery, AllB2BAppsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2BAppsQuery, AllB2BAppsQueryVariables>(AllB2BAppsDocument, options);
@@ -5884,6 +5887,9 @@ export function useAllB2CAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2CAppsQuery, AllB2CAppsQueryVariables>(AllB2CAppsDocument, options);
         }
+// @ts-ignore
+export function useAllB2CAppsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2CAppsQuery, AllB2CAppsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppsQuery, AllB2CAppsQueryVariables>;
+export function useAllB2CAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppsQuery, AllB2CAppsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppsQuery | undefined, AllB2CAppsQueryVariables>;
 export function useAllB2CAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppsQuery, AllB2CAppsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2CAppsQuery, AllB2CAppsQueryVariables>(AllB2CAppsDocument, options);
@@ -5924,6 +5930,9 @@ export function useGetB2BAppLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetB2BAppQuery, GetB2BAppQueryVariables>(GetB2BAppDocument, options);
         }
+// @ts-ignore
+export function useGetB2BAppSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetB2BAppQuery, GetB2BAppQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2BAppQuery, GetB2BAppQueryVariables>;
+export function useGetB2BAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2BAppQuery, GetB2BAppQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2BAppQuery | undefined, GetB2BAppQueryVariables>;
 export function useGetB2BAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2BAppQuery, GetB2BAppQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetB2BAppQuery, GetB2BAppQueryVariables>(GetB2BAppDocument, options);
@@ -6042,6 +6051,9 @@ export function useAllB2BAppContextsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>(AllB2BAppContextsDocument, options);
         }
+// @ts-ignore
+export function useAllB2BAppContextsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>;
+export function useAllB2BAppContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppContextsQuery | undefined, AllB2BAppContextsQueryVariables>;
 export function useAllB2BAppContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>(AllB2BAppContextsDocument, options);
@@ -6122,6 +6134,9 @@ export function useAllB2BAppPublishRequestsLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>(AllB2BAppPublishRequestsDocument, options);
         }
+// @ts-ignore
+export function useAllB2BAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>;
+export function useAllB2BAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppPublishRequestsQuery | undefined, AllB2BAppPublishRequestsQueryVariables>;
 export function useAllB2BAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>(AllB2BAppPublishRequestsDocument, options);
@@ -6202,6 +6217,9 @@ export function useGetB2CAppLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options);
         }
+// @ts-ignore
+export function useGetB2CAppSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2CAppQuery, GetB2CAppQueryVariables>;
+export function useGetB2CAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2CAppQuery | undefined, GetB2CAppQueryVariables>;
 export function useGetB2CAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options);
@@ -6316,6 +6334,9 @@ export function useAllB2CAppAccessRightsLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options);
         }
+// @ts-ignore
+export function useAllB2CAppAccessRightsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>;
+export function useAllB2CAppAccessRightsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppAccessRightsQuery | undefined, AllB2CAppAccessRightsQueryVariables>;
 export function useAllB2CAppAccessRightsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options);
@@ -6368,6 +6389,9 @@ export function useAllB2CAppBuildsLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options);
         }
+// @ts-ignore
+export function useAllB2CAppBuildsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>;
+export function useAllB2CAppBuildsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppBuildsQuery | undefined, AllB2CAppBuildsQueryVariables>;
 export function useAllB2CAppBuildsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options);
@@ -6448,6 +6472,9 @@ export function useAllB2CAppPropertiesLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options);
         }
+// @ts-ignore
+export function useAllB2CAppPropertiesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>;
+export function useAllB2CAppPropertiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppPropertiesQuery | undefined, AllB2CAppPropertiesQueryVariables>;
 export function useAllB2CAppPropertiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options);
@@ -6562,6 +6589,9 @@ export function useAllB2CAppPublishRequestsLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options);
         }
+// @ts-ignore
+export function useAllB2CAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>;
+export function useAllB2CAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2CAppPublishRequestsQuery | undefined, AllB2CAppPublishRequestsQueryVariables>;
 export function useAllB2CAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options);
@@ -6640,6 +6670,9 @@ export function useGetB2CAppInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>(GetB2CAppInfoDocument, options);
         }
+// @ts-ignore
+export function useGetB2CAppInfoSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>;
+export function useGetB2CAppInfoSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2CAppInfoQuery | undefined, GetB2CAppInfoQueryVariables>;
 export function useGetB2CAppInfoSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>(GetB2CAppInfoDocument, options);
@@ -6683,6 +6716,9 @@ export function useGetOidcClientLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options);
         }
+// @ts-ignore
+export function useGetOidcClientSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>): Apollo.UseSuspenseQueryResult<GetOidcClientQuery, GetOidcClientQueryVariables>;
+export function useGetOidcClientSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>): Apollo.UseSuspenseQueryResult<GetOidcClientQuery | undefined, GetOidcClientQueryVariables>;
 export function useGetOidcClientSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options);
@@ -6960,6 +6996,9 @@ export function useAuthenticatedUserLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options);
         }
+// @ts-ignore
+export function useAuthenticatedUserSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>): Apollo.UseSuspenseQueryResult<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>;
+export function useAuthenticatedUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>): Apollo.UseSuspenseQueryResult<AuthenticatedUserQuery | undefined, AuthenticatedUserQueryVariables>;
 export function useAuthenticatedUserSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options);
