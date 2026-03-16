@@ -1,9 +1,13 @@
 import classnames from 'classnames'
 import React, { useState, useRef, useEffect } from 'react'
+import { v4 as uuidV4 } from 'uuid'
 
 import { Close, RefreshCw, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Typography } from '@open-condo/ui'
+import { Button, Typography, Space } from '@open-condo/ui'
+
+import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
+
 
 import styles from './AIOverlay.module.css'
 
@@ -18,6 +22,7 @@ type AIOverlayProps = {
 const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
+const AI_SESSION_STORAGE_KEY = 'condo-ai-overlay-session-current-session-id'
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
@@ -38,22 +43,31 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
     
-    const aiChatRef = useRef<{ 
-        handleResetHistory: () => void, 
-        handleSaveConversation: () => void
-        checkForActiveTask: () => void
-        scrollToBottom: () => void
-    }>(null)
+    const [aiSessionId, setAiSessionId] = useState<string | null>(null)
+    const messagesRef = useRef<Array<{ id: string, content: string, role: 'user' | 'assistant', timestamp: Date }>>([])
 
-    // Check for active tasks when component mounts or overlay opens
+    const handleResetHistory = () => {
+        setAiSessionId(null)
+    }
+
+    const sessionStorage = new LocalStorageManager<string | null>()
+
     useEffect(() => {
-        if (open && aiChatRef.current) {
-            aiChatRef.current.checkForActiveTask()
-            setTimeout(() => {
-                aiChatRef.current?.scrollToBottom()
-            }, 0)
+        const savedSessionId = sessionStorage.getItem(AI_SESSION_STORAGE_KEY)
+        if (savedSessionId) {
+            setAiSessionId(savedSessionId)
+        } else {
+            const newSessionId = uuidV4()
+            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, newSessionId)
+            setAiSessionId(newSessionId)
         }
-    }, [open])
+    }, [])
+
+    useEffect(() => {
+        if (aiSessionId) {
+            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionId)
+        }
+    }, [aiSessionId])
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -125,7 +139,9 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         >
             <div className={styles.header}>
                 <div className={styles.leftSection}>
-                    <Typography.Title level={3}>{title}</Typography.Title>
+                    <Typography.Title level={3}>
+                        {title}<span className={styles.alphaCharacter}>α</span>
+                    </Typography.Title>
                 </div>
                 <div className={styles.rightSection}>
                     <Button 
@@ -133,7 +149,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         size='medium'
                         compact
                         minimal
-                        onClick={() => aiChatRef.current?.handleResetHistory()}
+                        onClick={handleResetHistory}
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
                     />
@@ -142,7 +158,6 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         size='medium'
                         compact
                         minimal
-                        onClick={() => aiChatRef.current?.handleSaveConversation()}
                         icon={<Download size='small' />}
                         title={saveConversationLabel}
                     />
@@ -163,8 +178,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             })} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
                 <AIChat 
-                    ref={aiChatRef}
-                    onClose={onClose} 
+                    aiSessionId={aiSessionId}
+                    onSessionChange={setAiSessionId}
                 />
             </div>
         </div>
