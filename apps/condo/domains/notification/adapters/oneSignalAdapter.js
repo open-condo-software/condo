@@ -86,8 +86,9 @@ class OneSignalAdapter {
      * Mimics FireBase failure response
      * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
      */
-    static getFakeErrorResponse () {
+    static getFakeErrorResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: false,
             type: 'Fake',
             error: {
@@ -109,8 +110,9 @@ class OneSignalAdapter {
      * Mimics FireBase success response
      * @returns {{success: boolean, messageId: string}}
      */
-    static getFakeSuccessResponse () {
+    static getFakeSuccessResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: true,
             type: 'Fake',
             response: {
@@ -126,18 +128,18 @@ class OneSignalAdapter {
      * @param fakeNotifications
      * @returns {*}
      */
-    static injectFakeResults (result, fakeNotifications) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? OneSignalAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(OneSignalAdapter.getFakeSuccessResponse())
+                mixed.responses.push(OneSignalAdapter.getFakeSuccessResponse({ appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(OneSignalAdapter.getFakeErrorResponse())
+                mixed.responses.push(OneSignalAdapter.getFakeErrorResponse({ appId: appIds[token] }))
             }
         })
 
@@ -308,7 +310,7 @@ class OneSignalAdapter {
             }
         }
 
-        result = OneSignalAdapter.injectFakeResults(result, fakeNotifications)
+        result = OneSignalAdapter.injectFakeResults(result, fakeNotifications, appIds)
         
         const isOk = !isEmpty(result) && result.successCount > 0
 
