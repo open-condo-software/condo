@@ -81,11 +81,10 @@ async function prepareMessageToSend (message) {
     }
 }
 
-async function prepareNotificationsByToken ({ adapter, message, tokens, appIds: appIdByToken }) {
-    const uniqAppIds = [...new Set(Object.values(appIdByToken))]
+async function prepareNotificationsByAppId ({ message, appIds }) {
+    const uniqAppIds = [...appIds]
     const notificationsByAppIdPromises = uniqAppIds.map(async appId => {
-        const notificationRaw = await renderTemplate(PUSH_TRANSPORT, message, { appId })
-        return adapter.constructor.validateAndPrepareNotification(notificationRaw)
+        return await renderTemplate(PUSH_TRANSPORT, message, { appId })
     })
     const notificationsByAppIdPromisesResults = await Promise.allSettled(notificationsByAppIdPromises)
     const notificationsByAppId = {}
@@ -99,13 +98,7 @@ async function prepareNotificationsByToken ({ adapter, message, tokens, appIds: 
         notificationsByAppId[appId] = notificationsByAppIdPromisesResults[i].value
     }
 
-    const notificationByToken = {}
-    for (const token of tokens) {
-        const appId = appIdByToken[token]
-        notificationByToken[token] = notificationsByAppId[appId]
-    }
-
-    return notificationByToken
+    return notificationsByAppId
 }
 
 /**
@@ -168,7 +161,7 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
     const dataByToken = {}
     const appIds = {}
     const metaByToken = {}
-    const notification = recipients[0]?.notification // NOTE(YEgorLu): right now notification is same for everyone
+    const notificationByToken = {}
 
     for (const recipient of recipients) {
         (tokensByTransport[recipient.transport] ??= []).push(recipient.token)
@@ -176,6 +169,7 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
         dataByToken[recipient.token] = recipient.data
         appIds[recipient.token] = recipient.appId
         metaByToken[recipient.token] = recipient.remoteClientMeta
+        notificationByToken[recipient.token] = recipient.notification
     }
 
     const promises = await Promise.allSettled(Object.keys(tokensByTransport).map(async transportType => {
@@ -230,23 +224,31 @@ async function sendSequentialBatchesInGroup ({ groupName, sequentialBatchesInGro
     return { isOk: _isOk, result: container }
 }
 
-async function prepareRecipients ({ pushTokens, originalData, originalNotification }) {
+async function prepareRecipients ({ pushTokens, originalData, originalNotification, message }) {
     const statsInfo = { encryption: {} }
+    const notificationsByAppId = await prepareNotificationsByAppId({ message, appIds: pushTokens.map(pushToken => pushToken.appId) })
+
     const recipients = []
     for (const pushToken of pushTokens) {
-        const notification = originalNotification // NOTE(YEgorLu): soon will be updated for each
-        let data = ADAPTERS[pushToken.transport].constructor.prepareData(originalData, pushToken.token)
+        const adapter = ADAPTERS[pushToken.transport]
+        let notification = null
+        try {
+            notification = adapter.constructor.validateAndPrepareNotification(notificationsByAppId[pushToken.appId])
+        } catch (err) {
+            logger.error({ msg: 'prepareRecipients() error', entity: 'Message', entityId: message.id, err })
+        }
+
+        let data = adapter.constructor.prepareData(originalData, pushToken.token)
 
         const dataEncryptionVersion = PUSH_ADAPTER_SETTINGS.encryption?.[pushToken.appId]
         const needsDataEncryption = !!dataEncryptionVersion
         if (needsDataEncryption) {
-            data = encryptPushData(dataEncryptionVersion, data, { appId: pushToken.appId })
+            data = encryptPushData(dataEncryptionVersion, data, {appId: pushToken.appId})
             statsInfo.encryption[pushToken.appId] = {
                 success: !!data,
                 encryptedData: data,
             }
         }
-
 
         recipients.push({
             ...pushToken,
@@ -279,7 +281,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
 
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.
-    const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(data, 'type'))
+    const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(message, 'type'))
     if (preferredPushTypeForMessage) {
         for (const pushToken of pushTokens) {
             pushToken.pushType = preferredPushTypeForMessage
@@ -288,7 +290,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
 
     let container = { failureCount: 0, successCount: 0, responses: [] }
 
-    let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data })
+    let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
 
     const invalidRecipients = recipients.filter(recipient => !recipient.notification || !recipient.data)
     recipients = recipients.filter(recipient => !invalidRecipients.includes(recipient))

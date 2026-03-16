@@ -607,19 +607,13 @@ describe('push transport', () => {
         })
 
         test('does not send push for tokens whose appId has overrides but missing translation for message.type', async () => {
-            mockGetTokens.mockResolvedValue({
-                tokensByTransport: {
-                    [PUSH_TRANSPORT_FIREBASE]: [tokenEmptyReplacers],
-                },
-                pushTypes: {
-                    [tokenEmptyReplacers]: PUSH_TYPE_DEFAULT,
-                },
-                appIds: {
-                    [tokenEmptyReplacers]: APP_ID_EMPTY_OVERRIDES,
-                },
-                metaByToken: {},
-                count: 1,
-            })
+            mockGetTokens.mockResolvedValue([{
+                appId: APP_ID_EMPTY_OVERRIDES,
+                token: tokenEmptyReplacers,
+                transport: PUSH_TRANSPORT_FIREBASE,
+                pushType: PUSH_TYPE_DEFAULT,
+                remoteClientMeta: {},
+            }])
 
             const pushTransport = requirePushTransportIsolated()
 
@@ -649,23 +643,30 @@ describe('push transport', () => {
         })
 
         test('sends notifications for tokens without overrides and with valid overrides; skips tokens with missing type translation', async () => {
-            mockGetTokens.mockResolvedValue({
-                tokensByTransport: {
-                    [PUSH_TRANSPORT_FIREBASE]: [tokenNoReplacers, tokenEmptyReplacers, tokenReplacersOk],
+            mockGetTokens.mockResolvedValue([
+                {
+                    appId: APP_ID_WITH_NO_OVERRIDES,
+                    token: tokenNoReplacers,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
+                    remoteClientMeta: {},
+                }, 
+                {
+                    appId: APP_ID_EMPTY_OVERRIDES,
+                    token: tokenEmptyReplacers,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
+                    remoteClientMeta: {},
+
                 },
-                pushTypes: {
-                    [tokenNoReplacers]: PUSH_TYPE_DEFAULT,
-                    [tokenEmptyReplacers]: PUSH_TYPE_DEFAULT,
-                    [tokenReplacersOk]: PUSH_TYPE_DEFAULT,
+                {
+                    appId: APP_ID_WITH_OVERRIDES_OK,
+                    token: tokenReplacersOk,
+                    pushType: PUSH_TYPE_DEFAULT,
+                    transport: PUSH_TRANSPORT_FIREBASE,
+                    remoteClientMeta: {},
                 },
-                appIds: {
-                    [tokenNoReplacers]: APP_ID_WITH_NO_OVERRIDES,
-                    [tokenEmptyReplacers]: APP_ID_EMPTY_OVERRIDES,
-                    [tokenReplacersOk]: APP_ID_WITH_OVERRIDES_OK,
-                },
-                metaByToken: {},
-                count: 3,
-            })
+            ])
 
             const pushTransport = requirePushTransportIsolated()
 
