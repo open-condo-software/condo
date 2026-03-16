@@ -1,7 +1,7 @@
-const { groupByAppIdPriorityGroups } = require('./helpers')
+const { groupIntoParallelGroupsWithSequentialBatches, UNGROUPED_GROUP } = require('./helpers')
 
 
-describe('groupByAppIdPriorityGroups', () => {
+describe('groupIntoParallelGroupsWithSequentialBatches', () => {
 
     const testCases = [
         {
@@ -19,7 +19,7 @@ describe('groupByAppIdPriorityGroups', () => {
             expectedResult: {
                 group1: [[{ appId: 'app1', token: 'token1' }], [{ appId: 'app2', token: 'token2' }]],
                 group2: [[{ appId: 'app3', token: 'token3' }]],
-                ungrouped: [[{ appId: 'app4', token: 'token4' }]],
+                [UNGROUPED_GROUP]: [[{ appId: 'app4', token: 'token4' }]],
             },
         },
         {
@@ -37,7 +37,7 @@ describe('groupByAppIdPriorityGroups', () => {
             ],
             appsGroups: {},
             expectedResult: {
-                'ungrouped': [[{ appId: 'app1', token: 'token1' }]],
+                [UNGROUPED_GROUP]: [[{ appId: 'app1', token: 'token1' }]],
             },
         },
         {
@@ -50,7 +50,7 @@ describe('groupByAppIdPriorityGroups', () => {
                 'group1': ['app1', 'app2'],
             },
             expectedResult: {
-                'ungrouped': [[{ appId: 'unknown_app1', token: 'token1' }, { appId: 'unknown_app2', token: 'token2' }]],
+                [UNGROUPED_GROUP]: [[{ appId: 'unknown_app1', token: 'token1' }, { appId: 'unknown_app2', token: 'token2' }]],
             },
         },
         {
@@ -124,7 +124,7 @@ describe('groupByAppIdPriorityGroups', () => {
     ]
 
     test.each(testCases)('$name', ({ remoteClients, appsGroups, expectedResult }) => {
-        const result = groupByAppIdPriorityGroups(remoteClients, appsGroups)
+        const result = groupIntoParallelGroupsWithSequentialBatches(remoteClients, appsGroups)
 
         expect(result).toEqual(expectedResult)
     })

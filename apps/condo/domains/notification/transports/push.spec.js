@@ -967,7 +967,7 @@ describe('push transport', () => {
                 await waitFor(async () => {
                     message = await Message.getOne(admin, messageWhere)
                     transportMeta = message.processingMeta.transportsMeta[0]
-
+                    console.error(JSON.stringify(transportMeta, null, 2))
                     expect(message).toBeDefined()
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
@@ -1342,7 +1342,7 @@ describe('push transport', () => {
             transportMeta = message.processingMeta.transportsMeta[0]
 
             const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
-
+            console.error(JSON.stringify(transportMeta, null, 2))
             // Expect that only message with appId_1 is sent, since it's the first in the group and successful
             expect(responses).toHaveLength(payloadsForAppId1.length)
             const uniqueGroupNames = [...new Set(responses.map(r => r.groupName))]

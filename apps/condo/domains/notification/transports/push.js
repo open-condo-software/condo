@@ -29,7 +29,7 @@ const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
 const { encryptPushData } = require('@condo/domains/notification/utils/serverSchema/push/encryption')
-const { getTokens, groupByAppIdPriorityGroups } = require('@condo/domains/notification/utils/serverSchema/push/helpers')
+const { getTokens, groupIntoParallelGroupsWithSequentialBatches } = require('@condo/domains/notification/utils/serverSchema/push/helpers')
 
 const logger = getLogger()
 
@@ -186,7 +186,11 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
         const payload = { tokens, pushTypes, appIds, notificationByToken, dataByToken, metaByToken }
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
         
-        await deleteRemoteClientsIfTokenIsInvalid({ transportType, result, isVoIP })
+        try {
+            await deleteRemoteClientsIfTokenIsInvalid({ transportType, result, isVoIP })
+        } catch (err) {
+            logger.error({ msg: 'deleteRemoteClientsIfTokenIsInvalid() error', err })
+        }
 
         /** @type {[boolean, object, string]} */
         const sendNotificationResult = [isOk, result, transportType]
@@ -194,7 +198,10 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
     }))
 
     for (const p of promises) {
-        if (p.status !== 'fulfilled') continue
+        if (p.status !== 'fulfilled') {
+            logger.error({ msg: 'sendMessageToTransports() error', err: p.reason })
+            continue
+        }
 
         const value = p.value
         if (value === null) continue
@@ -207,10 +214,10 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
     return { isOk: _isOk, result: container }
 }
 
-async function sendMessageToAppsGroup ({ groupName, recipientsBatchesInGroup, isVoIP }) {
+async function sendSequentialBatchesInGroup ({ groupName, sequentialBatchesInGroup, isVoIP }) {
     let container = {}
     let _isOk = false
-    for (const recipientsBatch of recipientsBatchesInGroup) {
+    for (const recipientsBatch of sequentialBatchesInGroup) {
         const { isOk, result } = await sendMessageToTransports({
             recipients: recipientsBatch,
             isVoIP,
@@ -234,9 +241,8 @@ async function prepareRecipients ({ pushTokens, originalData, originalNotificati
         const needsDataEncryption = !!dataEncryptionVersion
         if (needsDataEncryption) {
             data = encryptPushData(dataEncryptionVersion, data, { appId: pushToken.appId })
-            statsInfo.encryption[pushToken.token] = {
+            statsInfo.encryption[pushToken.appId] = {
                 success: !!data,
-                appId: pushToken.appId,
                 encryptedData: data,
             }
         }
@@ -301,18 +307,21 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
 
     if (!recipients.length) return [false, { ...container, error: 'No pushTokens available.' }]
 
-    const recipientsByGroupsAndBatches = groupByAppIdPriorityGroups(recipients, PUSH_ADAPTER_SETTINGS.groups || {})
+    const parallelGroupsWithSequentialBatches = groupIntoParallelGroupsWithSequentialBatches(recipients, PUSH_ADAPTER_SETTINGS.groups || {})
 
-    const promises = await Promise.allSettled(Object.entries(recipientsByGroupsAndBatches).map(async ([groupName, recipientsBatches]) => {
-        return await sendMessageToAppsGroup({
+    const promises = await Promise.allSettled(Object.entries(parallelGroupsWithSequentialBatches).map(async ([groupName, sequentialBatchesInGroup]) => {
+        return await sendSequentialBatchesInGroup({
             groupName,
-            recipientsBatchesInGroup: recipientsBatches,
+            sequentialBatchesInGroup,
             isVoIP,
         })
     }))
 
     for (const p of promises) {
-        if (p.status !== 'fulfilled') continue
+        if (p.status !== 'fulfilled') {
+            logger.error({ msg: 'send() error', err: p.reason, entity: 'Message', entityId: data.notificationId })
+            continue
+        }
 
         const value = p.value
         if (typeof value !== 'object' || !value) continue

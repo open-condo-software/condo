@@ -4,6 +4,8 @@ const {
     PUSH_TRANSPORT_TYPES,
 } = require('@condo/domains/notification/constants/constants')
 
+const UNGROUPED_GROUP = 'ungrouped'
+
 /**
  * @typedef TokensData
  * @type {{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]}
@@ -86,7 +88,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
  * @param appIdPriorityGroups {{[s: string]: string[]}} key - group name, value - order of preferred appIds
  * @returns {{[s: string]: {appId: string}[][]}} key - group name, value - array of remote client batches, you should send pushes only to clients in one batch
  */
-function groupByAppIdPriorityGroups (remoteClients, appIdPriorityGroups = {}) {
+function groupIntoParallelGroupsWithSequentialBatches (remoteClients, appIdPriorityGroups = {}) {
     const appIdToGroupName = Object.fromEntries(
         Object.entries(appIdPriorityGroups)
             .flatMap(([groupName, appIds]) =>
@@ -94,7 +96,7 @@ function groupByAppIdPriorityGroups (remoteClients, appIdPriorityGroups = {}) {
             )
     )
     const remoteClientsByGroupName = remoteClients.reduce((grouped, remoteClient) => {
-        const groupName = appIdToGroupName[remoteClient.appId] || 'ungrouped'
+        const groupName = appIdToGroupName[remoteClient.appId] || UNGROUPED_GROUP
         if (!grouped[groupName]) grouped[groupName] = []
         grouped[groupName].push(remoteClient)
         return grouped
@@ -118,5 +120,6 @@ function groupByAppIdPriorityGroups (remoteClients, appIdPriorityGroups = {}) {
 
 module.exports = {
     getTokens,
-    groupByAppIdPriorityGroups,
+    groupIntoParallelGroupsWithSequentialBatches,
+    UNGROUPED_GROUP,
 }
