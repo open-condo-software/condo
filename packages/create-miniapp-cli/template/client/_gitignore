@@ -1,0 +1,35 @@
+node_modules
+bin/.local
+dist
+out
+.next
+.idea
+.env
+.kmigrator
+.DS_Store
+.docker-cache-warming
+web-build
+coverage
+__generated__
+__media
+_example.js
+codegen.yaml
+
+# yarn + npm
+yarn-error.log
+npm-debug.*
+
+# mobile
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+.kmigratorknex.connection.json
+.kmigratorknex.schema.json
+
+.vscode
+
+# Turborepo local cache
+.turbo
