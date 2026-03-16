@@ -1,4 +1,6 @@
-const { groupIntoParallelGroupsWithSequentialBatches, UNGROUPED_GROUP } = require('./helpers')
+const { REMOTE_CLIENT_GROUP_UNGROUPED } = require('@condo/domains/notification/constants/constants')
+
+const { groupIntoParallelGroupsWithSequentialBatches } = require('./helpers')
 
 
 describe('groupIntoParallelGroupsWithSequentialBatches', () => {
@@ -19,7 +21,7 @@ describe('groupIntoParallelGroupsWithSequentialBatches', () => {
             expectedResult: {
                 group1: [[{ appId: 'app1', token: 'token1' }], [{ appId: 'app2', token: 'token2' }]],
                 group2: [[{ appId: 'app3', token: 'token3' }]],
-                [UNGROUPED_GROUP]: [[{ appId: 'app4', token: 'token4' }]],
+                [REMOTE_CLIENT_GROUP_UNGROUPED]: [[{ appId: 'app4', token: 'token4' }]],
             },
         },
         {
@@ -37,7 +39,7 @@ describe('groupIntoParallelGroupsWithSequentialBatches', () => {
             ],
             appsGroups: {},
             expectedResult: {
-                [UNGROUPED_GROUP]: [[{ appId: 'app1', token: 'token1' }]],
+                [REMOTE_CLIENT_GROUP_UNGROUPED]: [[{ appId: 'app1', token: 'token1' }]],
             },
         },
         {
@@ -50,7 +52,7 @@ describe('groupIntoParallelGroupsWithSequentialBatches', () => {
                 'group1': ['app1', 'app2'],
             },
             expectedResult: {
-                [UNGROUPED_GROUP]: [[{ appId: 'unknown_app1', token: 'token1' }, { appId: 'unknown_app2', token: 'token2' }]],
+                [REMOTE_CLIENT_GROUP_UNGROUPED]: [[{ appId: 'unknown_app1', token: 'token1' }, { appId: 'unknown_app2', token: 'token2' }]],
             },
         },
         {

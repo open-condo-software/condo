@@ -2,9 +2,9 @@ const { find } = require('@open-condo/keystone/schema')
 
 const {
     PUSH_TRANSPORT_TYPES,
+    REMOTE_CLIENT_GROUP_UNGROUPED,
 } = require('@condo/domains/notification/constants/constants')
 
-const UNGROUPED_GROUP = 'ungrouped'
 
 /**
  * @typedef TokensData
@@ -96,7 +96,7 @@ function groupIntoParallelGroupsWithSequentialBatches (remoteClients, appIdPrior
             )
     )
     const remoteClientsByGroupName = remoteClients.reduce((grouped, remoteClient) => {
-        const groupName = appIdToGroupName[remoteClient.appId] || UNGROUPED_GROUP
+        const groupName = appIdToGroupName[remoteClient.appId] || REMOTE_CLIENT_GROUP_UNGROUPED
         if (!grouped[groupName]) grouped[groupName] = []
         grouped[groupName].push(remoteClient)
         return grouped
@@ -121,5 +121,4 @@ function groupIntoParallelGroupsWithSequentialBatches (remoteClients, appIdPrior
 module.exports = {
     getTokens,
     groupIntoParallelGroupsWithSequentialBatches,
-    UNGROUPED_GROUP,
 }

@@ -68,6 +68,7 @@ const {
     MESSAGE_SENT_STATUS,
     MESSAGE_ERROR_STATUS,
     PUSH_TRANSPORT, DEVICE_PLATFORM_TYPES, PUSH_TRANSPORT_TYPES, PUSH_TRANSPORT_WEBHOOK,
+    REMOTE_CLIENT_GROUP_UNGROUPED,
 } = require('@condo/domains/notification/constants/constants')
 const { prepareMessageData } = require('@condo/domains/notification/tasks/sendMessageBatch.helpers')
 const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
@@ -969,7 +970,7 @@ describe('push transport', () => {
                 await waitFor(async () => {
                     message = await Message.getOne(admin, messageWhere)
                     transportMeta = message.processingMeta.transportsMeta[0]
-                    console.error(JSON.stringify(transportMeta, null, 2))
+
                     expect(message).toBeDefined()
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
@@ -1511,7 +1512,7 @@ describe('push transport', () => {
 
             // Check that one group is 'group_1', another is 'appId_7'
             const groupedResponse = responses.find(r => r.groupName === 'group_1')
-            const ungroupedResponse = responses.find(r => r.groupName === 'ungrouped')
+            const ungroupedResponse = responses.find(r => r.groupName === REMOTE_CLIENT_GROUP_UNGROUPED)
 
             expect(groupedResponse).toBeDefined()
             expect(ungroupedResponse).toBeDefined()
