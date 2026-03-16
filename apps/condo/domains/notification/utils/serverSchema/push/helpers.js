@@ -1,16 +1,15 @@
-const isEmpty = require('lodash/isEmpty')
-
 const { find } = require('@open-condo/keystone/schema')
 
 const {
-    PUSH_TRANSPORT_FIREBASE,
-    PUSH_TRANSPORT_REDSTORE,
-    PUSH_TRANSPORT_HUAWEI,
-    PUSH_TRANSPORT_APPLE,
-    PUSH_TRANSPORT_WEBHOOK,
-    PUSH_TRANSPORT_ONESIGNAL,
     PUSH_TRANSPORT_TYPES,
+    REMOTE_CLIENT_GROUP_UNGROUPED,
 } = require('@condo/domains/notification/constants/constants')
+
+
+/**
+ * @typedef TokensData
+ * @type {{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]}
+ */
 
 /**
  * Prepares conditions
@@ -39,50 +38,87 @@ function getTokensConditions (ownerId, remoteClientId, isVoIP) {
 }
 
 /**
- * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions. isVoIP flag is used to substitute VoIP pushToken, pushType and pushTransport fields.
  * @param ownerId
  * @param remoteClientId
  * @param isVoIP
- * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
+ * @returns {Promise<{appId, token, transport, pushType, remoteClientMeta}[]>}
  */
 async function getTokens (ownerId, remoteClientId, isVoIP = false) {
     if (!ownerId && !remoteClientId) return []
 
     const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
     const remoteClients =  await find('RemoteClient', conditions)
-    const tokensByTransport = {
-        [PUSH_TRANSPORT_FIREBASE]: [],
-        [PUSH_TRANSPORT_REDSTORE]: [],
-        [PUSH_TRANSPORT_HUAWEI]: [],
-        [PUSH_TRANSPORT_APPLE]: [],
-        [PUSH_TRANSPORT_WEBHOOK]: [],
-        [PUSH_TRANSPORT_ONESIGNAL]: [],
-    }
-    const pushTypes = {}
-    const appIds = {}
-    const metaByToken = {}
+    return remoteClients.map(remoteClient => ({
+        appId: remoteClient.appId,
+        token: isVoIP ? remoteClient.pushTokenVoIP : remoteClient.pushToken,
+        transport: isVoIP ? remoteClient.pushTransportVoIP : remoteClient.pushTransport,
+        pushType: isVoIP ? remoteClient.pushTypeVoIP : remoteClient.pushType,
+        remoteClientMeta: remoteClient.meta,
+    }))
+}
 
-    if (!isEmpty(remoteClients)) {
-        remoteClients.forEach((remoteClient) => {
-            const {
-                appId, pushToken, pushType, pushTransport,
-                pushTokenVoIP, pushTypeVoIP, pushTransportVoIP,
-                meta,
-            } = remoteClient
-            const transport = isVoIP ? pushTransportVoIP : pushTransport
-            const token = isVoIP ? pushTokenVoIP : pushToken
-            const type = isVoIP ? pushTypeVoIP : pushType
 
-            tokensByTransport[transport].push(token)
-            pushTypes[token] = type
-            appIds[token] = appId
-            metaByToken[token] = meta
-        })
-    }
+/**
+ * Splits remote clients by groups to ordered batches of clients using appId according to appGroups
+ * @example
+ * const tokens = [
+ * { appId: 'appId1' }, { appId: 'appId1' },
+ * { appId: 'appId2' }, { appId: 'appId2' },
+ * { appId: 'appId3' }, { appId: 'appId3' },
+ * { appId: 'appId4' }, { appId: 'appId4' },
+ * { appId: 'appId5' }, { appId: 'appId5' },
+ * { appId: 'appId6' }, { appId: 'appId6' },
+ * ]
+ * const appGroups = { group1: ['appId1', 'appId2'], group2: ['appId3', 'appId4'] }
+ * const result = groupRemoteClientsByAppIdPriorityGroups(tokens, appGroups)
+ * expect(result).toEqual({
+ *     group1: [
+ *         [{ appId: 'appId1' }, { appId: 'appId1' }],
+ *         [{ appId: 'appId2' }, { appId: 'appId2' }],
+ *     ],
+ *     group2: [
+ *         [{ appId: 'appId3' }, { appId: 'appId3' }],
+ *         [{ appId: 'appId4' }, { appId: 'appId4' }],
+ *     ],
+ *     ungrouped: [
+ *         [{ appId: 'appId5' }, { appId: 'appId5' }, { appId: 'appId6' }, { appId: 'appId6' }]
+ *     ],
+ * })
+ * @param remoteClients {{appId: string}[]}
+ * @param appIdPriorityGroups {{[s: string]: string[]}} key - group name, value - order of preferred appIds
+ * @returns {{[s: string]: {appId: string}[][]}} key - group name, value - array of remote client batches, you should send pushes only to clients in one batch
+ */
+function groupIntoParallelGroupsWithSequentialBatches (remoteClients, appIdPriorityGroups = {}) {
+    const appIdToGroupName = Object.fromEntries(
+        Object.entries(appIdPriorityGroups)
+            .flatMap(([groupName, appIds]) =>
+                appIds.map(appId => [appId, groupName])
+            )
+    )
+    const remoteClientsByGroupName = remoteClients.reduce((grouped, remoteClient) => {
+        const groupName = appIdToGroupName[remoteClient.appId] || REMOTE_CLIENT_GROUP_UNGROUPED
+        if (!grouped[groupName]) grouped[groupName] = []
+        grouped[groupName].push(remoteClient)
+        return grouped
+    }, {})
 
-    return { tokensByTransport, pushTypes, appIds, metaByToken, count: remoteClients.length }
+    return Object.entries(remoteClientsByGroupName).reduce((entriesByGroup, [groupName, remoteClientsInGroup]) => {
+        if (!appIdPriorityGroups[groupName]) {
+            entriesByGroup[groupName] = [remoteClientsInGroup]
+            return entriesByGroup
+        }
+
+        entriesByGroup[groupName] = appIdPriorityGroups[groupName]
+            .map(appId => remoteClientsInGroup
+                .filter(remoteClient => remoteClient.appId === appId)
+            )
+            .filter(batch => batch.length > 0)
+
+        return entriesByGroup
+    }, {})
 }
 
 module.exports = {
     getTokens,
+    groupIntoParallelGroupsWithSequentialBatches,
 }
