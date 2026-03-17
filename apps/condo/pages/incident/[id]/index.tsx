@@ -400,7 +400,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
 
     const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
 
-    const [runGenerateNewsAIFlow, {
+    const [ { execute: runGenerateNewsAIFlow }, {
         loading: generateNewsLoading,
     }] = useAIFlow<{ title: string, body: string }>({
         flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
