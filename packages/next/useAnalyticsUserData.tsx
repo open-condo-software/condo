@@ -7,7 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 export type AnalyticsUserData = {
     userId: string | null
     userName: string | null
-    userType: string
+    userType: string | null
     isSupport: boolean
     isAdmin: boolean
     organizationId: string | null
