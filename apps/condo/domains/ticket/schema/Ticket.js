@@ -678,7 +678,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(), organizationMessaged()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
