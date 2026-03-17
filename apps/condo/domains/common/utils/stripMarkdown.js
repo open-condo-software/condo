@@ -4,7 +4,7 @@
  * @param {string | null | undefined} input
  * @returns {string}
  */
-export const stripMarkdown = (input) => {
+const stripMarkdown = (input) => {
     if (!input) {
         return ''
     }
@@ -20,3 +20,5 @@ export const stripMarkdown = (input) => {
         .replaceAll(/\s{2,1000}/g, ' ')
         .trim()
 }
+
+module.exports = { stripMarkdown }
