@@ -66,9 +66,9 @@ import {
     MINIAPPS_CATEGORY,
     SETTINGS_CATEGORY,
 } from '@condo/domains/common/constants/menuCategories'
-import { useAnalyticsUserData, type AnalyticsUserData } from '@condo/domains/common/hooks/useAnalyticsUserData'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { useUserAttributes, type UserAttributes } from '@condo/domains/common/hooks/useUserAttributes'
 import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
@@ -572,7 +572,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <TicketVisibilityContextProvider>
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler analyticsUserData={pageProps?.analyticsUserData}/>
+                                                                <CondoAppEventsHandler userAttributes={pageProps?.userAttributes}/>
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
                                                                         <SubscriptionAccessGuard skipGuard={Component.isError}>
@@ -757,21 +757,21 @@ const useInitialEmployeeId = () => {
     return { employeeId }
 }
 
-const withAnalyticsUserData = () => (PageComponent: NextPage): NextPage => {
-    const WithAnalyticsUserData = (props) => {
-        const analyticsUserData: AnalyticsUserData = useAnalyticsUserData()
+const withUserAttributes = () => (PageComponent: NextPage): NextPage => {
+    const WithUserAttributes = (props) => {
+        const userAttributes: UserAttributes = useUserAttributes()
 
-        return <PageComponent {...props} pageProps={{ ...props.pageProps, analyticsUserData }} />
+        return <PageComponent {...props} pageProps={{ ...props.pageProps, userAttributes }} />
     }
 
     if (process.env.NODE_ENV !== 'production') {
         const displayName = PageComponent.displayName || PageComponent.name || 'Component'
-        WithAnalyticsUserData.displayName = `withAnalyticsUserData(${displayName})`
+        WithUserAttributes.displayName = `withUserAttributes(${displayName})`
     }
 
-    WithAnalyticsUserData.getInitialProps = PageComponent.getInitialProps
+    WithUserAttributes.getInitialProps = PageComponent.getInitialProps
 
-    return WithAnalyticsUserData
+    return WithUserAttributes
 }
 
 const withError = () => (PageComponent: NextPage): NextPage => {
@@ -829,7 +829,7 @@ export default (
                 withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                         withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                            withAnalyticsUserData()(
+                            withUserAttributes()(
                                 withFeatureFlags({ ssr: !isDisabledSsr })(
                                     withError()(
                                         MyApp

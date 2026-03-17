@@ -4,7 +4,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 
-export type AnalyticsUserData = {
+export type UserAttributes = {
     userId: string | null
     userName: string | null
     userType: string | null
@@ -13,7 +13,7 @@ export type AnalyticsUserData = {
     organizationId: string | null
 }
 
-export const useAnalyticsUserData = (): AnalyticsUserData => {
+export const useUserAttributes = (): UserAttributes => {
     const { user } = useAuth()
     const { employee } = useOrganization()
 

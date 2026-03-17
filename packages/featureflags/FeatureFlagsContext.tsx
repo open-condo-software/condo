@@ -47,28 +47,29 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-export interface BaseAnalyticsUserData {
+export interface BaseUserAttributes {
     userId?: string | null
     isSupport?: boolean
     isAdmin?: boolean
     organizationId?: string | null
 }
 
-type FeatureFlagsProviderWrapperProps<TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData> = {
+type FeatureFlagsProviderWrapperProps<TUserAttributes extends BaseUserAttributes = BaseUserAttributes> = {
     initFeatures?: FeatureDefinitions
-    analyticsUserData?: TAnalyticsUserData
+    userAttributes?: TUserAttributes
 }
 
-const FeatureFlagsProviderWrapper = <TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData>({ children, initFeatures = null, analyticsUserData = {} as TAnalyticsUserData }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TAnalyticsUserData>>) => {
+const FeatureFlagsProviderWrapper = <TUserAttributes extends BaseUserAttributes = BaseUserAttributes>({ children, initFeatures = null, userAttributes = {} as TUserAttributes }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TUserAttributes>>) => {
     const growthbook = useGrowthBook()
+    // TODO DOMA-13078 remove useAuth and useOrganization
     const { user, isLoading: userIsLoading  } = useAuth()
     const { employee, isLoading: organizationIsLoading } = useOrganization()
     const [features, setFeature] = useState(initFeatures)
 
-    // Use analyticsUserData if provided, otherwise fallback to useAuth/useOrganization
-    const isSupport = analyticsUserData?.isSupport ?? user?.isSupport
-    const isAdmin = analyticsUserData?.isAdmin ?? user?.isAdmin
-    const userId = analyticsUserData?.userId ?? user?.id
+    // Use userAttributes if provided, otherwise fallback to useAuth/useOrganization
+    const isSupport = userAttributes?.isSupport ?? user?.isSupport
+    const isAdmin = userAttributes?.isAdmin ?? user?.isAdmin
+    const userId = userAttributes?.userId ?? user?.id
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -118,9 +119,9 @@ const FeatureFlagsProviderWrapper = <TAnalyticsUserData extends BaseAnalyticsUse
     }, [features, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
-        const organizationId = analyticsUserData?.organizationId ?? employee?.organization?.id
+        const organizationId = userAttributes?.organizationId ?? employee?.organization?.id
         updateContext({ isSupport: isSupport || isAdmin, organization: organizationId, userId })
-    }, [updateContext, isAdmin, isSupport, analyticsUserData?.organizationId, employee?.organization?.id, userId])
+    }, [updateContext, isAdmin, isSupport, userAttributes?.organizationId, employee?.organization?.id, userId])
 
     return (
         <FeatureFlagsContext.Provider value={{
@@ -133,19 +134,20 @@ const FeatureFlagsProviderWrapper = <TAnalyticsUserData extends BaseAnalyticsUse
     )
 }
 
-type FeatureFlagsProviderProps<TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData> = FeatureFlagsProviderWrapperProps<TAnalyticsUserData>
+type FeatureFlagsProviderProps<TUserAttributes extends BaseUserAttributes = BaseUserAttributes> = FeatureFlagsProviderWrapperProps<TUserAttributes>
 
-const FeatureFlagsProvider = <TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData>({ children, initFeatures = null, analyticsUserData = {} as TAnalyticsUserData }: React.PropsWithChildren<FeatureFlagsProviderProps<TAnalyticsUserData>>) => {
+const FeatureFlagsProvider = <TUserAttributes extends BaseUserAttributes = BaseUserAttributes>({ children, initFeatures = null, userAttributes = {} as TUserAttributes }: React.PropsWithChildren<FeatureFlagsProviderProps<TUserAttributes>>) => {
+    // TODO DOMA-13078 remove useAuth and useOrganization
     const { user, isLoading: userIsLoading  } = useAuth()
     const { employee, isLoading: organizationIsLoading } = useOrganization()
 
     const [growthbookInstance] = useState(() => {
         // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
-        // Use analyticsUserData if provided, otherwise fallback to useAuth/useOrganization
-        const isSupport = analyticsUserData?.isSupport ?? user?.isSupport
-        const isAdmin = analyticsUserData?.isAdmin ?? user?.isAdmin
-        const userId = analyticsUserData?.userId ?? user?.id
-        const organizationId = analyticsUserData?.organizationId ?? employee?.organization?.id
+        // Use userAttributes if provided, otherwise fallback to useAuth/useOrganization
+        const isSupport = userAttributes?.isSupport ?? user?.isSupport
+        const isAdmin = userAttributes?.isAdmin ?? user?.isAdmin
+        const userId = userAttributes?.userId ?? user?.id
+        const organizationId = userAttributes?.organizationId ?? employee?.organization?.id
 
         const context: Context = {}
 
@@ -167,7 +169,7 @@ const FeatureFlagsProvider = <TAnalyticsUserData extends BaseAnalyticsUserData =
 
     return (
         <GrowthBookProvider growthbook={growthbookInstance}>
-            <FeatureFlagsProviderWrapper<TAnalyticsUserData> initFeatures={initFeatures} analyticsUserData={analyticsUserData}>
+            <FeatureFlagsProviderWrapper<TUserAttributes> initFeatures={initFeatures} userAttributes={userAttributes}>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
@@ -203,10 +205,10 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent =>
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
-        const analyticsUserData = pageProps?.pageProps?.analyticsUserData || {}
+        const userAttributes = pageProps?.pageProps?.userAttributes || {}
 
         return (
-            <FeatureFlagsProvider initFeatures={features} analyticsUserData={analyticsUserData}>
+            <FeatureFlagsProvider initFeatures={features} userAttributes={userAttributes}>
                 <PageComponent {...pageProps} />
             </FeatureFlagsProvider>
         )

@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { AnalyticsUserData } from '@condo/domains/common/hooks/useAnalyticsUserData'
+import { UserAttributes } from '@condo/domains/common/hooks/useUserAttributes'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { clearPostHogInlineStyles, createSurveyBackdrop, injectPostHogSurveyStyles } from '@condo/domains/common/utils/posthogSurveyStyles'
 
@@ -14,7 +14,7 @@ import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'
 
 
-export const CondoAppEventsHandler: FC<{ analyticsUserData: AnalyticsUserData }> = ({ analyticsUserData }) => {
+export const CondoAppEventsHandler: FC<{ userAttributes: UserAttributes }> = ({ userAttributes }) => {
     const { isLoading: userLoading, user } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
@@ -23,16 +23,16 @@ export const CondoAppEventsHandler: FC<{ analyticsUserData: AnalyticsUserData }>
     useEffect(() => {
         if (!userLoading) {
             if (user) {
-                analytics.identify(analyticsUserData.userId, {
-                    name: analyticsUserData.userName,
-                    type: analyticsUserData.userType,
-                    organization_id: analyticsUserData.organizationId,
+                analytics.identify(userAttributes.userId, {
+                    name: userAttributes.userName,
+                    type: userAttributes.userType,
+                    organization_id: userAttributes.organizationId,
                 })
             } else {
                 analytics.reset()
             }
         }
-    }, [userLoading, user, analyticsUserData])
+    }, [userLoading, user, userAttributes])
 
     // Routing tracking
     useEffect(() => {
