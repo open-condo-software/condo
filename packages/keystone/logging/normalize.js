@@ -1,4 +1,7 @@
 const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|receipt)/i
+const SENSITIVE_KEYS_OVERRIDE = [
+    'groupedReceipts',
+].map((key) => key.toLowerCase())
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -8,24 +11,24 @@ function normalizeQuery (string) {
 }
 
 function isSensitiveKey (key) {
-    return SENSITIVE_KEY_REGEX.test(key)
+    if (!SENSITIVE_KEY_REGEX.test(key)) return false
+
+    return !SENSITIVE_KEYS_OVERRIDE.includes(key.toLowerCase())
 }
 
 function redactSensitiveValues (value) {
     if (Array.isArray(value)) {
         return value.map(redactSensitiveValues)
     }
+
     if (value && typeof value === 'object') {
         const entries = Object.entries(value)
         return entries.reduce((acc, [key, entryValue]) => {
-            if (isSensitiveKey(key)) {
-                acc[key] = '***'
-            } else {
-                acc[key] = redactSensitiveValues(entryValue)
-            }
+            acc[key] = isSensitiveKey(key) ? '***' : redactSensitiveValues(entryValue)
             return acc
         }, {})
     }
+
     return value
 }
 
