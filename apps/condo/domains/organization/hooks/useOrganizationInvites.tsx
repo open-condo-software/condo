@@ -39,6 +39,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
             userId,
             organizationType: organizationTypes,
         },
+        fetchPolicy: 'network-only',
         skip: authLoading || !isAuthenticated || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
     const userInvites = useMemo(() => userInvitationsData?.invitations?.filter(Boolean) || [], [userInvitationsData?.invitations])
