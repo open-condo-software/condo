@@ -665,6 +665,8 @@ jobs:
           -e PROMETHEUS_USER=$PROMETHEUS_USER \
           -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
           -e GH_REF_NAME=$GH_REF_NAME \
+          -e INTEGRATION_STATUS_CHANGE_WEBHOOK_URL=$INTEGRATION_STATUS_CHANGE_WEBHOOK_URL \
+          -e INTEGRATION_STATUS_CHANGE_WEBHOOK_SECRET=$INTEGRATION_STATUS_CHANGE_WEBHOOK_SECRET \
           condo-container sh -c "(\
           yarn workspace @app/condo start & \
           yarn workspace @app/pos-integration start & \
@@ -675,6 +677,8 @@ jobs:
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          INTEGRATION_STATUS_CHANGE_WEBHOOK_URL: https://example.com
+          INTEGRATION_STATUS_CHANGE_WEBHOOK_SECRET: test-webhook-secret
 
   run-accruals-gateway-tests:
     name: Accruals-gateway Tests
