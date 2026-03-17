@@ -171,8 +171,8 @@ describe('ActivateSubscriptionContextService', () => {
         })
     })
 
-    describe('Payment Method Extraction', () => {
-        test('extracts payment method from multiPayment and updates context', async () => {
+    describe('Payment Method Extraction and Freezing', () => {
+        test('extracts payment method from multiPayment and freezes payment info when transitioning to DONE', async () => {
             const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
             
             const [payment] = await Payment.getAll(admin, {
@@ -194,8 +194,16 @@ describe('ActivateSubscriptionContextService', () => {
             
             const finalContext = await getById('SubscriptionContext', subscriptionContext.id)
             expect(finalContext.recurrentPaymentEnabled).toBe(true)
-            expect(finalContext.settings).toBeDefined()
-            expect(finalContext.settings.paymentMethod).toEqual(testPaymentMethod)
+            expect(finalContext.actualPaymentMethod).toBeDefined()
+            expect(finalContext.actualPaymentMethod).toEqual(testPaymentMethod)
+            
+            expect(finalContext.frozenPaymentInfo).toBeDefined()
+            expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(testPaymentMethod)
+            expect(finalContext.frozenPaymentInfo.invoice).toBeDefined()
+            expect(finalContext.frozenPaymentInfo.invoice.id).toBe(invoice.id)
+            expect(finalContext.frozenPaymentInfo.invoice.rows).toEqual(invoice.rows)
+            expect(finalContext.frozenPaymentInfo.invoice.toPay).toBe(invoice.toPay)
+            expect(finalContext.frozenPaymentInfo.pricingRuleId).toBe(pricingRule.id)
         })
     })
 })

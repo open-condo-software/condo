@@ -123,9 +123,15 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 }
 
                 const paymentMethod = multiPayment.meta?.paymentMethod || null
-                const updatedSettings = {
-                    ...subscriptionContext.settings,
+
+                const frozenPaymentInfo = {
                     paymentMethod,
+                    invoice: {
+                        id: invoice.id,
+                        rows: invoice.rows,
+                        toPay: invoice.toPay,
+                    },
+                    pricingRuleId: subscriptionContext.subscriptionPlanPricingRule,
                 }
 
                 await SubscriptionContext.update(context, subscriptionContext.id, {
@@ -133,7 +139,8 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     sender,
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     recurrentPaymentEnabled: Boolean(paymentMethod),
-                    settings: updatedSettings,
+                    actualPaymentMethod: paymentMethod,
+                    frozenPaymentInfo,
                 })
 
                 const updatedSubscriptionContext = await getById('SubscriptionContext', subscriptionContext.id)

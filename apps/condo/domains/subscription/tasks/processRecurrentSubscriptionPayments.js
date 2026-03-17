@@ -36,8 +36,8 @@ async function processRecurrentSubscriptionPayments () {
 
     for (const subscriptionContext of contexts) {
         try {
-            const { id, organization, subscriptionPlanPricingRule, settings } = subscriptionContext
-            const paymentMethodId = get(settings, 'paymentMethod.id')
+            const { id, organization, subscriptionPlanPricingRule, actualPaymentMethod } = subscriptionContext
+            const paymentMethodId = get(actualPaymentMethod, 'id')
 
             if (!paymentMethodId) {
                 logger.warn({ msg: 'subscription context has no payment method', data: { subscriptionContextId: id } })

@@ -5,10 +5,10 @@
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
-const { registerMultiPaymentForInvoices } = require('@condo/domains/acquiring/utils/serverSchema')
+const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
@@ -125,7 +125,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     const endAt = startAt.add(plan.trialDays, 'day')
                     const createdSubscriptionContext = await SubscriptionContext.create(context, {
                         dv,
-                        sender: { dv: 1, fingerprint: 'register-subscription-context-service' },
+                        sender,
                         organization: { connect: { id: organization.id } },
                         subscriptionPlan: { connect: { id: plan.id } },
                         startAt: startAt.format('YYYY-MM-DD'),
@@ -182,7 +182,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 const createdSubscriptionContext = await SubscriptionContext.create(context, {
                     dv,
-                    sender: { dv: 1, fingerprint: 'register-subscription-context-service' },
+                    sender,
                     organization: { connect: { id: organization.id } },
                     subscriptionPlan: { connect: { id: plan.id } },
                     subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
@@ -191,14 +191,13 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     endAt: endAt.format('YYYY-MM-DD'),
                     isTrial: false,
                     status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                    settings: {
-                        price: pricingRule.price,
+                    frozenPaymentInfo: {
                         pricingRuleId: pricingRule.id,
                     },
                 })
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
-                const multiPaymentResult = await registerMultiPaymentForInvoices(context, {
+                const multiPaymentResult = await registerMultiPayment(context, {
                     invoices: [{ id: invoice.id }],
                     sender,
                 })

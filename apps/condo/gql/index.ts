@@ -5472,11 +5472,32 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
     isTrial
     startAt
     endAt
-    settings {
-      price
+    actualPaymentMethod {
+      id
+      type
+      cardMask
+      cardType
+      title
+    }
+    frozenPaymentInfo {
       paymentMethod {
         id
+        type
+        cardMask
+        cardType
+        title
       }
+      invoice {
+        id
+        rows {
+          name
+          count
+          price
+          toPay
+        }
+        toPay
+      }
+      pricingRuleId
     }
   }
 }
@@ -5531,11 +5552,32 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     daysRemaining
     endAt
     createdAt
-    settings {
-      price
+    actualPaymentMethod {
+      id
+      type
+      cardMask
+      cardType
+      title
+    }
+    frozenPaymentInfo {
       paymentMethod {
         id
+        type
+        cardMask
+        cardType
+        title
       }
+      invoice {
+        id
+        rows {
+          name
+          count
+          price
+          toPay
+        }
+        toPay
+      }
+      pricingRuleId
     }
   }
 }
@@ -5588,11 +5630,32 @@ export const GetLastExpiredSubscriptionContextDocument = gql`
     isTrial
     startAt
     endAt
-    settings {
-      price
+    actualPaymentMethod {
+      id
+      type
+      cardMask
+      cardType
+      title
+    }
+    frozenPaymentInfo {
       paymentMethod {
         id
+        type
+        cardMask
+        cardType
+        title
       }
+      invoice {
+        id
+        rows {
+          name
+          count
+          price
+          toPay
+        }
+        toPay
+      }
+      pricingRuleId
     }
   }
 }
@@ -5645,11 +5708,32 @@ export const GetSubscriptionContextByIdDocument = gql`
     startAt
     endAt
     daysRemaining
-    settings {
-      price
+    actualPaymentMethod {
+      id
+      type
+      cardMask
+      cardType
+      title
+    }
+    frozenPaymentInfo {
       paymentMethod {
         id
+        type
+        cardMask
+        cardType
+        title
       }
+      invoice {
+        id
+        rows {
+          name
+          count
+          price
+          toPay
+        }
+        toPay
+      }
+      pricingRuleId
     }
   }
 }
