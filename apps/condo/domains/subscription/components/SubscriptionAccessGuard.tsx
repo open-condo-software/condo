@@ -24,6 +24,7 @@ const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {}, enableSubscrip
 
 interface SubscriptionAccessGuardProps {
     children: React.ReactNode
+    skipGuard?: boolean
 }
 
 /**
@@ -64,7 +65,7 @@ const getPageTitle = (pathname: string, intl: any): string => {
  * Guard component that checks subscription access for protected routes
  * Blocks content completely and shows access denied screen
  */
-export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children }) => {
+export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children, skipGuard = false }) => {
     const router = useRouter()
     const intl = useIntl()
     const { useFlag } = useFeatureFlags()
@@ -100,6 +101,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const helpLink = useMemo(() => subscriptionFeatureHelpLinks[helpLinkKey], [helpLinkKey])
 
     const isBlocked = useMemo(() => {
+        if (skipGuard) {
+            return false
+        }
+        
         const currentPath = router.pathname
         if (!requiresSubscriptionAccess(currentPath)) {
             return false
@@ -128,7 +133,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, isB2BAppEnabled, hasSubscriptionsFlag])
+    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, isB2BAppEnabled, hasSubscriptionsFlag])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
