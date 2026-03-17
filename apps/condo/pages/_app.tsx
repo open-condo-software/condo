@@ -574,7 +574,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                                 <CondoAppEventsHandler/>
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
-                                                                        <SubscriptionAccessGuard>
+                                                                        <SubscriptionAccessGuard skipGuard={Component.isError}>
                                                                             <FeaturesReady fallback={<Loader fill size='large'/>}>
                                                                                 <Component {...pageProps} />
                                                                             </FeaturesReady>
