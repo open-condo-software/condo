@@ -24,7 +24,6 @@
 }
 
 .news-item-card-markdown :global(.condo-markdown *) {
-  margin-bottom: 0;
   color: inherit;
 }
 

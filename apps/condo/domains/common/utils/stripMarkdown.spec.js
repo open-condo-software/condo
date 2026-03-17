@@ -1,4 +1,4 @@
-import { stripMarkdown } from './stripMarkdown'
+const { stripMarkdown } = require('./stripMarkdown')
 
 describe('stripMarkdown', () => {
     it('returns empty string for empty input', () => {

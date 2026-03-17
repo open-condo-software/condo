@@ -258,7 +258,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         setSelectedTitle(value)
         form.setFieldsValue({ title: value })
-        form.validateFields(['title'])
+        if (form.isFieldTouched('title')) form.validateFields(['title'])
     }, [isSharingStep])
 
     const handleFormBodyChange = useCallback((form) => (value: string) => {
@@ -271,7 +271,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         setSelectedBody(value)
         form.setFieldsValue({ body: value })
-        form.validateFields(['body'])
+        if (form.isFieldTouched('body')) form.validateFields(['body'])
     }, [isSharingStep])
 
     useEffect(() => {
