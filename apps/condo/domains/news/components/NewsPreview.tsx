@@ -165,8 +165,6 @@ const NewsPushPreview: React.FC<INewsItemPushPreview> = ({ appName, appIcon, new
     )
 }
 
-const LINE_BREAK_STYLE: CSSProperties = { whiteSpace: 'break-spaces' }
-
 interface INewsPreviewContainer {
     push?: {
         tabName: string
@@ -239,26 +237,24 @@ const CondoAppPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) =
                     <Divider />
                 </Col>
                 <Col span={24} style={APP_CONTENT_STYLE}>
-                    <div style={LINE_BREAK_STYLE}>
-                        <Space direction='vertical' size={16}>
-                            <Space direction='vertical' size={8}>
-                                <Typography.Title level={2}>
-                                    {title}
-                                </Typography.Title>
-                                <Typography.Text size='small' type='secondary'>
-                                    {ReceivedAtTitle}
-                                    {!!validBefore && (
-                                        <>
-                                            &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
-                                        </>
-                                    )}
-                                </Typography.Text>
-                            </Space>
-                            <Typography.Paragraph type='secondary'>
-                                <Markdown type='inline'>{body}</Markdown>
-                            </Typography.Paragraph>
+                    <Space direction='vertical' size={16}>
+                        <Space direction='vertical' size={8}>
+                            <Typography.Title level={2}>
+                                {title}
+                            </Typography.Title>
+                            <Typography.Text size='small' type='secondary'>
+                                {ReceivedAtTitle}
+                                {!!validBefore && (
+                                    <>
+                                        &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
+                                    </>
+                                )}
+                            </Typography.Text>
                         </Space>
-                    </div>
+                        <Typography.Paragraph type='secondary'>
+                            <Markdown type='inline'>{body}</Markdown>
+                        </Typography.Paragraph>
+                    </Space>
                 </Col>
             </Row>
         </CondoAppPreviewContainer>
@@ -314,7 +310,7 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
                     // el => iFrameRef.current = el is used here to support IFrame API
                     // @ts-ignore
                     ref={el => iFrameRef.current = el}
-                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
+                    src={`${iFrameUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
                     reloadScope='organization'
                 />
                 <SharingAppOverflowContainer/>

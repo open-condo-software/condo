@@ -415,3 +415,25 @@ yarn workspace @app/address-service run migrate:down
 ```
 
 The heuristic creation and key backfill now run automatically as part of the migration chain, so re-running migrations after rollback will apply them again.
+
+### Breaking changes
+
+#### News template placeholders format changed (`[]` -> `<>`)
+
+In 5.0.0 we changed the placeholder format in news templates from square brackets
+to angle brackets:
+
+- Old format: `[address]`
+- New format: `<address>`
+
+This change is backward incompatible for existing data in `NewsItemTemplate`.
+If your database contains old templates, migrate them before or right after
+deploying 5.0.0.
+
+### Migration guide
+
+Run the migration script from monorepo root:
+
+```bash
+yarn workspace @app/condo node bin/migrate-news-templates-placeholders
+```
