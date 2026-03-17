@@ -107,6 +107,7 @@
     "node-fetch@2.6.1": "^2.6.7",
     "trim@0.0.1": "^0.0.3",
     "@graphql-tools/links@npm:8.3.36/form-data": "^4.0.4",
-    "immutable@npm:^4.0.0-rc.9": "4.3.8"
+    "immutable@npm:^4.0.0-rc.9": "4.3.8",
+    "posthog-js": "^1.351.3"
   }
 }

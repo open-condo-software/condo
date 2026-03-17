@@ -39030,26 +39030,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"posthog-js@npm:^1.116.6":
-  version: 1.257.0
-  resolution: "posthog-js@npm:1.257.0"
-  dependencies:
-    core-js: ^3.38.1
-    fflate: ^0.4.8
-    preact: ^10.19.3
-    web-vitals: ^4.2.4
-  peerDependencies:
-    "@rrweb/types": 2.0.0-alpha.17
-    rrweb-snapshot: 2.0.0-alpha.17
-  peerDependenciesMeta:
-    "@rrweb/types":
-      optional: true
-    rrweb-snapshot:
-      optional: true
-  checksum: 4f09f3399005ebdb5790a6a5f2815501b06c21c4be843563825eb7e1f00fe0b9fc39081dea8f772ae5e69670784cfd40e6e2495872a024a7bdec295d973a7c92
-  languageName: node
-  linkType: hard
-
 "posthog-js@npm:^1.351.3":
   version: 1.358.0
   resolution: "posthog-js@npm:1.358.0"
