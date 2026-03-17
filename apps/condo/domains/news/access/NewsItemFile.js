@@ -3,15 +3,16 @@
  */
 
 const dayjs = require('dayjs')
+const compact = require('lodash/compact')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
+const { getEmployedOrRelatedOrganizationsByPermissions, checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-
-const { getEmployedOrRelatedOrganizationsByPermissions, checkPermissionsInEmployedOrRelatedOrganizations } = require('../../organization/utils/accessSchema')
-const { getUserResidents } = require('../../resident/utils/accessSchema')
-const { queryFindNewsItemsScopesByResidents } = require('../utils/accessSchema')
 
 
 async function canReadNewsItemFiles ({ authentication: { item: user }, context }) {
@@ -24,7 +25,9 @@ async function canReadNewsItemFiles ({ authentication: { item: user }, context }
         const residents = await getUserResidents(context, user)
         if (!residents || !Array.isArray(residents) || residents.length < 1) return false
 
-        const organizationsIds = residents.map((resident) => resident.organization)
+        const organizationsIds = compact(uniq(residents.map((resident) => resident.organization)))
+        if (!organizationsIds || !Array.isArray(organizationsIds) || organizationsIds.length < 1) return false
+
         const scopesCondition = queryFindNewsItemsScopesByResidents(residents)
 
         return {

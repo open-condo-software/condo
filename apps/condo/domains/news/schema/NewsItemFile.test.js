@@ -4,11 +4,9 @@
 
 const path = require('path')
 
-const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { FileRecord } = require('@open-condo/files/schema/utils/testSchema')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -16,22 +14,31 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    getUploadingFile, getRandomString, waitFor, expectToThrowAccessDeniedErrorToObjects, DATETIME_RE,
+    getUploadingFile,
+    getRandomString,
+    waitFor,
+    expectToThrowAccessDeniedErrorToObjects,
+    DATETIME_RE,
     expectToThrowValidationFailureError,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const {
     NewsItem,
     NewsItemFile,
     createTestNewsItemFile,
     updateTestNewsItemFile,
     createTestNewsItem,
+    createTestNewsItemScope,
+    publishTestNewsItem,
 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const {
@@ -41,12 +48,22 @@ const {
     makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { FLAT_UNIT_TYPE } = require('../../property/constants/common')
-const { SENDING_DELAY_SEC } = require('../constants/common')
-const { createTestNewsItemScope, publishTestNewsItem } = require('../utils/testSchema')
-
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
+const UNSUPPORTED_TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/coin.webp')
+const ALLOWED_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'video/mp4',
+    'text/plain',
+    'application/pdf',
+    'application/zip',
+    'application/x-zip-compressed',
+    'application/msword',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+]
 
 
 describe('NewsItemFile', () => {
@@ -198,15 +215,7 @@ describe('NewsItemFile', () => {
             })
 
             describe('resident', () => {
-                // let residentClient, property
-                //
-                // beforeAll(async () => {
-                //     residentClient = await makeClientWithResidentUser()
-                //     ;[property] = await createTestProperty(admin, organization)
-                //     await createTestResident(admin, residentClient.user, property)
-                // })
-
-                it('can read published news item files for his property and for hit organization', async () => {
+                it('can read published news item files for his property and for his organization', async () => {
                     const residentClient = await makeClientWithResidentUser()
                     const residentClient2 = await makeClientWithResidentUser()
                     const [property] = await createTestProperty(admin, organization)
@@ -256,7 +265,56 @@ describe('NewsItemFile', () => {
                     expect(newsItemFile2).toHaveLength(0)
                 })
 
-                it('can not read unpublished news item', async () => {
+                it('can read published news item files for his property and for his organization, when 2 residents from one organization', async () => {
+                    const residentClient = await makeClientWithResidentUser()
+                    const residentClient2 = await makeClientWithResidentUser()
+                    const [property] = await createTestProperty(admin, organization)
+                    const [property2] = await createTestProperty(admin, organization)
+
+                    const unitType1 = FLAT_UNIT_TYPE
+                    const unitName1 = getRandomString()
+
+                    await createTestResident(admin, residentClient.user, property, {
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    })
+                    await createTestResident(admin, residentClient2.user, property2, {
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    })
+
+                    const [newsItem] = await createTestNewsItem(
+                        admin,
+                        organization,
+                    )
+                    const [createdNewsItemFile] = await createTestNewsItemFile(admin, newsItem, organization)
+                    await createTestNewsItemScope(admin, newsItem, {
+                        property: { connect: { id: property.id } },
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    })
+
+                    {
+                        const newsItemFile = await NewsItemFile.getAll(residentClient, { id: createdNewsItemFile.id })
+                        expect(newsItemFile).toHaveLength(0)
+                    }
+
+                    await publishTestNewsItem(admin, newsItem.id)
+
+                    await waitFor(async () => {
+                        const newsItems1 = await NewsItem.getAll(residentClient, { id: newsItem.id })
+
+                        expect(newsItems1).toHaveLength(1)
+                    }, { delay: (SENDING_DELAY_SEC + 4) * 1000 })
+
+                    const newsItemFile = await NewsItemFile.getAll(residentClient, { id: createdNewsItemFile.id })
+                    expect(newsItemFile).toHaveLength(1)
+
+                    const newsItemFile2 = await NewsItemFile.getAll(residentClient2, { id: createdNewsItemFile.id })
+                    expect(newsItemFile2).toHaveLength(0)
+                })
+
+                it('can not read unpublished news item files', async () => {
                     const residentClient = await makeClientWithResidentUser()
                     const [property] = await createTestProperty(admin, organization)
 
@@ -284,7 +342,7 @@ describe('NewsItemFile', () => {
                     expect(newsItemFile).toHaveLength(0)
                 })
 
-                it('can not read not send news item', async () => {
+                it('can not read not yet sent news item file', async () => {
                     const residentClient = await makeClientWithResidentUser()
                     const [property] = await createTestProperty(admin, organization)
 
@@ -450,6 +508,25 @@ describe('NewsItemFile', () => {
                     file: undefined,
                 })
             }, 'Required field "file" is null or undefined.')
+        })
+
+        it('file cannot be with unsupported mimetype', async () => {
+            const fileMeta = {
+                user: { id: admin.user.id },
+                fileClientId: 'condo',
+                modelNames: ['NewsItemFile'],
+                dv: 1, sender: { dv: 1, fingerprint: 'test-utils' },
+            }
+            const file = await getUploadingFile(UNSUPPORTED_TEST_FILE, fileMeta, admin)
+            await expectToThrowGQLError(async () => {
+                await createTestNewsItemFile(admin, newsItem, organization, {
+                    file,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'FORBIDDEN_FILE_TYPE',
+                message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: image/webp`,
+            })
         })
     })
 })
