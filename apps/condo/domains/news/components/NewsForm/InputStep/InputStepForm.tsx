@@ -272,15 +272,6 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     value={value}
                     autoSize={{ minRows: 4, maxRows: 4 }}
                     disabled={isRewriteNewsTextLoading}
-                    // Remove after testing
-                    toolbarGroups={[
-                        ['undo', 'redo'],
-                        ['heading', 'bold', 'italic', 'strikethrough'],
-                        ['link', 'image'],
-                        ['unorderedList', 'orderedList', 'taskList', 'blockquote'],
-                        ['table'],
-                        ['removeFormatting'],
-                    ]}
                     customLabels={{
                         toolbar: toolbarLabels,
                         linkModal: linkModalLabels,
