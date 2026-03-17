@@ -21,7 +21,6 @@ import {
 } from '@open-condo/next/_utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
-import { useAnalyticsUserData } from '@open-condo/next/useAnalyticsUserData'
 
 
 const {
@@ -48,20 +47,28 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-type FeatureFlagsProviderWrapperProps = {
-    initFeatures?: FeatureDefinitions
+export interface BaseAnalyticsUserData {
+    userId?: string | null
+    isSupport?: boolean
+    isAdmin?: boolean
+    organizationId?: string | null
 }
 
-const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlagsProviderWrapperProps>> = ({ children, initFeatures = null }) => {
-    const growthbook = useGrowthBook()
-    const { isLoading: userIsLoading  } = useAuth()
-    const { isLoading: organizationIsLoading } = useOrganization()
-    const [features, setFeature] = useState(initFeatures)
-    const analyticsUserData = useAnalyticsUserData()
+type FeatureFlagsProviderWrapperProps<TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData> = {
+    initFeatures?: FeatureDefinitions
+    analyticsUserData?: TAnalyticsUserData
+}
 
-    const isSupport = analyticsUserData.isSupport
-    const isAdmin = analyticsUserData.isAdmin
-    const userId = analyticsUserData.userId
+const FeatureFlagsProviderWrapper = <TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData>({ children, initFeatures = null, analyticsUserData = {} as TAnalyticsUserData }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TAnalyticsUserData>>) => {
+    const growthbook = useGrowthBook()
+    const { user, isLoading: userIsLoading  } = useAuth()
+    const { employee, isLoading: organizationIsLoading } = useOrganization()
+    const [features, setFeature] = useState(initFeatures)
+
+    // Use analyticsUserData if provided, otherwise fallback to useAuth/useOrganization
+    const isSupport = analyticsUserData?.isSupport ?? user?.isSupport
+    const isAdmin = analyticsUserData?.isAdmin ?? user?.isAdmin
+    const userId = analyticsUserData?.userId ?? user?.id
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -111,8 +118,9 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     }, [features, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
-        updateContext({ isSupport: isSupport || isAdmin, organization: analyticsUserData.organizationId, userId })
-    }, [updateContext, isAdmin, isSupport, analyticsUserData.organizationId, userId])
+        const organizationId = analyticsUserData?.organizationId ?? employee?.organization?.id
+        updateContext({ isSupport: isSupport || isAdmin, organization: organizationId, userId })
+    }, [updateContext, isAdmin, isSupport, analyticsUserData?.organizationId, employee?.organization?.id, userId])
 
     return (
         <FeatureFlagsContext.Provider value={{
@@ -125,19 +133,19 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     )
 }
 
-type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
+type FeatureFlagsProviderProps<TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData> = FeatureFlagsProviderWrapperProps<TAnalyticsUserData>
 
-const FeatureFlagsProvider: React.FC<React.PropsWithChildren<FeatureFlagsProviderProps>> = ({ children, initFeatures = null }) => {
-    const { isLoading: userIsLoading  } = useAuth()
-    const { isLoading: organizationIsLoading } = useOrganization()
-    const analyticsUserData = useAnalyticsUserData()
+const FeatureFlagsProvider = <TAnalyticsUserData extends BaseAnalyticsUserData = BaseAnalyticsUserData>({ children, initFeatures = null, analyticsUserData = {} as TAnalyticsUserData }: React.PropsWithChildren<FeatureFlagsProviderProps<TAnalyticsUserData>>) => {
+    const { user, isLoading: userIsLoading  } = useAuth()
+    const { employee, isLoading: organizationIsLoading } = useOrganization()
 
     const [growthbookInstance] = useState(() => {
         // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
-        const isSupport = analyticsUserData?.isSupport
-        const isAdmin = analyticsUserData?.isAdmin
-        const userId = analyticsUserData?.userId
-        const organizationId = analyticsUserData?.organizationId
+        // Use analyticsUserData if provided, otherwise fallback to useAuth/useOrganization
+        const isSupport = analyticsUserData?.isSupport ?? user?.isSupport
+        const isAdmin = analyticsUserData?.isAdmin ?? user?.isAdmin
+        const userId = analyticsUserData?.userId ?? user?.id
+        const organizationId = analyticsUserData?.organizationId ?? employee?.organization?.id
 
         const context: Context = {}
 
@@ -159,7 +167,7 @@ const FeatureFlagsProvider: React.FC<React.PropsWithChildren<FeatureFlagsProvide
 
     return (
         <GrowthBookProvider growthbook={growthbookInstance}>
-            <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
+            <FeatureFlagsProviderWrapper<TAnalyticsUserData> initFeatures={initFeatures} analyticsUserData={analyticsUserData}>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
@@ -195,8 +203,10 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent =>
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
+        const analyticsUserData = pageProps?.pageProps?.analyticsUserData || {}
+
         return (
-            <FeatureFlagsProvider initFeatures={features}>
+            <FeatureFlagsProvider initFeatures={features} analyticsUserData={analyticsUserData}>
                 <PageComponent {...pageProps} />
             </FeatureFlagsProvider>
         )

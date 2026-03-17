@@ -3,8 +3,8 @@ import { useCallback, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
-import { useAnalyticsUserData } from '@open-condo/next/useAnalyticsUserData'
 
+import { AnalyticsUserData } from '@condo/domains/common/hooks/useAnalyticsUserData'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { clearPostHogInlineStyles, createSurveyBackdrop, injectPostHogSurveyStyles } from '@condo/domains/common/utils/posthogSurveyStyles'
 
@@ -14,11 +14,10 @@ import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'
 
 
-export const CondoAppEventsHandler: FC = () => {
+export const CondoAppEventsHandler: FC<{ analyticsUserData: AnalyticsUserData }> = ({ analyticsUserData }) => {
     const { isLoading: userLoading, user } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
-    const analyticsUserData = useAnalyticsUserData()
 
     // User tracking
     useEffect(() => {
@@ -27,7 +26,7 @@ export const CondoAppEventsHandler: FC = () => {
                 analytics.identify(analyticsUserData.userId, {
                     name: analyticsUserData.userName,
                     type: analyticsUserData.userType,
-                    latest_organization_id: analyticsUserData.organizationId,
+                    organization_id: analyticsUserData.organizationId,
                 })
             } else {
                 analytics.reset()

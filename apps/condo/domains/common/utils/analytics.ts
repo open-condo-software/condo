@@ -98,7 +98,7 @@ export type EventsData = {
 type UserData = {
     name?: string | null
     type?: string | null
-    latest_organization_id?: string | null
+    organization_id?: string | null
 }
 
 type AppGroups =

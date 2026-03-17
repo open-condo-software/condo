@@ -31,10 +31,15 @@ export const POSTHOG_SURVEY_STYLES = `
     cursor: default !important;
 }
 
+.ph-survey * {
+    font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif !important;
+}
+
 .survey-form {
     border-radius: 12px !important;
     overflow: hidden !important;
     background: white !important;
+    border: none !important;
     position: relative !important;
     height: 100% !important
 }
@@ -42,7 +47,7 @@ export const POSTHOG_SURVEY_STYLES = `
 .survey-box {
     border-radius: 12px !important;
     background: white !important;
-    padding: 16px !important;
+    padding: 0 16px !important;
 }
 
 .thank-you-message {
@@ -52,14 +57,16 @@ export const POSTHOG_SURVEY_STYLES = `
 .question-header,
 .thank-you-message-header {
     margin-bottom: 16px !important;
-    padding-right: 40px !important;
     text-align: left !important;
+}
+
+.survey-question {
+    padding-right: 40px !important;
 }
 
 .thank-you-message-header {
     font-size: 24px !important;
     font-weight: 600 !important;
-    line-height: 1.3 !important;
     margin: 0 0 8px 0 !important;
 }
 
@@ -67,26 +74,24 @@ export const POSTHOG_SURVEY_STYLES = `
 .thank-you-message-header > h3 {
     font-size: 24px !important;
     font-weight: 600 !important;
-    line-height: 1.3 !important;
-    margin: 0 0 8px 0 !important;
+    margin: 0 0 40px 0 !important;
 }
 
 .survey-question-description,
 .thank-you-message-header p {
-    font-size: 16px !important;
-    line-height: 1.5 !important;
+    font-size: 14px !important;
+    line-height: 1.5715 !important;
     margin: 0 !important;
-    color: rgba(0, 0, 0, 0.65) !important;
 }
 
 .form-cancel {
     position: absolute !important;
-    top: 40px !important;
+    top: 30px !important;
     right: 40px !important;
     border: none !important;
     background: transparent !important;
     transform: none !important;
-    padding: 4px !important;
+    padding: 8px !important;
     cursor: pointer !important;
     z-index: 10 !important;
 }
@@ -96,8 +101,8 @@ export const POSTHOG_SURVEY_STYLES = `
 }
 
 .form-cancel svg {
-    width: 20px !important;
-    height: 20px !important;
+    width: 12px !important;
+    height: 12px !important;
     transform: none !important;
 }
 
@@ -120,7 +125,9 @@ export const POSTHOG_SURVEY_STYLES = `
 .form-submit {
     border-radius: 8px !important;
     width: auto !important;
+    font-size: 16px !important;
     min-width: 120px !important;
+    padding: 12px 20px !important;
 }
 
 .footer-branding {

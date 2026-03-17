@@ -66,6 +66,7 @@ import {
     MINIAPPS_CATEGORY,
     SETTINGS_CATEGORY,
 } from '@condo/domains/common/constants/menuCategories'
+import { useAnalyticsUserData, type AnalyticsUserData } from '@condo/domains/common/hooks/useAnalyticsUserData'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -571,7 +572,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <TicketVisibilityContextProvider>
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler/>
+                                                                <CondoAppEventsHandler analyticsUserData={pageProps?.analyticsUserData}/>
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
                                                                         <SubscriptionAccessGuard skipGuard={Component.isError}>
@@ -756,6 +757,23 @@ const useInitialEmployeeId = () => {
     return { employeeId }
 }
 
+const withAnalyticsUserData = () => (PageComponent: NextPage): NextPage => {
+    const WithAnalyticsUserData = (props) => {
+        const analyticsUserData: AnalyticsUserData = useAnalyticsUserData()
+
+        return <PageComponent {...props} pageProps={{ ...props.pageProps, analyticsUserData }} />
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName = PageComponent.displayName || PageComponent.name || 'Component'
+        WithAnalyticsUserData.displayName = `withAnalyticsUserData(${displayName})`
+    }
+
+    WithAnalyticsUserData.getInitialProps = PageComponent.getInitialProps
+
+    return WithAnalyticsUserData
+}
+
 const withError = () => (PageComponent: NextPage): NextPage => {
     const WithError = (props) => {
         const statusCode = props?.pageProps?.statusCode
@@ -811,9 +829,11 @@ export default (
                 withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                         withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                            withFeatureFlags({ ssr: !isDisabledSsr })(
-                                withError()(
-                                    MyApp
+                            withAnalyticsUserData()(
+                                withFeatureFlags({ ssr: !isDisabledSsr })(
+                                    withError()(
+                                        MyApp
+                                    )
                                 )
                             )
                         )
