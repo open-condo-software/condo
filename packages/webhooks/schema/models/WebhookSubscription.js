@@ -7,7 +7,7 @@ const { WebHookModelValidator, getModelValidator, setModelValidator } = require(
 const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
 
 
-const modeled = ({ validator, validateFields, validateFilters }) => plugin(({ fields = {}, ...rest }) => {
+const configureModelField = ({ validator, validateFields, validateFilters }) => plugin(({ fields = {}, ...rest }) => {
     const hasAvailableModels = Boolean(validator && validator.models.length > 0)
 
     // WebhookSubscription is intended for model-based webhooks only, so in the normal case
@@ -210,7 +210,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                 },
             },
         },
-        plugins: [modeled({ validator, validateFields, validateFilters }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+        plugins: [configureModelField({ validator, validateFields, validateFilters }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
         access: {
             read: access.canReadWebhookSubscriptions,
             create: access.canManageWebhookSubscriptions,
