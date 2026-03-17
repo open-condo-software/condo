@@ -244,7 +244,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 userId: user.id,
                 organizationId: organization?.id,
                 ...additionalContext,
-            }})
+            } })
             
             // If no data returned or there's an error - show error and return
             if (!result.data || result.error) {
