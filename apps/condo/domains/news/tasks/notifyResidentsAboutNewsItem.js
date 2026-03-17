@@ -8,11 +8,11 @@ const { find } = require('@open-condo/keystone/schema')
 const { getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
+const { stripMarkdown } = require('@condo/domains/common/utils/stripMarkdown')
 const { NEWS_SENDING_TTL_IN_SEC, MESSAGE_TITLE_MAX_LEN, MESSAGE_BODY_MAX_LEN } = require('@condo/domains/news/constants/common')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
-const { stripMarkdown } = require('@condo/domains/news/utils/stripMarkdown')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 

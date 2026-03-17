@@ -1,4 +1,10 @@
-export const stripMarkdown = (input?: string | null): string => {
+/**
+ * Removes basic markdown syntax and returns plain text.
+ *
+ * @param {string | null | undefined} input
+ * @returns {string}
+ */
+export const stripMarkdown = (input) => {
     if (!input) {
         return ''
     }

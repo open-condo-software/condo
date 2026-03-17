@@ -19,11 +19,11 @@ import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { UI_NEWS_MARKDOWN } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
-import { stripMarkdown } from '@condo/domains/news/utils/stripMarkdown'
 
 import styles from './InputStepForm.module.css'
 
