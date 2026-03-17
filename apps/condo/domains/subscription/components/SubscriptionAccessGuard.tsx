@@ -76,7 +76,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
         variables: { id: miniappId || '' },
-        skip: !miniappId || !enableSubscriptions || !hasSubscriptionsFlag,
+        skip: skipGuard || !miniappId || !enableSubscriptions || !hasSubscriptionsFlag,
     })
     const b2bApp = b2bAppData?.b2bApp?.[0]
 
@@ -145,8 +145,12 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
     }, [helpLink])
 
-    if (loading || (isMiniapp && b2bAppLoading)) {
+    if (!skipGuard && (loading || (isMiniapp && b2bAppLoading))) {
         return <Loader />
+    }
+
+    if (skipGuard) {
+        return <>{children}</>
     }
 
     if (isBlocked) {
