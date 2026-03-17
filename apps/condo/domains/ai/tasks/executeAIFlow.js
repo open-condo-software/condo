@@ -39,7 +39,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
-    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status')
+    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status aiSessionId')
 
     try {
         if (!task || task.deletedAt) {
@@ -67,6 +67,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         const fullContext = {
             ...task.cleanContext,
             locale: task.locale,
+            aiSessionId: task.aiSessionId,
         }
 
         const prediction = await adapter.execute(predictionUrl, fullContext)

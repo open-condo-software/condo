@@ -118,36 +118,13 @@ query getTicketsForAIAssistant ($where: TicketWhereInput!, $sortBy: [SortTickets
         details
         clientName
         clientPhone
-        classifier {
-            category {
-                name
-            }
-            place {
-                name
-            }
-        }
-        contact {
-            name
-        }
-        executor {
-            name
-        }
-        assignee {
-            name
-        }
-        status {
-            name
-        }
-        createdBy {
-            name
-        }
-        source {
-            name
-        }
-    }
-
-    meta: _allTicketsMeta (where: $where) {
-        count
+        classifier { category { name } place { name } }
+        contact { name }
+        executor { name }
+        assignee { name }
+        status { name }
+        createdBy { name }
+        source { name }
     }
 }
 

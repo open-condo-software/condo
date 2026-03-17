@@ -1,9 +1,10 @@
 import classnames from 'classnames'
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
-import { Close, RefreshCw, Download } from '@open-condo/icons'
+import { Close, RefreshCw } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button, Typography } from '@open-condo/ui'
 
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
@@ -22,14 +23,14 @@ type AIOverlayProps = {
 const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
-const AI_SESSION_STORAGE_KEY = 'condo-ai-overlay-session-current-session-id'
+const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
+    const { organization } = useOrganization()
 
     const title = intl.formatMessage({ id: 'ai.chat.title' })
     const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
-    const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
     const closeLabel = intl.formatMessage({ id: 'Close' })
 
     const { aiOverlayWidth, setAIOverlayWidth, openAIOverlay } = useAIContext()
@@ -47,28 +48,38 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     const handleResetHistory = () => {
         const newSessionId = uuidV4()
-        sessionStorage.setItem(AI_SESSION_STORAGE_KEY, newSessionId)
+        const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+        if (organization) {
+            aiSessionStorage[organization.id] = newSessionId
+        }
+        sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
         setAiSessionId(newSessionId)
     }
 
-    const sessionStorage = new LocalStorageManager<string | null>()
+    const sessionStorage = useMemo(() => new LocalStorageManager<Record<string, string>>(), [])
 
     useEffect(() => {
-        const savedSessionId = sessionStorage.getItem(AI_SESSION_STORAGE_KEY)
-        if (savedSessionId) {
-            setAiSessionId(savedSessionId)
+        const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+        
+        if (organization && aiSessionStorage[organization.id]) {
+            setAiSessionId(aiSessionStorage[organization.id])
         } else {
             const newSessionId = uuidV4()
-            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, newSessionId)
+            if (organization) {
+                aiSessionStorage[organization.id] = newSessionId
+                sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
+            }
             setAiSessionId(newSessionId)
         }
-    }, [sessionStorage])
+    }, [sessionStorage, organization])
 
     useEffect(() => {
-        if (aiSessionId) {
-            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionId)
+        if (aiSessionId && organization) {
+            const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+            aiSessionStorage[organization.id] = aiSessionId
+            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
         }
-    }, [aiSessionId])
+    }, [aiSessionId, organization])
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -153,14 +164,6 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         onClick={handleResetHistory}
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
-                    />
-                    <Button 
-                        type='secondary'
-                        size='medium'
-                        compact
-                        minimal
-                        icon={<Download size='small' />}
-                        title={saveConversationLabel}
                     />
                     <Button 
                         type='secondary' 

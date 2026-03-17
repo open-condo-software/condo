@@ -6975,9 +6975,6 @@ export const GetTicketsForAiAssistantDocument = gql`
       name
     }
   }
-  meta: _allTicketsMeta(where: $where) {
-    count
-  }
 }
     `;
 
