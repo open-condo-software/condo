@@ -301,16 +301,213 @@ describe('SubscriptionContext', () => {
             expect(obj.daysRemaining).toBe(0)
         })
 
-        test('daysRemaining returns null for unlimited subscription', async () => {
-            const startAt = dayjs().format('YYYY-MM-DD')
+        describe('Overlapping subscription validation', () => {
+            test('cannot create overlapping subscriptions with same plan and isTrial', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-15',
+                    isTrial: false,
+                })
 
-            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt,
-                endAt: null,
-                isTrial: false,
+                await expectToThrowGQLError(async () => {
+                    await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                        startAt: '2024-02-01',
+                        endAt: '2024-03-01',
+                        isTrial: false,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'OVERLAPPING_SUBSCRIPTION',
+                }, 'obj')
             })
 
-            expect(obj.daysRemaining).toBeNull()
+            test('can create sequential subscriptions when endAt equals next startAt', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-01',
+                    isTrial: false,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.startAt).toBe('2024-02-01')
+                expect(obj.endAt).toBe('2024-03-01')
+            })
+
+            test('can create overlapping subscriptions with different isTrial values', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-15',
+                    isTrial: true,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+            })
+
+            test('can create overlapping subscriptions with different plans', async () => {
+                const [anotherPlan] = await createTestSubscriptionPlan(admin, {
+                    name: 'Another Plan',
+                    organizationType: HOLDING_TYPE,
+                })
+
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-15',
+                    isTrial: false,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, anotherPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+            })
+
+            test('can create overlapping subscriptions for different organizations', async () => {
+                const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
+
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-15',
+                    isTrial: false,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, otherOrg, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+            })
+
+            test('cannot create subscription that starts before existing one ends', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                })
+
+                await expectToThrowGQLError(async () => {
+                    await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                        startAt: '2024-01-01',
+                        endAt: '2024-02-15',
+                        isTrial: false,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'OVERLAPPING_SUBSCRIPTION',
+                }, 'obj')
+            })
+
+            test('cannot create subscription fully contained within existing one', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                })
+
+                await expectToThrowGQLError(async () => {
+                    await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                        startAt: '2024-01-15',
+                        endAt: '2024-02-15',
+                        isTrial: false,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'OVERLAPPING_SUBSCRIPTION',
+                }, 'obj')
+            })
+
+            test('cannot create subscription that fully contains existing one', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-15',
+                    endAt: '2024-02-15',
+                    isTrial: false,
+                })
+
+                await expectToThrowGQLError(async () => {
+                    await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                        startAt: '2024-01-01',
+                        endAt: '2024-03-01',
+                        isTrial: false,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'OVERLAPPING_SUBSCRIPTION',
+                }, 'obj')
+            })
+
+            test('can create subscription after deleted one with same dates', async () => {
+                const [firstSub] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-01',
+                    isTrial: false,
+                })
+
+                await updateTestSubscriptionContext(admin, firstSub.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-01',
+                    isTrial: false,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.startAt).toBe('2024-01-01')
+                expect(obj.endAt).toBe('2024-02-01')
+            })
+
+            test('cannot create overlapping trial subscriptions', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-01-15',
+                    isTrial: true,
+                })
+
+                await expectToThrowGQLError(async () => {
+                    await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                        startAt: '2024-01-10',
+                        endAt: '2024-01-20',
+                        isTrial: true,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'OVERLAPPING_SUBSCRIPTION',
+                }, 'obj')
+            })
+
+            test('can create sequential trial subscriptions', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-01-15',
+                    isTrial: true,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-15',
+                    endAt: '2024-01-30',
+                    isTrial: true,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+            })
         })
     })
 

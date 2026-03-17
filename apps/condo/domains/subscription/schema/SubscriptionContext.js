@@ -25,6 +25,11 @@ const ERRORS = {
         type: 'ORGANIZATION_TYPE_MISMATCH',
         message: 'Organization type must match SubscriptionPlan organizationType',
     },
+    OVERLAPPING_SUBSCRIPTION: {
+        code: BAD_USER_INPUT,
+        type: 'OVERLAPPING_SUBSCRIPTION',
+        message: 'Cannot create subscription with the same plan and isTrial value on overlapping dates',
+    },
 }
 
 
@@ -63,9 +68,9 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         },
 
         endAt: {
-            schemaDoc: 'Subscription end date. If null, subscription is unlimited',
+            schemaDoc: 'Subscription end date',
             type: 'CalendarDay',
-            isRequired: false,
+            isRequired: true,
             access: {
                 read: true,
                 create: true,
@@ -171,6 +176,29 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 if (organization && subscriptionPlan) {
                     if (organization.type !== subscriptionPlan.organizationType) {
                         throw new GQLError(ERRORS.ORGANIZATION_TYPE_MISMATCH, context)
+                    }
+                }
+            }
+
+            if (operation === 'create') {
+                const organizationId = resolvedData.organization
+                const subscriptionPlanId = resolvedData.subscriptionPlan
+                const isTrial = !!resolvedData.isTrial
+                const startAt = resolvedData.startAt
+                const endAt = resolvedData.endAt
+
+                if (organizationId && subscriptionPlanId && startAt && endAt) {
+                    const overlappingSubscriptions = await find('SubscriptionContext', {
+                        organization: { id: organizationId },
+                        subscriptionPlan: { id: subscriptionPlanId },
+                        isTrial,
+                        deletedAt: null,
+                        startAt_lt: endAt,
+                        endAt_gt: startAt,
+                    })
+
+                    if (overlappingSubscriptions.length > 0) {
+                        throw new GQLError(ERRORS.OVERLAPPING_SUBSCRIPTION, context)
                     }
                 }
             }
