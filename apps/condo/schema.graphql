@@ -60005,10 +60005,10 @@ type SubscriptionContextHistoryRecord {
   subscriptionPlanPricingRule: String
   invoice: String
   recurrentPaymentEnabled: Boolean
-  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   status: String
-  settings: JSON
+  actualPaymentMethod: JSON
+  frozenPaymentInfo: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -60061,14 +60061,6 @@ input SubscriptionContextHistoryRecordWhereInput {
   invoice_not_in: [String]
   recurrentPaymentEnabled: Boolean
   recurrentPaymentEnabled_not: Boolean
-  recurrentPaymentProcessedAt: String
-  recurrentPaymentProcessedAt_not: String
-  recurrentPaymentProcessedAt_lt: String
-  recurrentPaymentProcessedAt_lte: String
-  recurrentPaymentProcessedAt_gt: String
-  recurrentPaymentProcessedAt_gte: String
-  recurrentPaymentProcessedAt_in: [String]
-  recurrentPaymentProcessedAt_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
   status: String
@@ -60089,10 +60081,14 @@ input SubscriptionContextHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
-  settings: JSON
-  settings_not: JSON
-  settings_in: [JSON]
-  settings_not_in: [JSON]
+  actualPaymentMethod: JSON
+  actualPaymentMethod_not: JSON
+  actualPaymentMethod_in: [JSON]
+  actualPaymentMethod_not_in: [JSON]
+  frozenPaymentInfo: JSON
+  frozenPaymentInfo_not: JSON
+  frozenPaymentInfo_in: [JSON]
+  frozenPaymentInfo_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60182,8 +60178,6 @@ enum SortSubscriptionContextHistoryRecordsBy {
   endAt_DESC
   recurrentPaymentEnabled_ASC
   recurrentPaymentEnabled_DESC
-  recurrentPaymentProcessedAt_ASC
-  recurrentPaymentProcessedAt_DESC
   isTrial_ASC
   isTrial_DESC
   status_ASC
@@ -60214,10 +60208,10 @@ input SubscriptionContextHistoryRecordUpdateInput {
   subscriptionPlanPricingRule: String
   invoice: String
   recurrentPaymentEnabled: Boolean
-  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   status: String
-  settings: JSON
+  actualPaymentMethod: JSON
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60245,10 +60239,10 @@ input SubscriptionContextHistoryRecordCreateInput {
   subscriptionPlanPricingRule: String
   invoice: String
   recurrentPaymentEnabled: Boolean
-  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   status: String
-  settings: JSON
+  actualPaymentMethod: JSON
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60290,11 +60284,23 @@ type PaymentMethod {
   cardIssuerName: String
 }
 
-type SubscriptionContextSettings {
+type InvoiceRow {
+  name: String
+  count: String
   price: String
-  pricingRuleId: String
+  toPay: String
+}
+
+type FrozenInvoice {
+  id: String
+  rows: [InvoiceRow]
+  toPay: String
+}
+
+type FrozenPaymentInfo {
   paymentMethod: PaymentMethod
-  paymentId: String
+  invoice: FrozenInvoice
+  pricingRuleId: String
 }
 
 """ Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
@@ -60332,10 +60338,6 @@ type SubscriptionContext {
   """
   recurrentPaymentEnabled: Boolean
 
-  """ Date when this subscription was automatically renewed (when a new context was created via auto-payment from this context) 
-  """
-  recurrentPaymentProcessedAt: String
-
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
@@ -60344,9 +60346,12 @@ type SubscriptionContext {
   """
   status: SubscriptionContextStatusType
 
-  """ Subscription settings containing payment method, price, and pricingRuleId 
+  """ Actual payment method for subscriptions with this plan """
+  actualPaymentMethod: PaymentMethod
+
+  """ Frozen payment information including payment method, invoice details, and pricing rule ID 
   """
-  settings: SubscriptionContextSettings
+  frozenPaymentInfo: FrozenPaymentInfo
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
@@ -60403,24 +60408,20 @@ input SubscriptionContextWhereInput {
   invoice_is_null: Boolean
   recurrentPaymentEnabled: Boolean
   recurrentPaymentEnabled_not: Boolean
-  recurrentPaymentProcessedAt: String
-  recurrentPaymentProcessedAt_not: String
-  recurrentPaymentProcessedAt_lt: String
-  recurrentPaymentProcessedAt_lte: String
-  recurrentPaymentProcessedAt_gt: String
-  recurrentPaymentProcessedAt_gte: String
-  recurrentPaymentProcessedAt_in: [String]
-  recurrentPaymentProcessedAt_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
   status: SubscriptionContextStatusType
   status_not: SubscriptionContextStatusType
   status_in: [SubscriptionContextStatusType]
   status_not_in: [SubscriptionContextStatusType]
-  settings: JSON
-  settings_not: JSON
-  settings_in: [JSON]
-  settings_not_in: [JSON]
+  actualPaymentMethod: JSON
+  actualPaymentMethod_not: JSON
+  actualPaymentMethod_in: [JSON]
+  actualPaymentMethod_not_in: [JSON]
+  frozenPaymentInfo: JSON
+  frozenPaymentInfo_not: JSON
+  frozenPaymentInfo_in: [JSON]
+  frozenPaymentInfo_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60498,8 +60499,6 @@ enum SortSubscriptionContextsBy {
   invoice_DESC
   recurrentPaymentEnabled_ASC
   recurrentPaymentEnabled_DESC
-  recurrentPaymentProcessedAt_ASC
-  recurrentPaymentProcessedAt_DESC
   isTrial_ASC
   isTrial_DESC
   status_ASC
@@ -60530,10 +60529,10 @@ input SubscriptionContextUpdateInput {
   subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   invoice: InvoiceRelateToOneInput
   recurrentPaymentEnabled: Boolean
-  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   status: SubscriptionContextStatusType
-  settings: JSON
+  actualPaymentMethod: JSON
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60558,10 +60557,10 @@ input SubscriptionContextCreateInput {
   subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   invoice: InvoiceRelateToOneInput
   recurrentPaymentEnabled: Boolean
-  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   status: SubscriptionContextStatusType
-  settings: JSON
+  actualPaymentMethod: JSON
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String

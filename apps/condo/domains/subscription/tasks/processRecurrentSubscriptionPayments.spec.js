@@ -80,8 +80,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -112,8 +112,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').subtract(3, 'days').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -143,8 +143,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -181,8 +181,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -216,8 +216,7 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                 },
             })
@@ -253,8 +252,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -288,8 +287,7 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                 },
             })
@@ -326,8 +324,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(2, 'months').format('YYYY-MM-DD'),
                 endAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -340,8 +338,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').subtract(1, 'day').format('YYYY-MM-DD'),
                 endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },
@@ -373,8 +371,8 @@ describe('processRecurrentSubscriptionPayments', () => {
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
-                settings: {
-                    price: pricingRule.price,
+                actualPaymentMethod: paymentMethod,
+                frozenPaymentInfo: {
                     pricingRuleId: pricingRule.id,
                     paymentMethod,
                 },

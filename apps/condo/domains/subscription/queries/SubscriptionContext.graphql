@@ -16,7 +16,12 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
         isTrial
         startAt
         endAt
-        settings { price paymentMethod { id } }
+        actualPaymentMethod { id type cardMask cardType title }
+        frozenPaymentInfo {
+            paymentMethod { id type cardMask cardType title }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
     }
 }
 
@@ -40,7 +45,12 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         daysRemaining
         endAt
         createdAt
-        settings { price paymentMethod { id } }
+        actualPaymentMethod { id type cardMask cardType title }
+        frozenPaymentInfo {
+            paymentMethod { id type cardMask cardType title }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
     }
 }
 
@@ -62,7 +72,12 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         isTrial
         startAt
         endAt
-        settings { price paymentMethod { id } }
+        actualPaymentMethod { id type cardMask cardType title }
+        frozenPaymentInfo {
+            paymentMethod { id type cardMask cardType title }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
     }
 }
 
@@ -79,6 +94,11 @@ query getSubscriptionContextById($id: ID!) {
         startAt
         endAt
         daysRemaining
-        settings { price paymentMethod { id } }
+        actualPaymentMethod { id type cardMask cardType title }
+        frozenPaymentInfo {
+            paymentMethod { id type cardMask cardType title }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
     }
 }

@@ -299,7 +299,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             })
         
         const lastContext = contextsWithSamePlan[0]
-        return lastContext?.settings?.paymentMethod?.id || null
+        return lastContext?.actualPaymentMethod?.id || null
     }, [activatedSubscriptions, plan?.id])
     
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
@@ -395,14 +395,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             return isActivePlan ? null : price.name
         } else if (isFreeForPartner) {
             return null
-        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.settings?.price !== undefined) {
-            const contextPrice = Math.floor(Number(activeSubscriptionContext.settings.price))
+        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.frozenPaymentInfo?.invoice?.toPay !== undefined) {
+            const contextPrice = Math.floor(Number(activeSubscriptionContext.frozenPaymentInfo.invoice.toPay))
             const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
             return `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         } else {
             return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         }
-    }, [activeSubscriptionContext?.settings?.price, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
+    }, [activeSubscriptionContext?.frozenPaymentInfo?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,

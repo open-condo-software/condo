@@ -569,7 +569,7 @@ describe('SubscriptionContext', () => {
             })
         })
 
-        test('settings field stores payment method correctly', async () => {
+        test('actualPaymentMethod field stores payment method correctly', async () => {
             const paymentMethod = {
                 id: faker.datatype.uuid(),
                 type: 'card',
@@ -582,12 +582,11 @@ describe('SubscriptionContext', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
-                settings: { paymentMethod },
+                actualPaymentMethod: paymentMethod,
             })
 
-            expect(obj.settings).toBeDefined()
-            expect(obj.settings.paymentMethod).toBeDefined()
-            expect(obj.settings.paymentMethod.id).toBe(paymentMethod.id)
+            expect(obj.actualPaymentMethod).toBeDefined()
+            expect(obj.actualPaymentMethod.id).toBe(paymentMethod.id)
         })
 
         test('can set recurrentPaymentEnabled for paid subscription with pricing rule', async () => {
@@ -601,23 +600,6 @@ describe('SubscriptionContext', () => {
 
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.recurrentPaymentEnabled).toBe(true)
-            expect(obj.recurrentPaymentProcessedAt).toBeNull()
-        })
-
-        test('can set recurrentPaymentProcessedAt for paid subscription with pricing rule', async () => {
-            const processedAt = dayjs().toISOString()
-            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                isTrial: false,
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                recurrentPaymentEnabled: true,
-                recurrentPaymentProcessedAt: processedAt,
-            })
-
-            expect(obj.id).toMatch(UUID_RE)
-            expect(obj.recurrentPaymentEnabled).toBe(true)
-            expect(obj.recurrentPaymentProcessedAt).toBeTruthy()
         })
 
         test('cannot set recurrentPaymentEnabled for trial subscription', async () => {
@@ -627,20 +609,6 @@ describe('SubscriptionContext', () => {
                     endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                     recurrentPaymentEnabled: true,
-                })
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
-            }, 'obj')
-        })
-
-        test('cannot set recurrentPaymentProcessedAt for trial subscription', async () => {
-            await expectToThrowGQLError(async () => {
-                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().format('YYYY-MM-DD'),
-                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
-                    isTrial: true,
-                    recurrentPaymentProcessedAt: dayjs().toISOString(),
                 })
             }, {
                 code: 'BAD_USER_INPUT',
@@ -662,20 +630,6 @@ describe('SubscriptionContext', () => {
             }, 'obj')
         })
 
-        test('cannot set recurrentPaymentProcessedAt for paid subscription without pricing rule', async () => {
-            await expectToThrowGQLError(async () => {
-                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().format('YYYY-MM-DD'),
-                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                    isTrial: false,
-                    recurrentPaymentProcessedAt: dayjs().toISOString(),
-                })
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
-            }, 'obj')
-        })
-
         test('can update recurrentPaymentEnabled on existing subscription', async () => {
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
@@ -690,23 +644,6 @@ describe('SubscriptionContext', () => {
             })
 
             expect(updated.recurrentPaymentEnabled).toBe(true)
-        })
-
-        test('can update recurrentPaymentProcessedAt on existing subscription', async () => {
-            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                isTrial: false,
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                recurrentPaymentEnabled: true,
-            })
-
-            const processedAt = dayjs().toISOString()
-            const [updated] = await updateTestSubscriptionContext(admin, obj.id, {
-                recurrentPaymentProcessedAt: processedAt,
-            })
-
-            expect(updated.recurrentPaymentProcessedAt).toBeTruthy()
         })
     })
 

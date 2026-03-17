@@ -43,7 +43,6 @@ async function registerSubscriptionContext (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerSubscriptionContext serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,

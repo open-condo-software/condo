@@ -4,6 +4,7 @@
 
 const dayjs = require('dayjs')
 
+const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
@@ -133,17 +134,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        recurrentPaymentProcessedAt: {
-            schemaDoc: 'Date when this subscription was automatically renewed (when a new context was created via auto-payment from this context)',
-            type: 'DateTimeUtc',
-            isRequired: false,
-            access: {
-                read: true,
-                create: true,
-                update: true,
-            },
-        },
-
         isTrial: {
             schemaDoc: 'Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays)',
             type: 'Checkbox',
@@ -169,20 +159,37 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        settings: {
-            schemaDoc: 'Subscription settings containing payment method, price, and pricingRuleId',
+        actualPaymentMethod: {
+            schemaDoc: 'Actual payment method for subscriptions with this plan',
             type: 'Json',
             isRequired: false,
             extendGraphQLTypes: [
                 'type PaymentMethod { id: String!, type: String!, cardMask: String, cardType: String, title: String, cardIssuerCountry: String, cardIssuerName: String }',
-                'type SubscriptionContextSettings { price: String, pricingRuleId: String, paymentMethod: PaymentMethod, paymentId: String }',
             ],
-            graphQLReturnType: 'SubscriptionContextSettings',
-            graphQLAdminFragment: '{ price pricingRuleId paymentMethod { id type cardMask cardType title cardIssuerCountry cardIssuerName } paymentId }',
+            graphQLReturnType: 'PaymentMethod',
+            graphQLAdminFragment: '{ id type cardMask cardType title cardIssuerCountry cardIssuerName }',
             access: {
                 read: true,
                 create: true,
                 update: true,
+            },
+        },
+
+        frozenPaymentInfo: {
+            schemaDoc: 'Frozen payment information including payment method, invoice details, and pricing rule ID',
+            type: 'Json',
+            isRequired: false,
+            extendGraphQLTypes: [
+                'type InvoiceRow { name: String, count: String, price: String, toPay: String }',
+                'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String }',
+                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String }',
+            ],
+            graphQLReturnType: 'FrozenPaymentInfo',
+            graphQLAdminFragment: '{ paymentMethod { id type cardMask cardType title cardIssuerCountry cardIssuerName } invoice { id rows { name count price toPay } toPay } pricingRuleId }',
+            access: {
+                read: true,
+                create: userIsAdmin,
+                update: false,
             },
         },
 
@@ -244,10 +251,9 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             }
 
             const recurrentPaymentEnabled = resolvedData.recurrentPaymentEnabled
-            const recurrentPaymentProcessedAt = resolvedData.recurrentPaymentProcessedAt
             const hasPricingRule = subscriptionPlanPricingRule || existingItem?.subscriptionPlanPricingRule
 
-            if ((recurrentPaymentEnabled || recurrentPaymentProcessedAt) && (isTrial || !hasPricingRule)) {
+            if (recurrentPaymentEnabled && (isTrial || !hasPricingRule)) {
                 throw new GQLError(ERRORS.RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION, context)
             }
 
