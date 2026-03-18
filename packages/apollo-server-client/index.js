@@ -96,6 +96,11 @@ class ApolloServerClient {
     customHeaders = {}
 
     /**
+     * Creates Apollo server client.
+     *
+     * NOTE: Apollo cache is disabled by default
+     * (`no-cache` for watchQuery/query/mutate). A particular
+     * application can override this behavior per operation.
      *
      * @param endpoint - https://condo.d.doma.ai/admin/api
      * @param authRequisites - can be { identity: 'service-user@doma.ai', secret: 'password' } or { phone: '+7911....', password: '' } or { token: 'token' }
