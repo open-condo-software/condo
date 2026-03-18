@@ -16,14 +16,13 @@ import type { FC } from 'react'
 
 export const CondoAppEventsHandler: FC<{ userAttributes: CondoFeaturesContext }> = ({ userAttributes }) => {
     const { user, organization, isLoading, ...appContext } = userAttributes
-    const { isLoading: userLoading, user: authUser } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
 
     // User tracking
     useEffect(() => {
-        if (!userLoading) {
-            if (authUser) {
+        if (!isLoading) {
+            if (user) {
                 analytics.identify(user.userId, {
                     name: user.userName,
                     type: user.userType,
@@ -34,7 +33,7 @@ export const CondoAppEventsHandler: FC<{ userAttributes: CondoFeaturesContext }>
                 analytics.reset()
             }
         }
-    }, [userLoading, authUser, user, organization, appContext])
+    }, [isLoading, user, organization, appContext])
 
     // Routing tracking
     useEffect(() => {
