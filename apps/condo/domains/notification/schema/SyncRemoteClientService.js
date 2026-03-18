@@ -157,13 +157,15 @@ function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
 
         if (!existing) {
             jobs.create.push({
-                dv,
-                sender,
-                remoteClient: { connect: { id: desired.remoteClientId } },
-                token: desired.token,
-                transport: desired.transport,
-                isPush: desired.isPush,
-                isVoIP: desired.isVoIP,
+                data: {
+                    dv,
+                    sender,
+                    remoteClient: { connect: { id: desired.remoteClientId } },
+                    token: desired.token,
+                    transport: desired.transport,
+                    isPush: desired.isPush,
+                    isVoIP: desired.isVoIP,
+                },
             })
             continue
         }
@@ -291,13 +293,8 @@ async function syncPushTokens (context, { remoteClient, pushTokensInput, dv, sen
         ...conflictsJobs.delete,
     ])
 
-    for (const data of jobs.create) {
-        await RemoteClientPushToken.create(context, data)
-    }
-
-    for (const { id, data } of mergedUpdateJobs) {
-        await RemoteClientPushToken.update(context, id, data)
-    }
+    await RemoteClientPushToken.createMany(context, jobs.create)
+    await RemoteClientPushToken.updateMany(context, mergedUpdateJobs)
 
     return jobs
 }
@@ -481,99 +478,9 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     }
                 }
 
-                // --- END VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
-
-                // --- THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
-                // if (!pushToken) {
-                //     const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, isVoIP: false })
-                //     if (pushTokenToReplace) {
-                //         pushToken = pushTokenToReplace.token
-                //         pushTransport = pushTokenToReplace.transport
-                //     }
-                // }
-                // if (!pushTokenVoIP) {
-                //     const pushTokenToReplace = pickPushTokenToReplaceOldOne({ pushTokens, isVoIP: true })
-                //     if (pushTokenToReplace) {
-                //         pushTokenVoIP = pushTokenToReplace.token
-                //         pushTransportVoIP = pushTokenToReplace.transport
-                //     }
-                // }
-                // --- END THIS PART ONLY HERE DURING MIGRATION TO DIFFERENT MODEL FOR TOKENS
-
-
                 const userId = get(context, 'authedItem.id', null)
                 const remoteClient = await syncRemoteClient(context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta })
                 await syncPushTokens(context, { remoteClient, pushTokensInput: pushTokens, dv, sender })
-
-                // if (pushToken) {
-                //     const conflict = await getByCondition('RemoteClient', { pushToken })
-                //     if (conflict && conflict.id !== existing?.id) {
-                //         await RemoteClient.update(
-                //             context,
-                //             conflict.id,
-                //             {
-                //                 dv,
-                //                 sender,
-                //                 pushToken: null,
-                //             }
-                //         )
-                //     }
-                // }
-                //
-                // if (pushTokenVoIP) {
-                //     const conflictVoIP = await getByCondition('RemoteClient', { pushTokenVoIP })
-                //     if (conflictVoIP && conflictVoIP.id !== existing?.id) {
-                //         await RemoteClient.update(
-                //             context,
-                //             conflictVoIP.id,
-                //             {
-                //                 dv,
-                //                 sender,
-                //                 pushTokenVoIP: null,
-                //             }
-                //         )
-                //     }
-                // }
-
-                // const attrs = pickBy({
-                //     dv, sender, deviceId, appId,
-                //     /*pushToken,*/ /*pushTransport,*/ devicePlatform, pushType, meta,
-                //     /*pushTokenVoIP,*/ /*pushTransportVoIP,*/ pushTypeVoIP,
-                //     owner: userId ? { disconnectAll: true, connect: { id: userId } } : null,
-                // }, value => value !== undefined)
-                //
-                // let result
-                // if (!existing) {
-                //     result = await RemoteClient.create(context, attrs)
-                // } else {
-                //     const diff = {}
-                //     for (const [key, value] of Object.entries(attrs)) {
-                //         if (key === 'sender') continue
-                //
-                //         if (key === 'owner') {
-                //             const existingOwnerId =  existing?.owner?.id || existing?.owner
-                //             const newOwnerId = value?.connect?.id ?? null
-                //
-                //             if (existingOwnerId !== newOwnerId) {
-                //                 diff.owner = value
-                //             }
-                //
-                //             continue
-                //         }
-                //         if (!isEqual(existing[key], value)) {
-                //             diff[key] = value
-                //         }
-                //     }
-                //
-                //     if (Object.keys(diff).length > 0) {
-                //         result = await RemoteClient.update(context, existing.id, attrs)
-                //     } else {
-                //         result = existing
-                //     }
-                // }
-                
-                
-
 
                 const client = await getById('RemoteClient', remoteClient.id)
                 return _cleanRemoteClient(client)

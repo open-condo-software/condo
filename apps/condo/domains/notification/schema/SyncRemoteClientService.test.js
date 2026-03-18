@@ -10,7 +10,7 @@ const { makeClient, makeLoggedInClient, makeLoggedInAdminClient, expectToThrowGQ
 const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
 const { ERRORS } = require('@condo/domains/notification/schema/SyncRemoteClientService')
 const {
-    RemoteClient, syncRemoteClientByTestClient,
+    RemoteClient, createTestRemoteClient, syncRemoteClientByTestClient,
     RemoteClientPushToken, createTestRemoteClientPushToken,
 } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomPushTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
@@ -23,15 +23,84 @@ describe('SyncRemoteClientService', () => {
     })
 
     describe('syncPushTokens persistence', () => {
+        it('creates RemoteClientPushToken models from legacy pushToken/pushTransport fields in payload', async () => {
+            const client = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+
+            const payload = getRandomTokenData({
+                pushTokens: [],
+                pushToken: faker.datatype.uuid(),
+                pushTransport: 'firebase',
+                pushTokenVoIP: faker.datatype.uuid(),
+                pushTransportVoIP: 'apple',
+                meta: null,
+            })
+
+            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+
+            const tokens = await RemoteClientPushToken.getAll(admin, {
+                remoteClient: { id: remoteClient.id },
+                deletedAt: null,
+            })
+
+            expect(tokens).toHaveLength(2)
+            expect(tokens.filter(t => t.transport === 'firebase' && t.isPush && !t.isVoIP)).toHaveLength(1)
+            expect(tokens.filter(t => t.transport === 'apple' && !t.isPush && t.isVoIP)).toHaveLength(1)
+        })
+
+        it('saves legacy pushToken fields as null\'s and creates RemoteClientPushTokens from them', async () => {
+            const client = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+
+            const deviceId = faker.datatype.uuid()
+            const appId = faker.datatype.uuid()
+            const legacyPushToken = faker.datatype.uuid()
+            const legacyVoipToken = faker.datatype.uuid()
+
+            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(client, {
+                deviceId,
+                appId,
+                pushToken: legacyPushToken,
+                pushTransport: 'firebase',
+                pushTokenVoIP: legacyVoipToken,
+                pushTransportVoIP: 'apple',
+            })
+
+            const remoteClientFromDB = await RemoteClient.getOne(admin, { id: remoteClientId })
+            expect(remoteClientFromDB.pushToken).toBeNull()
+            expect(remoteClientFromDB.pushTransport).toBeNull()
+            expect(remoteClientFromDB.pushTokenVoIP).toBeNull()
+            expect(remoteClientFromDB.pushTransportVoIP).toBeNull()
+
+            const tokens = await RemoteClientPushToken.getAll(admin, {
+                remoteClient: { id: remoteClientId },
+                deletedAt: null,
+            })
+
+            expect(tokens).toHaveLength(2)
+            const voipToken = tokens.find(token => token.isVoIP)
+            const pushToken = tokens.find(token => token.isPush)
+            expect(voipToken).toBeDefined()
+            expect(pushToken).toBeDefined()
+            expect(voipToken).not.toEqual(pushToken)
+
+            expect(pushToken.token).toEqual(legacyPushToken)
+            expect(pushToken.transport).toEqual('firebase')
+            expect(voipToken.token).toEqual(legacyVoipToken)
+            expect(voipToken.transport).toEqual('apple')
+        })
+
         it('creates new RemoteClientPushToken records from pushTokens', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
+
+            const pushTokenToken = faker.datatype.uuid()
 
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, pushTransport: 'firebase', meta: null })
             const payloadWithPushTokens = {
                 ...payload,
                 pushTokens: [
-                    { token: 't1', transport: 'firebase', isPush: true, isVoIP: false },
+                    { token: pushTokenToken, transport: 'firebase', isPush: true, isVoIP: false },
                 ],
             }
 
@@ -1210,89 +1279,4 @@ describe('SyncRemoteClientService', () => {
         })
     })
 
-    describe('pushTokens processing', () => {
-
-        test.each([
-            { remoteClientField: 'pushToken' },
-            { remoteClientField: 'pushTokenVoIP' },
-        ])('selects $remoteClientField from pushTokens as first pushToken of needed type', async ({ remoteClientField }) => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-            const payload = getRandomTokenData({ pushTransport: 'huawei', pushTransportVoIP: 'huawei', [remoteClientField]: null })
-
-            const isVoIP = remoteClientField === 'pushTokenVoIP'
-            const selectedPushToken = getRandomPushTokenData({ transport: 'firebase', isVoIP: isVoIP, isPush: !isVoIP })
-
-            const payloadWithPushTokens = {
-                ...payload,
-                pushTokens: [
-                    getRandomPushTokenData({ transport: 'apple', isVoIP: !isVoIP, isPush: isVoIP }),
-                    selectedPushToken, // 2nd among all tokens, 1st among tokens of type
-                    getRandomPushTokenData({ transport: 'redstore', isVoIP: isVoIP, isPush: !isVoIP }),
-                ],
-            }
-
-            const [device] = await syncRemoteClientByTestClient(client, payloadWithPushTokens)
-
-            const deviceFromDB = await RemoteClient.getOne(admin, { id: device.id })
-            expect(deviceFromDB[remoteClientField]).toEqual(selectedPushToken.token)
-            expect(deviceFromDB[isVoIP ? 'pushTransportVoIP' : 'pushTransport']).toEqual(selectedPushToken.transport)
-        })
-
-        test.each([
-            { remoteClientField: 'pushToken' },
-            { remoteClientField: 'pushTokenVoIP' },
-        ])('does not override explicitly provided $remoteClientField with pushTokens', async ({ remoteClientField }) => {
-            const client = await makeClient()
-            const isVoIP = remoteClientField === 'pushTokenVoIP'
-            const pushTransportField = isVoIP ? 'pushTransportVoIP' : 'pushTransport'
-
-            const payload = getRandomTokenData({ pushTransport: 'apple', pushTransportVoIP: 'apple' })
-
-            const pushToken = getRandomPushTokenData({ transport: 'firebase', isVoIP: isVoIP, isPush: !isVoIP })
-            const payloadWithBoth = {
-                ...payload,
-                pushTokens: [
-                    pushToken,
-                ],
-            }
-
-            const [device] = await syncRemoteClientByTestClient(client, payloadWithBoth)
-
-            const deviceFromDB = await RemoteClient.getOne(admin, { id: device.id })
-            expect(deviceFromDB[remoteClientField]).toEqual(payload[remoteClientField])
-            expect(deviceFromDB[remoteClientField]).not.toEqual(pushToken.token)
-            expect(deviceFromDB[pushTransportField]).toEqual(payload[pushTransportField])
-            expect(deviceFromDB[pushTransportField]).not.toEqual(pushToken.transport)
-        })
-
-        test.each([
-            { remoteClientField: 'pushToken' },
-            { remoteClientField: 'pushTokenVoIP' },
-        ])('TEMPORARY selects $remoteClientField from pushTokens according to preference in case of tokens for same type', async ({ remoteClientField }) => {
-            const client = await makeClient()
-            const isVoIP = remoteClientField === 'pushTokenVoIP'
-            const pushTransportField = isVoIP ? 'pushTransportVoIP' : 'pushTransport'
-
-            const pushTokenVoIPParams = { isVoIP: isVoIP, isPush: !isVoIP }
-            const mostPreferedPushToken = getRandomPushTokenData({ transport: 'firebase', ...pushTokenVoIPParams })
-            const pushTokens = [
-                getRandomPushTokenData({ transport: 'apple', ...pushTokenVoIPParams }),
-                getRandomPushTokenData({ transport: 'redstore', ...pushTokenVoIPParams }),
-                mostPreferedPushToken,
-                getRandomPushTokenData({ transport: 'huawei', ...pushTokenVoIPParams }),
-            ]
-
-            const payloadWithBoth1 = {
-                ...getRandomTokenData({ [remoteClientField]: null }),
-                pushTokens: pushTokens,
-            }
-
-            const [device1] = await syncRemoteClientByTestClient(client, payloadWithBoth1)
-            const deviceFromDB1 = await RemoteClient.getOne(admin, { id: device1.id })
-            expect(deviceFromDB1[remoteClientField]).toEqual(mostPreferedPushToken.token)
-            expect(deviceFromDB1[pushTransportField]).toEqual(mostPreferedPushToken.transport)
-        })
-
-    })
 })
