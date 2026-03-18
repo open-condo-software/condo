@@ -130,6 +130,9 @@ class ApolloServerClient {
                 query: {
                     fetchPolicy: 'no-cache',
                 },
+                mutate: {
+                    fetchPolicy: 'no-cache',
+                },
             },
         })
     }
