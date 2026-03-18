@@ -575,24 +575,24 @@ describe('AcquiringIntegrationContext', () => {
             expect(context2).toBeDefined()
             await AcquiringIntegrationContext.softDelete(admin, context2.id)
         })
-        test(`Organization can have many ${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE} contexts`, async () => {
-            const [externalImportIntegration] = await createTestAcquiringIntegration(admin, {
-                type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
-            })
+        test(`Organization can have multiple ${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE} contexts for DIFFERENT integrations`, async () => {
+            const [int1] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
+            const [int2] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
 
-            await createTestAcquiringIntegrationContext(admin, organization, externalImportIntegration, {
-                status: CONTEXT_FINISHED_STATUS,
-            })
+            await createTestAcquiringIntegrationContext(admin, organization, int1, { status: CONTEXT_FINISHED_STATUS })
+            const [context2] = await createTestAcquiringIntegrationContext(admin, organization, int2, { status: CONTEXT_FINISHED_STATUS })
 
-            await createTestAcquiringIntegrationContext(admin, organization, externalImportIntegration, {
-                status: CONTEXT_FINISHED_STATUS,
-            })
+            expect(context2).toBeDefined()
+        })
+        test(`Organization can have only one ${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE} contexts for the same integration`, async () => {
+            const [integration] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
 
-            const externalContexts = await AcquiringIntegrationContext.getAll(admin, {
-                integration: { id: externalImportIntegration.id },
-            })
-
-            expect(externalContexts).toHaveLength(2)
+            await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+            }, ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
         })
     })
     describe('Fields tests', () => {

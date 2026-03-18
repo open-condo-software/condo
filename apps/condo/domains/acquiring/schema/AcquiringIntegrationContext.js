@@ -241,34 +241,37 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     id: newItem['integration'],
                     deletedAt: null,
                 })
+
+                if (!acquiringIntegration) {
+                    return addValidationError(ACQUIRING_INTEGRATION_IS_DELETED)
+                }
+
+                const isOnlineProcessing = acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE
                 
-                if (acquiringIntegration) {
-                    const isOnlineProcessing = acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE
+                const activeContextsWhere = {
+                    organization: { id: newItem['organization'] },
+                    integration: {
+                        deletedAt: null,
+                        OR: [
+                            ...(isOnlineProcessing ? [{ type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE }] : []),
+                            { id: newItem['integration'] },
+                        ],
+                    },
+                    OR: [
+                        { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
+                        { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
+                    ],
+                    deletedAt: null,
+                    id_not: newItem['id'],
+                }
 
-                    if (isOnlineProcessing) {
-                        const activeContexts = await find('AcquiringIntegrationContext', {
-                            organization: { id: newItem['organization'] },
-                            integration: {
-                                type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
-                                deletedAt: null,
-                            },
-                            OR: [
-                                { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
-                                { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
-                            ],
-                            deletedAt: null,
-                            id_not: newItem['id'],
-                        })
+                const activeContexts = await find('AcquiringIntegrationContext', activeContextsWhere)
 
-                        if (activeContexts.length > 0) {
-                            addValidationError(ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
-                        }
-                    }
-                } else {
-                    addValidationError(ACQUIRING_INTEGRATION_IS_DELETED)
+                if (activeContexts.length > 0) {
+                    addValidationError(ORGANIZATION_ALREADY_HAVE_ACTIVE_CONTEXT)
                 }
             }
-
+                
             /*
              vatPercent constraints:
              __________________________________
