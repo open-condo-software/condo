@@ -94,6 +94,9 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
         skipUntilAuthenticated: areAlertLoading,
     })
+    // Track if date range has been cleared for testing receipt to prevent the effect from running
+    // multiple times and interfering with tab navigation (e.g., switching to accruals tab)
+    const hasDateRangeBeenClearedRef = React.useRef(false)
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -110,6 +113,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const userOrganization = useOrganization()
 
     const { filters, sorters, offset } = parseQuery(router.query)
+    const currentTab = router.query.tab
 
     // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
@@ -180,6 +184,13 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         setDateRange(value)
     }, [setDateRange])
 
+    useEffect(() => {
+        if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === 'payments' && !hasDateRangeBeenClearedRef.current) {
+            hasDateRangeBeenClearedRef.current = true
+            setFiltersAreReset(true)
+            setDateRange(null)
+        }
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)

@@ -118,6 +118,9 @@ const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentP
     const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
         skipUntilAuthenticated: isAlertLoading,
     })
+    // Track if date range has been cleared for testing receipt to prevent the effect from running
+    // multiple times and interfering with tab navigation (e.g., switching to bills or services tab)
+    const hasDateRangeBeenClearedRef = React.useRef(false)
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const ClearListSelectedRowMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const AllPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.allPayment' })
@@ -132,6 +135,7 @@ const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentP
     const orgId = get(userOrganization, ['organization', 'id'], null)
 
     const { filters, offset, sorters } = parseQuery(router.query)
+    const currentTab = router.query.tab
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const queryMetas = useMarketplacePaymentsFilters()
@@ -228,6 +232,13 @@ const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentP
             routerAction: 'replace', resetOldParameters: false, shallow: true,
         })
     }, [])
+
+    useEffect(() => {
+        if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === MARKETPLACE_PAGE_TYPES.payments && !hasDateRangeBeenClearedRef.current) {
+            hasDateRangeBeenClearedRef.current = true
+            setDateRange([null, null])
+        }
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
 
     const disabledDate = useCallback((currentDate) => {
         const minDate = dayjs().startOf('year').subtract(1, 'year')
