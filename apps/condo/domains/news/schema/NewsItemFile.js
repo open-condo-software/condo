@@ -37,11 +37,16 @@ const ALLOWED_MIME_TYPES = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]
 const ERRORS = {
-    FORBIDDEN_FILE_TYPE: (mimeType) => ({
+    FORBIDDEN_FILE_TYPE: {
         code: BAD_USER_INPUT,
         type: 'FORBIDDEN_FILE_TYPE',
-        message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: ${mimeType}`,
-    }),
+        message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}`,
+    },
+    UNKNOWN_FILE_TYPE: {
+        code: BAD_USER_INPUT,
+        type: 'UNKNOWN_FILE_TYPE',
+        message: 'Unknown file type',
+    },
 }
 
 const DOCUMENT_FOLDER_NAME = 'NewsItemFile'
@@ -69,7 +74,17 @@ const NewsItemFile = new GQLListSchema('NewsItemFile', {
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, context }) => {
                     const mimetype = resolvedData?.[fieldPath]?.mimetype
-                    if (!mimetype || !ALLOWED_MIME_TYPES.includes(mimetype)) throw new GQLError(ERRORS.FORBIDDEN_FILE_TYPE(mimetype), context)
+
+                    if (!mimetype) {
+                        throw new GQLError(ERRORS.UNKNOWN_FILE_TYPE, context)
+                    }
+
+                    if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
+                        throw new GQLError({
+                            ...ERRORS.FORBIDDEN_FILE_TYPE,
+                            message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: ${mimetype}`,
+                        }, context)
+                    }
                 },
             },
         },
