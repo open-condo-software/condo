@@ -188,7 +188,6 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useUserAttributes }) 
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
-        // Get userAttributes from hook if provided, otherwise from pageProps, otherwise empty object
         const userAttributes = useUserAttributes()
 
         return (
