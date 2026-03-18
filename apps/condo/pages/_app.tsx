@@ -521,6 +521,7 @@ const MyApp = ({ Component, pageProps }) => {
     const { isMobileUserAgent, isSidebarCollapsed: isCollapsedCookie } = useSSRCookiesContext()
     const detectedMobileUserAgentInSSR = isMobileUserAgent === 'true'
     const initialIsCollapsed = isCollapsedCookie === 'true' ? true : isCollapsedCookie === 'false' ? false : undefined
+    const userAttributes = useUserAttributes()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -572,7 +573,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <TicketVisibilityContextProvider>
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler userAttributes={pageProps?.userAttributes}/>
+                                                                <CondoAppEventsHandler userAttributes={userAttributes}/>
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
                                                                         <SubscriptionAccessGuard skipGuard={Component.isError}>
@@ -757,23 +758,6 @@ const useInitialEmployeeId = () => {
     return { employeeId }
 }
 
-const withUserAttributes = () => (PageComponent: NextPage): NextPage => {
-    const WithUserAttributes = (props) => {
-        const userAttributes: UserAttributes = useUserAttributes()
-
-        return <PageComponent {...props} pageProps={{ ...props.pageProps, userAttributes }} />
-    }
-
-    if (process.env.NODE_ENV !== 'production') {
-        const displayName = PageComponent.displayName || PageComponent.name || 'Component'
-        WithUserAttributes.displayName = `withUserAttributes(${displayName})`
-    }
-
-    WithUserAttributes.getInitialProps = PageComponent.getInitialProps
-
-    return WithUserAttributes
-}
-
 const withError = () => (PageComponent: NextPage): NextPage => {
     const WithError = (props) => {
         const statusCode = props?.pageProps?.statusCode
@@ -829,11 +813,9 @@ export default (
                 withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                         withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                            withUserAttributes()(
-                                withFeatureFlags({ ssr: !isDisabledSsr })(
-                                    withError()(
-                                        MyApp
-                                    )
+                            withFeatureFlags({ ssr: !isDisabledSsr, useUserAttributes })(
+                                withError()(
+                                    MyApp
                                 )
                             )
                         )

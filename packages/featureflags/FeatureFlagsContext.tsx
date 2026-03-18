@@ -19,8 +19,6 @@ import {
     getContextIndependentWrappedInitialProps,
     preventInfinityLoop,
 } from '@open-condo/next/_utils'
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
 
 
 const {
@@ -50,8 +48,8 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 export interface BaseUserAttributes {
     userId?: string | null
     isSupport?: boolean
-    isAdmin?: boolean
     organizationId?: string | null
+    isLoading?: boolean
 }
 
 type FeatureFlagsProviderWrapperProps<TUserAttributes extends BaseUserAttributes = BaseUserAttributes> = {
@@ -61,15 +59,9 @@ type FeatureFlagsProviderWrapperProps<TUserAttributes extends BaseUserAttributes
 
 const FeatureFlagsProviderWrapper = <TUserAttributes extends BaseUserAttributes = BaseUserAttributes>({ children, initFeatures = null, userAttributes = {} as TUserAttributes }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TUserAttributes>>) => {
     const growthbook = useGrowthBook()
-    // TODO DOMA-13078 remove useAuth and useOrganization
-    const { user, isLoading: userIsLoading  } = useAuth()
-    const { employee, isLoading: organizationIsLoading } = useOrganization()
     const [features, setFeature] = useState(initFeatures)
 
-    // Use userAttributes if provided, otherwise fallback to useAuth/useOrganization
-    const isSupport = userAttributes?.isSupport ?? user?.isSupport
-    const isAdmin = userAttributes?.isAdmin ?? user?.isAdmin
-    const userId = userAttributes?.userId ?? user?.id
+    const { organizationId, isLoading = false, ...attributes } = userAttributes
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -113,15 +105,14 @@ const FeatureFlagsProviderWrapper = <TUserAttributes extends BaseUserAttributes 
     }, [growthbook])
 
     useEffect(() => {
-        if (!features || userIsLoading || organizationIsLoading) return
+        if (!features || isLoading) return
 
         growthbook.setPayload({ features: features })
-    }, [features, userIsLoading, organizationIsLoading])
+    }, [features, isLoading])
 
     useEffect(() => {
-        const organizationId = userAttributes?.organizationId ?? employee?.organization?.id
-        updateContext({ isSupport: isSupport || isAdmin, organization: organizationId, userId })
-    }, [updateContext, isAdmin, isSupport, userAttributes?.organizationId, employee?.organization?.id, userId])
+        updateContext({ organization: organizationId, ...attributes })
+    }, [updateContext, organizationId, attributes])
 
     return (
         <FeatureFlagsContext.Provider value={{
@@ -137,31 +128,22 @@ const FeatureFlagsProviderWrapper = <TUserAttributes extends BaseUserAttributes 
 type FeatureFlagsProviderProps<TUserAttributes extends BaseUserAttributes = BaseUserAttributes> = FeatureFlagsProviderWrapperProps<TUserAttributes>
 
 const FeatureFlagsProvider = <TUserAttributes extends BaseUserAttributes = BaseUserAttributes>({ children, initFeatures = null, userAttributes = {} as TUserAttributes }: React.PropsWithChildren<FeatureFlagsProviderProps<TUserAttributes>>) => {
-    // TODO DOMA-13078 remove useAuth and useOrganization
-    const { user, isLoading: userIsLoading  } = useAuth()
-    const { employee, isLoading: organizationIsLoading } = useOrganization()
+    const { organizationId, isLoading = false, ...attributes } = userAttributes
 
     const [growthbookInstance] = useState(() => {
         // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
-        // Use userAttributes if provided, otherwise fallback to useAuth/useOrganization
-        const isSupport = userAttributes?.isSupport ?? user?.isSupport
-        const isAdmin = userAttributes?.isAdmin ?? user?.isAdmin
-        const userId = userAttributes?.userId ?? user?.id
-        const organizationId = userAttributes?.organizationId ?? employee?.organization?.id
-
         const context: Context = {}
 
         // NOTE: After we write feature to the growthbook, the growthbook will be marked as ready.
         // Therefore, if not all the necessary data is loaded,
         // then we want to consider that the growthbook is not ready for work
-        if (!userIsLoading && !organizationIsLoading && initFeatures) {
+        if (!isLoading && initFeatures) {
             context.features = initFeatures
         }
 
         context.attributes = {
-            isSupport: isSupport || isAdmin,
             organization: organizationId,
-            userId,
+            ...attributes,
         }
 
         return new GrowthBook(context)
@@ -198,14 +180,16 @@ const initOnRestore = async (ctx) => {
 
 type WithFeatureFlagsProps = {
     ssr?: boolean
+    useUserAttributes: () => BaseUserAttributes
 }
 export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage) => NextPage
 
-const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
+const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useUserAttributes }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
-        const userAttributes = pageProps?.pageProps?.userAttributes || {}
+        // Get userAttributes from hook if provided, otherwise from pageProps, otherwise empty object
+        const userAttributes = useUserAttributes()
 
         return (
             <FeatureFlagsProvider initFeatures={features} userAttributes={userAttributes}>

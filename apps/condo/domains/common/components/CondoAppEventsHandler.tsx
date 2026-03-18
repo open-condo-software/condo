@@ -15,6 +15,7 @@ import type { FC } from 'react'
 
 
 export const CondoAppEventsHandler: FC<{ userAttributes: UserAttributes }> = ({ userAttributes }) => {
+    const { userId, userName, userType, organizationId, isLoading, ...attributes } = userAttributes
     const { isLoading: userLoading, user } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
@@ -23,16 +24,17 @@ export const CondoAppEventsHandler: FC<{ userAttributes: UserAttributes }> = ({ 
     useEffect(() => {
         if (!userLoading) {
             if (user) {
-                analytics.identify(userAttributes.userId, {
-                    name: userAttributes.userName,
-                    type: userAttributes.userType,
-                    organization_id: userAttributes.organizationId,
+                analytics.identify(userId, {
+                    name: userName,
+                    type: userType,
+                    organization_id: organizationId,
+                    ...attributes,
                 })
             } else {
                 analytics.reset()
             }
         }
-    }, [userLoading, user, userAttributes])
+    }, [userLoading, user, userId, userName, userType, organizationId, attributes])
 
     // Routing tracking
     useEffect(() => {

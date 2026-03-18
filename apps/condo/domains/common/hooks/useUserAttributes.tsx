@@ -9,20 +9,20 @@ export type UserAttributes = {
     userName: string | null
     userType: string | null
     isSupport: boolean
-    isAdmin: boolean
     organizationId: string | null
+    isLoading: boolean
 }
 
 export const useUserAttributes = (): UserAttributes => {
-    const { user } = useAuth()
-    const { employee } = useOrganization()
+    const { user, isLoading: userIsLoading } = useAuth()
+    const { employee, isLoading: organizationIsLoading } = useOrganization()
 
     return useMemo(() => ({
         userId: user?.id || null,
         userName: user?.name || null,
         userType: user?.type || null,
-        isSupport: user?.isSupport || false,
-        isAdmin: user?.isAdmin || false,
+        isSupport: user?.isSupport || user?.isAdmin || false,
         organizationId: employee?.organization?.id || null,
-    }), [user, employee])
+        isLoading: userIsLoading || organizationIsLoading,
+    }), [user, employee, userIsLoading, organizationIsLoading])
 }
