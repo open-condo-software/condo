@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { UserAttributes } from '@condo/domains/common/hooks/useUserAttributes'
+import { CondoFeaturesContext } from '@condo/domains/common/hooks/useUserAttributes'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { clearPostHogInlineStyles, createSurveyBackdrop, injectPostHogSurveyStyles } from '@condo/domains/common/utils/posthogSurveyStyles'
 
@@ -14,27 +14,27 @@ import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'
 
 
-export const CondoAppEventsHandler: FC<{ userAttributes: UserAttributes }> = ({ userAttributes }) => {
-    const { userId, userName, userType, organizationId, isLoading, ...attributes } = userAttributes
-    const { isLoading: userLoading, user } = useAuth()
+export const CondoAppEventsHandler: FC<{ userAttributes: CondoFeaturesContext }> = ({ userAttributes }) => {
+    const { user, organization, isLoading, ...appContext } = userAttributes
+    const { isLoading: userLoading, user: authUser } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
 
     // User tracking
     useEffect(() => {
         if (!userLoading) {
-            if (user) {
-                analytics.identify(userId, {
-                    name: userName,
-                    type: userType,
-                    organization_id: organizationId,
-                    ...attributes,
+            if (authUser) {
+                analytics.identify(user.userId, {
+                    name: user.userName,
+                    type: user.userType,
+                    organization_id: organization,
+                    ...appContext,
                 })
             } else {
                 analytics.reset()
             }
         }
-    }, [userLoading, user, userId, userName, userType, organizationId, attributes])
+    }, [userLoading, authUser, user, organization, appContext])
 
     // Routing tracking
     useEffect(() => {

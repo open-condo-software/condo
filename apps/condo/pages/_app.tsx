@@ -68,7 +68,7 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
-import { useUserAttributes, type UserAttributes } from '@condo/domains/common/hooks/useUserAttributes'
+import { AppFeaturesContext, UserShape, useUserAttributes } from '@condo/domains/common/hooks/useUserAttributes'
 import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
@@ -813,7 +813,7 @@ export default (
                 withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                         withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                            withFeatureFlags({ ssr: !isDisabledSsr, useUserAttributes })(
+                            withFeatureFlags<UserShape, AppFeaturesContext>({ ssr: !isDisabledSsr, useUserAttributes })(
                                 withError()(
                                     MyApp
                                 )
