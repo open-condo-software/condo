@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { Download } from '@open-condo/icons'
-import { Space, Tooltip, Typography } from '@open-condo/ui'
+import { Space, Tooltip, Typography, Tour } from '@open-condo/ui'
 
 import { LastTestingPosReceiptData } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 
@@ -22,32 +22,18 @@ type DelayedTestingTooltipProps = {
 }
 
 const DelayedTestingTooltip: React.FC<DelayedTestingTooltipProps> = ({ delayMs, verifyTitle, verifyDescription, children }) => {
-    const [isOpen, setIsOpen] = React.useState(false)
+    const { setCurrentStep } = Tour.useTourContext()
 
-    React.useEffect(() => {
-        const timer = setTimeout(() => setIsOpen(true), delayMs)
+    useEffect(() => {
+        const timer = setTimeout(() => setCurrentStep(1), delayMs)
 
         return () => clearTimeout(timer)
-    }, [delayMs])
+    }, [delayMs, setCurrentStep])
 
     return (
-        <Tooltip
-            title={(
-                <Space size={8} direction='vertical'>
-                    <Typography.Title level={4}>
-                        {verifyTitle}
-                    </Typography.Title>
-                    <Typography.Text size='small'>
-                        {verifyDescription}
-                    </Typography.Text>
-                </Space>
-            )}
-            placement='left'
-            open={isOpen}
-            onOpenChange={setIsOpen}
-        >
+        <Tour.TourStep step={1} title={verifyTitle} message={verifyDescription}>
             {children}
-        </Tooltip>
+        </Tour.TourStep>
     )
 }
 
@@ -79,13 +65,15 @@ export const getPosReceiptUrlRender = ({
         if (!shouldShowTestingTooltip) return content
 
         return (
-            <DelayedTestingTooltip
-                delayMs={showDelayMs}
-                verifyTitle={verifyTitle}
-                verifyDescription={verifyDescription}
-            >
-                {content}
-            </DelayedTestingTooltip>
+            <Tour.Provider>
+                <DelayedTestingTooltip
+                    delayMs={showDelayMs}
+                    verifyTitle={verifyTitle}
+                    verifyDescription={verifyDescription}
+                >
+                    {content}
+                </DelayedTestingTooltip>
+            </Tour.Provider>
         )
     }
 }
