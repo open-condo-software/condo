@@ -459,7 +459,6 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 if (pushTokensValidationError) {
                     throw new GQLError(pushTokensValidationError, context)
                 }
-                // TODO(YEgorLu): DOMA-13021 sync new models using this data, do not put tokens data in RemoteClient anymore
                 const pushTokens = deduplicatePushTokens(pushTokensInput)
 
                 // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password

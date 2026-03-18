@@ -2,9 +2,14 @@ const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/error
 
 const { groupBy } = require('@condo/domains/common/utils/collections')
 const {
+    MAXIMUM_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT,
+    MAXIMUM_RAW_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT,
+} = require('@condo/domains/notification/constants/constants')
+const {
     UNUSABLE_TOKEN_PROVIDED,
     INVALID_PUSH_TOKEN,
     TOO_MANY_TOKENS_FOR_TRANSPORT,
+    TOO_MANY_TOKENS,
 } = require('@condo/domains/notification/constants/errors')
 
 const PUSH_TOKENS_VALIDATION_ERRORS = {
@@ -22,6 +27,16 @@ const PUSH_TOKENS_VALIDATION_ERRORS = {
         code: BAD_USER_INPUT,
         type: TOO_MANY_TOKENS_FOR_TRANSPORT,
         message: 'Each transport can have maximum 2 different tokens: 1 for default push messages and 1 for voip push messages',
+    },
+    TOO_MANY_RAW_TOKENS: {
+        code: BAD_USER_INPUT,
+        type: TOO_MANY_TOKENS,
+        message: `You shouldn't put more than ${MAXIMUM_RAW_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT} tokens in mutation input at once`,
+    },
+    TOO_MANY_TOKENS: {
+        code: BAD_USER_INPUT,
+        type: TOO_MANY_TOKENS,
+        message: `You shouldn't put more than ${MAXIMUM_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT} unique tokens at once`,
     },
 }
 
@@ -47,6 +62,10 @@ function reducePushTokensWithSameTokenToOneObject (pushTokensWithSameToken) {
  * @returns {{code: GQLErrorCode|String, type: string, message: string}|{code: GQLErrorCode|String, type: string, message: string}|{code: GQLErrorCode|String, type: string, message: string}|null}
  */
 function getPushTokensValidationError (pushTokens) {
+    if (pushTokens.length > MAXIMUM_RAW_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT) {
+        return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_RAW_TOKENS
+    }
+
     const tokenWithoutAllowedVoIPAndDefaultPush = pushTokens.find(pushToken => !pushToken.isVoIP && !pushToken.isPush)
     if (tokenWithoutAllowedVoIPAndDefaultPush) {
         return PUSH_TOKENS_VALIDATION_ERRORS.UNUSABLE_TOKEN_PROVIDED
@@ -57,12 +76,19 @@ function getPushTokensValidationError (pushTokens) {
         return PUSH_TOKENS_VALIDATION_ERRORS.INVALID_PUSH_TOKEN
     }
 
-    for (const transportsGroup of groupBy(pushTokens, ['transport'])) {
-        const allPushTokensForTransport = groupBy(transportsGroup, ['token'])
+    const dedupedTokensByTransport = groupBy(pushTokens, ['transport'])
+        .map(transportsGroup => groupBy(transportsGroup, ['token'])
             .map(reducePushTokensWithSameTokenToOneObject)
-            .filter(Boolean)
-        const voipTokens = allPushTokensForTransport.filter(token => token.isVoIP)
-        const defaultTokens = allPushTokensForTransport.filter(token => token.isPush)
+            .filter(Boolean))
+
+    const allCount = Math.sum(...dedupedTokensByTransport.map(tokensByTransport => tokensByTransport.length))
+    if (allCount > MAXIMUM_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT) {
+        return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS
+    }
+
+    for (const allUniquePushTokensForTransport of dedupedTokensByTransport) {
+        const voipTokens = allUniquePushTokensForTransport.filter(token => token.isVoIP)
+        const defaultTokens = allUniquePushTokensForTransport.filter(token => token.isPush)
         if (voipTokens.length > 1 || defaultTokens.length > 1) {
             return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT
         }
