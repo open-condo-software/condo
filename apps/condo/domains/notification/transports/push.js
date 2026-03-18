@@ -38,6 +38,7 @@ const logger = getLogger()
  * @typedef PushAdapterSettings
  * @property {Record<string, string> | undefined} encryption - appId to encryptionVersion
  * @property {Record<string, string[]> | undefined} groups - groupName to ordered appIds in group
+ * @property {Record<string, string[] | undefined>} transportPriorityByAppId - appId to transports array, if appId needs to be restricted to use specific transports
  */
 
 /** @type {PushAdapterSettings} */
@@ -278,7 +279,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
         return [false, { error: 'Disabled type for push transport' }]
     }
 
-    let pushTokens = await getTokens(userId, remoteClientId, isVoIP)
+    let pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
 
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.

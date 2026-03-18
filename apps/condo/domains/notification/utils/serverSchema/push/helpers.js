@@ -1,4 +1,5 @@
 const { find } = require('@open-condo/keystone/schema')
+const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
 
 const {
     PUSH_TRANSPORT_TYPES,
@@ -26,35 +27,85 @@ function getTokensConditions (ownerId, remoteClientId, isVoIP) {
     if (ownerId) conditions.owner = { id: ownerId }
     if (remoteClientId) conditions.id_in = [remoteClientId]
 
-    if (isVoIP) {
-        conditions.pushTokenVoIP_not = null
-        conditions.pushTransportVoIP_in = PUSH_TRANSPORT_TYPES
-    } else {
-        conditions.pushToken_not =  null
-        conditions.pushTransport_in = PUSH_TRANSPORT_TYPES
-    }
-
     return conditions
+}
+
+function isRecipientValid (recipient) {
+    return recipient.token && recipient.transport && recipient.appId
 }
 
 /**
  * @param ownerId
  * @param remoteClientId
  * @param isVoIP
+ * @param transportPriorityByAppId
  * @returns {Promise<{appId, token, transport, pushType, remoteClientMeta}[]>}
  */
-async function getTokens (ownerId, remoteClientId, isVoIP = false) {
+async function getTokens (ownerId, remoteClientId, isVoIP = false, transportPriorityByAppId = {}) {
     if (!ownerId && !remoteClientId) return []
 
     const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
     const remoteClients =  await find('RemoteClient', conditions)
-    return remoteClients.map(remoteClient => ({
+    const remoteClientById = Object.fromEntries(remoteClients.map(rc => ([rc.id, rc])))
+
+    const remoteClientPushTokens = await find('RemoteClientPushToken', {
+        remoteClient: { id_in: remoteClients.map(rc => rc.id) },
+        deletedAt: null,
+        ...isVoIP ? { isVoIP: true } : { isPush: true },
+    })
+
+    const byTransportAndToken = {}
+
+    remoteClientPushTokens
+        .map(pushToken => ({
+            appId: remoteClientById[pushToken.remoteClient].appId,
+            token: pushToken.token,
+            transport: pushToken.transport,
+            pushType: remoteClientById[pushToken.remoteClient][isVoIP ? 'pushTypeVoIP' : 'pushType'],
+            remoteClientMeta: remoteClientById[pushToken.remoteClient].meta,
+            remoteClientId: pushToken.remoteClient,
+        }))
+        .filter(recipient => isRecipientValid(recipient, isVoIP))
+        .forEach(recipient => {
+            byTransportAndToken[`${recipient.transport}:${recipient.token}`] = recipient
+        })
+
+    remoteClients.map(remoteClient => ({
         appId: remoteClient.appId,
         token: isVoIP ? remoteClient.pushTokenVoIP : remoteClient.pushToken,
         transport: isVoIP ? remoteClient.pushTransportVoIP : remoteClient.pushTransport,
         pushType: isVoIP ? remoteClient.pushTypeVoIP : remoteClient.pushType,
         remoteClientMeta: remoteClient.meta,
+        remoteClientId: remoteClient.id,
     }))
+        .filter(recipient => isRecipientValid(recipient, isVoIP))
+        .forEach(recipient => {
+            (byTransportAndToken[`${recipient.transport}:${recipient.token}`] ??= recipient)
+        })
+
+    const allPushTokensForRemoteClientForVoIPType = Object.values(byTransportAndToken)
+    // NOTE(YEgorLu): we must keep only one push token for each remote client
+
+    const pushTokensByRemoteClientId = allPushTokensForRemoteClientForVoIPType.reduce((byAppId, pushToken) => {
+        (byAppId[pushToken.remoteClientId] ??= []).push(pushToken)
+        return byAppId
+    }, {})
+    const result = []
+    for (const remoteClientId of Object.keys(pushTokensByRemoteClientId)) {
+        const remoteClient = remoteClientById[remoteClientId]
+        const appId = remoteClient.appId
+
+        if (!transportPriorityByAppId[appId]) {
+            result.push(pushTokensByRemoteClientId[remoteClientId][0])
+            continue
+        }
+        const [tokenWithAllowedTransportAndMostPriority] = transportPriorityByAppId[appId]
+            .map(transport => pushTokensByRemoteClientId[remoteClientId].find(pushToken => pushToken.transport === transport))
+            .filter(nonNull)
+        if (tokenWithAllowedTransportAndMostPriority) result.push(tokenWithAllowedTransportAndMostPriority)
+    }
+
+    return result
 }
 
 

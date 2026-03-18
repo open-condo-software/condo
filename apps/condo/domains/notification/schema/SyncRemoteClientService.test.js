@@ -10,7 +10,7 @@ const { makeClient, makeLoggedInClient, makeLoggedInAdminClient, expectToThrowGQ
 const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
 const { ERRORS } = require('@condo/domains/notification/schema/SyncRemoteClientService')
 const {
-    RemoteClient, createTestRemoteClient, syncRemoteClientByTestClient,
+    RemoteClient, syncRemoteClientByTestClient,
     RemoteClientPushToken, createTestRemoteClientPushToken,
 } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomPushTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
@@ -25,7 +25,6 @@ describe('SyncRemoteClientService', () => {
     describe('syncPushTokens persistence', () => {
         it('creates RemoteClientPushToken models from legacy pushToken/pushTransport fields in payload', async () => {
             const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
 
             const payload = getRandomTokenData({
                 pushTokens: [],
@@ -50,7 +49,6 @@ describe('SyncRemoteClientService', () => {
 
         it('saves legacy pushToken fields as null\'s and creates RemoteClientPushTokens from them', async () => {
             const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
 
             const deviceId = faker.datatype.uuid()
             const appId = faker.datatype.uuid()
@@ -92,7 +90,6 @@ describe('SyncRemoteClientService', () => {
 
         it('creates new RemoteClientPushToken records from pushTokens', async () => {
             const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
 
             const pushTokenToken = faker.datatype.uuid()
 
