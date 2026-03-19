@@ -28,11 +28,11 @@
 }
 
 .alpha-character {
-  font-size: 0.7em;
-  vertical-align: super;
   margin-left: 3px;
-  font-style: italic;
+  font-size: 0.7em;
   font-family: serif;
+  font-style: italic;
+  vertical-align: super;
 }
 
 .right-section {
