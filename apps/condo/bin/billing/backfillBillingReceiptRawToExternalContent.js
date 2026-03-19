@@ -107,6 +107,7 @@ async function main () {
 
     let processed = 0
     let lastId = opts.startFromId || null
+    let lastProcessedId = null
 
     logger.info({
         msg: 'start',
@@ -145,10 +146,11 @@ async function main () {
 
         for (const row of rows) {
             const { id, raw } = row
-            lastId = id
-
+            // Stop *before* advancing cursor to the next id.
+            // Otherwise we may skip an unprocessed record on resume with --start-from-id.
             if (maxRecords && processed >= maxRecords) {
-                logger.info({ msg: 'reached maxRecords', data: { maxRecords, lastId, processed } })
+                logger.info({ msg: 'reached maxRecords', data: { maxRecords, lastProcessedId, processed } })
+                hasMore = false
                 break
             }
 
@@ -160,6 +162,8 @@ async function main () {
                         WHERE "id" = ${toSqlUuidLiteral(id)}
                     `)
                 }
+                lastId = id
+                lastProcessedId = id
                 continue
             }
 
@@ -192,9 +196,11 @@ async function main () {
             }
 
             processed += 1
+            lastId = id
+            lastProcessedId = id
 
             if (processed % opts.progressEvery === 0) {
-                logger.info({ msg: 'progress', data: { processed, lastId } })
+                logger.info({ msg: 'progress', data: { processed, lastProcessedId } })
             }
         }
 
