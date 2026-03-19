@@ -9,13 +9,19 @@ const pickBy = require('lodash/pickBy')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById, getByCondition, getSchemaCtx, find } = require('@open-condo/keystone/schema')
 const { wrapWithGQLError } = require('@open-condo/keystone/utils/errors/wrapWithGQLError')
+const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK,
+    SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
+    MAX_SYNC_REMOTE_CLIENT_TOKENS_RESET_BY_WINDOW_SEC,
+} = require('@condo/domains/notification/constants/constants')
 const { DEVICE_KEY_VALIDATION_ERROR, INVALID_DEVICE_KEY } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
-const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
+const { getPushTokensValidationError, deduplicatePushTokens, clearPushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const ERRORS = {
     ...PUSH_TOKENS_VALIDATION_ERRORS,
@@ -35,6 +41,7 @@ const SENSITIVE_FIELDS = [
     /^push/,
     /^meta$/,
     /^owner$/,
+    /^deviceKey$/,
 ]
 
 function _cleanRemoteClient (rawClient) {
@@ -43,6 +50,18 @@ function _cleanRemoteClient (rawClient) {
             key,
             SENSITIVE_FIELDS.some(field => field.test(key)) ? null : value,
         ]))
+    )
+}
+
+const redisGuard = new RedisGuard()
+
+const checkLimits = async (ip, userId, context) => {
+    const uniqueField = [ip, userId].filter(nonNull).join(':')
+    await redisGuard.checkCustomLimitCounters(
+        `sync-remote-client-tokens-reset-${uniqueField}`,
+        SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
+        MAX_SYNC_REMOTE_CLIENT_TOKENS_RESET_BY_WINDOW_SEC,
+        context,
     )
 }
 
@@ -231,7 +250,7 @@ function buildConflictResolutionJobs ({ desiredByProvider, existingByProviderFor
         }).filter(Boolean)
 
         const operationsToDemoteTokens = tokensDemotions.map(({ existingToken, shouldDisablePush, shouldDisableVoIP }) => ({
-            existingToken, 
+            existingToken,
             op: getOldTokenResolutionOp(existingToken, { shouldDisablePush, shouldDisableVoIP }),
         }))
 
@@ -257,7 +276,7 @@ function buildConflictResolutionJobs ({ desiredByProvider, existingByProviderFor
 
         Object.assign(demotionsById, demotionsByIdForProvider)
     }
-    
+
     const jobs = { update: [], delete: [] }
     for (const [id, op] of Object.entries(demotionsById)) {
         if (op.action === 'delete') {
@@ -305,7 +324,7 @@ async function syncPushTokens (context, { remoteClient, pushTokensInput, dv, sen
     return jobs
 }
 
-async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta }) {
+async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta, deviceKey }) {
     const attrs = pickBy({
         dv, sender, deviceId, appId,
         pushToken: null, pushTokenVoIP: null,
@@ -317,7 +336,29 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
 
     const existing = await getByCondition('RemoteClient', { deviceId, appId })
 
+    let needToPasteDeviceKey = false
+
+    if (existing?.deviceKey || deviceKey) {
+        let needToClearTokens = false
+        if (!existing?.deviceKey && deviceKey) {
+            needToClearTokens = false
+            needToPasteDeviceKey = true
+        }
+        if (existing?.deviceKey && deviceKey) {
+            const { keystone } = getSchemaCtx('RemoteClient')
+            needToClearTokens = await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey)
+            if (!needToClearTokens) needToPasteDeviceKey = true
+        }
+        if (existing?.deviceKey && !deviceKey) {
+            needToClearTokens = true
+        }
+        if (needToClearTokens) {
+            await clearPushTokens()
+        }
+    }
+
     if (!existing) {
+        if (needToPasteDeviceKey) attrs['deviceKey'] = deviceKey
         return await RemoteClient.create(context, attrs)
     }
     const diff = {}
@@ -337,6 +378,11 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
         if (!isEqual(existing[key], value)) {
             diff[key] = value
         }
+    }
+
+    if (needToPasteDeviceKey) {
+        diff['deviceKey'] = deviceKey
+        attrs['deviceKey'] = deviceKey
     }
 
     if (Object.keys(diff).length > 0) {
@@ -465,20 +511,18 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     throw new GQLError(pushTokensValidationError, context)
                 }
                 const pushTokens = deduplicatePushTokens(pushTokensInput)
-
+                const { keystone } = getSchemaCtx('RemoteClient')
                 // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
                 if (typeof deviceKey === 'string') {
                     const isValidUuid = UUID_REGEXP.test(deviceKey)
                     if (!isValidUuid) {
                         throw new GQLError(ERRORS.INVALID_DEVICE_KEY, context)
                     }
-                    // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
-                    const { keystone } = getSchemaCtx('User')
+
                     try {
-                        // NOTE(YEgorLu): this will be changed from 'User' to 'RemoteClient'
-                        keystone.lists['User'].fieldsByPath.password.validateNewPassword(deviceKey)
+                        keystone.lists['RemoteClient'].fieldsByPath.deviceKey.validateNewPassword(deviceKey)
                     } catch (err) {
-                        throw wrapWithGQLError(err, context, ERRORS.DYNAMIC_DEVICE_KEY_VALIDATION_ERROR)
+                        throw wrapWithGQLError(err, context, ERRORS.DEVICE_KEY_VALIDATION_ERROR)
                     }
                 }
 

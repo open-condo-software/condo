@@ -108,9 +108,14 @@ function deduplicatePushTokens (pushTokens) {
         .filter(Boolean)
 }
 
+function clearPushTokens () {
+
+}
+
 module.exports = {
     PUSH_TOKENS_VALIDATION_ERRORS,
 
     getPushTokensValidationError,
     deduplicatePushTokens,
+    clearPushTokens,
 }

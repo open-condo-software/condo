@@ -43119,6 +43119,7 @@ type RemoteClientHistoryRecord {
   pushTypeVoIP: String
   owner: String
   meta: JSON
+  deviceKey: String
   id: ID!
   v: Int
   createdAt: String
@@ -43307,6 +43308,24 @@ input RemoteClientHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  deviceKey: String
+  deviceKey_not: String
+  deviceKey_contains: String
+  deviceKey_not_contains: String
+  deviceKey_starts_with: String
+  deviceKey_not_starts_with: String
+  deviceKey_ends_with: String
+  deviceKey_not_ends_with: String
+  deviceKey_i: String
+  deviceKey_not_i: String
+  deviceKey_contains_i: String
+  deviceKey_not_contains_i: String
+  deviceKey_starts_with_i: String
+  deviceKey_not_starts_with_i: String
+  deviceKey_ends_with_i: String
+  deviceKey_not_ends_with_i: String
+  deviceKey_in: [String]
+  deviceKey_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -43408,6 +43427,8 @@ enum SortRemoteClientHistoryRecordsBy {
   pushTransportVoIP_DESC
   pushTypeVoIP_ASC
   pushTypeVoIP_DESC
+  deviceKey_ASC
+  deviceKey_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -43438,6 +43459,7 @@ input RemoteClientHistoryRecordUpdateInput {
   pushTypeVoIP: String
   owner: String
   meta: JSON
+  deviceKey: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -43469,6 +43491,7 @@ input RemoteClientHistoryRecordCreateInput {
   pushTypeVoIP: String
   owner: String
   meta: JSON
+  deviceKey: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -43575,6 +43598,10 @@ type RemoteClient {
 
   """ RemoteClient metadata. OS type, OS version, etc. """
   meta: JSON
+
+  """ Second private factor of ownership to remote client, since deviceId is treated as public info. 
+  """
+  deviceKey_is_set: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -43699,6 +43726,7 @@ input RemoteClientWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  deviceKey_is_set: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -43812,6 +43840,7 @@ input RemoteClientUpdateInput {
   pushTypeVoIP: RemoteClientPushTypeVoIPType
   owner: UserRelateToOneInput
   meta: JSON
+  deviceKey: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -43840,6 +43869,7 @@ input RemoteClientCreateInput {
   pushTypeVoIP: RemoteClientPushTypeVoIPType
   owner: UserRelateToOneInput
   meta: JSON
+  deviceKey: String
   v: Int
   createdAt: String
   updatedAt: String

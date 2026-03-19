@@ -3,6 +3,7 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const {userIsAdmin} = require("@open-condo/keystone/access");
 
 /**
  * Manages native readability of schema. Is readable by admin only
@@ -33,6 +34,14 @@ async function canManageRemoteClients ({ authentication: { item: user } }) {
     return !!user.isAdmin
 }
 
+async function canAccessToPasswordField ({ authentication: { item: user } }) {
+    return {
+        read: userIsAdmin,
+        update: userIsAdmin,
+        create: userIsAdmin,
+    }
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -40,4 +49,5 @@ async function canManageRemoteClients ({ authentication: { item: user } }) {
 module.exports = {
     canReadRemoteClients,
     canManageRemoteClients,
+    canAccessToPasswordField,
 }

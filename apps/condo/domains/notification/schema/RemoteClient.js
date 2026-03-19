@@ -12,6 +12,9 @@ const {
     PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES,
     PUSH_TYPE_DEFAULT, PUSH_TYPE_SILENT_DATA,
 } = require('@condo/domains/notification/constants/constants')
+const {MIN_PASSWORD_LENGTH} = require("../../user/constants/common");
+const {isNull} = require("lodash");
+const {passwordValidations} = require("../../user/utils/serverSchema/validateHelpers");
 
 const APP_ID_MIN_LENGTH = 7
 
@@ -149,6 +152,33 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             schemaDoc: 'RemoteClient metadata. OS type, OS version, etc.',
             type: 'Json',
             isRequired: false,
+        },
+
+        deviceKey: {
+            schemaDoc: 'Second private factor of ownership to remote client, since deviceId is treated as public info.',
+            type: 'Password',
+            isRequired: false, // for backwards compatibility
+            sensitive: true,
+            rejectCommon: true,
+            minLength: MIN_PASSWORD_LENGTH,
+            access: access.canAccessToPasswordField,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const pass = resolvedData[fieldPath]
+
+                    if (pass === '') return null
+                    return pass
+                },
+                validateInput: async ({ context, resolvedData, existingItem, fieldPath }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const pass = newItem[fieldPath]
+
+                    // NOTE: it should be possible to reset the password
+                    if (!isNull(pass)) {
+                        await passwordValidations(context, pass, newItem.email, newItem.phone)
+                    }
+                },
+            },
         },
 
     },
