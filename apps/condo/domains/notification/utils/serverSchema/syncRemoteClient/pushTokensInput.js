@@ -81,7 +81,7 @@ function getPushTokensValidationError (pushTokens) {
             .map(reducePushTokensWithSameTokenToOneObject)
             .filter(Boolean))
 
-    const allCount = Math.sum(...dedupedTokensByTransport.map(tokensByTransport => tokensByTransport.length))
+    const allCount = dedupedTokensByTransport.map(tokensByTransport => tokensByTransport.length).reduce((acc, cur) => acc + cur)
     if (allCount > MAXIMUM_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT) {
         return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS
     }
