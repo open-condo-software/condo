@@ -103,7 +103,9 @@ async function main () {
     const knex = context.adapter.knex
     await knex.raw(`SET statement_timeout = '${MIGRATION_STATEMENT_TIMEOUT}'`)
 
-    const adapter = new FileAdapter('BillingIntegrations', false, true)
+    // Keep adapter config consistent with schema (saveFileName=false).
+    // Deterministic filenames are still achieved by passing stable `id` to adapter.save().
+    const adapter = new FileAdapter('BillingIntegrations')
 
     let processed = 0
     let lastId = opts.startFromId || null
