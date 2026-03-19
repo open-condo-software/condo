@@ -293,13 +293,12 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         const contextsWithSamePlan = activatedSubscriptions
             .filter(ctx => ctx?.subscriptionPlan?.id === plan?.id)
             .sort((a, b) => {
-                const aEndAt = a?.endAt ? dayjs(a.endAt) : dayjs(0)
-                const bEndAt = b?.endAt ? dayjs(b.endAt) : dayjs(0)
-                return bEndAt.diff(aEndAt)
+                const aEnd = dayjs(a.endAt)
+                const bEnd = dayjs(b.endAt)
+                return bEnd.diff(aEnd)
             })
-        
-        const lastContext = contextsWithSamePlan[0]
-        return lastContext?.actualPaymentMethod?.id || null
+
+        return contextsWithSamePlan.length > 0 ? contextsWithSamePlan[0]?.bindingId : null
     }, [activatedSubscriptions, plan?.id])
     
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({

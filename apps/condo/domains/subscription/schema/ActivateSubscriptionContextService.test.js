@@ -180,7 +180,14 @@ describe('ActivateSubscriptionContextService', () => {
                 deletedAt: null,
             })
             
-            const testPaymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '4242' }
+            const testPaymentMethod = {
+                bindingId: faker.datatype.uuid(),
+                paymentSystem: 'MasterCard',
+                cardNumber: '******4242',
+                expiration: '12/2025',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             await updateTestMultiPayment(admin, payment.multiPayment.id, {
                 meta: { paymentMethod: testPaymentMethod },
             })
@@ -193,9 +200,8 @@ describe('ActivateSubscriptionContextService', () => {
             })
             
             const finalContext = await getById('SubscriptionContext', subscriptionContext.id)
-            expect(finalContext.recurrentPaymentEnabled).toBe(true)
-            expect(finalContext.actualPaymentMethod).toBeDefined()
-            expect(finalContext.actualPaymentMethod).toEqual(testPaymentMethod)
+            expect(finalContext.bindingId).toBe(testPaymentMethod.bindingId)
+            expect(finalContext.bindingId).toBeDefined()
             
             expect(finalContext.frozenPaymentInfo).toBeDefined()
             expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(testPaymentMethod)

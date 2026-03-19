@@ -569,81 +569,51 @@ describe('SubscriptionContext', () => {
             })
         })
 
-        test('actualPaymentMethod field stores payment method correctly', async () => {
-            const paymentMethod = {
-                id: faker.datatype.uuid(),
-                type: 'card',
-                cardMask: '1234',
-                cardType: 'visa',
-                title: 'Test Card',
-            }
+        test('bindingId field stores card token ID correctly', async () => {
+            const bindingId = faker.datatype.uuid()
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
-                actualPaymentMethod: paymentMethod,
+                bindingId,
             })
 
-            expect(obj.actualPaymentMethod).toBeDefined()
-            expect(obj.actualPaymentMethod.id).toBe(paymentMethod.id)
+            expect(obj.bindingId).toBeDefined()
+            expect(obj.bindingId).toBe(bindingId)
         })
 
-        test('can set recurrentPaymentEnabled for paid subscription with pricing rule', async () => {
+        test('can set bindingId for subscription', async () => {
+            const bindingId = faker.datatype.uuid()
+
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                recurrentPaymentEnabled: true,
+                bindingId,
             })
 
             expect(obj.id).toMatch(UUID_RE)
-            expect(obj.recurrentPaymentEnabled).toBe(true)
+            expect(obj.bindingId).toBe(bindingId)
         })
 
-        test('cannot set recurrentPaymentEnabled for trial subscription', async () => {
-            await expectToThrowGQLError(async () => {
-                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().format('YYYY-MM-DD'),
-                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
-                    isTrial: true,
-                    recurrentPaymentEnabled: true,
-                })
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
-            }, 'obj')
-        })
-
-        test('cannot set recurrentPaymentEnabled for paid subscription without pricing rule', async () => {
-            await expectToThrowGQLError(async () => {
-                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().format('YYYY-MM-DD'),
-                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                    isTrial: false,
-                    recurrentPaymentEnabled: true,
-                })
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
-            }, 'obj')
-        })
-
-        test('can update recurrentPaymentEnabled on existing subscription', async () => {
+        test('can update bindingId on existing subscription', async () => {
+            const oldBindingId = faker.datatype.uuid()
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                recurrentPaymentEnabled: false,
+                bindingId: oldBindingId,
             })
 
+            const newBindingId = faker.datatype.uuid()
             const [updated] = await updateTestSubscriptionContext(admin, obj.id, {
-                recurrentPaymentEnabled: true,
+                bindingId: newBindingId,
             })
 
-            expect(updated.recurrentPaymentEnabled).toBe(true)
+            expect(updated.bindingId).toBe(newBindingId)
         })
     })
 

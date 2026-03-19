@@ -138,8 +138,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     dv,
                     sender,
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                    recurrentPaymentEnabled: Boolean(paymentMethod),
-                    actualPaymentMethod: paymentMethod,
+                    bindingId: paymentMethod?.bindingId || null,
                     frozenPaymentInfo,
                 })
 

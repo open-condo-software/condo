@@ -14,13 +14,13 @@ const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLA
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = '{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden id dv sender { dv fingerprint } v }'
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status recurrentPaymentEnabled actualPaymentMethod { id type cardMask cardType title } frozenPaymentInfo { paymentMethod { id type cardMask cardType title } invoice { id rows { name count price toPay } toPay } pricingRuleId } daysRemaining id dv sender { dv fingerprint } v }'
+const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId } daysRemaining id dv sender { dv fingerprint } v }'
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`
     mutation activateSubscriptionContext ($data: ActivateSubscriptionContextInput!) {
         result: activateSubscriptionContext(data: $data) { 
-            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status recurrentPaymentEnabled actualPaymentMethod { id type cardMask cardType title } frozenPaymentInfo { paymentMethod { id type cardMask cardType title } invoice { id rows { name count price toPay } toPay } pricingRuleId } }
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId } }
         }
     }
 `
@@ -37,6 +37,14 @@ const REGISTER_SUBSCRIPTION_CONTEXT_MUTATION = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION = gql`
+    mutation updateSubscriptionContextPaymentMethod ($data: UpdateSubscriptionContextPaymentMethodInput!) {
+        result: updateSubscriptionContextPaymentMethod(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -46,5 +54,6 @@ module.exports = {
     ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
     REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+    UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

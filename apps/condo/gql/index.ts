@@ -5352,20 +5352,15 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
     isTrial
     startAt
     endAt
-    actualPaymentMethod {
-      id
-      type
-      cardMask
-      cardType
-      title
-    }
+    bindingId
     frozenPaymentInfo {
       paymentMethod {
-        id
-        type
-        cardMask
-        cardType
-        title
+        bindingId
+        paymentSystem
+        cardNumber
+        expiration
+        bankName
+        bankCountryCode
       }
       invoice {
         id
@@ -5432,20 +5427,15 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     daysRemaining
     endAt
     createdAt
-    actualPaymentMethod {
-      id
-      type
-      cardMask
-      cardType
-      title
-    }
+    bindingId
     frozenPaymentInfo {
       paymentMethod {
-        id
-        type
-        cardMask
-        cardType
-        title
+        bindingId
+        paymentSystem
+        cardNumber
+        expiration
+        bankName
+        bankCountryCode
       }
       invoice {
         id
@@ -5510,20 +5500,15 @@ export const GetLastExpiredSubscriptionContextDocument = gql`
     isTrial
     startAt
     endAt
-    actualPaymentMethod {
-      id
-      type
-      cardMask
-      cardType
-      title
-    }
+    bindingId
     frozenPaymentInfo {
       paymentMethod {
-        id
-        type
-        cardMask
-        cardType
-        title
+        bindingId
+        paymentSystem
+        cardNumber
+        expiration
+        bankName
+        bankCountryCode
       }
       invoice {
         id
@@ -5588,20 +5573,15 @@ export const GetSubscriptionContextByIdDocument = gql`
     startAt
     endAt
     daysRemaining
-    actualPaymentMethod {
-      id
-      type
-      cardMask
-      cardType
-      title
-    }
+    bindingId
     frozenPaymentInfo {
       paymentMethod {
-        id
-        type
-        cardMask
-        cardType
-        title
+        bindingId
+        paymentSystem
+        cardNumber
+        expiration
+        bankName
+        bankCountryCode
       }
       invoice {
         id
