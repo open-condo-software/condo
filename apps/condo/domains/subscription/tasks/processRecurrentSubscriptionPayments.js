@@ -6,7 +6,7 @@ const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
-const { registerSubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { registerSubscriptionContext, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
@@ -24,7 +24,7 @@ async function processRecurrentSubscriptionPayments () {
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {
             bindingId_not: null,
-            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            status_in: [SUBSCRIPTION_CONTEXT_STATUS.DONE, SUBSCRIPTION_CONTEXT_STATUS.ERROR],
             endAt_gte: bufferDate,
             endAt_lte: yesterday,
             deletedAt: null,
@@ -78,15 +78,33 @@ async function processRecurrentSubscriptionPayments () {
             logger.info({ msg: 'created new subscription context', data: { newContextId: newContext.id, invoiceId: newContext.invoice } })
 
             if (directPaymentUrl && newContext.invoice) {
-                const { paid, errorMessage } = await SubscriptionPaymentAdapter.proceedPayment({
+                const paymentResult = await SubscriptionPaymentAdapter.proceedPayment({
                     directPaymentUrl,
                     cardTokenId: bindingId,
                 })
 
+                const { status: paymentStatus, paid, errorMessage, cancellationDetails } = paymentResult
+
                 if (paid) {
                     logger.info({ msg: 'payment succeeded', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice } })
+                } else if (paymentStatus === 'canceled') {
+                    logger.error({ 
+                        msg: 'payment canceled', 
+                        data: { 
+                            subscriptionContextId: newContext.id, 
+                            invoiceId: newContext.invoice, 
+                            errorMessage, 
+                            cancellationDetails,
+                        },
+                    })
+                    
+                    await SubscriptionContext.update(context, newContext.id, {
+                        dv: 1,
+                        sender,
+                        status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+                    })
                 } else {
-                    logger.error({ msg: 'payment failed', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice, errorMessage } })
+                    logger.error({ msg: 'payment failed', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice, paymentStatus, errorMessage } })
                 }
             } else {
                 logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
