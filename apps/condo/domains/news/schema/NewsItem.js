@@ -240,7 +240,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
                 const chunks = chunk(newsItemFiles?.map(file => file.id), 50)
 
-                const dvAndSender = { dv: existingItem.dv, sender: existingItem.sender }
+                const dvAndSender = { dv: resolvedData.dv, sender: resolvedData.sender }
                 for (const chunk of chunks) {
                     await NewsItemFile.softDeleteMany(context, chunk, 'id', dvAndSender)
                 }
