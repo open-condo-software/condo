@@ -171,14 +171,8 @@ class ExternalContentImplementation extends Implementation {
             return null
         }
 
-        if (prevLooksLikeFile) {
-            try {
-                await this.fileAdapter.delete(prevValue)
-            } catch {
-                // ignore delete errors
-            }
-        }
-
+        // Save first, then delete old file.
+        // This prevents losing the previous file if save() fails.
         const payload = this.serialize(nextValue)
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
@@ -191,6 +185,14 @@ class ExternalContentImplementation extends Implementation {
             id: cuid(),
             meta: { format: this.format },
         })
+
+        if (prevLooksLikeFile) {
+            try {
+                await this.fileAdapter.delete(prevValue)
+            } catch {
+                // ignore delete errors
+            }
+        }
 
         return saved
     }

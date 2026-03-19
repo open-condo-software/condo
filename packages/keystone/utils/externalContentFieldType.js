@@ -50,13 +50,15 @@ function isFileMeta (value, opts = {}) {
 function createExternalDataField ({
     adapter,
     format = 'json',
+    // prevent passing a different field type accidentally (e.g. from spreading Json field config)
+    type: _ignoredType,
     ...rest
 } = {}) {
     return {
+        ...rest,
         type: 'ExternalContent',
         adapter,
         format,
-        ...rest,
     }
 }
 
