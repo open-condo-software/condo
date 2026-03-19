@@ -271,12 +271,14 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 const payments = await find('Payment', {
                     id_in: paymentsIds,
                 })
+
                 const noInitPayments = payments
                     .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
                     .map(payment => payment.id)
                 if (noInitPayments.length) {
                     addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
                 }
+
                 const alreadyWithMPPayments = payments
                     .filter(payment => payment.multiPayment)
                     .map(payment => payment.id)

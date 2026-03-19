@@ -60,6 +60,14 @@ const ERRORS = {
         type: 'INVALID_VALUE',
         message: 'Payment amount cannot be negative or zero. Found invalid amount: {amount} for transaction: {transactionId}',
     },
+    INVALID_PARAMS: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Some payment parameters are invalid: {details}',
+        messageInterpolation: { details: 'Check transactionId: {transactionId}' },
+    },
 }
 
 module.exports = {

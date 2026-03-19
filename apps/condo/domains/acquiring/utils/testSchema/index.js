@@ -75,8 +75,8 @@ const {
     createTestWebhookPayload,
     updateTestWebhookPayload,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
-const { REGISTER_EXTERNAL_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
 
+const { REGISTER_EXTERNAL_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -968,5 +968,5 @@ module.exports = {
     WebhookPayload, createTestWebhookPayload, updateTestWebhookPayload,
     PaymentStatusChangeWebhookUrl, createTestPaymentStatusChangeWebhookUrl, updateTestPaymentStatusChangeWebhookUrl,
     registerExternalPaymentsByTestClient,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
