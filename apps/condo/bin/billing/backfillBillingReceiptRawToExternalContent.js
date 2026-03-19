@@ -6,15 +6,15 @@
  *     --period 2025-01 --organization <organizationId>
  */
 const path = require('path')
+const { Readable } = require('stream')
 
 const commander = require('commander')
 const dayjs = require('dayjs')
-const { Readable } = require('stream')
 
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
-const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { isFileMeta } = require('@open-condo/keystone/fields/ExternalContent/utils')
+const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
@@ -120,7 +120,8 @@ async function main () {
         },
     })
 
-    while (true) {
+    let hasMore = true
+    while (hasMore) {
         const sql = `
             SELECT br."id", br."raw"
             FROM "BillingReceipt" br
@@ -139,7 +140,8 @@ async function main () {
         `
 
         const { rows } = await knex.raw(sql)
-        if (!rows.length) break
+        hasMore = rows.length > 0
+        if (!hasMore) continue
 
         for (const row of rows) {
             const { id, raw } = row
@@ -199,7 +201,7 @@ async function main () {
         if (maxRecords && processed >= maxRecords) break
     }
 
-    await knex.raw(`SET statement_timeout = '10s'`)
+    await knex.raw('SET statement_timeout = \'10s\'')
     logger.info({ msg: 'done', data: { processed, lastId } })
 }
 
