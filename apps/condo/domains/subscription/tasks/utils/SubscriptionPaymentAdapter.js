@@ -1,5 +1,6 @@
 const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('SubscriptionPaymentAdapter')
@@ -8,10 +9,10 @@ class SubscriptionPaymentAdapter {
 
     static async proceedPayment ({ directPaymentUrl, cardTokenId }) {
         try {
+            const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
             const url = new URL(directPaymentUrl)
             url.searchParams.append('cardTokenId', cardTokenId)
-            url.searchParams.append('successUrl', '')
-            url.searchParams.append('failureUrl', '')
+            url.searchParams.append('returnUrl', returnUrl)
 
             const response = await fetch(url.toString())
             
@@ -30,14 +31,25 @@ class SubscriptionPaymentAdapter {
             const data = await response.json()
             const status = get(data, 'status')
             const paymentId = get(data, 'paymentId')
+            const cancellationDetails = get(data, 'cancellationDetails')
 
             if (status === 'success' && paymentId) {
                 logger.info({ msg: 'payment succeeded', data: { paymentId, cardTokenId } })
-                return { paid: true }
+                return { status: 'success', paid: true, paymentId }
+            } else if (status === 'canceled') {
+                const cancelReason = cancellationDetails.reason || 'Unknown error'
+                logger.warn({ msg: 'payment canceled', data: { status, cardTokenId, cancellationDetails, response: data } })
+                return {
+                    status: 'canceled',
+                    paid: false,
+                    errorMessage: cancelReason,
+                    cancellationDetails,
+                }
             } else {
                 const errorMessage = get(data, 'error') || 'Payment failed'
                 logger.warn({ msg: 'payment not successful', data: { status, cardTokenId, response: data } })
                 return {
+                    status,
                     paid: false,
                     errorMessage,
                 }

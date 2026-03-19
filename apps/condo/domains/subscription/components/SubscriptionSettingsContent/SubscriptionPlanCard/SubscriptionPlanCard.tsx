@@ -523,3 +523,20 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         </>
     )
 }
+
+
+
+curl https://api.yookassa.ru/v3/payments \
+  -X POST \
+  -u 1265909:test_QDFxD7ztPOWhhtZFFChUtvNehkcvUsFic7QOW13xCKY \
+  -H 'Idempotence-Key: ca81189b-cafb-4e90-866b-6773e0ce2ac1' \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "amount": {
+          "value": "2.00",
+          "currency": "RUB"
+        },
+        "capture": true,
+        "payment_method_id": "314e0691-000f-5000-b000-12cbacbc30fb",
+        "description": "Заказ №37"
+      }'
