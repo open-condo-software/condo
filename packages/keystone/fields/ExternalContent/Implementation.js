@@ -81,19 +81,22 @@ async function readFromAdapter (adapter, fileMeta) {
 }
 
 class ExternalContentImplementation extends Implementation {
-    constructor (path, {
-        adapter,
-        format = DEFAULT_FORMAT,
-        processors = {},
-        graphQLInputType,
-        graphQLReturnType,
-        mimetype,
-        fileExt,
-        serialize,
-        deserialize,
-        ...rest
-    } = {}) {
-        super(path, { adapter, format, processors, ...rest })
+    constructor (path, options = {}, meta = {}) {
+        // IMPORTANT: pass through the original keystone options/meta.
+        // Base `@open-keystone/fields` Implementation relies on meta (e.g. getListByKey).
+        super(path, options, meta)
+
+        const {
+            adapter,
+            format = DEFAULT_FORMAT,
+            processors = {},
+            graphQLInputType,
+            graphQLReturnType,
+            mimetype,
+            fileExt,
+            serialize,
+            deserialize,
+        } = options
 
         if (!adapter) {
             throw new Error(`ExternalContent: "adapter" is required for ${path}`)

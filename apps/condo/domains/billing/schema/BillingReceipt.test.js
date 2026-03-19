@@ -6,7 +6,9 @@ const path = require('path')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
+const { gql } = require('graphql-tag')
 const pick = require('lodash/pick')
+
 
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -238,6 +240,31 @@ describe('BillingReceipt', () => {
                         await createTestBillingReceipts(anonymous, [anotherContext], [anotherProperty], [account])
                     })
                 })
+            })
+        })
+        describe('Raw field storage', () => {
+            test('stores huge raw json as external file-meta in DB', async () => {
+                const huge = {
+                    payload: 'x'.repeat(200_000),
+                    nested: { a: 1, b: true, c: ['q', 'w', 'e'] },
+                }
+                const [receipt] = await createTestBillingReceipt(admin, context, property, account, { raw: huge })
+
+                const BILLING_RECEIPT_WITH_RAW = gql`
+                    query billingReceiptRaw ($where: BillingReceiptWhereInput) {
+                        objs: allBillingReceipts(where: $where) {
+                            id
+                            raw
+                        }
+                    }
+                `
+
+                const { data } = await admin.query(BILLING_RECEIPT_WITH_RAW, { where: { id: receipt.id } })
+                expect(data).toHaveProperty('objs')
+                expect(data.objs).toHaveLength(1)
+                expect(data.objs[0]).toHaveProperty('id', receipt.id)
+                expect(data.objs[0]).toHaveProperty('raw')
+                expect(data.objs[0].raw).toEqual(huge)
             })
         })
         describe('Update', () => {
