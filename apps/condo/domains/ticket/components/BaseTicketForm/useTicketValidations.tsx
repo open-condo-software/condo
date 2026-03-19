@@ -28,7 +28,7 @@ type ITicketFieldsRuleMap = {
 export function useTicketValidations (): ITicketFieldsRuleMap {
     const intl = useIntl()
 
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const ClassifierIsRequiredMessage = intl.formatMessage({ id: 'field.Classifier.requiredError' })

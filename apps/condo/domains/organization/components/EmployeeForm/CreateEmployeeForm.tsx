@@ -52,7 +52,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const FullNamePlaceholder = intl.formatMessage({ id: 'field.FullName' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'employee.FullName.requiredError' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })

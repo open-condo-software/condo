@@ -53,7 +53,7 @@ export const UserProfileForm: React.FC = () => {
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const MaxLengthError = intl.formatMessage({ id: 'field.ClientName.maxLengthError' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidChar' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidCharError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })

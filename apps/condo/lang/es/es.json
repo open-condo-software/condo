@@ -1170,7 +1170,7 @@
   "field.FlatNumber": "Propiedad",
   "field.Floor": "Número de planta",
   "field.FullName": "Nombre completo",
-  "field.FullName.invalidChar": "Este campo sólo puede contener letras, espacios y guiones",
+  "field.FullName.invalidCharError": "Este campo sólo puede contener letras, espacios y guiones",
   "field.FullName.requiredError": "Introduce el nombre del vecino",
   "field.FullName.short": "Nombre completo",
   "field.Holder": "Vecino",
