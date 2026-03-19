@@ -10,7 +10,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Typography, Button } from '@open-condo/ui'
+import { Modal, Typography, Button, Tour } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
@@ -94,6 +94,9 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
         skipUntilAuthenticated: areAlertLoading,
     })
+    // Track if date range has been cleared for testing receipt to prevent the effect from running
+    // multiple times and interfering with tab navigation (e.g., switching to accruals tab)
+    const hasDateRangeBeenClearedRef = React.useRef(false)
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -110,6 +113,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const userOrganization = useOrganization()
 
     const { filters, sorters, offset } = parseQuery(router.query)
+    const currentTab = router.query.tab
 
     // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
@@ -180,6 +184,16 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         setDateRange(value)
     }, [setDateRange])
 
+    useEffect(() => {
+        if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === 'payments' && !hasDateRangeBeenClearedRef.current) {
+            hasDateRangeBeenClearedRef.current = true
+            setFiltersAreReset(true)
+            setDateRange(null)
+        } else if (currentTab !== 'payments') {
+            // Reset flag when leaving the tab so it can be cleared again on return
+            hasDateRangeBeenClearedRef.current = false
+        }
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange, setFiltersAreReset])
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
@@ -212,7 +226,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     }, [objs, lastTestingPosReceipt])
 
     return (
-        <>
+        <Tour.Provider>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
                     <TableFiltersContainer>
@@ -297,7 +311,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                         totalRows={count}
                         columns={tableColumns}
                         onRow={(record) => {
-                            if (lastTestingPosReceipt && lastTestingPosReceipt?.condoPaymentId === record.id) {
+                            if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
                                 return { style: { backgroundColor: colors.orange[1] } }
                             }
                         }}
@@ -334,7 +348,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
             </Modal>
 
             <MultipleFiltersModal />
-        </>
+        </Tour.Provider>
     )
 }
 
