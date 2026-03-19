@@ -10,7 +10,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Typography, Button } from '@open-condo/ui'
+import { Modal, Typography, Button, Tour } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
@@ -189,8 +189,11 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
             hasDateRangeBeenClearedRef.current = true
             setFiltersAreReset(true)
             setDateRange(null)
+        } else if (currentTab !== 'payments') {
+            // Reset flag when leaving the tab so it can be cleared again on return
+            hasDateRangeBeenClearedRef.current = false
         }
-    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange, setFiltersAreReset])
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
@@ -223,7 +226,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     }, [objs, lastTestingPosReceipt])
 
     return (
-        <>
+        <Tour.Provider>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
                     <TableFiltersContainer>
@@ -308,7 +311,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                         totalRows={count}
                         columns={tableColumns}
                         onRow={(record) => {
-                            if (lastTestingPosReceipt && lastTestingPosReceipt?.condoPaymentId === record.id) {
+                            if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
                                 return { style: { backgroundColor: colors.orange[1] } }
                             }
                         }}
@@ -345,7 +348,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
             </Modal>
 
             <MultipleFiltersModal />
-        </>
+        </Tour.Provider>
     )
 }
 

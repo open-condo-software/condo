@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
 import { Download } from '@open-condo/icons'
-import { Space, Tooltip, Typography, Tour } from '@open-condo/ui'
+import { Space, Typography, Tour } from '@open-condo/ui'
 
 import { LastTestingPosReceiptData } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 
@@ -22,13 +22,19 @@ type DelayedTestingTooltipProps = {
 }
 
 const DelayedTestingTooltip: React.FC<DelayedTestingTooltipProps> = ({ delayMs, verifyTitle, verifyDescription, children }) => {
-    const { setCurrentStep } = Tour.useTourContext()
+    const tourContext = Tour.useTourContext()
 
     useEffect(() => {
-        const timer = setTimeout(() => setCurrentStep(1), delayMs)
+        if (!tourContext) return
+        
+        const timer = setTimeout(() => tourContext.setCurrentStep(1), delayMs)
 
         return () => clearTimeout(timer)
-    }, [delayMs, setCurrentStep])
+    }, [delayMs, tourContext])
+
+    if (!tourContext) {
+        return <>{children}</>
+    }
 
     return (
         <Tour.TourStep step={1} title={verifyTitle} message={verifyDescription}>
@@ -65,15 +71,13 @@ export const getPosReceiptUrlRender = ({
         if (!shouldShowTestingTooltip) return content
 
         return (
-            <Tour.Provider>
-                <DelayedTestingTooltip
-                    delayMs={showDelayMs}
-                    verifyTitle={verifyTitle}
-                    verifyDescription={verifyDescription}
-                >
-                    {content}
-                </DelayedTestingTooltip>
-            </Tour.Provider>
+            <DelayedTestingTooltip
+                delayMs={showDelayMs}
+                verifyTitle={verifyTitle}
+                verifyDescription={verifyDescription}
+            >
+                {content}
+            </DelayedTestingTooltip>
         )
     }
 }
