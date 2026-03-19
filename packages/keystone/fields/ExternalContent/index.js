@@ -1,33 +1,8 @@
 const { Text } = require('@open-keystone/fields')
 
 const { ExternalContentImplementation } = require('./Implementation')
-const { JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('../Json/Implementation')
 
-/**
- * Public factory for creating ExternalContent-based fields.
- *
- * Example:
- *   const field = createExternalDataField({
- *       adapter: new FileAdapter('MyFolder'),
- *       format: 'json',
- *       sensitive: true,
- *       isRequired: false,
- *   })
- *
- * NOTE: This helper is part of the external API for apps / submodules.
- */
-function createExternalDataField ({
-    adapter,
-    format = 'json',
-    ...rest
-} = {}) {
-    return {
-        type: 'ExternalContent',
-        adapter,
-        format,
-        ...rest,
-    }
-}
+const { JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('../Json/Implementation')
 
 module.exports = {
     type: 'ExternalContent',
@@ -44,6 +19,5 @@ module.exports = {
         Field: Text.views.Field,
         Cell: Text.views.Cell,
     },
-    createExternalDataField,
 }
 

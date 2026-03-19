@@ -2,11 +2,11 @@ const { readFile } = require('fs/promises')
 const path = require('path')
 const { Readable } = require('stream')
 
+const { Implementation } = require('@open-keystone/fields')
 const cuid = require('cuid')
 
-const { Implementation } = require('@open-keystone/fields')
 
-const { isFileMeta } = require('./utils')
+const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const DEFAULT_FORMAT = 'json'
 

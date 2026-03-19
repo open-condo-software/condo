@@ -1,5 +1,5 @@
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { createExternalDataField } = require('@open-condo/keystone/fields/ExternalContent')
+const { createExternalDataField } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
 
