@@ -152,7 +152,7 @@ class ExternalContentImplementation extends Implementation {
     }
 
     // Hooks
-    async resolveInput ({ resolvedData, existingItem }) {
+    async resolveInput ({ resolvedData, existingItem, listKey }) {
         const nextValue = resolvedData[this.path]
 
         if (typeof nextValue === 'undefined') return undefined
@@ -176,7 +176,8 @@ class ExternalContentImplementation extends Implementation {
         const payload = this.serialize(nextValue)
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
-        const originalFilename = `${this.field?.listKey || 'item'}_${this.path}.${this.fileExt}`
+        const prefix = listKey || 'item'
+        const originalFilename = `${prefix}_${this.path}.${this.fileExt}`
         const saved = await this.fileAdapter.save({
             stream,
             filename: originalFilename,
