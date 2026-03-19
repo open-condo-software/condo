@@ -236,7 +236,7 @@ const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentP
     useEffect(() => {
         if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === MARKETPLACE_PAGE_TYPES.payments && !hasDateRangeBeenClearedRef.current) {
             hasDateRangeBeenClearedRef.current = true
-            setDateRange([null, null])
+            setDateRange(null)
         }
     }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
 
