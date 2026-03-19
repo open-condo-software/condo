@@ -16,9 +16,9 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
         isTrial
         startAt
         endAt
-        actualPaymentMethod { id type cardMask cardType title }
+        bindingId
         frozenPaymentInfo {
-            paymentMethod { id type cardMask cardType title }
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
             invoice { id rows { name count price toPay } toPay }
             pricingRuleId
         }
@@ -45,9 +45,9 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         daysRemaining
         endAt
         createdAt
-        actualPaymentMethod { id type cardMask cardType title }
+        bindingId
         frozenPaymentInfo {
-            paymentMethod { id type cardMask cardType title }
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
             invoice { id rows { name count price toPay } toPay }
             pricingRuleId
         }
@@ -72,9 +72,9 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         isTrial
         startAt
         endAt
-        actualPaymentMethod { id type cardMask cardType title }
+        bindingId
         frozenPaymentInfo {
-            paymentMethod { id type cardMask cardType title }
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
             invoice { id rows { name count price toPay } toPay }
             pricingRuleId
         }
@@ -94,9 +94,9 @@ query getSubscriptionContextById($id: ID!) {
         startAt
         endAt
         daysRemaining
-        actualPaymentMethod { id type cardMask cardType title }
+        bindingId
         frozenPaymentInfo {
-            paymentMethod { id type cardMask cardType title }
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
             invoice { id rows { name count price toPay } toPay }
             pricingRuleId
         }

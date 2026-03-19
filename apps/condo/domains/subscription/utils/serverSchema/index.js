@@ -9,6 +9,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
 const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
 const { REGISTER_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
+const { UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
@@ -52,6 +53,20 @@ async function registerSubscriptionContext (context, data) {
     })
 }
 
+async function updateSubscriptionContextPaymentMethod (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write updateSubscriptionContextPaymentMethod serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to updateSubscriptionContextPaymentMethod',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -61,5 +76,6 @@ module.exports = {
     activateSubscriptionContext,
     getAvailableSubscriptionPlans,
     registerSubscriptionContext,
+    updateSubscriptionContextPaymentMethod,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

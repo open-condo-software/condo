@@ -41,11 +41,6 @@ const ERRORS = {
         type: 'TRIAL_CANNOT_HAVE_INVOICE',
         message: 'Trial subscription cannot have invoice',
     },
-    RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION: {
-        code: BAD_USER_INPUT,
-        type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
-        message: 'Recurrent payment fields can only be set for paid subscriptions (isTrial=false) with subscriptionPlanPricingRule',
-    },
 }
 
 
@@ -122,18 +117,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        recurrentPaymentEnabled: {
-            schemaDoc: 'Whether automatic subscription renewal is enabled for this subscription. Can only be set for paid subscriptions with subscriptionPlanPricingRule',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: false,
-            access: {
-                read: true,
-                create: true,
-                update: true,
-            },
-        },
-
         isTrial: {
             schemaDoc: 'Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays)',
             type: 'Checkbox',
@@ -159,15 +142,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        actualPaymentMethod: {
-            schemaDoc: 'Actual payment method for subscriptions with this plan',
-            type: 'Json',
+        bindingId: {
+            schemaDoc: 'Saved card token on acquiring side used for subscription auto-payments. The presence of this value indicates that auto-payments are enabled',
+            type: 'Text',
             isRequired: false,
-            extendGraphQLTypes: [
-                'type PaymentMethod { id: String!, type: String!, cardMask: String, cardType: String, title: String, cardIssuerCountry: String, cardIssuerName: String }',
-            ],
-            graphQLReturnType: 'PaymentMethod',
-            graphQLAdminFragment: '{ id type cardMask cardType title cardIssuerCountry cardIssuerName }',
             access: {
                 read: true,
                 create: true,
@@ -176,16 +154,17 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         },
 
         frozenPaymentInfo: {
-            schemaDoc: 'Frozen payment information including payment method, invoice details, and pricing rule ID',
+            schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID',
             type: 'Json',
             isRequired: false,
             extendGraphQLTypes: [
+                'type PaymentMethod { bindingId: String!, paymentSystem: String!, cardNumber: String!, expiration: String!, bankName: String!, bankCountryCode: String! }',
                 'type InvoiceRow { name: String, count: String, price: String, toPay: String }',
                 'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String }',
                 'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String }',
             ],
             graphQLReturnType: 'FrozenPaymentInfo',
-            graphQLAdminFragment: '{ paymentMethod { id type cardMask cardType title cardIssuerCountry cardIssuerName } invoice { id rows { name count price toPay } toPay } pricingRuleId }',
+            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId }',
             access: {
                 read: true,
                 create: userIsAdmin,

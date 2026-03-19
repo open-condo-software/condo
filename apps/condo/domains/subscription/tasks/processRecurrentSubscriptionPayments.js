@@ -4,8 +4,8 @@ const get = require('lodash/get')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 
-const { PaymentAdapter } = require('@condo/domains/acquiring/tasks/utils/PaymentAdapter')
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
@@ -23,7 +23,7 @@ async function processRecurrentSubscriptionPayments () {
 
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {
-            recurrentPaymentEnabled: true,
+            bindingId_not: null,
             status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             endAt_gte: bufferDate,
             endAt_lte: yesterday,
@@ -36,11 +36,15 @@ async function processRecurrentSubscriptionPayments () {
 
     for (const subscriptionContext of contexts) {
         try {
-            const { id, organization, subscriptionPlanPricingRule, actualPaymentMethod } = subscriptionContext
-            const paymentMethodId = get(actualPaymentMethod, 'id')
+            const {
+                id,
+                organization,
+                subscriptionPlanPricingRule,
+                bindingId,
+            } = subscriptionContext
 
-            if (!paymentMethodId) {
-                logger.warn({ msg: 'subscription context has no payment method', data: { subscriptionContextId: id } })
+            if (!bindingId) {
+                logger.info({ msg: 'subscription context does not have binding for auto-payment', data: { subscriptionContextId: id } })
                 continue
             }
 
@@ -64,7 +68,7 @@ async function processRecurrentSubscriptionPayments () {
 
             const sender = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
 
-            const { subscriptionContext: newContext, directPaymentUrl, multiPayment } = await registerSubscriptionContext(context, {
+            const { subscriptionContext: newContext, directPaymentUrl } = await registerSubscriptionContext(context, {
                 sender,
                 organization: { id: organization },
                 subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule },
@@ -74,18 +78,15 @@ async function processRecurrentSubscriptionPayments () {
             logger.info({ msg: 'created new subscription context', data: { newContextId: newContext.id, invoiceId: newContext.invoice } })
 
             if (directPaymentUrl && newContext.invoice) {
-                const adapter = new PaymentAdapter({
-                    multiPaymentId: multiPayment.id,
+                const { paid, errorMessage } = await SubscriptionPaymentAdapter.proceedPayment({
                     directPaymentUrl,
-                    getCardTokensUrl: null,
+                    cardTokenId: bindingId,
                 })
-
-                const { paid, errorMessage, errorCode } = await adapter.proceedPayment(paymentMethodId)
 
                 if (paid) {
                     logger.info({ msg: 'payment succeeded', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice } })
                 } else {
-                    logger.error({ msg: 'payment failed', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice, errorMessage, errorCode } })
+                    logger.error({ msg: 'payment failed', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice, errorMessage } })
                 }
             } else {
                 logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
