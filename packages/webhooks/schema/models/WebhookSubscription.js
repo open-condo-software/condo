@@ -7,8 +7,9 @@ const { WebHookModelValidator, getModelValidator, setModelValidator } = require(
 const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
 
 
-const configureModelField = ({ validator, validateFields, validateFilters }) => plugin(({ fields = {}, ...rest }) => {
+const configureModelField = ({ validator, validateFields, validateFilters, setHasAvailableModels }) => plugin(({ fields = {}, ...rest }) => {
     const hasAvailableModels = Boolean(validator && validator.models.length > 0)
+    setHasAvailableModels(hasAvailableModels)
 
     // WebhookSubscription is intended for model-based webhooks only, so in the normal case
     // `model` must be a required Select backed by models registered through `webHooked()`.
@@ -16,7 +17,7 @@ const configureModelField = ({ validator, validateFields, validateFilters }) => 
     // therefore never register any `webHooked()` models. In that case `validator.models` stays
     // empty, and a required Select with no options makes the schema impossible to use and can
     // break app startup. To keep such apps bootable while still requiring callers to provide a
-    // `model` value, we degrade the field to required Text and skip model-based validation when
+    // `model` value, we degrade the field to required Text and disable creation access when
     // no models are available.
     //
     // If `validator.models` later becomes non-empty for the same app, the field automatically
@@ -60,12 +61,14 @@ function getWebhookSubscriptionModel (schemaPath) {
     }
 
     const validator = getModelValidator()
-    const hasAvailableModels = () => Boolean(validator && validator.models.length > 0)
+    let hasAvailableModels = false
+    const setHasAvailableModels = (value) => { hasAvailableModels = value }
+    const checkHasAvailableModels = () => hasAvailableModels
 
     const validateFields = ({ resolvedData, existingItem, addFieldValidationError }) => {
         const newItem = { ...existingItem, ...resolvedData }
 
-        if (!hasAvailableModels()) {
+        if (!checkHasAvailableModels()) {
             return
         }
 
@@ -89,7 +92,7 @@ function getWebhookSubscriptionModel (schemaPath) {
     const validateFilters = ({ resolvedData, existingItem, addFieldValidationError }) => {
         const newItem = { ...existingItem, ...resolvedData }
 
-        if (!hasAvailableModels()) {
+        if (!checkHasAvailableModels()) {
             return
         }
 
@@ -210,10 +213,10 @@ function getWebhookSubscriptionModel (schemaPath) {
                 },
             },
         },
-        plugins: [configureModelField({ validator, validateFields, validateFilters }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+        plugins: [configureModelField({ validator, validateFields, validateFilters, setHasAvailableModels }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
         access: {
             read: access.canReadWebhookSubscriptions,
-            create: access.canManageWebhookSubscriptions,
+            create: checkHasAvailableModels() ? access.canManageWebhookSubscriptions : false,
             update: access.canManageWebhookSubscriptions,
             delete: false,
             auth: true,
