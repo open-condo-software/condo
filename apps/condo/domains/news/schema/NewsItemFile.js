@@ -6,7 +6,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemFile')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
@@ -72,8 +72,13 @@ const NewsItemFile = new GQLListSchema('NewsItemFile', {
             adapter: Adapter,
             isRequired: true,
             hooks: {
-                validateInput: ({ resolvedData, fieldPath, context }) => {
-                    const mimetype = resolvedData?.[fieldPath]?.mimetype
+                validateInput: async (args) => {
+                    const { fieldPath, context, resolvedData } = args
+
+                    const fileRecord = await getByCondition('FileRecord', {
+                        id: resolvedData?.[fieldPath]?.id || null,
+                    })
+                    const mimetype = fileRecord?.fileMimeType
 
                     if (!mimetype) {
                         throw new GQLError(ERRORS.UNKNOWN_FILE_TYPE, context)

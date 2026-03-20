@@ -153,7 +153,9 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             return {
                 originalFilename: input.originalFilename || '',
+                // TODO(DOMA-13092): Don't trust mimetype from user input!
                 mimetype: input.mimetype || '',
+                id: fileMeta.id || null,
             }
         }
 

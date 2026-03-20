@@ -57,9 +57,18 @@ async function canReadNewsItemFiles ({ authentication: { item: user }, context }
 async function canManageNewsItemFiles ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
 
     const isBulkRequest = Array.isArray(originalInput)
+    const isSoftDeleteOperation = operation === 'update'
+        && (
+            isBulkRequest
+                ? (Array.isArray(itemIds) && originalInput.every(item => isSoftDelete(item?.data)))
+                : (itemId && isSoftDelete(originalInput))
+        )
+
+    if (operation === 'update' && !isSoftDeleteOperation) return false
+
+    if (user.isAdmin) return true
 
     if (user.type === STAFF) {
         if (operation === 'create') {

@@ -385,58 +385,65 @@ describe('NewsItemFile', () => {
         describe('Update', () => {
             it('anonymous can not', async () => {
                 const [item] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestNewsItemFile(anonymous, item.id)
+                    await updateTestNewsItemFile(anonymous, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
                 })
             })
 
-            it('admin can', async () => {
+            it('admin can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
-                const [updatedFile] = await updateTestNewsItemFile(admin, item.id)
-
-                expect(updatedFile.v).toEqual(2)
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestNewsItemFile(admin, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
+                })
             })
 
             it('support can not', async () => {
                 const [item] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(support, item.id)
+                    await updateTestNewsItemFile(support, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
                 })
             })
 
-            it('staff with canManageNewsItems can', async () => {
+            it('staff with canManageNewsItems can not', async () => {
                 const [item] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-                const [updatedFile] = await updateTestNewsItemFile(staffWithPermissions, item.id)
-                expect(updatedFile.v).toEqual(2)
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestNewsItemFile(staffWithPermissions, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
+                })
             })
 
             it('staff without canManageNewsItems can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(staffWithoutPermissions, item.id)
+                    await updateTestNewsItemFile(staffWithoutPermissions, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
                 })
             })
 
             it('staff from other organization can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(staffFromOtherOrg, item.id)
+                    await updateTestNewsItemFile(staffFromOtherOrg, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
                 })
             })
 
             it('resident can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(resident, item.id)
+                    await updateTestNewsItemFile(resident, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
                 })
             })
 
             it('service user can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
+                const [otherNewsItem] = await createTestNewsItem(admin, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(serviceUser, item.id)
+                    await updateTestNewsItemFile(serviceUser, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
                 })
             })
         })
