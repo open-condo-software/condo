@@ -30,6 +30,7 @@ const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 
 const ERRORS = {
     WEBHOOK_URL_NOT_IN_WHITELIST: {
@@ -42,7 +43,12 @@ const ERRORS = {
 
 const findAcquiringContext = async (item) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-    const acquiringContexts = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+    const acquiringContexts = await find('AcquiringIntegrationContext', {
+        organization: { id: billingContext.organization },
+        status: CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+    })
     return acquiringContexts[0]
 }
 

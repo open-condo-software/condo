@@ -1,4 +1,5 @@
 import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy } from '@app/condo/schema'
+import { AcquiringIntegrationTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useEffect } from 'react'
@@ -41,6 +42,7 @@ export const Verification: React.FC = () => {
         where: {
             status: CONTEXT_VERIFICATION_STATUS,
             organization: { id: orgId },
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing, deletedAt: null },
         },
         sortBy: [
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,

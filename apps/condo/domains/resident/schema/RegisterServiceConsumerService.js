@@ -8,6 +8,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { getById, GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
@@ -135,6 +136,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (billingIntegrationContexts.length > 0) {
                     const acquiringIntegrationContexts = await AcquiringIntegrationContext.getAll(context, {
                         organization: { id_in: residentOrganizationIds },
+                        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                         deletedAt: null,
                         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
                     }, 'id organization { id }')
@@ -280,10 +282,12 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                         id: organization.id,
                     },
                     integration: {
+                        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
                         deletedAt: null,
                     },
                     deletedAt: null,
                 })
+
                 if (!isBillingAccountFound) {
                     const meters = await find('Meter', {
                         accountNumber_i: accountNumber,

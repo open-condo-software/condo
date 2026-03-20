@@ -1,3 +1,4 @@
+import { AcquiringIntegrationTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
@@ -79,6 +80,7 @@ const SettingsPage: PageComponentType = () => {
         where: {
             organization: { id: userOrganizationId },
             invoiceStatus: CONTEXT_FINISHED_STATUS,
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
         first: 1,
     })
