@@ -216,7 +216,7 @@ function getWebhookSubscriptionModel (schemaPath) {
         plugins: [configureModelField({ validator, validateFields, validateFilters, setHasAvailableModels }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
         access: {
             read: access.canReadWebhookSubscriptions,
-            create: checkHasAvailableModels() ? access.canManageWebhookSubscriptions : false,
+            create: (attrs) => checkHasAvailableModels() ? access.canManageWebhookSubscriptions(attrs) : false,
             update: access.canManageWebhookSubscriptions,
             delete: false,
             auth: true,
