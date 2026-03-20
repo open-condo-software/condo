@@ -571,7 +571,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <TicketVisibilityContextProvider>
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler />
+                                                                <CondoAppEventsHandler/>
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
                                                                         <SubscriptionAccessGuard skipGuard={Component.isError}>
