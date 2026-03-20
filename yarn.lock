@@ -725,11 +725,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/condo-yookassa-gateway@workspace:apps/condo-yookassa-gateway":
+"@app/condo-b2b-payments-gateway@workspace:apps/condo-b2b-payments-gateway":
   version: 0.0.0-use.local
-  resolution: "@app/condo-yookassa-gateway@workspace:apps/condo-yookassa-gateway"
+  resolution: "@app/condo-b2b-payments-gateway@workspace:apps/condo-b2b-payments-gateway"
   dependencies:
-    "@condo-yookassa-gateway/domains": "link:./domains"
+    "@condo-b2b-payments-gateway/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
     "@graphql-codegen/typescript": ^4.0.9
     "@open-condo/apollo-server-client": "workspace:^"
@@ -5623,9 +5623,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@condo-yookassa-gateway/domains@link:./domains::locator=%40app%2Fcondo-yookassa-gateway%40workspace%3Aapps%2Fcondo-yookassa-gateway":
+"@condo-b2b-payments-gateway/domains@link:./domains::locator=%40app%2Fcondo-b2b-payments-gateway%40workspace%3Aapps%2Fcondo-b2b-payments-gateway":
   version: 0.0.0-use.local
-  resolution: "@condo-yookassa-gateway/domains@link:./domains::locator=%40app%2Fcondo-yookassa-gateway%40workspace%3Aapps%2Fcondo-yookassa-gateway"
+  resolution: "@condo-b2b-payments-gateway/domains@link:./domains::locator=%40app%2Fcondo-b2b-payments-gateway%40workspace%3Aapps%2Fcondo-b2b-payments-gateway"
   languageName: node
   linkType: soft
 
