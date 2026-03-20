@@ -535,8 +535,12 @@ __metadata:
   dependencies:
     "@accruals-gateway/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
+<<<<<<< HEAD
     "@graphql-codegen/typescript": ^5.0.9
     "@open-condo/apollo-server-client": "workspace:^"
+=======
+    "@graphql-codegen/typescript": ^4.0.9
+>>>>>>> 674a2536fd (feat(condo): DOMA-12895 added submodule)
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -550,7 +554,6 @@ __metadata:
     mkdirp: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
-    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -719,6 +722,31 @@ __metadata:
     react-dom: ^18.3.1
     typescript: ^5.8.3
     uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
+"@app/condo-yookassa-gateway@workspace:apps/condo-yookassa-gateway":
+  version: 0.0.0-use.local
+  resolution: "@app/condo-yookassa-gateway@workspace:apps/condo-yookassa-gateway"
+  dependencies:
+    "@condo-yookassa-gateway/domains": "link:./domains"
+    "@faker-js/faker": ^7.6.0
+    "@graphql-codegen/typescript": ^4.0.9
+    "@open-condo/apollo-server-client": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@types/react": ^18.3.1
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    graphql-tag: ^2.12.6
+    jest: ^29.7.0
+    lodash: ^4.17.21
+    mkdirp: ^3.0.1
+    openid-client: 5.7.1
+    react: ^18.3.1
+    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -5594,6 +5622,12 @@ __metadata:
   checksum: 210636d3923f93f7cfc409eac04376b0fe50356a0e08f25a37b43d5cd9ca4363f7b03ca2e7736cbf95b62d67733fe8e1028269d35b4fddd1b3f2a653c90ca85c
   languageName: node
   linkType: hard
+
+"@condo-yookassa-gateway/domains@link:./domains::locator=%40app%2Fcondo-yookassa-gateway%40workspace%3Aapps%2Fcondo-yookassa-gateway":
+  version: 0.0.0-use.local
+  resolution: "@condo-yookassa-gateway/domains@link:./domains::locator=%40app%2Fcondo-yookassa-gateway%40workspace%3Aapps%2Fcondo-yookassa-gateway"
+  languageName: node
+  linkType: soft
 
 "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
   version: 0.0.0-use.local
