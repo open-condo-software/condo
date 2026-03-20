@@ -23,11 +23,12 @@ export const CondoAppEventsHandler: FC<{ userAttributes: CondoFeaturesContext }>
     useEffect(() => {
         if (!isLoading) {
             if (user) {
-                analytics.identify(user.userId, {
-                    name: user.userName,
-                    type: user.userType,
+                const { type, id, ...userAttributes } = user
+                analytics.identify(id, {
+                    type,
+                    ...userAttributes,
                     organization_id: organization,
-                    ...appContext,
+                    ...(appContext ? appContext : {}),
                 })
             } else {
                 analytics.reset()

@@ -6,9 +6,8 @@ import { useOrganization } from '@open-condo/next/organization'
 
 
 export type UserShape = {
-    userId: string | null
-    userName: string | null
-    userType: string | null
+    id: string
+    type: string
     isSupport: boolean
 }
 
@@ -23,12 +22,11 @@ export const useUserAttributes = (): CondoFeaturesContext => {
     const { employee, isLoading: organizationIsLoading } = useOrganization()
 
     return useMemo(() => ({
-        user: {
-            userId: user?.id || null,
-            userName: user?.name || null,
-            userType: user?.type || null,
+        user: user?.id ? {
+            id: user?.id,
+            type: user?.type ?? 'staff',
             isSupport: user?.isSupport || user?.isAdmin || false,
-        },
+        } : null,
         organization: employee?.organization?.id || null,
         isLoading: userIsLoading || organizationIsLoading,
     }), [user, employee, userIsLoading, organizationIsLoading])

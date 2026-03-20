@@ -45,26 +45,20 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-type GenericAttrs = Record<string, string | boolean | number | null | undefined>
-type BasicUserData = { userId: string | null }
+type BasicUserData = { id: string }
 
-export type FeaturesContext<TUserShape extends GenericAttrs, TAppContext extends GenericAttrs = null> =
-    TAppContext extends null
-        ? {
-            user: TUserShape & BasicUserData
-            isLoading?: boolean
-        }
-        : TAppContext & {
-            user: TUserShape & BasicUserData
-            isLoading?: boolean
-        }
+export type FeaturesContext<TUserShape extends object, TAppContext extends object> =
+    TAppContext & {
+        user: TUserShape & BasicUserData | null
+        isLoading?: boolean
+    }
 
-type FeatureFlagsProviderWrapperProps<TUserShape extends GenericAttrs, TAppContext extends GenericAttrs> = {
+type FeatureFlagsProviderWrapperProps<TUserShape extends object, TAppContext extends object> = {
     initFeatures?: FeatureDefinitions
     userAttributes?: FeaturesContext<TUserShape, TAppContext>
 }
 
-const FeatureFlagsProviderWrapper = <TUserShape extends GenericAttrs, TAppContext extends GenericAttrs>({ children, initFeatures = null, userAttributes = {} as FeaturesContext<TUserShape, TAppContext> }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TUserShape, TAppContext>>) => {
+const FeatureFlagsProviderWrapper = <TUserShape extends object, TAppContext extends object>({ children, initFeatures = null, userAttributes = {} as FeaturesContext<TUserShape, TAppContext> }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TUserShape, TAppContext>>) => {
     const growthbook = useGrowthBook()
     const [features, setFeature] = useState(initFeatures)
 
@@ -118,7 +112,10 @@ const FeatureFlagsProviderWrapper = <TUserShape extends GenericAttrs, TAppContex
     }, [features, isLoading])
 
     useEffect(() => {
-        updateContext({ ...user, ...(appContext ? appContext : {}) })
+        if (user) {
+            const { id: userId, ...userAttributes } = user
+            updateContext({ userId, ...userAttributes, ...(appContext ? appContext : {}) })
+        }
     }, [updateContext, user, appContext])
 
     return (
@@ -132,9 +129,9 @@ const FeatureFlagsProviderWrapper = <TUserShape extends GenericAttrs, TAppContex
     )
 }
 
-type FeatureFlagsProviderProps<TUserShape extends GenericAttrs, TAppContext extends GenericAttrs> = FeatureFlagsProviderWrapperProps<TUserShape, TAppContext>
+type FeatureFlagsProviderProps<TUserShape extends object, TAppContext extends object> = FeatureFlagsProviderWrapperProps<TUserShape, TAppContext>
 
-const FeatureFlagsProvider = <TUserShape extends GenericAttrs, TAppContext extends GenericAttrs>({ children, initFeatures = null, userAttributes = {} as FeaturesContext<TUserShape, TAppContext> }: React.PropsWithChildren<FeatureFlagsProviderProps<TUserShape, TAppContext>>) => {
+const FeatureFlagsProvider = <TUserShape extends object, TAppContext extends object>({ children, initFeatures = null, userAttributes = {} as FeaturesContext<TUserShape, TAppContext> }: React.PropsWithChildren<FeatureFlagsProviderProps<TUserShape, TAppContext>>) => {
     const { user, isLoading = false, ...appContext } = userAttributes
 
     const [growthbookInstance] = useState(() => {
@@ -148,9 +145,14 @@ const FeatureFlagsProvider = <TUserShape extends GenericAttrs, TAppContext exten
             context.features = initFeatures
         }
 
-        context.attributes = {
-            ...user,
-            ...(appContext ? appContext : {}),
+        if (user) {
+            const { id: userId, ...userAttributes } = user
+
+            context.attributes = {
+                userId,
+                ...userAttributes,
+                ...(appContext ? appContext : {}),
+            }
         }
 
         return new GrowthBook(context)
@@ -185,11 +187,11 @@ const initOnRestore = async (ctx) => {
     return { features }
 }
 
-type WithFeatureFlagsProps<TUserShape extends GenericAttrs, TAppContext extends GenericAttrs = GenericAttrs> = {
+type WithFeatureFlagsProps<TUserShape extends object, TAppContext extends object> = {
     ssr?: boolean
     useUserAttributes: () => FeaturesContext<TUserShape, TAppContext>
 }
-export type WithFeatureFlags = <TUserShape extends GenericAttrs, TAppContext extends GenericAttrs = GenericAttrs>(props: WithFeatureFlagsProps<TUserShape, TAppContext>) => (PageComponent: NextPage) => NextPage
+export type WithFeatureFlags = <TUserShape extends object, TAppContext extends object>(props: WithFeatureFlagsProps<TUserShape, TAppContext>) => (PageComponent: NextPage) => NextPage
 
 const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useUserAttributes }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
