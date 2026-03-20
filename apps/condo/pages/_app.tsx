@@ -68,7 +68,6 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
-import { AppFeaturesContext, UserShape, useUserAttributes } from '@condo/domains/common/hooks/useUserAttributes'
 import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
@@ -521,7 +520,6 @@ const MyApp = ({ Component, pageProps }) => {
     const { isMobileUserAgent, isSidebarCollapsed: isCollapsedCookie } = useSSRCookiesContext()
     const detectedMobileUserAgentInSSR = isMobileUserAgent === 'true'
     const initialIsCollapsed = isCollapsedCookie === 'true' ? true : isCollapsedCookie === 'false' ? false : undefined
-    const userAttributes = useUserAttributes()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -573,7 +571,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <TicketVisibilityContextProvider>
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler userAttributes={userAttributes}/>
+                                                                <CondoAppEventsHandler />
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
                                                                         <SubscriptionAccessGuard skipGuard={Component.isError}>
@@ -813,7 +811,7 @@ export default (
                 withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                         withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                            withFeatureFlags<UserShape, AppFeaturesContext>({ ssr: !isDisabledSsr, useUserAttributes })(
+                            withFeatureFlags({ ssr: !isDisabledSsr })(
                                 withError()(
                                     MyApp
                                 )

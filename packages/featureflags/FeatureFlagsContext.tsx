@@ -6,6 +6,7 @@ import {
     useGrowthBook,
     Context,
 } from '@growthbook/growthbook-react'
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
@@ -19,6 +20,8 @@ import {
     getContextIndependentWrappedInitialProps,
     preventInfinityLoop,
 } from '@open-condo/next/_utils'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 
 const {
@@ -45,24 +48,19 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-type BasicUserData = { id: string }
-
-export type FeaturesContext<TUserShape extends object, TAppContext extends object> =
-    TAppContext & {
-        user: TUserShape & BasicUserData | null
-        isLoading?: boolean
-    }
-
-type FeatureFlagsProviderWrapperProps<TUserShape extends object, TAppContext extends object> = {
+type FeatureFlagsProviderWrapperProps = {
     initFeatures?: FeatureDefinitions
-    userAttributes?: FeaturesContext<TUserShape, TAppContext>
 }
 
-const FeatureFlagsProviderWrapper = <TUserShape extends object, TAppContext extends object>({ children, initFeatures = null, userAttributes = {} as FeaturesContext<TUserShape, TAppContext> }: React.PropsWithChildren<FeatureFlagsProviderWrapperProps<TUserShape, TAppContext>>) => {
+const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlagsProviderWrapperProps>> = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
+    const { user, isLoading: userIsLoading  } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
     const [features, setFeature] = useState(initFeatures)
 
-    const { user, isLoading = false, ...appContext } = userAttributes
+    const isSupport = get(user, 'isSupport', false)
+    const isAdmin = get(user, 'isAdmin', false)
+    const userId = get(user, 'id', null)
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -106,17 +104,14 @@ const FeatureFlagsProviderWrapper = <TUserShape extends object, TAppContext exte
     }, [growthbook])
 
     useEffect(() => {
-        if (!features || isLoading) return
+        if (!features || userIsLoading || organizationIsLoading) return
 
         growthbook.setPayload({ features: features })
-    }, [features, isLoading])
+    }, [features, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
-        if (user) {
-            const { id: userId, ...userAttributes } = user
-            updateContext({ userId, ...userAttributes, ...(appContext ? appContext : {}) })
-        }
-    }, [updateContext, user, appContext])
+        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
+    }, [updateContext, isAdmin, isSupport, organization, userId])
 
     return (
         <FeatureFlagsContext.Provider value={{
@@ -129,30 +124,32 @@ const FeatureFlagsProviderWrapper = <TUserShape extends object, TAppContext exte
     )
 }
 
-type FeatureFlagsProviderProps<TUserShape extends object, TAppContext extends object> = FeatureFlagsProviderWrapperProps<TUserShape, TAppContext>
+type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
 
-const FeatureFlagsProvider = <TUserShape extends object, TAppContext extends object>({ children, initFeatures = null, userAttributes = {} as FeaturesContext<TUserShape, TAppContext> }: React.PropsWithChildren<FeatureFlagsProviderProps<TUserShape, TAppContext>>) => {
-    const { user, isLoading = false, ...appContext } = userAttributes
+const FeatureFlagsProvider: React.FC<React.PropsWithChildren<FeatureFlagsProviderProps>> = ({ children, initFeatures = null }) => {
+    const { user, isLoading: userIsLoading  } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
 
     const [growthbookInstance] = useState(() => {
         // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
+        const isSupport = get(user, 'isSupport', false)
+        const isAdmin = get(user, 'isAdmin', false)
+        const userId = get(user, 'id', null)
+        const organizationId = get(organization, 'id', null)
+
         const context: Context = {}
 
         // NOTE: After we write feature to the growthbook, the growthbook will be marked as ready.
         // Therefore, if not all the necessary data is loaded,
         // then we want to consider that the growthbook is not ready for work
-        if (!isLoading && initFeatures) {
+        if (!userIsLoading && !organizationIsLoading && initFeatures) {
             context.features = initFeatures
         }
 
-        if (user) {
-            const { id: userId, ...userAttributes } = user
-
-            context.attributes = {
-                userId,
-                ...userAttributes,
-                ...(appContext ? appContext : {}),
-            }
+        context.attributes = {
+            isSupport: isSupport || isAdmin,
+            organization: organizationId,
+            userId,
         }
 
         return new GrowthBook(context)
@@ -160,7 +157,7 @@ const FeatureFlagsProvider = <TUserShape extends object, TAppContext extends obj
 
     return (
         <GrowthBookProvider growthbook={growthbookInstance}>
-            <FeatureFlagsProviderWrapper<TUserShape, TAppContext> initFeatures={initFeatures} userAttributes={userAttributes}>
+            <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
@@ -187,20 +184,17 @@ const initOnRestore = async (ctx) => {
     return { features }
 }
 
-type WithFeatureFlagsProps<TUserShape extends object, TAppContext extends object> = {
+type WithFeatureFlagsProps = {
     ssr?: boolean
-    useUserAttributes: () => FeaturesContext<TUserShape, TAppContext>
 }
-export type WithFeatureFlags = <TUserShape extends object, TAppContext extends object>(props: WithFeatureFlagsProps<TUserShape, TAppContext>) => (PageComponent: NextPage) => NextPage
+export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage) => NextPage
 
-const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useUserAttributes }) => PageComponent => {
+const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
-        const userAttributes = useUserAttributes()
-
         return (
-            <FeatureFlagsProvider initFeatures={features} userAttributes={userAttributes}>
+            <FeatureFlagsProvider initFeatures={features}>
                 <PageComponent {...pageProps} />
             </FeatureFlagsProvider>
         )

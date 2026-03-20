@@ -4,9 +4,9 @@ import { useCallback, useEffect } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { CondoFeaturesContext } from '@condo/domains/common/hooks/useUserAttributes'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { clearPostHogInlineStyles, createSurveyBackdrop, injectPostHogSurveyStyles } from '@condo/domains/common/utils/posthogSurveyStyles'
+import { clearPostHogInlineStyles, injectPostHogSurveyStyles, createSurveyBackdrop } from '@condo/domains/common/utils/posthogSurveyStyles'
+import { STAFF } from '@condo/domains/user/constants/common'
 
 import { usePostMessageContext } from './PostMessageProvider'
 
@@ -14,27 +14,25 @@ import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'
 
 
-export const CondoAppEventsHandler: FC<{ userAttributes: CondoFeaturesContext }> = ({ userAttributes }) => {
-    const { user, organization, isLoading, ...appContext } = userAttributes
+export const CondoAppEventsHandler: FC = () => {
+    const { isLoading: userLoading, user } = useAuth()
     const { addEventHandler } = usePostMessageContext()
     const { employee } = useOrganization()
 
     // User tracking
     useEffect(() => {
-        if (!isLoading) {
+        if (!userLoading) {
             if (user) {
-                const { type, id, ...userAttributes } = user
-                analytics.identify(id, {
-                    type,
-                    ...userAttributes,
-                    organization_id: organization,
-                    ...(appContext ? appContext : {}),
+                analytics.identify(user.id, {
+                    name: user?.name,
+                    type: user?.type || STAFF,
+                    'organization.id': employee?.organization?.id,
                 })
             } else {
                 analytics.reset()
             }
         }
-    }, [isLoading, user, organization, appContext])
+    }, [userLoading, user, employee?.organization?.id])
 
     // Routing tracking
     useEffect(() => {
@@ -82,7 +80,6 @@ export const CondoAppEventsHandler: FC<{ userAttributes: CondoFeaturesContext }>
             analytics.removeGroup('employee.role')
         }
     }, [employee])
-
 
     useEffect(() => {
         const overrideSurveyStyles = () => {
