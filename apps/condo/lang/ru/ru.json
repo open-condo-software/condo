@@ -1170,7 +1170,7 @@
   "field.FlatNumber": "Помещение",
   "field.Floor": "Номер этажа",
   "field.FullName": "Фамилия Имя Отчество",
-  "field.FullName.invalidChar": "Это поле может содержать только буквы, пробелы и дефисы",
+  "field.FullName.invalidCharError": "Это поле может содержать только буквы, пробелы и дефисы",
   "field.FullName.requiredError": "Укажите имя жителя",
   "field.FullName.short": "ФИО",
   "field.Holder": "Собственник",

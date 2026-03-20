@@ -53,6 +53,7 @@ export const UserProfileForm: React.FC = () => {
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const MaxLengthError = intl.formatMessage({ id: 'field.ClientName.maxLengthError' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidCharError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
@@ -197,12 +198,18 @@ export const UserProfileForm: React.FC = () => {
         router.push('/user')
     }, [router])
 
-    const { requiredValidator, emailValidator, changeMessage, minLengthValidator, maxLengthValidator } = useValidations()
+    const { requiredValidator, emailValidator, changeMessage, minLengthValidator, maxLengthValidator, specCharValidator, trimValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
     const maxClientNameRule = changeMessage(maxLengthValidator(100), MaxLengthError)
     const validations = {
         email: [emailValidator],
-        name: [requiredValidator, minClientNameRule, maxClientNameRule],
+        name: [
+            requiredValidator,
+            trimValidator,
+            changeMessage(specCharValidator, FullNameInvalidCharMessage),
+            minClientNameRule,
+            maxClientNameRule,
+        ],
     }
 
     const initialValues = useMemo(() => ({

@@ -34,7 +34,7 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = (props) => {
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const contactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
 
     const disabledUserInteractions = !address || !unit || !phone || !!propertyMismatchError || hasContactDuplicate || hasNameSpecCharError || hasNameTrimValidateError
     const messageLabels = []
