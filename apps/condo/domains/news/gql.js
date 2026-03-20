@@ -48,6 +48,9 @@ const GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY = gql`
     }
 `
 
+const NEWS_ITEM_FILE_FIELDS = `{ newsItem { id } file { id originalFilename publicUrl mimetype } organization { id } ${COMMON_FIELDS} }`
+const NewsItemFile = generateGqlQueries('NewsItemFile', NEWS_ITEM_FILE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -61,5 +64,6 @@ module.exports = {
     GET_NEWS_SHARING_RECIPIENTS_MUTATION,
     NEWS_ITEM_SCOPE_FIELDS,
     GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    NewsItemFile,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

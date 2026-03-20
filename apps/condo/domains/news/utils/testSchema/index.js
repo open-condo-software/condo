@@ -3,6 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+
+const path = require('path')
 const { faker } = require('@faker-js/faker')
 const { get, map } = require('lodash')
 
@@ -24,6 +26,9 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 const { GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } = require('@condo/domains/news/gql')
 const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
+const { NewsItemFile: NewsItemFileGQL } = require('@condo/domains/news/gql')
+const { getUploadingFile } = require('@open-condo/keystone/test.utils')
+const conf = require('@open-condo/config')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -33,6 +38,7 @@ const NewsItemUserRead = generateGQLTestUtils(NewsItemUserReadGQL)
 const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExportTaskGQL)
 
 const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
+const NewsItemFile = generateGQLTestUtils(NewsItemFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -58,6 +64,8 @@ const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
      |____|____|____|____|
  */
 const propertyMap1x9x4 = buildPropertyMap({ floors: 9, unitsOnFloor: 4, parkingFloors: 0 })
+
+const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 
 async function createTestNewsItem (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -339,6 +347,51 @@ async function getNewsSharingRecipientsCountersByTestClient(client, b2bAppContex
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestNewsItemFile (client, newsItem, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    let file
+    if (extraAttrs.file) {
+        file = extraAttrs.file
+    } else {
+        const fileMeta = {
+            organization: { id: organization.id },
+            user: { id: client.user.id },
+            fileClientId: 'condo',
+            modelNames: ['NewsItemFile'],
+            dv: 1, sender,
+        }
+        file = await getUploadingFile(TEST_FILE, fileMeta, client)
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        newsItem: { connect: { id: newsItem.id } },
+        file,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNewsItemFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -353,5 +406,6 @@ module.exports = {
     NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
     getNewsSharingRecipientsByTestClient,
     getNewsSharingRecipientsCountersByTestClient,
+    NewsItemFile, createTestNewsItemFile, updateTestNewsItemFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
