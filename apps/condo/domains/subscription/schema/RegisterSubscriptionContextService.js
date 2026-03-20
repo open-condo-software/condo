@@ -206,9 +206,16 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     ? await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                     : null
 
+                let directPaymentUrl = multiPaymentResult.directPaymentUrl
+                if (directPaymentUrl) {
+                    const url = new URL(directPaymentUrl)
+                    url.searchParams.append('organizationId', organization.id)
+                    directPaymentUrl = url.toString()
+                }
+
                 return { 
                     subscriptionContext, 
-                    directPaymentUrl: multiPaymentResult.directPaymentUrl,
+                    directPaymentUrl,
                     multiPayment,
                 }
             },
