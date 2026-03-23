@@ -104,7 +104,14 @@ query getTicketsForAIAssistant ($where: TicketWhereInput!, $sortBy: [SortTickets
         statusReopenedCounter
         statusUpdatedAt
         completedAt
+        deferredUntil
         deadline
+        qualityControlValue
+        qualityControlAdditionalOptions
+        qualityControlComment
+        feedbackValue
+        feedbackAdditionalOptions
+        feedbackComment
         lastResidentCommentAt
         lastCommentWithResidentTypeAt
         lastCommentWithOrganizationTypeAt
