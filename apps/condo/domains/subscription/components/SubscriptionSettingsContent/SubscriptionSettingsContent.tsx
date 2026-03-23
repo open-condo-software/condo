@@ -1,5 +1,5 @@
 import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -74,9 +74,13 @@ export const SubscriptionSettingsContent: React.FC = () => {
         pendingRequests,
         activatedSubscriptions,
         isLoading: trialActivationLoading,
+        refetchActivatedSubscriptions,
     } = useActivateSubscriptions()
 
     const { trialSubscriptions } =  useTrialSubscriptions()
+    const handleRefetchActivatedSubscriptions = useCallback(async () => {
+        await refetchActivatedSubscriptions()
+    }, [refetchActivatedSubscriptions])
 
     const isLoading = plansLoading || trialActivationLoading
     if (isLoading) return <Loader />
@@ -111,6 +115,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             activatedTrial={activatedTrial}
                             pendingRequest={pendingRequest}
                             activatedSubscriptions={activatedSubscriptions}
+                            refetchActivatedSubscriptions={handleRefetchActivatedSubscriptions}
                             b2bAppsMap={b2bAppsMap}
                             allB2BAppIds={allB2BAppIds}
                             emoji={PLAN_CARD_EMOJIS?.[index]}

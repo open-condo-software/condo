@@ -83,6 +83,7 @@ interface SubscriptionPlanCardProps {
     activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
     activatedSubscriptions: ActivatedSubscriptionType[]
+    refetchActivatedSubscriptions: () => Promise<void>
     registerSubscriptionContext: (params: {
         priceId: string
         isTrial?: boolean
@@ -175,7 +176,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, registerSubscriptionContext, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, refetchActivatedSubscriptions, registerSubscriptionContext, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -303,6 +304,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
         activePaymentMethodId: contextPaymentMethodId,
+        onCardUnbound: refetchActivatedSubscriptions,
     })
 
     const handleActivePlanClick = useCallback(async () => {
@@ -351,15 +353,10 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     
     const hasPaymentMethodForActivePlan = Boolean(
         isActivePlan &&
-        contextPaymentMethodId && 
-        hasPaymentMethod &&
-        organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId)
+        contextPaymentMethodId
     )
     
-    const shouldShowPayButtonForActivePlan = isActivePlan && (
-        !activeSubscriptionContext ||
-        (contextPaymentMethodId && !organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId))
-    )
+    const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId
     
     const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0 
         ? dayjs().add(daysRemaining, 'day') 
