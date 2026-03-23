@@ -60333,12 +60333,14 @@ type FrozenInvoice {
   id: String
   rows: [InvoiceRow]
   toPay: String
+  currencyCode: String
 }
 
 type FrozenPaymentInfo {
   paymentMethod: PaymentMethod
   invoice: FrozenInvoice
   pricingRuleId: String
+  multiPaymentId: String
 }
 
 """ Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 

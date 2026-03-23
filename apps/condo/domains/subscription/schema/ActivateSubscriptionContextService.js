@@ -130,8 +130,10 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                         id: invoice.id,
                         rows: invoice.rows,
                         toPay: invoice.toPay,
+                        currencyCode: invoice.currencyCode,
                     },
                     pricingRuleId: subscriptionContext.subscriptionPlanPricingRule,
+                    multiPaymentId: multiPayment.id,
                 }
 
                 await SubscriptionContext.update(context, subscriptionContext.id, {

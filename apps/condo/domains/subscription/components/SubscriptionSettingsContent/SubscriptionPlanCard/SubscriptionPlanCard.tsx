@@ -12,7 +12,7 @@ import getConfig from 'next/config'
 import React, { useState, useCallback, useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Unlock, Lock, QuestionCircle, ChevronDown, CreditCard } from '@open-condo/icons'
+import { Unlock, Lock, QuestionCircle, ChevronDown, CreditCard, Bill } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
@@ -22,6 +22,7 @@ import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
+import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
 import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
@@ -185,6 +186,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
     const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
     const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
+    const PaymentHistoryLinkLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
 
     const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
@@ -307,6 +309,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         onCardUnbound: refetchActivatedSubscriptions,
     })
 
+    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal()
+
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
 
@@ -411,6 +415,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         <>
             {usePaymentModal && PaymentModal}
             {LinkedCardsModal}
+            {PaymentHistoryModal}
             <Card className={cardClassName}>
                 <Space size={40} direction='vertical' width='100%'>
                     <div className={styles.mainContent}>
@@ -444,12 +449,20 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Title>
                                         </Space>
                                         {hasPaymentMethodForActivePlan && hasPaymentMethod && (
-                                            <Typography.Link onClick={openLinkedCardsModal}>
-                                                <Space size={4} direction='horizontal' align='center'>
-                                                    <CreditCard size='small' />
-                                                    {LinkedCardsLinkLabel}
-                                                </Space>
-                                            </Typography.Link>
+                                            <Space size={8} direction='vertical'>
+                                                <Typography.Link onClick={openPaymentHistoryModal}>
+                                                    <Space size={4} direction='horizontal' align='center'>
+                                                        <Bill size='small' />
+                                                        {PaymentHistoryLinkLabel}
+                                                    </Space>
+                                                </Typography.Link>
+                                                <Typography.Link onClick={openLinkedCardsModal}>
+                                                    <Space size={4} direction='horizontal' align='center'>
+                                                        <CreditCard size='small' />
+                                                        {LinkedCardsLinkLabel}
+                                                    </Space>
+                                                </Typography.Link>
+                                            </Space>
                                         )}
                                     </Space>
                                     {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (

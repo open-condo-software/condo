@@ -907,6 +907,15 @@ export type GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables 
 
 export type GetOrganizationSubscriptionContextsWithPaymentMethodsQuery = { __typename?: 'Query', subscriptionContexts?: Array<{ __typename?: 'SubscriptionContext', id: string, bindingId?: string | null, endAt?: string | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', paymentMethod?: { __typename?: 'PaymentMethod', bindingId: string, paymentSystem: string, cardNumber: string, expiration: string, bankName: string, bankCountryCode: string } | null } | null } | null> | null };
 
+export type GetOrganizationPaymentHistoryQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  offset?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+
+export type GetOrganizationPaymentHistoryQuery = { __typename?: 'Query', paymentHistory?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', multiPaymentId?: string | null, paymentMethod?: { __typename?: 'PaymentMethod', paymentSystem: string, cardNumber: string } | null, invoice?: { __typename?: 'FrozenInvoice', toPay?: string | null, currencyCode?: string | null } | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
 export type UpdateSubscriptionContextPaymentMethodMutationVariables = Types.Exact<{
   data: Types.UpdateSubscriptionContextPaymentMethodInput;
 }>;

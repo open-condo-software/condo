@@ -160,11 +160,11 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             extendGraphQLTypes: [
                 'type PaymentMethod { bindingId: String!, paymentSystem: String!, cardNumber: String!, expiration: String!, bankName: String!, bankCountryCode: String! }',
                 'type InvoiceRow { name: String, count: String, price: String, toPay: String }',
-                'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String }',
-                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String }',
+                'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String, currencyCode: String }',
+                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String, multiPaymentId: String }',
             ],
             graphQLReturnType: 'FrozenPaymentInfo',
-            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId }',
+            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay currencyCode } pricingRuleId multiPaymentId }',
             access: {
                 read: true,
                 create: userIsAdmin,
