@@ -13,7 +13,7 @@ const RemoteClientPushToken = new GQLListSchema('RemoteClientPushToken', {
     fields: {
 
         remoteClient: {
-            schemaDoc: 'Connected device',
+            schemaDoc: 'Physical or virtual device to which the received token belongs',
             type: 'Relationship',
             ref: 'RemoteClient',
             isRequired: true,
@@ -57,6 +57,18 @@ const RemoteClientPushToken = new GQLListSchema('RemoteClientPushToken', {
                 fields: ['token', 'transport'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'remote_client_push_token_unique_token_transport',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['remoteClient', 'transport'],
+                condition: 'Q(deletedAt__isnull=True) & Q(isVoIP__exact = True)',
+                name: 'remote_client_push_token_unique_remoteclient_transport_isvoip',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['remoteClient', 'transport'],
+                condition: 'Q(deletedAt__isnull=True) & Q(isPush__exact = True)',
+                name: 'remote_client_push_token_unique_remoteclient_transport_ispush',
             },
             {
                 type: 'models.CheckConstraint',

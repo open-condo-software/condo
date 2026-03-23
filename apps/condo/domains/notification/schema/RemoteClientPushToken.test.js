@@ -19,10 +19,14 @@ const { RemoteClientPushToken, createTestRemoteClientPushToken, updateTestRemote
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('RemoteClientPushToken', () => {
+    let admin
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [obj, attrs] = await createTestRemoteClientPushToken(admin)
                 expectValuesOfCommonFields(obj, attrs, admin)
             })
@@ -54,7 +58,6 @@ describe('RemoteClientPushToken', () => {
 
         describe('update', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 const [obj, attrs] = await updateTestRemoteClientPushToken(admin, objCreated.id)
@@ -66,7 +69,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('support can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClientWithSupportUser()
@@ -76,7 +78,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -86,7 +87,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClient()
@@ -98,7 +98,6 @@ describe('RemoteClientPushToken', () => {
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -107,7 +106,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -117,7 +115,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClient()
@@ -129,7 +126,6 @@ describe('RemoteClientPushToken', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [obj] = await createTestRemoteClientPushToken(admin)
 
                 const objs = await RemoteClientPushToken.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
@@ -148,7 +144,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -158,7 +153,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 await createTestRemoteClientPushToken(admin)
 
                 const client = await makeClient()
@@ -174,7 +168,6 @@ describe('RemoteClientPushToken', () => {
         describe('Constraints', () => {
             
             test('unique constraint: token + transport', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const token = faker.datatype.uuid()
                 const transport = 'firebase'
 
@@ -189,8 +182,6 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('check constraint: must have isVoIP or isPush', async () => {
-                const admin = await makeLoggedInAdminClient()
-
                 await expectToThrowCheckConstraintViolationError(
                     async () => {
                         await createTestRemoteClientPushToken(admin, { isVoIP: false, isPush: false })
@@ -199,11 +190,30 @@ describe('RemoteClientPushToken', () => {
                 )
             })
 
+            test.each(['isVoIP', 'isPush'])('unique constraint: remoteClient + transport + # = True', async (truthKey) => {
+                const transport = 'firebase'
+                const [remoteClient] = await createTestRemoteClient(admin)
+                const payload = { token: faker.datatype.uuid(), transport, remoteClient: { connect: { id: remoteClient.id } }, isVoIP: false, isPush: false }
+                payload[truthKey] = true
+
+                await createTestRemoteClientPushToken(admin, payload)
+
+                const anotherPayload = { remoteClient: payload.remoteClient, token: faker.datatype.uuid(), transport, isVoIP: true, isPush: true }
+                anotherPayload[truthKey] = false
+                const [anotherPushToken] = await createTestRemoteClientPushToken(admin, anotherPayload)
+
+                await expectToThrowUniqueConstraintViolationError(async () => {
+                    await createTestRemoteClientPushToken(admin, { ...payload, token: faker.datatype.uuid() })
+                }, `remote_client_push_token_unique_remoteclient_transport_${truthKey.toLowerCase()}`)
+
+                await expectToThrowUniqueConstraintViolationError(async () => {
+                    await updateTestRemoteClientPushToken(admin, anotherPushToken.id, { [truthKey]: payload[truthKey] })
+                }, `remote_client_push_token_unique_remoteclient_transport_${truthKey.toLowerCase()}`)
+            })
+
         })
         
         test('can\'t create or update with deleted RemoteClient', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             let [remoteClient] = await createTestRemoteClient(admin);
             [remoteClient] = await updateTestRemoteClient(admin, remoteClient.id, { deletedAt: new Date().toISOString() })
 
