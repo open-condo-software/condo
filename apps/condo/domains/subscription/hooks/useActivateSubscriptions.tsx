@@ -1,4 +1,4 @@
-import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextMutation, useCreateUserHelpRequestMutation, useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
 import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import { useCallback, useState } from 'react'
@@ -150,5 +150,6 @@ export const useActivateSubscriptions = () => {
         pendingRequests,
         activatedSubscriptions,
         isLoading: pendingRequestsLoading || activatedSubscriptionsLoading,
+        refetchActivatedSubscriptions,
     }
 }

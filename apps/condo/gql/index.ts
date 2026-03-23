@@ -5631,6 +5631,95 @@ export type GetSubscriptionContextByIdQueryHookResult = ReturnType<typeof useGet
 export type GetSubscriptionContextByIdLazyQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdLazyQuery>;
 export type GetSubscriptionContextByIdSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdSuspenseQuery>;
 export type GetSubscriptionContextByIdQueryResult = Apollo.QueryResult<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>;
+export const GetOrganizationSubscriptionContextsWithPaymentMethodsDocument = gql`
+    query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!) {
+  subscriptionContexts: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, bindingId_not: null, status: DONE}
+    sortBy: [endAt_DESC]
+    first: 100
+  ) {
+    id
+    bindingId
+    endAt
+    frozenPaymentInfo {
+      paymentMethod {
+        bindingId
+        paymentSystem
+        cardNumber
+        expiration
+        bankName
+        bankCountryCode
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables> & ({ variables: Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables>(GetOrganizationSubscriptionContextsWithPaymentMethodsDocument, options);
+      }
+export function useGetOrganizationSubscriptionContextsWithPaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables>(GetOrganizationSubscriptionContextsWithPaymentMethodsDocument, options);
+        }
+export function useGetOrganizationSubscriptionContextsWithPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables>(GetOrganizationSubscriptionContextsWithPaymentMethodsDocument, options);
+        }
+export type GetOrganizationSubscriptionContextsWithPaymentMethodsQueryHookResult = ReturnType<typeof useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery>;
+export type GetOrganizationSubscriptionContextsWithPaymentMethodsLazyQueryHookResult = ReturnType<typeof useGetOrganizationSubscriptionContextsWithPaymentMethodsLazyQuery>;
+export type GetOrganizationSubscriptionContextsWithPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationSubscriptionContextsWithPaymentMethodsSuspenseQuery>;
+export type GetOrganizationSubscriptionContextsWithPaymentMethodsQueryResult = Apollo.QueryResult<Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQuery, Types.GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables>;
+export const UpdateSubscriptionContextPaymentMethodDocument = gql`
+    mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
+  result: updateSubscriptionContextPaymentMethod(data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateSubscriptionContextPaymentMethodMutationFn = Apollo.MutationFunction<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
+
+/**
+ * __useUpdateSubscriptionContextPaymentMethodMutation__
+ *
+ * To run a mutation, you first call `useUpdateSubscriptionContextPaymentMethodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSubscriptionContextPaymentMethodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSubscriptionContextPaymentMethodMutation, { data, loading, error }] = useUpdateSubscriptionContextPaymentMethodMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateSubscriptionContextPaymentMethodMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>(UpdateSubscriptionContextPaymentMethodDocument, options);
+      }
+export type UpdateSubscriptionContextPaymentMethodMutationHookResult = ReturnType<typeof useUpdateSubscriptionContextPaymentMethodMutation>;
+export type UpdateSubscriptionContextPaymentMethodMutationResult = Apollo.MutationResult<Types.UpdateSubscriptionContextPaymentMethodMutation>;
+export type UpdateSubscriptionContextPaymentMethodMutationOptions = Apollo.BaseMutationOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(

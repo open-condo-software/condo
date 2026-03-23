@@ -118,11 +118,11 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                                 cardTokenId: currentBindingId,
                             })
                         } catch (error) {
-                            const errorMessage = get(error, 'message') || 'Unknown error'
-                            throw new GQLError({
-                                ...ERRORS.CARD_TOKEN_DELETION_FAILED,
-                                message: `Failed to delete card token: ${errorMessage}`,
-                            }, context)
+                            // const errorMessage = get(error, 'message') || 'Unknown error'
+                            // throw new GQLError({
+                            //     ...ERRORS.CARD_TOKEN_DELETION_FAILED,
+                            //     message: `Failed to delete card token: ${errorMessage}`,
+                            // }, context)
                         }
                     }
                 }

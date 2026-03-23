@@ -102,3 +102,35 @@ query getSubscriptionContextById($id: ID!) {
         }
     }
 }
+
+query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!) {
+    subscriptionContexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            bindingId_not: null
+            status: DONE
+        }
+        sortBy: [endAt_DESC]
+        first: 100
+    ) {
+        id
+        bindingId
+        endAt
+        frozenPaymentInfo {
+            paymentMethod {
+                bindingId
+                paymentSystem
+                cardNumber
+                expiration
+                bankName
+                bankCountryCode
+            }
+        }
+    }
+}
+
+mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
+    result: updateSubscriptionContextPaymentMethod(data: $data) {
+        id
+    }
+}

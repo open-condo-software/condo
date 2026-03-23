@@ -880,6 +880,20 @@ export type GetSubscriptionContextByIdQueryVariables = Types.Exact<{
 
 export type GetSubscriptionContextByIdQuery = { __typename?: 'Query', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, daysRemaining?: number | null, bindingId?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null, canBePromoted?: boolean | null } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', pricingRuleId?: string | null, paymentMethod?: { __typename?: 'PaymentMethod', bindingId: string, paymentSystem: string, cardNumber: string, expiration: string, bankName: string, bankCountryCode: string } | null, invoice?: { __typename?: 'FrozenInvoice', id?: string | null, toPay?: string | null, rows?: Array<{ __typename?: 'InvoiceRow', name?: string | null, count?: string | null, price?: string | null, toPay?: string | null } | null> | null } | null } | null } | null };
 
+export type GetOrganizationSubscriptionContextsWithPaymentMethodsQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetOrganizationSubscriptionContextsWithPaymentMethodsQuery = { __typename?: 'Query', subscriptionContexts?: Array<{ __typename?: 'SubscriptionContext', id: string, bindingId?: string | null, endAt?: string | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', paymentMethod?: { __typename?: 'PaymentMethod', bindingId: string, paymentSystem: string, cardNumber: string, expiration: string, bankName: string, bankCountryCode: string } | null } | null } | null> | null };
+
+export type UpdateSubscriptionContextPaymentMethodMutationVariables = Types.Exact<{
+  data: Types.UpdateSubscriptionContextPaymentMethodInput;
+}>;
+
+
+export type UpdateSubscriptionContextPaymentMethodMutation = { __typename?: 'Mutation', result?: { __typename?: 'UpdateSubscriptionContextPaymentMethodOutput', id: string } | null };
+
 export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;
