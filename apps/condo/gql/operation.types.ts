@@ -434,6 +434,13 @@ export type GetB2BAppsByIdsQueryVariables = Types.Exact<{
 
 export type GetB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null } | null> | null };
 
+export type GetGlobalB2BAppsByIdsQueryVariables = Types.Exact<{
+  ids: Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetGlobalB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null } | null> | null };
+
 export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
