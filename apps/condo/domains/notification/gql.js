@@ -76,7 +76,7 @@ const _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION = gql`
     }
 `
 
-const REMOTE_CLIENT_PUSH_TOKEN_FIELDS = `{ id remoteClient ${REMOTE_CLIENT_FIELDS} token transport isVoIP isPush ${COMMON_FIELDS} }`
+const REMOTE_CLIENT_PUSH_TOKEN_FIELDS = `{ id remoteClient ${REMOTE_CLIENT_FIELDS} transport isVoIP isPush ${COMMON_FIELDS} }`
 const RemoteClientPushToken = generateGqlQueries('RemoteClientPushToken', REMOTE_CLIENT_PUSH_TOKEN_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

@@ -433,20 +433,21 @@ async function _internalSendHashedResidentPhonesByTestClient(client, extraAttrs 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-async function createTestRemoteClientPushToken (client, extraAttrs = {}) {
+async function createTestRemoteClientPushToken (client, remoteClient, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const pushTokenData = getRandomPushTokenData(extraAttrs)
-    const remoteClientId = get(extraAttrs, 'remoteClient.connect.id')
-    const remoteClient = remoteClientId
-        ? { id: remoteClientId }
-        : (await createTestRemoteClient(client))[0]
+    const remoteClientId = get(extraAttrs, 'remoteClient.connect.id') || remoteClient?.id
+    let existingOrNewRemoteClient = { id: remoteClientId }
+    if (!remoteClientId) {
+        [existingOrNewRemoteClient] = await createTestRemoteClient(client)
+    }
 
     const attrs = {
         dv: 1,
         sender,
-        remoteClient: { connect: { id: remoteClient.id } },
+        remoteClient: { connect: { id: existingOrNewRemoteClient.id } },
         ...pushTokenData,
         ...extraAttrs,
     }

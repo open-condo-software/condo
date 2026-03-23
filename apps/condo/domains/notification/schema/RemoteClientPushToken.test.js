@@ -4,8 +4,10 @@
 
 const { faker } = require('@faker-js/faker')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowCheckConstraintViolationError,
-    expectToThrowInternalError,
+    expectToThrowInternalError, expectToThrowGraphQLRequestErrors,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -20,47 +22,71 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 describe('RemoteClientPushToken', () => {
     let admin
+    let support
+    let user
+    let anonymous
+
+
+    let globalAdminRemoteClient
+    let globalSupportRemoteClient
+    let globalUserRemoteClient
+    let globalAnonymousRemoteClient
+
+    let globalAdminRemoteClientPushToken
+    let globalSupportRemoteClientPushToken
+    let globalUserRemoteClientPushToken
+    let globalAnonymousRemoteClientPushToken
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        anonymous = await makeClient();
+
+        [globalAdminRemoteClient] = await createTestRemoteClient(admin);
+        [globalSupportRemoteClient] = await createTestRemoteClient(admin, { owner: { connect: { id: support.user.id } } });
+        [globalUserRemoteClient] = await createTestRemoteClient(admin, { owner: { connect: { id: user.user.id } } });
+        [globalAnonymousRemoteClient] = await createTestRemoteClient(admin, { owner: null });
+
+        [globalAdminRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient);
+        [globalSupportRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalSupportRemoteClient);
+        [globalUserRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalUserRemoteClient);
+        [globalAnonymousRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalAnonymousRemoteClient)
+
     })
+
     describe('CRUD tests', () => {
         describe('create', () => {
+
             test('admin can', async () => {
-                const [obj, attrs] = await createTestRemoteClientPushToken(admin)
+                const [obj, attrs] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient)
                 expectValuesOfCommonFields(obj, attrs, admin)
             })
 
             test('support can\'t', async () => {
-                const client = await makeClientWithSupportUser()
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestRemoteClientPushToken(client)
+                    await createTestRemoteClientPushToken(support, globalSupportRemoteClient)
                 })
             })
 
             test('user can\'t', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
+                await updateTestRemoteClient(admin, globalUserRemoteClient.id, { owner: { connect: { id: user.user.id } } })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestRemoteClientPushToken(client)
+                    await createTestRemoteClientPushToken(user, globalUserRemoteClient)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestRemoteClientPushToken(client)
+                    await createTestRemoteClientPushToken(anonymous, globalAnonymousRemoteClient)
                 })
             })
         })
 
         describe('update', () => {
-            test('admin can', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
 
-                const [obj, attrs] = await updateTestRemoteClientPushToken(admin, objCreated.id)
+            test('admin can', async () => {
+                const [obj, attrs] = await updateTestRemoteClientPushToken(admin, globalAdminRemoteClientPushToken.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -69,98 +95,100 @@ describe('RemoteClientPushToken', () => {
             })
 
             test('support can\'t', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestRemoteClientPushToken(client, objCreated.id)
+                    await updateTestRemoteClientPushToken(support, globalSupportRemoteClientPushToken.id)
                 })
             })
 
             test('user can\'t', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestRemoteClientPushToken(client, objCreated.id)
+                    await updateTestRemoteClientPushToken(user, globalUserRemoteClientPushToken.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestRemoteClientPushToken(client, objCreated.id)
+                    await updateTestRemoteClientPushToken(anonymous, globalAnonymousRemoteClientPushToken.id)
                 })
             })
         })
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RemoteClientPushToken.delete(admin, objCreated.id)
+                    await RemoteClientPushToken.delete(admin, globalAdminRemoteClientPushToken.id)
                 })
             })
 
             test('user can\'t', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RemoteClientPushToken.delete(client, objCreated.id)
+                    await RemoteClientPushToken.delete(user, globalUserRemoteClientPushToken.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RemoteClientPushToken.delete(client, objCreated.id)
+                    await RemoteClientPushToken.delete(anonymous, globalAnonymousRemoteClientPushToken.id)
                 })
             })
         })
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj] = await createTestRemoteClientPushToken(admin)
-
                 const objs = await RemoteClientPushToken.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
-                        id: obj.id,
-                        remoteClient: expect.objectContaining({ id: obj.remoteClient.id }),
-                        token: obj.token,
-                        transport: obj.transport,
-                        isVoIP: obj.isVoIP,
-                        isPush: obj.isPush,
+                        id: globalAdminRemoteClientPushToken.id,
+                        remoteClient: expect.objectContaining({ id: globalAdminRemoteClientPushToken.remoteClient.id }),
+                        transport: globalAdminRemoteClientPushToken.transport,
+                        isVoIP: globalAdminRemoteClientPushToken.isVoIP,
+                        isPush: globalAdminRemoteClientPushToken.isPush,
                     }),
                 ]))
             })
 
             test('user can\'t', async () => {
-                await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await RemoteClientPushToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await RemoteClientPushToken.getAll(user, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 
             test('anonymous can\'t', async () => {
-                await createTestRemoteClientPushToken(admin)
-
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await RemoteClientPushToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await RemoteClientPushToken.getAll(anonymous, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })
+    })
+
+    describe('Field access', () => {
+
+        describe('token', () => {
+
+            const RemoteClientPushTokenWithTokenFields = '{ id token }'
+            const RemoteClientPushTokenWithTokenGQL = generateGqlQueries('RemoteClientPushToken', `${RemoteClientPushTokenWithTokenFields}`)
+            const RemoteClientPushTokenWithToken = generateGQLTestUtils(RemoteClientPushTokenWithTokenGQL)
+
+            test('admin: cannot read token field in list query', async () => {
+                await expectToThrowGraphQLRequestErrors(async () => {
+                    await RemoteClientPushTokenWithToken.getAll(admin, { id: globalAdminRemoteClientPushToken.id })
+                }, ['Cannot query field "token" on type "RemoteClientPushToken".'])
+            })
+
+            // NOTE(YEgorLu): enable and fix if access for other users is added
+            test.skip('others: cannot read token field in list query', async () => {
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await RemoteClientPushToken.getAll(user, {}, { sortBy: ['updatedAt_DESC'] })
+                })
+                await expectToThrowAuthenticationErrorToObjects(async () => {
+                    await RemoteClientPushToken.getAll(anonymous, {}, { sortBy: ['updatedAt_DESC'] })
+                })
+            })
+
+        })
+
     })
 
     describe('Validation tests', () => {
@@ -171,11 +199,12 @@ describe('RemoteClientPushToken', () => {
                 const token = faker.datatype.uuid()
                 const transport = 'firebase'
 
-                await createTestRemoteClientPushToken(admin, { token, transport, isVoIP: true, isPush: false })
+                const rc = null//await createTestRemoteClient(admin)
+                await createTestRemoteClientPushToken(admin, rc, { token, transport, isVoIP: true, isPush: false })
 
                 await expectToThrowUniqueConstraintViolationError(
                     async () => {
-                        await createTestRemoteClientPushToken(admin, { token, transport, isVoIP: false, isPush: true })
+                        await createTestRemoteClientPushToken(admin, rc, { token, transport, isVoIP: false, isPush: true })
                     },
                     'remote_client_push_token_unique_token_transport'
                 )
@@ -184,7 +213,7 @@ describe('RemoteClientPushToken', () => {
             test('check constraint: must have isVoIP or isPush', async () => {
                 await expectToThrowCheckConstraintViolationError(
                     async () => {
-                        await createTestRemoteClientPushToken(admin, { isVoIP: false, isPush: false })
+                        await createTestRemoteClientPushToken(admin, null, { isVoIP: false, isPush: false })
                     },
                     'has_isvoip_or_ispush'
                 )
@@ -193,17 +222,17 @@ describe('RemoteClientPushToken', () => {
             test.each(['isVoIP', 'isPush'])('unique constraint: remoteClient + transport + # = True', async (truthKey) => {
                 const transport = 'firebase'
                 const [remoteClient] = await createTestRemoteClient(admin)
-                const payload = { token: faker.datatype.uuid(), transport, remoteClient: { connect: { id: remoteClient.id } }, isVoIP: false, isPush: false }
+                const payload = { token: faker.datatype.uuid(), transport, isVoIP: false, isPush: false }
                 payload[truthKey] = true
 
-                await createTestRemoteClientPushToken(admin, payload)
+                await createTestRemoteClientPushToken(admin, remoteClient, payload)
 
-                const anotherPayload = { remoteClient: payload.remoteClient, token: faker.datatype.uuid(), transport, isVoIP: true, isPush: true }
+                const anotherPayload = { token: faker.datatype.uuid(), transport, isVoIP: true, isPush: true }
                 anotherPayload[truthKey] = false
-                const [anotherPushToken] = await createTestRemoteClientPushToken(admin, anotherPayload)
+                const [anotherPushToken] = await createTestRemoteClientPushToken(admin, remoteClient, anotherPayload)
 
                 await expectToThrowUniqueConstraintViolationError(async () => {
-                    await createTestRemoteClientPushToken(admin, { ...payload, token: faker.datatype.uuid() })
+                    await createTestRemoteClientPushToken(admin, remoteClient, { ...payload, token: faker.datatype.uuid() })
                 }, `remote_client_push_token_unique_remoteclient_transport_${truthKey.toLowerCase()}`)
 
                 await expectToThrowUniqueConstraintViolationError(async () => {
@@ -218,17 +247,17 @@ describe('RemoteClientPushToken', () => {
             [remoteClient] = await updateTestRemoteClient(admin, remoteClient.id, { deletedAt: new Date().toISOString() })
 
             await expectToThrowInternalError(async () => {
-                await createTestRemoteClientPushToken(admin, {
-                    remoteClient: { connect: { id: remoteClient.id } },
+                await createTestRemoteClientPushToken(admin, remoteClient, {
                     isVoIP: false,
                     isPush: true,
                 })
             }, 'Unable to connect a RemoteClientPushToken.remoteClient<RemoteClient>', ['obj'])
 
-            const [remoteClientPushToken] = await createTestRemoteClientPushToken(admin, { isPush: true })
-            await updateTestRemoteClient(admin, remoteClientPushToken.remoteClient.id, { deletedAt: new Date().toISOString() })
+            const [anotherRemoteClient] = await createTestRemoteClient(admin)
+            const [remoteClientPushToken] = await createTestRemoteClientPushToken(admin, anotherRemoteClient, { isPush: true })
+            await updateTestRemoteClient(admin, anotherRemoteClient.id, { deletedAt: new Date().toISOString() })
             await expectToThrowInternalError(async () => {
-                await updateTestRemoteClientPushToken(admin, remoteClientPushToken.id, { remoteClient: { connect: { id: remoteClientPushToken.remoteClient.id } } })
+                await updateTestRemoteClientPushToken(admin, remoteClientPushToken.id, { remoteClient: { connect: { id: anotherRemoteClient.id } } })
             }, 'Unable to connect a RemoteClientPushToken.remoteClient<RemoteClient>', ['obj'])
 
             const [deletedRemoteClientPushToken] = await updateTestRemoteClientPushToken(admin, remoteClientPushToken.id, { deletedAt: new Date().toISOString() })
