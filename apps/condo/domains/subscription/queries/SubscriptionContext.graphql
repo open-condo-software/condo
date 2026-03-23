@@ -129,6 +129,46 @@ query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!
     }
 }
 
+query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: Int) {
+    paymentHistory: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            invoice_is_null: false
+            status: DONE
+        }
+        sortBy: [createdAt_DESC]
+        skip: $offset
+        first: $first
+    ) {
+        id
+        createdAt
+        subscriptionPlan {
+            id
+            name
+        }
+        frozenPaymentInfo {
+            paymentMethod {
+                paymentSystem
+                cardNumber
+            }
+            invoice {
+                toPay
+                currencyCode
+            }
+            multiPaymentId
+        }
+    }
+    meta: _allSubscriptionContextsMeta(
+        where: {
+            organization: { id: $organizationId }
+            invoice_is_null: false
+            status: DONE
+        }
+    ) {
+        count
+    }
+}
+
 mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
     result: updateSubscriptionContextPaymentMethod(data: $data) {
         id
