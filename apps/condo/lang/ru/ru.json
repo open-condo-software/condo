@@ -2057,6 +2057,8 @@
   "pages.condo.error.TooManyRequestsTitle": "Скоро доступ восстановится",
   "pages.condo.error.paymentLinkHandler.NotFoundDescription": "Не удалось определить тип ссылки. Возможно ссылка неверная или скопирована не полностью.",
   "pages.condo.error.paymentLinkHandler.NotFoundTitle": "Неизвестная ссылка на оплату",
+  "pages.condo.share.InvalidLinkDescription": "Проверьте ссылку или запросите новую у отправителя",
+  "pages.condo.share.InvalidLinkTitle": "Ссылка недействительна",
   "pages.condo.marketplace.bankAccountErrorMessage": "Ошибка в номере расчетного счета",
   "pages.condo.marketplace.bankAccountValidationErrorMassage": "Комбинация БИК и номер расчетного счета не прошли проверку. ({number}, {routingNumber})",
   "pages.condo.marketplace.bankAccountValidationErrorTitle": "Добавление реквизитов",
