@@ -76,28 +76,22 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
-        console.log('🔄 AIChat: Loading messages for session:', aiSessionId)
         const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
-        console.log('📚 Saved history:', savedHistory)
         
         if (!savedHistory || typeof savedHistory !== 'object') {
-            console.log('❌ No valid history found')
             setMessages([])
             return
         }
 
         const sessionData = savedHistory[aiSessionId]
         if (!sessionData || !sessionData.history) {
-            console.log('📭 No session data or empty history for session')
             setMessages([])
             return
         }
 
-        console.log('📝 Session data:', sessionData)
         const historyArray = sessionData.history
         
         if (historyArray.length === 0) {
-            console.log('📭 Empty history for session')
             setMessages([])
             return
         }
@@ -111,37 +105,29 @@ export const AIChat: React.FC<AIChatProps> = ({
         
         // Check for active task in the last message and resume if needed
         const lastMessage = historyWithDates[historyWithDates.length - 1]
-        console.log('🔍 Last message:', lastMessage)
         
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
-            console.log('🚀 Found active task, resuming:', lastMessage.executionAIFlowTaskId)
             resume(lastMessage.executionAIFlowTaskId)
-        } else {
-            console.log('✅ No active task to resume')
         }
     }, [aiSessionId, resume])
 
     const canExecuteAIFlow = useMemo(() => {
-        console.log('🔒 canExecuteAIFlow check:', { currentTaskId, loading })
         return !(currentTaskId && loading)
     }, [currentTaskId, loading])
 
     const addMessage = useCallback((newMessage: Message) => {
-        console.log('addMessage', newMessage)
         setMessages(prev => {
             return [...prev, newMessage]
         })
     }, [])
 
     const changeMessage = useCallback((messageId: string, updatedMessage: Message) => {
-        console.log('changeMessage', messageId, updatedMessage)
         setMessages(prev => {
             return prev.map(msg => msg.id === messageId ? updatedMessage : msg)
         })
     }, [])
 
     const removeMessage = useCallback((messageId: string) => {
-        console.log('removeMessage', messageId)
         setMessages(prev => {
             return prev.filter(msg => msg.id !== messageId)
         })
@@ -175,7 +161,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     // Update message with executionAIFlowTaskId when currentTaskId changes
     useEffect(() => {
         if (currentTaskId) {
-            console.log('💾 Updating latest sending message with task ID:', currentTaskId)
             // Find the last assistant message with 'sending' status and update it with currentTaskId
             setMessages(prev => {
                 const updated = prev.map(msg => {
@@ -211,7 +196,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [])
 
     const executeAIMessage = useCallback(async (userInput: string, additionalContext?: any, toolCallDepth = 0, messageId = null) => {
-        console.log('🤖 executeAIMessage called:', { userInput, additionalContext, toolCallDepth, messageId })
+        console.info('executeAIMessage called:', { userInput, additionalContext, toolCallDepth, messageId })
 
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
             addMessage({
@@ -239,7 +224,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         try {
-            console.log('📤 Calling execute with context:', { userInput, userData: { userId: user.id, organizationId: organization?.id, ...additionalContext } })
             const result = await execute({ userInput, userData: {
                 userId: user.id,
                 organizationId: organization?.id,
