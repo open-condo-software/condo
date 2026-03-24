@@ -1,0 +1,55 @@
+.container {
+  overflow: hidden;
+  text-align: center;
+  transition: all var(--condo-global-transition-duration-default) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container:not(.expanded-content) {
+  max-height: 30px;
+  margin: 0 -11px 24px;
+  padding: 2px 8px;
+  background: var(--condo-global-color-brand-gradient-7);
+  border-radius: var(--condo-global-border-radius-large);
+  cursor: pointer;
+}
+
+.container:has(.expanded-content) {
+  width: calc(100% + 30px);
+  max-height: 150px;
+  margin: 0 -15px 24px;
+  padding: 10px;
+  background: var(--condo-global-color-brand-gradient-1);
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.container > * {
+  animation: fade-in var(--condo-global-transition-duration-default) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fade-in {
+  from {
+    transform: translateY(-5px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.expanded-content {
+  width: 100%;
+}
+
+.expanded-content :global(.ant-progress-inner) {
+  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+}
+
+.expanded-content :global(.ant-progress-bg) {
+  transition: all var(--condo-global-transition-duration-default) cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.expanded-content > :global(.ant-space-item) {
+  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+}

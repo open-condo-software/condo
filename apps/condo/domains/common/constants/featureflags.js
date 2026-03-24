@@ -46,6 +46,7 @@ const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id
 const TICKET_OBSERVERS = 'ticket-observers'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
+const SUBSCRIPTION_MODAL_CONFIG = 'subscription-progress-modal-config'
 const TWO_FACTOR_SETTING = 'two-factor-setting'
 
 module.exports = {
@@ -97,5 +98,6 @@ module.exports = {
     TICKET_OBSERVERS,
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
     SUBSCRIPTION_PAYMENT_MODAL,
+    SUBSCRIPTION_MODAL_CONFIG,
     TWO_FACTOR_SETTING,
 }

@@ -26,7 +26,7 @@ import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/u
 
 import styles from './SubscriptionPlanCard.module.css'
 
-import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
+import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 
 type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
@@ -34,7 +34,7 @@ type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plan
 const { Panel } = Collapse
 
 type FeatureConfig = {
-    featureKey?: AvailableFeature
+    featureKey?: AvailableFeatureType
     label: string
     hint: string | null
 }

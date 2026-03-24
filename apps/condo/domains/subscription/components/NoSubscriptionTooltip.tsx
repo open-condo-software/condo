@@ -11,12 +11,12 @@ import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/setti
 import { getRequiredFeature } from '@condo/domains/subscription/constants/routeFeatureMapping'
 import { useActivateSubscriptions, useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
-import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
+import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 export interface NoSubscriptionTooltipProps {
     children: React.ReactElement
     placement?: 'top' | 'bottom' | 'left' | 'right'
-    feature?: AvailableFeature | AvailableFeature[]
+    feature?: AvailableFeatureType | AvailableFeatureType[]
     path?: string
     skipTooltip?: boolean
     b2bAppId?: string
@@ -31,7 +31,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     const [isActivating, setIsActivating] = useState(false)
 
     const requiredFeature = path ? getRequiredFeature(path) : null
-    const feature = (featureProp || requiredFeature) as AvailableFeature | undefined | null
+    const feature = (featureProp || requiredFeature) as AvailableFeatureType | undefined | null
     const isAppAvailableForTariff = b2bAppId ? isB2BAppEnabled(b2bAppId) : true
 
     const FeatureLockedMessage = intl.formatMessage({ 
