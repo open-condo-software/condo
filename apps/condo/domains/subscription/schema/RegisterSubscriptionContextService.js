@@ -147,6 +147,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 const existingContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     subscriptionPlan: { id: plan.id },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 })
 
