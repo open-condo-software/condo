@@ -270,8 +270,8 @@ describe('RegisterSubscriptionContextService', () => {
             })
 
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                startAt: existingDoneEndDate.format('YYYY-MM-DD'),
+                endAt: dayjs().add(40, 'day').format('YYYY-MM-DD'),
                 status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
                 isTrial: false,
             })

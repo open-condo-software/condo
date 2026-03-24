@@ -567,6 +567,29 @@ describe('SubscriptionContext', () => {
 
                 expect(obj.id).toMatch(UUID_RE)
             })
+
+            test('allows creating subscription with overlapping dates if existing subscription is not DONE', async () => {
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
+
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.startAt).toBe(startAt)
+                expect(obj.endAt).toBe(endAt)
+            })
         })
 
         test('bindingId field stores card token ID correctly', async () => {
