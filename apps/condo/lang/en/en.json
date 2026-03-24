@@ -3832,6 +3832,7 @@
   "richTextArea.toolbar.undo": "Undo",
   "richTextArea.toolbar.redo": "Redo",
   "richTextArea.toolbar.link": "Link",
+  "richTextArea.toolbar.emoji": "Emoji",
   "richTextArea.toolbar.bold": "Bold",
   "richTextArea.toolbar.italic": "Italic",
   "richTextArea.toolbar.unorderedList": "Bulleted list",
@@ -3839,5 +3840,14 @@
   "richTextArea.toolbar.removeFormatting": "Remove formatting",
   "richTextArea.linkModal.urlLabel": "Link",
   "richTextArea.linkModal.textLabel": "Text",
-  "richTextArea.linkModal.submitLabel": "Ok"
+  "richTextArea.linkModal.submitLabel": "Ok",
+  "richTextArea.emojiDropdown.categories.activity": "Activity",
+  "richTextArea.emojiDropdown.categories.flags": "Flags",
+  "richTextArea.emojiDropdown.categories.foods": "Foods",
+  "richTextArea.emojiDropdown.categories.frequent": "Frequent",
+  "richTextArea.emojiDropdown.categories.nature": "Nature",
+  "richTextArea.emojiDropdown.categories.objects": "Objects",
+  "richTextArea.emojiDropdown.categories.people": "People",
+  "richTextArea.emojiDropdown.categories.places": "Places",
+  "richTextArea.emojiDropdown.categories.symbols": "Symbols"
 }

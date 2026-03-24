@@ -111,6 +111,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         undo: intl.formatMessage({ id: 'richTextArea.toolbar.undo' }),
         redo: intl.formatMessage({ id: 'richTextArea.toolbar.redo' }),
         link: intl.formatMessage({ id: 'richTextArea.toolbar.link' }),
+        emoji: intl.formatMessage({ id: 'richTextArea.toolbar.emoji' }),
         bold: intl.formatMessage({ id: 'richTextArea.toolbar.bold' }),
         italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
         unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
@@ -122,6 +123,20 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         urlLabel: intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' }),
         textLabel: intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' }),
         submitLabel: intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' }),
+    }), [intl])
+
+    const emojiDropdownLabels = useMemo(() => ({
+        categories: {
+            activity: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.activity' }),
+            flags: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.flags' }),
+            foods: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.foods' }),
+            frequent: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.frequent' }),
+            nature: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.nature' }),
+            objects: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.objects' }),
+            people: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.people' }),
+            places: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.places' }),
+            symbols: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.symbols' }),
+        },
     }), [intl])
 
     const router = useRouter()
@@ -307,6 +322,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                             customLabels={{
                                                 toolbar: toolbarLabels,
                                                 linkModal: linkModalLabels,
+                                                emojiDropdown: emojiDropdownLabels,
                                             }}
                                         />
                                     </Col>

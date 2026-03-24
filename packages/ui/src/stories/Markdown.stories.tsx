@@ -252,7 +252,7 @@ Paragraph text inside of this header
 
 **Bold text** and *italic text* still work as intended.
 
-## Emoji
+**Emoji**
 
 Emoji are rendered as regular unicode symbols: 😊 🚀 🏠✨
 

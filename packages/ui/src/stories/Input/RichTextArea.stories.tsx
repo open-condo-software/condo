@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Copy, Smile, Sparkles } from '@open-condo/icons'
+import { Copy, Sparkles } from '@open-condo/icons'
 import { Button, Tooltip, Input as Component } from '@open-condo/ui/src'
 import type { ToolbarGroup } from '@open-condo/ui/src'
 
@@ -21,7 +21,6 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 
 const DEMO_BOTTOM_PANEL_UTILS = [
     <DemoButton icon={<Copy size='small'/>} text='Copy' key='copy' />,
-    <DemoButton icon={<Smile size='small'/>} text='Smile' key='smile' />,
     <DemoButton icon={<Sparkles size='small'/>} text='Sparkles' key='sparkles' />,
 ]
 

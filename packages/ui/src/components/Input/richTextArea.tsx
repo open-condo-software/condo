@@ -168,7 +168,6 @@ type RichTextAreaImageModalLabels = {
 type RichTextAreaEmojiDropdownLabels = {
     categories: {
         activity: string
-        custom: string
         flags: string
         foods: string
         frequent: string
@@ -229,7 +228,6 @@ const DEFAULT_IMAGE_MODAL_LABELS: RichTextAreaImageModalLabels = {
 const DEFAULT_EMOJI_DROPDOWN_LABELS: RichTextAreaEmojiDropdownLabels = {
     categories: {
         activity: 'Activity',
-        custom: 'Custom',
         flags: 'Flags',
         foods: 'Foods',
         frequent: 'Frequent',
@@ -346,6 +344,7 @@ const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
 const DEFAULT_TOOLBAR_GROUPS: ToolbarGroup[] = [
     ['undo', 'redo'],
     ['link'],
+    ['emoji'],
     ['bold', 'italic'],
     ['unorderedList', 'orderedList'],
     ['removeFormatting'],
@@ -646,7 +645,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
     const handleEmojiSelect = useCallback((emoji: { native?: string }) => {
         setEmojiPickerOpen(false)
 
-        if (!editor) return
+        if (!editor || disabled) return
 
         const nativeEmoji = emoji?.native
         if (nativeEmoji) {
@@ -654,7 +653,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
         } else {
             editor.chain().focus().run()
         }
-    }, [editor])
+    }, [editor, disabled])
 
     const renderEmojiPicker = useCallback(() => (
         <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-emoji-dropdown`}>
@@ -797,8 +796,10 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     }), [customLabels?.imageModal])
 
     const resolvedEmojiDropdownLabels = useMemo(() => ({
-        ...DEFAULT_EMOJI_DROPDOWN_LABELS,
-        ...customLabels?.emojiDropdown,
+        categories: {
+            ...DEFAULT_EMOJI_DROPDOWN_LABELS.categories,
+            ...customLabels?.emojiDropdown?.categories,
+        },
     }), [customLabels?.emojiDropdown])
 
     const onChangeRef = useRef(onChange)
