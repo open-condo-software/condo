@@ -28,7 +28,7 @@ const DEMO_BOTTOM_PANEL_UTILS = [
 const ALL_TOOLBAR_GROUPS: ToolbarGroup[] = [
     ['undo', 'redo'],
     ['heading', 'bold', 'italic', 'strikethrough'],
-    ['link', 'image'],
+    ['link', 'image', 'emoji'],
     ['unorderedList', 'orderedList', 'taskList', 'blockquote'],
     ['table'],
     ['removeFormatting'],
@@ -83,6 +83,8 @@ const ALL_FEATURES_MD = [
     '---',
     '',
     '![Sample image](https://placehold.co/400x120/e2e8f0/475569?text=Image+Preview)',
+    '',
+    'Emoji demo: 😊 🚀 🏠',
     '',
     'Inline `code snippet` inside a paragraph.',
 ].join('\n')

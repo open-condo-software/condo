@@ -1,3 +1,5 @@
+import emojiData from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { CharacterCount } from '@tiptap/extension-character-count'
 import { CodeBlock } from '@tiptap/extension-code-block'
 import { Heading } from '@tiptap/extension-heading'
@@ -36,6 +38,7 @@ import {
     RemoveFormatting,
     Sheet,
     Slash,
+    Smile,
     Subtitles,
     Undo,
 } from '@open-condo/icons'
@@ -44,6 +47,7 @@ import { Input as TextInput } from './input'
 
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import { Dropdown } from '../Dropdown'
 import { CodeWrapper } from '../Markdown/codeWrapper'
 import { Modal } from '../Modal'
 import { Tooltip } from '../Tooltip'
@@ -146,6 +150,7 @@ type RichTextAreaToolbarLabels = {
     table: string
     blockquote: string
     image: string
+    emoji: string
     heading: string
 }
 
@@ -172,7 +177,7 @@ type ToolbarButtonKey =
     | 'link'
     | 'unorderedList' | 'orderedList' | 'taskList'
     | 'removeFormatting'
-    | 'table' | 'blockquote' | 'image' | 'heading'
+    | 'table' | 'blockquote' | 'image' | 'emoji' | 'heading'
 
 export type ToolbarGroup = ToolbarButtonKey[]
 
@@ -190,6 +195,7 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     table: 'Table',
     blockquote: 'Blockquote',
     image: 'Image',
+    emoji: 'Emoji',
     heading: 'Heading',
 }
 
@@ -292,6 +298,11 @@ const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
         icon: <Paperclip size='small' />,
         labelKey: 'image',
         action: (_editor, helpers) => helpers.openImageModal(),
+    },
+    emoji: {
+        icon: <Smile size='small' />,
+        labelKey: 'emoji',
+        action: () => null,
     },
     heading: {
         icon: <Subtitles size='small' />,
@@ -503,6 +514,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
     const [linkModalInitialUrl, setLinkModalInitialUrl] = useState('')
     const [linkModalInitialText, setLinkModalInitialText] = useState('')
     const [imageModalOpen, setImageModalOpen] = useState(false)
+    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
 
     const hasLink = useMemo(
         () => groups.some(group => group.includes('link')),
@@ -599,6 +611,33 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
         editor?.chain().focus().run()
     }, [editor])
 
+    const handleEmojiSelect = useCallback((emoji: { native?: string }) => {
+        setEmojiPickerOpen(false)
+
+        if (!editor) return
+
+        const nativeEmoji = emoji?.native
+        if (nativeEmoji) {
+            editor.chain().focus().insertContent(nativeEmoji).run()
+        } else {
+            editor.chain().focus().run()
+        }
+    }, [editor])
+
+    const renderEmojiPicker = useCallback(() => (
+        <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-emoji-dropdown`}>
+            <Picker
+                data={emojiData}
+                onEmojiSelect={handleEmojiSelect}
+                previewPosition='none'
+                skinTonePosition='none'
+                theme='light'
+                icons='outline'
+                emojiButtonColors={['rgba(46, 189, 89, 0.12)']}
+            />
+        </div>
+    ), [handleEmojiSelect])
+
     const helpers: ToolbarHelpers = useMemo(() => ({
         openLinkModal: handleLink,
         openImageModal: handleImage,
@@ -615,6 +654,28 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                             const config = BUILTIN_BUTTON_CONFIG[item]
                             const state = buttonStates?.[item]
                             const isToolbarButtonDisabled = disabled || (state?.isDisabled ?? config.isDisabled?.(editor) ?? false)
+                            if (item === 'emoji') {
+                                return (
+                                    <Dropdown
+                                        key={item}
+                                        trigger={['click']}
+                                        open={emojiPickerOpen}
+                                        onOpenChange={setEmojiPickerOpen}
+                                        overlayClassName={`${RICH_TEXT_AREA_CLASS_PREFIX}-emoji-dropdown-overlay`}
+                                        dropdownRender={renderEmojiPicker}
+                                    >
+                                        <span>
+                                            <ToolbarButton
+                                                onClick={() => null}
+                                                isActive={state?.isActive}
+                                                disabled={isToolbarButtonDisabled}
+                                                title={labels[config.labelKey]}
+                                                icon={config.icon}
+                                            />
+                                        </span>
+                                    </Dropdown>
+                                )
+                            }
                             return (
                                 <ToolbarButton
                                     key={item}

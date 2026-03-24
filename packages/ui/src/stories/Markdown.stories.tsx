@@ -69,6 +69,12 @@ Text can also be *italic* in _2 different ways_.
 
 ~Strikethrough~ modifiers are also ~~not~~ supported :)
 
+## Emoji
+
+Emoji are rendered as regular unicode symbols: 😊 🚀 🏠✨
+
+You can use them inline with formatting: **Done ✅**, *in progress 🛠️*, ~~deprecated 🗑️~~
+
 ## Links
 
 You can specify some [inline links](https://www.npmjs.com/package/@open-condo/ui) without title 
@@ -245,6 +251,12 @@ Paragraph text inside of this header
 **Header 2**
 
 **Bold text** and *italic text* still work as intended.
+
+## Emoji
+
+Emoji are rendered as regular unicode symbols: 😊 🚀 🏠✨
+
+You can use them inline with formatting: **Done ✅**, *in progress 🛠️*, ~~deprecated 🗑️~~
         `,
     },
 }
