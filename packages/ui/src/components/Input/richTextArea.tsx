@@ -165,10 +165,26 @@ type RichTextAreaImageModalLabels = {
     submitLabel: string
 }
 
+type RichTextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: string
+        custom: string
+        flags: string
+        foods: string
+        frequent: string
+        nature: string
+        objects: string
+        people: string
+        places: string
+        symbols: string
+    }
+}
+
 export type RichTextAreaCustomLabels = {
     toolbar?: Partial<RichTextAreaToolbarLabels>
     linkModal?: Partial<RichTextAreaLinkModalLabels>
     imageModal?: Partial<RichTextAreaImageModalLabels>
+    emojiDropdown?: Partial<RichTextAreaEmojiDropdownLabels>
 }
 
 type ToolbarButtonKey =
@@ -208,6 +224,21 @@ const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
 const DEFAULT_IMAGE_MODAL_LABELS: RichTextAreaImageModalLabels = {
     urlLabel: 'Image URL',
     submitLabel: 'Ok',
+}
+
+const DEFAULT_EMOJI_DROPDOWN_LABELS: RichTextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: 'Activity',
+        custom: 'Custom',
+        flags: 'Flags',
+        foods: 'Foods',
+        frequent: 'Frequent',
+        nature: 'Nature',
+        objects: 'Objects',
+        people: 'People',
+        places: 'Places',
+        symbols: 'Symbols',
+    },
 }
 
 type ToolbarHelpers = {
@@ -498,6 +529,7 @@ type ToolbarProps = {
     labels: RichTextAreaToolbarLabels
     linkModalLabels: RichTextAreaLinkModalLabels
     imageModalLabels: RichTextAreaImageModalLabels
+    emojiDropdownLabels: RichTextAreaEmojiDropdownLabels
     groups: ToolbarGroup[]
     disabled?: boolean
 }
@@ -509,7 +541,7 @@ const makeTextContent = (text: string, url?: string) => {
     return { type: 'text', text }
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imageModalLabels, groups, disabled }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imageModalLabels, emojiDropdownLabels, groups, disabled }) => {
     const [linkModalOpen, setLinkModalOpen] = useState(false)
     const [linkModalInitialUrl, setLinkModalInitialUrl] = useState('')
     const [linkModalInitialText, setLinkModalInitialText] = useState('')
@@ -631,12 +663,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                 onEmojiSelect={handleEmojiSelect}
                 previewPosition='none'
                 skinTonePosition='none'
+                searchPosition='none'
                 theme='light'
                 icons='outline'
-                emojiButtonColors={['rgba(46, 189, 89, 0.12)']}
+                i18n={emojiDropdownLabels}
             />
         </div>
-    ), [handleEmojiSelect])
+    ), [handleEmojiSelect, emojiDropdownLabels])
 
     const helpers: ToolbarHelpers = useMemo(() => ({
         openLinkModal: handleLink,
@@ -763,6 +796,11 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         ...customLabels?.imageModal,
     }), [customLabels?.imageModal])
 
+    const resolvedEmojiDropdownLabels = useMemo(() => ({
+        ...DEFAULT_EMOJI_DROPDOWN_LABELS,
+        ...customLabels?.emojiDropdown,
+    }), [customLabels?.emojiDropdown])
+
     const onChangeRef = useRef(onChange)
     onChangeRef.current = onChange
 
@@ -885,7 +923,15 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     return (
         <RichTextTypeContext.Provider value={type}>
             <div className={containerClassName} style={style}>
-                <Toolbar editor={editor} labels={resolvedToolbarLabels} linkModalLabels={resolvedLinkModalLabels} imageModalLabels={resolvedImageModalLabels} groups={toolbarGroups} disabled={disabled} />
+                <Toolbar 
+                    editor={editor} 
+                    labels={resolvedToolbarLabels} 
+                    linkModalLabels={resolvedLinkModalLabels} 
+                    imageModalLabels={resolvedImageModalLabels} 
+                    emojiDropdownLabels={resolvedEmojiDropdownLabels} 
+                    groups={toolbarGroups} 
+                    disabled={disabled}
+                />
                 <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-editor-wrap`} ref={editorWrapRef}>
                     <EditorContent editor={editor} />
                 </div>
