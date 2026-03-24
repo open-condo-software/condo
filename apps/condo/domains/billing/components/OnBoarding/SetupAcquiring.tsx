@@ -75,6 +75,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         where: {
             isHidden: false,
             setupUrl_not: null,
+            type: AcquiringIntegrationTypeType.OnlineProcessing,
         },
     })
 
@@ -83,7 +84,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const { objs: acquiringContexts, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringContext.useObjects({
         where: {
             organization: { id: orgId },
-            integration: { id: acquiringId, type: AcquiringIntegrationTypeType.OnlineProcessing, deletedAt: null },
+            integration: { id: acquiringId, deletedAt: null },
         },
         sortBy: [
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
@@ -96,7 +97,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         where: {
             organization: { id: orgId },
             status_in: [CONTEXT_VERIFICATION_STATUS],
-            integration: { id: acquiringId, type: AcquiringIntegrationTypeType.OnlineProcessing, deletedAt: null },
+            integration: { id: acquiringId, deletedAt: null },
         },
         sortBy: [
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,

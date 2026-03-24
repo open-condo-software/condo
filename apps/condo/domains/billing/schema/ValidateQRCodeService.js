@@ -8,6 +8,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('
 const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     compactDistributionSettings,
     FeeDistribution,
@@ -186,6 +187,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 const [acquiringContext] = await find('AcquiringIntegrationContext', {
                     organization: { id: organizationId, deletedAt: null },
                     status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                     deletedAt: null,
                 })
 

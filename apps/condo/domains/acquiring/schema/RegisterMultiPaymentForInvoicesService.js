@@ -18,6 +18,7 @@ const {
     INVOICE_CONTEXT_NOT_FINISHED,
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     WEB_VIEW_PATH,
     FEE_CALCULATION_PATH,
@@ -137,6 +138,10 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
 
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     organization: { id_in: uniq(map(foundInvoices, 'organization')) },
+                    integration: {
+                        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                        deletedAt: null,
+                    },
                     deletedAt: null,
                 })
 

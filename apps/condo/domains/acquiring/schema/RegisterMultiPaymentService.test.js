@@ -540,16 +540,35 @@ describe('RegisterMultiPaymentService', () => {
                     },
                 })
             })
-            test('All ServiceConsumers should have AcquiringIntegrationContext', async () => {
+            test('All ServiceConsumers organizations should have active AcquiringIntegrationContext', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
-                const payload = batches.map(batch => ({
-                    serviceConsumer: { id: batch.serviceConsumer.id },
-                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                }))
-                const disconnectedServiceConsumerId = batches[1].serviceConsumer.id
-                await updateTestServiceConsumer(commonData.admin, disconnectedServiceConsumerId, {
-                    acquiringIntegrationContext: { disconnectAll: true },
+                const [organizationWithoutAcquiringContext] = await createTestOrganization(commonData.admin)
+                const [property] = await createTestProperty(commonData.admin, organizationWithoutAcquiringContext)
+                const [billingIntegration] = await createTestBillingIntegration(commonData.admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(commonData.admin, organizationWithoutAcquiringContext, billingIntegration)
+                const [billingProperty] = await createTestBillingProperty(commonData.admin, billingContext, { address: property.address })
+                const [billingAccount] = await createTestBillingAccount(commonData.admin, billingContext, billingProperty)
+                const [receipt] = await createTestBillingReceipt(commonData.admin, billingContext, billingProperty, billingAccount)
+                const [resident] = await createTestResident(commonData.admin, commonData.client.user, property, {
+                    unitName: billingAccount.unitName,
+                    unitType: billingAccount.unitType,
                 })
+                const [serviceConsumerWithoutAcquiringContext] = await createTestServiceConsumer(commonData.admin, resident, organizationWithoutAcquiringContext, {
+                    accountNumber: billingAccount.number,
+                    billingIntegrationContext: { connect: { id: billingContext.id } },
+                })
+
+                const payload = [
+                    {
+                        serviceConsumer: { id: batches[0].serviceConsumer.id },
+                        receipts: batches[0].billingReceipts.map(item => ({ id: item.id })),
+                    },
+                    {
+                        serviceConsumer: { id: serviceConsumerWithoutAcquiringContext.id },
+                        receipts: [{ id: receipt.id }],
+                    },
+                ]
+
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, {
@@ -559,7 +578,7 @@ describe('RegisterMultiPaymentService', () => {
                     type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING',
                     message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
                     messageInterpolation: {
-                        ids: disconnectedServiceConsumerId,
+                        ids: serviceConsumerWithoutAcquiringContext.id,
                     },
                 })
             })
@@ -571,10 +590,9 @@ describe('RegisterMultiPaymentService', () => {
                     await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
                         deletedAt: dayjs().toISOString(),
                     })
-                    const [secondContext] = await createTestAcquiringIntegrationContext(commonData.admin, batches[1].organization, secondAcquiring)
+                    await createTestAcquiringIntegrationContext(commonData.admin, batches[1].organization, secondAcquiring)
                     const [secondResident] = await createTestResident(commonData.admin, commonData.client.user, batches[1].property)
                     const [secondConsumer] = await createTestServiceConsumer(commonData.admin, secondResident, batches[1].organization, {
-                        acquiringIntegrationContext: { connect: { id: secondContext.id } },
                         billingIntegrationContext: { connect: { id: batches[1].billingContext.id } },
                     })
 
@@ -1848,5 +1866,3 @@ describe('RegisterMultiPaymentService', () => {
         })
     })
 })
-
-
