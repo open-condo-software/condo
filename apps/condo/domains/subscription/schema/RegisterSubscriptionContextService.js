@@ -178,7 +178,6 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                         },
                     ],
                 })
-                const invoice = await getById('Invoice', createdInvoice.id)
 
                 const createdSubscriptionContext = await SubscriptionContext.create(context, {
                     dv,
@@ -186,7 +185,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     organization: { connect: { id: organization.id } },
                     subscriptionPlan: { connect: { id: plan.id } },
                     subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                    invoice: { connect: { id: invoice.id } },
+                    invoice: { connect: { id: createdInvoice.id } },
                     startAt: startAt.format('YYYY-MM-DD'),
                     endAt: endAt.format('YYYY-MM-DD'),
                     isTrial: false,
@@ -195,16 +194,11 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                         pricingRuleId: pricingRule.id,
                     },
                 })
-                const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
                 const multiPaymentResult = await registerMultiPayment(context, {
-                    invoices: [{ id: invoice.id }],
+                    invoices: [{ id: createdInvoice.id }],
                     sender,
                 })
-
-                const multiPayment = multiPaymentResult.multiPaymentId 
-                    ? await getById('MultiPayment', multiPaymentResult.multiPaymentId)
-                    : null
 
                 let directPaymentUrl = multiPaymentResult.directPaymentUrl
                 if (directPaymentUrl) {
@@ -212,6 +206,9 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     url.searchParams.append('organizationId', organization.id)
                     directPaymentUrl = url.toString()
                 }
+
+                const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
+                const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
 
                 return { 
                     subscriptionContext, 

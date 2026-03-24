@@ -88,49 +88,52 @@ describe('ActivateSubscriptionContextService', () => {
         organization = org
     })
 
-    async function createPaidSubscriptionContext (client, org, rule) {
-        const [result] = await registerSubscriptionContextByTestClient(client, {
-            organization: { id: org.id },
-            subscriptionPlanPricingRule: { id: rule.id },
-            isTrial: false,
-        })
-
-        return {
-            subscriptionContext: result.subscriptionContext,
-            invoice: result.subscriptionContext.invoice,
-        }
-    }
-
     describe('Access', () => {
         test('admin can call activateSubscriptionContext without access denied error', async () => {
-            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+            const [result] = await registerSubscriptionContextByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
             
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionContextByTestClient(admin, subscriptionContext)
+                await activateSubscriptionContextByTestClient(admin, result.subscriptionContext)
             }, ERRORS.INVOICE_NOT_PAID, 'result')
         })
 
         test('support can call activateSubscriptionContext without access denied error', async () => {
-            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+            const [result] = await registerSubscriptionContextByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
             
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionContextByTestClient(support, subscriptionContext)
+                await activateSubscriptionContextByTestClient(support, result.subscriptionContext)
             }, ERRORS.INVOICE_NOT_PAID, 'result')
         })
 
         test('regular user cannot activate subscription context', async () => {
-            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+            const [result] = await registerSubscriptionContextByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await activateSubscriptionContextByTestClient(user, subscriptionContext)
+                await activateSubscriptionContextByTestClient(user, result.subscriptionContext)
             })
         })
 
         test('anonymous cannot activate', async () => {
-            const { subscriptionContext } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+            const [result] = await registerSubscriptionContextByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
 
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await activateSubscriptionContextByTestClient(anonymous, subscriptionContext)
+                await activateSubscriptionContextByTestClient(anonymous, result.subscriptionContext)
             })
         })
     })
@@ -173,7 +176,13 @@ describe('ActivateSubscriptionContextService', () => {
 
     describe('Payment Method Extraction and Freezing', () => {
         test('extracts payment method from multiPayment and freezes payment info when transitioning to DONE', async () => {
-            const { subscriptionContext, invoice } = await createPaidSubscriptionContext(admin, organization, pricingRule)
+            const [result] = await registerSubscriptionContextByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+            const subscriptionContext = result.subscriptionContext
+            const invoice = result.subscriptionContext.invoice
             
             const [payment] = await Payment.getAll(admin, {
                 invoice: { id: invoice.id },

@@ -98,7 +98,10 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 if (!subscriptionContext.invoice) {
                     throw new GQLError(ERRORS.INVOICE_NOT_FOUND, context)
                 }
-                const invoice = await getById('Invoice', subscriptionContext.invoice)
+                const [invoice] = await find('Invoice', {
+                    id: subscriptionContext.invoice,
+                    deletedAt: null,
+                })
                 if (!invoice) {
                     throw new GQLError(ERRORS.INVOICE_NOT_FOUND, context)
                 }
@@ -107,7 +110,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 }
 
                 const [payment] = await find('Payment', {
-                    invoice: { id: invoice.id },
+                    invoice: { id: invoice.id, deletedAt: null },
                     deletedAt: null,
                 })
                 if (!payment) {
