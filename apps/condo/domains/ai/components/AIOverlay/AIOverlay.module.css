@@ -27,6 +27,14 @@
   align-items: center;
 }
 
+.alpha-character {
+  margin-left: 3px;
+  font-size: 0.7em;
+  font-family: serif;
+  font-style: italic;
+  vertical-align: super;
+}
+
 .right-section {
   display: flex;
   gap: 4px;

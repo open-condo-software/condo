@@ -323,7 +323,7 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
     const [aiNotificationShow, setAiNotificationShow] = useState<boolean>(false)
     const [errorMessage, setErrorMessage] = useState('')
 
-    const [runRewriteTextAIFlow, {
+    const [ { execute: runRewriteTextAIFlow }, {
         loading: rewriteTextLoading,
         data: rewriteTextData,
     }] = useAIFlow<{ answer: string }>({
@@ -581,7 +581,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.classifier?.id || null), [initialIncidentClassifiers])
 
-    const [runGenerateNewsAIFlow] = useAIFlow<{ title: string, body: string }>({
+    const [ { execute: runGenerateNewsAIFlow }] = useAIFlow<{ title: string, body: string }>({
         flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
         modelName: 'Incident',
         itemId: props?.initialValues?.id || null,

@@ -115,7 +115,7 @@ const Comments: React.FC<CommentsPropsType> = ({
     const commentTextAreaRef = useRef(null)
     const commentsContainerRef = useRef(null)
 
-    const [runGenerateCommentAIFlow, {
+    const [ { execute: runGenerateCommentAIFlow }, {
         loading: generateCommentLoading,
         data: generateCommentData,
     }] = useAIFlow<{ answer: string }>({
@@ -334,7 +334,7 @@ const Comments: React.FC<CommentsPropsType> = ({
     const commentTabContentProps = commentType === RESIDENT_COMMENT_TYPE ?
         residentCommentsTabContentProps : organizationCommentsTabContentProps
 
-    const [runRewriteTextAIFlow, {
+    const [ { execute: runRewriteTextAIFlow }, {
         loading: rewriteTextLoading,
         data: rewriteTextData,
     }] = useAIFlow<{ answer: string }>({

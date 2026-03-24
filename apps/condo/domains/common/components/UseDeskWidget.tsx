@@ -26,7 +26,6 @@ const getUsedeskMessenger = () => {
 }
 
 const UseDeskWidget: React.FC<{ hide?: boolean }> = ({ hide = false }) => {
-    const [isWidgetScriptLoaded, setIsWidgetScriptLoaded] = useState(false)
     const { link } = useOrganization()
     const { user } = useAuth()
 
@@ -98,7 +97,7 @@ const UseDeskWidget: React.FC<{ hide?: boolean }> = ({ hide = false }) => {
     }, [link, userIdentify, user, messenger])
 
     useEffect(() => {
-        if (!UseDeskWidgetId || !isWidgetScriptLoaded) return
+        if (!UseDeskWidgetId) return
 
         const messenger = getUsedeskMessenger()
         if (!messenger) return
@@ -112,13 +111,12 @@ const UseDeskWidget: React.FC<{ hide?: boolean }> = ({ hide = false }) => {
         } catch (e) {
             console.error('Failed to toggle UseDesk widget visibility', e)
         }
-    }, [hide, isWidgetScriptLoaded])
+    }, [hide])
 
     return UseDeskWidgetId ? (
         <script
             async
             src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}
-            onLoad={() => setIsWidgetScriptLoaded(true)}
         />
     ) : null
 }

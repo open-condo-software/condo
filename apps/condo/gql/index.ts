@@ -6969,6 +6969,100 @@ export type GetTicketsQueryHookResult = ReturnType<typeof useGetTicketsQuery>;
 export type GetTicketsLazyQueryHookResult = ReturnType<typeof useGetTicketsLazyQuery>;
 export type GetTicketsSuspenseQueryHookResult = ReturnType<typeof useGetTicketsSuspenseQuery>;
 export type GetTicketsQueryResult = Apollo.QueryResult<Types.GetTicketsQuery, Types.GetTicketsQueryVariables>;
+export const GetTicketsForAiAssistantDocument = gql`
+    query getTicketsForAIAssistant($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
+  tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+    id
+    number
+    createdAt
+    isEmergency
+    isPayable
+    isWarranty
+    statusReopenedCounter
+    statusUpdatedAt
+    completedAt
+    deadline
+    lastResidentCommentAt
+    lastCommentWithResidentTypeAt
+    lastCommentWithOrganizationTypeAt
+    lastCommentWithResidentTypeCreatedByUserType
+    propertyAddress
+    sectionType
+    sectionName
+    floorName
+    unitType
+    unitName
+    details
+    clientName
+    clientPhone
+    classifier {
+      category {
+        name
+      }
+      place {
+        name
+      }
+    }
+    contact {
+      name
+    }
+    executor {
+      name
+    }
+    assignee {
+      name
+    }
+    status {
+      name
+    }
+    createdBy {
+      name
+    }
+    source {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTicketsForAiAssistantQuery__
+ *
+ * To run a query within a React component, call `useGetTicketsForAiAssistantQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketsForAiAssistantQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketsForAiAssistantQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetTicketsForAiAssistantQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables> & ({ variables: Types.GetTicketsForAiAssistantQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>(GetTicketsForAiAssistantDocument, options);
+      }
+export function useGetTicketsForAiAssistantLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>(GetTicketsForAiAssistantDocument, options);
+        }
+// @ts-ignore
+export function useGetTicketsForAiAssistantSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>;
+export function useGetTicketsForAiAssistantSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetTicketsForAiAssistantQuery | undefined, Types.GetTicketsForAiAssistantQueryVariables>;
+export function useGetTicketsForAiAssistantSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>(GetTicketsForAiAssistantDocument, options);
+        }
+export type GetTicketsForAiAssistantQueryHookResult = ReturnType<typeof useGetTicketsForAiAssistantQuery>;
+export type GetTicketsForAiAssistantLazyQueryHookResult = ReturnType<typeof useGetTicketsForAiAssistantLazyQuery>;
+export type GetTicketsForAiAssistantSuspenseQueryHookResult = ReturnType<typeof useGetTicketsForAiAssistantSuspenseQuery>;
+export type GetTicketsForAiAssistantQueryResult = Apollo.QueryResult<Types.GetTicketsForAiAssistantQuery, Types.GetTicketsForAiAssistantQueryVariables>;
 export const GetTicketsForClientCardDocument = gql`
     query getTicketsForClientCard($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
   tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {

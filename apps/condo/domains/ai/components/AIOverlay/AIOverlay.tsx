@@ -1,9 +1,14 @@
 import classnames from 'classnames'
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { v4 as uuidV4 } from 'uuid'
 
-import { Close, RefreshCw, Download } from '@open-condo/icons'
+import { Close, RefreshCw } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button, Typography } from '@open-condo/ui'
+
+import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
+
 
 import styles from './AIOverlay.module.css'
 
@@ -18,14 +23,18 @@ type AIOverlayProps = {
 const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
+const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
+    const { organization } = useOrganization()
+
     const title = intl.formatMessage({ id: 'ai.chat.title' })
     const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
-    const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
     const closeLabel = intl.formatMessage({ id: 'Close' })
+
     const { aiOverlayWidth, setAIOverlayWidth, openAIOverlay } = useAIContext()
+
     const [isResizing, setIsResizing] = useState(false)
     const [isAtMinWidth, setIsAtMinWidth] = useState(false)
     const [isAtMaxWidth, setIsAtMaxWidth] = useState(false)
@@ -34,7 +43,43 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
-    const aiChatRef = useRef<{ handleResetHistory: () => void, handleSaveConversation: () => void }>(null)
+    
+    const [aiSessionId, setAiSessionId] = useState<string | null>(null)
+
+    const handleResetHistory = () => {
+        const newSessionId = uuidV4()
+        const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+        if (organization) {
+            aiSessionStorage[organization.id] = newSessionId
+        }
+        sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
+        setAiSessionId(newSessionId)
+    }
+
+    const sessionStorage = useMemo(() => new LocalStorageManager<Record<string, string>>(), [])
+
+    useEffect(() => {
+        const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+        
+        if (organization && aiSessionStorage[organization.id]) {
+            setAiSessionId(aiSessionStorage[organization.id])
+        } else {
+            const newSessionId = uuidV4()
+            if (organization) {
+                aiSessionStorage[organization.id] = newSessionId
+                sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
+            }
+            setAiSessionId(newSessionId)
+        }
+    }, [sessionStorage, organization])
+
+    useEffect(() => {
+        if (aiSessionId && organization) {
+            const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+            aiSessionStorage[organization.id] = aiSessionId
+            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
+        }
+    }, [aiSessionId, organization])
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -45,10 +90,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             dragDirectionRef.current = currentDirection
             setDragDirection(currentDirection)
             
-            // Normal resizing when open
             const clampedWidth = Math.max(MIN_OVERLAY_WIDTH, Math.min(MAX_OVERLAY_WIDTH, newWidth))
             
-            // Check if we're at minimum or maximum width
             setIsAtMinWidth(clampedWidth <= MIN_OVERLAY_WIDTH)
             setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
             
@@ -58,7 +101,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                 return
             }
             
-            // Open overlay if dragging left consistently and crosses open threshold
+            // Open overlay if dragging left consistently and beyond close threshold
             if (newWidth > CLOSE_THRESHOLD && dragDirectionRef.current === 'left' && currentDirection === 'left') {
                 openAIOverlay()
             }
@@ -85,7 +128,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             document.body.style.cursor = ''
             document.body.style.userSelect = ''
         }
-    }, [isResizing, dragDirection, setAIOverlayWidth, onClose])
+    }, [isResizing, dragDirection, setAIOverlayWidth, onClose, openAIOverlay])
 
     const handleResizeStart = (e: React.MouseEvent) => {
         // Only allow resizing when overlay is open
@@ -96,17 +139,21 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         startWidthRef.current = aiOverlayWidth
     }
 
-    if (!open) return null
-
     return (
         <div 
             ref={drawerRef}
             className={styles.aiDrawer}
-            style={{ width: `${aiOverlayWidth}px` }}
+            style={{ 
+                width: open ? `${aiOverlayWidth}px` : '0px',
+                visibility: open ? 'visible' : 'hidden',
+                overflow: 'hidden',
+            }}
         >
             <div className={styles.header}>
                 <div className={styles.leftSection}>
-                    <Typography.Title level={3}>{title}</Typography.Title>
+                    <Typography.Title level={3}>
+                        {title}<span className={styles.alphaCharacter}>α</span>
+                    </Typography.Title>
                 </div>
                 <div className={styles.rightSection}>
                     <Button 
@@ -114,18 +161,9 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         size='medium'
                         compact
                         minimal
-                        onClick={() => aiChatRef.current?.handleResetHistory()}
+                        onClick={handleResetHistory}
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
-                    />
-                    <Button 
-                        type='secondary'
-                        size='medium'
-                        compact
-                        minimal
-                        onClick={() => aiChatRef.current?.handleSaveConversation()}
-                        icon={<Download size='small' />}
-                        title={saveConversationLabel}
                     />
                     <Button 
                         type='secondary' 
@@ -143,10 +181,11 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                 [styles.atMaxWidth]: isAtMaxWidth,
             })} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
-                <AIChat 
-                    ref={aiChatRef}
-                    onClose={onClose} 
-                />
+                {aiSessionId && (
+                    <AIChat 
+                        aiSessionId={aiSessionId}
+                    />
+                )}
             </div>
         </div>
     )
