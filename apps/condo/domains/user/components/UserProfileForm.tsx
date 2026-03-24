@@ -198,14 +198,13 @@ export const UserProfileForm: React.FC = () => {
         router.push('/user')
     }, [router])
 
-    const { requiredValidator, emailValidator, changeMessage, minLengthValidator, maxLengthValidator, specCharValidator, trimValidator } = useValidations()
+    const { emailValidator, changeMessage, minLengthValidator, maxLengthValidator, specCharValidator, trimValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
     const maxClientNameRule = changeMessage(maxLengthValidator(100), MaxLengthError)
     const validations = {
         email: [emailValidator],
         name: [
-            requiredValidator,
-            trimValidator,
+            trimValidator, // works as requiredValidator but minds spaces, if used together - spawns duplicate error messages infinitely
             changeMessage(specCharValidator, FullNameInvalidCharMessage),
             minClientNameRule,
             maxClientNameRule,
