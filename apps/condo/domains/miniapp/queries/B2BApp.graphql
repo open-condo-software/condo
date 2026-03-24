@@ -37,7 +37,7 @@ query getB2BAppsByIds($ids: [ID!]!) {
     }
 }
 
-query getGlobalB2BAppsByIds($ids: [ID!]!) {
+query getPublicB2BAppsByIds($ids: [ID!]!) {
     b2bApps: allB2BApps(where: { id_in: $ids, isPublic: true, isHidden: false, deletedAt: null }, first: 100) {
         id
         name

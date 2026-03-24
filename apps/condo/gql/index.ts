@@ -2886,8 +2886,8 @@ export type GetB2BAppsByIdsQueryHookResult = ReturnType<typeof useGetB2BAppsById
 export type GetB2BAppsByIdsLazyQueryHookResult = ReturnType<typeof useGetB2BAppsByIdsLazyQuery>;
 export type GetB2BAppsByIdsSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppsByIdsSuspenseQuery>;
 export type GetB2BAppsByIdsQueryResult = Apollo.QueryResult<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>;
-export const GetGlobalB2BAppsByIdsDocument = gql`
-    query getGlobalB2BAppsByIds($ids: [ID!]!) {
+export const GetPublicB2BAppsByIdsDocument = gql`
+    query getPublicB2BAppsByIds($ids: [ID!]!) {
   b2bApps: allB2BApps(
     where: {id_in: $ids, isPublic: true, isHidden: false, deletedAt: null}
     first: 100
@@ -2899,40 +2899,40 @@ export const GetGlobalB2BAppsByIdsDocument = gql`
     `;
 
 /**
- * __useGetGlobalB2BAppsByIdsQuery__
+ * __useGetPublicB2BAppsByIdsQuery__
  *
- * To run a query within a React component, call `useGetGlobalB2BAppsByIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetGlobalB2BAppsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPublicB2BAppsByIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPublicB2BAppsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetGlobalB2BAppsByIdsQuery({
+ * const { data, loading, error } = useGetPublicB2BAppsByIdsQuery({
  *   variables: {
  *      ids: // value for 'ids'
  *   },
  * });
  */
-export function useGetGlobalB2BAppsByIdsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables> & ({ variables: Types.GetGlobalB2BAppsByIdsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetPublicB2BAppsByIdsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables> & ({ variables: Types.GetPublicB2BAppsByIdsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>(GetGlobalB2BAppsByIdsDocument, options);
+        return Apollo.useQuery<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>(GetPublicB2BAppsByIdsDocument, options);
       }
-export function useGetGlobalB2BAppsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>) {
+export function useGetPublicB2BAppsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>(GetGlobalB2BAppsByIdsDocument, options);
+          return Apollo.useLazyQuery<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>(GetPublicB2BAppsByIdsDocument, options);
         }
 // @ts-ignore
-export function useGetGlobalB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>;
-export function useGetGlobalB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetGlobalB2BAppsByIdsQuery | undefined, Types.GetGlobalB2BAppsByIdsQueryVariables>;
-export function useGetGlobalB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>) {
+export function useGetPublicB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>;
+export function useGetPublicB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetPublicB2BAppsByIdsQuery | undefined, Types.GetPublicB2BAppsByIdsQueryVariables>;
+export function useGetPublicB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>(GetGlobalB2BAppsByIdsDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>(GetPublicB2BAppsByIdsDocument, options);
         }
-export type GetGlobalB2BAppsByIdsQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsByIdsQuery>;
-export type GetGlobalB2BAppsByIdsLazyQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsByIdsLazyQuery>;
-export type GetGlobalB2BAppsByIdsSuspenseQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsByIdsSuspenseQuery>;
-export type GetGlobalB2BAppsByIdsQueryResult = Apollo.QueryResult<Types.GetGlobalB2BAppsByIdsQuery, Types.GetGlobalB2BAppsByIdsQueryVariables>;
+export type GetPublicB2BAppsByIdsQueryHookResult = ReturnType<typeof useGetPublicB2BAppsByIdsQuery>;
+export type GetPublicB2BAppsByIdsLazyQueryHookResult = ReturnType<typeof useGetPublicB2BAppsByIdsLazyQuery>;
+export type GetPublicB2BAppsByIdsSuspenseQueryHookResult = ReturnType<typeof useGetPublicB2BAppsByIdsSuspenseQuery>;
+export type GetPublicB2BAppsByIdsQueryResult = Apollo.QueryResult<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>;
 export const GetEmployeeB2BAppRolesForSpecificAppsDocument = gql`
     query getEmployeeB2BAppRolesForSpecificApps($employeeRoleId: ID, $b2bAppIds: [ID]) {
   b2bRoles: allB2BAppRoles(
