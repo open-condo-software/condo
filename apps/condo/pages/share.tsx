@@ -1,6 +1,5 @@
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import Router from 'next/router'
@@ -46,7 +45,7 @@ const TicketPublicInfo = ({ date, number, details, ticketId }) => {
     const [redirect, setRedirect] = useState(false)
 
     const intl = useIntl()
-    const locale = get(LOCALES, intl.locale)
+    const locale = LOCALES?.[intl.locale]
     const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
     const dateFormatted = localizedDate.format('D MMMM YYYY')
 
@@ -94,29 +93,61 @@ const TicketPublicInfo = ({ date, number, details, ticketId }) => {
     )
 }
 
-interface ShareProps {
-    number: string
-    details: string
-    id: string
-    date: string
+type ShareProps =
+    | { invalidShareLink: true }
+    | { invalidShareLink: false, number: string, details: string, id: string, date: string }
+
+const InvalidShareLink = () => {
+    const intl = useIntl()
+    const InvalidLinkTitle = intl.formatMessage({ id: 'pages.condo.share.InvalidLinkTitle' })
+    const InvalidLinkDescription = intl.formatMessage({ id: 'pages.condo.share.InvalidLinkDescription' })
+    const MainPagesMessageButton = intl.formatMessage({ id: 'pages.auth.MainPage' })
+
+    return (
+        <Row justify='start'>
+            <Col span={24}>
+                <Row gutter={[0, 80]}>
+                    <Row gutter={[0, 16]}>
+                        <Col span={24}>
+                            <Typography.Title>{InvalidLinkTitle}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Paragraph>{InvalidLinkDescription}</Typography.Paragraph>
+                        </Col>
+                    </Row>
+                    <Col>
+                        <Button
+                            key='submit'
+                            type='primary'
+                            htmlType='submit'
+                            onClick={() => Router.push('/')}
+                            block
+                        >
+                            {MainPagesMessageButton}
+                        </Button>
+                    </Col>
+                </Row>
+            </Col>
+        </Row>
+    )
 }
 
 const Share: PageComponentType<ShareProps> = (props) => {
-    const {
-        date, 
-        number, 
-        details, 
-        id,
-    } = props
     const { query: { redirectToTicketPage } } = useRouter()
+    const intl = useIntl()
+
+    if (props.invalidShareLink === true) {
+        return <InvalidShareLink />
+    }
+
+    const { date, number, details, id } = props
     const { publicRuntimeConfig: { displayTicketInfoOnShare } } = getConfig()
 
     const shouldRedirect = (redirectToTicketPage === 'true' || redirectToTicketPage === 'false')
         ? redirectToTicketPage === 'true'      
         : !displayTicketInfoOnShare
 
-    const intl = useIntl()
-    const locale = get(LOCALES, intl.locale)
+    const locale = LOCALES?.[intl.locale]
     const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
     const dateFormatted = localizedDate.format('D MMMM YYYY')
 
@@ -155,13 +186,28 @@ const Share: PageComponentType<ShareProps> = (props) => {
     )
 }
 
-export const getServerSideProps = ({ query }) => {
+export const getServerSideProps = ({ query, res }) => {
     const { q = '' } = query
-    const packedData  = q.replace(/\s/gm, '+')
-    const shareParams = JSON.parse(unpackShareData(packedData))
+    const invalidShareLinkResponse = () => {
+        res.statusCode = 404
+        return {
+            props: { invalidShareLink: true },
+        }
+    }
 
-    return {
-        props: { ...shareParams },
+    if (typeof q !== 'string' || !q.trim()) {
+        return invalidShareLinkResponse()
+    }
+
+    try {
+        const packedData = q.replace(/\s/gm, '+')
+        const shareParams = JSON.parse(unpackShareData(packedData))
+
+        return {
+            props: { invalidShareLink: false, ...shareParams },
+        }
+    } catch (error) {
+        return invalidShareLinkResponse()
     }
 }
 

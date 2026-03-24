@@ -2055,6 +2055,8 @@
   "pages.condo.error.TooManyRequestsTitle": "El acceso se restablecerá pronto",
   "pages.condo.error.paymentLinkHandler.NotFoundDescription": "No ha sido posible determinar el tipo de enlace. Quizás el enlace es incorrecto o no se ha copiado completamente.",
   "pages.condo.error.paymentLinkHandler.NotFoundTitle": "Enlace de pago desconocido",
+  "pages.condo.share.InvalidLinkDescription": "Comprueba el enlace o solicita uno nuevo al remitente",
+  "pages.condo.share.InvalidLinkTitle": "Enlace no válido",
   "pages.condo.marketplace.bankAccountErrorMessage": "Error en el número de cuenta corriente",
   "pages.condo.marketplace.bankAccountValidationErrorMassage": "La combinación de Código de identificación bancaria y número de cuenta corriente no pasó verificación. ({number}, {routingNumber})",
   "pages.condo.marketplace.bankAccountValidationErrorTitle": "Añadiendo requisitos",
