@@ -56,7 +56,7 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     const [value, setValue] = useState(initialValue)
 

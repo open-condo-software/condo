@@ -57,7 +57,7 @@ export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidCharError' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidChar' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
