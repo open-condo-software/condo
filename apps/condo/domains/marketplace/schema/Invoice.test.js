@@ -3090,6 +3090,7 @@ describe('Invoice', () => {
             INVOICE_TYPE_B2B,
             INVOICE_TYPE_B2C,
             ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+            ERROR_B2B_INVOICE_SAME_ORGANIZATION,
             ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
             ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
         } = require('@condo/domains/marketplace/constants')
@@ -3140,6 +3141,26 @@ describe('Invoice', () => {
                         code: 'BAD_USER_INPUT',
                         type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
                         message: 'B2B invoice must have payerOrganization field',
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice when organization and payerOrganization are the same', async () => {
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: dummyOrganization.id } },
+                            property: null,
+                            unitType: null,
+                            unitName: null,
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_SAME_ORGANIZATION,
+                        message: 'B2B invoice organization and payerOrganization must be different',
                     },
                     'obj'
                 )

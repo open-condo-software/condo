@@ -61,6 +61,7 @@ const {
     B2B_INVOICE_FIELDS,
     B2C_INVOICE_FIELDS,
     ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+    ERROR_B2B_INVOICE_SAME_ORGANIZATION,
     ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
     ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
 } = require('@condo/domains/marketplace/constants')
@@ -262,6 +263,12 @@ const ERRORS = {
         type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
         message: 'B2B invoice must have payerOrganization field',
         messageForUser: 'api.marketplace.invoice.B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION',
+    },
+    B2B_INVOICE_SAME_ORGANIZATION: {
+        code: BAD_USER_INPUT,
+        type: ERROR_B2B_INVOICE_SAME_ORGANIZATION,
+        message: 'B2B invoice organization and payerOrganization must be different',
+        messageForUser: 'api.marketplace.invoice.B2B_INVOICE_SAME_ORGANIZATION',
     },
     B2B_INVOICE_WITH_B2C_FIELDS: (fields) => ({
         code: BAD_USER_INPUT,
@@ -588,15 +595,21 @@ const Invoice = new GQLListSchema('Invoice', {
                 }
             }
 
-            const invoiceType = get(nextData, 'type')
+            const invoiceType = nextData?.type
             
             if (invoiceType === INVOICE_TYPE_B2B) {
-                if (!get(nextData, 'payerOrganization')) {
+                const payerOrganization = nextData?.payerOrganization
+                if (!payerOrganization) {
                     throw new GQLError(ERRORS.B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION, context)
                 }
                 
+                const organization = nextData?.organization
+                if (organization && payerOrganization === organization) {
+                    throw new GQLError(ERRORS.B2B_INVOICE_SAME_ORGANIZATION, context)
+                }
+                
                 const filledB2CFields = B2C_INVOICE_FIELDS.filter(field => {
-                    const value = get(nextData, field)
+                    const value = nextData?.[field]
                     return !isNil(value) && value !== ''
                 })
                 
@@ -605,7 +618,7 @@ const Invoice = new GQLListSchema('Invoice', {
                 }
             } else if (invoiceType === INVOICE_TYPE_B2C) {
                 const filledB2BFields = B2B_INVOICE_FIELDS.filter(field => {
-                    const value = get(nextData, field)
+                    const value = nextData?.[field]
                     return !isNil(value) && value !== ''
                 })
                 
