@@ -259,6 +259,33 @@ describe('RegisterSubscriptionContextService', () => {
             const startAt = dayjs(context.startAt)
             expect(startAt.format('YYYY-MM-DD')).toBe(existingEndAt.format('YYYY-MM-DD'))
         })
+
+        test('only considers DONE status contexts when calculating start date', async () => {
+            const existingDoneEndDate = dayjs().add(10, 'day')
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: existingDoneEndDate.format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                isTrial: false,
+            })
+
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                isTrial: false,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            const context = result.subscriptionContext
+            const startAt = dayjs(context.startAt)
+            expect(startAt.format('YYYY-MM-DD')).toBe(existingDoneEndDate.format('YYYY-MM-DD'))
+        })
     })
 
     describe('Validation', () => {
