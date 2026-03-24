@@ -76,7 +76,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const ContactWithSamePhoneExistMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists' })
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     const [value, setValue] = useState(initialValueWithoutContact)
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)

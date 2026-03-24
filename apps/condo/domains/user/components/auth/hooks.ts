@@ -20,7 +20,7 @@ export const useRegisterFormValidators = () => {
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' }, { min: MIN_PASSWORD_LENGTH })
     const NameMustContainMsg = intl.formatMessage({ id: 'pages.auth.NameMustContain' })
     const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'pages.auth.NameMustNotStartOrAnd' })
-    const NameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
+    const NameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     return useMemo<ValidatorsMap>(() => {
         return {
