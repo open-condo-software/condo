@@ -9,12 +9,15 @@ const KEYWORDS = {
 const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд'
 const SPLIT_SYMBOL = '%'
 const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const KEYWORD_TOKEN_PREFIX = String.raw`(?<![\p{L}\p{N}])`
+const KEYWORD_TOKEN_SUFFIX_DETECT = String.raw`(?=(?:\.|[^\p{L}\p{N}]|$|\d))`
+const KEYWORD_TOKEN_SUFFIX_REMOVE = String.raw`(?:(?:\.)|(?=[^\p{L}\p{N}]|$))`
 
 class AddressFromStringParser {
 
     constructor () {
         const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS).flat())
-        this.splitRegexp = new RegExp(`[\\s,](${HOUSE_IDENTIFIERS})([\\s.].*?)[\\s,]+(${keywordsRegex})([.\\s])`, 'i')
+        this.splitRegexp = new RegExp(String.raw`[\s,](${HOUSE_IDENTIFIERS})([\s.].*?)[\s,]+(${keywordsRegex})([.\s])`, 'i')
     }
 
     /**
@@ -29,7 +32,15 @@ class AddressFromStringParser {
     }
 
     escapeRegExp (input = '') {
-        return String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        return String(input).replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    }
+
+    buildKeywordDetectRegexp (keywordPattern = '') {
+        return new RegExp(String.raw`${KEYWORD_TOKEN_PREFIX}(?:${keywordPattern})${KEYWORD_TOKEN_SUFFIX_DETECT}`, 'iu')
+    }
+
+    buildKeywordRemoveRegexp (keywordPattern = '') {
+        return new RegExp(String.raw`${KEYWORD_TOKEN_PREFIX}(?:${keywordPattern})${KEYWORD_TOKEN_SUFFIX_REMOVE}`, 'giu')
     }
 
     /**
@@ -41,7 +52,14 @@ class AddressFromStringParser {
         if (!input) {
             return input
         }
-        return input.replace(/^[.,\s]*|[.,\s]*$/g, '') // NOSONAR
+        let normalized = String(input).trim()
+        while (normalized.startsWith('.') || normalized.startsWith(',')) {
+            normalized = normalized.slice(1).trimStart()
+        }
+        while (normalized.endsWith('.') || normalized.endsWith(',')) {
+            normalized = normalized.slice(0, -1).trimEnd()
+        }
+        return normalized
     }
 
     /**
@@ -70,14 +88,14 @@ class AddressFromStringParser {
         let detectedType = null
         for (const unitType in KEYWORDS) {
             const keywordPattern = this.keywordsToRegexp(KEYWORDS[unitType])
-            // Detect unit type by keyword token and also by glued keyword+number cases (e.g. НП10),
-            // but remove only full tokens to avoid aggressive substring cleanups.
-            const unitTypeDetectRegexp = new RegExp(`(?<![\\p{L}\\p{N}])(?:${keywordPattern})(?=(?:\\.|[^\\p{L}\\p{N}]|$|\\d))`, 'iu')
+            // Detect by token and also by glued keyword+number cases (e.g. НП10).
+            // Remove only full keyword tokens to avoid aggressive substring cleanup.
+            const unitTypeDetectRegexp = this.buildKeywordDetectRegexp(keywordPattern)
             if (!detectedType && unitTypeDetectRegexp.test(unitInput)) {
                 detectedType = unitType
             }
-            const unitTypeRemoveRegexp = new RegExp(`(?<![\\p{L}\\p{N}])(?:${keywordPattern})(?:(?:\\.)|(?=[^\\p{L}\\p{N}]|$))`, 'giu')
-            unitInput = unitInput.replace(unitTypeRemoveRegexp, '')
+            const unitTypeRemoveRegexp = this.buildKeywordRemoveRegexp(keywordPattern)
+            unitInput = unitInput.replaceAll(unitTypeRemoveRegexp, '')
             unitInput = this.normalizeUnitName(unitInput)
         }
         return {
@@ -87,12 +105,16 @@ class AddressFromStringParser {
     }
 
     normalizeUnitName (input = '') {
-        return this.trim(
-            input
-                .replace(/\(\s+/g, '(')
-                .replace(/\s+\)/g, ')')
-                .replace(/\s+/g, ' ')
-        )
+        let normalized = String(input)
+        normalized = normalized
+            .split('(')
+            .map((part, index) => (index === 0 ? part : part.trimStart()))
+            .join('(')
+            .split(')')
+            .map((part, index, arr) => (index === arr.length - 1 ? part : part.trimEnd()))
+            .join(')')
+            .replaceAll(/\s+/g, ' ')
+        return this.trim(normalized)
     }
 
     /**
@@ -101,7 +123,7 @@ class AddressFromStringParser {
      */
     splitByKeyword (input = '') {
         const [housePart, unitPart = ''] = input
-            .replace(new RegExp(`[${SPLIT_SYMBOL}]`, 'g'), '')
+            .replaceAll(SPLIT_SYMBOL, '')
             .replace(this.splitRegexp, ` $1$2${SPLIT_SYMBOL}$3$4`)
             .split(SPLIT_SYMBOL)
         return {
@@ -130,7 +152,7 @@ class AddressFromStringParser {
     splitToUnitAndAddress (input) {
         const { housePart, unitPart } = this.splitByKeyword(input)
         if (!unitPart) {
-            const houseInTheEndRegexp = new RegExp(`[.\\s](${HOUSE_IDENTIFIERS})([.\\s]+)([0-9А-Я/\\\\]+)$`, 'i')
+            const houseInTheEndRegexp = new RegExp(String.raw`[.\s](${HOUSE_IDENTIFIERS})([.\s]+)([0-9А-Я/\\]+)$`, 'i')
             input = input.replace(houseInTheEndRegexp, ' $1$2$3, кв. 1')
             return this.splitByComma(input)
         }
