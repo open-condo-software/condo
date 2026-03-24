@@ -8,22 +8,15 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-    AcquiringIntegration,
-    AcquiringIntegrationContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
-const { registerNewOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     registerSubscriptionContextByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
+    getOrCreateAcquiringIntegrationForRecipient,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -43,28 +36,7 @@ describe('RegisterSubscriptionContextService', () => {
             throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
         }
 
-        const existingIntegrations = await AcquiringIntegration.getAll(admin, {})
-        let acquiringIntegration
-        if (existingIntegrations.length > 0) {
-            acquiringIntegration = existingIntegrations[0]
-        } else {
-            const [integration] = await createTestAcquiringIntegration(admin)
-            acquiringIntegration = integration
-        }
-
-        const existingContexts = await AcquiringIntegrationContext.getAll(admin, {
-            organization: { id: recipientOrganizationId },
-        })
-
-        if (existingContexts.length === 0) {
-            const recipientOrg = await Organization.getOne(admin, { id: recipientOrganizationId })
-
-            await createTestAcquiringIntegrationContext(admin, recipientOrg, acquiringIntegration, {
-                invoiceStatus: CONTEXT_FINISHED_STATUS,
-                invoiceRecipient: createTestRecipient(),
-                invoiceImplicitFeeDistributionSchema: [],
-            })
-        }
+        await getOrCreateAcquiringIntegrationForRecipient(admin, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),

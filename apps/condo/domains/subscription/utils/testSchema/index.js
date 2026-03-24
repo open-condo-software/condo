@@ -6,8 +6,17 @@
 const { faker } = require('@faker-js/faker')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { getById } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { 
+    AcquiringIntegrationContext, 
+    createTestAcquiringIntegration, 
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { Organization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan: SubscriptionPlanGQL,
@@ -172,15 +181,46 @@ async function updateSubscriptionContextPaymentMethodByTestClient(client, extraA
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function getOrCreateAcquiringIntegrationForRecipient (client, recipientOrganizationId) {
+    if (!client) throw new Error('no client')
+    if (!recipientOrganizationId) throw new Error('no recipientOrganizationId')
+
+    const existingContexts = await AcquiringIntegrationContext.getAll(client, {
+        organization: { id: recipientOrganizationId },
+    })
+
+    if (existingContexts.length > 0) {
+        const existingContext = existingContexts[0]
+        const integration = await getById('AcquiringIntegration', existingContext.integration.id)
+        return integration
+    }
+
+    const recipientOrg = await Organization.getOne(client, { id: recipientOrganizationId })
+    const testHostUrl = faker.internet.url()
+    const [integration] = await createTestAcquiringIntegration(client, {
+        hostUrl: testHostUrl,
+    })
+
+    await createTestAcquiringIntegrationContext(client, recipientOrg, integration, {
+        invoiceStatus: CONTEXT_FINISHED_STATUS,
+        invoiceRecipient: createTestRecipient(),
+        invoiceImplicitFeeDistributionSchema: [],
+    })
+
+    return integration
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
     SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
+    registerSubscriptionContextByTestClient,
     activateSubscriptionContextByTestClient,
     getAvailableSubscriptionPlansByTestClient,
-    registerSubscriptionContextByTestClient,
     updateSubscriptionContextPaymentMethodByTestClient,
+    getOrCreateAcquiringIntegrationForRecipient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

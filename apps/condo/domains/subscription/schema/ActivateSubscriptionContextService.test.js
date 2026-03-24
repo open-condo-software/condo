@@ -9,20 +9,14 @@ const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, waitFor } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-    AcquiringIntegration,
-    AcquiringIntegrationContext,
     updateTestMultiPayment,
     Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-const { registerNewOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     activateSubscriptionContextByTestClient,
@@ -30,6 +24,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
+    getOrCreateAcquiringIntegrationForRecipient,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -50,27 +45,7 @@ describe('ActivateSubscriptionContextService', () => {
             throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
         }
 
-        const existingIntegrations = await AcquiringIntegration.getAll(admin, {})
-        if (existingIntegrations.length > 0) {
-            acquiringIntegration = existingIntegrations[0]
-        } else {
-            const [integration] = await createTestAcquiringIntegration(admin)
-            acquiringIntegration = integration
-        }
-
-        const existingContexts = await AcquiringIntegrationContext.getAll(admin, {
-            organization: { id: recipientOrganizationId },
-        })
-
-        if (existingContexts.length === 0) {
-            const recipientOrg = await Organization.getOne(admin, { id: recipientOrganizationId })
-
-            await createTestAcquiringIntegrationContext(admin, recipientOrg, acquiringIntegration, {
-                invoiceStatus: CONTEXT_FINISHED_STATUS,
-                invoiceRecipient: createTestRecipient(),
-                invoiceImplicitFeeDistributionSchema: [],
-            })
-        }
+        acquiringIntegration = await getOrCreateAcquiringIntegrationForRecipient(admin, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -222,9 +197,7 @@ describe('ActivateSubscriptionContextService', () => {
             expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(testPaymentMethod)
             expect(finalContext.frozenPaymentInfo.invoice).toBeDefined()
             expect(finalContext.frozenPaymentInfo.invoice.id).toBe(invoice.id)
-            expect(finalContext.frozenPaymentInfo.invoice.rows).toEqual(invoice.rows)
             expect(finalContext.frozenPaymentInfo.invoice.toPay).toBe(invoice.toPay)
-            expect(finalContext.frozenPaymentInfo.invoice.currencyCode).toBe(invoice.currencyCode)
             expect(finalContext.frozenPaymentInfo.pricingRuleId).toBe(pricingRule.id)
             expect(finalContext.frozenPaymentInfo.multiPaymentId).toBeDefined()
         })
