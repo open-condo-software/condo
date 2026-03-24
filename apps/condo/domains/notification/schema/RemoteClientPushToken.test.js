@@ -142,7 +142,7 @@ describe('RemoteClientPushToken', () => {
                     expect.objectContaining({
                         id: globalAdminRemoteClientPushToken.id,
                         remoteClient: expect.objectContaining({ id: globalAdminRemoteClientPushToken.remoteClient.id }),
-                        transport: globalAdminRemoteClientPushToken.transport,
+                        provider: globalAdminRemoteClientPushToken.provider,
                         isVoIP: globalAdminRemoteClientPushToken.isVoIP,
                         isPush: globalAdminRemoteClientPushToken.isPush,
                     }),
@@ -195,18 +195,18 @@ describe('RemoteClientPushToken', () => {
         
         describe('Constraints', () => {
             
-            test('unique constraint: token + transport', async () => {
+            test('unique constraint: token + provider', async () => {
                 const token = faker.datatype.uuid()
-                const transport = 'firebase'
+                const provider = 'firebase'
 
                 const rc = null//await createTestRemoteClient(admin)
-                await createTestRemoteClientPushToken(admin, rc, { token, transport, isVoIP: true, isPush: false })
+                await createTestRemoteClientPushToken(admin, rc, { token, provider, isVoIP: true, isPush: false })
 
                 await expectToThrowUniqueConstraintViolationError(
                     async () => {
-                        await createTestRemoteClientPushToken(admin, rc, { token, transport, isVoIP: false, isPush: true })
+                        await createTestRemoteClientPushToken(admin, rc, { token, provider, isVoIP: false, isPush: true })
                     },
-                    'remote_client_push_token_unique_token_transport'
+                    'remote_client_push_token_unique_token_provider'
                 )
             })
 
@@ -219,25 +219,25 @@ describe('RemoteClientPushToken', () => {
                 )
             })
 
-            test.each(['isVoIP', 'isPush'])('unique constraint: remoteClient + transport + # = True', async (truthKey) => {
-                const transport = 'firebase'
+            test.each(['isVoIP', 'isPush'])('unique constraint: remoteClient + provider + # = True', async (truthKey) => {
+                const provider = 'firebase'
                 const [remoteClient] = await createTestRemoteClient(admin)
-                const payload = { token: faker.datatype.uuid(), transport, isVoIP: false, isPush: false }
+                const payload = { token: faker.datatype.uuid(), provider, isVoIP: false, isPush: false }
                 payload[truthKey] = true
 
                 await createTestRemoteClientPushToken(admin, remoteClient, payload)
 
-                const anotherPayload = { token: faker.datatype.uuid(), transport, isVoIP: true, isPush: true }
+                const anotherPayload = { token: faker.datatype.uuid(), provider, isVoIP: true, isPush: true }
                 anotherPayload[truthKey] = false
                 const [anotherPushToken] = await createTestRemoteClientPushToken(admin, remoteClient, anotherPayload)
 
                 await expectToThrowUniqueConstraintViolationError(async () => {
                     await createTestRemoteClientPushToken(admin, remoteClient, { ...payload, token: faker.datatype.uuid() })
-                }, `remote_client_push_token_unique_remoteclient_transport_${truthKey.toLowerCase()}`)
+                }, `remote_client_push_token_unique_remoteclient_provider_${truthKey.toLowerCase()}`)
 
                 await expectToThrowUniqueConstraintViolationError(async () => {
                     await updateTestRemoteClientPushToken(admin, anotherPushToken.id, { [truthKey]: payload[truthKey] })
-                }, `remote_client_push_token_unique_remoteclient_transport_${truthKey.toLowerCase()}`)
+                }, `remote_client_push_token_unique_remoteclient_provider_${truthKey.toLowerCase()}`)
             })
 
         })

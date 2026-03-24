@@ -46738,7 +46738,7 @@ type RemoteClientPushTokenHistoryRecord {
   _label_: String
   remoteClient: String
   token: String
-  transport: String
+  provider: String
   isVoIP: Boolean
   isPush: Boolean
   id: ID!
@@ -46781,24 +46781,24 @@ input RemoteClientPushTokenHistoryRecordWhereInput {
   token_not_ends_with_i: String
   token_in: [String]
   token_not_in: [String]
-  transport: String
-  transport_not: String
-  transport_contains: String
-  transport_not_contains: String
-  transport_starts_with: String
-  transport_not_starts_with: String
-  transport_ends_with: String
-  transport_not_ends_with: String
-  transport_i: String
-  transport_not_i: String
-  transport_contains_i: String
-  transport_not_contains_i: String
-  transport_starts_with_i: String
-  transport_not_starts_with_i: String
-  transport_ends_with_i: String
-  transport_not_ends_with_i: String
-  transport_in: [String]
-  transport_not_in: [String]
+  provider: String
+  provider_not: String
+  provider_contains: String
+  provider_not_contains: String
+  provider_starts_with: String
+  provider_not_starts_with: String
+  provider_ends_with: String
+  provider_not_ends_with: String
+  provider_i: String
+  provider_not_i: String
+  provider_contains_i: String
+  provider_not_contains_i: String
+  provider_starts_with_i: String
+  provider_not_starts_with_i: String
+  provider_ends_with_i: String
+  provider_not_ends_with_i: String
+  provider_in: [String]
+  provider_not_in: [String]
   isVoIP: Boolean
   isVoIP_not: Boolean
   isPush: Boolean
@@ -46888,8 +46888,8 @@ input RemoteClientPushTokenHistoryRecordWhereUniqueInput {
 enum SortRemoteClientPushTokenHistoryRecordsBy {
   token_ASC
   token_DESC
-  transport_ASC
-  transport_DESC
+  provider_ASC
+  provider_DESC
   isVoIP_ASC
   isVoIP_DESC
   isPush_ASC
@@ -46915,7 +46915,7 @@ enum SortRemoteClientPushTokenHistoryRecordsBy {
 input RemoteClientPushTokenHistoryRecordUpdateInput {
   remoteClient: String
   token: String
-  transport: String
+  provider: String
   isVoIP: Boolean
   isPush: Boolean
   v: Int
@@ -46940,7 +46940,7 @@ input RemoteClientPushTokenHistoryRecordsUpdateInput {
 input RemoteClientPushTokenHistoryRecordCreateInput {
   remoteClient: String
   token: String
-  transport: String
+  provider: String
   isVoIP: Boolean
   isPush: Boolean
   v: Int
@@ -46961,7 +46961,7 @@ input RemoteClientPushTokenHistoryRecordsCreateInput {
   data: RemoteClientPushTokenHistoryRecordCreateInput
 }
 
-enum RemoteClientPushTokenTransportType {
+enum RemoteClientPushTokenProviderType {
   firebase
   apple
   huawei
@@ -46988,9 +46988,9 @@ type RemoteClientPushToken {
   """
   token: String
 
-  """ Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase. 
+  """ Transport service, that delivers push notifications to client device. Type of device requires specific provider, e.g. Huawei devices can not receive notifications through FireBase. 
   """
-  transport: RemoteClientPushTokenTransportType
+  provider: RemoteClientPushTokenProviderType
 
   """ Can this token be used to send VoIP notifications (for Apple it is whole different app and token, for Android it most likely always can) 
   """
@@ -47045,10 +47045,10 @@ input RemoteClientPushTokenWhereInput {
   token_not_ends_with_i: String
   token_in: [String]
   token_not_in: [String]
-  transport: RemoteClientPushTokenTransportType
-  transport_not: RemoteClientPushTokenTransportType
-  transport_in: [RemoteClientPushTokenTransportType]
-  transport_not_in: [RemoteClientPushTokenTransportType]
+  provider: RemoteClientPushTokenProviderType
+  provider_not: RemoteClientPushTokenProviderType
+  provider_in: [RemoteClientPushTokenProviderType]
+  provider_not_in: [RemoteClientPushTokenProviderType]
   isVoIP: Boolean
   isVoIP_not: Boolean
   isPush: Boolean
@@ -47120,8 +47120,8 @@ enum SortRemoteClientPushTokensBy {
   remoteClient_DESC
   token_ASC
   token_DESC
-  transport_ASC
-  transport_DESC
+  provider_ASC
+  provider_DESC
   isVoIP_ASC
   isVoIP_DESC
   isPush_ASC
@@ -47147,7 +47147,7 @@ enum SortRemoteClientPushTokensBy {
 input RemoteClientPushTokenUpdateInput {
   remoteClient: RemoteClientRelateToOneInput
   token: String
-  transport: RemoteClientPushTokenTransportType
+  provider: RemoteClientPushTokenProviderType
   isVoIP: Boolean
   isPush: Boolean
   v: Int
@@ -47169,7 +47169,7 @@ input RemoteClientPushTokensUpdateInput {
 input RemoteClientPushTokenCreateInput {
   remoteClient: RemoteClientRelateToOneInput
   token: String
-  transport: RemoteClientPushTokenTransportType
+  provider: RemoteClientPushTokenProviderType
   isVoIP: Boolean
   isPush: Boolean
   v: Int

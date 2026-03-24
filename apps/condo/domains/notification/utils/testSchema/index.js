@@ -438,6 +438,8 @@ async function createTestRemoteClientPushToken (client, remoteClient, extraAttrs
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const pushTokenData = getRandomPushTokenData(extraAttrs)
+    pushTokenData.provider = pushTokenData.transport
+    delete pushTokenData.transport
     const remoteClientId = get(extraAttrs, 'remoteClient.connect.id') || remoteClient?.id
     let existingOrNewRemoteClient = { id: remoteClientId }
     if (!remoteClientId) {

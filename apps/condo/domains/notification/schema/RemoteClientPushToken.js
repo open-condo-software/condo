@@ -34,8 +34,8 @@ const RemoteClientPushToken = new GQLListSchema('RemoteClientPushToken', {
             },
         },
 
-        transport: {
-            schemaDoc: 'Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.',
+        provider: {
+            schemaDoc: 'Transport service, that delivers push notifications to client device. Type of device requires specific provider, e.g. Huawei devices can not receive notifications through FireBase.',
             type: 'Select',
             options: PUSH_TRANSPORT_TYPES,
             isRequired: true,
@@ -60,21 +60,21 @@ const RemoteClientPushToken = new GQLListSchema('RemoteClientPushToken', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['token', 'transport'],
+                fields: ['token', 'provider'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'remote_client_push_token_unique_token_transport',
+                name: 'remote_client_push_token_unique_token_provider',
             },
             {
                 type: 'models.UniqueConstraint',
-                fields: ['transport', 'remoteClient'],
+                fields: ['provider', 'remoteClient'],
                 condition: 'Q(deletedAt__isnull=True) & Q(isVoIP__exact = True)',
-                name: 'remote_client_push_token_unique_remoteclient_transport_isvoip',
+                name: 'remote_client_push_token_unique_remoteclient_provider_isvoip',
             },
             {
                 type: 'models.UniqueConstraint',
-                fields: ['transport', 'remoteClient'],
+                fields: ['provider', 'remoteClient'],
                 condition: 'Q(deletedAt__isnull=True) & Q(isPush__exact = True)',
-                name: 'remote_client_push_token_unique_remoteclient_transport_ispush',
+                name: 'remote_client_push_token_unique_remoteclient_provider_ispush',
             },
             {
                 type: 'models.CheckConstraint',
