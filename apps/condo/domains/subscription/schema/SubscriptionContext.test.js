@@ -139,9 +139,9 @@ describe('SubscriptionContext', () => {
                     isTrial: true,
                 })
 
-                const deletedAt = dayjs().toISOString()
-                const [obj] = await updateTestSubscriptionContext(support, objCreated.id, { deletedAt })
-
+                const [obj] = await updateTestSubscriptionContext(support, objCreated.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
                 expect(obj.deletedAt).toBeTruthy()
             })
 

@@ -5,27 +5,21 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { getById } = require('@open-condo/keystone/schema')
-const { makeLoggedInAdminClient, makeClient, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-    AcquiringIntegration,
-    AcquiringIntegrationContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee, Organization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { ERRORS } = require('@condo/domains/subscription/schema/UpdateSubscriptionContextPaymentMethodService')
 const {
     createTestSubscriptionContext,
     createTestSubscriptionPlan,
+    updateTestSubscriptionContext,
     updateSubscriptionContextPaymentMethodByTestClient,
 } = require('@condo/domains/subscription/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('UpdateSubscriptionContextPaymentMethodService', () => {
     let admin, support, user, anonymous
@@ -42,27 +36,8 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
         }
 
-        const existingIntegrations = await AcquiringIntegration.getAll(admin, {})
-        if (existingIntegrations.length > 0) {
-            acquiringIntegration = existingIntegrations[0]
-        } else {
-            const [integration] = await createTestAcquiringIntegration(admin)
-            acquiringIntegration = integration
-        }
-
-        const existingContexts = await AcquiringIntegrationContext.getAll(admin, {
-            organization: { id: recipientOrganizationId },
-        })
-
-        if (existingContexts.length === 0) {
-            const recipientOrg = await Organization.getOne(admin, { id: recipientOrganizationId })
-
-            await createTestAcquiringIntegrationContext(admin, recipientOrg, acquiringIntegration, {
-                invoiceStatus: CONTEXT_FINISHED_STATUS,
-                invoiceRecipient: createTestRecipient(),
-                invoiceImplicitFeeDistributionSchema: [],
-            })
-        }
+        const { getOrCreateAcquiringIntegrationForRecipient } = require('@condo/domains/subscription/utils/testSchema')
+        acquiringIntegration = await getOrCreateAcquiringIntegrationForRecipient(admin, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -223,6 +198,9 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await updateTestSubscriptionContext(admin, context.id, {
                 deletedAt: dayjs().toISOString(),
             })
 

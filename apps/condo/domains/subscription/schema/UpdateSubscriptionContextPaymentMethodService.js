@@ -25,28 +25,23 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'SubscriptionContext not found',
-        messageForUser: 'api.subscription.updateSubscriptionContextPaymentMethod.SUBSCRIPTION_CONTEXT_NOT_FOUND',
     },
     SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED: {
         mutation: 'updateSubscriptionContextPaymentMethod',
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured',
-        messageForUser: 'api.subscription.updateSubscriptionContextPaymentMethod.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED',
     },
     ACQUIRING_INTEGRATION_NOT_FOUND: {
         mutation: 'updateSubscriptionContextPaymentMethod',
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'AcquiringIntegrationContext not found for subscription payment recipient',
-        messageForUser: 'api.subscription.updateSubscriptionContextPaymentMethod.ACQUIRING_INTEGRATION_NOT_FOUND',
     },
     CARD_TOKEN_DELETION_FAILED: {
         mutation: 'updateSubscriptionContextPaymentMethod',
         code: INTERNAL_ERROR,
         type: 'CARD_TOKEN_DELETION_FAILED',
-        message: 'Failed to delete card token from acquiring integration',
-        messageForUser: 'api.subscription.updateSubscriptionContextPaymentMethod.CARD_TOKEN_DELETION_FAILED',
     },
 }
 
