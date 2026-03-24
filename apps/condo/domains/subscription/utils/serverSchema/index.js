@@ -49,7 +49,7 @@ async function registerSubscriptionContext (context, data) {
         query: REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerSubscriptionContext',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -62,7 +62,7 @@ async function updateSubscriptionContextPaymentMethod (context, data) {
         query: UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to updateSubscriptionContextPaymentMethod',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 

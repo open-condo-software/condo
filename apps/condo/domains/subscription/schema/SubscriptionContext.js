@@ -248,6 +248,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         organization: { id: organizationId },
                         subscriptionPlan: { id: subscriptionPlanId },
                         isTrial,
+                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                         deletedAt: null,
                         startAt_lt: endAt,
                         endAt_gt: startAt,
