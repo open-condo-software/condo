@@ -780,6 +780,12 @@ const Invoice = new GQLListSchema('Invoice', {
                         sender,
                         subscriptionContext: { id: subscriptionContext.id },
                     })
+                } else {
+                    console.warn('SubscriptionContext not found for paid B2B invoice', {
+                        invoiceId: updatedItem.id,
+                        invoiceStatus: updatedItem.status,
+                        invoiceType: updatedItem.type,
+                    })
                 }
             }
         },
