@@ -168,7 +168,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             access: {
                 read: true,
                 create: userIsAdmin,
-                update: false,
+                update: userIsAdmin,
             },
         },
 

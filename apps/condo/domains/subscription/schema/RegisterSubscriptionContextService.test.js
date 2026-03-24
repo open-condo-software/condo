@@ -12,10 +12,12 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
+    AcquiringIntegration,
+    AcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
+const { registerNewOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     registerSubscriptionContextByTestClient,
@@ -30,26 +32,39 @@ const { ERRORS } = require('./RegisterSubscriptionContextService')
 describe('RegisterSubscriptionContextService', () => {
     let admin, support, user, anonymous
     let organization, subscriptionPlan, pricingRule
-    let originalSubscriptionPaymentRecipient
-    let recipientOrganization
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        const [recipientOrg] = await registerNewOrganization(admin, { type: MANAGING_COMPANY_TYPE })
-        recipientOrganization = recipientOrg
+        const recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        if (!recipientOrganizationId) {
+            throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
+        }
 
-        originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = recipientOrganization.id
+        const existingIntegrations = await AcquiringIntegration.getAll(admin, {})
+        let acquiringIntegration
+        if (existingIntegrations.length > 0) {
+            acquiringIntegration = existingIntegrations[0]
+        } else {
+            const [integration] = await createTestAcquiringIntegration(admin)
+            acquiringIntegration = integration
+        }
 
-        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-        await createTestAcquiringIntegrationContext(admin, recipientOrganization, acquiringIntegration, {
-            invoiceStatus: CONTEXT_FINISHED_STATUS,
-            invoiceRecipient: createTestRecipient(),
-            invoiceImplicitFeeDistributionSchema: [],
+        const existingContexts = await AcquiringIntegrationContext.getAll(admin, {
+            organization: { id: recipientOrganizationId },
         })
+
+        if (existingContexts.length === 0) {
+            const recipientOrg = await Organization.getOne(admin, { id: recipientOrganizationId })
+
+            await createTestAcquiringIntegrationContext(admin, recipientOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+        }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -65,14 +80,6 @@ describe('RegisterSubscriptionContextService', () => {
             currencyCode: 'RUB',
         })
         pricingRule = rule
-    })
-
-    afterAll(() => {
-        if (originalSubscriptionPaymentRecipient !== undefined) {
-            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalSubscriptionPaymentRecipient
-        } else {
-            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        }
     })
 
     beforeEach(async () => {

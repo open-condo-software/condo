@@ -728,7 +728,6 @@ __metadata:
   dependencies:
     "@condo-b2b-payments-gateway/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
-    "@graphql-codegen/typescript": ^5.0.9
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
     "@open-condo/apollo-server-client": "workspace:^"
@@ -737,7 +736,6 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@types/react": ^18.3.1
     cross-env: ^7.0.3
-    dayjs: ^1.11.10
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
