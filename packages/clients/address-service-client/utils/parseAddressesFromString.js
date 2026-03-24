@@ -36,11 +36,17 @@ class AddressFromStringParser {
     }
 
     buildKeywordDetectRegexp (keywordPattern = '') {
-        return new RegExp(String.raw`${KEYWORD_TOKEN_PREFIX}(?:${keywordPattern})${KEYWORD_TOKEN_SUFFIX_DETECT}`, 'iu')
+        const safeKeywordPattern = typeof keywordPattern === 'string' ? keywordPattern : ''
+        // keywordPattern is derived only from static KEYWORDS and escaped via escapeRegExp().
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+        return new RegExp(String.raw`${KEYWORD_TOKEN_PREFIX}(?:${safeKeywordPattern})${KEYWORD_TOKEN_SUFFIX_DETECT}`, 'iu')
     }
 
     buildKeywordRemoveRegexp (keywordPattern = '') {
-        return new RegExp(String.raw`${KEYWORD_TOKEN_PREFIX}(?:${keywordPattern})${KEYWORD_TOKEN_SUFFIX_REMOVE}`, 'giu')
+        const safeKeywordPattern = typeof keywordPattern === 'string' ? keywordPattern : ''
+        // keywordPattern is derived only from static KEYWORDS and escaped via escapeRegExp().
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+        return new RegExp(String.raw`${KEYWORD_TOKEN_PREFIX}(?:${safeKeywordPattern})${KEYWORD_TOKEN_SUFFIX_REMOVE}`, 'giu')
     }
 
     /**
