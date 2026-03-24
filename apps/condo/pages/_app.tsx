@@ -95,7 +95,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { SubscriptionAccessGuard, NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { SubscriptionAccessGuard, NoSubscriptionTooltip, SubscriptionFeatureProgress } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -376,6 +376,7 @@ const MenuItems: React.FC = () => {
 
     return (
         <div>
+            <SubscriptionFeatureProgress />
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
                     {category.items.map((item) => {
