@@ -1,5 +1,3 @@
-const get = require('lodash/get')
-
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -29,9 +27,9 @@ class SubscriptionPaymentAdapter {
             }
 
             const data = await response.json()
-            const status = get(data, 'status')
-            const paymentId = get(data, 'paymentId')
-            const cancellationDetails = get(data, 'cancellationDetails')
+            const status = data?.status
+            const paymentId = data?.paymentId
+            const cancellationDetails = data?.cancellationDetails
 
             if (status === 'success' && paymentId) {
                 logger.info({ msg: 'payment succeeded', data: { paymentId, cardTokenId } })
@@ -46,7 +44,7 @@ class SubscriptionPaymentAdapter {
                     cancellationDetails,
                 }
             } else {
-                const errorMessage = get(data, 'error') || 'Payment failed'
+                const errorMessage = data?.error || 'Payment failed'
                 logger.warn({ msg: 'payment not successful', data: { status, cardTokenId, response: data } })
                 return {
                     status,
@@ -55,7 +53,7 @@ class SubscriptionPaymentAdapter {
                 }
             }
         } catch (error) {
-            const errorMessage = get(error, 'message') || 'Unknown error'
+            const errorMessage = error?.message || 'Unknown error'
             logger.error({
                 msg: 'payment processing error',
                 err: error,
@@ -78,7 +76,7 @@ class SubscriptionPaymentAdapter {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}))
-                const errorMessage = get(errorData, 'message') || `HTTP ${response.status}`
+                const errorMessage = errorData?.message || `HTTP ${response.status}`
                 logger.error({
                     msg: 'failed to delete card token',
                     data: { cardTokenId, organizationId, statusCode: response.status, errorMessage },
@@ -89,7 +87,7 @@ class SubscriptionPaymentAdapter {
             logger.info({ msg: 'card token deleted', data: { cardTokenId, organizationId } })
             return true
         } catch (error) {
-            const errorMessage = get(error, 'message') || 'Unknown error'
+            const errorMessage = error?.message || 'Unknown error'
             logger.error({
                 msg: 'failed to delete card token',
                 err: error,

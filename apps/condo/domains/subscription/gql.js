@@ -37,8 +37,6 @@ const REGISTER_SUBSCRIPTION_CONTEXT_MUTATION = gql`
     }
 `
 
-// TODO(codegen): write return type result!
-
 const UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION = gql`
     mutation updateSubscriptionContextPaymentMethod ($data: UpdateSubscriptionContextPaymentMethodInput!) {
         result: updateSubscriptionContextPaymentMethod(data: $data) { id }

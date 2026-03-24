@@ -11,8 +11,6 @@ const { registerSubscriptionContext, SubscriptionContext } = require('@condo/dom
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
 async function processRecurrentSubscriptionPayments () {
-    logger.info({ msg: 'start processing recurrent subscription payments' })
-
     const { keystone } = getSchemaCtx('SubscriptionContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
@@ -32,7 +30,7 @@ async function processRecurrentSubscriptionPayments () {
         sortBy: ['endAt_DESC'],
     })
 
-    logger.info({ msg: 'found subscription contexts', data: { count: contexts.length } })
+    logger.info({ msg: 'found subscription contexts', count: contexts.length })
 
     for (const subscriptionContext of contexts) {
         try {
