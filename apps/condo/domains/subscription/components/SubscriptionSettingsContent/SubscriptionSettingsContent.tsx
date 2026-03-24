@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetB2BAppsByIdsQuery } from '@app/condo/gql'
+import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
 import React, { useState, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -58,7 +58,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         return Array.from(appIdsSet)
     }, [plansData])
 
-    const { data: b2bAppsData } = useGetB2BAppsByIdsQuery({
+    const { data: b2bAppsData } = useGetPublicB2BAppsByIdsQuery({
         variables: { ids: allB2BAppIds },
         skip: allB2BAppIds.length === 0,
     })
