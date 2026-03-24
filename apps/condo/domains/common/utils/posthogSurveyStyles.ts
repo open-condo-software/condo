@@ -31,6 +31,45 @@ export const POSTHOG_SURVEY_STYLES = `
     cursor: default !important;
 }
 
+@media (max-width: 768px) {
+    .ph-survey {
+        width: calc(100vw - 32px) !important;
+        transform: none !important;
+        top: auto !important;
+        bottom: 16px !important;
+        left: 16px !important;
+        right: 16px !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .ph-survey {
+        width: calc(100vw - 24px) !important;
+        bottom: 12px !important;
+        left: 12px !important;
+        right: 12px !important;
+        margin: 0 !important;
+        border-radius: 8px !important;
+    }
+    
+    .survey-form,
+    .survey-box {
+        border-radius: 8px !important;
+    }
+    
+    .form-cancel {
+        top: 20px !important;
+        right: 20px !important;
+    }
+    
+    .survey-question {
+        padding-right: 30px !important;
+    }
+}
+
 .ph-survey * {
     font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif !important;
 }
