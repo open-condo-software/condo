@@ -6,7 +6,6 @@ import { Gutter } from 'antd/lib/grid/row'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import debounce from 'lodash/debounce'
-import get from 'lodash/get'
 import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -60,18 +59,18 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const DownloadRegistriesMessage = intl.formatMessage({ id: 'Download' })
 
-    const { acquiringContext, billingContexts } = useBillingAndAcquiringContexts()
+    const { acquiringContexts, billingContexts } = useBillingAndAcquiringContexts()
     const { persistor } = useCachePersistor()
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
-    const organizationId = get(userOrganization, ['organization', 'id'], '')
+    const organizationId = userOrganization?.organization?.id ?? ''
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
     // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
-    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
+    const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? DEFAULT_CURRENCY_CODE
 
     const tableColumns = usePaymentsFilesTableColumns(currencyCode)
     const queryMetas = usePaymentsFilesTableFilters(organizationId)
@@ -90,7 +89,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const searchPaymentsFilesQuery: Record<string, unknown> = {
         ...filtersToWhere({ loadedAt: dateFilter, ...filters }),
-        context: { id: acquiringContext.id },
+        context: { id_in: acquiringContexts.map(({ id }) => id) },
     }
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
@@ -105,7 +104,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             first: DEFAULT_PAGE_SIZE,
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
-        skip: !acquiringContext?.id || !persistor,
+        skip: !acquiringContexts.length || !persistor,
         fetchPolicy: 'network-only', // TODO(@abshnko): remove when sorters work with cache
     })
 

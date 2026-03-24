@@ -20,7 +20,7 @@ const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegration
 
 const FEE_DISTRIBUTION_FIELDS = 'recipient percent minAmount maxAmount category'
 
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name setupUrl hostUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } invoiceTaxRegime invoiceVatPercent invoiceSalesTaxPercent }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name type setupUrl hostUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } invoiceTaxRegime invoiceVatPercent invoiceSalesTaxPercent }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
 const MULTI_PAYMENT_PAYER_INFO_FIELDS = 'payerInfo { id name email phone }'
