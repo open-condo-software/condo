@@ -134,7 +134,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const [newsTextAiNotificationShow, setNewsTextAiNotificationShow] = useState(false)
     const [copied, setCopied] = useState<boolean>()
 
-    const [runRewriteNewsTextAIFlow, {
+    const [ { execute: runRewriteNewsTextAIFlow }, {
         loading: isRewriteNewsTextLoading,
         data: rewriteNewsTextData,
         error: rewriteNewsTextError,

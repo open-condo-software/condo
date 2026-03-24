@@ -1,5 +1,5 @@
 import { ApolloClient } from '@apollo/client'
-import { GetContactEditorOrganizationEmployeesDocument, GetTicketsDocument, GetIncidentsDocument, GetTicketCommentsDocument, GetPropertiesDocument, GetContactForClientCardDocument } from '@app/condo/gql'
+import { GetContactEditorOrganizationEmployeesDocument, GetTicketsForAiAssistantDocument, GetIncidentsDocument, GetTicketCommentsDocument, GetPropertiesDocument, GetContactForClientCardDocument } from '@app/condo/gql'
 
 export type ToolCallResult = {
     name: string
@@ -19,16 +19,14 @@ type ToolConfig = {
     name: string
     query: any
     resultKey: string
-    resultMessageKey: string
     getGraphQLVariables: (args: any, userData: UserData) => any
 }
 
 const TOOL_CONFIGS: Record<string, ToolConfig> = {
     getTickets: {
         name: 'getTickets',
-        query: GetTicketsDocument,
+        query: GetTicketsForAiAssistantDocument,
         resultKey: 'tickets',
-        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
@@ -45,7 +43,6 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getIncidents',
         query: GetIncidentsDocument,
         resultKey: 'incidents',
-        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
@@ -62,7 +59,6 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getOrganizationEmployees',
         query: GetContactEditorOrganizationEmployeesDocument,
         resultKey: 'employees',
-        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (_, userData) => ({
             where: { organization: { id: userData.organizationId } },
         }),
@@ -71,7 +67,6 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getProperties',
         query: GetPropertiesDocument,
         resultKey: 'properties',
-        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where = { organization: { id: userData.organizationId } }
             return {
@@ -85,7 +80,6 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTicketComments',
         query: GetTicketCommentsDocument,
         resultKey: 'ticketComments',
-        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args) => {
             const ticketId = args.where?.ticketId
             if (!ticketId) {
@@ -98,7 +92,6 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getContacts',
         query: GetContactForClientCardDocument,
         resultKey: 'contacts',
-        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where: any = {}
             if (userData.organizationId) {
@@ -146,9 +139,6 @@ const runApolloQueryTool = async (
             name: config.name,
             args,
             result: data,
-            resultMessage: {
-                key: config.resultMessageKey,
-            },
         }
     } catch (error) {
         return {

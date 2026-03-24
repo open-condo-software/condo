@@ -8,6 +8,10 @@ const { AbstractAdapter } = require('./AbstractAdapter')
  */
 const AI_ADAPTERS_CONFIG = conf.AI_ADAPTERS_CONFIG ? JSON.parse(conf.AI_ADAPTERS_CONFIG) : null
 
+// n8n adapter works using webhook functionality, it makes request, then waits for response
+// sometimes AI related flows may take long time, thus default timeout should be set to generous amount
+const N8N_DEFAULT_TIMEOUT = 5 * 60 * 1000 // 5min
+
 class N8NAdapter extends AbstractAdapter {
     #isConfigured = false
 
@@ -36,6 +40,7 @@ class N8NAdapter extends AbstractAdapter {
                 },
                 method: 'POST',
                 body: JSON.stringify({ context }),
+                abortRequestTimeout: N8N_DEFAULT_TIMEOUT,
             }
         )
 
