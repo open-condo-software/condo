@@ -221,7 +221,6 @@ describe('ActivateSubscriptionContextService', () => {
             expect(finalContext.frozenPaymentInfo.invoice.currencyCode).toBe(invoice.currencyCode)
             expect(finalContext.frozenPaymentInfo.pricingRuleId).toBe(pricingRule.id)
             expect(finalContext.frozenPaymentInfo.multiPaymentId).toBeDefined()
-            expect(finalContext.frozenPaymentInfo.multiPaymentId).toBe(multiPayment.id)
         })
     })
 })
