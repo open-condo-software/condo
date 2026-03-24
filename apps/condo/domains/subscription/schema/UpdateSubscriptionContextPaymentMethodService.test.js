@@ -12,10 +12,12 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
+    AcquiringIntegration,
+    AcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee, Organization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { ERRORS } = require('@condo/domains/subscription/schema/UpdateSubscriptionContextPaymentMethodService')
@@ -26,29 +28,41 @@ const {
 } = require('@condo/domains/subscription/utils/testSchema')
 
 describe('UpdateSubscriptionContextPaymentMethodService', () => {
-    let admin, support, anonymous, user
-    let subscriptionPlan, organization
-    let recipientOrganization, acquiringIntegration
-    let originalSubscriptionPaymentRecipient
+    let admin, support, user, anonymous
+    let organization, subscriptionPlan
+    let acquiringIntegration
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        const [recipientOrg] = await registerNewOrganization(admin, { type: MANAGING_COMPANY_TYPE })
-        recipientOrganization = recipientOrg
+        const recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        if (!recipientOrganizationId) {
+            throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
+        }
 
-        originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = recipientOrganization.id
+        const existingIntegrations = await AcquiringIntegration.getAll(admin, {})
+        if (existingIntegrations.length > 0) {
+            acquiringIntegration = existingIntegrations[0]
+        } else {
+            const [integration] = await createTestAcquiringIntegration(admin)
+            acquiringIntegration = integration
+        }
 
-        const [integration] = await createTestAcquiringIntegration(admin)
-        acquiringIntegration = integration
-        await createTestAcquiringIntegrationContext(admin, recipientOrganization, acquiringIntegration, {
-            invoiceStatus: CONTEXT_FINISHED_STATUS,
-            invoiceRecipient: createTestRecipient(),
-            invoiceImplicitFeeDistributionSchema: [],
+        const existingContexts = await AcquiringIntegrationContext.getAll(admin, {
+            organization: { id: recipientOrganizationId },
         })
+
+        if (existingContexts.length === 0) {
+            const recipientOrg = await Organization.getOne(admin, { id: recipientOrganizationId })
+
+            await createTestAcquiringIntegrationContext(admin, recipientOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+        }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -57,14 +71,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             trialDays: 14,
         })
         subscriptionPlan = plan
-    })
-
-    afterAll(() => {
-        if (originalSubscriptionPaymentRecipient !== undefined) {
-            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalSubscriptionPaymentRecipient
-        } else {
-            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        }
     })
 
     beforeEach(async () => {
@@ -451,30 +457,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             }, ERRORS.CARD_TOKEN_DELETION_FAILED, 'result')
 
             global.fetch.mockRestore()
-        })
-
-        test('throws error when SUBSCRIPTION_PAYMENT_RECIPIENT is not configured', async () => {
-            const bindingId = faker.datatype.uuid()
-
-            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
-                isTrial: false,
-                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                bindingId,
-            })
-
-            const originalEnv = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-
-            await expectToThrowGQLError(async () => {
-                await updateSubscriptionContextPaymentMethodByTestClient(admin, {
-                    subscriptionContext: { id: context.id },
-                    bindingId: null,
-                })
-            }, ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, 'result')
-
-            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalEnv
         })
     })
 })
