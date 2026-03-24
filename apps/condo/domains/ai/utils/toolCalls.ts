@@ -1,5 +1,5 @@
 import { ApolloClient } from '@apollo/client'
-import { GetContactEditorOrganizationEmployeesDocument, GetTicketsForAiAssistantDocument, GetIncidentsDocument, GetTicketCommentsDocument, GetPropertiesDocument, GetContactForClientCardDocument } from '@app/condo/gql'
+import { GetContactEditorOrganizationEmployeesDocument, GetTicketsForAiAssistantDocument, GetIncidentsDocument, GetTicketCommentsDocument, GetPropertiesDocument, GetContactForClientCardDocument, GetNewsItemsForAiAssistantDocument, GetTicketWithDetailsForAiAssistantDocument } from '@app/condo/gql'
 
 export type ToolCallResult = {
     name: string
@@ -36,6 +36,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
                 where,
                 first: args.first || 100,
                 sortBy: args.sortBy,
+                skip: args.skip || 0,
             }
         },
     },
@@ -52,6 +53,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
                 where,
                 first: args.first || 10,
                 sortBy: args.sortBy,
+                skip: args.skip || 0,
             }
         },
     },
@@ -59,20 +61,33 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getOrganizationEmployees',
         query: GetContactEditorOrganizationEmployeesDocument,
         resultKey: 'employees',
-        getGraphQLVariables: (_, userData) => ({
-            where: { organization: { id: userData.organizationId } },
-        }),
+        getGraphQLVariables: (args, userData) => {
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.organization = { id: userData.organizationId }
+            }
+            return {
+                where,
+                first: args.first || 50,
+                skip: args.skip || 0,
+                sortBy: args.sortBy || ['name_ASC'],
+            }
+        },
     },
     getProperties: {
         name: 'getProperties',
         query: GetPropertiesDocument,
         resultKey: 'properties',
         getGraphQLVariables: (args, userData) => {
-            const where = { organization: { id: userData.organizationId } }
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.organization = { id: userData.organizationId }
+            }
             return {
-                where: { ...where, ...args.where },
+                where,
                 first: args.first || 20,
                 sortBy: args.sortBy,
+                skip: args.skip || 0,
             }
         },
     },
@@ -80,12 +95,20 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTicketComments',
         query: GetTicketCommentsDocument,
         resultKey: 'ticketComments',
-        getGraphQLVariables: (args) => {
-            const ticketId = args.where?.ticketId
-            if (!ticketId) {
-                throw new Error('ticketId is required for getTicketComments')
+        getGraphQLVariables: (args, userData) => {
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.ticket = { 
+                    ...where.ticket,
+                    organization: { id: userData.organizationId },
+                }
             }
-            return { ticketId }
+            return {
+                where,
+                first: args.first || 100,
+                sortBy: args.sortBy || ['createdAt_DESC'],
+                skip: args.skip || 0,
+            }
         },
     },
     getContacts: {
@@ -93,7 +116,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         query: GetContactForClientCardDocument,
         resultKey: 'contacts',
         getGraphQLVariables: (args, userData) => {
-            const where: any = {}
+            const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
             }
@@ -105,6 +128,36 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
                 first: args.first || 50,
                 skip: args.skip || 0,
                 sortBy: args.sortBy || ['name_ASC'],
+            }
+        },
+    },
+    getNewsItems: {
+        name: 'getNewsItems',
+        query: GetNewsItemsForAiAssistantDocument,
+        resultKey: 'newsItems',
+        getGraphQLVariables: (args, userData) => {
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.organization = { id: userData.organizationId }
+            }
+            return {
+                where,
+                first: args.first || 100,
+                sortBy: args.sortBy || ['publishedAt_DESC'],
+                skip: args.skip || 0,
+            }
+        },
+    },
+    getTicketWithDetails: {
+        name: 'getTicketWithDetails',
+        query: GetTicketWithDetailsForAiAssistantDocument,
+        resultKey: null,
+        getGraphQLVariables: (args, userData) => {
+            if (!args.id) {
+                throw new Error('Ticket ID is required for getTicketWithDetails')
+            }
+            return {
+                id: args.id,
             }
         },
     },
