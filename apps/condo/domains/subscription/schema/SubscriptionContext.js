@@ -41,6 +41,11 @@ const ERRORS = {
         type: 'TRIAL_CANNOT_HAVE_INVOICE',
         message: 'Trial subscription cannot have invoice',
     },
+    SUBSCRIPTION_PLAN_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: 'SUBSCRIPTION_PLAN_MISMATCH',
+        message: 'subscriptionPlan in context must match subscriptionPlan in subscriptionPlanPricingRule',
+    },
 }
 
 
@@ -218,11 +223,23 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             }
 
             const isTrial = resolvedData.isTrial !== undefined ? resolvedData.isTrial : existingItem?.isTrial
-            const subscriptionPlanPricingRule = resolvedData.subscriptionPlanPricingRule
+            const subscriptionPlanPricingRuleId = resolvedData.subscriptionPlanPricingRule
             const invoice = resolvedData.invoice
 
-            if (isTrial && subscriptionPlanPricingRule) {
+            if (isTrial && subscriptionPlanPricingRuleId) {
                 throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_PRICING_RULE, context)
+            }
+
+            if (subscriptionPlanPricingRuleId) {
+                const subscriptionPlanId = resolvedData.subscriptionPlan || existingItem?.subscriptionPlan
+                const [pricingRule] = await find('SubscriptionPlanPricingRule', { 
+                    id: subscriptionPlanPricingRuleId, 
+                    deletedAt: null,
+                })
+
+                if (pricingRule && subscriptionPlanId && pricingRule.subscriptionPlan !== subscriptionPlanId) {
+                    throw new GQLError(ERRORS.SUBSCRIPTION_PLAN_MISMATCH, context)
+                }
             }
 
             if (isTrial && invoice) {
@@ -230,7 +247,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             }
 
             const recurrentPaymentEnabled = resolvedData.recurrentPaymentEnabled
-            const hasPricingRule = subscriptionPlanPricingRule || existingItem?.subscriptionPlanPricingRule
+            const hasPricingRule = subscriptionPlanPricingRuleId || existingItem?.subscriptionPlanPricingRule
 
             if (recurrentPaymentEnabled && (isTrial || !hasPricingRule)) {
                 throw new GQLError(ERRORS.RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION, context)
