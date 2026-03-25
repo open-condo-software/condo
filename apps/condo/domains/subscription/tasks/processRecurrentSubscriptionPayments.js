@@ -85,13 +85,14 @@ async function processRecurrentSubscriptionPayments () {
 
                 if (paid) {
                     logger.info({ msg: 'payment succeeded', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice } })
-                } else if (paymentStatus === 'canceled') {
+                } else {
                     logger.error({ 
-                        msg: 'payment canceled', 
+                        msg: 'payment failed', 
                         data: { 
                             subscriptionContextId: newContext.id, 
                             invoiceId: newContext.invoice, 
-                            errorMessage, 
+                            paymentStatus, 
+                            errorMessage,
                             cancellationDetails,
                         },
                     })
@@ -101,8 +102,6 @@ async function processRecurrentSubscriptionPayments () {
                         sender,
                         status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
                     })
-                } else {
-                    logger.error({ msg: 'payment failed', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice, paymentStatus, errorMessage } })
                 }
             } else {
                 logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
