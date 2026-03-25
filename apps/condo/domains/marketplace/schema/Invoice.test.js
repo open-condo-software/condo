@@ -3172,7 +3172,7 @@ describe('Invoice', () => {
                 )
             })
 
-            test('cannot create B2B invoice with B2C fields (contact)', async () => {
+            test('cannot create B2B invoice with B2C fields', async () => {
                 const [payerOrg] = await registerNewOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, dummyOrganization)
 

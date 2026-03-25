@@ -7,8 +7,9 @@ const dayjs = require('dayjs')
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 
+const { INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -50,6 +51,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
         message: 'bindingId can only be set for paid subscriptions with pricing rule',
+    },
+    INVOICE_MUST_BE_B2B: {
+        code: BAD_USER_INPUT,
+        type: 'INVOICE_MUST_BE_B2B',
+        message: 'Subscription context invoice must be B2B type',
     },
 }
 
@@ -229,7 +235,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
             const isTrial = resolvedData.isTrial !== undefined ? resolvedData.isTrial : existingItem?.isTrial
             const subscriptionPlanPricingRuleId = resolvedData.subscriptionPlanPricingRule
-            const invoice = resolvedData.invoice
+            const invoiceId = resolvedData.invoice
 
             if (isTrial && subscriptionPlanPricingRuleId) {
                 throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_PRICING_RULE, context)
@@ -247,8 +253,15 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 }
             }
 
-            if (isTrial && invoice) {
+            if (isTrial && invoiceId) {
                 throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_INVOICE, context)
+            }
+
+            if (invoiceId) {
+                const invoiceItem = await getById('Invoice', invoiceId)
+                if (invoiceItem && invoiceItem.type !== INVOICE_TYPE_B2B) {
+                    throw new GQLError(ERRORS.INVOICE_MUST_BE_B2B, context)
+                }
             }
 
             const bindingId = resolvedData.bindingId

@@ -285,7 +285,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    }, [price?.id, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
+    }, [price, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
     
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerSubscriptionContextForModal,
@@ -391,6 +391,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
 
     const displayPrice = useMemo(() => {
+        if (!price) return null
+        
         if (isCustomPrice) {
             return isActivePlan ? null : price.name
         } else if (isFreeForPartner) {
@@ -402,7 +404,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } else {
             return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         }
-    }, [activeSubscriptionContext?.frozenPaymentInfo?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
+    }, [price, activeSubscriptionContext?.frozenPaymentInfo?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner]) 
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
