@@ -285,6 +285,66 @@ describe('SubscriptionContext', () => {
             }, 'obj')
         })
 
+        test('subscription cannot have B2C invoice', async () => {
+            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+            const { INVOICE_TYPE_B2C } = require('@condo/domains/marketplace/constants')
+            const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+            
+            const [invoice] = await createTestInvoice(admin, testOrg, {
+                type: INVOICE_TYPE_B2C,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                    invoice: { connect: { id: invoice.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVOICE_MUST_BE_B2B',
+            }, 'obj')
+        })
+
+        test('subscription can have B2B invoice', async () => {
+            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+            const { INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+            const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            const [payerOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+            
+            const [invoice] = await createTestInvoice(admin, testOrg, {
+                type: INVOICE_TYPE_B2B,
+                payerOrganization: { connect: { id: payerOrg.id } },
+            })
+
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                invoice: { connect: { id: invoice.id } },
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.invoice.id).toBe(invoice.id)
+        })
+
         test('endAt must be after startAt', async () => {
             const startAt = dayjs().format('YYYY-MM-DD')
             const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')

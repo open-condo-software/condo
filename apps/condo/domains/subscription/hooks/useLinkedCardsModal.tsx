@@ -181,7 +181,6 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
             >
                 <Space size={12} direction='vertical' width='100%'>
                     {paymentMethods.map((paymentMethod) => {
-                        console.log('paymentMethod', paymentMethod)
                         const isActiveCard = paymentMethod.bindingId === activePaymentMethodId
                         return (
                             <Card key={paymentMethod.bindingId} width='100%'>
