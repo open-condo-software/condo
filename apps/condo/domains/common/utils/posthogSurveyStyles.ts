@@ -27,8 +27,11 @@ export const POSTHOG_SURVEY_STYLES = `
     min-width: 500px !important;
     width: 50vw !important;
     min-height: 400px !important;
+    max-height: 100vh !important;
+    height: fit-content !important;
     z-index: 2147482647 !important;
     cursor: default !important;
+    overflow-y: auto !important;
 }
 
 @media (max-width: 768px) {
@@ -36,27 +39,25 @@ export const POSTHOG_SURVEY_STYLES = `
         width: calc(100vw - 32px) !important;
         transform: none !important;
         top: auto !important;
-        bottom: 16px !important;
-        left: 16px !important;
-        right: 16px !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
         min-width: unset !important;
         max-width: unset !important;
-        margin: 0 !important;
+        margin: 16px !important;
     }
 }
 
 @media (max-width: 480px) {
     .ph-survey {
         width: calc(100vw - 24px) !important;
-        bottom: 12px !important;
-        left: 12px !important;
-        right: 12px !important;
-        margin: 0 !important;
+        margin: 12px !important;
         border-radius: 8px !important;
     }
     
     .survey-form,
     .survey-box {
+        gap: 0px !important;
         border-radius: 8px !important;
     }
     
@@ -76,11 +77,10 @@ export const POSTHOG_SURVEY_STYLES = `
 
 .survey-form {
     border-radius: 12px !important;
-    overflow: hidden !important;
     background: white !important;
     border: none !important;
     position: relative !important;
-    height: 100% !important
+    height: fit-content !important
 }
 
 .survey-box {
