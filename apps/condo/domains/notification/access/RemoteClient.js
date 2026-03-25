@@ -35,7 +35,7 @@ async function canManageRemoteClients ({ authentication: { item: user } }) {
 }
 
 const canAccessToPasswordField = {
-    read: (...args) => userIsAdmin(...args),
+    read: userIsAdmin,
     update: userIsAdmin,
     create: userIsAdmin,
 }
