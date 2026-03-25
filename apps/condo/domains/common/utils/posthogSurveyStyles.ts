@@ -57,6 +57,7 @@ export const POSTHOG_SURVEY_STYLES = `
     
     .survey-form,
     .survey-box {
+        gap: 0px !important;
         border-radius: 8px !important;
     }
     
