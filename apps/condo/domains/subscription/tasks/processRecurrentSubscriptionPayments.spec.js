@@ -4,12 +4,6 @@ const dayjs = require('dayjs')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -20,6 +14,7 @@ const {
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
     SubscriptionContext,
+    getOrCreateAcquiringIntegrationForRecipient,
 } = require('@condo/domains/subscription/utils/testSchema')
 
 
@@ -27,7 +22,6 @@ describe('processRecurrentSubscriptionPayments', () => {
     setFakeClientMode(index)
 
     let adminClient
-    let recipientOrganization
     let subscriptionPlan
     let pricingRule
     let originalSubscriptionPaymentRecipient
@@ -35,11 +29,13 @@ describe('processRecurrentSubscriptionPayments', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         
-        const [recipientOrg] = await createTestOrganization(adminClient)
-        recipientOrganization = recipientOrg
-
         originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = recipientOrganization.id
+        const recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        if (!recipientOrganizationId) {
+            throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
+        }
+
+        await getOrCreateAcquiringIntegrationForRecipient(adminClient, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(adminClient)
         subscriptionPlan = plan
@@ -49,13 +45,6 @@ describe('processRecurrentSubscriptionPayments', () => {
             period: SUBSCRIPTION_PERIOD.MONTH,
         })
         pricingRule = rule
-
-        const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
-        await createTestAcquiringIntegrationContext(adminClient, recipientOrganization, acquiringIntegration, {
-            invoiceStatus: CONTEXT_FINISHED_STATUS,
-            invoiceRecipient: createTestRecipient(),
-            invoiceImplicitFeeDistributionSchema: [],
-        })
     })
 
     afterAll(() => {
@@ -71,7 +60,14 @@ describe('processRecurrentSubscriptionPayments', () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()
-            const paymentMethod = { id: bindingId, type: 'card', last4: '1234' }
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '1234',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             const endAt = dayjs().subtract(2, 'days').format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -103,7 +99,14 @@ describe('processRecurrentSubscriptionPayments', () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()
-            const paymentMethod = { id: bindingId, type: 'card', last4: '5678' }
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '5678',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             const endAt = dayjs().subtract(3, 'days').format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -134,7 +137,14 @@ describe('processRecurrentSubscriptionPayments', () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()
-            const paymentMethod = { id: bindingId, type: 'card', last4: '0000' }
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '0000',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             const endAt = dayjs().format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -172,7 +182,14 @@ describe('processRecurrentSubscriptionPayments', () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()
-            const paymentMethod = { id: bindingId, type: 'card', last4: '9999' }
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '9999',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             const endAt = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
@@ -242,13 +259,21 @@ describe('processRecurrentSubscriptionPayments', () => {
         test('does not process subscription context with status CREATED', async () => {
             const [organization] = await createTestOrganization(adminClient)
             
-            const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '1111' }
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '1111',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             const endAt = dayjs().format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                bindingId: paymentMethod.id,
+                bindingId,
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,
@@ -314,12 +339,20 @@ describe('processRecurrentSubscriptionPayments', () => {
         test('processes only the latest subscription context for organization and pricing rule', async () => {
             const [organization] = await createTestOrganization(adminClient)
             
-            const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '2222' }
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '2222',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                bindingId: paymentMethod.id,
+                bindingId,
                 startAt: dayjs().subtract(2, 'months').format('YYYY-MM-DD'),
                 endAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
@@ -332,8 +365,8 @@ describe('processRecurrentSubscriptionPayments', () => {
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                bindingId: paymentMethod.id,
-                startAt: dayjs().subtract(1, 'month').subtract(1, 'day').format('YYYY-MM-DD'),
+                bindingId,
+                startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
                 frozenPaymentInfo: {
@@ -358,13 +391,21 @@ describe('processRecurrentSubscriptionPayments', () => {
         test('creates invoice and multiPayment for new subscription context', async () => {
             const [organization] = await createTestOrganization(adminClient)
             
-            const paymentMethod = { id: faker.datatype.uuid(), type: 'card', last4: '3333' }
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '3333',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
             const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                bindingId: paymentMethod.id,
+                bindingId,
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: false,

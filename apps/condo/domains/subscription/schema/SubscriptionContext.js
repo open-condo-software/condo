@@ -46,6 +46,11 @@ const ERRORS = {
         type: 'SUBSCRIPTION_PLAN_MISMATCH',
         message: 'subscriptionPlan in context must match subscriptionPlan in subscriptionPlanPricingRule',
     },
+    RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION: {
+        code: BAD_USER_INPUT,
+        type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
+        message: 'bindingId can only be set for paid subscriptions with pricing rule',
+    },
 }
 
 
