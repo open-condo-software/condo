@@ -246,10 +246,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_INVOICE, context)
             }
 
-            const recurrentPaymentEnabled = resolvedData.recurrentPaymentEnabled
+            const bindingId = resolvedData.bindingId
             const hasPricingRule = subscriptionPlanPricingRuleId || existingItem?.subscriptionPlanPricingRule
 
-            if (recurrentPaymentEnabled && (isTrial || !hasPricingRule)) {
+            if (bindingId && (isTrial || !hasPricingRule)) {
                 throw new GQLError(ERRORS.RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION, context)
             }
 
