@@ -18,9 +18,9 @@ const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_
     SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
     MAX_SYNC_REMOTE_CLIENT_TOKENS_RESET_BY_WINDOW_SEC,
 } = require('@condo/domains/notification/constants/constants')
-const { DEVICE_KEY_VALIDATION_ERROR, INVALID_DEVICE_KEY } = require('@condo/domains/notification/constants/errors')
+const { DEVICE_KEY_VALIDATION_ERROR, INVALID_DEVICE_KEY, DEVICE_KEY_REQUIRED } = require('@condo/domains/notification/constants/errors')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
-const { getPushTokensValidationError, deduplicatePushTokens, clearPushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
+const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const ERRORS = {
@@ -34,6 +34,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_DEVICE_KEY,
         message: '"deviceKey" should be a valid UUID',
+    },
+    DEVICE_KEY_REQUIRED: {
+        code: BAD_USER_INPUT,
+        type: DEVICE_KEY_REQUIRED,
+        message: '"deviceKey" should be passed',
     },
 }
 
@@ -58,7 +63,7 @@ const redisGuard = new RedisGuard()
 const checkLimits = async (ip, userId, context) => {
     const uniqueField = [ip, userId].filter(nonNull).join(':')
     await redisGuard.checkCustomLimitCounters(
-        `sync-remote-client-tokens-reset-${uniqueField}`,
+        `sync-remote-client-tokens-clear-${uniqueField}`,
         SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
         MAX_SYNC_REMOTE_CLIENT_TOKENS_RESET_BY_WINDOW_SEC,
         context,
@@ -340,20 +345,27 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
 
     if (existing?.deviceKey || deviceKey) {
         let needToClearTokens = false
-        if (!existing?.deviceKey && deviceKey) {
+        const mostLikelyUserUpdatedApp = !existing?.deviceKey && deviceKey
+        const isNormalBehaviour = existing?.deviceKey && deviceKey
+        if (mostLikelyUserUpdatedApp) {
             needToClearTokens = false
             needToPasteDeviceKey = true
         }
-        if (existing?.deviceKey && deviceKey) {
-            const { keystone } = getSchemaCtx('RemoteClient')
+        if (isNormalBehaviour) {
             needToClearTokens = await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey)
             if (!needToClearTokens) needToPasteDeviceKey = true
         }
+        // shouldn't happen logically
         if (existing?.deviceKey && !deviceKey) {
-            needToClearTokens = true
+            throw new GQLError(ERRORS.DEVICE_KEY_REQUIRED, context)
         }
-        if (needToClearTokens) {
-            await clearPushTokens()
+        if (needToClearTokens && existing?.id) {
+            await checkLimits(context.req.ip, userId, context)
+            const remoteClientPushTokensToDelete = await find('RemoteClientPushToken', { remoteClient: { id: existing.id }, deletedAt: null })
+            await RemoteClientPushToken.updateMany(
+                context,
+                remoteClientPushTokensToDelete.map(pushToken => ({ id: pushToken.id, data: { deletedAt: new Date().toISOString(), dv: 1, sender } })),
+            )
         }
     }
 

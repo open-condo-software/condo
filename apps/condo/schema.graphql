@@ -106854,6 +106854,12 @@ type Mutation {
     "type": "INVALID_DEVICE_KEY",
     "message": "\"deviceKey\" should be a valid UUID"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DEVICE_KEY_REQUIRED",
+    "message": "\"deviceKey\" should be passed"
+  }`
   """
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput

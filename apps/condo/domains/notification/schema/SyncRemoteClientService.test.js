@@ -5,12 +5,14 @@
 const { faker } = require('@faker-js/faker')
 const pick = require('lodash/pick')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TYPE_SILENT_DATA, DEVICE_PLATFORM_IOS, DEVICE_PLATFORM_ANDROID } = require('@condo/domains/notification/constants/constants')
 const { ERRORS } = require('@condo/domains/notification/schema/SyncRemoteClientService')
 const {
-    RemoteClient, syncRemoteClientByTestClient,
+    RemoteClient, syncRemoteClientByTestClient, createTestRemoteClient,
     RemoteClientPushToken, createTestRemoteClientPushToken,
 } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomPushTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
@@ -1321,8 +1323,44 @@ describe('SyncRemoteClientService', () => {
 
     describe('Push tokens cleaning in case of new deviceKey', () => {
 
-        test('cl', async () => {
+        test('maybe app updated behaviour: does not delete tokens if added deviceKey first time', async () => {
+            const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null })
 
+            const [remoteClient] = await createTestRemoteClient(admin, payload)
+            expect(remoteClient.deviceKey).toBeFalsy()
+
+            const [remoteClientPushToken] = await createTestRemoteClientPushToken(admin, remoteClient)
+
+            await syncRemoteClientByTestClient(admin, {
+                ...payload,
+                deviceKey: faker.datatype.uuid(),
+            })
+
+            const notDeletedRemoteClientPushToken = await RemoteClientPushToken.getOne(admin, { id: remoteClientPushToken.id })
+            expect(notDeletedRemoteClientPushToken.deletedAt).not.toBeNull()
+        })
+
+        test('invalid behaviour: remote client has deviceKey -> deviceKey becomes required', async () => {
+            const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null })
+            const client = await makeLoggedInClient()
+            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(client, payload)
+
+            const RemoteClientWithDeviceKey = generateGQLTestUtils(generateGqlQueries('RemoteClient', '{ id deviceKey_is_set }'))
+            const remoteClient = await RemoteClientWithDeviceKey.getOne(admin, { id: remoteClientId })
+            expect(remoteClient.deviceKey_is_set).toBe(false)
+
+            const [{ id: remoteClientWithDeviceKeyId }] = await syncRemoteClientByTestClient(client, { ...payload, deviceKey: faker.datatype.uuid() })
+            expect(remoteClientWithDeviceKeyId).toEqual(remoteClientId)
+            const remoteClientWithDeviceKey = await RemoteClientWithDeviceKey.getOne(admin, { id: remoteClientId })
+            expect(remoteClientWithDeviceKey.deviceKey_is_set).toBe(true)
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await syncRemoteClientByTestClient(client, payload)
+            }, ERRORS.DEVICE_KEY_REQUIRED)
+        })
+
+        test('normal behaviour: remote client has deviceKey and it is passed', async () => {
+            
             const client = await makeClient()
 
             const pushTokenFirst = getRandomPushTokenData()
@@ -1340,7 +1378,7 @@ describe('SyncRemoteClientService', () => {
             }
 
             const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(client, payloadWithBoth1)
-            const pushTokensV1 = [] // await RemoteClientPushToken.getAll(admin, { remoteClient: { id: remoteClientId } })
+            const pushTokensV1 = await RemoteClientPushToken.getAll(admin, { remoteClient: { id: remoteClientId } })
             expect(pushTokensV1).toHaveLength(1)
             expect(pushTokensV1[0].token).toEqual(pushTokenFirst.token)
 
@@ -1349,7 +1387,7 @@ describe('SyncRemoteClientService', () => {
                 pushTokens: [pushTokenSecond],
                 deviceKey: deviceKeyFirst,
             })
-            const pushTokensV2 = [] //
+            const pushTokensV2 = await RemoteClientPushToken.getAll(admin, { remoteClient: { id: remoteClientId } })
             expect(pushTokensV2).toHaveLength(2)
             expect(pushTokensV2).toEqual(expect.arrayContaining([
                 expect.objectContaining({ token: pushTokenFirst.token }),
@@ -1362,11 +1400,43 @@ describe('SyncRemoteClientService', () => {
                 deviceKey: deviceKeySecond,
             })
 
-            const pushTokensV3 = [] //
+            const pushTokensV3 = await RemoteClientPushToken.getAll(admin, { remoteClient: { id: remoteClientId } })
             expect(pushTokensV3).toHaveLength(1)
             expect(pushTokensV3).toEqual(expect.arrayContaining([
                 expect.objectContaining({ token: pushTokenSecond.token }),
             ]))
+        })
+
+        test('old behaviour: no deviceKey in remote client and no device key provided', async () => {
+            const client = await makeClient()
+            const payload = getRandomTokenData({
+                pushToken: null,
+                pushTokenVoIP: null,
+                devicePlatform: DEVICE_PLATFORM_IOS,
+                pushTokens: [
+                    getRandomPushTokenData(),
+                ] })
+            delete payload.deviceKey
+
+            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(client, payload)
+            const RemoteClientWithDeviceKey = generateGQLTestUtils(generateGqlQueries('RemoteClient', '{ id devicePlatform deviceKey_is_set }'))
+            const remoteClient = RemoteClientWithDeviceKey.getOne(admin, { id: remoteClientId })
+            expect(remoteClient.deviceKey_is_set).toBe(false)
+
+            const remoteClientPushToken = RemoteClientPushToken.getOne(admin, { remoteClient: { id: remoteClientId } })
+            expect(remoteClientPushToken).toBeDefined()
+
+            const [{ id: remoteClientAfterUpdateId }] = await syncRemoteClientByTestClient(client, { ...payload, devicePlatform: DEVICE_PLATFORM_ANDROID, pushTokens: [] })
+            expect(remoteClientAfterUpdateId).toEqual(remoteClientId)
+
+            const remoteClientAfterUpdate = RemoteClientWithDeviceKey.getOne(admin, { id: remoteClientAfterUpdateId })
+            expect(remoteClientAfterUpdate.deviceKey_is_set).toBe(false)
+            expect(remoteClientAfterUpdate.devicePlatform).not.toEqual(remoteClient.devicePlatform)
+            expect(remoteClientAfterUpdate.devicePlatform).toEqual(DEVICE_PLATFORM_ANDROID)
+
+            const remoteClientPushTokenAfterUpdate = RemoteClientPushToken.getOne(admin, { remoteClient: { id: remoteClientId } })
+            expect(remoteClientPushTokenAfterUpdate).toBeDefined() // did not delete this
+
         })
     })
 })
