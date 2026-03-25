@@ -5,7 +5,8 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { getById, find } = require('@open-condo/keystone/schema')
 
@@ -13,6 +14,8 @@ const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/subscription/access/UpdateSubscriptionContextPaymentMethodService')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+
+const logger = getLogger('UpdateSubscriptionContextPaymentMethodService')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -37,11 +40,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'AcquiringIntegrationContext not found for subscription payment recipient',
-    },
-    CARD_TOKEN_DELETION_FAILED: {
-        mutation: 'updateSubscriptionContextPaymentMethod',
-        code: INTERNAL_ERROR,
-        type: 'CARD_TOKEN_DELETION_FAILED',
     },
 }
 
@@ -74,6 +72,12 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                 const organizationId = subscriptionContext.organization
                 const currentBindingId = subscriptionContext.bindingId
 
+                await SubscriptionContext.update(context, subscriptionContextId, {
+                    dv,
+                    sender,
+                    bindingId,
+                })
+
                 if (bindingId === null && currentBindingId) {
                     const otherActiveContexts = await find('SubscriptionContext', {
                         organization: { id: organizationId },
@@ -87,7 +91,8 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                         const recipientOrganizationId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
 
                         if (!recipientOrganizationId) {
-                            throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
+                            logger.warn({ msg: 'SUBSCRIPTION_PAYMENT_RECIPIENT not configured, skipping card token deletion', cardTokenId: currentBindingId })
+                            return { id: subscriptionContextId }
                         }
 
                         const acquiringIntegrationContexts = await find('AcquiringIntegrationContext', {
@@ -96,14 +101,16 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                         })
 
                         if (acquiringIntegrationContexts.length === 0) {
-                            throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
+                            logger.warn({ msg: 'AcquiringIntegrationContext not found, skipping card token deletion', cardTokenId: currentBindingId })
+                            return { id: subscriptionContextId }
                         }
 
                         const acquiringIntegrationContext = acquiringIntegrationContexts[0]
                         const acquiringIntegration = await getById('AcquiringIntegration', acquiringIntegrationContext.integration)
 
                         if (!acquiringIntegration || !acquiringIntegration.hostUrl) {
-                            throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
+                            logger.warn({ msg: 'AcquiringIntegration not found or missing hostUrl, skipping card token deletion', cardTokenId: currentBindingId })
+                            return { id: subscriptionContextId }
                         }
 
                         try {
@@ -112,21 +119,13 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                                 organizationId,
                                 cardTokenId: currentBindingId,
                             })
+                            logger.info({ msg: 'Successfully deleted card token from payment gateway', cardTokenId: currentBindingId })
                         } catch (error) {
                             const errorMessage = get(error, 'message') || 'Unknown error'
-                            throw new GQLError({
-                                ...ERRORS.CARD_TOKEN_DELETION_FAILED,
-                                message: `Failed to delete card token: ${errorMessage}`,
-                            }, context)
+                            logger.error({ msg: 'Failed to delete card token from payment gateway', cardTokenId: currentBindingId, error: errorMessage })
                         }
                     }
                 }
-
-                await SubscriptionContext.update(context, subscriptionContextId, {
-                    dv,
-                    sender,
-                    bindingId,
-                })
 
                 return {
                     id: subscriptionContextId,

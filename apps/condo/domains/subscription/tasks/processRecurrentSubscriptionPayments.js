@@ -37,6 +37,7 @@ async function processRecurrentSubscriptionPayments () {
             const {
                 id,
                 organization,
+                subscriptionPlan,
                 subscriptionPlanPricingRule,
                 bindingId,
             } = subscriptionContext
@@ -45,11 +46,10 @@ async function processRecurrentSubscriptionPayments () {
                 logger.info({ msg: 'subscription context does not have binding for auto-payment', data: { subscriptionContextId: id } })
                 continue
             }
-
             const latestContexts = await itemsQuery('SubscriptionContext', {
                 where: {
                     organization: { id: organization },
-                    subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule },
+                    subscriptionPlan: { id: subscriptionPlan },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 },

@@ -336,7 +336,7 @@ describe('processRecurrentSubscriptionPayments', () => {
     })
 
     describe('latest context check', () => {
-        test('processes only the latest subscription context for organization and pricing rule', async () => {
+        test('processes only the latest subscription context for organization and subscription plan', async () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()

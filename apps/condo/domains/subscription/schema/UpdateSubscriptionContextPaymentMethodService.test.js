@@ -434,32 +434,5 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             global.fetch.mockRestore()
         })
 
-        test('throws error when card token deletion fails', async () => {
-            const bindingId = faker.datatype.uuid()
-
-            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                isTrial: false,
-                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                bindingId,
-            })
-
-            global.fetch = jest.fn(() => Promise.resolve({
-                ok: false,
-                status: 404,
-                json: () => Promise.resolve({ message: 'Card token not found' }),
-            }))
-
-            await expectToThrowGQLError(async () => {
-                await updateSubscriptionContextPaymentMethodByTestClient(admin, {
-                    subscriptionContext: { id: context.id },
-                    bindingId: null,
-                })
-            }, ERRORS.CARD_TOKEN_DELETION_FAILED, 'result')
-
-            global.fetch.mockRestore()
-        })
     })
 })
