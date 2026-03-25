@@ -43,7 +43,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
-    
+
     const [aiSessionId, setAiSessionId] = useState<string | null>(null)
 
     const handleResetHistory = () => {
@@ -60,7 +60,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     useEffect(() => {
         const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
-        
+
         if (organization && aiSessionStorage[organization.id]) {
             setAiSessionId(aiSessionStorage[organization.id])
         } else {
@@ -84,28 +84,28 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isResizing) return
-            
+
             const newWidth = startWidthRef.current + (startXRef.current - e.clientX)
             const currentDirection = e.clientX > startXRef.current ? 'right' : 'left'
             dragDirectionRef.current = currentDirection
             setDragDirection(currentDirection)
-            
+
             const clampedWidth = Math.max(MIN_OVERLAY_WIDTH, Math.min(MAX_OVERLAY_WIDTH, newWidth))
-            
+
             setIsAtMinWidth(clampedWidth <= MIN_OVERLAY_WIDTH)
             setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
-            
+
             // Only close if dragging right consistently and beyond close threshold
             if (newWidth < CLOSE_THRESHOLD && dragDirectionRef.current === 'right' && currentDirection === 'right') {
                 onClose()
                 return
             }
-            
+
             // Open overlay if dragging left consistently and beyond close threshold
             if (newWidth > CLOSE_THRESHOLD && dragDirectionRef.current === 'left' && currentDirection === 'left') {
                 openAIOverlay()
             }
-            
+
             setAIOverlayWidth(clampedWidth)
         }
 
@@ -133,17 +133,17 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const handleResizeStart = (e: React.MouseEvent) => {
         // Only allow resizing when overlay is open
         if (!open) return
-        
+
         setIsResizing(true)
         startXRef.current = e.clientX
         startWidthRef.current = aiOverlayWidth
     }
 
     return (
-        <div 
+        <div
             ref={drawerRef}
             className={styles.aiDrawer}
-            style={{ 
+            style={{
                 width: open ? `${aiOverlayWidth}px` : '0px',
                 visibility: open ? 'visible' : 'hidden',
                 overflow: 'hidden',
@@ -156,7 +156,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                     </Typography.Title>
                 </div>
                 <div className={styles.rightSection}>
-                    <Button 
+                    <Button
                         type='secondary'
                         size='medium'
                         compact
@@ -165,8 +165,8 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
                     />
-                    <Button 
-                        type='secondary' 
+                    <Button
+                        type='secondary'
                         size='medium'
                         compact
                         minimal
@@ -182,7 +182,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             })} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
                 {aiSessionId && (
-                    <AIChat 
+                    <AIChat
                         aiSessionId={aiSessionId}
                     />
                 )}

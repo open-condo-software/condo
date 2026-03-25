@@ -43,7 +43,7 @@ type AIChatProps = {
     onDownloadText?: (messages: Message[]) => void
 }
 
-export const AIChat: React.FC<AIChatProps> = ({ 
+export const AIChat: React.FC<AIChatProps> = ({
     aiSessionId,
 }) => {
     const intl = useIntl()
@@ -59,12 +59,12 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    
+
     const client = useApolloClient()
-    
+
     const [inputValue, setInputValue] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
-    
+
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
 
@@ -77,7 +77,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
         const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
-        
+
         if (!savedHistory || typeof savedHistory !== 'object') {
             setMessages([])
             return
@@ -90,7 +90,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         const historyArray = sessionData.history
-        
+
         if (historyArray.length === 0) {
             setMessages([])
             return
@@ -102,10 +102,10 @@ export const AIChat: React.FC<AIChatProps> = ({
             timestamp: new Date(msg.timestamp),
         }))
         setMessages(historyWithDates)
-        
+
         // Check for active task in the last message and resume if needed
         const lastMessage = historyWithDates[historyWithDates.length - 1]
-        
+
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
             resume(lastMessage.executionAIFlowTaskId)
         }
@@ -208,7 +208,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             })
             return
         }
-        
+
         const assistantMessage: Message = {
             id: uuidV4(),
             content: { text: loadingLabel },
@@ -229,7 +229,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 organizationId: organization?.id,
                 ...additionalContext,
             } })
-            
+
             // If no data returned or there's an error - show error and return
             if (!result.data || result.error) {
                 changeMessage(assistantMessage.id, {
@@ -239,7 +239,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 })
                 return
             }
-            
+
             // Data is received - show answer
             changeMessage(assistantMessage.id, {
                 ...assistantMessage,
@@ -250,7 +250,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             // If had toolcalls -> add message about toolcalls and start executing toolcalls
             if (result.data?.status === TASK_STATUSES.COMPLETED && result.data?.result?.toolCalls) {
                 const toolCalls = result.data.result.toolCalls
-                
+
                 // Create new message for tool execution
                 const toolExecutionMessage: Message = {
                     id: `tool-execution-${Date.now()}`,
@@ -265,13 +265,13 @@ export const AIChat: React.FC<AIChatProps> = ({
                     if (!organization?.id || !user?.id) {
                         throw new Error('Organization or user not available')
                     }
-                    
+
                     const userData = {
                         organizationId: organization.id,
                         userId: user.id,
                     }
-                    
-                    const toolCallPromises = toolCalls.map((toolCall: any) => 
+
+                    const toolCallPromises = toolCalls.map((toolCall: any) =>
                         runToolCall(
                             toolCall.name,
                             toolCall.args,
@@ -282,7 +282,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                     )
 
                     const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
-                    
+
                     const resultsMessage = toolCallResults
                         .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
                         .filter(Boolean)
@@ -340,7 +340,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         addMessage(userMessage)
-        
+
         const currentInput = inputValue.trim()
         setInputValue('')
 
@@ -385,6 +385,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                     autoSize={{ minRows: 1, maxRows: 4 }}
                 />
             </div>
-        </div>  
+        </div>
     )
 }
