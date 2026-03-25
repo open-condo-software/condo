@@ -27,7 +27,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTickets',
         query: GetTicketsForAiAssistantDocument,
         resultKey: 'tickets',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
@@ -44,7 +44,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getIncidents',
         query: GetIncidentsDocument,
         resultKey: 'incidents',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
@@ -60,7 +60,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getOrganizationEmployees',
         query: GetContactEditorOrganizationEmployeesDocument,
         resultKey: 'employees',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
@@ -74,7 +74,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getProperties',
         query: GetPropertiesDocument,
         resultKey: 'properties',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
@@ -89,7 +89,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTicketComments',
         query: GetTicketCommentsDocument,
         resultKey: 'ticketComments',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.ticket = { 
@@ -109,7 +109,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getContacts',
         query: GetContactForClientCardDocument,
         resultKey: 'contacts',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
@@ -126,7 +126,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getNewsItems',
         query: GetNewsItemsForAiAssistantDocument,
         resultKey: 'newsItems',
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
@@ -143,7 +143,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTicketWithDetails',
         query: GetTicketWithDetailsForAiAssistantDocument,
         resultKey: null,
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args = {}, userData) => {
             if (!args.id) {
                 throw new Error('Ticket ID is required for getTicketWithDetails')
             }
