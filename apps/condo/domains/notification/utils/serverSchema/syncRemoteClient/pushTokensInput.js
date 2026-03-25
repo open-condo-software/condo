@@ -76,19 +76,21 @@ function getPushTokensValidationError (pushTokens) {
         return PUSH_TOKENS_VALIDATION_ERRORS.INVALID_PUSH_TOKEN
     }
 
-    const dedupedTokensByTransport = groupBy(pushTokens, ['transport'])
-        .map(transportsGroup => groupBy(transportsGroup, ['token'])
-            .map(reducePushTokensWithSameTokenToOneObject)
-            .filter(Boolean))
+    const dedupedTokensByProvider = groupBy(pushTokens, ['provider'])
+        .map(providersGroup => 
+            groupBy(providersGroup, ['token'])
+                .map(reducePushTokensWithSameTokenToOneObject)
+                .filter(Boolean)
+        )
 
-    const allCount = dedupedTokensByTransport.map(tokensByTransport => tokensByTransport.length).reduce((acc, cur) => acc + cur)
+    const allCount = dedupedTokensByProvider.map(tokensByProvider => tokensByProvider.length).reduce((acc, cur) => acc + cur, 0)
     if (allCount > MAXIMUM_PUSH_TOKENS_COUNT_IN_SYNC_REMOTE_CLIENT) {
         return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS
     }
 
-    for (const allUniquePushTokensForTransport of dedupedTokensByTransport) {
-        const voipTokens = allUniquePushTokensForTransport.filter(token => token.isVoIP)
-        const defaultTokens = allUniquePushTokensForTransport.filter(token => token.isPush)
+    for (const allUniquePushTokensForProvider of dedupedTokensByProvider) {
+        const voipTokens = allUniquePushTokensForProvider.filter(token => token.isVoIP)
+        const defaultTokens = allUniquePushTokensForProvider.filter(token => token.isPush)
         if (voipTokens.length > 1 || defaultTokens.length > 1) {
             return PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT
         }
@@ -101,8 +103,7 @@ function getPushTokensValidationError (pushTokens) {
  * @returns {import('@app/condo/schema').PushToken[]}
  */
 function deduplicatePushTokens (pushTokens) {
-    const pushTokensByTransportAndToken = groupBy(pushTokens, ['transport', 'token'])
-    return pushTokensByTransportAndToken
+    return groupBy(pushTokens, ['provider', 'token'])
         .map(reducePushTokensWithSameTokenToOneObject)
         .filter(Boolean)
 }

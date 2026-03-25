@@ -60,7 +60,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false, transportPrio
         .map(pushToken => ({
             appId: remoteClientById[pushToken.remoteClient].appId,
             token: pushToken.token,
-            transport: pushToken.transport,
+            transport: pushToken.provider,
             pushType: remoteClientById[pushToken.remoteClient][isVoIP ? 'pushTypeVoIP' : 'pushType'],
             remoteClientMeta: remoteClientById[pushToken.remoteClient].meta,
             remoteClientId: pushToken.remoteClient,

@@ -63,7 +63,7 @@ async function loadRemoteClientPushTokens (remoteClient, pushTokensInput) {
                 OR: pushTokensChunk.map(pushToken => ({
                     AND: [{
                         token: pushToken.token,
-                        transport: pushToken.transport,
+                        provider: pushToken.provider,
                     }],
                 })),
             }],
@@ -76,16 +76,16 @@ async function loadRemoteClientPushTokens (remoteClient, pushTokensInput) {
     return Object.values(resultById)
 }
 
-function getPushTokenKey (transport, token) {
-    return `${transport}:${token}`
+function getPushTokenKey (provider, token) {
+    return `${provider}:${token}`
 }
 
 function buildExistingMaps (existingPushTokens, remoteClientId) {
     const existingByKey = new Map()
-    const existingByTransportForRemoteClient = {}
+    const existingByProviderForRemoteClient = {}
 
     for (const existingPushToken of existingPushTokens) {
-        const key = getPushTokenKey(existingPushToken.transport, existingPushToken.token)
+        const key = getPushTokenKey(existingPushToken.provider, existingPushToken.token)
         existingByKey.set(key, existingPushToken)
 
         const existingRemoteClientId = existingPushToken?.remoteClient?.id || existingPushToken?.remoteClient
@@ -94,16 +94,17 @@ function buildExistingMaps (existingPushTokens, remoteClientId) {
             || existingPushToken.deletedAt
         ) continue
 
-        if (!existingByTransportForRemoteClient[existingPushToken.transport]) {
-            existingByTransportForRemoteClient[existingPushToken.transport] = []
+        if (!existingByProviderForRemoteClient[existingPushToken.provider]) {
+            existingByProviderForRemoteClient[existingPushToken.provider] = []
         }
-        existingByTransportForRemoteClient[existingPushToken.transport].push(existingPushToken)
+        existingByProviderForRemoteClient[existingPushToken.provider].push(existingPushToken)
     }
 
-    return { existingByKey, existingByTransportForRemoteClient }
+    return { existingByKey, existingByProviderForRemoteClient }
 }
 
 function mergeUpdateJobsById (jobs) {
+    const jobIdsOrder = new Set(jobs.map(job => job.id))
     const merged = {}
     for (const job of jobs) {
         if (!merged[job.id]) {
@@ -119,12 +120,16 @@ function mergeUpdateJobsById (jobs) {
             },
         }
     }
-    return Object.values(merged)
+    const result = []
+    for (const jobId of jobIdsOrder.values()) {
+        result.push(merged[jobId])
+    }
+    return result
 }
 
 function buildDesiredStateFromInput (pushTokensInput, remoteClientId) {
     const desiredByKey = new Map()
-    const desiredByTransport = {}
+    const desiredByProvider = {}
 
     for (const pushToken of pushTokensInput) {
         const isPush = !!pushToken.isPush
@@ -134,25 +139,25 @@ function buildDesiredStateFromInput (pushTokensInput, remoteClientId) {
         const desired = {
             remoteClientId,
             token: pushToken.token,
-            transport: pushToken.transport,
+            provider: pushToken.provider,
             isPush,
             isVoIP,
         }
-        const key = getPushTokenKey(desired.transport, desired.token)
+        const key = getPushTokenKey(desired.provider, desired.token)
         desiredByKey.set(key, desired)
 
-        if (!desiredByTransport[desired.transport]) desiredByTransport[desired.transport] = []
-        desiredByTransport[desired.transport].push(desired)
+        if (!desiredByProvider[desired.provider]) desiredByProvider[desired.provider] = []
+        desiredByProvider[desired.provider].push(desired)
     }
 
-    return { desiredByKey, desiredByTransport }
+    return { desiredByKey, desiredByProvider }
 }
 
 function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
     const jobs = { create: [], update: [], delete: [] }
 
     for (const desired of desiredByKey.values()) {
-        const key = getPushTokenKey(desired.transport, desired.token)
+        const key = getPushTokenKey(desired.provider, desired.token)
         const existing = existingByKey.get(key)
 
         if (!existing) {
@@ -162,7 +167,7 @@ function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
                     sender,
                     remoteClient: { connect: { id: desired.remoteClientId } },
                     token: desired.token,
-                    transport: desired.transport,
+                    provider: desired.provider,
                     isPush: desired.isPush,
                     isVoIP: desired.isVoIP,
                 },
@@ -189,12 +194,12 @@ function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
     return jobs
 }
 
-function getDesiredWinnerByTransport (desiredByTransport) {
+function getDesiredWinnerByProvider (desiredByProvider) {
     return Object.fromEntries(
-        Object.entries(desiredByTransport).map(([transport, desiredTokens]) => {
+        Object.entries(desiredByProvider).map(([provider, desiredTokens]) => {
             const push = desiredTokens.find(d => d.isPush)
             const voip = desiredTokens.find(d => d.isVoIP)
-            return [transport, {
+            return [provider, {
                 isPushToken: push ? push.token : null,
                 isVoIPToken: voip ? voip.token : null,
             }]
@@ -215,16 +220,16 @@ function getOldTokenResolutionOp (existingToken, { shouldDisablePush, shouldDisa
     return { action: 'update', data }
 }
 
-function buildConflictResolutionJobs ({ desiredByTransport, existingByTransportForRemoteClient, dv, sender }) {
-    const winnersByTransport = getDesiredWinnerByTransport(desiredByTransport)
+function buildConflictResolutionJobs ({ desiredByProvider, existingByProviderForRemoteClient, dv, sender }) {
+    const winnersByProvider = getDesiredWinnerByProvider(desiredByProvider)
     const demotionsById = {}
 
-    for (const [transport, winners] of Object.entries(winnersByTransport)) {
-        const existingOfTransport = existingByTransportForRemoteClient[transport] || []
+    for (const [provider, winners] of Object.entries(winnersByProvider)) {
+        const existingOfProvider = existingByProviderForRemoteClient[provider] || []
         const winnerPushToken = winners.isPushToken
         const winnerVoIPToken = winners.isVoIPToken
 
-        for (const existingToken of existingOfTransport) {
+        for (const existingToken of existingOfProvider) {
             const shouldDisablePush = !!winnerPushToken && existingToken.isPush && existingToken.token !== winnerPushToken
             const shouldDisableVoIP = !!winnerVoIPToken && existingToken.isVoIP && existingToken.token !== winnerVoIPToken
             if (!shouldDisablePush && !shouldDisableVoIP) continue
@@ -280,21 +285,21 @@ function buildConflictResolutionJobs ({ desiredByTransport, existingByTransportF
 async function syncPushTokens (context, { remoteClient, pushTokensInput, dv, sender }) {
     const existingPushTokens = await loadRemoteClientPushTokens(remoteClient, pushTokensInput)
 
-    const { existingByKey, existingByTransportForRemoteClient } = buildExistingMaps(existingPushTokens, remoteClient.id)
-    const { desiredByKey, desiredByTransport } = buildDesiredStateFromInput(pushTokensInput, remoteClient.id)
+    const { existingByKey, existingByProviderForRemoteClient } = buildExistingMaps(existingPushTokens, remoteClient.id)
+    const { desiredByKey, desiredByProvider } = buildDesiredStateFromInput(pushTokensInput, remoteClient.id)
 
     const jobs = buildCreateOrUpdateJobs({ desiredByKey, existingByKey, dv, sender })
-    const conflictsJobs = buildConflictResolutionJobs({ desiredByTransport, existingByTransportForRemoteClient, dv, sender })
+    const conflictsJobs = buildConflictResolutionJobs({ desiredByProvider, existingByProviderForRemoteClient, dv, sender })
 
     const mergedUpdateJobs = mergeUpdateJobsById([
-        ...jobs.update,
-        ...conflictsJobs.update,
-        ...jobs.delete,
         ...conflictsJobs.delete,
+        ...jobs.delete,
+        ...conflictsJobs.update,
+        ...jobs.update,
     ])
 
-    await RemoteClientPushToken.createMany(context, jobs.create)
     await RemoteClientPushToken.updateMany(context, mergedUpdateJobs)
+    await RemoteClientPushToken.createMany(context, jobs.create)
 
     return jobs
 }
@@ -304,8 +309,8 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
         dv, sender, deviceId, appId,
         pushToken: null, pushTokenVoIP: null,
         pushTransport: null, pushTransportVoIP: null,
-        /*pushToken,*/ /*pushTransport,*/ devicePlatform, pushType, meta,
-        /*pushTokenVoIP,*/ /*pushTransportVoIP,*/ pushTypeVoIP,
+        devicePlatform, pushType, meta,
+        pushTypeVoIP,
         owner: userId ? { disconnectAll: true, connect: { id: userId } } : null,
     }, value => value !== undefined)
 
@@ -426,20 +431,42 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                         dv, sender, deviceId, appId, devicePlatform, meta,
                         pushType,
                         pushTypeVoIP,
-                        deviceKey, pushTokens: pushTokensRaw = [],
+                        deviceKey,
                     },
                 } = args
                 let {
-                    data: { pushToken, pushTransport, pushTokenVoIP, pushTransportVoIP },
+                    data: { pushToken, pushTransport, pushTokenVoIP, pushTransportVoIP, pushTokens: pushTokensRaw },
                 } = args
+                pushTokensRaw ??= []
 
                 // AI says that direct modification can affect logs
                 const pushTokensInput = [...pushTokensRaw]
 
+                // const rc = await RemoteClient.create(context, {
+                //     dv: 1,
+                //     deviceId: generateUUIDv4(),
+                //     appId: generateUUIDv4(),
+                //     sender,
+                // })
+                // const s = await RemoteClientPushToken.create(context, {
+                //     token: '1234567',
+                //     provider: 'apple',
+                //     isPush: true,
+                //     isVoIP: false,
+                //     remoteClient: { connect: { id: rc.id } },
+                //     dv: 1,
+                //     sender,
+                // })
+                // console.error('s', JSON.stringify(s, null, 2))
+                // const found = await find('RemoteClientPushToken', { remoteClient: { id: rc.id } })
+                // console.error('found', JSON.stringify(found, null, 2))
+                // const found2 = await find('RemoteClientPushToken', { token: '1234567' })
+                // console.error('found2', JSON.stringify(found2, null, 2))
+
                 if (pushToken && pushTransport) {
                     pushTokensInput.push({
                         token: pushToken,
-                        transport: pushTransport,
+                        provider: pushTransport,
                         isVoIP: false,
                         isPush: true,
                     })
@@ -447,13 +474,18 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 if (pushTokenVoIP && pushTransportVoIP) {
                     pushTokensInput.push({
                         token: pushTokenVoIP,
-                        transport: pushTransportVoIP,
+                        provider: pushTransportVoIP,
                         isVoIP: true,
                         isPush: false,
                     })
                 }
                 
                 // --- VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
+
+                pushTokensInput.forEach(pushToken => {
+                    pushToken.provider = pushToken.provider || pushToken.transport
+                    delete pushToken.transport
+                })
 
                 const pushTokensValidationError = getPushTokensValidationError(pushTokensInput)
                 if (pushTokensValidationError) {
