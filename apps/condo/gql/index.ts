@@ -7212,8 +7212,8 @@ export const GetTicketWithDetailsForAiAssistantDocument = gql`
   }
   ticketComments: allTicketComments(
     where: {ticket: {id: $id}}
-    sortBy: [createdAt_ASC]
-    first: 500
+    sortBy: [createdAt_DESC]
+    first: 50
   ) {
     id
     type

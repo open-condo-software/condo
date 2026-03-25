@@ -18,7 +18,7 @@ export type UserData = {
 type ToolConfig = {
     name: string
     query: any
-    resultKey: string
+    resultKey: string | null
     getGraphQLVariables: (args: any, userData: UserData) => any
 }
 
@@ -51,9 +51,8 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
-                first: args.first || 10,
+                first: args.first || 100,
                 sortBy: args.sortBy,
-                skip: args.skip || 0,
             }
         },
     },
@@ -68,9 +67,6 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
-                first: args.first || 50,
-                skip: args.skip || 0,
-                sortBy: args.sortBy || ['name_ASC'],
             }
         },
     },
@@ -85,9 +81,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
-                first: args.first || 20,
-                sortBy: args.sortBy,
-                skip: args.skip || 0,
+                first: args.first || 100,
             }
         },
     },
@@ -120,14 +114,11 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
             }
-            if (args.where?.propertyId) {
-                where.property = { id: args.where.propertyId }
-            }
             return {
                 where,
                 first: args.first || 50,
                 skip: args.skip || 0,
-                sortBy: args.sortBy || ['name_ASC'],
+                sortBy: args.sortBy || ['createdAt_DESC'],
             }
         },
     },
@@ -186,7 +177,7 @@ const runApolloQueryTool = async (
             throw new Error(result.errors.map(e => e.message).join(', '))
         }
         
-        const data = result.data?.[config.resultKey] || []
+        const data = config.resultKey ? result.data?.[config.resultKey] || [] : result.data
         
         return {
             name: config.name,
