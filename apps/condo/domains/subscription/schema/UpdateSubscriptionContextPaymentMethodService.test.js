@@ -11,19 +11,21 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const { ERRORS } = require('@condo/domains/subscription/schema/UpdateSubscriptionContextPaymentMethodService')
 const {
     createTestSubscriptionContext,
     createTestSubscriptionPlan,
+    createTestSubscriptionPlanPricingRule,
     updateTestSubscriptionContext,
     updateSubscriptionContextPaymentMethodByTestClient,
+    getOrCreateAcquiringIntegrationForRecipient,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('UpdateSubscriptionContextPaymentMethodService', () => {
     let admin, support, user, anonymous
-    let organization, subscriptionPlan
+    let organization, subscriptionPlan, pricingRule
     let acquiringIntegration
 
     beforeAll(async () => {
@@ -36,7 +38,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
         }
 
-        const { getOrCreateAcquiringIntegrationForRecipient } = require('@condo/domains/subscription/utils/testSchema')
         acquiringIntegration = await getOrCreateAcquiringIntegrationForRecipient(admin, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
@@ -46,6 +47,13 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             trialDays: 14,
         })
         subscriptionPlan = plan
+
+        const [rule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+            period: SUBSCRIPTION_PERIOD.MONTH,
+            price: '1000.00',
+            currencyCode: 'RUB',
+        })
+        pricingRule = rule
     })
 
     beforeEach(async () => {
@@ -60,6 +68,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -81,6 +90,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -99,6 +109,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -124,6 +135,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -149,6 +161,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -168,6 +181,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -197,6 +211,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
 
@@ -219,6 +234,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: null,
             })
@@ -243,6 +259,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: oldPaymentMethodId,
             })
@@ -268,6 +285,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: existingPaymentMethodId,
             })
@@ -295,6 +313,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: null,
             })
@@ -323,6 +342,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: sharedPaymentMethodId,
             })
@@ -331,6 +351,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
                 endAt: dayjs().add(2, 'months').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: sharedPaymentMethodId,
             })
@@ -359,6 +380,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: sharedPaymentMethodId,
             })
@@ -367,6 +389,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().subtract(2, 'months').format('YYYY-MM-DD'),
                 endAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId: sharedPaymentMethodId,
             })
@@ -393,6 +416,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId,
             })
@@ -416,6 +440,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 isTrial: false,
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                 bindingId,

@@ -287,6 +287,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
 
         const allContexts = await find('SubscriptionContext', {
             organization: { id: organization.id },
+            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             deletedAt: null,
         })
         if (allContexts.length === 0) {

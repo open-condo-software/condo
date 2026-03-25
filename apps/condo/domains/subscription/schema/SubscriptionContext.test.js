@@ -599,6 +599,7 @@ describe('SubscriptionContext', () => {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 bindingId,
             })
 
