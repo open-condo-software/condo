@@ -1,0 +1,33 @@
+query getNewsItemsForAIAssistant ($where: NewsItemWhereInput!, $sortBy: [SortNewsItemsBy!], $first: Int!, $skip: Int) {
+    newsItems: allNewsItems(
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+        skip: $skip
+    ) {
+        id
+        number
+        title
+        body
+        type
+        publishedAt
+        sentAt
+        validBefore
+        createdAt
+        updatedAt
+        organization { name }
+        createdBy { name }
+        updatedBy { name }
+        compactScopes {
+            count
+            firstOnes {
+                id
+                unitType
+                unitName
+                property {
+                    address
+                }
+            }
+        }
+    }
+}
