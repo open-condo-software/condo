@@ -285,7 +285,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    }, [price.id, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
+    }, [price?.id, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
     
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerSubscriptionContextForModal,
