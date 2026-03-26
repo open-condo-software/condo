@@ -112,7 +112,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         }
 
         return (
-            <Space size={12} direction='horizontal' width='100%'>
+            <Space size={12} direction='horizontal'>
                 <Button
                     type='secondary'
                     onClick={handleViewPlans}
