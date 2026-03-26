@@ -158,7 +158,8 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     }, [animatedPercentage, featurePercentage])
 
     const handleClick = () => {
-        router.push('/settings?tab=subscription')
+        if (isConfigValid) openModal()
+        else router.push('/settings?tab=subscription')
     }
 
     if (!bestPlan) {
@@ -190,8 +191,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
                             type='primary'
                             block
                             size='medium'
-                            onClick={openModal}
-                            disabled={!isConfigValid}
+                            onClick={handleClick}
                         >
                             {TryButtonText}
                         </Button>
