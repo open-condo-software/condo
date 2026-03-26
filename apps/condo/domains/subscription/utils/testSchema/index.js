@@ -182,35 +182,6 @@ async function updateSubscriptionContextPaymentMethodByTestClient(client, extraA
     return [data.result, attrs]
 }
 
-async function getOrCreateAcquiringIntegrationForRecipient (client, recipientOrganizationId) {
-    if (!client) throw new Error('no client')
-    if (!recipientOrganizationId) throw new Error('no recipientOrganizationId')
-
-    const existingContexts = await AcquiringIntegrationContext.getAll(client, {
-        organization: { id: recipientOrganizationId },
-    })
-
-    if (existingContexts.length > 0) {
-        const existingContext = existingContexts[0]
-        const integration = await getById('AcquiringIntegration', existingContext.integration.id)
-        return integration
-    }
-
-    const recipientOrg = await Organization.getOne(client, { id: recipientOrganizationId })
-    const testHostUrl = faker.internet.url()
-    const [integration] = await createTestAcquiringIntegration(client, {
-        hostUrl: testHostUrl,
-    })
-
-    await createTestAcquiringIntegrationContext(client, recipientOrg, integration, {
-        invoiceStatus: CONTEXT_FINISHED_STATUS,
-        invoiceRecipient: createTestRecipient(),
-        invoiceImplicitFeeDistributionSchema: [],
-    })
-
-    return integration
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -221,6 +192,5 @@ module.exports = {
     activateSubscriptionContextByTestClient,
     getAvailableSubscriptionPlansByTestClient,
     updateSubscriptionContextPaymentMethodByTestClient,
-    getOrCreateAcquiringIntegrationForRecipient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
