@@ -1,4 +1,4 @@
-const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers, safeExec, getAppEnvValue } = require('@open-condo/cli')
+const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
     const addressServiceUrl = await getAppServerUrl('address-service')
@@ -19,37 +19,12 @@ async function updateAppEnvFileClients (appName) {
     await updateAppEnvFile(appName, 'FILE_SECRET', appName + '-secret')
 }
 
-async function createLocalSubscriptionPaymentRecipient (appName) {
-    const existingOrgId = await getAppEnvValue(appName, 'SUBSCRIPTION_PAYMENT_RECIPIENT')
-    
-    if (existingOrgId) {
-        console.log('Subscription payment recipient already configured:', existingOrgId)
-        return existingOrgId
-    }
-
-    const orgName = 'Subscription Payment Recipient'
-    const { stdout } = await safeExec(`yarn workspace @app/${appName} node ./bin/create-subscription-payment-recipient.js ${JSON.stringify(orgName)}`)
-    
-    const lines = stdout.trim().split('\n')
-    const idLine = lines.find(line => line.includes('ORGANIZATION ID:'))
-    if (!idLine) {
-        throw new Error('Failed to get organization ID from create-subscription-payment-recipient script')
-    }
-    
-    const orgId = idLine.split('ORGANIZATION ID:')[1].trim()
-    await updateAppEnvFile(appName, 'SUBSCRIPTION_PAYMENT_RECIPIENT', orgId)
-    console.log('Subscription payment recipient configured:', orgId)
-
-    return orgId
-}
-
 async function main () {
     // 1) add local admin users!
     const appName = 'condo'
-    // await prepareAppEnvLocalAdminUsers(appName)
-    // await updateAppEnvAddressSuggestionConfig(appName)
-    // await updateAppEnvFileClients(appName)
-    await createLocalSubscriptionPaymentRecipient(appName)
+    await prepareAppEnvLocalAdminUsers(appName)
+    await updateAppEnvAddressSuggestionConfig(appName)
+    await updateAppEnvFileClients(appName)
     console.log('done')
 }
 

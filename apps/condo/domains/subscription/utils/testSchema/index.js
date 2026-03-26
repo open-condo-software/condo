@@ -16,7 +16,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-const { Organization } = require('@condo/domains/organization/utils/testSchema')
+const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan: SubscriptionPlanGQL,
@@ -182,6 +182,50 @@ async function updateSubscriptionContextPaymentMethodByTestClient(client, extraA
     return [data.result, attrs]
 }
 
+async function ensureSubscriptionPaymentRecipientForTests (client) {
+    if (!client) throw new Error('no client')
+
+    let recipientOrgId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+    let org = recipientOrgId ? await Organization.getOne(client, { id: recipientOrgId, deletedAt: null }) : null
+
+    if (!org) {
+        const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+        const [newOrg] = await registerNewOrganization(client, {
+            dv: 1,
+            sender,
+            country: 'ru',
+            type: MANAGING_COMPANY_TYPE,
+            tin: '0000000000',
+            meta: { dv: 1 },
+        })
+        org = newOrg
+        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = org.id
+        recipientOrgId = org.id
+    }
+
+    const existingContexts = await AcquiringIntegrationContext.getAll(client, {
+        organization: { id: org.id },
+        deletedAt: null,
+    })
+
+    let acquiringIntegration
+    if (existingContexts.length > 0) {
+        const ctx = existingContexts[0]
+        const integrationId = ctx.integration?.id || ctx.integration
+        acquiringIntegration = await getById('AcquiringIntegration', integrationId)
+    } else {
+        const [integration] = await createTestAcquiringIntegration(client, { hostUrl: 'http://localhost:3000' })
+        acquiringIntegration = integration
+        await createTestAcquiringIntegrationContext(client, org, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [],
+        })
+    }
+
+    return { recipientOrgId, acquiringIntegration }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -192,5 +236,6 @@ module.exports = {
     activateSubscriptionContextByTestClient,
     getAvailableSubscriptionPlansByTestClient,
     updateSubscriptionContextPaymentMethodByTestClient,
+    ensureSubscriptionPaymentRecipientForTests,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
