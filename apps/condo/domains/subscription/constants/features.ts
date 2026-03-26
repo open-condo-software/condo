@@ -1,4 +1,4 @@
-export const AvailableFeature = [
+export const AVAILABLE_FEATURES = [
     'payments',
     'meters',
     'tickets',
@@ -11,4 +11,4 @@ export const AvailableFeature = [
     'analytics',
 ]
 
-export type AvailableFeatureType = typeof AvailableFeature[number]
+export type AvailableFeatureType = typeof AVAILABLE_FEATURES[number]

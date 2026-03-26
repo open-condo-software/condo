@@ -22,6 +22,14 @@
   border-radius: var(--condo-global-border-radius-medium);
 }
 
+@media (max-width: 768px) {
+  .container:not(.expanded-content) {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 0 24px;
+  }
+}
+
 .container > * {
   animation: fade-in var(--condo-global-transition-duration-default) cubic-bezier(0.4, 0, 0.2, 1);
 }

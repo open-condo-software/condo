@@ -19,3 +19,18 @@
 .modal :global(.condo-typography-ellipsis-multiple-line) {
   -webkit-line-clamp: 3 !important;
 }
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .modal :global(.condo-promo-block) {
+    height: 230px;
+  }
+
+  .modal :global(.condo-typography-ellipsis-multiple-line) {
+    -webkit-line-clamp: 4 !important;
+  }
+}

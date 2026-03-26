@@ -103,6 +103,7 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
 
     return {
+        hasSubscriptionsFlag,
         hasSubscription,
         isFeatureAvailable,
         isB2BAppEnabled,

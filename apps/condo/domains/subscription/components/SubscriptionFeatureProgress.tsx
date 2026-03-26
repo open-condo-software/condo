@@ -13,20 +13,32 @@ import { colors } from '@open-condo/ui/colors'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SUBSCRIPTION_MODAL_CONFIG } from '@condo/domains/common/constants/featureflags'
-import { AvailableFeature, AvailableFeatureType } from '@condo/domains/subscription/constants/features'
+import { analytics } from '@condo/domains/common/utils/analytics'
+import { AVAILABLE_FEATURES, AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { safeValidateSubscriptionFeatureModalConfig } from '@condo/domains/subscription/utils/subscriptionFeatureModal'
 
 import { SubscriptionFeatureModal } from './SubscriptionFeatureModal'
 import styles from './SubscriptionFeatureProgress.module.css'
 
+const calculateTotalPossibleFeatures = (baseFeatures: readonly string[], b2bAppsCount: number): number => {
+    const featuresWithoutCustomization = baseFeatures.filter(feature => feature !== 'customization')
+    return featuresWithoutCustomization.length + b2bAppsCount * 0.5
+}
 
 export const SubscriptionFeatureProgress: React.FC = () => {
     const intl = useIntl()
+    const TooltipTitle = intl.formatMessage({ id: 'subscription.featureProgress.tooltip' })
     const router = useRouter()
     const { organization } = useOrganization()
-    const { hasSubscription, isFeatureAvailable, isB2BAppEnabled } = useOrganizationSubscription()
+    const { isFeatureAvailable, isB2BAppEnabled } = useOrganizationSubscription()
     const { isCollapsed } = useLayoutContext()
+    const [animatedPercentage, setAnimatedPercentage] = useState(0)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const isMountedRef = useRef(false)
+
+    const { useFlagValue } = useFeatureFlags()
+    const subscriptionModalConfig = useFlagValue(SUBSCRIPTION_MODAL_CONFIG)
 
     const { data: plansData } = useGetAvailableSubscriptionPlansQuery({
         variables: {
@@ -63,15 +75,17 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         return CURRENCY_SYMBOLS[currencyCode] || ''
     }, [bestPlan])
 
+    const DescriptionText = intl.formatMessage({ id: 'subscription.featureProgress.description' }, { percentage: animatedPercentage })
+    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { currency: currencySymbol })
+
     const featurePercentage = useMemo(() => {
         if (!organization || !bestPlan) return 0
-        const baseFeatureCount = AvailableFeature.reduce((count, feature) => {
-            const isAvailableInBestPlan = Boolean(bestPlan.plan[feature as keyof typeof bestPlan.plan])
+        const baseFeatureCount = AVAILABLE_FEATURES.reduce((count, feature) => {
+            if (feature === 'customization') return count
             const isCurrentlyAvailable = isFeatureAvailable(feature as AvailableFeatureType)
 
-            return count + (isAvailableInBestPlan && isCurrentlyAvailable ? 1 : 0)
+            return count + (isCurrentlyAvailable ? 1 : 0)
         }, 0)
-
 
         const b2bAppCount = bestPlanB2BApps.reduce((count, appId) => {
             return count + (isB2BAppEnabled(appId) ? 1 : 0)
@@ -79,19 +93,12 @@ export const SubscriptionFeatureProgress: React.FC = () => {
 
         const totalAvailable = baseFeatureCount + b2bAppCount * 0.5
 
-        const totalPossible = AvailableFeature.length - 1 + bestPlanB2BApps.length * 0.5
+        const totalPossible = calculateTotalPossibleFeatures(AVAILABLE_FEATURES, bestPlanB2BApps.length)
 
         if (totalPossible === 0) return 0
 
         return Math.round((totalAvailable / totalPossible) * 100)
     }, [organization, bestPlan, isFeatureAvailable, bestPlanB2BApps, isB2BAppEnabled])
-
-    const [animatedPercentage, setAnimatedPercentage] = useState(0)
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const isMountedRef = useRef(false)
-
-    const { useFlagValue } = useFeatureFlags()
-    const subscriptionModalConfig = useFlagValue(SUBSCRIPTION_MODAL_CONFIG)
 
     const validatedConfig = useMemo(() => {
         return safeValidateSubscriptionFeatureModalConfig(subscriptionModalConfig)
@@ -101,8 +108,16 @@ export const SubscriptionFeatureProgress: React.FC = () => {
 
     const openModal = useCallback(() => {
         if (!isConfigValid) return
+
+        analytics.track('click', {
+            component: 'Button',
+            location: router.pathname,
+            id: 'openModal',
+            value: 'Open subscription feature modal',
+        })
+
         setIsModalOpen(true)
-    }, [isConfigValid])
+    }, [isConfigValid, router.pathname])
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false)
@@ -142,21 +157,17 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         }
     }, [animatedPercentage, featurePercentage])
 
-    const TooltipTitle = intl.formatMessage({ id: 'subscription.featureProgress.tooltip' })
-    const DescriptionText = intl.formatMessage({ id: 'subscription.featureProgress.description' }, { percentage: animatedPercentage })
-    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { currency: currencySymbol })
-
     const handleClick = () => {
         router.push('/settings?tab=subscription')
     }
 
-    if (!hasSubscription || !bestPlan) {
+    if (!bestPlan) {
         return null
     }
 
     return (
         <Tooltip title={isCollapsed ? TooltipTitle : null} placement='right'>
-            <div className={styles.container} onClick={isCollapsed ? handleClick : undefined}>
+            <div className={styles.container} onClick={handleClick}>
                 {isCollapsed ? (
                     <Typography.Text type='inverted' size='small'>
                         {animatedPercentage}%
@@ -187,12 +198,12 @@ export const SubscriptionFeatureProgress: React.FC = () => {
                     </Space>
                 )}
             </div>
-            <SubscriptionFeatureModal
+            {isConfigValid && <SubscriptionFeatureModal
                 open={isModalOpen}
                 onCancel={closeModal}
                 plan={bestPlan}
                 subscriptionModalConfig={validatedConfig}
-            />
+            />}
         </Tooltip>
     )
 }

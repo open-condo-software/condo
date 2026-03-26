@@ -7,6 +7,7 @@ import { Banner, Button, Modal, Space, Typography } from '@open-condo/ui'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { useActivateSubscriptions } from '@condo/domains/subscription/hooks'
 import { SubscriptionFeatureModalConfig } from '@condo/domains/subscription/utils/subscriptionFeatureModal'
 
@@ -34,7 +35,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         return intl.formatMessage({ id: 'subscription.featureProgress.modal.title' }, { planName: plan?.plan?.name || '' })
     }, [intl, plan?.plan?.name])
 
-    const features = useMemo(() => subscriptionModalConfig.features, [subscriptionModalConfig.features])
+    const features = useMemo(() => subscriptionModalConfig?.features, [subscriptionModalConfig?.features])
 
     const hasActivatedAnyTrial = trialSubscriptions.length > 0
 
@@ -50,6 +51,13 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
     })
 
     const handleActivateTrial = useCallback(async () => {
+        analytics.track('click', {
+            component: 'Button',
+            location: router.pathname,
+            id: 'activateTrial',
+            value: `Activate trial for ${plan?.plan?.name || 'unknown plan'}`,
+        })
+
         if (!plan) {
             await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
             return
@@ -76,6 +84,13 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
     }, [plan, handleActivatePlan, router, onCancel])
 
     const handleViewPlans = useCallback(async () => {
+        analytics.track('click', {
+            component: 'Button',
+            location: router.pathname,
+            id: 'viewPlans',
+            value: 'View subscription plans',
+        })
+
         await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
         onCancel()
     }, [router, onCancel])
@@ -125,7 +140,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
             footer={modalFooter}
             className={styles.modal}
         >
-            {features.length > 0 && (
+            {features?.length > 0 && (
                 <>
                     <Banner
                         title={subscriptionModalConfig.banner.title}
@@ -136,7 +151,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
                         size='medium'
                     />
                     <div className={styles.featuresGrid}>
-                        {features.map((feature) => (
+                        {features?.map((feature) => (
                             <Space key={feature.key} direction='vertical' size={16}>
                                 <Space direction='horizontal' size={8}>
                                     <img 
