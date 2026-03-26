@@ -331,4 +331,127 @@ describe('RegisterSubscriptionContextService', () => {
             }, ERRORS.INVALID_ORGANIZATION_TYPE, 'result')
         })
     })
+
+    describe('Context Reuse Logic', () => {
+        test('reuses existing CREATED context for same startAt (today)', async () => {
+            const today = dayjs().startOf('day').format('YYYY-MM-DD')
+            const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                startAt: today,
+                endAt: dayjs(today).add(1, 'month').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                isTrial: false,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.id).toBe(existingContext.id)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('reuses existing ERROR_NEED_RETRY context from buffer period', async () => {
+            const twoDaysAgo = dayjs().subtract(2, 'days').startOf('day').format('YYYY-MM-DD')
+            const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                startAt: twoDaysAgo,
+                endAt: dayjs(twoDaysAgo).add(1, 'month').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                isTrial: false,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.id).toBe(existingContext.id)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY)
+        })
+
+        test('does not reuse ERROR_NEED_RETRY context older than buffer period', async () => {
+            const bufferDays = 5
+            const oldDate = dayjs().subtract(bufferDays + 1, 'days').startOf('day').format('YYYY-MM-DD')
+            const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                startAt: oldDate,
+                endAt: dayjs(oldDate).add(1, 'month').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                isTrial: false,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.id).not.toBe(existingContext.id)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('does not reuse ERROR context (final error status)', async () => {
+            const yesterday = dayjs().subtract(1, 'day').startOf('day').format('YYYY-MM-DD')
+            const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                startAt: yesterday,
+                endAt: dayjs(yesterday).add(1, 'month').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+                isTrial: false,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.id).not.toBe(existingContext.id)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('prioritizes CREATED over ERROR_NEED_RETRY when both exist', async () => {
+            const today = dayjs().startOf('day').format('YYYY-MM-DD')
+            
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                startAt: dayjs().subtract(2, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(2, 'days').add(1, 'month').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                isTrial: false,
+            })
+
+            const [createdContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                startAt: today,
+                endAt: dayjs(today).add(1, 'month').format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                isTrial: false,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.id).toBe(createdContext.id)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('creates new context when no reusable context exists', async () => {
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+    })
 })

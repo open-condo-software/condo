@@ -60310,6 +60310,7 @@ input InvoiceRelateToOneInput {
 enum SubscriptionContextStatusType {
   CREATED
   DONE
+  ERROR_NEED_RETRY
   ERROR
 }
 
