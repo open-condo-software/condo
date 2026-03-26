@@ -1,5 +1,4 @@
-import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy } from '@app/condo/schema'
-import { AcquiringIntegrationTypeType } from '@app/condo/schema'
+import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy, AcquiringIntegrationTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useEffect } from 'react'

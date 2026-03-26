@@ -106,7 +106,7 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: INVOICES_ARE_NOT_PUBLISHED,
         message: 'Found invoices with not "published" status',
     },
-    INVOICES_FOR_THIRD_USER:{
+    INVOICES_FOR_THIRD_USER: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'invoices'],
         code: BAD_USER_INPUT,
@@ -208,8 +208,7 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
-        type: BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER
-        ,
+        type: BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
         message: 'BillingReceipt with id "{receiptId}" does not have common BillingAccount with specified ServiceConsumer with id "{serviceConsumerId}"',
     },
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED: {

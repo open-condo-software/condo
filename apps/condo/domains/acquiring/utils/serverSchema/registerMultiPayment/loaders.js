@@ -1,6 +1,7 @@
 const { GQLError } = require('@open-condo/keystone/errors')
 const { find } = require('@open-condo/keystone/schema')
 
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 
 function groupBy (items, key) {
@@ -13,17 +14,26 @@ function groupBy (items, key) {
 }
 
 async function loadServiceConsumersByIds (consumerIds, context) {
+    const uniqueIds = [...new Set(consumerIds)]
+
     const consumers = await find('ServiceConsumer', {
-        id_in: consumerIds,
+        id_in: uniqueIds,
     })
 
-    if (consumers.length !== consumerIds.length) {
-        const existingConsumerIds = consumers.map(consumer => consumer.id)
-        const missingConsumerIds = consumerIds.filter(consumerId => !existingConsumerIds.includes(consumerId))
-        throw new GQLError({ ...ERRORS.MISSING_SERVICE_CONSUMERS, messageInterpolation: { ids: missingConsumerIds.join(', ') } }, context)
+    const byId = {}
+    for (const consumer of consumers) {
+        byId[consumer.id] = consumer
     }
 
-    const byId = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))
+    if (consumers.length !== uniqueIds.length) {
+        const missingIds = uniqueIds.filter(id => !byId[id])
+
+        throw new GQLError({
+            ...ERRORS.MISSING_SERVICE_CONSUMERS,
+            messageInterpolation: { ids: missingIds.join(', ') },
+        }, context)
+    }
+
     return { byId, list: consumers }
 }
 
@@ -33,7 +43,7 @@ async function loadReceiptsByIds (receiptIds, context) {
     })
 
     if (receipts.length !== receiptIds.length) {
-        const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
+        const existingReceiptsIds = new Set(receipts.map(({ id }) => id))
         const missingReceipts = receiptIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
         throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_RECEIPTS, messageInterpolation: { missingReceiptIds: missingReceipts.join(', ') } }, context)
     }
@@ -74,11 +84,16 @@ async function loadBillingContextsByOrganizationIds (organizationIds) {
 }
 
 async function loadBillingIntegrationsByIds (integrationIds) {
-    const uniqueBillingIntegrations = await find('BillingIntegration', {
-        id_in: Array.from(integrationIds),
+    const billingIntegrations = await find('BillingIntegration', {
+        id_in: [...new Set(integrationIds)],
     })
-    const byId = Object.assign({}, ...uniqueBillingIntegrations.map(obj => ({ [obj.id]: obj })))
-    return { byId, list: uniqueBillingIntegrations }
+    
+    const byId = {}
+    for (const integration of billingIntegrations) {
+        byId[integration.id] = integration
+    }
+
+    return { byId, list: billingIntegrations }
 }
 
 async function loadBillingAccountsByIds (accountIds) {
@@ -168,6 +183,7 @@ async function resolveAcquiringContextsForConsumers (consumers, context) {
     }, {})
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         organization: { id_in: [...new Set(consumers.map(({ organization }) => organization))] },
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE },
     })
     const resolvedContexts = buildResolvedAcquiringContextMaps({
         acquiringContexts,
@@ -191,6 +207,7 @@ async function resolveAcquiringContextsForInvoices (foundInvoices, context) {
     }, {})
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         organization: { id_in: [...new Set(foundInvoices.map(({ organization }) => organization))] },
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE },
     })
 
     return buildResolvedAcquiringContextMaps({

@@ -38,7 +38,7 @@ function assertValidAmountDistribution (groupedReceipts, context) {
 
     const distributionReceipts = groupedReceipts
         .flatMap(group => group.amountDistribution)
-        .filter(distribution => distribution)
+        .filter(Boolean)
 
     if (distributionReceipts.length > 0) {
         const distributionReceiptsIds = distributionReceipts.map(receiptInfo => receiptInfo.receipt?.id)
@@ -132,16 +132,18 @@ function assertBillingIntegrationsNotDeleted (billingIntegrations, receipts, bil
 function assertReceiptBelongsToServiceConsumer (groupedReceipts, consumersByIds, receiptsByIds, billingAccountsById, billingContextsByOrganizationId, context) {
     for (const group of groupedReceipts) {
         const consumer = consumersByIds[group.serviceConsumer.id]
-        const allowedContextIds = (billingContextsByOrganizationId[consumer.organization] || []).map(item => item.id)
+
+        const organizationContexts = billingContextsByOrganizationId[consumer.organization] || []
+        const allowedContextIds = new Set(organizationContexts.map(item => item.id))
 
         for (const receiptInfo of group.receipts) {
             const receipt = receiptsByIds[receiptInfo.id]
             const billingAccount = billingAccountsById[receipt.account]
 
-            if (
-                billingAccount.number !== consumer.accountNumber
-                || !allowedContextIds.includes(billingAccount.context)
-            ) {
+            const isDifferentAccountNumber = billingAccount.number !== consumer.accountNumber
+            const isContextNotAllowed = !allowedContextIds.has(billingAccount.context)
+
+            if (isDifferentAccountNumber || isContextNotAllowed) {
                 throw new GQLError({
                     ...ERRORS.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
                     messageInterpolation: {

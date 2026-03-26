@@ -15,6 +15,38 @@ const { buildCommissionFields } = require('@condo/domains/acquiring/utils/server
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
 
+async function loadBillingCategory (billingCategoryId) {
+    if (!billingCategoryId) return null
+
+    const [billingCategory] = await find('BillingCategory', {
+        id: billingCategoryId,
+    })
+
+    return billingCategory
+}
+
+async function resolveReceiptAmount ({
+    amountDistributionForReceipt,
+    billingCategory,
+    context,
+    receipt,
+    receiptInfo,
+}) {
+    if (amountDistributionForReceipt != null) {
+        const amount = amountDistributionForReceipt.amount
+        const isNotFullPayment = !Big(amount).eq(Big(receipt.toPay))
+
+        if (billingCategory?.requiresFullPayment && isNotFullPayment) {
+            throw new GQLError(ERRORS.FULL_PAYMENT_AMOUNT_MISMATCH, context)
+        }
+
+        return amount
+    }
+
+    const paidAmount = await getNewPaymentsSum(receiptInfo.id)
+    return String(Big(receipt.toPay).minus(Big(paidAmount)))
+}
+
 async function buildReceiptPaymentInputs ({
     groupedReceipts,
     consumersByIds,
@@ -35,31 +67,20 @@ async function buildReceiptPaymentInputs ({
         for (const receiptInfo of group.receipts) {
             const receipt = receiptsByIds[receiptInfo.id]
             const billingCategoryId = receipt.category
-            const toPayFromReceipt = receipt.toPay
             const amountDistributionForReceipt = amountDistributions.find(distribution => distribution.receipt.id === receipt.id)
 
             const frozenReceipt = await freezeBillingReceipt(context, receipt)
             const feeCalculator = new FeeDistribution(formula, billingCategoryId)
             const billingAccountNumber = frozenReceipt?.data?.account?.number
 
-            let billingCategories
-            if (billingCategoryId) {
-                billingCategories = await find('BillingCategory', {
-                    id: billingCategoryId,
-                })
-            }
-
-            let amount = null
-            if (amountDistributionForReceipt !== null && amountDistributionForReceipt !== undefined) {
-                amount = amountDistributionForReceipt.amount
-                const isNotFullPayment = !new Big(amount).eq(new Big(toPayFromReceipt))
-                if (billingCategories && billingCategories[0]?.requiresFullPayment && isNotFullPayment) {
-                    throw new GQLError(ERRORS.FULL_PAYMENT_AMOUNT_MISMATCH, context)
-                }
-            } else {
-                const paidAmount = await getNewPaymentsSum(receiptInfo.id)
-                amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
-            }
+            const billingCategory = await loadBillingCategory(billingCategoryId)
+            const amount = await resolveReceiptAmount({
+                amountDistributionForReceipt,
+                billingCategory,
+                context,
+                receipt,
+                receiptInfo,
+            })
 
             const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
             const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
