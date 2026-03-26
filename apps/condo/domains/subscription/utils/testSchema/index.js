@@ -6,7 +6,7 @@
 const { faker } = require('@faker-js/faker')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { 
@@ -14,7 +14,8 @@ const {
     createTestAcquiringIntegration, 
     createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
@@ -201,6 +202,14 @@ async function ensureSubscriptionPaymentRecipientForTests (client) {
         org = newOrg
         process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = org.id
         recipientOrgId = org.id
+    }
+
+    const existingBillingIntegrations = await find('BillingIntegration', {
+        group: DEFAULT_BILLING_INTEGRATION_GROUP,
+        deletedAt: null,
+    })
+    if (existingBillingIntegrations.length === 0) {
+        await createTestBillingIntegration(client)
     }
 
     const existingContexts = await AcquiringIntegrationContext.getAll(client, {
