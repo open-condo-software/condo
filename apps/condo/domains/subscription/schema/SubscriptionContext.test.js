@@ -17,6 +17,8 @@ const {
     createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { INVOICE_TYPE_B2C, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
@@ -260,7 +262,6 @@ describe('SubscriptionContext', () => {
         })
 
         test('trial subscription cannot have invoice', async () => {
-            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
@@ -286,8 +287,6 @@ describe('SubscriptionContext', () => {
         })
 
         test('subscription cannot have B2C invoice', async () => {
-            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-            const { INVOICE_TYPE_B2C } = require('@condo/domains/marketplace/constants')
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
@@ -316,8 +315,6 @@ describe('SubscriptionContext', () => {
         })
 
         test('subscription can have B2B invoice', async () => {
-            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-            const { INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             const [payerOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             
