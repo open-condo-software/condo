@@ -68,7 +68,7 @@ async function loadInvoicesByIds (invoiceIds) {
 
 async function loadBillingContextsByIds (contextIds) {
     const billingContexts = await find('BillingIntegrationOrganizationContext', {
-        id_in: Array.from(contextIds),
+        id_in: [...new Set(contextIds)],
     })
     const byId = Object.assign({}, ...billingContexts.map(obj => ({ [obj.id]: obj })))
     return { byId, list: billingContexts }
@@ -98,13 +98,13 @@ async function loadBillingIntegrationsByIds (integrationIds) {
 
 async function loadBillingAccountsByIds (accountIds) {
     const accounts = await find('BillingAccount', {
-        id_in: Array.from(accountIds),
+        id_in: [...new Set(accountIds)],
     })
     const byId = Object.assign({}, ...accounts.map(obj => ({ [obj.id]: obj })))
     return { byId, list: accounts }
 }
 
-async function loadAcquiringIntegration (integrationId, context) {
+async function loadAcquiringIntegration (integrationId) {
     const [acquiringIntegration] = await find('AcquiringIntegration', {
         id: integrationId,
     })

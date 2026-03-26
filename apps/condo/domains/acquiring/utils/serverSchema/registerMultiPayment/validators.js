@@ -8,7 +8,7 @@ const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquir
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 function assertGroupedReceiptsHaveReceipts (groupedReceipts, context) {
-    if (groupedReceipts && groupedReceipts.some(group => !group.receipts?.length)) {
+    if (groupedReceipts?.some(group => !group.receipts?.length)) {
         throw new GQLError(ERRORS.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
     }
 }
@@ -53,7 +53,7 @@ function assertValidAmountDistribution (groupedReceipts, context) {
         if (distributionReceiptsIds.length !== uniqueDistributionReceiptsIds.size) {
             throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
         }
-        if (distributionReceiptsAmounts.filter(amount => amount.lte(0)).length > 0) {
+        if (distributionReceiptsAmounts.some(amount => amount.lte(0)).length > 0) {
             throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
         }
     }

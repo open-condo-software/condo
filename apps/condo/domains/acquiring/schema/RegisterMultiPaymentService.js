@@ -126,19 +126,19 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     receipts = loadedReceipts.list
                     receiptsByIds = loadedReceipts.byId
 
-                    const loadedAccounts = await loadBillingAccountsByIds(new Set(receipts.map(receipt => receipt.account)))
+                    const loadedAccounts = await loadBillingAccountsByIds(receipts.map(({ account }) => account))
                     billingAccountsById = loadedAccounts.byId
 
                     assertEntitiesNotDeleted(consumers, ERRORS.DELETED_CONSUMERS, context)
                     assertEntitiesNotDeleted(receipts, ERRORS.RECEIPTS_ARE_DELETED, context)
                     assertReceiptsHavePositiveToPay(receipts, hasDistribution, context)
 
-                    const loadedBillingContexts = await loadBillingContextsByIds(new Set(receipts.map(receipt => receipt.context)))
+                    const loadedBillingContexts = await loadBillingContextsByIds(receipts.map(({ context }) => context))
                     billingContexts = loadedBillingContexts.list
                     billingContextsById = loadedBillingContexts.byId
                     billingContextsByOrganizationId = await loadBillingContextsByOrganizationIds(consumers.map(({ organization }) => organization))
 
-                    const loadedBillingIntegrations = await loadBillingIntegrationsByIds(new Set(billingContexts.map(item => item.integration)))
+                    const loadedBillingIntegrations = await loadBillingIntegrationsByIds(billingContexts.map(({ integration }) => integration))
                     billingIntegrations = loadedBillingIntegrations.list
                     billingIntegrationCurrencyCode = billingIntegrations[0]?.currencyCode
 
@@ -222,7 +222,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const payments = await Promise.all(paymentCreateInputs.map((paymentInput) => Payment.create(context, paymentInput)))
                 const currencyCode = billingIntegrationCurrencyCode || DEFAULT_INVOICE_CURRENCY_CODE
-                const paymentIds = payments.map(payment => ({ id: payment.id }))
+                const paymentIds = payments.map(({ id }) => ({ id }))
                 const recurrentPaymentContextField = recurrentPaymentContext ? {
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}
