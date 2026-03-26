@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -19,6 +19,7 @@ const {
     createTestSubscriptionPlanPricingRule,
     updateTestSubscriptionContext,
     updateSubscriptionContextPaymentMethodByTestClient,
+    ensureSubscriptionPaymentRecipientForTests,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -31,19 +32,8 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        const recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        if (!recipientOrganizationId) {
-            throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
-        }
-
-        const [acquiringContext] = await find('AcquiringIntegrationContext', {
-            organization: { id: recipientOrganizationId },
-            deletedAt: null,
-        })
-        if (!acquiringContext) {
-            throw new Error('AcquiringIntegrationContext not found for SUBSCRIPTION_PAYMENT_RECIPIENT. Run yarn prepare first.')
-        }
-        acquiringIntegration = await getById('AcquiringIntegration', acquiringContext.integration)
+        const ensured = await ensureSubscriptionPaymentRecipientForTests(admin)
+        acquiringIntegration = ensured.acquiringIntegration
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),

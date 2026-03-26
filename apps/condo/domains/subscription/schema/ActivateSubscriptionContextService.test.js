@@ -24,6 +24,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
+    ensureSubscriptionPaymentRecipientForTests,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -38,10 +39,7 @@ describe('ActivateSubscriptionContextService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        const recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        if (!recipientOrganizationId) {
-            throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
-        }
+        await ensureSubscriptionPaymentRecipientForTests(admin)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
