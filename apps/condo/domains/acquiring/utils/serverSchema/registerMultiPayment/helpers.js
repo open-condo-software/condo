@@ -52,7 +52,7 @@ function buildOutputUrls (hostUrl, multiPaymentId, userId) {
     }
 }
 
-function deriveRequestMode (groupedReceipts, invoices, context) {
+function detectRequestMode (groupedReceipts, invoices, context) {
     const hasReceipts = groupedReceipts && groupedReceipts.length > 0
     const hasInvoices = invoices && invoices.length > 0
 
@@ -71,5 +71,5 @@ module.exports = {
     buildCommissionFields,
     buildOutputUrls,
     calculateTotals,
-    deriveRequestMode,
+    detectRequestMode,
 }

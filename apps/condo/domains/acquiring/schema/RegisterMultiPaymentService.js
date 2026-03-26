@@ -19,7 +19,7 @@ const {
 const {
     buildOutputUrls,
     calculateTotals,
-    deriveRequestMode,
+    detectRequestMode,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/helpers')
 const {
     loadAcquiringIntegration,
@@ -93,7 +93,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                const mode = deriveRequestMode(groupedReceipts, invoices, context)
+                const mode = detectRequestMode(groupedReceipts, invoices, context)
 
                 if (mode === REQUEST_MODE.RECEIPTS) {
                     assertGroupedReceiptsHaveReceipts(groupedReceipts, context)

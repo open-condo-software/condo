@@ -38,7 +38,7 @@ function assertValidAmountDistribution (groupedReceipts, context) {
 
     const distributionReceipts = groupedReceipts
         .flatMap(group => group.amountDistribution)
-        .filter(distribution => distribution !== null && distribution !== undefined)
+        .filter(distribution => distribution)
 
     if (distributionReceipts.length > 0) {
         const distributionReceiptsIds = distributionReceipts.map(receiptInfo => receiptInfo.receipt?.id)

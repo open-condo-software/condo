@@ -69,7 +69,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
     const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? DEFAULT_CURRENCY_CODE
 
     const tableColumns = usePaymentsFilesTableColumns(currencyCode)

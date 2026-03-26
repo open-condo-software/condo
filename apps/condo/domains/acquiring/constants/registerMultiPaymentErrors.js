@@ -1,8 +1,3 @@
-/**
- * Error definitions for RegisterMultiPaymentService mutation
- * Extracted from RegisterMultiPaymentService.js for better maintainability
- */
-
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
 const {

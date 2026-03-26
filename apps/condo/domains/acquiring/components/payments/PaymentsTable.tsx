@@ -115,7 +115,6 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const { filters, sorters, offset } = parseQuery(router.query)
     const currentTab = router.query.tab
 
-    // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
