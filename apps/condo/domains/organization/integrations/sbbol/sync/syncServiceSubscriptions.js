@@ -6,6 +6,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } = require('@condo/domains/common/constants/featureflags')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const { dvSenderFields } = require('../constants')
@@ -81,6 +82,7 @@ const syncServiceSubscriptions = async ({ context, organization }) => {
         startAt: now.format('YYYY-MM-DD'),
         endAt: now.add(100, 'year').format('YYYY-MM-DD'),
         isTrial: false,
+        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
     })
 
     logger.info({

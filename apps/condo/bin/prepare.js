@@ -19,7 +19,7 @@ async function updateAppEnvFileClients (appName) {
     await updateAppEnvFile(appName, 'FILE_SECRET', appName + '-secret')
 }
 
-async function createSubscriptionPaymentRecipient (appName) {
+async function createLocalSubscriptionPaymentRecipient (appName) {
     const existingOrgId = await getAppEnvValue(appName, 'SUBSCRIPTION_PAYMENT_RECIPIENT')
     
     if (existingOrgId) {
@@ -28,28 +28,28 @@ async function createSubscriptionPaymentRecipient (appName) {
     }
 
     const orgName = 'Subscription Payment Recipient'
-    const orgOptions = JSON.stringify({ country: 'ru', type: 'MANAGING_COMPANY' })
-    const { stdout } = await safeExec(`yarn workspace @app/${appName} node ./bin/create-organization.js ${JSON.stringify(orgName)} ${JSON.stringify(orgOptions)}`)
+    const { stdout } = await safeExec(`yarn workspace @app/${appName} node ./bin/create-subscription-payment-recipient.js ${JSON.stringify(orgName)}`)
     
     const lines = stdout.trim().split('\n')
     const idLine = lines.find(line => line.includes('ORGANIZATION ID:'))
     if (!idLine) {
-        throw new Error('Failed to get organization ID from create-organization script')
+        throw new Error('Failed to get organization ID from create-subscription-payment-recipient script')
     }
     
     const orgId = idLine.split('ORGANIZATION ID:')[1].trim()
     await updateAppEnvFile(appName, 'SUBSCRIPTION_PAYMENT_RECIPIENT', orgId)
-    console.log('Subscription payment recipient organization configured:', orgId)
+    console.log('Subscription payment recipient configured:', orgId)
+
     return orgId
 }
 
 async function main () {
     // 1) add local admin users!
     const appName = 'condo'
-    await prepareAppEnvLocalAdminUsers(appName)
-    await updateAppEnvAddressSuggestionConfig(appName)
-    await updateAppEnvFileClients(appName)
-    await createSubscriptionPaymentRecipient(appName)
+    // await prepareAppEnvLocalAdminUsers(appName)
+    // await updateAppEnvAddressSuggestionConfig(appName)
+    // await updateAppEnvFileClients(appName)
+    await createLocalSubscriptionPaymentRecipient(appName)
     console.log('done')
 }
 

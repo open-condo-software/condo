@@ -27,21 +27,25 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 description: 'Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole',
             },
             resolver: async (parent, args, context) => {
-                const { data } = args
-                const dvSenderData = { dv: data.dv, sender: data.sender }
-                const organization = await createOrganization(context, data)
-                await createDefaultPropertyScopeForNewOrganization(context, organization, dvSenderData)
-                const defaultRoles = await createDefaultRoles(context, organization, dvSenderData)
-                const adminRole = defaultRoles.Administrator
-                await createConfirmedEmployee(context, organization, context.authedItem, adminRole, dvSenderData)
-                await createTourStepsForOrganization(context, organization, dvSenderData)
-                await TicketOrganizationSetting.create(context, {
-                    ...dvSenderData,
-                    organization: { connect: { id: organization.id } },
-                })
-                pushOrganizationToSalesCRM(organization)
+                try {
+                    const { data } = args
+                    const dvSenderData = { dv: data.dv, sender: data.sender }
+                    const organization = await createOrganization(context, data)
+                    await createDefaultPropertyScopeForNewOrganization(context, organization, dvSenderData)
+                    const defaultRoles = await createDefaultRoles(context, organization, dvSenderData)
+                    const adminRole = defaultRoles.Administrator
+                    await createConfirmedEmployee(context, organization, context.authedItem, adminRole, dvSenderData)
+                    await createTourStepsForOrganization(context, organization, dvSenderData)
+                    await TicketOrganizationSetting.create(context, {
+                        ...dvSenderData,
+                        organization: { connect: { id: organization.id } },
+                    })
+                    pushOrganizationToSalesCRM(organization)
 
-                return await getById('Organization', organization.id)
+                    return await getById('Organization', organization.id)
+                } catch (e) {
+                    console.log('error', e, JSON.stringify(e.errors))
+                }
             },
         },
     ],

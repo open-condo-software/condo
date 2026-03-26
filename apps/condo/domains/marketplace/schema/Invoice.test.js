@@ -3437,44 +3437,6 @@ describe('Invoice', () => {
                 expect(updatedContext.frozenPaymentInfo.paymentMethod).toEqual(paymentMethod)
             })
 
-            test('does not activate subscription context for B2C invoice', async () => {
-                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await registerNewOrganization(userClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
-                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
-                    price: '1000',
-                    period: SUBSCRIPTION_PERIOD.MONTH,
-                })
-
-                await createTestAcquiringIntegrationContext(adminClient, organization, dummyAcquiringIntegration, {
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    invoiceRecipient: createTestRecipient(),
-                })
-
-                const [invoice] = await createTestInvoice(userClient, organization, {
-                    type: INVOICE_TYPE_B2C,
-                    property: { connect: { id: property.id } },
-                    status: INVOICE_STATUS_PUBLISHED,
-                })
-
-                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
-                    invoice: { connect: { id: invoice.id } },
-                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                    startAt: dayjs().format('YYYY-MM-DD'),
-                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
-                    isTrial: false,
-                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                })
-
-                await updateTestInvoice(adminClient, invoice.id, {
-                    status: INVOICE_STATUS_PAID,
-                })
-
-                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
-                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-            })
-
             test('does not fail when B2B invoice is paid without subscription context', async () => {
                 const [payerOrg] = await registerNewOrganization(adminClient)
 

@@ -91,8 +91,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                         const recipientOrganizationId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
 
                         if (!recipientOrganizationId) {
-                            logger.warn({ msg: 'SUBSCRIPTION_PAYMENT_RECIPIENT not configured, skipping card token deletion', cardTokenId: currentBindingId })
-                            return { id: subscriptionContextId }
+                            throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
                         }
 
                         const acquiringIntegrationContexts = await find('AcquiringIntegrationContext', {
@@ -101,8 +100,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                         })
 
                         if (acquiringIntegrationContexts.length === 0) {
-                            logger.warn({ msg: 'AcquiringIntegrationContext not found, skipping card token deletion', cardTokenId: currentBindingId })
-                            return { id: subscriptionContextId }
+                            throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
                         }
 
                         const acquiringIntegrationContext = acquiringIntegrationContexts[0]

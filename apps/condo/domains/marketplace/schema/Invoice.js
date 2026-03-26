@@ -770,7 +770,7 @@ const Invoice = new GQLListSchema('Invoice', {
             const isPaid = get(updatedItem, 'status') === INVOICE_STATUS_PAID
             
             if (statusChanged && isB2BInvoice && isPaid) {
-                const sender = { dv: 1, fingerprint: 'invoice_afterChange_activateSubscriptionContext' }
+                const sender = { dv: 1, fingerprint: 'invoice_afterChange' }
                 
                 const [subscriptionContext] = await find('SubscriptionContext', {
                     invoice: { id: updatedItem.id },

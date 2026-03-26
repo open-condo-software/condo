@@ -16,7 +16,6 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
-    getOrCreateAcquiringIntegrationForRecipient,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -35,8 +34,6 @@ describe('RegisterSubscriptionContextService', () => {
         if (!recipientOrganizationId) {
             throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
         }
-
-        await getOrCreateAcquiringIntegrationForRecipient(admin, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),

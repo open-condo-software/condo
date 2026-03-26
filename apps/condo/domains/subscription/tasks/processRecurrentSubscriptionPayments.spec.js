@@ -14,7 +14,6 @@ const {
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
     SubscriptionContext,
-    getOrCreateAcquiringIntegrationForRecipient,
 } = require('@condo/domains/subscription/utils/testSchema')
 
 
@@ -24,18 +23,15 @@ describe('processRecurrentSubscriptionPayments', () => {
     let adminClient
     let subscriptionPlan
     let pricingRule
-    let originalSubscriptionPaymentRecipient
+    let recipientOrganizationId
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         
-        originalSubscriptionPaymentRecipient = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        const recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
+        recipientOrganizationId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
         if (!recipientOrganizationId) {
             throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT is not configured. Run yarn prepare first.')
         }
-
-        await getOrCreateAcquiringIntegrationForRecipient(adminClient, recipientOrganizationId)
 
         const [plan] = await createTestSubscriptionPlan(adminClient)
         subscriptionPlan = plan
@@ -45,14 +41,6 @@ describe('processRecurrentSubscriptionPayments', () => {
             period: SUBSCRIPTION_PERIOD.MONTH,
         })
         pricingRule = rule
-    })
-
-    afterAll(() => {
-        if (originalSubscriptionPaymentRecipient !== undefined) {
-            process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = originalSubscriptionPaymentRecipient
-        } else {
-            delete process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-        }
     })
 
     describe('subscription context selection', () => {
