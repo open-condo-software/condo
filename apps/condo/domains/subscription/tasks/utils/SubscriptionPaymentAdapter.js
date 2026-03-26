@@ -35,7 +35,7 @@ class SubscriptionPaymentAdapter {
                 logger.info({ msg: 'payment succeeded', data: { paymentId, cardTokenId } })
                 return { status: 'success', paid: true, paymentId }
             } else if (status === 'canceled') {
-                const cancelReason = cancellationDetails.reason || 'Unknown error'
+                const cancelReason = cancellationDetails?.reason || 'Unknown error'
                 logger.warn({ msg: 'payment canceled', data: { status, cardTokenId, cancellationDetails, response: data } })
                 return {
                     status: 'canceled',

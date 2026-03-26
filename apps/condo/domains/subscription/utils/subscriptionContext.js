@@ -58,7 +58,8 @@ function selectBestSubscriptionContext (contexts) {
  * @returns {Object} - dayjs object representing the start date
  */
 function calculateSubscriptionStartDate (existingContexts) {
-    let startAt = dayjs()
+    const today = dayjs().startOf('day')
+    let startAt = today
     
     if (!existingContexts || existingContexts.length === 0) {
         return startAt
@@ -70,8 +71,8 @@ function calculateSubscriptionStartDate (existingContexts) {
 
     if (sortedContexts.length > 0) {
         const lastContext = sortedContexts[0]
-        const lastEndAt = dayjs(lastContext.endAt)
-        if (lastEndAt.isAfter(dayjs(), 'day')) {
+        const lastEndAt = dayjs(lastContext.endAt).startOf('day')
+        if (lastEndAt.isAfter(today)) {
             startAt = lastEndAt
         }
     }
