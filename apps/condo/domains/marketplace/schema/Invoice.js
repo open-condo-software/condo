@@ -19,9 +19,12 @@ const set = require('lodash/set')
 const conf = require('@open-condo/config')
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
+
+const logger = getLogger('Invoice')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
@@ -767,7 +770,7 @@ const Invoice = new GQLListSchema('Invoice', {
             const isPaid = get(updatedItem, 'status') === INVOICE_STATUS_PAID
             
             if (statusChanged && isB2BInvoice && isPaid) {
-                const sender = { dv: 1, fingerprint: get(context, 'authedItem.sender.fingerprint', 'Invoice_afterChange') }
+                const sender = { dv: 1, fingerprint: 'invoice_afterChange_activateSubscriptionContext' }
                 
                 const [subscriptionContext] = await find('SubscriptionContext', {
                     invoice: { id: updatedItem.id },
@@ -781,11 +784,7 @@ const Invoice = new GQLListSchema('Invoice', {
                         subscriptionContext: { id: subscriptionContext.id },
                     })
                 } else {
-                    console.warn('SubscriptionContext not found for paid B2B invoice', {
-                        invoiceId: updatedItem.id,
-                        invoiceStatus: updatedItem.status,
-                        invoiceType: updatedItem.type,
-                    })
+                    logger.warn({ msg: 'SubscriptionContext not found for paid B2B invoice', data: { invoiceId: updatedItem.id, invoiceStatus: updatedItem.status, invoiceType: updatedItem.type } })
                 }
             }
         },

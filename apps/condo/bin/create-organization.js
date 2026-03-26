@@ -2,7 +2,7 @@ const path = require('path')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, registerOrganization } = require('@condo/domains/organization/utils/serverSchema')
 
 function getJson (data) {
     try {
@@ -28,9 +28,11 @@ async function main (args) {
     orgPayload.sender ??= { 'dv': 1, 'fingerprint': 'create-organization-script' }
     orgPayload.country ??= 'ru'
     orgPayload.type ??= 'MANAGING_COMPANY'
+    orgPayload.tin ??= '0000000000'
+    orgPayload.meta ??= { dv: 1 }
 
     if (!existingOrganization) {
-        const organization = await Organization.create(context, {
+        const organization = await registerOrganization(context, {
             name,
             ...orgPayload,
         })
