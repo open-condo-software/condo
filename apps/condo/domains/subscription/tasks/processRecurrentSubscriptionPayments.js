@@ -22,7 +22,7 @@ async function processRecurrentSubscriptionPayments () {
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {
             bindingId_not: null,
-            status_in: [SUBSCRIPTION_CONTEXT_STATUS.DONE, SUBSCRIPTION_CONTEXT_STATUS.ERROR],
+            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             endAt_gte: bufferDate,
             endAt_lte: yesterday,
             deletedAt: null,
@@ -40,12 +40,9 @@ async function processRecurrentSubscriptionPayments () {
                 subscriptionPlan,
                 subscriptionPlanPricingRule,
                 bindingId,
+                endAt,
             } = subscriptionContext
 
-            if (!bindingId) {
-                logger.info({ msg: 'subscription context does not have binding for auto-payment', data: { subscriptionContextId: id } })
-                continue
-            }
             const latestContexts = await itemsQuery('SubscriptionContext', {
                 where: {
                     organization: { id: organization },
@@ -66,16 +63,28 @@ async function processRecurrentSubscriptionPayments () {
 
             const sender = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
 
-            const { subscriptionContext: newContext, directPaymentUrl } = await registerSubscriptionContext(context, {
+            const result = await registerSubscriptionContext(context, {
                 sender,
                 organization: { id: organization },
                 subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule },
                 isTrial: false,
             })
+            const newContext = result.subscriptionContext
+            const directPaymentUrl = result.directPaymentUrl
 
-            logger.info({ msg: 'created new subscription context', data: { newContextId: newContext.id, invoiceId: newContext.invoice } })
+            logger.info({ msg: 'registered subscription context', data: { newContextId: newContext.id, invoiceId: newContext.invoice, status: newContext.status } })
 
-            if (directPaymentUrl && newContext.invoice) {
+            if (!directPaymentUrl || !newContext.invoice) {
+                logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
+                continue
+            }
+
+            const isLastBufferDay = dayjs(endAt).isSameOrBefore(dayjs(bufferDate))
+            const errorStatus = isLastBufferDay 
+                ? SUBSCRIPTION_CONTEXT_STATUS.ERROR 
+                : SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY
+
+            try {
                 const paymentResult = await SubscriptionPaymentAdapter.proceedPayment({
                     directPaymentUrl,
                     cardTokenId: bindingId,
@@ -94,21 +103,36 @@ async function processRecurrentSubscriptionPayments () {
                             paymentStatus, 
                             errorMessage,
                             cancellationDetails,
+                            isLastBufferDay,
+                            willSetStatus: errorStatus,
                         },
                     })
                     
                     await SubscriptionContext.update(context, newContext.id, {
                         dv: 1,
                         sender,
-                        status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+                        status: errorStatus,
                     })
                 }
-            } else {
-                logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
+            } catch (paymentError) {
+                logger.error({ 
+                    msg: 'payment processing error', 
+                    err: paymentError, 
+                    data: { 
+                        subscriptionContextId: newContext.id,
+                        isLastBufferDay,
+                        willSetStatus: errorStatus,
+                    },
+                })
+                
+                await SubscriptionContext.update(context, newContext.id, {
+                    dv: 1,
+                    sender,
+                    status: errorStatus,
+                })
             }
         } catch (error) {
-            const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
-            logger.error({ msg: 'failed to process subscription context', err: error, data: { subscriptionContextId: subscriptionContext.id, message } })
+            logger.error({ msg: 'failed to process subscription context', err: error, data: { subscriptionContextId: subscriptionContext.id } })
         }
     }
 

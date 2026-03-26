@@ -13,7 +13,7 @@ const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
-const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
@@ -153,6 +153,63 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 const startAt = calculateSubscriptionStartDate(existingContexts)
                 const endAt = startAt.add(months, 'month')
+                const today = dayjs().startOf('day')
+                const bufferDate = today.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+
+                // Reuse existing CREATED context for today only (to avoid duplicates under concurrency)
+                const [existingCreated] = await find('SubscriptionContext', {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    startAt: startAt.format('YYYY-MM-DD'),
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    deletedAt: null,
+                })
+                if (existingCreated) {
+                    const subscriptionContext = await getById('SubscriptionContext', existingCreated.id)
+
+                    const multiPaymentResult = await registerMultiPayment(context, {
+                        invoices: [{ id: subscriptionContext.invoice }],
+                        sender,
+                    })
+
+                    let directPaymentUrl = multiPaymentResult.directPaymentUrl
+                    if (directPaymentUrl) {
+                        const url = new URL(directPaymentUrl)
+                        url.searchParams.append('organizationId', organization.id)
+                        directPaymentUrl = url.toString()
+                    }
+
+                    const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    return { subscriptionContext, directPaymentUrl, multiPayment }
+                }
+
+                // Reuse existing ERROR_NEED_RETRY context from buffer period (retry failed payments)
+                const [existingErrorNeedRetry] = await find('SubscriptionContext', {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    startAt_gte: bufferDate,
+                    startAt_lte: today.format('YYYY-MM-DD'),
+                    status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                    deletedAt: null,
+                })
+                if (existingErrorNeedRetry) {
+                    const subscriptionContext = await getById('SubscriptionContext', existingErrorNeedRetry.id)
+
+                    const multiPaymentResult = await registerMultiPayment(context, {
+                        invoices: [{ id: subscriptionContext.invoice }],
+                        sender,
+                    })
+
+                    let directPaymentUrl = multiPaymentResult.directPaymentUrl
+                    if (directPaymentUrl) {
+                        const url = new URL(directPaymentUrl)
+                        url.searchParams.append('organizationId', organization.id)
+                        directPaymentUrl = url.toString()
+                    }
+
+                    const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    return { subscriptionContext, directPaymentUrl, multiPayment }
+                }
 
                 const recipientOrganizationId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
                 if (!recipientOrganizationId) {

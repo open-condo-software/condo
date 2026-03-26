@@ -418,4 +418,93 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(invoices[0].status).toBe(INVOICE_STATUS_PUBLISHED)
         })
     })
+
+    describe('ERROR_NEED_RETRY status handling', () => {
+        test('does not process ERROR_NEED_RETRY contexts (only DONE)', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '4444',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
+            const endAt = dayjs().subtract(2, 'days').format('YYYY-MM-DD')
+
+            await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                bindingId,
+                startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+                frozenPaymentInfo: {
+                    pricingRuleId: pricingRule.id,
+                    paymentMethod,
+                },
+            })
+
+            const contextsBefore = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+            })
+            const countBefore = contextsBefore.length
+
+            await processRecurrentSubscriptionPayments()
+
+            const contextsAfter = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+            })
+
+            expect(contextsAfter).toHaveLength(countBefore)
+        })
+
+        test('does not process ERROR contexts (only DONE)', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '5555',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
+            const endAt = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD')
+
+            await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+                bindingId,
+                startAt: dayjs().subtract(1, 'month').subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+                frozenPaymentInfo: {
+                    pricingRuleId: pricingRule.id,
+                    paymentMethod,
+                },
+            })
+
+            const contextsBefore = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+            })
+            const countBefore = contextsBefore.length
+
+            await processRecurrentSubscriptionPayments()
+
+            const contextsAfter = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+            })
+
+            expect(contextsAfter).toHaveLength(countBefore)
+        })
+    })
 })
+
