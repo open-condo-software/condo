@@ -45,6 +45,8 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
         return acquiringContexts.find(({ integration: { type } }) => type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
     }, [acquiringContexts])
 
+    const providerValue = useMemo(() => ({ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }), [acquiringContexts, billingContexts, refetchBilling])
+
     if (acquiringLoading || billingLoading || acquiringError || acquiringLoading) {
         return (
             <LoadingOrErrorPage
@@ -57,7 +59,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
 
     if (billingContexts.length && acquiringContexts.length) {
         return (
-            <BillingAndAcquiringContext.Provider value={{ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }}>
+            <BillingAndAcquiringContext.Provider value={providerValue}>
                 <BillingPageContent/>
             </BillingAndAcquiringContext.Provider>
         )
