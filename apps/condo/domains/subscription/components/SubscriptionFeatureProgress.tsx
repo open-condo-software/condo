@@ -1,35 +1,34 @@
-import { useGetAvailableSubscriptionPlansQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
-import { Progress } from 'antd'
-import dayjs from 'dayjs'
-import { useRouter } from 'next/router'
+import { useGetAvailableSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
+import Progress from 'antd/lib/progress'
+import getConfig from 'next/config'
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
-import { SUBSCRIPTION_MODAL_CONFIG } from '@condo/domains/common/constants/featureflags'
-import { analytics } from '@condo/domains/common/utils/analytics'
 import { AVAILABLE_FEATURES, AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
-import { safeValidateSubscriptionFeatureModalConfig } from '@condo/domains/subscription/utils/subscriptionFeatureModal'
 
 import { SubscriptionFeatureModal } from './SubscriptionFeatureModal'
 import styles from './SubscriptionFeatureProgress.module.css'
 
-const calculateTotalPossibleFeatures = (baseFeatures: readonly string[], b2bAppsCount: number): number => {
-    const featuresWithoutCustomization = baseFeatures.filter(feature => feature !== 'customization')
-    return featuresWithoutCustomization.length + b2bAppsCount * 0.5
+const EXCLUDED_FROM_CALCULATION_FEATURES: Array<AvailableFeatureType> = ['customization'] as const
+
+const calculateTotalPossibleFeatures = (baseFeatures: Readonly<Array<AvailableFeatureType>>, b2bAppsCount: number): number => {
+    const featuresWithoutExcluded = baseFeatures.filter(feature => !EXCLUDED_FROM_CALCULATION_FEATURES.includes(feature))
+    return featuresWithoutExcluded.length + b2bAppsCount * 0.5
+}
+
+const isFeatureExcludedFromCalculation = (feature: AvailableFeatureType): boolean => {
+    return EXCLUDED_FROM_CALCULATION_FEATURES.includes(feature)
 }
 
 export const SubscriptionFeatureProgress: React.FC = () => {
     const intl = useIntl()
     const TooltipTitle = intl.formatMessage({ id: 'subscription.featureProgress.tooltip' })
-    const router = useRouter()
     const { organization } = useOrganization()
     const { isFeatureAvailable, isB2BAppEnabled } = useOrganizationSubscription()
     const { isCollapsed } = useLayoutContext()
@@ -37,8 +36,17 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const isMountedRef = useRef(false)
 
-    const { useFlagValue } = useFeatureFlags()
-    const subscriptionModalConfig = useFlagValue(SUBSCRIPTION_MODAL_CONFIG)
+    const { publicRuntimeConfig } = getConfig()
+    const subscriptionModalConfig = publicRuntimeConfig?.subscriptionProgressModalConfig
+
+    const activeSubscriptionContextId = organization?.subscription?.activeSubscriptionContextId
+
+    const { data: contextData } = useGetSubscriptionContextByIdQuery({
+        variables: {
+            id: activeSubscriptionContextId || '',
+        },
+        skip: !activeSubscriptionContextId,
+    })
 
     const { data: plansData } = useGetAvailableSubscriptionPlansQuery({
         variables: {
@@ -47,41 +55,39 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         skip: !organization?.id,
     })
 
-    const { data: activatedSubscriptionsData } = useGetOrganizationActivatedSubscriptionsQuery({
-        variables: {
-            organizationId: organization?.id || '',
-        },
-        skip: !organization?.id,
-    })
-    const activatedSubscriptions = useMemo(() => activatedSubscriptionsData?.activatedSubscriptions || [], [activatedSubscriptionsData?.activatedSubscriptions])
-
     const bestPlan = useMemo(() => {
+        const planId = contextData?.subscriptionContext?.subscriptionPlan?.id
+
         const availablePlans = plansData?.result?.plans || []
         return availablePlans
-            .filter(p => {
-                if (!p.plan.canBePromoted) return false
-                return !activatedSubscriptions.find(s => dayjs(s.endAt).isAfter(dayjs()) && s.subscriptionPlan?.id === p.plan.id)
-            })
+            .filter(p => p.plan.canBePromoted && planId && planId !== p.plan.id)
             .sort((a, b) => (b.plan.priority ?? 0) - (a.plan.priority ?? 0))[0]
-    }, [plansData?.result?.plans, activatedSubscriptions])
+    }, [plansData?.result?.plans, contextData?.subscriptionContext?.subscriptionPlan?.id])
 
     const bestPlanB2BApps = useMemo(() => {
         if (!bestPlan) return []
         return bestPlan.plan.enabledB2BApps || []
     }, [bestPlan])
 
-    const currencySymbol = useMemo(() => {
+    const formattedCurrency = useMemo(() => {
         const currencyCode = bestPlan?.prices?.[0]?.currencyCode
-        return CURRENCY_SYMBOLS[currencyCode] || ''
-    }, [bestPlan])
+        if (!currencyCode) return '0'
+        
+        return new Intl.NumberFormat(intl.locale, {
+            style: 'currency',
+            currency: currencyCode,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(0)
+    }, [bestPlan, intl.locale])
 
     const DescriptionText = intl.formatMessage({ id: 'subscription.featureProgress.description' }, { percentage: animatedPercentage })
-    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { currency: currencySymbol })
+    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { currency: formattedCurrency })
 
     const featurePercentage = useMemo(() => {
         if (!organization || !bestPlan) return 0
         const baseFeatureCount = AVAILABLE_FEATURES.reduce((count, feature) => {
-            if (feature === 'customization') return count
+            if (isFeatureExcludedFromCalculation(feature)) return count
             const isCurrentlyAvailable = isFeatureAvailable(feature as AvailableFeatureType)
 
             return count + (isCurrentlyAvailable ? 1 : 0)
@@ -100,24 +106,9 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         return Math.round((totalAvailable / totalPossible) * 100)
     }, [organization, bestPlan, isFeatureAvailable, bestPlanB2BApps, isB2BAppEnabled])
 
-    const validatedConfig = useMemo(() => {
-        return safeValidateSubscriptionFeatureModalConfig(subscriptionModalConfig)
-    }, [subscriptionModalConfig])
-
-    const isConfigValid = validatedConfig !== null
-
     const openModal = useCallback(() => {
-        if (!isConfigValid) return
-
-        analytics.track('click', {
-            component: 'Button',
-            location: router.pathname,
-            id: 'openModal',
-            value: 'Open subscription feature modal',
-        })
-
         setIsModalOpen(true)
-    }, [isConfigValid, router.pathname])
+    }, [])
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false)
@@ -158,11 +149,10 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     }, [animatedPercentage, featurePercentage])
 
     const handleClick = () => {
-        if (isConfigValid) openModal()
-        else router.push('/settings?tab=subscription')
+        openModal()
     }
 
-    if (!bestPlan) {
+    if (!bestPlan || !bestPlan?.prices?.[0]) {
         return null
     }
 
@@ -188,6 +178,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
                             showInfo={false}
                         />
                         <Button
+                            id='openSubscriptionModalButton'
                             type='primary'
                             block
                             size='medium'
@@ -198,12 +189,12 @@ export const SubscriptionFeatureProgress: React.FC = () => {
                     </Space>
                 )}
             </div>
-            {isConfigValid && <SubscriptionFeatureModal
+            <SubscriptionFeatureModal
                 open={isModalOpen}
                 onCancel={closeModal}
                 plan={bestPlan}
-                subscriptionModalConfig={validatedConfig}
-            />}
+                subscriptionModalConfig={subscriptionModalConfig}
+            />
         </Tooltip>
     )
 }

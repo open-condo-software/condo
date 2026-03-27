@@ -5,18 +5,34 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Banner, Button, Modal, Space, Typography } from '@open-condo/ui'
 
-import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
-import { analytics } from '@condo/domains/common/utils/analytics'
-import { useActivateSubscriptions } from '@condo/domains/subscription/hooks'
-import { SubscriptionFeatureModalConfig } from '@condo/domains/subscription/utils/subscriptionFeatureModal'
+import { useActivateSubscriptions, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
 import styles from './SubscriptionFeatureModal.module.css'
+
+interface SubscriptionFeature {
+    key: string
+    iconUrl: string
+    title: string
+    description: string
+}
+
+interface SubscriptionModalBanner {
+    title: string
+    description: string
+    backgroundColor: string
+    imageUrl: string
+}
+
+interface SubscriptionFeatureModalConfig {
+    banner: SubscriptionModalBanner
+    features: Array<SubscriptionFeature>
+}
 
 interface SubscriptionFeatureModalProps {
     open: boolean
     onCancel: () => void
-    plan?: AvailableSubscriptionPlan
+    plan: AvailableSubscriptionPlan
     subscriptionModalConfig?: SubscriptionFeatureModalConfig
 }
 
@@ -27,8 +43,10 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
     subscriptionModalConfig,
 }) => {
     const intl = useIntl()
+    const TryTrialButtonText =  intl.formatMessage({ id: 'subscription.featureProgress.modal.tryTrialButton' })
     const router = useRouter()
-    const { trialSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { trialSubscriptions } = useTrialSubscriptions()
     const [isActivating, setIsActivating] = useState(false)
 
     const title = useMemo(() => {
@@ -38,37 +56,16 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
     const features = useMemo(() => subscriptionModalConfig?.features, [subscriptionModalConfig?.features])
 
     const hasActivatedAnyTrial = trialSubscriptions.length > 0
-
-    const tryTrialButtonText = useMemo(() => {
-        const currencyCode = plan?.prices?.[0]?.currencyCode
-        return intl.formatMessage({
-            id: 'subscription.warns.tryTrialButton',
-        }, { currency: CURRENCY_SYMBOLS[currencyCode] || '' })
-    }, [plan?.prices, intl])
-
     const viewPlansButtonText = intl.formatMessage({
         id: 'subscription.warns.activateSubscriptionButton',
     })
 
     const handleActivateTrial = useCallback(async () => {
-        analytics.track('click', {
-            component: 'Button',
-            location: router.pathname,
-            id: 'activateTrial',
-            value: `Activate trial for ${plan?.plan?.name || 'unknown plan'}`,
-        })
-
-        if (!plan) {
-            await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
-            return
-        }
-
         const price = plan.prices?.[0]
-        if (!price?.id) return
 
         setIsActivating(true)
         try {
-            const planName = plan.plan?.name || ''
+            const planName = plan.plan?.name
 
             await handleActivatePlan({
                 priceId: price.id,
@@ -81,16 +78,9 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         } finally {
             setIsActivating(false)
         }
-    }, [plan, handleActivatePlan, router, onCancel])
+    }, [plan, handleActivatePlan, onCancel])
 
     const handleViewPlans = useCallback(async () => {
-        analytics.track('click', {
-            component: 'Button',
-            location: router.pathname,
-            id: 'viewPlans',
-            value: 'View subscription plans',
-        })
-
         await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
         onCancel()
     }, [router, onCancel])
@@ -101,6 +91,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         if (hasActivatedAnyTrial) {
             return (
                 <Button
+                    id='viewPlansButton'
                     type='primary'
                     onClick={handleViewPlans}
                     loading={isLoading}
@@ -114,22 +105,24 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         return (
             <Space size={12} direction='horizontal'>
                 <Button
+                    id='viewPlansButton'
                     type='secondary'
                     onClick={handleViewPlans}
                 >
                     {viewPlansButtonText}
                 </Button>
                 <Button
+                    id='activateTrialButton'
                     type='primary'
                     onClick={handleActivateTrial}
                     loading={isLoading}
                     disabled={isLoading}
                 >
-                    {tryTrialButtonText}
+                    {TryTrialButtonText}
                 </Button>
             </Space>
         )
-    }, [hasActivatedAnyTrial, handleViewPlans, handleActivateTrial, viewPlansButtonText, tryTrialButtonText, isLoading])
+    }, [hasActivatedAnyTrial, handleViewPlans, handleActivateTrial, viewPlansButtonText, TryTrialButtonText, isLoading])
 
     return (
         <Modal

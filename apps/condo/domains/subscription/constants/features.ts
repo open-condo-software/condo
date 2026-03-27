@@ -9,6 +9,6 @@ export const AVAILABLE_FEATURES = [
     'customization',
     'properties',
     'analytics',
-]
+] as const
 
 export type AvailableFeatureType = typeof AVAILABLE_FEATURES[number]

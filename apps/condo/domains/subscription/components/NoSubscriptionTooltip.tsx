@@ -9,7 +9,11 @@ import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { getRequiredFeature } from '@condo/domains/subscription/constants/routeFeatureMapping'
-import { useActivateSubscriptions, useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import {
+    useActivateSubscriptions,
+    useOrganizationSubscription,
+    useTrialSubscriptions,
+} from '@condo/domains/subscription/hooks'
 
 import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
@@ -26,7 +30,8 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
-    const { trialSubscriptions, activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { trialSubscriptions } = useTrialSubscriptions()
     const { isFeatureAvailable, hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
     const [isActivating, setIsActivating] = useState(false)
 
