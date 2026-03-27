@@ -53,7 +53,7 @@ function assertValidAmountDistribution (groupedReceipts, context) {
         if (distributionReceiptsIds.length !== uniqueDistributionReceiptsIds.size) {
             throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
         }
-        if (distributionReceiptsAmounts.some(amount => amount.lte(0)).length > 0) {
+        if (distributionReceiptsAmounts.some(amount => amount.lte(0))) {
             throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
         }
     }
@@ -66,14 +66,14 @@ function assertNoDuplicateInvoices (invoices, context) {
 }
 
 function assertEntitiesNotDeleted (entities, errorTemplate, context) {
-    const deletedIds = entities.filter(entity => entity.deletedAt).map(entity => entity.id)
+    const deletedIds = entities.filter(({ deletedAt }) => deletedAt).map(entity => entity.id)
     if (deletedIds.length) {
         throw new GQLError({ ...errorTemplate, messageInterpolation: { ids: deletedIds.join(', ') } }, context)
     }
 }
 
 function assertSingleAcquiringIntegration (acquiringContexts, context) {
-    const acquiringIntegrations = new Set(acquiringContexts.map(item => item.integration))
+    const acquiringIntegrations = new Set(acquiringContexts.map(({ integration }) => integration))
     if (acquiringIntegrations.size > 1) {
         throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
     }
