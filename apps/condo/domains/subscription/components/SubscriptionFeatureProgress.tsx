@@ -82,7 +82,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     }, [bestPlan, intl.locale])
 
     const DescriptionText = intl.formatMessage({ id: 'subscription.featureProgress.description' }, { percentage: animatedPercentage })
-    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { currency: formattedCurrency })
+    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { formattedPrice: formattedCurrency })
 
     const featurePercentage = useMemo(() => {
         if (!organization || !bestPlan) return 0

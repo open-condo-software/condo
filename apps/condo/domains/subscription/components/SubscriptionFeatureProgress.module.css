@@ -22,6 +22,18 @@
   border-radius: var(--condo-global-border-radius-medium);
 }
 
+@supports (corner-shape: squircle) {
+  .container:has(.expanded-content) {
+    corner-shape: squircle;
+    border-radius: 20px;
+  }
+
+  .container:not(.expanded-content) {
+    corner-shape: squircle;
+    border-radius: 24px;
+  }
+}
+
 @media (max-width: 768px) {
   .container:not(.expanded-content) {
     width: 100%;

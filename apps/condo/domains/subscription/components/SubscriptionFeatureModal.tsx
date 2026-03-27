@@ -133,35 +133,33 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
             footer={modalFooter}
             className={styles.modal}
         >
-            {features?.length > 0 && (
-                <>
-                    <Banner
-                        title={subscriptionModalConfig.banner.title}
-                        invertText
-                        subtitle={subscriptionModalConfig.banner.description}
-                        backgroundColor={subscriptionModalConfig.banner.backgroundColor}
-                        imgUrl={subscriptionModalConfig.banner.imageUrl}
-                        size='medium'
-                    />
-                    <div className={styles.featuresGrid}>
-                        {features?.map((feature) => (
-                            <Space key={feature.key} direction='vertical' size={16}>
-                                <Space direction='horizontal' size={8}>
-                                    <img 
-                                        src={feature.iconUrl} 
-                                        alt={feature.title}
-                                        className={styles.featureIcon}
-                                    />
-                                    <Typography.Text size='large' strong>{feature.title}</Typography.Text>
-                                </Space>
-                                <Typography.Text type='secondary' size='medium'>
-                                    {feature.description}
-                                </Typography.Text>
+            <>
+                <Banner
+                    title={subscriptionModalConfig.banner.title}
+                    subtitle={subscriptionModalConfig.banner.description}
+                    backgroundColor={subscriptionModalConfig.banner.backgroundColor}
+                    imgUrl={subscriptionModalConfig.banner.imageUrl}
+                    size='medium'
+                    invertText
+                />
+                <div className={styles.featuresGrid}>
+                    {features?.map((feature) => (
+                        <Space key={feature.key} direction='vertical' size={16}>
+                            <Space direction='horizontal' size={8}>
+                                <img
+                                    src={feature.iconUrl} 
+                                    alt={feature.title}
+                                    className={styles.featureIcon}
+                                />
+                                <Typography.Text size='large' strong>{feature.title}</Typography.Text>
                             </Space>
-                        ))}
-                    </div>
-                </>
-            )}
+                            <Typography.Text type='secondary' size='medium'>
+                                {feature.description}
+                            </Typography.Text>
+                        </Space>
+                    ))}
+                </div>
+            </>
         </Modal>
     )
 }

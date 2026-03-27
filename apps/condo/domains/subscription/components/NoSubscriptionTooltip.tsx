@@ -6,7 +6,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 
-import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { getRequiredFeature } from '@condo/domains/subscription/constants/routeFeatureMapping'
 import {
@@ -111,12 +110,19 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         return plansWithFeature[0] || null
     }, [feature, b2bAppId, isAvailable, plansData?.result?.plans, activatedSubscriptions])
 
-    const TryTrialButton = useMemo(() => {
+    const formattedPrice = useMemo(() => {
         const currencyCode = bestPlanWithFeature?.prices?.[0]?.currencyCode
-        return intl.formatMessage({
-            id: 'subscription.warns.tryTrialButton',
-        }, { currency: CURRENCY_SYMBOLS[currencyCode] || '' })
-    }, [bestPlanWithFeature, intl])
+        if (!currencyCode) return '0'
+
+        return new Intl.NumberFormat(intl.locale, {
+            style: 'currency',
+            currency: currencyCode,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(0)
+    }, [bestPlanWithFeature?.prices, intl.locale])
+
+    const TryTrialButton = intl.formatMessage({ id: 'subscription.warns.tryTrialButton' }, { formattedPrice })
 
     const handleActivateTrial = useCallback(async () => {
         if (!bestPlanWithFeature) {
