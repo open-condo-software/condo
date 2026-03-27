@@ -1,17 +1,57 @@
+import emojiData from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { Input as DefaultInput } from 'antd'
 import { TextAreaProps as AntdTextAreaProps } from 'antd/es/input'
 import classNames from 'classnames'
-import React, { forwardRef, useState, useEffect, TextareaHTMLAttributes } from 'react'
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, TextareaHTMLAttributes } from 'react'
 
-import { ArrowUp } from '@open-condo/icons'
+import { ArrowUp, CheckCircle, Copy, Smile } from '@open-condo/icons'
 
 import { Button } from '../Button'
+import { Dropdown } from '../Dropdown'
+import { Tooltip } from '../Tooltip'
 
 import type { InputRef } from 'antd'
 
 const { TextArea: DefaultTextArea } = DefaultInput
 
 export const TEXTAREA_CLASS_PREFIX = 'condo-input'
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 2000
+
+export type TextAreaCustomLabels = {
+    emojiDropdown?: Partial<TextAreaEmojiDropdownLabels>
+}
+
+type TextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: string
+        flags: string
+        foods: string
+        frequent: string
+        nature: string
+        objects: string
+        people: string
+        places: string
+        symbols: string
+    }
+}
+
+const DEFAULT_EMOJI_DROPDOWN_LABELS: TextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: 'Activity',
+        flags: 'Flags',
+        foods: 'Foods',
+        frequent: 'Frequent',
+        nature: 'Nature',
+        objects: 'Objects',
+        people: 'People',
+        places: 'Places',
+        symbols: 'Symbols',
+    },
+}
+
+type BottomPanelBuiltinKey = 'emoji' | 'copy'
+type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
 
 export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size' | 'onResize'> &
 Pick<AntdTextAreaProps, 'autoSize'> & {
@@ -19,7 +59,8 @@ Pick<AntdTextAreaProps, 'autoSize'> & {
     isSubmitDisabled?: boolean
     showCount?: boolean
     onSubmit?: (value: string) => void
-    bottomPanelUtils?: React.ReactElement[]
+    bottomPanelUtils?: BottomPanelUtilsItem[]
+    customLabels?: TextAreaCustomLabels
 }
 
 const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
@@ -33,6 +74,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         isSubmitDisabled,
         value: propsValue,
         bottomPanelUtils = [],
+        customLabels,
         onChange: propsOnChange,
         autoSize = { minRows: 1 },
         ...restProps
@@ -40,6 +82,16 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
     const [internalValue, setInternalValue] = useState('')
     const [isFocused, setIsFocused] = useState(false)
+    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+    const [isCopied, setIsCopied] = useState(false)
+    const textAreaContainerRef = useRef<HTMLDivElement>(null)
+
+    const resolvedEmojiDropdownLabels = useMemo(() => ({
+        categories: {
+            ...DEFAULT_EMOJI_DROPDOWN_LABELS.categories,
+            ...customLabels?.emojiDropdown?.categories,
+        },
+    }), [customLabels?.emojiDropdown])
 
     useEffect(() => {
         if (propsValue !== undefined) {
@@ -94,9 +146,134 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         },
     )
 
+    const emitValueChange = useCallback((nextValue: string) => {
+        if (propsValue === undefined) {
+            setInternalValue(nextValue)
+        }
+
+        if (propsOnChange) {
+            propsOnChange({
+                target: { value: nextValue },
+                currentTarget: { value: nextValue },
+            } as React.ChangeEvent<HTMLTextAreaElement>)
+        }
+    }, [propsOnChange, propsValue])
+
+    const handleBottomEmojiOpenChange = useCallback((open: boolean) => {
+        if (disabled) {
+            setEmojiPickerOpen(false)
+            return
+        }
+        setEmojiPickerOpen(open)
+    }, [disabled])
+
+    const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
+        setEmojiPickerOpen(false)
+        if (disabled) return
+
+        const nativeEmoji = emoji?.native
+        if (!nativeEmoji) return
+
+        const textAreaElement = textAreaContainerRef.current?.querySelector('textarea')
+        const currentText = currentValue || ''
+
+        if (!textAreaElement) {
+            emitValueChange(currentText + nativeEmoji)
+            return
+        }
+
+        const start = textAreaElement.selectionStart ?? currentText.length
+        const end = textAreaElement.selectionEnd ?? currentText.length
+        const nextValue = currentText.slice(0, start) + nativeEmoji + currentText.slice(end)
+        emitValueChange(nextValue)
+
+        const nextCursor = start + nativeEmoji.length
+        requestAnimationFrame(() => {
+            textAreaElement.focus()
+            textAreaElement.setSelectionRange(nextCursor, nextCursor)
+        })
+    }, [currentValue, disabled, emitValueChange])
+
+    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
+        if (util === 'copy') {
+            return (
+                <Tooltip title={isCopied ? 'Copied' : 'Copy'} mouseLeaveDelay={0} key={`builtin-${util}-${index}`}>
+                    <Button
+                        minimal
+                        compact
+                        type='secondary'
+                        size='medium'
+                        disabled={disabled}
+                        icon={isCopied ? <CheckCircle size='small' /> : <Copy size='small' />}
+                        onClick={async () => {
+                            if (disabled || isCopied) return
+                            try {
+                                await navigator.clipboard.writeText(currentValue || '')
+                                setIsCopied(true)
+                                setTimeout(() => setIsCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+                            } catch {
+                                setIsCopied(false)
+                            }
+                        }}
+                    />
+                </Tooltip>
+            )
+        }
+        
+        if (util !== 'emoji') return null
+
+        const emojiDropdownContent = (
+            <div className='condo-input-emoji-dropdown'>
+                <Picker
+                    data={emojiData}
+                    onEmojiSelect={handleBottomEmojiSelect}
+                    previewPosition='none'
+                    skinTonePosition='none'
+                    searchPosition='none'
+                    theme='light'
+                    icons='outline'
+                    i18n={resolvedEmojiDropdownLabels}
+                />
+            </div>
+        )
+
+        return (
+            <Dropdown
+                key={`builtin-${util}-${index}`}
+                trigger={['click']}
+                open={emojiPickerOpen}
+                onOpenChange={handleBottomEmojiOpenChange}
+                overlayClassName='condo-input-emoji-dropdown-overlay'
+                dropdownRender={() => emojiDropdownContent}
+            >
+                <span>
+                    <Tooltip title='Emoji' mouseLeaveDelay={0}>
+                        <Button
+                            minimal
+                            compact
+                            type='secondary'
+                            size='medium'
+                            disabled={disabled}
+                            icon={<Smile size='small' />}
+                            onClick={() => null}
+                        />
+                    </Tooltip>
+                </span>
+            </Dropdown>
+        )
+    }, [
+        disabled,
+        emojiPickerOpen,
+        isCopied,
+        handleBottomEmojiOpenChange,
+        handleBottomEmojiSelect,
+        resolvedEmojiDropdownLabels,
+        currentValue,
+    ])
+
 
     return (
-        <div className={textAreaWrapperClassName}>
+        <div className={textAreaWrapperClassName} ref={textAreaContainerRef}>
             <DefaultTextArea
                 {...restProps}
                 ref={ref}
@@ -117,11 +294,17 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                 <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel`}>
                     {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
-                            {bottomPanelUtils.map((util, index) => (
-                                <React.Fragment key={index}>
-                                    {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
-                                </React.Fragment>
-                            ))}
+                            {bottomPanelUtils.map((util, index) => {
+                                if (typeof util === 'string') {
+                                    return renderBottomPanelBuiltinUtil(util, index)
+                                }
+
+                                return (
+                                    <React.Fragment key={index}>
+                                        {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
+                                    </React.Fragment>
+                                )
+                            })}
                         </span>
                     )}
 

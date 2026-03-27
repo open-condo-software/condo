@@ -27,7 +27,9 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import {
     ArrowUp,
     Bold,
+    CheckCircle,
     CheckSquare,
+    Copy,
     Italic,
     Link as LinkIcon,
     List,
@@ -185,6 +187,9 @@ export type RichTextAreaCustomLabels = {
     imageModal?: Partial<RichTextAreaImageModalLabels>
     emojiDropdown?: Partial<RichTextAreaEmojiDropdownLabels>
 }
+
+type BottomPanelBuiltinKey = 'emoji' | 'copy'
+type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
 
 type ToolbarButtonKey =
     | 'undo' | 'redo'
@@ -344,7 +349,6 @@ const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
 const DEFAULT_TOOLBAR_GROUPS: ToolbarGroup[] = [
     ['undo', 'redo'],
     ['link'],
-    ['emoji'],
     ['bold', 'italic'],
     ['unorderedList', 'orderedList'],
     ['removeFormatting'],
@@ -528,7 +532,6 @@ type ToolbarProps = {
     labels: RichTextAreaToolbarLabels
     linkModalLabels: RichTextAreaLinkModalLabels
     imageModalLabels: RichTextAreaImageModalLabels
-    emojiDropdownLabels: RichTextAreaEmojiDropdownLabels
     groups: ToolbarGroup[]
     disabled?: boolean
 }
@@ -540,12 +543,11 @@ const makeTextContent = (text: string, url?: string) => {
     return { type: 'text', text }
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imageModalLabels, emojiDropdownLabels, groups, disabled }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imageModalLabels, groups, disabled }) => {
     const [linkModalOpen, setLinkModalOpen] = useState(false)
     const [linkModalInitialUrl, setLinkModalInitialUrl] = useState('')
     const [linkModalInitialText, setLinkModalInitialText] = useState('')
     const [imageModalOpen, setImageModalOpen] = useState(false)
-    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
 
     const hasLink = useMemo(
         () => groups.some(group => group.includes('link')),
@@ -642,34 +644,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
         editor?.chain().focus().run()
     }, [editor])
 
-    const handleEmojiSelect = useCallback((emoji: { native?: string }) => {
-        setEmojiPickerOpen(false)
-
-        if (!editor || disabled) return
-
-        const nativeEmoji = emoji?.native
-        if (nativeEmoji) {
-            editor.chain().focus().insertContent(nativeEmoji).run()
-        } else {
-            editor.chain().focus().run()
-        }
-    }, [editor, disabled])
-
-    const renderEmojiPicker = useCallback(() => (
-        <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-emoji-dropdown`}>
-            <Picker
-                data={emojiData}
-                onEmojiSelect={handleEmojiSelect}
-                previewPosition='none'
-                skinTonePosition='none'
-                searchPosition='none'
-                theme='light'
-                icons='outline'
-                i18n={emojiDropdownLabels}
-            />
-        </div>
-    ), [handleEmojiSelect, emojiDropdownLabels])
-
     const helpers: ToolbarHelpers = useMemo(() => ({
         openLinkModal: handleLink,
         openImageModal: handleImage,
@@ -686,28 +660,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                             const config = BUILTIN_BUTTON_CONFIG[item]
                             const state = buttonStates?.[item]
                             const isToolbarButtonDisabled = disabled || (state?.isDisabled ?? config.isDisabled?.(editor) ?? false)
-                            if (item === 'emoji') {
-                                return (
-                                    <Dropdown
-                                        key={item}
-                                        trigger={['click']}
-                                        open={emojiPickerOpen}
-                                        onOpenChange={setEmojiPickerOpen}
-                                        overlayClassName={`${RICH_TEXT_AREA_CLASS_PREFIX}-emoji-dropdown-overlay`}
-                                        dropdownRender={renderEmojiPicker}
-                                    >
-                                        <span>
-                                            <ToolbarButton
-                                                onClick={() => null}
-                                                isActive={state?.isActive}
-                                                disabled={isToolbarButtonDisabled}
-                                                title={labels[config.labelKey]}
-                                                icon={config.icon}
-                                            />
-                                        </span>
-                                    </Dropdown>
-                                )
-                            }
+
                             return (
                                 <ToolbarButton
                                     key={item}
@@ -757,12 +710,13 @@ export type RichTextAreaProps = {
     overflowPolicy?: 'crop' | 'show'
     toolbarGroups?: ToolbarGroup[]
     customLabels?: RichTextAreaCustomLabels
-    bottomPanelUtils?: React.ReactElement[]
+    bottomPanelUtils?: BottomPanelUtilsItem[]
     type?: RenderType
 }
 
 const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
 const DEFAULT_LINE_HEIGHT = 24
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 2000
 
 export const RichTextArea: React.FC<RichTextAreaProps> = ({
     value,
@@ -812,6 +766,8 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
 
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
+    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+    const [isCopied, setIsCopied] = useState(false)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
 
     const editor = useEditor({
@@ -897,6 +853,111 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         selector: ({ editor: e }) => e?.storage.characterCount?.characters() ?? 0,
     })
 
+    const handleBottomEmojiOpenChange = useCallback((open: boolean) => {
+        if (disabled) {
+            setEmojiPickerOpen(false)
+            return
+        }
+        setEmojiPickerOpen(open)
+    }, [disabled])
+
+    const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
+        setEmojiPickerOpen(false)
+        if (!editor || disabled || !editor.isEditable) return
+
+        const nativeEmoji = emoji?.native
+        if (nativeEmoji) {
+            editor.chain().focus().insertContent(nativeEmoji).run()
+        } else {
+            editor.chain().focus().run()
+        }
+    }, [disabled, editor])
+
+    const handleCopy = useCallback(async () => {
+        if (!editor || disabled || isCopied) return
+
+        const plainText = editor.getText({
+            blockSeparator: '\n',
+        })
+
+        try {
+            await navigator.clipboard.writeText(plainText)
+            setIsCopied(true)
+            setTimeout(() => setIsCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch {
+            setIsCopied(false)
+        }
+    }, [disabled, editor, isCopied])
+
+    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
+        if (util === 'copy') {
+            return (
+                <Tooltip title={isCopied ? 'Copied' : 'Copy'} mouseLeaveDelay={0} key={`builtin-${util}-${index}`}>
+                    <Button
+                        type='secondary'
+                        minimal
+                        compact
+                        size='medium'
+                        disabled={Boolean(disabled)}
+                        icon={isCopied ? <CheckCircle size='small' /> : <Copy size='small' />}
+                        onClick={handleCopy}
+                    />
+                </Tooltip>
+            )
+        }
+        if (util !== 'emoji') return null
+
+        const isBuiltinDisabled = Boolean(disabled)
+        const emojiDropdownContent = (
+            <div className='condo-input-emoji-dropdown'>
+                <Picker
+                    data={emojiData}
+                    onEmojiSelect={handleBottomEmojiSelect}
+                    previewPosition='none'
+                    skinTonePosition='none'
+                    searchPosition='none'
+                    theme='light'
+                    icons='outline'
+                    i18n={resolvedEmojiDropdownLabels}
+                />
+            </div>
+        )
+
+        return (
+            <Dropdown
+                key={`builtin-${util}-${index}`}
+                trigger={['click']}
+                open={emojiPickerOpen}
+                onOpenChange={handleBottomEmojiOpenChange}
+                overlayClassName='condo-input-emoji-dropdown-overlay'
+                dropdownRender={() => emojiDropdownContent}
+            >
+                <span>
+                    <Tooltip title={resolvedToolbarLabels.emoji} mouseLeaveDelay={0}>
+                        <Button
+                            type='secondary'
+                            minimal
+                            compact
+                            size='medium'
+                            disabled={isBuiltinDisabled}
+                            icon={<Smile size='small' />}
+                            onClick={() => null}
+                        />
+                    </Tooltip>
+                </span>
+            </Dropdown>
+        )
+    }, [
+        disabled,
+        emojiPickerOpen,
+        handleCopy,
+        handleBottomEmojiOpenChange,
+        handleBottomEmojiSelect,
+        isCopied,
+        resolvedEmojiDropdownLabels,
+        resolvedToolbarLabels.emoji,
+    ])
+
     const style = useMemo(() => {
         const minRows = autoSizeConfig.minRows || 1
         const minH = minRows * lineHeight + EDITOR_VERTICAL_PADDING
@@ -929,7 +990,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                     labels={resolvedToolbarLabels} 
                     linkModalLabels={resolvedLinkModalLabels} 
                     imageModalLabels={resolvedImageModalLabels} 
-                    emojiDropdownLabels={resolvedEmojiDropdownLabels} 
                     groups={toolbarGroups} 
                     disabled={disabled}
                 />
@@ -941,12 +1001,16 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         <span className='condo-input-bottom-panel'>
                             {hasBottomPanelUtils && (
                                 <span className='condo-input-utils'>
-                                    {bottomPanelUtils.map((util, index) => (
-                                        React.cloneElement(util, {
+                                    {bottomPanelUtils.map((util, index) => {
+                                        if (typeof util === 'string') {
+                                            return renderBottomPanelBuiltinUtil(util, index)
+                                        }
+
+                                        return React.cloneElement(util, {
                                             key: util.key ?? index,
                                             disabled: util.props.disabled || disabled,
                                         })
-                                    ))}
+                                    })}
                                 </span>
                             )}
 

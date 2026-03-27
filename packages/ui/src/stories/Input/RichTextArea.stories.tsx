@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Copy, Sparkles } from '@open-condo/icons'
+import { Sparkles } from '@open-condo/icons'
 import { Button, Tooltip, Input as Component } from '@open-condo/ui/src'
 import type { ToolbarGroup } from '@open-condo/ui/src'
 
@@ -20,14 +20,15 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 )
 
 const DEMO_BOTTOM_PANEL_UTILS = [
-    <DemoButton icon={<Copy size='small'/>} text='Copy' key='copy' />,
+    'copy',
+    'emoji',
     <DemoButton icon={<Sparkles size='small'/>} text='Sparkles' key='sparkles' />,
 ]
 
 const ALL_TOOLBAR_GROUPS: ToolbarGroup[] = [
     ['undo', 'redo'],
     ['heading', 'bold', 'italic', 'strikethrough'],
-    ['link', 'image', 'emoji'],
+    ['link', 'image'],
     ['unorderedList', 'orderedList', 'taskList', 'blockquote'],
     ['table'],
     ['removeFormatting'],
