@@ -9246,6 +9246,51 @@ export type GetTicketCommentsFilesQueryHookResult = ReturnType<typeof useGetTick
 export type GetTicketCommentsFilesLazyQueryHookResult = ReturnType<typeof useGetTicketCommentsFilesLazyQuery>;
 export type GetTicketCommentsFilesSuspenseQueryHookResult = ReturnType<typeof useGetTicketCommentsFilesSuspenseQuery>;
 export type GetTicketCommentsFilesQueryResult = Apollo.QueryResult<Types.GetTicketCommentsFilesQuery, Types.GetTicketCommentsFilesQueryVariables>;
+export const CreateTicketCommentFileDocument = gql`
+    mutation createTicketCommentFile($data: TicketCommentFileCreateInput!) {
+  ticketCommentFile: createTicketCommentFile(data: $data) {
+    id
+    ticketComment {
+      id
+    }
+    ticket {
+      id
+    }
+    file {
+      id
+      originalFilename
+      publicUrl
+      mimetype
+    }
+  }
+}
+    `;
+export type CreateTicketCommentFileMutationFn = Apollo.MutationFunction<Types.CreateTicketCommentFileMutation, Types.CreateTicketCommentFileMutationVariables>;
+
+/**
+ * __useCreateTicketCommentFileMutation__
+ *
+ * To run a mutation, you first call `useCreateTicketCommentFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTicketCommentFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTicketCommentFileMutation, { data, loading, error }] = useCreateTicketCommentFileMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateTicketCommentFileMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateTicketCommentFileMutation, Types.CreateTicketCommentFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateTicketCommentFileMutation, Types.CreateTicketCommentFileMutationVariables>(CreateTicketCommentFileDocument, options);
+      }
+export type CreateTicketCommentFileMutationHookResult = ReturnType<typeof useCreateTicketCommentFileMutation>;
+export type CreateTicketCommentFileMutationResult = Apollo.MutationResult<Types.CreateTicketCommentFileMutation>;
+export type CreateTicketCommentFileMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketCommentFileMutation, Types.CreateTicketCommentFileMutationVariables>;
 export const GetTicketDocumentGenerationTasksDocument = gql`
     query getTicketDocumentGenerationTasks($where: TicketDocumentGenerationTaskWhereInput!) {
   tasks: allTicketDocumentGenerationTasks(where: $where) {
@@ -9566,6 +9611,48 @@ export type GetTicketFilesQueryHookResult = ReturnType<typeof useGetTicketFilesQ
 export type GetTicketFilesLazyQueryHookResult = ReturnType<typeof useGetTicketFilesLazyQuery>;
 export type GetTicketFilesSuspenseQueryHookResult = ReturnType<typeof useGetTicketFilesSuspenseQuery>;
 export type GetTicketFilesQueryResult = Apollo.QueryResult<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>;
+export const CreateTicketFileDocument = gql`
+    mutation createTicketFile($data: TicketFileCreateInput!) {
+  ticketFile: createTicketFile(data: $data) {
+    id
+    ticket {
+      id
+    }
+    file {
+      id
+      originalFilename
+      publicUrl
+      mimetype
+    }
+  }
+}
+    `;
+export type CreateTicketFileMutationFn = Apollo.MutationFunction<Types.CreateTicketFileMutation, Types.CreateTicketFileMutationVariables>;
+
+/**
+ * __useCreateTicketFileMutation__
+ *
+ * To run a mutation, you first call `useCreateTicketFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTicketFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTicketFileMutation, { data, loading, error }] = useCreateTicketFileMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateTicketFileMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateTicketFileMutation, Types.CreateTicketFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateTicketFileMutation, Types.CreateTicketFileMutationVariables>(CreateTicketFileDocument, options);
+      }
+export type CreateTicketFileMutationHookResult = ReturnType<typeof useCreateTicketFileMutation>;
+export type CreateTicketFileMutationResult = Apollo.MutationResult<Types.CreateTicketFileMutation>;
+export type CreateTicketFileMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketFileMutation, Types.CreateTicketFileMutationVariables>;
 export const GetTicketObserversByTicketIdDocument = gql`
     query getTicketObserversByTicketId($ticketId: ID!) {
   observers: allTicketObservers(where: {ticket: {id: $ticketId}}, first: 100) {

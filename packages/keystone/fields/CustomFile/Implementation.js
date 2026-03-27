@@ -179,7 +179,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
             itemId: resolvedData.id,
             modelName: listKey,
             signature: context._fileNewFlow[key].signature,
-            fileClientId: this._fileClientId,
+            fileClientId: context._fileNewFlow[key].fileClientId,
             dv: 1, sender: resolvedData.sender,
         }
 
@@ -204,6 +204,8 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             attachResult = await res.json()
 
+            console.log('res', JSON.stringify(attachResult))
+
             if (!res.ok) {
                 if (attachResult?.errors && attachResult?.errors?.length > 0) {
                     throw new GQLError({
@@ -213,7 +215,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     }, context)
                 }
 
-                logger.error({ msg: 'fetch error', errors: attachResult.errors, attachResult })
+                console.log({ msg: 'fetch error', errors: attachResult.errors, attachResult })
                 throw new GQLError(ERRORS.INTERNAL_ERROR, context)
             }
 
@@ -223,7 +225,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             resolvedData[this.path] = omit(data, ['iat', 'exp'])
         } catch (err) {
-            logger.error({ msg: 'unexpected file attach error', err })
+            console.log({ msg: 'unexpected file attach error', err })
             if (err instanceof GQLError) {
                 throw err
             }

@@ -1345,6 +1345,13 @@ export type GetTicketCommentsFilesQueryVariables = Types.Exact<{
 
 export type GetTicketCommentsFilesQuery = { __typename?: 'Query', files?: Array<{ __typename?: 'TicketCommentFile', id: string, file?: { __typename?: 'File', originalFilename?: string | null, mimetype?: string | null, publicUrl?: string | null } | null, ticketComment?: { __typename?: 'TicketComment', id: string } | null } | null> | null };
 
+export type CreateTicketCommentFileMutationVariables = Types.Exact<{
+  data: Types.TicketCommentFileCreateInput;
+}>;
+
+
+export type CreateTicketCommentFileMutation = { __typename?: 'Mutation', ticketCommentFile?: { __typename?: 'TicketCommentFile', id: string, ticketComment?: { __typename?: 'TicketComment', id: string } | null, ticket?: { __typename?: 'Ticket', id: string } | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null, mimetype?: string | null } | null } | null };
+
 export type GetTicketDocumentGenerationTasksQueryVariables = Types.Exact<{
   where: Types.TicketDocumentGenerationTaskWhereInput;
 }>;
@@ -1395,6 +1402,13 @@ export type GetTicketFilesQueryVariables = Types.Exact<{
 
 
 export type GetTicketFilesQuery = { __typename?: 'Query', ticketFiles?: Array<{ __typename?: 'TicketFile', id: string, ticket?: { __typename?: 'Ticket', id: string } | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null } | null } | null> | null };
+
+export type CreateTicketFileMutationVariables = Types.Exact<{
+  data: Types.TicketFileCreateInput;
+}>;
+
+
+export type CreateTicketFileMutation = { __typename?: 'Mutation', ticketFile?: { __typename?: 'TicketFile', id: string, ticket?: { __typename?: 'Ticket', id: string } | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null, mimetype?: string | null } | null } | null };
 
 export type GetTicketObserversByTicketIdQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
