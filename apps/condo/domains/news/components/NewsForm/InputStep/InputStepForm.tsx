@@ -283,6 +283,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     value={value}
                     autoSize={{ minRows: 2, maxRows: 5 }}
                     disabled={isRewriteNewsTextLoading}
+                    customLabels={{
+                        emojiDropdown: emojiDropdownLabels,
+                    }}
                     bottomPanelUtils={bottomPanelUtils as unknown as React.ReactElement[]}
                 />
             )}

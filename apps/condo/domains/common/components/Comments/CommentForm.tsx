@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import cookie from 'js-cookie'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
+import { Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Input, Button, Tour, Tooltip } from '@open-condo/ui'
 
@@ -13,14 +13,12 @@ import { Module, useMultipleFileUploadHook } from '@condo/domains/common/compone
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
-import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import styles from './Comments.module.css'
 
 import { CommentWithFiles } from './index'
 
-const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 const ENTER_KEY_CODE = 13
 const TourStepZIndex = 1071
 
@@ -155,16 +153,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const intl = useIntl()
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
-    const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
-    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
-    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
-
-    const { isFeatureAvailable } = useOrganizationSubscription()
-    const hasAiFeature = isFeatureAvailable('ai')
+    const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })   
 
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')
-    const [copied, setCopied] = useState<boolean>()
     const [isUpdateLoading, setIsUpdateLoading] = useState(false)
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
@@ -258,19 +250,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             setAiNotificationShow(true)
         }
     }, [errorMessage, generateCommentAnswer, rewriteTextAnswer, setAiNotificationShow])
-
-    const handleCopyClick = useCallback(async () => {
-        if (copied) return
-
-        try {
-            await navigator.clipboard.writeText(commentValue)
-            setCopied(true)
-
-            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
-        } catch (e) {
-            console.error('Unable to copy to clipboard', e)
-        }
-    }, [copied, commentValue])
 
     useEffect(() => {
         commentForm.setFieldsValue({ [fieldName]: commentValue })
@@ -389,21 +368,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     key='uploadButton'
                                     isInputDisable={isInputDisable}
                                 />,
-                                <Tooltip
-                                    title={copied ? CopiedTooltipText : CopyTooltipText }
-                                    placement='top'
-                                    key='copyButton'
-                                >
-                                    <Button
-                                        minimal
-                                        compact
-                                        type='secondary'
-                                        size='medium'
-                                        disabled={!hasText || isInputDisable}
-                                        onClick={handleCopyClick}
-                                        icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
-                                    />
-                                </Tooltip>,
+                                'copy',
                                 ...(rewriteCommentEnabled ? [
                                     <SubscriptionGuardWithTooltip
                                         key='10'
