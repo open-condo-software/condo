@@ -18,22 +18,19 @@ const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_
     SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
     MAX_SYNC_REMOTE_CLIENT_TOKENS_RESET_BY_WINDOW_SEC,
 } = require('@condo/domains/notification/constants/constants')
-const { DEVICE_KEY_VALIDATION_ERROR, INVALID_DEVICE_KEY, DEVICE_KEY_REQUIRED } = require('@condo/domains/notification/constants/errors')
+const { DEVICE_KEY_VALIDATION_ERROR, DEVICE_KEY_REQUIRED } = require('@condo/domains/notification/constants/errors')
+const { ERRORS: REMOTE_CLIENT_ERRORS } = require('@condo/domains/notification/schema/RemoteClient')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
 const { getPushTokensValidationError, deduplicatePushTokens, PUSH_TOKENS_VALIDATION_ERRORS } = require('@condo/domains/notification/utils/serverSchema/syncRemoteClient/pushTokensInput')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const ERRORS = {
     ...PUSH_TOKENS_VALIDATION_ERRORS,
+    INVALID_DEVICE_KEY: { ...REMOTE_CLIENT_ERRORS.INVALID_DEVICE_KEY },
     DEVICE_KEY_VALIDATION_ERROR: {
         code: BAD_USER_INPUT,
         type: DEVICE_KEY_VALIDATION_ERROR,
         message: '"deviceKey" validation error',
-    },
-    INVALID_DEVICE_KEY: {
-        code: BAD_USER_INPUT,
-        type: INVALID_DEVICE_KEY,
-        message: '"deviceKey" should be a valid UUID',
     },
     DEVICE_KEY_REQUIRED: {
         code: BAD_USER_INPUT,
@@ -341,36 +338,26 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
 
     const existing = await getByCondition('RemoteClient', { deviceId, appId })
 
-    let needToPasteDeviceKey = false
-
-    if (existing?.deviceKey || deviceKey) {
-        let needToClearTokens = false
-        const mostLikelyUserUpdatedApp = !existing?.deviceKey && deviceKey
-        const isNormalBehaviour = existing?.deviceKey && deviceKey
-        if (mostLikelyUserUpdatedApp) {
-            needToClearTokens = false
-            needToPasteDeviceKey = true
-        }
-        if (isNormalBehaviour) {
-            needToClearTokens = await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey)
-            if (!needToClearTokens) needToPasteDeviceKey = true
-        }
-        // shouldn't happen logically
-        if (existing?.deviceKey && !deviceKey) {
-            throw new GQLError(ERRORS.DEVICE_KEY_REQUIRED, context)
-        }
-        if (needToClearTokens && existing?.id) {
-            await checkLimits(context.req.ip, userId, context)
-            const remoteClientPushTokensToDelete = await find('RemoteClientPushToken', { remoteClient: { id: existing.id }, deletedAt: null })
-            await RemoteClientPushToken.updateMany(
-                context,
-                remoteClientPushTokensToDelete.map(pushToken => ({ id: pushToken.id, data: { deletedAt: new Date().toISOString(), dv: 1, sender } })),
-            )
-        }
+    let needToUpdateDeviceKey =
+        deviceKey
+        && (
+            !existing?.deviceKey
+            || existing && !(await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey))
+        )
+    if (needToUpdateDeviceKey && existing) {
+        await checkLimits(context.req.ip, userId, context)
+        const remoteClientPushTokensToDelete = await find('RemoteClientPushToken', { remoteClient: { id: existing.id }, deletedAt: null })
+        await RemoteClientPushToken.updateMany(
+            context,
+            remoteClientPushTokensToDelete.map(pushToken => ({ id: pushToken.id, data: { deletedAt: new Date().toISOString(), dv: 1, sender } })),
+        )
+    }
+    if (existing?.deviceKey && !deviceKey) {
+        throw new GQLError(ERRORS.DEVICE_KEY_REQUIRED, context)
     }
 
     if (!existing) {
-        if (needToPasteDeviceKey) attrs['deviceKey'] = deviceKey
+        if (needToUpdateDeviceKey) attrs['deviceKey'] = deviceKey
         return await RemoteClient.create(context, attrs)
     }
     const diff = {}
@@ -392,7 +379,7 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
         }
     }
 
-    if (needToPasteDeviceKey) {
+    if (needToUpdateDeviceKey) {
         diff['deviceKey'] = deviceKey
         attrs['deviceKey'] = deviceKey
     }
@@ -524,11 +511,10 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 }
                 const pushTokens = deduplicatePushTokens(pushTokensInput)
                 const { keystone } = getSchemaCtx('RemoteClient')
-                // TODO(YEgorLu): after DOMA-13021 this check should use RemoteClient.deviceToken field instead of User.password
                 if (typeof deviceKey === 'string') {
                     const isValidUuid = UUID_REGEXP.test(deviceKey)
                     if (!isValidUuid) {
-                        throw new GQLError(ERRORS.INVALID_DEVICE_KEY, context)
+                        //throw new GQLError(ERRORS.INVALID_DEVICE_KEY, context)
                     }
 
                     try {
@@ -539,7 +525,7 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 }
 
                 const userId = get(context, 'authedItem.id', null)
-                const remoteClient = await syncRemoteClient(context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta })
+                const remoteClient = await syncRemoteClient(context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta, deviceKey })
                 await syncPushTokens(context, { remoteClient, pushTokensInput: pushTokens, dv, sender })
 
                 const client = await getById('RemoteClient', remoteClient.id)

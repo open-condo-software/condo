@@ -1192,6 +1192,7 @@ describe('SyncRemoteClientService', () => {
                 {
                     testName: 'empty string',
                     deviceKey: '',
+                    expectedError: ERRORS.DEVICE_KEY_VALIDATION_ERROR,
                 },
                 {
                     testName: 'not a uuid',
@@ -1201,7 +1202,7 @@ describe('SyncRemoteClientService', () => {
                     testName: 'not a uuid 2',
                     deviceKey: faker.random.alphaNumeric(faker.datatype.uuid().length),
                 },
-            ])('fails when deviceKey is $testName', async ({ deviceKey }) => {
+            ])('fails when deviceKey is $testName', async ({ deviceKey, expectedError = ERRORS.INVALID_DEVICE_KEY }) => {
                 const client = await makeClient()
                 const payload = getRandomTokenData({ pushToken: null, meta: null })
 
@@ -1212,7 +1213,7 @@ describe('SyncRemoteClientService', () => {
 
                 await expectToThrowGQLErrorToResult(async () => {
                     await syncRemoteClientByTestClient(client, invalidPayload)
-                }, ERRORS.INVALID_DEVICE_KEY)
+                }, expectedError)
             })
 
             it('passes when deviceKey is valid', async () => {
@@ -1323,7 +1324,7 @@ describe('SyncRemoteClientService', () => {
 
     describe('Push tokens cleaning in case of new deviceKey', () => {
 
-        test('maybe app updated behaviour: does not delete tokens if added deviceKey first time', async () => {
+        test('maybe app updated behaviour: delete tokens if added deviceKey first time', async () => {
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null })
 
             const [remoteClient] = await createTestRemoteClient(admin, payload)
@@ -1336,8 +1337,8 @@ describe('SyncRemoteClientService', () => {
                 deviceKey: faker.datatype.uuid(),
             })
 
-            const notDeletedRemoteClientPushToken = await RemoteClientPushToken.getOne(admin, { id: remoteClientPushToken.id })
-            expect(notDeletedRemoteClientPushToken.deletedAt).not.toBeNull()
+            const deletedRemoteClientPushToken = await RemoteClientPushToken.getOne(admin, { id: remoteClientPushToken.id, deletedAt_not: null })
+            expect(deletedRemoteClientPushToken).not.toBeNull()
         })
 
         test('invalid behaviour: remote client has deviceKey -> deviceKey becomes required', async () => {
