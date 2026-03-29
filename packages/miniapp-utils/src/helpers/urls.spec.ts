@@ -434,6 +434,12 @@ describe('URL utils', () => {
                 const result = replaceDomain(source, 'https://localhost:3000', 'https://prod.com', { encoded: true })
                 expect(result).toBe('url=https%3A%2F%2Fprod.com%2Fapi')
             })
+
+            test('should replace domain in complex JSON string with multiple occurrences', () => {
+                const source = '{"appDomain":"https://127.0.0.1:59528","encoded":"https%3A%2F%2F127.0.0.1%3A59528","text":"go to https://127.0.0.1:59528"}'
+                const result = replaceDomain(source, 'https://127.0.0.1:59528', 'https://testapp.miniapps.d.condo.dev', { encoded: true })
+                expect(result).toBe('{"appDomain":"https://testapp.miniapps.d.condo.dev","encoded":"https%3A%2F%2Ftestapp.miniapps.d.condo.dev","text":"go to https://testapp.miniapps.d.condo.dev"}')
+            })
         })
 
         describe('edge cases', () => {
