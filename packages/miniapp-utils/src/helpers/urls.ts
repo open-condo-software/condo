@@ -42,7 +42,7 @@ function _escapeRegexp (source: string) {
     return source.replace(REGEXP_ESCAPE_CHARS, '\\$&')
 }
 
-type ReplaceDomainOptions = { encoded?: boolean, urlsCache?: URLCache, regexpsCache?: RegExpCache }
+export type ReplaceDomainOptions = { encoded?: boolean, urlsCache?: URLCache, regexpsCache?: RegExpCache }
 
 function _getUrl (strUrl: string, cache?: URLCache): URL {
     if (!cache) return new URL(strUrl)
