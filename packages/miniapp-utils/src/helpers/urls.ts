@@ -2,8 +2,8 @@ const REGEXP_ESCAPE_CHARS = /[\\^$.*+?()[\]{}|]/g
 const WILDCARD_REGEXP_PART = '([a-zA-Z0-9-]{1,63})'
 const WILDCARD_REGEXP_PART_ESCAPED = _escapeRegexp(WILDCARD_REGEXP_PART)
 
-const _replacerUrlCache = new Map<string, URL>()
-const _replacerRegexpCache = new Map<string, RegExp>()
+type URLCache = Map<string, URL>
+type RegExpCache = Map<string, RegExp>
 
 export function isSafeUrl (url: unknown): boolean {
     if (!url || typeof url !== 'string') return false
@@ -42,40 +42,50 @@ function _escapeRegexp (source: string) {
     return source.replace(REGEXP_ESCAPE_CHARS, '\\$&')
 }
 
-type ReplaceDomainOptions = { encoded?: boolean, cache?: boolean }
+type ReplaceDomainOptions = { encoded?: boolean, urlsCache?: URLCache, regexpsCache?: RegExpCache }
 
-function _getUrl (strUrl: string, cache: boolean): URL {
+function _getUrl (strUrl: string, cache?: URLCache): URL {
     if (!cache) return new URL(strUrl)
 
-    let parsed = _replacerUrlCache.get(strUrl)
+    let parsed = cache.get(strUrl)
     if (!parsed) {
         parsed = new URL(strUrl)
-        _replacerUrlCache.set(strUrl, parsed)
+        cache.set(strUrl, parsed)
     }
     return parsed
 }
 
 /** NOTE: Don't use it outside of this file, since it mutates lastIndex */
-function _getCachedRegexp (pattern: string, cache: boolean): RegExp {
+function _getCachedRegexp (pattern: string, cache?: RegExpCache): RegExp {
     // NOTE: no user input here
     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     if (!cache) return new RegExp(pattern, 'g')
 
-    let re = _replacerRegexpCache.get(pattern)
+    let re = cache.get(pattern)
     if (!re) {
         // NOTE: no user input here
         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         re = new RegExp(pattern, 'g')
-        _replacerRegexpCache.set(pattern, re)
+        cache.set(pattern, re)
     }
     re.lastIndex = 0
     return re
 }
 
-export function replaceDomain (source: string, from: string, to: string, options: ReplaceDomainOptions = {}): string {
-    const { encoded = false, cache = false } = options
+export function getWildcardDomain (domain: string, cache?: URLCache) {
+    const url = _getUrl(domain, cache)
+    const [prefix, ...rest] = url.hostname.split('.')
+    const port = url.port ? `:${url.port}` : ''
+    return {
+        wildcardDomain: `${url.protocol}//*.${rest.join('.')}${port}`,
+        prefix,
+    }
+}
 
-    const fromUrl = _getUrl(from, cache)
+export function replaceDomain (source: string, from: string, to: string, options: ReplaceDomainOptions = {}): string {
+    const { encoded = false, urlsCache, regexpsCache } = options
+
+    const fromUrl = _getUrl(from, urlsCache)
     // NOTE: URL parser encodes * as %2A in some browsers (Chromium), so decode the hostname to check for wildcards
     const decodedHostname = decodeURIComponent(fromUrl.hostname)
 
@@ -100,7 +110,7 @@ export function replaceDomain (source: string, from: string, to: string, options
     const toPattern = to.replace('*', '$1')
 
     const escapedFrom = _escapeRegexp(fromPattern).replace(WILDCARD_REGEXP_PART_ESCAPED, WILDCARD_REGEXP_PART)
-    const fromSearch = _getCachedRegexp(escapedFrom, cache)
+    const fromSearch = _getCachedRegexp(escapedFrom, regexpsCache)
 
     let replaced = source.replace(fromSearch, toPattern)
 
@@ -113,7 +123,7 @@ export function replaceDomain (source: string, from: string, to: string, options
         const toEncoded = encodeURIComponent(to).replace('*', '$1')
 
         const escapedFromEncoded = _escapeRegexp(fromEncoded).replace(WILDCARD_REGEXP_PART_ESCAPED, WILDCARD_REGEXP_PART)
-        const fromEncodedSearch = _getCachedRegexp(escapedFromEncoded, cache)
+        const fromEncodedSearch = _getCachedRegexp(escapedFromEncoded, regexpsCache)
 
         replaced = replaced.replace(fromEncodedSearch, toEncoded)
     }

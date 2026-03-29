@@ -1,4 +1,4 @@
-import { isSafeUrl, replaceDomainPrefix, replaceDomain } from './urls'
+import { isSafeUrl, replaceDomainPrefix, replaceDomain, getWildcardDomain } from './urls'
 
 describe('URL utils', () => {
     describe('isSafeUrl', () => {
@@ -414,16 +414,233 @@ describe('URL utils', () => {
         })
 
         describe('cache option', () => {
-            test('should work with cache disabled (default)', () => {
+            test('should work without cache (default)', () => {
                 const source = 'https://api.example.com/path'
-                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { cache: false })
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
                 expect(result).toBe('https://api.new.com/path')
             })
 
-            test('should work with cache enabled', () => {
+            test('should work with urlsCache', () => {
+                const urlsCache = new Map()
                 const source = 'https://api.example.com/path'
-                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { cache: true })
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { urlsCache })
                 expect(result).toBe('https://api.new.com/path')
+                expect(urlsCache.size).toBeGreaterThan(0)
+            })
+
+            test('should work with regexpsCache', () => {
+                const regexpsCache = new Map()
+                const source = 'https://api.example.com/path'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { regexpsCache })
+                expect(result).toBe('https://api.new.com/path')
+                expect(regexpsCache.size).toBeGreaterThan(0)
+            })
+
+            test('should work with both caches', () => {
+                const urlsCache = new Map()
+                const regexpsCache = new Map()
+                const source = 'https://api.example.com/path'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { urlsCache, regexpsCache })
+                expect(result).toBe('https://api.new.com/path')
+                expect(urlsCache.size).toBeGreaterThan(0)
+                expect(regexpsCache.size).toBeGreaterThan(0)
+            })
+
+            test('should reuse cached values on subsequent calls', () => {
+                const urlsCache = new Map()
+                const regexpsCache = new Map()
+                
+                replaceDomain('https://api.example.com/path', 'https://*.example.com', 'https://*.new.com', { urlsCache, regexpsCache })
+                const urlsCacheSize = urlsCache.size
+                const regexpsCacheSize = regexpsCache.size
+                
+                replaceDomain('https://web.example.com/page', 'https://*.example.com', 'https://*.new.com', { urlsCache, regexpsCache })
+                
+                expect(urlsCache.size).toBe(urlsCacheSize)
+                expect(regexpsCache.size).toBe(regexpsCacheSize)
+            })
+        })
+    })
+
+    describe('getWildcardDomain', () => {
+        describe('basic wildcard extraction', () => {
+            test('should extract wildcard domain from subdomain', () => {
+                const result = getWildcardDomain('https://api.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api',
+                })
+            })
+
+            test('should extract wildcard domain from multi-level subdomain', () => {
+                const result = getWildcardDomain('https://api.v1.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.v1.example.com',
+                    prefix: 'api',
+                })
+            })
+
+            test('should handle root domain', () => {
+                const result = getWildcardDomain('https://example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.com',
+                    prefix: 'example',
+                })
+            })
+
+            test('should handle www subdomain', () => {
+                const result = getWildcardDomain('https://www.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'www',
+                })
+            })
+        })
+
+        describe('different protocols', () => {
+            test('should handle http protocol', () => {
+                const result = getWildcardDomain('http://api.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'http://*.example.com',
+                    prefix: 'api',
+                })
+            })
+
+            test('should handle ws protocol', () => {
+                // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
+                const result = getWildcardDomain('ws://socket.example.com')
+                expect(result).toEqual({
+                    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
+                    wildcardDomain: 'ws://*.example.com',
+                    prefix: 'socket',
+                })
+            })
+
+            test('should handle wss protocol', () => {
+                const result = getWildcardDomain('wss://secure.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'wss://*.example.com',
+                    prefix: 'secure',
+                })
+            })
+        })
+
+        describe('with ports and paths', () => {
+            test('should handle domain with port', () => {
+                const result = getWildcardDomain('https://api.example.com:8080')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com:8080',
+                    prefix: 'api',
+                })
+            })
+
+            test('should ignore path in wildcard domain', () => {
+                const result = getWildcardDomain('https://api.example.com/path/to/resource')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api',
+                })
+            })
+
+            test('should ignore query parameters', () => {
+                const result = getWildcardDomain('https://api.example.com?param=value')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api',
+                })
+            })
+
+            test('should ignore fragments', () => {
+                const result = getWildcardDomain('https://api.example.com#section')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api',
+                })
+            })
+        })
+
+        describe('special subdomain names', () => {
+            test('should handle hyphenated subdomain', () => {
+                const result = getWildcardDomain('https://my-api.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'my-api',
+                })
+            })
+
+            test('should handle numeric subdomain', () => {
+                const result = getWildcardDomain('https://v1.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'v1',
+                })
+            })
+
+            test('should handle mixed alphanumeric subdomain', () => {
+                const result = getWildcardDomain('https://api2.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api2',
+                })
+            })
+        })
+
+        describe('with cache', () => {
+            test('should work without cache', () => {
+                const result = getWildcardDomain('https://api.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api',
+                })
+            })
+
+            test('should use urlsCache when provided', () => {
+                const urlsCache = new Map()
+                const result1 = getWildcardDomain('https://api.example.com', urlsCache)
+                const result2 = getWildcardDomain('https://api.example.com', urlsCache)
+                
+                expect(result1).toEqual({
+                    wildcardDomain: 'https://*.example.com',
+                    prefix: 'api',
+                })
+                expect(result2).toEqual(result1)
+                expect(urlsCache.size).toBe(1)
+            })
+
+            test('should cache different domains separately', () => {
+                const urlsCache = new Map()
+                const result1 = getWildcardDomain('https://api.example.com', urlsCache)
+                const result2 = getWildcardDomain('https://web.example.com', urlsCache)
+                
+                expect(result1.prefix).toBe('api')
+                expect(result2.prefix).toBe('web')
+                expect(urlsCache.size).toBe(2)
+            })
+        })
+
+        describe('edge cases', () => {
+            test('should handle localhost', () => {
+                const result = getWildcardDomain('http://api.localhost')
+                expect(result).toEqual({
+                    wildcardDomain: 'http://*.localhost',
+                    prefix: 'api',
+                })
+            })
+
+            test('should handle single-part domain', () => {
+                const result = getWildcardDomain('http://localhost')
+                expect(result).toEqual({
+                    wildcardDomain: 'http://*.',
+                    prefix: 'localhost',
+                })
+            })
+
+            test('should handle deep subdomain hierarchy', () => {
+                const result = getWildcardDomain('https://api.v2.staging.example.com')
+                expect(result).toEqual({
+                    wildcardDomain: 'https://*.v2.staging.example.com',
+                    prefix: 'api',
+                })
             })
         })
     })
