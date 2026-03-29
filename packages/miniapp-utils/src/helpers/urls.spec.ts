@@ -1,4 +1,4 @@
-import { isSafeUrl, replaceDomainPrefix } from './urls'
+import { isSafeUrl, replaceDomainPrefix, replaceDomain } from './urls'
 
 describe('URL utils', () => {
     describe('isSafeUrl', () => {
@@ -257,6 +257,172 @@ describe('URL utils', () => {
                     expect(replaceDomainPrefix(originalUrl, prefix)).toBe(expected)
                 }
             )
+        })
+    })
+    describe('replaceDomain', () => {
+        describe('regular domain replacement', () => {
+            test('should replace exact domain match in URL', () => {
+                const source = 'https://old.example.com/path'
+                const result = replaceDomain(source, 'https://old.example.com', 'https://new.example.com')
+                expect(result).toBe('https://new.example.com/path')
+            })
+
+            test('should replace multiple occurrences of domain', () => {
+                const source = 'Visit https://old.com or https://old.com/api'
+                const result = replaceDomain(source, 'https://old.com', 'https://new.com')
+                expect(result).toBe('Visit https://new.com or https://new.com/api')
+            })
+
+            test('should replace domain with different protocol', () => {
+                const source = 'ws://api.example.com/users'
+                const result = replaceDomain(source, 'ws://api.example.com', 'wss://api.example.com')
+                expect(result).toBe('wss://api.example.com/users')
+            })
+
+            test('should replace domain with port', () => {
+                const source = 'https://localhost:3000/api/v1'
+                const result = replaceDomain(source, 'https://localhost:3000', 'https://prod.example.com')
+                expect(result).toBe('https://prod.example.com/api/v1')
+            })
+
+            test('should not replace partial domain matches', () => {
+                const source = 'https://api.example.com/path'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('https://api.example.com/path')
+            })
+        })
+
+        describe('wildcard domain replacement', () => {
+            test('should replace wildcard subdomain', () => {
+                const source = 'https://api.example.com/path'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.newdomain.com')
+                expect(result).toBe('https://api.newdomain.com/path')
+            })
+
+            test('should replace different wildcard subdomains', () => {
+                const source = 'https://dev.example.com and https://staging.example.com'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.prod.com')
+                expect(result).toBe('https://dev.prod.com and https://staging.prod.com')
+            })
+
+            test('should preserve subdomain name in wildcard replacement', () => {
+                const source = 'https://my-service.old-domain.com/api'
+                const result = replaceDomain(source, 'https://*.old-domain.com', 'https://*.new-domain.com')
+                expect(result).toBe('https://my-service.new-domain.com/api')
+            })
+
+            test('should handle wildcard with query parameters', () => {
+                const source = 'https://api.example.com/search?q=test&page=1'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.newsite.com')
+                expect(result).toBe('https://api.newsite.com/search?q=test&page=1')
+            })
+
+            test('should handle wildcard with fragments', () => {
+                const source = 'https://docs.example.com/guide#section'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.newdocs.com')
+                expect(result).toBe('https://docs.newdocs.com/guide#section')
+            })
+
+            test('should handle wildcard with numeric subdomains', () => {
+                const source = 'https://v1.api.example.com/users'
+                const result = replaceDomain(source, 'https://*.api.example.com', 'https://*.api.newsite.com')
+                expect(result).toBe('https://v1.api.newsite.com/users')
+            })
+
+            test('should handle wildcard with hyphenated subdomains', () => {
+                const source = 'https://my-app-staging.example.com'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.prod.com')
+                expect(result).toBe('https://my-app-staging.prod.com')
+            })
+        })
+
+        describe('encoded domain replacement', () => {
+            test('should replace encoded domain when encoded option is true', () => {
+                const source = 'redirect=https%3A%2F%2Fold.example.com%2Fpath'
+                const result = replaceDomain(source, 'https://old.example.com', 'https://new.example.com', { encoded: true })
+                expect(result).toBe('redirect=https%3A%2F%2Fnew.example.com%2Fpath')
+            })
+
+            test('should replace both plain and encoded domains', () => {
+                const source = 'url=https://old.com and encoded=https%3A%2F%2Fold.com'
+                const result = replaceDomain(source, 'https://old.com', 'https://new.com', { encoded: true })
+                expect(result).toBe('url=https://new.com and encoded=https%3A%2F%2Fnew.com')
+            })
+
+            test('should replace encoded wildcard domains', () => {
+                const source = 'redirect=https%3A%2F%2Fapi.example.com%2Fpath'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.newsite.com', { encoded: true })
+                expect(result).toBe('redirect=https%3A%2F%2Fapi.newsite.com%2Fpath')
+            })
+
+            test('should handle encoded domains in query parameters', () => {
+                const source = '/callback?return_url=https%3A%2F%2Fapp.example.com%2Fdashboard'
+                const result = replaceDomain(source, 'https://app.example.com', 'https://app.newdomain.com', { encoded: true })
+                expect(result).toBe('/callback?return_url=https%3A%2F%2Fapp.newdomain.com%2Fdashboard')
+            })
+
+            test('should handle multiple encoded domains with wildcards', () => {
+                const source = 'url1=https%3A%2F%2Fapi.old.com&url2=https%3A%2F%2Fweb.old.com'
+                const result = replaceDomain(source, 'https://*.old.com', 'https://*.new.com', { encoded: true })
+                expect(result).toBe('url1=https%3A%2F%2Fapi.new.com&url2=https%3A%2F%2Fweb.new.com')
+            })
+
+            test('should not replace encoded domain when encoded option is false', () => {
+                const source = 'redirect=https%3A%2F%2Fold.example.com%2Fpath'
+                const result = replaceDomain(source, 'https://old.example.com', 'https://new.example.com', { encoded: false })
+                expect(result).toBe('redirect=https%3A%2F%2Fold.example.com%2Fpath')
+            })
+
+            test('should handle encoded domains with ports', () => {
+                const source = 'url=https%3A%2F%2Flocalhost%3A3000%2Fapi'
+                const result = replaceDomain(source, 'https://localhost:3000', 'https://prod.com', { encoded: true })
+                expect(result).toBe('url=https%3A%2F%2Fprod.com%2Fapi')
+            })
+        })
+
+        describe('edge cases', () => {
+            test('should handle empty source string', () => {
+                const result = replaceDomain('', 'https://old.com', 'https://new.com')
+                expect(result).toBe('')
+            })
+
+            test('should handle source without matching domain', () => {
+                const source = 'https://different.com/path'
+                const result = replaceDomain(source, 'https://old.com', 'https://new.com')
+                expect(result).toBe('https://different.com/path')
+            })
+
+            test('should handle complex URLs with wildcards', () => {
+                const source = 'https://api.example.com:8080/v1/users?filter=active&sort=name#results'
+                const result = replaceDomain(source, 'https://*.example.com:8080', 'https://*.newapi.com:8080')
+                expect(result).toBe('https://api.newapi.com:8080/v1/users?filter=active&sort=name#results')
+            })
+
+            test('should handle mixed plain and encoded with wildcards', () => {
+                const source = 'Plain: https://api.old.com/path and encoded: https%3A%2F%2Fweb.old.com%2Fpage'
+                const result = replaceDomain(source, 'https://*.old.com', 'https://*.new.com', { encoded: true })
+                expect(result).toBe('Plain: https://api.new.com/path and encoded: https%3A%2F%2Fweb.new.com%2Fpage')
+            })
+
+            test('should preserve special characters in path', () => {
+                const source = 'https://api.example.com/path/with-special_chars.and~tildes'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
+                expect(result).toBe('https://api.new.com/path/with-special_chars.and~tildes')
+            })
+        })
+
+        describe('cache option', () => {
+            test('should work with cache enabled (default)', () => {
+                const source = 'https://api.example.com/path'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
+                expect(result).toBe('https://api.new.com/path')
+            })
+
+            test('should work with cache disabled', () => {
+                const source = 'https://api.example.com/path'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { cache: false })
+                expect(result).toBe('https://api.new.com/path')
+            })
         })
     })
 })
