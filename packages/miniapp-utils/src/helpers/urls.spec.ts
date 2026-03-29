@@ -292,6 +292,42 @@ describe('URL utils', () => {
                 const result = replaceDomain(source, 'https://example.com', 'https://new.com')
                 expect(result).toBe('https://api.example.com/path')
             })
+
+            test('should not replace domain followed by more TLD parts', () => {
+                const source = 'Visit https://example.com.au for Australian users'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('Visit https://example.com.au for Australian users')
+            })
+
+            test('should not replace domain that is prefix of another domain', () => {
+                const source = 'https://example.company/path'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('https://example.company/path')
+            })
+
+            test('should replace domain followed by dot at end of sentence', () => {
+                const source = 'Visit https://example.com. For more info'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('Visit https://new.com. For more info')
+            })
+
+            test('should replace domain followed by path delimiter', () => {
+                const source = 'https://example.com/path'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('https://new.com/path')
+            })
+
+            test('should replace domain followed by query delimiter', () => {
+                const source = 'https://example.com?param=value'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('https://new.com?param=value')
+            })
+
+            test('should replace domain at end of string', () => {
+                const source = 'Visit https://example.com'
+                const result = replaceDomain(source, 'https://example.com', 'https://new.com')
+                expect(result).toBe('Visit https://new.com')
+            })
         })
 
         describe('wildcard domain replacement', () => {
@@ -335,6 +371,24 @@ describe('URL utils', () => {
                 const source = 'https://my-app-staging.example.com'
                 const result = replaceDomain(source, 'https://*.example.com', 'https://*.prod.com')
                 expect(result).toBe('https://my-app-staging.prod.com')
+            })
+
+            test('should not replace wildcard domain followed by more TLD parts', () => {
+                const source = 'Visit https://api.example.com.au for Australian users'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
+                expect(result).toBe('Visit https://api.example.com.au for Australian users')
+            })
+
+            test('should not replace wildcard when base domain is prefix of another', () => {
+                const source = 'https://api.example.company/path'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
+                expect(result).toBe('https://api.example.company/path')
+            })
+
+            test('should replace wildcard domain followed by dot at end of sentence', () => {
+                const source = 'Visit https://api.example.com. For more info'
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
+                expect(result).toBe('Visit https://api.new.com. For more info')
             })
         })
 

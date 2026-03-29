@@ -91,11 +91,21 @@ export function replaceDomain (source: string, from: string, to: string, options
 
     // NOTE: for non-wildcard domain just do simple replace
     if (!decodedHostname.startsWith('*.')) {
-        let replaced = source.replaceAll(from, to)
+        // Add lookaheads to ensure proper domain boundaries
+        // Negative: not followed by dot + domain chars (prevents example.com matching example.com.au)
+        // Positive: must be followed by valid URL delimiters or end of string
+        const escapedFrom = _escapeRegexp(from)
+        const fromWithBoundary = `${escapedFrom}(?!\\.${WILDCARD_REGEXP_PART})(?=[/?#:\\s.]|$)`
+        const fromSearch = _getCachedRegexp(fromWithBoundary, regexpsCache)
+        let replaced = source.replace(fromSearch, to)
+
         if (encoded) {
             const fromEncoded = encodeURIComponent(from)
-            const toEncoded = encodeURIComponent(to)
-            replaced = replaced.replaceAll(fromEncoded, toEncoded)
+            const escapedFromEncoded = _escapeRegexp(fromEncoded)
+            // For encoded: check for %2E (encoded dot) and encoded delimiters
+            const fromEncodedWithBoundary = `${escapedFromEncoded}(?!%2E${WILDCARD_REGEXP_PART})(?=%2F|%3F|%23|[\\s&]|$)`
+            const fromEncodedSearch = _getCachedRegexp(fromEncodedWithBoundary, regexpsCache)
+            replaced = replaced.replace(fromEncodedSearch, encodeURIComponent(to))
         }
 
         return replaced
@@ -110,7 +120,9 @@ export function replaceDomain (source: string, from: string, to: string, options
     const toPattern = to.replace('*', '$1')
 
     const escapedFrom = _escapeRegexp(fromPattern).replace(WILDCARD_REGEXP_PART_ESCAPED, WILDCARD_REGEXP_PART)
-    const fromSearch = _getCachedRegexp(escapedFrom, regexpsCache)
+    // Add lookaheads to ensure proper domain boundaries
+    const fromWithBoundary = `${escapedFrom}(?!\\.${WILDCARD_REGEXP_PART})(?=[/?#:\\s.]|$)`
+    const fromSearch = _getCachedRegexp(fromWithBoundary, regexpsCache)
 
     let replaced = source.replace(fromSearch, toPattern)
 
@@ -123,7 +135,9 @@ export function replaceDomain (source: string, from: string, to: string, options
         const toEncoded = encodeURIComponent(to).replace('*', '$1')
 
         const escapedFromEncoded = _escapeRegexp(fromEncoded).replace(WILDCARD_REGEXP_PART_ESCAPED, WILDCARD_REGEXP_PART)
-        const fromEncodedSearch = _getCachedRegexp(escapedFromEncoded, regexpsCache)
+        // Add lookaheads for encoded domains
+        const fromEncodedWithBoundary = `${escapedFromEncoded}(?!%2E${WILDCARD_REGEXP_PART})(?=%2F|%3F|%23|[\\s&]|$)`
+        const fromEncodedSearch = _getCachedRegexp(fromEncodedWithBoundary, regexpsCache)
 
         replaced = replaced.replace(fromEncodedSearch, toEncoded)
     }
