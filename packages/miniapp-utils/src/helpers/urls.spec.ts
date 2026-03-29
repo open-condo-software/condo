@@ -274,7 +274,9 @@ describe('URL utils', () => {
             })
 
             test('should replace domain with different protocol', () => {
+                // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
                 const source = 'ws://api.example.com/users'
+                // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
                 const result = replaceDomain(source, 'ws://api.example.com', 'wss://api.example.com')
                 expect(result).toBe('wss://api.example.com/users')
             })
@@ -412,15 +414,15 @@ describe('URL utils', () => {
         })
 
         describe('cache option', () => {
-            test('should work with cache enabled (default)', () => {
+            test('should work with cache disabled (default)', () => {
                 const source = 'https://api.example.com/path'
-                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com')
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { cache: false })
                 expect(result).toBe('https://api.new.com/path')
             })
 
-            test('should work with cache disabled', () => {
+            test('should work with cache enabled', () => {
                 const source = 'https://api.example.com/path'
-                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { cache: false })
+                const result = replaceDomain(source, 'https://*.example.com', 'https://*.new.com', { cache: true })
                 expect(result).toBe('https://api.new.com/path')
             })
         })

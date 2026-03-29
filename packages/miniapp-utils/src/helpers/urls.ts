@@ -55,12 +55,16 @@ function _getUrl (strUrl: string, cache: boolean): URL {
     return parsed
 }
 
-/** NOTE: Dont use it outside of this file, since it mutates lastIndex */
+/** NOTE: Don't use it outside of this file, since it mutates lastIndex */
 function _getCachedRegexp (pattern: string, cache: boolean): RegExp {
-    if (!cache) return new RegExp(pattern)
+    // NOTE: no user input here
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    if (!cache) return new RegExp(pattern, 'g')
 
     let re = _replacerRegexpCache.get(pattern)
     if (!re) {
+        // NOTE: no user input here
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         re = new RegExp(pattern, 'g')
         _replacerRegexpCache.set(pattern, re)
     }
@@ -88,7 +92,11 @@ export function replaceDomain (source: string, from: string, to: string, options
     }
 
     // NOTE: need to apply some magic on wildcards
+    // NOTE: only first * is needed
+    // nosemgrep: javascript.lang.security.audit.incomplete-sanitization.incomplete-sanitization
     const fromPattern = from.replace('*', WILDCARD_REGEXP_PART)
+    // NOTE: only first * is needed
+    // nosemgrep: javascript.lang.security.audit.incomplete-sanitization.incomplete-sanitization
     const toPattern = to.replace('*', '$1')
 
     const escapedFrom = _escapeRegexp(fromPattern).replace(WILDCARD_REGEXP_PART_ESCAPED, WILDCARD_REGEXP_PART)
@@ -97,7 +105,11 @@ export function replaceDomain (source: string, from: string, to: string, options
     let replaced = source.replace(fromSearch, toPattern)
 
     if (encoded) {
+        // NOTE: only first * is needed
+        // nosemgrep: javascript.lang.security.audit.incomplete-sanitization.incomplete-sanitization
         const fromEncoded = encodeURIComponent(from).replace('*', WILDCARD_REGEXP_PART)
+        // NOTE: only first * is needed
+        // nosemgrep: javascript.lang.security.audit.incomplete-sanitization.incomplete-sanitization
         const toEncoded = encodeURIComponent(to).replace('*', '$1')
 
         const escapedFromEncoded = _escapeRegexp(fromEncoded).replace(WILDCARD_REGEXP_PART_ESCAPED, WILDCARD_REGEXP_PART)
