@@ -972,7 +972,7 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
-    LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+    LD_PRELOAD: libjemalloc.so.2
 
 ---
 image: news_telegram_api
