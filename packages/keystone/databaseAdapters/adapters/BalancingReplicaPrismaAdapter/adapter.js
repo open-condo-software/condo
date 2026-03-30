@@ -282,22 +282,30 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     __kmigratorKnexAdapters () {
         // NOTE: For migrations, use the main database connection (first in the list)
         // Create a temporary adapter with the main database URL for schema extraction
+        console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Called')
         logger.info('BalancingReplicaPrismaAdapter: Starting schema extraction for migrations')
         
-        const mainDbUrl = Object.values(this._dbConnections)[0]
-        const tempAdapter = new PrismaAdapter({ url: mainDbUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
-        
-        // Copy all necessary properties from this adapter to the temp adapter
-        tempAdapter.listAdapters = this.listAdapters
-        tempAdapter.getListAdapterByKey = this.getListAdapterByKey.bind(this)
-        tempAdapter.getDbSchemaName = this.getDbSchemaName ? this.getDbSchemaName.bind(this) : undefined
-        
-        // Call the parent's __kmigratorKnexAdapters on the temp adapter
         try {
+            const mainDbUrl = Object.values(this._dbConnections)[0]
+            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Main DB URL extracted')
+            
+            const tempAdapter = new PrismaAdapter({ url: mainDbUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
+            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Temp adapter created')
+            
+            // Copy all necessary properties from this adapter to the temp adapter
+            tempAdapter.listAdapters = this.listAdapters
+            tempAdapter.getListAdapterByKey = this.getListAdapterByKey.bind(this)
+            tempAdapter.getDbSchemaName = this.getDbSchemaName ? this.getDbSchemaName.bind(this) : undefined
+            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Properties copied')
+            
+            // Call the parent's __kmigratorKnexAdapters on the temp adapter
             const result = tempAdapter.__kmigratorKnexAdapters()
+            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Success')
             logger.info('BalancingReplicaPrismaAdapter: Successfully extracted schema for migrations')
             return result
         } catch (err) {
+            console.error('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] ERROR:', err.message)
+            console.error('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Stack:', err.stack)
             logger.error('BalancingReplicaPrismaAdapter: Schema extraction failed', { message: err.message, stack: err.stack })
             throw err
         }
