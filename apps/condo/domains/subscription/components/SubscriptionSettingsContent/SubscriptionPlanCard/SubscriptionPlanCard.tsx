@@ -20,6 +20,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from '@condo/domains/common/constants/featureflags'
+import { SubscriptionPaymentErrorAlert } from '@condo/domains/subscription/components/SubscriptionPaymentErrorAlert'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
@@ -296,9 +297,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         const contextsWithSamePlan = activatedSubscriptions
             .filter(ctx => ctx?.subscriptionPlan?.id === plan?.id)
             .sort((a, b) => {
-                const aEnd = dayjs(a.endAt)
-                const bEnd = dayjs(b.endAt)
-                return bEnd.diff(aEnd)
+                return dayjs(b.endAt).diff(dayjs(a.endAt))
             })
 
         return contextsWithSamePlan.length > 0 ? contextsWithSamePlan[0]?.bindingId : null
@@ -451,20 +450,23 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Title>
                                         </Space>
                                         {hasPaymentMethodForActivePlan && hasPaymentMethod && (
-                                            <Space size={8} direction='vertical'>
-                                                <Typography.Link onClick={openPaymentHistoryModal}>
-                                                    <Space size={4} direction='horizontal' align='center'>
-                                                        <Bill size='small' />
-                                                        {PaymentHistoryLinkLabel}
-                                                    </Space>
-                                                </Typography.Link>
-                                                <Typography.Link onClick={openLinkedCardsModal}>
-                                                    <Space size={4} direction='horizontal' align='center'>
-                                                        <CreditCard size='small' />
-                                                        {LinkedCardsLinkLabel}
-                                                    </Space>
-                                                </Typography.Link>
-                                            </Space>
+                                            <>
+                                                <SubscriptionPaymentErrorAlert subscriptionPlanId={plan.id} />
+                                                <Space size={8} direction='vertical'>
+                                                    <Typography.Link onClick={openPaymentHistoryModal}>
+                                                        <Space size={4} direction='horizontal' align='center'>
+                                                            <Bill size='small' />
+                                                            {PaymentHistoryLinkLabel}
+                                                        </Space>
+                                                    </Typography.Link>
+                                                    <Typography.Link onClick={openLinkedCardsModal}>
+                                                        <Space size={4} direction='horizontal' align='center'>
+                                                            <CreditCard size='small' />
+                                                            {LinkedCardsLinkLabel}
+                                                        </Space>
+                                                    </Typography.Link>
+                                                </Space>
+                                            </>
                                         )}
                                     </Space>
                                     {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (
