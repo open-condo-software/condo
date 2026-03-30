@@ -73,3 +73,7 @@
 .expanded-content > :global(.ant-space-item) {
   transition: all var(--condo-global-transition-duration-default) ease-in-out;
 }
+
+.expanded-content > :global(.condo-space-item):last-child {
+  margin-top: 4px;
+}

@@ -164,8 +164,8 @@ export const SubscriptionFeatureProgress: React.FC = () => {
                         {animatedPercentage}%
                     </Typography.Text>
                 ) : (
-                    <Space size={16} direction='vertical' className={styles.expandedContent}>
-                        <Typography.Text size='small'>
+                    <Space size={12} direction='vertical' className={styles.expandedContent}>
+                        <Typography.Text size='medium'>
                             {DescriptionText}
                         </Typography.Text>
 
