@@ -318,7 +318,7 @@ describe('FileContentLoader', () => {
             expect(result2.toString()).toContain('content')
         })
 
-        test('batch execution flag is cleared after batch completes', async () => {
+        test('batch completion promise is cleared after batch completes', async () => {
             const adapter = {
                 src: '/test/path',
             }
@@ -332,11 +332,11 @@ describe('FileContentLoader', () => {
             // Wait a bit to ensure batch has fully completed
             await new Promise(resolve => setTimeout(resolve, 20))
             
-            // Flag should be cleared after batch completes
-            expect(loader.isExecutingBatch).toBe(false)
+            // Promise should be cleared after batch completes
+            expect(loader.batchCompletionPromise).toBeNull()
         })
 
-        test('batch execution flag is cleared even if batch fails', async () => {
+        test('batch completion promise is cleared even if batch fails', async () => {
             const adapter = {
                 src: '/test/path',
             }
@@ -351,8 +351,8 @@ describe('FileContentLoader', () => {
             // Wait a bit to ensure batch has fully completed
             await new Promise(resolve => setTimeout(resolve, 20))
             
-            // Flag should still be cleared after batch fails
-            expect(loader.isExecutingBatch).toBe(false)
+            // Promise should still be cleared after batch fails
+            expect(loader.batchCompletionPromise).toBeNull()
         })
     })
 
@@ -468,22 +468,8 @@ describe('FileContentLoader', () => {
         })
     })
     
-    describe('Retry limit', () => {
-        test('throws error when max retries exceeded', async () => {
-            const adapter = {
-                src: '/test/path',
-            }
-            
-            const loader = new FileContentLoader(adapter)
-            
-            // Force batch to be executing indefinitely
-            loader.isExecutingBatch = true
-            
-            await expect(loader.load({ filename: 'test.json' }))
-                .rejects.toThrow('Max retries (10) exceeded')
-        })
-        
-        test('retries successfully when batch completes', async () => {
+    describe('clear', () => {
+        test('clears the cache', async () => {
             const adapter = {
                 src: '/test/path',
             }
@@ -492,43 +478,92 @@ describe('FileContentLoader', () => {
             
             const loader = new FileContentLoader(adapter)
             
-            // Simulate batch executing for a short time
-            loader.isExecutingBatch = true
-            setTimeout(() => {
-                loader.isExecutingBatch = false
-            }, 20)
+            // Load a file to populate cache
+            await loader.load({ filename: 'test.json' })
+            
+            expect(loader.cache.size).toBe(1)
+            
+            // Clear the cache
+            loader.clear()
+            
+            expect(loader.cache.size).toBe(0)
+        })
+        
+        test('allows reloading after clear', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile
+                .mockResolvedValueOnce(Buffer.from('first load'))
+                .mockResolvedValueOnce(Buffer.from('second load'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            // First load
+            const result1 = await loader.load({ filename: 'test.json' })
+            expect(result1.toString()).toBe('first load')
+            
+            // Clear cache
+            loader.clear()
+            
+            // Second load should read from file again
+            const result2 = await loader.load({ filename: 'test.json' })
+            expect(result2.toString()).toBe('second load')
+            expect(mockReadFile).toHaveBeenCalledTimes(2)
+        })
+    })
+    
+    describe('Event-based synchronization', () => {
+        test('waits for batch completion when batch is executing', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('test content'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            // Simulate batch executing with a completion promise
+            loader.batchCompletionPromise = new Promise(resolve => {
+                setTimeout(() => {
+                    loader.batchCompletionPromise = null
+                    resolve()
+                }, 30)
+            })
             
             const result = await loader.load({ filename: 'test.json' })
             
             expect(result.toString()).toBe('test content')
         })
         
-        test('increments retry count on each attempt', async () => {
+        test('handles multiple concurrent loads waiting for batch', async () => {
             const adapter = {
                 src: '/test/path',
             }
             
-            const loader = new FileContentLoader(adapter)
-            
-            // Mock load to track retry count
-            const originalLoad = loader.load.bind(loader)
-            let callCount = 0
-            loader.load = jest.fn(async (fileMeta, retryCount = 0) => {
-                callCount++
-                if (callCount <= 3) {
-                    loader.isExecutingBatch = true
-                    await new Promise(resolve => setTimeout(resolve, 15))
-                    return originalLoad(fileMeta, retryCount)
-                }
-                loader.isExecutingBatch = false
-                return originalLoad(fileMeta, retryCount)
-            })
-            
             mockReadFile.mockResolvedValue(Buffer.from('content'))
             
-            await loader.load({ filename: 'test.json' })
+            const loader = new FileContentLoader(adapter)
             
-            expect(callCount).toBeGreaterThan(1)
+            // Simulate batch executing
+            loader.batchCompletionPromise = new Promise(resolve => {
+                setTimeout(() => {
+                    loader.batchCompletionPromise = null
+                    resolve()
+                }, 30)
+            })
+            
+            // Multiple loads should all wait for batch completion
+            const promise1 = loader.load({ filename: 'file1.json' })
+            const promise2 = loader.load({ filename: 'file2.json' })
+            const promise3 = loader.load({ filename: 'file3.json' })
+            
+            const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
+            
+            expect(result1.toString()).toBe('content')
+            expect(result2.toString()).toBe('content')
+            expect(result3.toString()).toBe('content')
         })
     })
 })

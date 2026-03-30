@@ -22,9 +22,6 @@ const { validateFilePath } = require('./utils')
  * const buffer2 = await loader.load({ filename: 'file1.json' }) // Returns cached result
  */
 
-// Maximum number of retries when batch is executing (prevents unbounded recursion)
-const MAX_RETRIES = 10
-
 class FileContentLoader {
     constructor (adapter) {
         this.adapter = adapter
@@ -41,18 +38,17 @@ class FileContentLoader {
         // Batch delay in milliseconds (one event loop tick)
         this.batchDelay = 10
         
-        // Track if batch is currently executing to prevent race conditions
-        this.isExecutingBatch = false
+        // Promise that resolves when current batch completes (for synchronization)
+        this.batchCompletionPromise = null
     }
 
     /**
      * Load a single file's content.
      * 
      * @param {Object} fileMeta - File metadata object with filename, mimetype, originalFilename
-     * @param {number} retryCount - Internal retry counter (prevents unbounded recursion)
      * @returns {Promise<Buffer>} File content as Buffer
      */
-    async load (fileMeta, retryCount = 0) {
+    async load (fileMeta) {
         const cacheKey = this._getCacheKey(fileMeta)
         
         // Check cache first
@@ -62,12 +58,10 @@ class FileContentLoader {
         
         // If batch is currently executing, wait for it to complete then retry
         // This prevents race condition where promise is cached but item isn't in batch
-        if (this.isExecutingBatch) {
-            if (retryCount >= MAX_RETRIES) {
-                throw new Error(`Max retries (${MAX_RETRIES}) exceeded while waiting for batch to complete for file: ${fileMeta.filename}`)
-            }
-            await new Promise(resolve => setTimeout(resolve, this.batchDelay + 5))
-            return this.load(fileMeta, retryCount + 1)
+        if (this.batchCompletionPromise) {
+            await this.batchCompletionPromise
+            // After batch completes, check cache again or retry
+            return this.load(fileMeta)
         }
         
         // Create promise for this request
@@ -99,6 +93,20 @@ class FileContentLoader {
     }
 
     /**
+     * Clear the cache.
+     * 
+     * Useful for long-running contexts (e.g., subscriptions, background jobs)
+     * where the cache should be explicitly cleared to free memory.
+     * 
+     * Note: In typical GraphQL request contexts, the cache is automatically
+     * garbage collected when the context is destroyed, so explicit clearing
+     * is usually not necessary.
+     */
+    clear () {
+        this.cache.clear()
+    }
+
+    /**
      * Generate cache key from file metadata.
      * 
      * @private
@@ -116,33 +124,38 @@ class FileContentLoader {
      * @private
      */
     async _executeBatch () {
-        // Set execution flag to prevent race conditions
-        this.isExecutingBatch = true
-        
-        // Clear timer
-        this.batchTimer = null
-        
-        // Get current queue and reset for next batch
-        const batch = this.queue.slice()
-        this.queue = []
-        
-        if (batch.length === 0) {
-            this.isExecutingBatch = false
-            return
-        }
+        // Create completion promise for synchronization
+        this.batchCompletionPromise = (async () => {
+            // Clear timer
+            this.batchTimer = null
+            
+            // Get current queue and reset for next batch
+            const batch = this.queue.slice()
+            this.queue = []
+            
+            if (batch.length === 0) {
+                return
+            }
+            
+            try {
+                // Determine adapter type
+                const isLocalAdapter = typeof this.adapter?.src === 'string'
+                
+                if (isLocalAdapter) {
+                    await this._executeBatchLocal(batch)
+                } else {
+                    await this._executeBatchCloud(batch)
+                }
+            } finally {
+                // Batch processing complete
+            }
+        })()
         
         try {
-            // Determine adapter type
-            const isLocalAdapter = typeof this.adapter?.src === 'string'
-            
-            if (isLocalAdapter) {
-                await this._executeBatchLocal(batch)
-            } else {
-                await this._executeBatchCloud(batch)
-            }
+            await this.batchCompletionPromise
         } finally {
-            // Always clear execution flag, even if batch fails
-            this.isExecutingBatch = false
+            // Always clear promise, even if batch fails
+            this.batchCompletionPromise = null
         }
     }
 

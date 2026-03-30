@@ -190,11 +190,14 @@ async function main () {
 
         for (const row of rows) {
             const { id, raw } = row
-            // Stop *before* advancing cursor to the next id.
-            // Otherwise we may skip an unprocessed record on resume with --start-from-id.
+            
+            // Check if we've reached the max records limit before processing
             if (maxRecords && processed >= maxRecords) {
                 console.log(`\n⚠️  Reached max records limit (${maxRecords}). Stopping.`)
                 console.log(`   Last processed ID: ${lastProcessedId}`)
+                if (lastProcessedId) {
+                    console.log(`   To resume, use: --start-from-id ${lastProcessedId}`)
+                }
                 hasMore = false
                 break
             }

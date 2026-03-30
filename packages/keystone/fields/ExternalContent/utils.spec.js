@@ -46,13 +46,12 @@ describe('ExternalContent utils', () => {
                 .toThrow('path traversal detected')
         })
         
-        test('allows filename at base path boundary', () => {
+        test('blocks filename that resolves to base directory', () => {
             const basePath = '/test/path'
             const filename = '.'
             
-            const result = validateFilePath(basePath, filename)
-            
-            expect(result).toBe(path.normalize(basePath))
+            expect(() => validateFilePath(basePath, filename))
+                .toThrow('cannot resolve to base directory')
         })
         
         test('blocks Windows-style absolute paths', () => {

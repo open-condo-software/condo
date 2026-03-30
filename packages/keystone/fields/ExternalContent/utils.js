@@ -18,8 +18,13 @@ function validateFilePath (basePath, filename) {
     const normalized = path.normalize(fullPath)
     const normalizedBase = path.normalize(basePath)
     
-    // Check if normalized path starts with base path followed by separator or equals base path
-    if (!normalized.startsWith(normalizedBase + path.sep) && normalized !== normalizedBase) {
+    // Prevent filename from resolving to base directory itself
+    if (normalized === normalizedBase) {
+        throw new Error('Invalid filename: cannot resolve to base directory')
+    }
+    
+    // Check if normalized path starts with base path followed by separator
+    if (!normalized.startsWith(normalizedBase + path.sep)) {
         throw new Error(`Invalid filename: path traversal detected in ${filename}`)
     }
     

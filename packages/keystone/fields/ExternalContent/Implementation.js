@@ -157,6 +157,11 @@ class ExternalContentImplementation extends Implementation {
             throw new Error(`ExternalContent: "adapter" is required for ${path}`)
         }
 
+        // Validate adapter is properly configured (not NoFileAdapter)
+        if (adapter.constructor.name === 'NoFileAdapter' || (adapter.error && adapter.error.message && adapter.error.message.includes('NoFileAdapter'))) {
+            throw new Error(`ExternalContent: adapter is not properly configured for ${path}. Check FILE_FIELD_ADAPTER and storage configuration.`)
+        }
+
         const byFormat = { ...DEFAULT_PROCESSORS, ...processors }
         const cfg = byFormat[format]
         if (!cfg) {
