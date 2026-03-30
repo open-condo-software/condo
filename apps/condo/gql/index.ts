@@ -5982,13 +5982,26 @@ export type GetSubscriptionContextByIdQueryResult = Apollo.QueryResult<Types.Get
 export const GetOrganizationSubscriptionContextsWithPaymentMethodsDocument = gql`
     query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!) {
   subscriptionContexts: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, bindingId_not: null, status: DONE}
-    sortBy: [endAt_DESC]
+    where: {organization: {id: $organizationId}, bindingId_not: null, isTrial: false}
+    sortBy: [createdAt_DESC]
     first: 100
   ) {
     id
     bindingId
+    startAt
     endAt
+    status
+    isTrial
+    createdAt
+    subscriptionPlan {
+      id
+      name
+    }
+    subscriptionPlanPricingRule {
+      id
+      price
+      currencyCode
+    }
     frozenPaymentInfo {
       paymentMethod {
         bindingId

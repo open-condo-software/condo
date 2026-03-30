@@ -17,6 +17,7 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
 import { useEmailConfirmationNotification } from '@condo/domains/notification/hooks/useEmailConfirmationNotification'
 import { useSubscriptionExpirationNotification } from '@condo/domains/notification/hooks/useSubscriptionExpirationNotification'
+import { useSubscriptionPaymentNotifications } from '@condo/domains/notification/hooks/useSubscriptionPaymentNotifications'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
@@ -115,14 +116,22 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         markAsRead: markSubscriptionExpirationMessageAsRead,
     } = useSubscriptionExpirationNotification()
 
+    const {
+        messages: subscriptionPaymentMessages,
+        markReminderAsRead: markPaymentReminderAsRead,
+        markSuccessAsRead: markPaymentSuccessAsRead,
+        markErrorAsRead: markPaymentErrorAsRead,
+    } = useSubscriptionPaymentNotifications()
+
     const userMessagesWithCustomMessages = useMemo(() => [
         emailConfirmationMessage,
         subscriptionExpirationMessage,
+        ...subscriptionPaymentMessages,
         ...(userMessages || []),
     ]
         .filter(Boolean)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage])
+    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage, subscriptionPaymentMessages])
 
     // Set initial settings to state
     useEffect(() => {
@@ -163,6 +172,15 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             }
             if (typeof markSubscriptionExpirationMessageAsRead === 'function') {
                 markSubscriptionExpirationMessageAsRead()
+            }
+            if (typeof markPaymentReminderAsRead === 'function') {
+                markPaymentReminderAsRead()
+            }
+            if (typeof markPaymentSuccessAsRead === 'function') {
+                markPaymentSuccessAsRead()
+            }
+            if (typeof markPaymentErrorAsRead === 'function') {
+                markPaymentErrorAsRead()
             }
         }
     }, [
