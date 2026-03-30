@@ -114,15 +114,23 @@ async function prepare () {
             await fillAppEnvWithDefaultValues(app.name)
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
-                DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
+                DATABASE_URL: `prisma-custom:${JSON.stringify({
+                    main: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
+                })}`,
                 REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
                 PORT: String(app.port),
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
+                DATABASE_POOLS: JSON.stringify({
+                    main: { databases: ['main'], writable: true },
+                }),
+                DATABASE_ROUTING_RULES: JSON.stringify([
+                    { target: 'main' },
+                ]),
             }
 
             if (preset === 'production' || (replicate && replicate.includes(app.name))) {
-                env.DATABASE_URL = `custom:${JSON.stringify({
+                env.DATABASE_URL = `prisma-custom:${JSON.stringify({
                     main: `${LOCAL_PG_DB_PREFIX}:5432/${app.pgName}`,
                     replica: `${LOCAL_PG_DB_PREFIX}:5433/${app.pgName}`,
                 })}`
