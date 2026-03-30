@@ -8,6 +8,8 @@ const cuid = require('cuid')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
+const { FileContentLoader } = require('./FileContentLoader')
+
 const logger = getLogger('ExternalContent')
 
 const DEFAULT_FORMAT = 'json'
@@ -93,6 +95,34 @@ async function readFromAdapter (adapter, fileMeta) {
     throw new Error('ExternalContent: unsupported file adapter for read')
 }
 
+/**
+ * Get or create a FileContentLoader for the given adapter.
+ * 
+ * Implements lazy initialization: creates loader on first access and reuses it for subsequent calls.
+ * Each adapter gets its own loader instance (keyed by adapter folder).
+ * 
+ * @param {Object} context - GraphQL context object
+ * @param {Object} adapter - File adapter instance
+ * @returns {FileContentLoader} Loader instance for this adapter
+ */
+function getOrCreateLoader (context, adapter) {
+    // Initialize loaders map if not exists
+    if (!context._externalContentLoaders) {
+        context._externalContentLoaders = new Map()
+    }
+    
+    // Use adapter folder as key (different adapters = different loaders)
+    // Local adapter uses 'src' path, cloud adapters use 'folder'
+    const loaderKey = adapter.folder || adapter.src || 'default'
+    
+    // Return existing loader or create new one
+    if (!context._externalContentLoaders.has(loaderKey)) {
+        context._externalContentLoaders.set(loaderKey, new FileContentLoader(adapter))
+    }
+    
+    return context._externalContentLoaders.get(loaderKey)
+}
+
 class ExternalContentImplementation extends Implementation {
     constructor (path, options = {}, meta = {}) {
         // IMPORTANT: pass through the original keystone options/meta.
@@ -143,26 +173,36 @@ class ExternalContentImplementation extends Implementation {
      * For backward compatibility, returns inline JSON objects directly if they don't have file-meta structure.
      * For file-meta objects, fetches the file content and deserializes it.
      * 
+     * Performance optimization:
+     * - Uses DataLoader for batching and caching when context is available (GraphQL queries)
+     * - Batches multiple file reads into single operation (10ms window)
+     * - Caches results within request to prevent duplicate reads
+     * - Falls back to direct readFromAdapter for non-GraphQL usage
+     * 
      * Note: This reads the entire file into memory. For very large files (10MB+), this could cause
      * memory pressure under load. Current use case (BillingReceipt.raw) typically has files <1MB.
-     * TODO: Consider implementing streaming deserialization or file size limits if needed.
-     * 
-     * Note: No request-scoped caching is implemented. Each GraphQL query that includes this field
-     * will fetch from storage. For list queries, consider using DataLoader pattern in the future.
-     * TODO: Implement request-scoped caching using DataLoader to prevent N+1 queries.
      * 
      * @returns {Object} Field resolver mapping
      */
     gqlOutputFieldResolvers () {
         return {
-            [this.path]: async (item) => {
+            [this.path]: async (item, args, context) => {
                 const value = item?.[this.path]
                 if (value === null || typeof value === 'undefined') return value
 
                 // Backward compatibility: old `Json` field stored raw object directly in DB
                 if (!isFileMeta(value)) return value
 
-                const buf = await readFromAdapter(this.fileAdapter, value)
+                // Use DataLoader for batching and caching when context is available
+                let buf
+                if (context) {
+                    const loader = getOrCreateLoader(context, this.fileAdapter)
+                    buf = await loader.load(value)
+                } else {
+                    // Fallback to direct read for non-GraphQL usage (tests, scripts, etc.)
+                    buf = await readFromAdapter(this.fileAdapter, value)
+                }
+                
                 const raw = buf.toString('utf-8')
                 return this.deserialize(raw)
             },

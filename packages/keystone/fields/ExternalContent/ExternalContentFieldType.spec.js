@@ -1,4 +1,8 @@
-const { ExternalContentImplementation } = require('./Implementation')
+// Mock fs/promises before importing Implementation
+const mockReadFile = jest.fn()
+jest.mock('fs/promises', () => ({
+    readFile: mockReadFile,
+}))
 
 // Mock logger to avoid console output in tests
 jest.mock('@open-condo/keystone/logging', () => ({
@@ -9,6 +13,8 @@ jest.mock('@open-condo/keystone/logging', () => ({
         error: jest.fn(),
     }),
 }))
+
+const { ExternalContentImplementation } = require('./Implementation')
 
 const createMeta = () => ({
     listAdapter: {
@@ -158,6 +164,10 @@ describe('ExternalContent field type', () => {
     describe('readFromAdapter error handling', () => {
         // Note: readFromAdapter is not exported, so we test it indirectly through gqlOutputFieldResolvers
         
+        afterEach(() => {
+            delete global.fetch
+        })
+
         test('handles cloud adapter with mimetype parameter', async () => {
             const mockGenerateUrl = jest.fn(() => 'https://example.com/file.json')
             const adapter = {
@@ -191,8 +201,6 @@ describe('ExternalContent field type', () => {
                 mimetype: 'application/json',
                 originalFilename: 'original.json',
             })
-
-            delete global.fetch
         })
 
         test('throws error when generateUrl returns invalid URL', async () => {
@@ -230,8 +238,6 @@ describe('ExternalContent field type', () => {
             await expect(resolver({
                 raw: { id: 'test-id', filename: 'test.json' },
             })).rejects.toThrow('Fetch failed with status 404 for file: test.json')
-
-            delete global.fetch
         })
 
         test('throws error with context when network error occurs', async () => {
@@ -252,9 +258,158 @@ describe('ExternalContent field type', () => {
             await expect(resolver({
                 raw: { id: 'test-id', filename: 'test.json' },
             })).rejects.toThrow('ExternalContent: failed to read file test.json: Network error')
+        })
+    })
 
-            delete global.fetch
+    describe('DataLoader integration', () => {
+        beforeEach(() => {
+            mockReadFile.mockClear()
+        })
+
+        test('uses DataLoader when context is provided', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from(JSON.stringify({ test: 'data' })))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            const context = {}
+            
+            // First call should create loader
+            const result1 = await resolver({
+                raw: { id: 'test-id', filename: 'test.json' },
+            }, {}, context)
+            
+            expect(result1).toEqual({ test: 'data' })
+            expect(context._externalContentLoaders).toBeDefined()
+            expect(context._externalContentLoaders.size).toBe(1)
+            
+            // Second call should reuse loader
+            const result2 = await resolver({
+                raw: { id: 'test-id', filename: 'test.json' },
+            }, {}, context)
+            
+            expect(result2).toEqual({ test: 'data' })
+            expect(mockReadFile).toHaveBeenCalledTimes(1) // Cached!
+        })
+
+        test('falls back to readFromAdapter when context is not provided', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from(JSON.stringify({ test: 'data' })))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            // Call without context
+            const result = await resolver({
+                raw: { id: 'test-id', filename: 'test.json' },
+            })
+            
+            expect(result).toEqual({ test: 'data' })
+            expect(mockReadFile).toHaveBeenCalledTimes(1)
+        })
+
+        test('creates separate loaders for different adapters', async () => {
+            const adapter1 = {
+                src: '/test/path1',
+            }
+            const adapter2 = {
+                src: '/test/path2',
+            }
+            
+            mockReadFile
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ data: 1 })))
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ data: 2 })))
+            
+            const impl1 = new ExternalContentImplementation('raw', { adapter: adapter1, format: 'json' }, createMeta())
+            const impl2 = new ExternalContentImplementation('raw', { adapter: adapter2, format: 'json' }, createMeta())
+            
+            const resolver1 = impl1.gqlOutputFieldResolvers().raw
+            const resolver2 = impl2.gqlOutputFieldResolvers().raw
+            
+            const context = {}
+            
+            await resolver1({
+                raw: { id: 'test-id', filename: 'test1.json' },
+            }, {}, context)
+            
+            await resolver2({
+                raw: { id: 'test-id', filename: 'test2.json' },
+            }, {}, context)
+            
+            // Should have two separate loaders
+            expect(context._externalContentLoaders.size).toBe(2)
+        })
+
+        test('batches multiple resolver calls in same context', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ id: 1 })))
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ id: 2 })))
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ id: 3 })))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            const context = {}
+            
+            // Simulate list query - multiple items resolved in parallel
+            const promise1 = resolver({
+                raw: { id: 'id1', filename: 'file1.json' },
+            }, {}, context)
+            const promise2 = resolver({
+                raw: { id: 'id2', filename: 'file2.json' },
+            }, {}, context)
+            const promise3 = resolver({
+                raw: { id: 'id3', filename: 'file3.json' },
+            }, {}, context)
+            
+            const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
+            
+            expect(result1).toEqual({ id: 1 })
+            expect(result2).toEqual({ id: 2 })
+            expect(result3).toEqual({ id: 3 })
+            expect(mockReadFile).toHaveBeenCalledTimes(3)
+        })
+
+        test('handles duplicate files with caching', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from(JSON.stringify({ shared: 'data' })))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            const context = {}
+            
+            // Multiple items with same file
+            const promise1 = resolver({
+                raw: { id: 'id1', filename: 'shared.json' },
+            }, {}, context)
+            const promise2 = resolver({
+                raw: { id: 'id2', filename: 'shared.json' },
+            }, {}, context)
+            const promise3 = resolver({
+                raw: { id: 'id3', filename: 'shared.json' },
+            }, {}, context)
+            
+            const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
+            
+            expect(result1).toEqual({ shared: 'data' })
+            expect(result2).toEqual({ shared: 'data' })
+            expect(result3).toEqual({ shared: 'data' })
+            expect(mockReadFile).toHaveBeenCalledTimes(1) // Only read once!
         })
     })
 })
-
