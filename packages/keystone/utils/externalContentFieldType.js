@@ -37,6 +37,9 @@ function isFileMeta (value, opts = {}) {
  * @param {string} [options.format='json'] - Data format (json, xml, text)
  * @param {Object} [options.processors] - Custom serialization/deserialization functions
  * @param {number} [options.maxSizeBytes] - Maximum size in bytes (default: 10MB)
+ * @param {string} [options.schemaDoc] - Documentation for GraphQL schema
+ * @param {boolean} [options.sensitive] - Mark field as sensitive
+ * @param {boolean} [options.isRequired] - Mark field as required
  * @returns {Object} Field configuration object
  * 
  * @example
@@ -44,9 +47,12 @@ function isFileMeta (value, opts = {}) {
  *   adapter: myFileAdapter,
  *   format: 'json',
  *   maxSizeBytes: 50 * 1024 * 1024, // 50MB
+ *   schemaDoc: 'Field description',
+ *   sensitive: true,
+ *   isRequired: false,
  * })
  */
-function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes }) {
+function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, ...otherProps }) {
     if (!adapter) {
         throw new Error('createExternalDataField: adapter is required')
     }
@@ -56,6 +62,7 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
     }
     
     const config = {
+        ...otherProps,
         type: 'ExternalContent',
         adapter,
         format,
