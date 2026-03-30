@@ -9,6 +9,11 @@ const path = require('path')
  * @throws {Error} If path traversal is detected
  */
 function validateFilePath (basePath, filename) {
+    // Validate filename is not empty
+    if (!filename || typeof filename !== 'string' || filename.trim() === '') {
+        throw new Error('Invalid filename: filename cannot be empty')
+    }
+    
     // Prevent path traversal attacks - check for absolute paths first
     if (path.isAbsolute(filename)) {
         throw new Error(`Invalid filename: path traversal detected in ${filename}`)

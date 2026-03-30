@@ -182,7 +182,9 @@ class FileContentLoader {
                 const buffer = Buffer.from(await readFile(fullPath))
                 resolve(buffer)
             } catch (err) {
-                reject(new Error(`ExternalContent: failed to read local file ${fileMeta.filename}: ${err?.message || String(err)}`))
+                const error = err instanceof Error ? err : new Error(String(err))
+                error.message = `ExternalContent: failed to read local file ${fileMeta.filename}: ${error.message}`
+                reject(error)
             }
         })
         
@@ -217,7 +219,9 @@ class FileContentLoader {
                 const buffer = Buffer.from(await res.arrayBuffer())
                 resolve(buffer)
             } catch (err) {
-                reject(new Error(`ExternalContent: failed to read file ${fileMeta.filename}: ${err?.message || String(err)}`))
+                const error = err instanceof Error ? err : new Error(String(err))
+                error.message = `ExternalContent: failed to read file ${fileMeta.filename}: ${error.message}`
+                reject(error)
             }
         })
         

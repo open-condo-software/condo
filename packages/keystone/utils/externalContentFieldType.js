@@ -47,6 +47,14 @@ function isFileMeta (value, opts = {}) {
  * })
  */
 function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes }) {
+    if (!adapter) {
+        throw new Error('createExternalDataField: adapter is required')
+    }
+    
+    if (maxSizeBytes !== undefined && (typeof maxSizeBytes !== 'number' || maxSizeBytes <= 0)) {
+        throw new Error('createExternalDataField: maxSizeBytes must be a positive number')
+    }
+    
     const config = {
         type: 'ExternalContent',
         adapter,
