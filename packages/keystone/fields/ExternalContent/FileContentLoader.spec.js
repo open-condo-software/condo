@@ -467,4 +467,68 @@ describe('FileContentLoader', () => {
             expect(results[1].toString()).toBe('content 2')
         })
     })
+    
+    describe('Retry limit', () => {
+        test('throws error when max retries exceeded', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            const loader = new FileContentLoader(adapter)
+            
+            // Force batch to be executing indefinitely
+            loader.isExecutingBatch = true
+            
+            await expect(loader.load({ filename: 'test.json' }))
+                .rejects.toThrow('Max retries (10) exceeded')
+        })
+        
+        test('retries successfully when batch completes', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('test content'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            // Simulate batch executing for a short time
+            loader.isExecutingBatch = true
+            setTimeout(() => {
+                loader.isExecutingBatch = false
+            }, 20)
+            
+            const result = await loader.load({ filename: 'test.json' })
+            
+            expect(result.toString()).toBe('test content')
+        })
+        
+        test('increments retry count on each attempt', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            const loader = new FileContentLoader(adapter)
+            
+            // Mock load to track retry count
+            const originalLoad = loader.load.bind(loader)
+            let callCount = 0
+            loader.load = jest.fn(async (fileMeta, retryCount = 0) => {
+                callCount++
+                if (callCount <= 3) {
+                    loader.isExecutingBatch = true
+                    await new Promise(resolve => setTimeout(resolve, 15))
+                    return originalLoad(fileMeta, retryCount)
+                }
+                loader.isExecutingBatch = false
+                return originalLoad(fileMeta, retryCount)
+            })
+            
+            mockReadFile.mockResolvedValue(Buffer.from('content'))
+            
+            await loader.load({ filename: 'test.json' })
+            
+            expect(callCount).toBeGreaterThan(1)
+        })
+    })
 })

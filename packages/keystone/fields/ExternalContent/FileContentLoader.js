@@ -1,5 +1,6 @@
 const { readFile } = require('fs/promises')
-const path = require('path')
+
+const { validateFilePath } = require('./utils')
 
 /**
  * Custom DataLoader for batching and caching file content reads.
@@ -20,6 +21,10 @@ const path = require('path')
  * const buffer1 = await loader.load({ filename: 'file1.json' })
  * const buffer2 = await loader.load({ filename: 'file1.json' }) // Returns cached result
  */
+
+// Maximum number of retries when batch is executing (prevents unbounded recursion)
+const MAX_RETRIES = 10
+
 class FileContentLoader {
     constructor (adapter) {
         this.adapter = adapter
@@ -44,9 +49,10 @@ class FileContentLoader {
      * Load a single file's content.
      * 
      * @param {Object} fileMeta - File metadata object with filename, mimetype, originalFilename
+     * @param {number} retryCount - Internal retry counter (prevents unbounded recursion)
      * @returns {Promise<Buffer>} File content as Buffer
      */
-    async load (fileMeta) {
+    async load (fileMeta, retryCount = 0) {
         const cacheKey = this._getCacheKey(fileMeta)
         
         // Check cache first
@@ -57,8 +63,11 @@ class FileContentLoader {
         // If batch is currently executing, wait for it to complete then retry
         // This prevents race condition where promise is cached but item isn't in batch
         if (this.isExecutingBatch) {
+            if (retryCount >= MAX_RETRIES) {
+                throw new Error(`Max retries (${MAX_RETRIES}) exceeded while waiting for batch to complete for file: ${fileMeta.filename}`)
+            }
             await new Promise(resolve => setTimeout(resolve, this.batchDelay + 5))
-            return this.load(fileMeta)
+            return this.load(fileMeta, retryCount + 1)
         }
         
         // Create promise for this request
@@ -147,26 +156,11 @@ class FileContentLoader {
         // Read all files in parallel
         const promises = batch.map(async ({ fileMeta, resolve, reject }) => {
             try {
-                // Prevent path traversal attacks - check for absolute paths first
-                if (path.isAbsolute(fileMeta.filename)) {
-                    reject(new Error(`Invalid filename: path traversal detected in ${fileMeta.filename}`))
-                    return
-                }
-                
-                const fullPath = path.join(this.adapter.src, fileMeta.filename)
-                const normalized = path.normalize(fullPath)
-                const basePath = path.normalize(this.adapter.src)
-                
-                // Check if normalized path starts with base path followed by separator or equals base path
-                if (!normalized.startsWith(basePath + path.sep) && normalized !== basePath) {
-                    reject(new Error(`Invalid filename: path traversal detected in ${fileMeta.filename}`))
-                    return
-                }
-                
+                const fullPath = validateFilePath(this.adapter.src, fileMeta.filename)
                 const buffer = Buffer.from(await readFile(fullPath))
                 resolve(buffer)
             } catch (err) {
-                reject(err)
+                reject(new Error(`ExternalContent: failed to read local file ${fileMeta.filename}: ${err?.message || String(err)}`))
             }
         })
         
@@ -201,7 +195,7 @@ class FileContentLoader {
                 const buffer = Buffer.from(await res.arrayBuffer())
                 resolve(buffer)
             } catch (err) {
-                reject(new Error(`ExternalContent: failed to read file ${fileMeta.filename}: ${err.message}`))
+                reject(new Error(`ExternalContent: failed to read file ${fileMeta.filename}: ${err?.message || String(err)}`))
             }
         })
         

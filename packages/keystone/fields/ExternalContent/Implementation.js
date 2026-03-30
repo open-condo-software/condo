@@ -1,5 +1,4 @@
 const { readFile } = require('fs/promises')
-const path = require('path')
 const { Readable } = require('stream')
 
 const { Implementation } = require('@open-keystone/fields')
@@ -9,6 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { FileContentLoader } = require('./FileContentLoader')
+const { validateFilePath } = require('./utils')
 
 const logger = getLogger('ExternalContent')
 
@@ -17,6 +17,8 @@ const logger = getLogger('ExternalContent')
 const adapterLoaderKeys = new WeakMap()
 
 const DEFAULT_FORMAT = 'json'
+// Default max size: 10MB
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024
 
 const DEFAULT_PROCESSORS = {
     json: {
@@ -74,50 +76,29 @@ async function readFromAdapter (adapter, fileMeta) {
 
     // Local adapter (from `packages/keystone/fileAdapter/fileAdapter.js`)
     if (typeof adapter?.src === 'string') {
-        try {
-            // Prevent path traversal attacks - check for absolute paths first
-            if (path.isAbsolute(filename)) {
-                throw new Error(`Invalid filename: path traversal detected in ${filename}`)
-            }
-            
-            const fullPath = path.join(adapter.src, filename)
-            const normalized = path.normalize(fullPath)
-            const basePath = path.normalize(adapter.src)
-            
-            // Check if normalized path starts with base path
-            if (!normalized.startsWith(basePath + path.sep) && normalized !== basePath) {
-                throw new Error(`Invalid filename: path traversal detected in ${filename}`)
-            }
-            
-            return Buffer.from(await readFile(fullPath))
-        } catch (err) {
-            throw new Error(`ExternalContent: failed to read local file ${filename}: ${err.message}`)
-        }
+        const fullPath = validateFilePath(adapter.src, filename)
+        return Buffer.from(await readFile(fullPath))
     }
 
     // Cloud adapters provide acl.generateUrl which returns a signed, time-limited direct URL.
     // It does not require auth cookies (unlike indirect /api/files/... urls from publicUrl()).
     if (adapter?.acl && typeof adapter.acl.generateUrl === 'function' && adapter.folder) {
-        try {
-            const directUrl = adapter.acl.generateUrl({
-                filename: `${adapter.folder}/${filename}`,
-                mimetype: fileMeta.mimetype,
-                originalFilename: fileMeta.originalFilename,
-            })
-            
-            if (!directUrl || typeof directUrl !== 'string') {
-                throw new Error(`Invalid URL generated for file: ${filename}`)
-            }
-            
-            const res = await fetch(directUrl)
-            if (!res.ok) {
-                throw new Error(`Fetch failed with status ${res.status} for file: ${filename}`)
-            }
-            const buf = Buffer.from(await res.arrayBuffer())
-            return buf
-        } catch (err) {
-            throw new Error(`ExternalContent: failed to read file ${filename}: ${err.message}`)
+        const directUrl = adapter.acl.generateUrl({
+            filename: `${adapter.folder}/${filename}`,
+            mimetype: fileMeta.mimetype,
+            originalFilename: fileMeta.originalFilename,
+        })
+        
+        if (!directUrl || typeof directUrl !== 'string') {
+            throw new Error(`Invalid URL generated for file: ${filename}`)
         }
+        
+        const res = await fetch(directUrl)
+        if (!res.ok) {
+            throw new Error(`Fetch failed with status ${res.status} for file: ${filename}`)
+        }
+        const buf = Buffer.from(await res.arrayBuffer())
+        return buf
     }
 
     throw new Error('ExternalContent: unsupported file adapter for read')
@@ -155,22 +136,22 @@ function getOrCreateLoader (context, adapter) {
 }
 
 class ExternalContentImplementation extends Implementation {
-    constructor (path, options = {}, meta = {}) {
-        // IMPORTANT: pass through the original keystone options/meta.
-        // Base `@open-keystone/fields` Implementation relies on meta (e.g. getListByKey).
-        super(path, options, meta)
+    constructor (path, {
+        adapter,
+        format = DEFAULT_FORMAT,
+        processors = {},
+        maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
+    } = {}, meta) {
+        super(path, { ...arguments[1], maxSizeBytes }, meta)
 
         const {
-            adapter,
-            format = DEFAULT_FORMAT,
-            processors = {},
             graphQLInputType,
             graphQLReturnType,
-            mimetype,
-            fileExt,
             serialize,
             deserialize,
-        } = options
+            mimetype,
+            fileExt,
+        } = arguments[1]
 
         if (!adapter) {
             throw new Error(`ExternalContent: "adapter" is required for ${path}`)
@@ -184,13 +165,13 @@ class ExternalContentImplementation extends Implementation {
 
         this.fileAdapter = adapter
         this.format = format
-
+        this.serialize = serialize || cfg.serialize
+        this.deserialize = deserialize || cfg.deserialize
         this.graphQLInputType = graphQLInputType || cfg.graphQLInputType
         this.graphQLReturnType = graphQLReturnType || cfg.graphQLReturnType
         this.mimetype = mimetype || cfg.mimetype
         this.fileExt = fileExt || cfg.fileExt
-        this.serialize = serialize || cfg.serialize
-        this.deserialize = deserialize || cfg.deserialize
+        this.maxSizeBytes = maxSizeBytes
     }
 
     // GQL Output
@@ -239,7 +220,8 @@ class ExternalContentImplementation extends Implementation {
                     return this.deserialize(raw)
                 } catch (err) {
                     const itemId = item?.id || 'unknown'
-                    throw new Error(`Failed to deserialize ${this.path} for item ${itemId}: ${err.message}`)
+                    const errMsg = err?.message || String(err)
+                    throw new Error(`Failed to deserialize ${this.path} for item ${itemId}: ${errMsg}`)
                 }
             },
         }
@@ -320,6 +302,15 @@ class ExternalContentImplementation extends Implementation {
         // Save first, then delete old file.
         // This prevents losing the previous file if save() fails.
         const payload = this.serialize(nextValue)
+        const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
+        
+        // Validate size limit
+        if (payloadSizeBytes > this.maxSizeBytes) {
+            const sizeMB = (payloadSizeBytes / 1024 / 1024).toFixed(2)
+            const maxMB = (this.maxSizeBytes / 1024 / 1024).toFixed(2)
+            throw new Error(`ExternalContent: payload size (${sizeMB}MB) exceeds maximum allowed size (${maxMB}MB) for field ${this.path}`)
+        }
+        
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
         const prefix = listKey || 'item'

@@ -29,37 +29,37 @@ function isFileMeta (value, opts = {}) {
 }
 
 /**
- * Public factory for creating ExternalContent-based fields.
- *
- * Usage example:
- *
- *   const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
- *   const { createExternalDataField } = require('@open-condo/keystone/utils/externalContentFieldType')
- *
- *   const adapter = new FileAdapter('someFolder')
- *   const RAW_FIELD = createExternalDataField({
- *       adapter,
- *       format: 'json',
- *       sensitive: true,
- *       isRequired: false,
- *   })
- *
- * @param {{ adapter: any, format?: string } & Record<string, any>} [opts]
- * @returns {Record<string, any>}
+ * Factory function to create ExternalContent field configuration.
+ * Ensures consistency and prevents accidental misconfigurations.
+ * 
+ * @param {Object} options - Field options
+ * @param {Object} options.adapter - FileAdapter instance
+ * @param {string} [options.format='json'] - Data format (json, xml, text)
+ * @param {Object} [options.processors] - Custom serialization/deserialization functions
+ * @param {number} [options.maxSizeBytes] - Maximum size in bytes (default: 10MB)
+ * @returns {Object} Field configuration object
+ * 
+ * @example
+ * const MY_DATA_FIELD = createExternalDataField({
+ *   adapter: myFileAdapter,
+ *   format: 'json',
+ *   maxSizeBytes: 50 * 1024 * 1024, // 50MB
+ * })
  */
-function createExternalDataField ({
-    adapter,
-    format = 'json',
-    // prevent passing a different field type accidentally (e.g. from spreading Json field config)
-    type: _ignoredType,
-    ...rest
-} = {}) {
-    return {
-        ...rest,
+function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes }) {
+    const config = {
         type: 'ExternalContent',
         adapter,
         format,
+        processors,
     }
+    
+    // Only include maxSizeBytes if explicitly provided
+    if (maxSizeBytes !== undefined) {
+        config.maxSizeBytes = maxSizeBytes
+    }
+    
+    return config
 }
 
 module.exports = {

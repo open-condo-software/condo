@@ -355,7 +355,7 @@ describe('ExternalContent field type', () => {
             
             await expect(resolver({
                 raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('ExternalContent: failed to read file test.json: Network error')
+            })).rejects.toThrow('Network error')
         })
     })
 
@@ -542,6 +542,48 @@ describe('ExternalContent field type', () => {
             expect(result2).toEqual({ shared: 'data' })
             expect(result3).toEqual({ shared: 'data' })
             expect(mockReadFile).toHaveBeenCalledTimes(1) // Only read once!
+        })
+    })
+    
+    describe('Size limit validation', () => {
+        test('throws error when payload exceeds MAX_SIZE', async () => {
+            const adapter = {
+                save: jest.fn(),
+                delete: jest.fn(),
+            }
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            
+            // Create data larger than default 10MB limit
+            // Generate ~11MB of data
+            const largeData = { data: 'x'.repeat(11 * 1024 * 1024) }
+            
+            await expect(impl.resolveInput({
+                resolvedData: { raw: largeData },
+                existingItem: null,
+                listKey: 'TestList',
+            })).rejects.toThrow('exceeds maximum allowed size')
+        })
+        
+        test('allows payload within size limit', async () => {
+            const adapter = {
+                save: jest.fn(async () => ({ id: 'new', filename: 'new.json' })),
+                delete: jest.fn(),
+            }
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            
+            // Small data that should pass
+            const smallData = { data: 'small' }
+            
+            const result = await impl.resolveInput({
+                resolvedData: { raw: smallData },
+                existingItem: null,
+                listKey: 'TestList',
+            })
+            
+            expect(result).toEqual({ id: 'new', filename: 'new.json' })
+            expect(adapter.save).toHaveBeenCalled()
         })
     })
 })

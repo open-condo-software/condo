@@ -9,6 +9,7 @@ const path = require('path')
 const { Readable } = require('stream')
 
 const commander = require('commander')
+const cuid = require('cuid')
 const dayjs = require('dayjs')
 
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -74,6 +75,7 @@ program
     .option('--max-records <n>', 'Stop after processing N records', (v) => parseInt(v, 10))
     .option('--progress-every <n>', 'Log progress every N processed records (default: 1000)', (v) => parseInt(v, 10), 1000)
     .option('--dry-run', 'Do not write files or update database', false)
+    .option('--continue-on-error', 'Continue processing on error instead of stopping', false)
 
 async function main () {
     program.parse()
@@ -131,8 +133,10 @@ async function main () {
     const adapter = new FileAdapter('BillingReceiptRawField')
 
     let processed = 0
+    let failed = 0
     let lastId = opts.startFromId || null
     let lastProcessedId = null
+    const failedRecords = []
 
     console.log('\n🚀 Starting backfill...')
     console.log('Configuration:')
@@ -142,6 +146,7 @@ async function main () {
     console.log(`  Start from ID: ${lastId || 'beginning'}`)
     console.log(`  Max records: ${maxRecords || 'unlimited'}`)
     console.log(`  Dry run: ${opts.dryRun ? 'YES (no changes will be made)' : 'NO'}`)
+    console.log(`  Continue on error: ${opts.continueOnError ? 'YES' : 'NO'}`)
     console.log('\n📋 Process:')
     console.log('  1. Query BillingReceipts with inline JSON raw data')
     console.log('  2. Save JSON content to external files')
@@ -211,34 +216,57 @@ async function main () {
                 const payloadSize = Buffer.byteLength(JSON.stringify(raw ?? null), 'utf-8')
                 console.log(`   🔍 [DRY RUN] Would save ${id}: ${(payloadSize / 1024).toFixed(2)} KB`)
             } else {
-                const payload = JSON.stringify(raw ?? null)
-                const payloadSize = Buffer.byteLength(payload, 'utf-8')
-                const stream = Readable.from([Buffer.from(payload, 'utf-8')])
-                const filename = `billingreceipt-raw-${id}.${FORMAT}`
+                try {
+                    const payload = JSON.stringify(raw ?? null)
+                    const payloadSize = Buffer.byteLength(payload, 'utf-8')
+                    const stream = Readable.from([Buffer.from(payload, 'utf-8')])
+                    
+                    // Generate new cuid for file ID to match field implementation pattern
+                    const fileId = cuid()
+                    // Use consistent filename pattern: {listKey}_{fieldPath}_{id}.{ext}
+                    const filename = `BillingReceipt_raw_${fileId}.${FORMAT}`
 
-                console.log(`   💾 Saving ${id}: ${(payloadSize / 1024).toFixed(2)} KB → ${filename}`)
-                const saved = await adapter.save({
-                    stream,
-                    filename,
-                    mimetype: MIMETYPE,
-                    encoding: 'utf-8',
-                    id,
-                    meta: {
-                        format: FORMAT,
-                        listkey: 'BillingReceipt',
-                        field: 'raw',
-                        source: 'bin/backfillBillingReceiptRawToExternalContent',
-                        organization: opts.organization,
-                        period,
-                    },
-                })
+                    console.log(`   💾 Saving ${id}: ${(payloadSize / 1024).toFixed(2)} KB → ${filename}`)
+                    
+                    // Wrap file save + DB update in transaction
+                    // Note: File operations are NOT transactional. If DB update fails after save,
+                    // the file will be orphaned in storage. This is an acceptable trade-off.
+                    await knex.transaction(async (trx) => {
+                        const saved = await adapter.save({
+                            stream,
+                            filename,
+                            mimetype: MIMETYPE,
+                            encoding: 'utf-8',
+                            id: fileId,
+                            meta: {
+                                format: FORMAT,
+                                listkey: 'BillingReceipt',
+                                field: 'raw',
+                                source: 'bin/backfillBillingReceiptRawToExternalContent',
+                                organization: opts.organization,
+                                period,
+                            },
+                        })
 
-                console.log(`   ✏️  Updating database record ${id} with file metadata`)
-                await knex.raw(`
-                    UPDATE "BillingReceipt"
-                    SET "raw" = ${toSqlJsonbLiteral(saved)}
-                    WHERE "id" = ${toSqlUuidLiteral(id)}
-                `)
+                        console.log(`   ✏️  Updating database record ${id} with file metadata`)
+                        await trx.raw(`
+                            UPDATE "BillingReceipt"
+                            SET "raw" = ${toSqlJsonbLiteral(saved)}
+                            WHERE "id" = ${toSqlUuidLiteral(id)}
+                        `)
+                    })
+                } catch (err) {
+                    failed += 1
+                    failedRecords.push({ id, error: err.message })
+                    console.error(`   ❌ Failed to process ${id}: ${err.message}`)
+                    
+                    if (!opts.continueOnError) {
+                        throw err
+                    }
+                    // Continue to next record
+                    lastId = id
+                    continue
+                }
             }
 
             processed += 1
@@ -259,9 +287,19 @@ async function main () {
     console.log('✅ Backfill completed!')
     console.log('='.repeat(60))
     console.log(`   Total records processed: ${processed}`)
+    console.log(`   Total records failed: ${failed}`)
     console.log(`   Total batches: ${batchNumber}`)
     console.log(`   Last cursor position (ID): ${lastId || 'none'}`)
     console.log(`   Last processed record (ID): ${lastProcessedId || 'none'}`)
+    if (failed > 0) {
+        console.log('\n   ⚠️  Failed records:')
+        failedRecords.slice(0, 10).forEach(({ id, error }) => {
+            console.log(`      - ${id}: ${error}`)
+        })
+        if (failedRecords.length > 10) {
+            console.log(`      ... and ${failedRecords.length - 10} more`)
+        }
+    }
     if (opts.dryRun) {
         console.log('\n   ⚠️  DRY RUN - No changes were made to the database')
         console.log('   Run without --dry-run to apply changes')
@@ -275,7 +313,7 @@ main().then(() => {
     console.info('✅ All done!')
     process.exit()
 }).catch((e) => {
-    console.error(e)
+    console.error('❌ Script failed:', e)
     process.exit(1)
 })
 
