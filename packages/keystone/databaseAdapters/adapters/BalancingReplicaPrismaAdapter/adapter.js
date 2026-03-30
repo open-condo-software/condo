@@ -216,7 +216,15 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     }
 
     async _connect ({ rels }) {
-        this._prismaClients = await this._initPrismaClients(rels)
+        console.log('[BalancingReplicaPrismaAdapter._connect] Starting connection')
+        try {
+            this._prismaClients = await this._initPrismaClients(rels)
+            console.log('[BalancingReplicaPrismaAdapter._connect] Prisma clients initialized')
+        } catch (err) {
+            console.error('[BalancingReplicaPrismaAdapter._connect] Failed to init Prisma clients:', err.message)
+            console.error('[BalancingReplicaPrismaAdapter._connect] Stack:', err.stack)
+            throw err
+        }
 
         this._replicaPools = Object.fromEntries(
             Object.entries(this._replicaPoolsConfig).map(([name, config]) => [
@@ -234,6 +242,7 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
         // NOTE: Set this.prisma to the default pool's primary client for backward compatibility.
         // This is used by raw queries ($queryRaw, $queryRawUnsafe), health checks, etc.
         this.prisma = this._defaultPool.getPrismaClient()
+        console.log('[BalancingReplicaPrismaAdapter._connect] Connection complete')
     }
 
     async postConnect ({ rels }) {

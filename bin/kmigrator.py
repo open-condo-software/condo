@@ -362,7 +362,11 @@ function createFakeTable (tableName) {
 
 (async () => {
     keystone.eventHandlers = {}
-    await keystone.connect()
+    try {
+        await keystone.connect()
+    } catch (e) {
+        console.warn('WARN: keystone.connect() failed:', e.message, '-- continuing with schema extraction')
+    }
     const rootAdapter = keystone.adapter
 
     let knexAdapters = []
@@ -544,7 +548,11 @@ async function runInContext(knex, config) {
 
 (async () => {
     keystone.eventHandlers = {}
-    await keystone.connect()
+    try {
+        await keystone.connect()
+    } catch (e) {
+        console.warn('WARN: keystone.connect() failed:', e.message, '-- continuing with schema extraction')
+    }
     const rootAdapter = keystone.adapter
 
     let knexAdapters = []
