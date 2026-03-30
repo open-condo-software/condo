@@ -237,18 +237,20 @@ class PrismaAdapter extends OriginalPrismaAdapter {
             }
         }
 
-        const prismaAdapterRef = this
+        const getListAdapterByKey = (key) => this.getListAdapterByKey(key)
+        const listAdapters = this.listAdapters
+
         const adapter = {
             knex: knexInstance,
             schemaName,
             schema () {
                 return knexInstance.schema.withSchema(this.schemaName)
             },
-            getListAdapterByKey: (key) => prismaAdapterRef.getListAdapterByKey(key),
+            getListAdapterByKey,
             async _createTables () {
                 const results = []
 
-                for (const la of Object.values(prismaAdapterRef.listAdapters)) {
+                for (const la of Object.values(listAdapters)) {
                     try {
                         await adapter.schema().createTable(la.key, (table) => {
                             for (const fa of la.fieldAdapters) {
@@ -268,8 +270,8 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                         if (cardinality === 'N:N') {
                             const columnKey = `${left.listKey}.${left.path}`
                             const { near, far } = rel.columnNames[columnKey]
-                            const leftListAdapter = adapter.getListAdapterByKey(left.listKey)
-                            const rightListAdapter = adapter.getListAdapterByKey(left.adapter.refListKey)
+                            const leftListAdapter = getListAdapterByKey(left.listKey)
+                            const rightListAdapter = getListAdapterByKey(left.adapter.refListKey)
                             const leftPkName = leftListAdapter.getPrimaryKeyAdapter().fieldName
                             const rightPkName = rightListAdapter.getPrimaryKeyAdapter().fieldName
 

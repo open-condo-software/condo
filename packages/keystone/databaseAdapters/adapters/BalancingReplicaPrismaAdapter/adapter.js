@@ -278,6 +278,12 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
             throw new Error(`One or more databases failed version check.\n${errorDetails}`)
         }
     }
+
+    __kmigratorKnexAdapters () {
+        // NOTE: For migrations, use the main database connection (first in the list)
+        // The parent PrismaAdapter's __kmigratorKnexAdapters() method handles schema extraction
+        return super.__kmigratorKnexAdapters()
+    }
 }
 
 module.exports = {
