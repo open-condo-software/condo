@@ -56,3 +56,21 @@ export function sortedMiddlewares (middlewares: Array<RegisteredMiddleware<Event
         return bHasEventType - aHasEventType
     })
 }
+
+export function isServiceWorker (source: unknown): source is ServiceWorker {
+    return (typeof ServiceWorker !== 'undefined' && source instanceof ServiceWorker)
+}
+
+type ResponseMessageArgs = {
+    data: unknown
+    target: Window | ServiceWorker
+    origin: string
+}
+
+export function sendResponseMessage ({ data, target, origin }: ResponseMessageArgs){
+    if (isServiceWorker(target)) {
+        target.postMessage(data)
+    } else {
+        target.postMessage(data, origin)
+    }
+}
