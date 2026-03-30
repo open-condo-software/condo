@@ -3147,6 +3147,7 @@
   "subscription.trialEndedModal.nonActiveBanking.featuresTitle": "Will remain in the basic version:",
   "subscription.daysIndicator.tooltip.trial": "The trial period of the «{planName}» plan is valid until {endDate}. {days, plural, one {# day} other {# days}} left to pay.",
   "subscription.daysIndicator.tooltip.paid": "The «{planName}» plan is valid until {endDate}. {days, plural, one {# day} other {# days}} left to pay.",
+  "subscription.daysIndicator.tooltip.expired": "The «{planName}» plan has expired. {days, plural, one {# day} other {# days}} left to pay.",
   "subscription.accessGuard.title": "Upgrade your plan and get access to this section",
   "subscription.accessGuard.description": "Use a trial period or subscribe to a plan to get more tools for your business",
   "subscription.accessGuard.goToPlans": "Learn more about plans",

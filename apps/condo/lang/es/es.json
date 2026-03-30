@@ -3147,6 +3147,7 @@
   "subscription.trialEndedModal.nonActiveBanking.featuresTitle": "Permanecerá en la versión básica:",
   "subscription.daysIndicator.tooltip.trial": "El período de prueba del plan «{planName}» es válido hasta {endDate}. Queda{days, plural, one { } other {n }}{days, plural, one {# día} other {# días}} para pagar.",
   "subscription.daysIndicator.tooltip.paid": "El plan «{planName}» es válido hasta {endDate}. Queda{days, plural, one { } other {n }}{days, plural, one {# día} other {# días}} para pagar.",
+  "subscription.daysIndicator.tooltip.expired": "El plan «{planName}» ha expirado. Queda{days, plural, one { } other {n }}{days, plural, one {# día} other {# días}} para pagar.",
   "subscription.accessGuard.title": "Mejora tu plan y obtén acceso a esta sección",
   "subscription.accessGuard.description": "Usa un período de prueba o suscríbete a un plan para obtener más herramientas para tu negocio",
   "subscription.accessGuard.goToPlans": "Más información sobre los planes",
