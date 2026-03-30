@@ -161,6 +161,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         bindingId: {
             schemaDoc: 'Saved card token on acquiring side used for subscription auto-payments. The presence of this value indicates that auto-payments are enabled',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             access: {
                 read: true,
@@ -173,6 +174,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID',
             type: 'Json',
             isRequired: false,
+            sensitive: true,
             extendGraphQLTypes: [
                 'type PaymentMethod { bindingId: String!, paymentSystem: String!, cardNumber: String!, expiration: String!, bankName: String!, bankCountryCode: String! }',
                 'type InvoiceRow { name: String, count: String, price: String, toPay: String }',

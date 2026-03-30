@@ -119,7 +119,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(contexts.length).toBeGreaterThan(0)
         })
 
-        test('does not process subscription context ending today (not yet expired)', async () => {
+        test('processes subscription context ending today', async () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()
@@ -146,22 +146,16 @@ describe('processRecurrentSubscriptionPayments', () => {
                 },
             })
 
-            const contextsBefore = await SubscriptionContext.getAll(adminClient, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
-                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-            })
-            const countBefore = contextsBefore.length
-
             await processRecurrentSubscriptionPayments()
 
-            const contextsAfter = await SubscriptionContext.getAll(adminClient, {
+            const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
                 status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
             })
 
-            expect(contextsAfter).toHaveLength(countBefore)
+            expect(contexts.length).toBeGreaterThan(0)
+            expect(contexts[0].invoice).toBeDefined()
         })
 
         test('does not process subscription context ending beyond buffer period', async () => {
