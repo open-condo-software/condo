@@ -328,7 +328,56 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                 'provider        = "prisma-client-js"\n  previewFeatures = ["relationJoins"]'
             )
         }
+        // NOTE: Fix FK field name collisions in generated Prisma schema.
+        // When a Keystone model has both a Relationship field (e.g. "organization") and a scalar
+        // field named "organizationId", the upstream adapter generates two Prisma fields with the
+        // same name "organizationId" — one for the FK (with @map) and one for the scalar.
+        // Prisma rejects duplicate field names. Fix by renaming the FK from pathId to pathFk.
+        schema = this._fixFkFieldCollisions(schema)
         return schema
+    }
+
+    _fixFkFieldCollisions (schema) {
+        return schema.replace(/model\s+(\w+)\s*\{([\s\S]*?)\n\}/g, (modelBlock, modelName, modelBody) => {
+            const lines = modelBody.split('\n')
+
+            // Collect FK field names from @relation(..., fields: [fieldName], ...)
+            const fkFieldNames = new Set()
+            for (const line of lines) {
+                const match = line.match(/fields:\s*\[(\w+)\]/)
+                if (match) fkFieldNames.add(match[1])
+            }
+            if (fkFieldNames.size === 0) return modelBlock
+
+            // Count how many times each field name appears as a field declaration
+            const fieldNameCounts = {}
+            for (const line of lines) {
+                const match = line.trim().match(/^(\w+)\s+\w/)
+                if (match && match[1] !== 'model') {
+                    fieldNameCounts[match[1]] = (fieldNameCounts[match[1]] || 0) + 1
+                }
+            }
+
+            let result = modelBlock
+            for (const fkName of fkFieldNames) {
+                if ((fieldNameCounts[fkName] || 0) <= 1) continue
+                // Collision detected — rename FK from pathId to pathFk
+                const newFkName = fkName.replace(/Id$/, 'Fk')
+                if (newFkName === fkName) continue
+
+                // 1. Update relation: fields: [pathId] → fields: [pathFk]
+                result = result.replace(
+                    new RegExp('fields:\\s*\\[' + fkName + '\\]'),
+                    'fields: [' + newFkName + ']'
+                )
+                // 2. Rename FK field declaration (the line with @map)
+                result = result.replace(
+                    new RegExp('^(\\s+)' + fkName + '(\\s+\\w+\\??\\s+@map)', 'm'),
+                    '$1' + newFkName + '$2'
+                )
+            }
+            return result
+        })
     }
 
     async _connect ({ rels }) {

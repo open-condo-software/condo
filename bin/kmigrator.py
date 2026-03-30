@@ -362,11 +362,10 @@ function createFakeTable (tableName) {
 
 (async () => {
     keystone.eventHandlers = {}
-    try {
-        await keystone.connect()
-    } catch (e) {
-        console.warn('WARN: keystone.connect() failed:', e.message, '-- continuing with schema extraction')
-    }
+    // NOTE: keystone.connect() is intentionally NOT called here.
+    // Schema extraction only needs listAdapters (populated during module loading)
+    // and the Knex connection created by __kmigratorKnexAdapters().
+    // Calling connect() would trigger Prisma client init which is unnecessary for migrations.
     const rootAdapter = keystone.adapter
 
     let knexAdapters = []
@@ -548,11 +547,8 @@ async function runInContext(knex, config) {
 
 (async () => {
     keystone.eventHandlers = {}
-    try {
-        await keystone.connect()
-    } catch (e) {
-        console.warn('WARN: keystone.connect() failed:', e.message, '-- continuing with schema extraction')
-    }
+    // NOTE: keystone.connect() is intentionally NOT called here.
+    // Migration execution only needs the Knex connection from __kmigratorKnexAdapters().
     const rootAdapter = keystone.adapter
 
     let knexAdapters = []
