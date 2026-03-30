@@ -108,14 +108,27 @@ query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!
         where: {
             organization: { id: $organizationId }
             bindingId_not: null
-            status: DONE
+            isTrial: false
         }
-        sortBy: [endAt_DESC]
+        sortBy: [createdAt_DESC]
         first: 100
     ) {
         id
         bindingId
+        startAt
         endAt
+        status
+        isTrial
+        createdAt
+        subscriptionPlan {
+            id
+            name
+        }
+        subscriptionPlanPricingRule {
+            id
+            price
+            currencyCode
+        }
         frozenPaymentInfo {
             paymentMethod {
                 bindingId
