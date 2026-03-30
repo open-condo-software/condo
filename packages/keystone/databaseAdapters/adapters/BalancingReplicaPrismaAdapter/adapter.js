@@ -281,14 +281,25 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
 
     __kmigratorKnexAdapters () {
         // NOTE: For migrations, use the main database connection (first in the list)
-        // Temporarily set the URL to the main database for schema extraction
-        const originalUrl = this._url
+        // Create a temporary adapter with the main database URL for schema extraction
+        logger.info('BalancingReplicaPrismaAdapter: Starting schema extraction for migrations')
+        
         const mainDbUrl = Object.values(this._dbConnections)[0]
-        this._url = () => mainDbUrl
+        const tempAdapter = new PrismaAdapter({ url: mainDbUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
+        
+        // Copy all necessary properties from this adapter to the temp adapter
+        tempAdapter.listAdapters = this.listAdapters
+        tempAdapter.getListAdapterByKey = this.getListAdapterByKey.bind(this)
+        tempAdapter.getDbSchemaName = this.getDbSchemaName ? this.getDbSchemaName.bind(this) : undefined
+        
+        // Call the parent's __kmigratorKnexAdapters on the temp adapter
         try {
-            return super.__kmigratorKnexAdapters()
-        } finally {
-            this._url = originalUrl
+            const result = tempAdapter.__kmigratorKnexAdapters()
+            logger.info('BalancingReplicaPrismaAdapter: Successfully extracted schema for migrations')
+            return result
+        } catch (err) {
+            logger.error('BalancingReplicaPrismaAdapter: Schema extraction failed', { message: err.message, stack: err.stack })
+            throw err
         }
     }
 }
