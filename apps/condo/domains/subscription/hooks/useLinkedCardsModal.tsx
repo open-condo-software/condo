@@ -102,6 +102,10 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
 
     const canManageSubscriptions = role?.canManageSubscriptions
 
+    const handleImageError = useCallback((bindingId: string) => {
+        setImageErrors(prev => ({ ...prev, [bindingId]: true }))
+    }, [])
+
     const openModal = useCallback(() => {
         setIsModalOpen(true)
     }, [])
@@ -193,7 +197,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
                                                 width={60}
                                                 height={40}
                                                 style={{ display: 'block' }}
-                                                onError={() => setImageErrors(prev => ({ ...prev, [paymentMethod.bindingId]: true }))}
+                                                onError={() => handleImageError(paymentMethod.bindingId)}
                                             />
                                             <Space size={4} direction='horizontal'>
                                                 <Typography.Text>
