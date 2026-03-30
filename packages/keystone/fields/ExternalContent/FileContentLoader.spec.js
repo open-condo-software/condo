@@ -228,6 +228,134 @@ describe('FileContentLoader', () => {
         })
     })
 
+    describe('security - path traversal protection', () => {
+        beforeEach(() => {
+            mockReadFile.mockClear()
+        })
+
+        test('blocks path traversal attempts with ../', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            const loader = new FileContentLoader(adapter)
+            
+            await expect(loader.load({ filename: '../../../etc/passwd' }))
+                .rejects.toThrow('path traversal detected')
+        })
+
+        test('blocks path traversal with absolute paths', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            const loader = new FileContentLoader(adapter)
+            
+            await expect(loader.load({ filename: '/etc/passwd' }))
+                .rejects.toThrow('path traversal detected')
+        })
+
+        test('allows valid filenames', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('safe content'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            const result = await loader.load({ filename: 'valid-file.json' })
+            expect(result.toString()).toBe('safe content')
+        })
+
+        test('allows subdirectories within base path', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('subdir content'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            const result = await loader.load({ filename: 'subdir/file.json' })
+            expect(result.toString()).toBe('subdir content')
+        })
+    })
+
+    describe('race condition handling', () => {
+        beforeEach(() => {
+            mockReadFile.mockClear()
+        })
+
+        test('handles concurrent loads during batch execution', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            let readFileCallCount = 0
+            mockReadFile.mockImplementation(async () => {
+                readFileCallCount++
+                // Simulate slow file read
+                await new Promise(resolve => setTimeout(resolve, 20))
+                return Buffer.from(`content-${readFileCallCount}`)
+            })
+            
+            const loader = new FileContentLoader(adapter)
+            
+            // Start first load
+            const promise1 = loader.load({ filename: 'file1.json' })
+            
+            // Wait a bit for batch to start executing
+            await new Promise(resolve => setTimeout(resolve, 15))
+            
+            // Try to load another file while batch is executing
+            const promise2 = loader.load({ filename: 'file2.json' })
+            
+            const [result1, result2] = await Promise.all([promise1, promise2])
+            
+            // Both should complete successfully
+            expect(result1.toString()).toContain('content')
+            expect(result2.toString()).toContain('content')
+        })
+
+        test('batch execution flag is cleared after batch completes', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('test'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            await loader.load({ filename: 'file1.json' })
+            
+            // Wait a bit to ensure batch has fully completed
+            await new Promise(resolve => setTimeout(resolve, 20))
+            
+            // Flag should be cleared after batch completes
+            expect(loader.isExecutingBatch).toBe(false)
+        })
+
+        test('batch execution flag is cleared even if batch fails', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockRejectedValue(new Error('Read failed'))
+            
+            const loader = new FileContentLoader(adapter)
+            
+            await expect(loader.load({ filename: 'file1.json' }))
+                .rejects.toThrow('Read failed')
+            
+            // Wait a bit to ensure batch has fully completed
+            await new Promise(resolve => setTimeout(resolve, 20))
+            
+            // Flag should still be cleared after batch fails
+            expect(loader.isExecutingBatch).toBe(false)
+        })
+    })
+
     describe('error handling', () => {
         beforeEach(() => {
             mockReadFile.mockClear()

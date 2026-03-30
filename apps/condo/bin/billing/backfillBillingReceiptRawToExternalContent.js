@@ -163,8 +163,13 @@ async function main () {
               ${period ? `AND br."period" = ${toSqlDateLiteral(period)}` : ''}
               AND ctx."deletedAt" IS NULL
               ${opts.organization ? `AND ctx."organization" = ${toSqlUuidLiteral(opts.organization)}` : ''}
-              -- legacy Json field stored the whole JSON; new ExternalContent stores file meta (has filename)
-              AND NOT (br."raw" ? 'filename')
+              -- legacy Json field stored the whole JSON; new ExternalContent stores file meta (has filename and id)
+              AND NOT (
+                  br."raw" ? 'filename' 
+                  AND br."raw" ? 'id'
+                  AND jsonb_typeof(br."raw"->'filename') = 'string'
+                  AND jsonb_typeof(br."raw"->'id') = 'string'
+              )
               AND (${lastId ? `br."id" > ${toSqlUuidLiteral(lastId)}` : 'TRUE'})
             ORDER BY br."id" ASC
             LIMIT ${toSqlIntLiteral(batchSize)}
@@ -189,10 +194,16 @@ async function main () {
                 break
             }
 
-            if (!raw || isFileMeta(raw)) {
-                console.log(`   ⏭️  Skipping ${id}: already has file metadata or null`)
+            // Validate that raw is not null and not already a file-meta object
+            if (!raw) {
+                console.log(`   ⏭️  Skipping ${id}: raw is null`)
                 lastId = id
-                // Don't update lastProcessedId for skipped records - only for actually processed ones
+                continue
+            }
+            
+            if (isFileMeta(raw)) {
+                console.log(`   ⏭️  Skipping ${id}: already has file metadata`)
+                lastId = id
                 continue
             }
 

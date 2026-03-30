@@ -159,6 +159,104 @@ describe('ExternalContent field type', () => {
             const xmlImpl = new ExternalContentImplementation('raw', { adapter, format: 'xml' }, createMeta())
             expect(xmlImpl.deserialize('')).toBe(null)
         })
+
+        test('json deserialize handles corrupted JSON with error', () => {
+            const adapter = { save: async () => ({}), delete: async () => undefined }
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            
+            expect(() => impl.deserialize('{invalid json}'))
+                .toThrow('Failed to parse JSON content')
+        })
+
+        test('json deserialize empty string returns null', () => {
+            const adapter = { save: async () => ({}), delete: async () => undefined }
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            
+            expect(impl.deserialize('')).toBe(null)
+        })
+
+        test('json deserialize valid JSON succeeds', () => {
+            const adapter = { save: async () => ({}), delete: async () => undefined }
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            
+            const result = impl.deserialize('{"test": "data"}')
+            expect(result).toEqual({ test: 'data' })
+        })
+    })
+
+    describe('security - path traversal protection', () => {
+        beforeEach(() => {
+            mockReadFile.mockClear()
+        })
+
+        test('blocks path traversal in local adapter', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('{"test": "data"}'))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            await expect(resolver({
+                raw: { id: 'test-id', filename: '../../../etc/passwd' },
+            })).rejects.toThrow('path traversal detected')
+        })
+
+        test('allows valid filenames in local adapter', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('{"test": "data"}'))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            const result = await resolver({
+                raw: { id: 'test-id', filename: 'valid-file.json' },
+            })
+            
+            expect(result).toEqual({ test: 'data' })
+        })
+    })
+
+    describe('deserialization error context', () => {
+        beforeEach(() => {
+            mockReadFile.mockClear()
+        })
+
+        test('includes item ID in deserialization error', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('{invalid json}'))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            await expect(resolver({
+                id: 'item-123',
+                raw: { id: 'test-id', filename: 'test.json' },
+            })).rejects.toThrow('Failed to deserialize raw for item item-123')
+        })
+
+        test('uses "unknown" when item ID is missing', async () => {
+            const adapter = {
+                src: '/test/path',
+            }
+            
+            mockReadFile.mockResolvedValue(Buffer.from('{invalid json}'))
+            
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            const resolver = impl.gqlOutputFieldResolvers().raw
+            
+            await expect(resolver({
+                raw: { id: 'test-id', filename: 'test.json' },
+            })).rejects.toThrow('Failed to deserialize raw for item unknown')
+        })
     })
 
     describe('readFromAdapter error handling', () => {
@@ -344,6 +442,40 @@ describe('ExternalContent field type', () => {
             }, {}, context)
             
             // Should have two separate loaders
+            expect(context._externalContentLoaders.size).toBe(2)
+        })
+
+        test('creates separate loaders for different adapter instances with same folder', async () => {
+            // This tests the loader key collision fix
+            const adapter1 = {
+                src: '/test/path',
+            }
+            const adapter2 = {
+                src: '/test/path', // Same path as adapter1
+            }
+            
+            mockReadFile
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ data: 1 })))
+                .mockResolvedValueOnce(Buffer.from(JSON.stringify({ data: 2 })))
+            
+            const impl1 = new ExternalContentImplementation('raw', { adapter: adapter1, format: 'json' }, createMeta())
+            const impl2 = new ExternalContentImplementation('raw', { adapter: adapter2, format: 'json' }, createMeta())
+            
+            const resolver1 = impl1.gqlOutputFieldResolvers().raw
+            const resolver2 = impl2.gqlOutputFieldResolvers().raw
+            
+            const context = {}
+            
+            await resolver1({
+                raw: { id: 'test-id', filename: 'test1.json' },
+            }, {}, context)
+            
+            await resolver2({
+                raw: { id: 'test-id', filename: 'test2.json' },
+            }, {}, context)
+            
+            // Should have two separate loaders even though they have the same folder
+            // This verifies the WeakMap-based key prevents collisions
             expect(context._externalContentLoaders.size).toBe(2)
         })
 

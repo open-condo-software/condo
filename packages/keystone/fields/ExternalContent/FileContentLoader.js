@@ -35,6 +35,9 @@ class FileContentLoader {
         
         // Batch delay in milliseconds (one event loop tick)
         this.batchDelay = 10
+        
+        // Track if batch is currently executing to prevent race conditions
+        this.isExecutingBatch = false
     }
 
     /**
@@ -49,6 +52,13 @@ class FileContentLoader {
         // Check cache first
         if (this.cache.has(cacheKey)) {
             return this.cache.get(cacheKey)
+        }
+        
+        // If batch is currently executing, wait for it to complete then retry
+        // This prevents race condition where promise is cached but item isn't in batch
+        if (this.isExecutingBatch) {
+            await new Promise(resolve => setTimeout(resolve, this.batchDelay + 5))
+            return this.load(fileMeta)
         }
         
         // Create promise for this request
@@ -97,6 +107,9 @@ class FileContentLoader {
      * @private
      */
     async _executeBatch () {
+        // Set execution flag to prevent race conditions
+        this.isExecutingBatch = true
+        
         // Clear timer
         this.batchTimer = null
         
@@ -104,15 +117,23 @@ class FileContentLoader {
         const batch = this.queue.slice()
         this.queue = []
         
-        if (batch.length === 0) return
+        if (batch.length === 0) {
+            this.isExecutingBatch = false
+            return
+        }
         
-        // Determine adapter type
-        const isLocalAdapter = typeof this.adapter?.src === 'string'
-        
-        if (isLocalAdapter) {
-            await this._executeBatchLocal(batch)
-        } else {
-            await this._executeBatchCloud(batch)
+        try {
+            // Determine adapter type
+            const isLocalAdapter = typeof this.adapter?.src === 'string'
+            
+            if (isLocalAdapter) {
+                await this._executeBatchLocal(batch)
+            } else {
+                await this._executeBatchCloud(batch)
+            }
+        } finally {
+            // Always clear execution flag, even if batch fails
+            this.isExecutingBatch = false
         }
     }
 
@@ -126,7 +147,22 @@ class FileContentLoader {
         // Read all files in parallel
         const promises = batch.map(async ({ fileMeta, resolve, reject }) => {
             try {
+                // Prevent path traversal attacks - check for absolute paths first
+                if (path.isAbsolute(fileMeta.filename)) {
+                    reject(new Error(`Invalid filename: path traversal detected in ${fileMeta.filename}`))
+                    return
+                }
+                
                 const fullPath = path.join(this.adapter.src, fileMeta.filename)
+                const normalized = path.normalize(fullPath)
+                const basePath = path.normalize(this.adapter.src)
+                
+                // Check if normalized path starts with base path followed by separator or equals base path
+                if (!normalized.startsWith(basePath + path.sep) && normalized !== basePath) {
+                    reject(new Error(`Invalid filename: path traversal detected in ${fileMeta.filename}`))
+                    return
+                }
+                
                 const buffer = Buffer.from(await readFile(fullPath))
                 resolve(buffer)
             } catch (err) {

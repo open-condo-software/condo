@@ -12,6 +12,10 @@ const { FileContentLoader } = require('./FileContentLoader')
 
 const logger = getLogger('ExternalContent')
 
+// WeakMap to store unique loader keys per adapter instance
+// This prevents loader key collisions when multiple adapters have the same folder name
+const adapterLoaderKeys = new WeakMap()
+
 const DEFAULT_FORMAT = 'json'
 
 const DEFAULT_PROCESSORS = {
@@ -19,7 +23,14 @@ const DEFAULT_PROCESSORS = {
         graphQLInputType: 'JSON',
         graphQLReturnType: 'JSON',
         serialize: (value) => JSON.stringify(value ?? null),
-        deserialize: (raw) => (raw.length === 0 ? null : JSON.parse(raw)),
+        deserialize: (raw) => {
+            if (raw.length === 0) return null
+            try {
+                return JSON.parse(raw)
+            } catch (err) {
+                throw new Error(`Failed to parse JSON content: ${err.message}`)
+            }
+        },
         mimetype: 'application/json',
         fileExt: 'json',
     },
@@ -63,8 +74,25 @@ async function readFromAdapter (adapter, fileMeta) {
 
     // Local adapter (from `packages/keystone/fileAdapter/fileAdapter.js`)
     if (typeof adapter?.src === 'string') {
-        const fullPath = path.join(adapter.src, filename)
-        return Buffer.from(await readFile(fullPath))
+        try {
+            // Prevent path traversal attacks - check for absolute paths first
+            if (path.isAbsolute(filename)) {
+                throw new Error(`Invalid filename: path traversal detected in ${filename}`)
+            }
+            
+            const fullPath = path.join(adapter.src, filename)
+            const normalized = path.normalize(fullPath)
+            const basePath = path.normalize(adapter.src)
+            
+            // Check if normalized path starts with base path
+            if (!normalized.startsWith(basePath + path.sep) && normalized !== basePath) {
+                throw new Error(`Invalid filename: path traversal detected in ${filename}`)
+            }
+            
+            return Buffer.from(await readFile(fullPath))
+        } catch (err) {
+            throw new Error(`ExternalContent: failed to read local file ${filename}: ${err.message}`)
+        }
     }
 
     // Cloud adapters provide acl.generateUrl which returns a signed, time-limited direct URL.
@@ -99,7 +127,7 @@ async function readFromAdapter (adapter, fileMeta) {
  * Get or create a FileContentLoader for the given adapter.
  * 
  * Implements lazy initialization: creates loader on first access and reuses it for subsequent calls.
- * Each adapter gets its own loader instance (keyed by adapter folder).
+ * Each adapter instance gets its own unique loader (keyed by adapter instance via WeakMap).
  * 
  * @param {Object} context - GraphQL context object
  * @param {Object} adapter - File adapter instance
@@ -111,9 +139,12 @@ function getOrCreateLoader (context, adapter) {
         context._externalContentLoaders = new Map()
     }
     
-    // Use adapter folder as key (different adapters = different loaders)
-    // Local adapter uses 'src' path, cloud adapters use 'folder'
-    const loaderKey = adapter.folder || adapter.src || 'default'
+    // Use adapter instance as key via WeakMap to prevent collisions
+    // This ensures different adapter instances get different loaders even if they have the same folder
+    if (!adapterLoaderKeys.has(adapter)) {
+        adapterLoaderKeys.set(adapter, Symbol('loader'))
+    }
+    const loaderKey = adapterLoaderKeys.get(adapter)
     
     // Return existing loader or create new one
     if (!context._externalContentLoaders.has(loaderKey)) {
@@ -203,8 +234,13 @@ class ExternalContentImplementation extends Implementation {
                     buf = await readFromAdapter(this.fileAdapter, value)
                 }
                 
-                const raw = buf.toString('utf-8')
-                return this.deserialize(raw)
+                try {
+                    const raw = buf.toString('utf-8')
+                    return this.deserialize(raw)
+                } catch (err) {
+                    const itemId = item?.id || 'unknown'
+                    throw new Error(`Failed to deserialize ${this.path} for item ${itemId}: ${err.message}`)
+                }
             },
         }
     }
