@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields, catchErrorFrom, isUniqueConstraintViolationMessage } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
@@ -283,7 +283,7 @@ describe('MarketSetting', () => {
             await catchErrorFrom(async () => {
                 await createTestMarketSetting(admin, organization)
             }, (caught) => {
-                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "MarketSetting_unique_organization"')
+                expect(isUniqueConstraintViolationMessage(caught.errors[0].message, 'MarketSetting_unique_organization')).toBe(true)
             })
         })
     })

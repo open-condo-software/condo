@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const getUnitsFromProperty = (property) => (
@@ -26,8 +26,17 @@ const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.u
  */
 async function countUniqueUnitsFromResidentsByPropertyIds (organizationId, propertyIds) {
     const { keystone } = getSchemaCtx('Resident')
-    const { knex } = getDatabaseAdapter(keystone)
+    const adapter = getDatabaseAdapter(keystone)
 
+    if (isPrismaAdapter(keystone)) {
+        const ph = propertyIds.map((_, i) => `$${i + 2}`).join(', ')
+        const sql = `SELECT count(distinct(concat("property", "unitName", "unitType"))) FROM "Resident" WHERE "organization" = $1 AND "property" IN (${ph}) AND "deletedAt" IS NULL`
+        const allParams = [organizationId, ...propertyIds]
+        const result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, allParams), ...allParams))
+        return get(result, [0, 'count'], null)
+    }
+
+    const { knex } = adapter
     const result = await knex('Resident')
         .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
         .where('organization', organizationId)
@@ -47,8 +56,28 @@ async function countUniqueUnitsFromResidentsByPropertyIds (organizationId, prope
  */
 async function countUniqueUnitsFromResidentsByProperty (organizationId, propertyId, unitNamesByUnitType) {
     const { keystone } = getSchemaCtx('Resident')
-    const { knex } = getDatabaseAdapter(keystone)
+    const adapter = getDatabaseAdapter(keystone)
 
+    if (isPrismaAdapter(keystone)) {
+        const params = [organizationId, propertyId]
+        let paramIdx = 3
+
+        // Build OR conditions: (unitType=X AND unitName IN (...)) OR ...
+        const orParts = Object.keys(unitNamesByUnitType).map(unitType => {
+            const unitNames = unitNamesByUnitType[unitType]
+            params.push(unitType)
+            const typeParam = `$${paramIdx++}`
+            const namePh = unitNames.map(name => { params.push(name); return `$${paramIdx++}` }).join(', ')
+            return `("unitType" = ${typeParam} AND "unitName" IN (${namePh}))`
+        })
+
+        const orClause = orParts.length > 0 ? `AND (${orParts.join(' OR ')})` : ''
+        const sql = `SELECT count(distinct(concat("property", "unitName", "unitType"))) FROM "Resident" WHERE "organization" = $1 AND "property" = $2 AND "deletedAt" IS NULL ${orClause}`
+        const result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, params), ...params))
+        return get(result, [0, 'count'], null)
+    }
+
+    const { knex } = adapter
     const result = await knex('Resident')
         .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
         .where('organization', organizationId)

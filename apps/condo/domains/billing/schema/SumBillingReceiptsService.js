@@ -4,7 +4,7 @@
 
 const Big = require('big.js')
 
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
@@ -61,7 +61,7 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 }
 
                 const { keystone } = getSchemaCtx('BillingReceipt')
-                const { knex } = getDatabaseAdapter(keystone)
+                const adapter = getDatabaseAdapter(keystone)
 
                 const organizationWhere = { deletedAt: null }
                 if (organization) {
@@ -89,14 +89,25 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                     },
                 })
 
-                const result = await knex('BillingReceipt')
-                    .sum('toPay as totalToPay')
-                    .whereIn('context', contextIds)
-                    .andWhere('period', period)
-                    .andWhere('deletedAt', null)
+                let totalToPay
+                if (isPrismaAdapter(keystone)) {
+                    const ph = contextIds.map((_, i) => `$${i + 1}`).join(', ')
+                    const sql = `SELECT SUM("toPay") as "totalToPay" FROM "BillingReceipt" WHERE "context" IN (${ph}) AND "period" = $${contextIds.length + 1} AND "deletedAt" IS NULL`
+                    const allParams = [...contextIds, period]
+                    const result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, allParams), ...allParams))
+                    totalToPay = result[0].totalToPay
+                } else {
+                    const { knex } = adapter
+                    const result = await knex('BillingReceipt')
+                        .sum('toPay as totalToPay')
+                        .whereIn('context', contextIds)
+                        .andWhere('period', period)
+                        .andWhere('deletedAt', null)
+                    totalToPay = result[0].totalToPay
+                }
 
                 return {
-                    sum: Big(result[0].totalToPay || 0).toFixed(8),
+                    sum: Big(totalToPay || 0).toFixed(8),
                 }
             },
         },

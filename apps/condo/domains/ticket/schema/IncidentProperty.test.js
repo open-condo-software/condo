@@ -214,7 +214,7 @@ describe('IncidentProperty', () => {
             }, ({ errors }) => {
                 expect(errors).toHaveLength(1)
                 expect(errors[0]).toEqual(expect.objectContaining({
-                    message: expect.stringContaining('unique constraint'),
+                    message: expect.stringMatching(/unique constraint/i),
                 }))
             })
         })

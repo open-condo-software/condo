@@ -200,7 +200,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         hooks: composeHooks(defaultAuthStrategyConfigHooks, get(authStrategyOpts, 'hooks', {})),
     })
 
-    if (!IS_BUILD) {
+    if (!IS_BUILD && !IS_BUILD_PHASE) {
         // Since tasks may require Redis connection, and Redis variable is not present during build time:
         // We need to register all tasks as they will be possible to execute
         registerTaskQueues(queues)

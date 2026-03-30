@@ -1,7 +1,7 @@
 const Big = require('big.js')
 const { get, pick, isEmpty } = require('lodash')
 
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
@@ -17,19 +17,55 @@ class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
 
     async loadData () {
         const { keystone } = await getSchemaCtx(this.domainName)
-        const { knex } = getDatabaseAdapter(keystone)
+        const adapter = getDatabaseAdapter(keystone)
 
         const propertyIds = get(this.where, 'property.id_in', [])
 
-        if (!isEmpty(propertyIds)) {
-            this.result = await knex(this.domainName)
-                .select(['id', 'address', 'user'])
-                .where(pick(this.where, ['organization', 'deletedAt']))
-                .whereIn('property', propertyIds)
+        if (isPrismaAdapter(keystone)) {
+            const whereParts = []
+            const params = []
+            let paramIdx = 1
+
+            if (!isEmpty(propertyIds)) {
+                const simpleWhere = pick(this.where, ['organization', 'deletedAt'])
+                for (const [key, val] of Object.entries(simpleWhere)) {
+                    if (val === null) {
+                        whereParts.push(`"${key}" IS NULL`)
+                    } else {
+                        whereParts.push(`"${key}" = $${paramIdx++}`)
+                        params.push(val)
+                    }
+                }
+                const ph = propertyIds.map(v => { params.push(v); return `$${paramIdx++}` }).join(', ')
+                whereParts.push(`"property" IN (${ph})`)
+            } else {
+                for (const [key, val] of Object.entries(this.where)) {
+                    if (val === null) {
+                        whereParts.push(`"${key}" IS NULL`)
+                    } else if (typeof val === 'object' && val.id_in) {
+                        continue
+                    } else {
+                        whereParts.push(`"${key}" = $${paramIdx++}`)
+                        params.push(val)
+                    }
+                }
+            }
+
+            const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : ''
+            const sql = `SELECT "id", "address", "user" FROM "${this.domainName}" ${whereClause}`
+            this.result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, params), ...params))
         } else {
-            this.result = await knex(this.domainName)
-                .select(['id', 'address', 'user'])
-                .where(this.where)
+            const { knex } = adapter
+            if (!isEmpty(propertyIds)) {
+                this.result = await knex(this.domainName)
+                    .select(['id', 'address', 'user'])
+                    .where(pick(this.where, ['organization', 'deletedAt']))
+                    .whereIn('property', propertyIds)
+            } else {
+                this.result = await knex(this.domainName)
+                    .select(['id', 'address', 'user'])
+                    .where(this.where)
+            }
         }
     }
 }
@@ -56,18 +92,57 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
-        const { knex } = getDatabaseAdapter(keystone)
+        const adapter = getDatabaseAdapter(keystone)
 
         this.extendAggregationWithFilter(this.aggregateBy)
 
-        const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
-        query.select(knex.raw('to_char("period", \'01.MM.YYYY\') as "dayGroup"'))
+        if (isPrismaAdapter(keystone)) {
+            const selectParts = [
+                'COUNT("id") as "count"',
+                'SUM("amount") as "sum"',
+                ...this.groups.map(g => `"${g}"`),
+                'to_char("period", \'01.MM.YYYY\') as "dayGroup"',
+            ]
+            const groupByCols = this.aggregateBy.map(g => `"${g}"`).join(', ')
 
-        this.result = await query.groupBy(this.aggregateBy)
-            .where(this.knexWhere)
-            .whereIn(...this.whereIn[0])
-            .whereBetween('period', [this.dateRange.from, this.dateRange.to])
-            .orderBy('dayGroup', 'asc')
+            const whereParts = []
+            const params = []
+            let paramIdx = 1
+
+            for (const [key, val] of Object.entries(this.knexWhere)) {
+                if (val === null) {
+                    whereParts.push(`"${key}" IS NULL`)
+                } else {
+                    whereParts.push(`"${key}" = $${paramIdx++}`)
+                    params.push(val)
+                }
+            }
+
+            if (this.whereIn[0]) {
+                const [col, values] = this.whereIn[0]
+                const ph = values.map(v => { params.push(v); return `$${paramIdx++}` }).join(', ')
+                whereParts.push(`"${col}" IN (${ph})`)
+            }
+
+            if (this.dateRange.from && this.dateRange.to) {
+                whereParts.push(`"period" BETWEEN $${paramIdx++} AND $${paramIdx++}`)
+                params.push(this.dateRange.from, this.dateRange.to)
+            }
+
+            const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : ''
+            const sql = `SELECT ${selectParts.join(', ')} FROM "${this.domainName}" ${whereClause} GROUP BY ${groupByCols} ORDER BY "dayGroup" ASC`
+            this.result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, params), ...params))
+        } else {
+            const { knex } = adapter
+            const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
+            query.select(knex.raw('to_char("period", \'01.MM.YYYY\') as "dayGroup"'))
+
+            this.result = await query.groupBy(this.aggregateBy)
+                .where(this.knexWhere)
+                .whereIn(...this.whereIn[0])
+                .whereBetween('period', [this.dateRange.from, this.dateRange.to])
+                .orderBy('dayGroup', 'asc')
+        }
     }
 }
 

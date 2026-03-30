@@ -2,7 +2,7 @@ const dayjs = require('dayjs')
 const { get, isEmpty, find } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
@@ -237,10 +237,64 @@ class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
         this.result = null
 
         const { keystone } = await getSchemaCtx(this.domainName)
-        const { knex } = getDatabaseAdapter(keystone)
+        const adapter = getDatabaseAdapter(keystone)
 
         this.extendAggregationWithFilter(this.aggregateBy)
 
+        const propertyFilter = get(find(this.where, 'property', {}), 'property.id_in', [])
+
+        if (isPrismaAdapter(keystone)) {
+            await this._loadDataPrisma(adapter, propertyFilter)
+        } else {
+            await this._loadDataKnex(adapter, propertyFilter)
+        }
+    }
+
+    /** @private */
+    async _loadDataPrisma (adapter, propertyFilter) {
+        const selectParts = [
+            'COUNT("id") as "count"',
+            `to_char(date_trunc('${this.dayGroup}', "createdAt"), 'DD.MM.YYYY') as "dayGroup"`,
+            'COALESCE("feedbackValue", "qualityControlValue") as "qualityControlComputedValue"',
+        ]
+        const groupByCols = this.aggregateBy.map(g => `"${g}"`).join(', ')
+
+        const whereParts = []
+        const params = []
+        let paramIdx = 1
+
+        for (const [key, val] of Object.entries(this.knexWhere)) {
+            if (val === null) {
+                whereParts.push(`"${key}" IS NULL`)
+            } else {
+                whereParts.push(`"${key}" = $${paramIdx++}`)
+                params.push(val)
+            }
+        }
+
+        // Quality control filter
+        const qcPh = QUALITY_CONTROL_VALUES.map(v => { params.push(v); return `$${paramIdx++}` }).join(', ')
+        const fbPh = QUALITY_CONTROL_VALUES.map(v => { params.push(v); return `$${paramIdx++}` }).join(', ')
+        whereParts.push(`("qualityControlValue" IN (${qcPh}) OR "feedbackValue" IN (${fbPh}))`)
+
+        if (!isEmpty(propertyFilter)) {
+            const propPh = propertyFilter.map(v => { params.push(v); return `$${paramIdx++}` }).join(', ')
+            whereParts.push(`"property" IN (${propPh})`)
+        }
+
+        if (this.dateRange.from && this.dateRange.to) {
+            whereParts.push(`"createdAt" BETWEEN $${paramIdx++} AND $${paramIdx++}`)
+            params.push(this.dateRange.from, this.dateRange.to)
+        }
+
+        const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : ''
+        const sql = `SELECT ${selectParts.join(', ')} FROM "${this.domainName}" ${whereClause} GROUP BY ${groupByCols}`
+        this.result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, params), ...params))
+    }
+
+    /** @private */
+    async _loadDataKnex (adapter, propertyFilter) {
+        const { knex } = adapter
         const query = knex(this.domainName).count('id')
             .select(knex.raw(`to_char(date_trunc('${this.dayGroup}',  "createdAt"), 'DD.MM.YYYY') as "dayGroup"`))
             .select(knex.raw('COALESCE("feedbackValue", "qualityControlValue") as "qualityControlComputedValue"'))
@@ -249,9 +303,6 @@ class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
                 this.whereIn('qualityControlValue', QUALITY_CONTROL_VALUES)
                     .orWhereIn('feedbackValue', QUALITY_CONTROL_VALUES)
             })
-
-
-        const propertyFilter = get(find(this.where, 'property', {}), 'property.id_in', [])
 
         if (!isEmpty(propertyFilter)) {
             query.whereIn('property', propertyFilter)
