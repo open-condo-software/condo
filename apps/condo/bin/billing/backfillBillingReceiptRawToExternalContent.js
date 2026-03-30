@@ -12,13 +12,12 @@ const commander = require('commander')
 const dayjs = require('dayjs')
 
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
-const logger = getLogger('backfill-billingreceipt-raw')
+const { prompt } = require('../lib/prompt')
 
 const FORMAT = 'json'
 const MIMETYPE = 'application/json'
@@ -62,8 +61,8 @@ function normalizePeriod (periodRaw) {
 
 const program = new commander.Command()
 program
-    .requiredOption('-p, --period <period>', 'BillingReceipt.period, format YYYY-MM or YYYY-MM-DD')
-    .requiredOption('-o, --organization <organizationId>', 'Organization uuid', (value) => {
+    .option('-p, --period <period>', 'BillingReceipt.period, format YYYY-MM or YYYY-MM-DD')
+    .option('-o, --organization <organizationId>', 'Organization uuid', (value) => {
         if (!UUID_REGEXP.test(value)) throw new commander.InvalidArgumentError('Not a UUID.')
         return value
     })
@@ -80,9 +79,24 @@ async function main () {
     program.parse()
     const opts = program.opts()
 
-    const period = normalizePeriod(opts.period)
-    if (!period) {
+    const period = opts.period ? normalizePeriod(opts.period) : null
+    if (opts.period && !period) {
         throw new Error('Invalid --period. Expected YYYY-MM or YYYY-MM-DD')
+    }
+
+    const warnings = []
+    if (!period) warnings.push('--period is not set: ALL periods will be processed')
+    if (!opts.organization) warnings.push('--organization is not set: ALL organizations will be processed')
+
+    if (warnings.length > 0) {
+        console.log('\n⚠️  Warning:')
+        for (const w of warnings) console.log(`   ${w}`)
+        console.log('')
+        const answer = await prompt('Are you sure you want to continue? (Y/N)')
+        if (answer !== 'Y') {
+            console.log('Aborted.')
+            process.exit(0)
+        }
     }
 
     const batchSize = opts.batchSize
@@ -111,20 +125,25 @@ async function main () {
     let lastId = opts.startFromId || null
     let lastProcessedId = null
 
-    logger.info({
-        msg: 'start',
-        data: {
-            period,
-            organizationId: opts.organization,
-            batchSize,
-            startFromId: lastId,
-            maxRecords,
-            dryRun: Boolean(opts.dryRun),
-        },
-    })
+    console.log('\n🚀 Starting backfill...')
+    console.log('Configuration:')
+    console.log(`  Period: ${period || 'ALL'}`)
+    console.log(`  Organization: ${opts.organization || 'ALL'}`)
+    console.log(`  Batch size: ${batchSize}`)
+    console.log(`  Start from ID: ${lastId || 'beginning'}`)
+    console.log(`  Max records: ${maxRecords || 'unlimited'}`)
+    console.log(`  Dry run: ${opts.dryRun ? 'YES (no changes will be made)' : 'NO'}`)
+    console.log('\n📋 Process:')
+    console.log('  1. Query BillingReceipts with inline JSON raw data')
+    console.log('  2. Save JSON content to external files')
+    console.log('  3. Update database with file metadata references')
+    console.log('')
 
     let hasMore = true
+    let batchNumber = 0
     while (hasMore) {
+        batchNumber++
+        console.log(`\n🔍 Fetching batch #${batchNumber} (up to ${batchSize} records)...`)
         const sql = `
             SELECT br."id", br."raw"
             FROM "BillingReceipt" br
@@ -132,9 +151,9 @@ async function main () {
               ON ctx."id" = br."context"
             WHERE br."deletedAt" IS NULL
               AND br."raw" IS NOT NULL
-              AND br."period" = ${toSqlDateLiteral(period)}
+              ${period ? `AND br."period" = ${toSqlDateLiteral(period)}` : ''}
               AND ctx."deletedAt" IS NULL
-              AND ctx."organization" = ${toSqlUuidLiteral(opts.organization)}
+              ${opts.organization ? `AND ctx."organization" = ${toSqlUuidLiteral(opts.organization)}` : ''}
               -- legacy Json field stored the whole JSON; new ExternalContent stores file meta (has filename)
               AND NOT (br."raw" ? 'filename')
               AND (${lastId ? `br."id" > ${toSqlUuidLiteral(lastId)}` : 'TRUE'})
@@ -144,36 +163,40 @@ async function main () {
 
         const { rows } = await knex.raw(sql)
         hasMore = rows.length > 0
-        if (!hasMore) continue
+        if (!hasMore) {
+            console.log('   No more records found.')
+            continue
+        }
+        console.log(`   Found ${rows.length} record(s) to process`)
 
         for (const row of rows) {
             const { id, raw } = row
             // Stop *before* advancing cursor to the next id.
             // Otherwise we may skip an unprocessed record on resume with --start-from-id.
             if (maxRecords && processed >= maxRecords) {
-                logger.info({ msg: 'reached maxRecords', data: { maxRecords, lastProcessedId, processed } })
+                console.log(`\n⚠️  Reached max records limit (${maxRecords}). Stopping.`)
+                console.log(`   Last processed ID: ${lastProcessedId}`)
                 hasMore = false
                 break
             }
 
             if (!raw || isFileMeta(raw)) {
-                if (!opts.dryRun) {
-                    await knex.raw(`
-                        UPDATE "BillingReceipt"
-                        SET "raw" = ${toSqlJsonbLiteral(raw || null)}
-                        WHERE "id" = ${toSqlUuidLiteral(id)}
-                    `)
-                }
+                console.log(`   ⏭️  Skipping ${id}: already has file metadata or null`)
                 lastId = id
                 lastProcessedId = id
                 continue
             }
 
-            if (!opts.dryRun) {
+            if (opts.dryRun) {
+                const payloadSize = Buffer.byteLength(JSON.stringify(raw ?? null), 'utf-8')
+                console.log(`   🔍 [DRY RUN] Would save ${id}: ${(payloadSize / 1024).toFixed(2)} KB`)
+            } else {
                 const payload = JSON.stringify(raw ?? null)
+                const payloadSize = Buffer.byteLength(payload, 'utf-8')
                 const stream = Readable.from([Buffer.from(payload, 'utf-8')])
                 const filename = `billingreceipt-raw-${id}.${FORMAT}`
 
+                console.log(`   💾 Saving ${id}: ${(payloadSize / 1024).toFixed(2)} KB → ${filename}`)
                 const saved = await adapter.save({
                     stream,
                     filename,
@@ -190,6 +213,7 @@ async function main () {
                     },
                 })
 
+                console.log(`   ✏️  Updating database record ${id} with file metadata`)
                 await knex.raw(`
                     UPDATE "BillingReceipt"
                     SET "raw" = ${toSqlJsonbLiteral(saved)}
@@ -202,7 +226,7 @@ async function main () {
             lastProcessedId = id
 
             if (processed % opts.progressEvery === 0) {
-                logger.info({ msg: 'progress', data: { processed, lastProcessedId } })
+                console.log(`📊 Progress: ${processed} records processed (last ID: ${lastProcessedId})`)
             }
         }
 
@@ -210,7 +234,20 @@ async function main () {
     }
 
     await knex.raw('SET statement_timeout = \'10s\'')
-    logger.info({ msg: 'done', data: { processed, lastId } })
+    
+    console.log('\n' + '='.repeat(60))
+    console.log('✅ Backfill completed!')
+    console.log('='.repeat(60))
+    console.log(`   Total records processed: ${processed}`)
+    console.log(`   Total batches: ${batchNumber}`)
+    console.log(`   Last ID: ${lastId || 'none'}`)
+    if (opts.dryRun) {
+        console.log('\n   ⚠️  DRY RUN - No changes were made to the database')
+        console.log('   Run without --dry-run to apply changes')
+    } else {
+        console.log('\n   ✅ All changes have been saved to the database')
+    }
+    console.log('='.repeat(60))
 }
 
 main().then(() => {
