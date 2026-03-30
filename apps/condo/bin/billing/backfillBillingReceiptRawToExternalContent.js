@@ -105,7 +105,7 @@ async function main () {
 
     // Keep adapter config consistent with schema (saveFileName=false).
     // Deterministic filenames are still achieved by passing stable `id` to adapter.save().
-    const adapter = new FileAdapter('BillingIntegrations')
+    const adapter = new FileAdapter('BillingReceiptRawField')
 
     let processed = 0
     let lastId = opts.startFromId || null
