@@ -281,8 +281,15 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
 
     __kmigratorKnexAdapters () {
         // NOTE: For migrations, use the main database connection (first in the list)
-        // The parent PrismaAdapter's __kmigratorKnexAdapters() method handles schema extraction
-        return super.__kmigratorKnexAdapters()
+        // Temporarily set the URL to the main database for schema extraction
+        const originalUrl = this._url
+        const mainDbUrl = Object.values(this._dbConnections)[0]
+        this._url = () => mainDbUrl
+        try {
+            return super.__kmigratorKnexAdapters()
+        } finally {
+            this._url = originalUrl
+        }
     }
 }
 
