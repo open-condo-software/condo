@@ -6109,6 +6109,57 @@ export type GetOrganizationPaymentHistoryQueryHookResult = ReturnType<typeof use
 export type GetOrganizationPaymentHistoryLazyQueryHookResult = ReturnType<typeof useGetOrganizationPaymentHistoryLazyQuery>;
 export type GetOrganizationPaymentHistorySuspenseQueryHookResult = ReturnType<typeof useGetOrganizationPaymentHistorySuspenseQuery>;
 export type GetOrganizationPaymentHistoryQueryResult = Apollo.QueryResult<Types.GetOrganizationPaymentHistoryQuery, Types.GetOrganizationPaymentHistoryQueryVariables>;
+export const GetLastFailedPaymentContextDocument = gql`
+    query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
+  lastFailedContext: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, ERROR_NEED_RETRY]}
+    sortBy: [createdAt_DESC]
+    first: 1
+  ) {
+    id
+    status
+    bindingId
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useGetLastFailedPaymentContextQuery__
+ *
+ * To run a query within a React component, call `useGetLastFailedPaymentContextQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastFailedPaymentContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLastFailedPaymentContextQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      subscriptionPlanId: // value for 'subscriptionPlanId'
+ *   },
+ * });
+ */
+export function useGetLastFailedPaymentContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables> & ({ variables: Types.GetLastFailedPaymentContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+      }
+export function useGetLastFailedPaymentContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+        }
+// @ts-ignore
+export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
+export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastFailedPaymentContextQuery | undefined, Types.GetLastFailedPaymentContextQueryVariables>;
+export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+        }
+export type GetLastFailedPaymentContextQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextQuery>;
+export type GetLastFailedPaymentContextLazyQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextLazyQuery>;
+export type GetLastFailedPaymentContextSuspenseQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextSuspenseQuery>;
+export type GetLastFailedPaymentContextQueryResult = Apollo.QueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
 export const UpdateSubscriptionContextPaymentMethodDocument = gql`
     mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
   result: updateSubscriptionContextPaymentMethod(data: $data) {
