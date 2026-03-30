@@ -17,6 +17,10 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
         startAt
         endAt
         bindingId
+        invoice {
+            id
+            toPay
+        }
         frozenPaymentInfo {
             paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
             invoice { id rows { name count price toPay } toPay }
@@ -89,6 +93,10 @@ query getSubscriptionContextById($id: ID!) {
             name
             priority
             canBePromoted
+        }
+        invoice {
+            id
+            toPay
         }
         isTrial
         startAt

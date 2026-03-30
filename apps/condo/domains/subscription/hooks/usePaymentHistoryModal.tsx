@@ -122,6 +122,7 @@ export const usePaymentHistoryModal = () => {
             render: (_, record) => {
                 const multiPaymentId = record.frozenPaymentInfo?.multiPaymentId
                 if (!multiPaymentId) return '—'
+                // TODO(DOMA-13128): Add check page in condo
                 const receiptUrl = `${CONDO_RB_DOMAIN}/check/${multiPaymentId}`
                 return (
                     <Typography.Link href={receiptUrl} target='_blank'>

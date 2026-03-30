@@ -5689,6 +5689,10 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
     startAt
     endAt
     bindingId
+    invoice {
+      id
+      toPay
+    }
     frozenPaymentInfo {
       paymentMethod {
         bindingId
@@ -5913,6 +5917,10 @@ export const GetSubscriptionContextByIdDocument = gql`
       name
       priority
       canBePromoted
+    }
+    invoice {
+      id
+      toPay
     }
     isTrial
     startAt

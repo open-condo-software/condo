@@ -396,14 +396,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             return isActivePlan ? null : price.name
         } else if (isFreeForPartner) {
             return null
-        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.frozenPaymentInfo?.invoice?.toPay !== undefined) {
-            const contextPrice = Math.floor(Number(activeSubscriptionContext.frozenPaymentInfo.invoice.toPay))
+        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.invoice?.toPay !== undefined) {
+            const contextPrice = Math.floor(Number(activeSubscriptionContext.invoice.toPay))
             const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
             return `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         } else {
             return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         }
-    }, [price, activeSubscriptionContext?.frozenPaymentInfo?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner]) 
+    }, [price, activeSubscriptionContext?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner]) 
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
