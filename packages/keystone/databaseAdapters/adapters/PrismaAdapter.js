@@ -237,19 +237,20 @@ class PrismaAdapter extends OriginalPrismaAdapter {
             }
         }
 
+        const prismaAdapterRef = this
         const adapter = {
             knex: knexInstance,
             schemaName,
             schema () {
                 return knexInstance.schema.withSchema(this.schemaName)
             },
-            getListAdapterByKey: (key) => this.getListAdapterByKey(key),
+            getListAdapterByKey: (key) => prismaAdapterRef.getListAdapterByKey(key),
             async _createTables () {
                 const results = []
 
-                for (const la of Object.values(this.listAdapters)) {
+                for (const la of Object.values(prismaAdapterRef.listAdapters)) {
                     try {
-                        await this.schema().createTable(la.key, (table) => {
+                        await adapter.schema().createTable(la.key, (table) => {
                             for (const fa of la.fieldAdapters) {
                                 _addFieldToKnexSchema(fa, table, knexInstance)
                             }
@@ -272,7 +273,7 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                             const leftPkName = leftListAdapter.getPrimaryKeyAdapter().fieldName
                             const rightPkName = rightListAdapter.getPrimaryKeyAdapter().fieldName
 
-                            await this.schema().createTable(tableName, (table) => {
+                            await adapter.schema().createTable(tableName, (table) => {
                                 // Left FK column
                                 const leftCol = (leftPkName === 'AutoIncrementInteger' || leftPkName === 'Integer')
                                     ? table.integer(near) : table.uuid(near)
@@ -286,17 +287,17 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                                 table.foreign(far).references('id').inTable(`${schemaName}.${left.adapter.refListKey}`)
                             })
                         } else if (cardinality === '1:N' && right) {
-                            await this.schema().table(right.listKey, (table) => {
+                            await adapter.schema().table(right.listKey, (table) => {
                                 table.foreign(right.path).references('id')
                                     .inTable(`${schemaName}.${left.listKey}`)
                             })
                         } else if (cardinality === 'N:1') {
-                            await this.schema().table(left.listKey, (table) => {
+                            await adapter.schema().table(left.listKey, (table) => {
                                 table.foreign(left.path).references('id')
                                     .inTable(`${schemaName}.${left.adapter.refListKey}`)
                             })
                         } else if (cardinality === '1:1') {
-                            await this.schema().table(left.listKey, (table) => {
+                            await adapter.schema().table(left.listKey, (table) => {
                                 table.foreign(left.path).references('id')
                                     .inTable(`${schemaName}.${left.adapter.refListKey}`)
                             })
