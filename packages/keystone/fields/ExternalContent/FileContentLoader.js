@@ -29,6 +29,9 @@ class FileContentLoader {
         // Request-scoped cache: filename -> Promise<Buffer>
         this.cache = new Map()
         
+        // Pending promises map to prevent race conditions: filename -> Promise
+        this.pending = new Map()
+        
         // Batch queue: array of { fileMeta, resolve, reject }
         this.queue = []
         
@@ -56,12 +59,11 @@ class FileContentLoader {
             return this.cache.get(cacheKey)
         }
         
-        // If batch is currently executing, wait for it to complete then retry
-        // This prevents race condition where promise is cached but item isn't in batch
-        if (this.batchCompletionPromise) {
-            await this.batchCompletionPromise
-            // After batch completes, check cache again or retry
-            return this.load(fileMeta)
+        // Check if there's already a pending promise for this file
+        // This prevents race condition where multiple concurrent requests
+        // for the same file create duplicate queue entries
+        if (this.pending.has(cacheKey)) {
+            return this.pending.get(cacheKey)
         }
         
         // Create promise for this request
@@ -76,8 +78,14 @@ class FileContentLoader {
             }
         })
         
-        // Cache the promise (not just the result)
+        // Store in both pending and cache immediately to prevent duplicates
+        this.pending.set(cacheKey, promise)
         this.cache.set(cacheKey, promise)
+        
+        // Clean up pending map after promise settles
+        promise.finally(() => {
+            this.pending.delete(cacheKey)
+        })
         
         return promise
     }
@@ -104,6 +112,7 @@ class FileContentLoader {
      */
     clear () {
         this.cache.clear()
+        this.pending.clear()
     }
 
     /**

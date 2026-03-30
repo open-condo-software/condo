@@ -263,6 +263,21 @@ class ExternalContentImplementation extends Implementation {
 
     // Hooks
     /**
+     * Validates payload size against configured maximum.
+     * 
+     * @private
+     * @param {number} sizeBytes - Size in bytes to validate
+     * @throws {Error} If size exceeds maxSizeBytes
+     */
+    _validatePayloadSize (sizeBytes) {
+        if (sizeBytes > this.maxSizeBytes) {
+            const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2)
+            const maxMB = (this.maxSizeBytes / 1024 / 1024).toFixed(2)
+            throw new Error(`ExternalContent: payload size (${sizeMB}MB) exceeds maximum allowed size (${maxMB}MB) for field ${this.path}`)
+        }
+    }
+
+    /**
      * Resolves input data before saving to database.
      * 
      * Handles file lifecycle:
@@ -306,15 +321,18 @@ class ExternalContentImplementation extends Implementation {
 
         // Save first, then delete old file.
         // This prevents losing the previous file if save() fails.
+        
+        // For JSON format, do early size estimation before expensive serialization
+        if (this.format === 'json' && nextValue !== null && typeof nextValue === 'object') {
+            const estimatedSize = Buffer.byteLength(JSON.stringify(nextValue), 'utf-8')
+            this._validatePayloadSize(estimatedSize)
+        }
+        
         const payload = this.serialize(nextValue)
         const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
         
-        // Validate size limit
-        if (payloadSizeBytes > this.maxSizeBytes) {
-            const sizeMB = (payloadSizeBytes / 1024 / 1024).toFixed(2)
-            const maxMB = (this.maxSizeBytes / 1024 / 1024).toFixed(2)
-            throw new Error(`ExternalContent: payload size (${sizeMB}MB) exceeds maximum allowed size (${maxMB}MB) for field ${this.path}`)
-        }
+        // Validate size limit (final check after serialization)
+        this._validatePayloadSize(payloadSizeBytes)
         
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 

@@ -28,7 +28,7 @@ function validateFilePath (basePath, filename) {
         throw new Error(`Invalid filename: path traversal detected in ${filename}`)
     }
     
-    return fullPath
+    return normalized
 }
 
 module.exports = {

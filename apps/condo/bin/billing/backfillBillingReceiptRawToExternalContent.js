@@ -147,6 +147,10 @@ async function main () {
     console.log(`  Max records: ${maxRecords || 'unlimited'}`)
     console.log(`  Dry run: ${opts.dryRun ? 'YES (no changes will be made)' : 'NO'}`)
     console.log(`  Continue on error: ${opts.continueOnError ? 'YES' : 'NO'}`)
+    console.log('\n⚠️  Important:')
+    console.log('  - Do NOT run multiple instances of this script concurrently')
+    console.log('  - Running concurrent instances will process duplicate records')
+    console.log('  - Use --start-from-id to resume from a specific point if needed')
     console.log('\n📋 Process:')
     console.log('  1. Query BillingReceipts with inline JSON raw data')
     console.log('  2. Save JSON content to external files')
@@ -219,6 +223,7 @@ async function main () {
                 const payloadSize = Buffer.byteLength(JSON.stringify(raw ?? null), 'utf-8')
                 console.log(`   🔍 [DRY RUN] Would save ${id}: ${(payloadSize / 1024).toFixed(2)} KB`)
             } else {
+                let savedFileMeta = null
                 try {
                     const payload = JSON.stringify(raw ?? null)
                     const payloadSize = Buffer.byteLength(payload, 'utf-8')
@@ -231,30 +236,30 @@ async function main () {
 
                     console.log(`   💾 Saving ${id}: ${(payloadSize / 1024).toFixed(2)} KB → ${filename}`)
                     
-                    // Wrap file save + DB update in transaction
-                    // Note: File operations are NOT transactional. If DB update fails after save,
-                    // the file will be orphaned in storage. This is an acceptable trade-off.
-                    await knex.transaction(async (trx) => {
-                        const saved = await adapter.save({
-                            stream,
-                            filename,
-                            mimetype: MIMETYPE,
-                            encoding: 'utf-8',
-                            id: fileId,
-                            meta: {
-                                format: FORMAT,
-                                listkey: 'BillingReceipt',
-                                field: 'raw',
-                                source: 'bin/backfillBillingReceiptRawToExternalContent',
-                                organization: opts.organization,
-                                period,
-                            },
-                        })
+                    // Save file BEFORE transaction to avoid orphaned files if DB update fails
+                    savedFileMeta = await adapter.save({
+                        stream,
+                        filename,
+                        mimetype: MIMETYPE,
+                        encoding: 'utf-8',
+                        id: fileId,
+                        meta: {
+                            format: FORMAT,
+                            listkey: 'BillingReceipt',
+                            field: 'raw',
+                            source: 'bin/backfillBillingReceiptRawToExternalContent',
+                            organization: opts.organization,
+                            period,
+                        },
+                    })
 
-                        console.log(`   ✏️  Updating database record ${id} with file metadata`)
+                    console.log(`   ✏️  Updating database record ${id} with file metadata`)
+                    
+                    // Update DB in transaction
+                    await knex.transaction(async (trx) => {
                         await trx.raw(`
                             UPDATE "BillingReceipt"
-                            SET "raw" = ${toSqlJsonbLiteral(saved)}
+                            SET "raw" = ${toSqlJsonbLiteral(savedFileMeta)}
                             WHERE "id" = ${toSqlUuidLiteral(id)}
                         `)
                     })
@@ -262,6 +267,16 @@ async function main () {
                     failed += 1
                     failedRecords.push({ id, error: err.message })
                     console.error(`   ❌ Failed to process ${id}: ${err.message}`)
+                    
+                    // If file was saved but DB update failed, try to clean up the file
+                    if (savedFileMeta) {
+                        try {
+                            await adapter.delete(savedFileMeta)
+                            console.log(`   🗑️  Cleaned up orphaned file for ${id}`)
+                        } catch (deleteErr) {
+                            console.error(`   ⚠️  Failed to delete orphaned file for ${id}: ${deleteErr.message}`)
+                        }
+                    }
                     
                     if (!opts.continueOnError) {
                         throw err
