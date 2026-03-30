@@ -1,7 +1,8 @@
 const { KnexAdapter } = require('@open-keystone/adapter-knex')
 const { MongooseAdapter } = require('@open-keystone/adapter-mongoose')
+const { PrismaAdapter: OriginalPrismaAdapter } = require('@open-keystone/adapter-prisma')
 
-const { BalancingReplicaKnexAdapter } = require('@open-condo/keystone/databaseAdapters/index')
+const { BalancingReplicaKnexAdapter, BalancingReplicaPrismaAdapter, PrismaAdapter } = require('@open-condo/keystone/databaseAdapters/index')
 
 const { getAdapter, getCookieSecret } = require('./setup.utils')
 
@@ -14,6 +15,15 @@ describe('getAdapter()', () => {
     test('Postgres url', () => {
         const adapter = getAdapter('postgresql://postgres:postgres@127.0.0.1/main')
         expect(adapter).toBeInstanceOf(KnexAdapter)
+    })
+
+    test('Prisma url', () => {
+        const adapter = getAdapter('prisma:postgresql://postgres:postgres@127.0.0.1/main')
+        expect(adapter).toBeInstanceOf(OriginalPrismaAdapter)
+        expect(adapter).toBeInstanceOf(PrismaAdapter)
+        expect(adapter.url).toEqual('postgresql://postgres:postgres@127.0.0.1/main')
+        expect(adapter.migrationMode).toEqual('none')
+        expect(adapter.relationLoadStrategy).toEqual('query')
     })
 
     describe('custom provider with replicas', () => {
@@ -47,6 +57,16 @@ describe('getAdapter()', () => {
             })}`
             const adapter = getAdapter(dbUrl)
             expect(adapter).toBeInstanceOf(BalancingReplicaKnexAdapter)
+        })
+
+        test('prisma-custom', () => {
+            const dbUrl = `prisma-custom:${JSON.stringify({
+                main: 'postgresql://postgres:postgres@127.0.0.1:5432/main',
+                replica: 'postgresql://postgres:postgres@127.0.0.1:5433/main',
+            })}`
+            const adapter = getAdapter(dbUrl)
+            expect(adapter).toBeInstanceOf(BalancingReplicaPrismaAdapter)
+            expect(adapter.relationLoadStrategy).toEqual('query')
         })
     })
 

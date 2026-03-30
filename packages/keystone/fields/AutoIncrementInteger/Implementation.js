@@ -2,6 +2,7 @@ const { Integer } = require('@open-keystone/fields')
 const get = require('lodash/get')
 const { default: Redlock } = require('redlock')
 
+const { castUuidParams } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
 class AutoIncrementInteger extends Integer.implementation {
@@ -111,10 +112,63 @@ class AutoIncrementIntegerMongooseFieldAdapter extends Integer.adapters.mongoose
     }
 }
 
-// TODO(pahaz): is it working? or just hack?
 class AutoIncrementIntegerPrismaFieldAdapter extends Integer.adapters.prisma {
-    async nextValue () {
-        throw new Error('Is not supported yet!')
+    get redis () {
+        if (!this._redis) this._redis = getKVClient()
+        return this._redis
+    }
+
+    async nextValue (scopeWhere = {}) {
+        const tableName = this.listAdapter.key
+        const fieldName = this.dbPath
+        const prisma = this.listAdapter.parentAdapter.prisma
+        const rlock = new Redlock([this.redis])
+
+        const scopeParts = Object.keys(scopeWhere).reduce((result, fieldName) => [...result, fieldName, get(scopeWhere, fieldName)], [])
+
+        const redisLockKeyParts = ['AutoIncrementInteger', tableName, fieldName, ...scopeParts]
+        const redisMaxValueKeyParts = ['AutoIncrementInteger', tableName, fieldName, 'value', ...scopeParts]
+
+        const redisLockKey = redisLockKeyParts.filter(Boolean).join(':')
+        const redisMaxValueKey = redisMaxValueKeyParts.filter(Boolean).join(':')
+
+        let lock = await rlock.acquire([redisLockKey], 500, {
+            retryDelay: 1000,
+            retryCount: 30,
+            automaticExtensionThreshold: 100,
+            retryJitter: 1000,
+        })
+        try {
+            let currentMaxNumber = await this.redis.get(redisMaxValueKey)
+
+            // NOTE: Build WHERE clause from scopeWhere for raw SQL
+            const whereKeys = Object.keys(scopeWhere)
+            let whereClause = ''
+            const params = []
+            if (whereKeys.length > 0) {
+                const conditions = whereKeys.map((key, idx) => {
+                    params.push(scopeWhere[key])
+                    return `"${key}" = $${idx + 1}`
+                })
+                whereClause = `WHERE ${conditions.join(' AND ')}`
+            }
+
+            const maxQuery = `SELECT MAX("${fieldName}") as max FROM "${tableName}" ${whereClause}`
+            const [{ max }] = await prisma.$queryRawUnsafe(castUuidParams(maxQuery, params), ...params)
+
+            if (!currentMaxNumber) {
+                currentMaxNumber = max
+            } else {
+                if (max > currentMaxNumber) {
+                    currentMaxNumber = max
+                }
+            }
+            currentMaxNumber = parseInt(currentMaxNumber || 0)
+            await this.redis.set(redisMaxValueKey, currentMaxNumber + 1)
+            return currentMaxNumber + 1
+        } finally {
+            await lock.release()
+        }
     }
 }
 

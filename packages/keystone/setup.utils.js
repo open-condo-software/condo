@@ -6,7 +6,7 @@ const { v5: uuidv5 } = require('uuid')
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
-const { FakeDatabaseAdapter, BalancingReplicaKnexAdapter, KnexAdapter } = require('./databaseAdapters')
+const { FakeDatabaseAdapter, BalancingReplicaKnexAdapter, BalancingReplicaPrismaAdapter, KnexAdapter, PrismaAdapter } = require('./databaseAdapters')
 
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 
@@ -43,17 +43,27 @@ function getCookieSecret (cookieSecret) {
     }
 }
 
+const PRISMA_URL_PREFIX = 'prisma:'
+
 /** @deprecated use prepareKeystone */
 function getAdapter (databaseUrl) {
     if (!databaseUrl) throw new TypeError('getAdapter() call without databaseUrl')
     if (typeof databaseUrl !== 'string') throw new TypeError('getAdapter() databaseUrl is not a string')
     if (databaseUrl.startsWith('mongodb')) {
         return new MongooseAdapter({ mongoUri: databaseUrl })
+    } else if (databaseUrl.startsWith(PRISMA_URL_PREFIX)) {
+        // NOTE: prisma:<postgres_url> — use PrismaAdapter with JOINs disabled
+        const realUrl = databaseUrl.substring(PRISMA_URL_PREFIX.length)
+        return new PrismaAdapter({ url: realUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
     } else if (databaseUrl.startsWith('postgres')) {
         return new KnexAdapter({ knexOptions: { connection: databaseUrl, pool: { min: 0, max: 3 } } })
     } else if (databaseUrl.startsWith('undefined')) {
         // NOTE: case for build time!
         return new FakeDatabaseAdapter()
+    } else if (databaseUrl.startsWith('prisma-custom:')) {
+        // NOTE: prisma-custom:{...} — use BalancingReplicaPrismaAdapter for multi-DB routing without JOINs
+        const realUrl = databaseUrl.replace(/^prisma-/, '')
+        return new BalancingReplicaPrismaAdapter({ databaseUrl: realUrl })
     } else if (databaseUrl.startsWith('custom')) {
         return new BalancingReplicaKnexAdapter({ databaseUrl })
     } else {

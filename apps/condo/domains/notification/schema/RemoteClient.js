@@ -27,7 +27,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             type: 'Text',
             isRequired: true,
             knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false },
+            kmigratorOptions: { null: false, blank: true },
         },
 
         appId: {
@@ -35,7 +35,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             type: 'Text',
             isRequired: true,
             knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false },
+            kmigratorOptions: { null: false, blank: true },
             hooks: {
                 validateInput: async ({ resolvedData, addFieldValidationError }) => {
                     if (get(resolvedData, ['appId', 'length'], 0) < APP_ID_MIN_LENGTH) {
@@ -92,7 +92,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             defaultValue: PUSH_TYPE_DEFAULT,
             isRequired: false,
             knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false },
+            kmigratorOptions: { null: false, blank: true },
         },
 
         pushTokenVoIP: {
@@ -133,7 +133,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             defaultValue: PUSH_TYPE_DEFAULT,
             isRequired: false,
             knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false },
+            kmigratorOptions: { null: false, blank: true },
         },
 
         owner: {

@@ -114,18 +114,21 @@ const buildTicketsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) =
                 idx => [`TicketChange as mr${idx}`, function () {
                     this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.processing])
                 }],
+                { select: 'MAX("createdAt")', as: 'startedAt', table: 'TicketChange', fk: 'ticket', where: { statusIdTo: [statusIndexes.processing] } },
             ],
             [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "completedAt"`),
                 idx => [`TicketChange as mr${idx}`, function () {
                     this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.completed])
                 }],
+                { select: 'MAX("createdAt")', as: 'completedAt', table: 'TicketChange', fk: 'ticket', where: { statusIdTo: [statusIndexes.completed] } },
             ],
             [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "closedAt"`),
                 idx => [`TicketChange as mr${idx}`, function () {
                     this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.canceled, statusIndexes.closed])
                 }],
+                { select: 'MAX("createdAt")', as: 'closedAt', table: 'TicketChange', fk: 'ticket', where: { statusIdTo: [statusIndexes.canceled, statusIndexes.closed] } },
             ],
         ],
         sortBy,
@@ -146,6 +149,7 @@ const loadTicketCommentsForExcelExport = async ({ ticketIds = [], sortBy = ['cre
             [
                 (idx, knex) => knex.raw(`COUNT(mr${idx}.id) as "TicketCommentFiles"`),
                 idx => [`TicketCommentFile as mr${idx}`, `mr${idx}.ticketComment`, 'mainModel.id'],
+                { select: 'COUNT(id)', as: 'TicketCommentFiles', table: 'TicketCommentFile', fk: 'ticketComment' },
             ],
         ],
         sortBy,

@@ -3,10 +3,11 @@ const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getDatabaseAdapter, isPrismaAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const GLOBAL_QUERY_LIMIT = 1000
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
 const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
@@ -135,6 +136,20 @@ class GqlWithKnexLoadList {
         if (mainTableObjects.length === 0) {
             return []
         }
+
+        // NOTE: No relations to load — just return GQL results directly
+        if (this.singleRelations.length === 0 && this.multipleRelations.length === 0) {
+            return mainTableObjects
+        }
+
+        if (this._isPrisma) {
+            return this._loadChunkPrisma(mainTableObjects)
+        }
+        return this._loadChunkKnex(mainTableObjects)
+    }
+
+    /** @private */
+    async _loadChunkKnex (mainTableObjects) {
         const ids = mainTableObjects.map(object => object.id)
         const knexQuery = this.knex(`${this.listKey} as mainModel`)
         knexQuery.select('mainModel.id')
@@ -163,15 +178,176 @@ class GqlWithKnexLoadList {
         return Object.values(merged)
     }
 
+    /**
+     * Application-level join for Prisma adapter (no SQL JOINs).
+     * Loads relation data via separate queries per table, then merges results.
+     * multipleRelations are supported when each entry has a prismaConfig as the 3rd element:
+     *   [knexSelectFn, knexJoinFn, { select, as, table, fk, where }]
+     * @private
+     */
+    async _loadChunkPrisma (mainTableObjects) {
+        const ids = mainTableObjects.map(object => object.id)
+
+        // NOTE: For each single relation [Model, fieldName, value, alias]:
+        //   - fieldName is the FK column on the main table pointing to Model.id
+        //   - value is the column to select from Model
+        //   - We query Model separately and map results back by FK
+        const relationData = {}
+        for (const [Model, fieldName, value, alias] of this.singleRelations) {
+            const fkValues = [...new Set(mainTableObjects.map(o => o[fieldName]).filter(Boolean))]
+            if (fkValues.length === 0) continue
+
+            const placeholders = fkValues.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
+            const sql = `SELECT "id", "${value}" FROM "${Model}" WHERE "id" IN (${placeholders})`
+            const rows = await this.prisma.$queryRawUnsafe(sql, ...fkValues)
+            const lookup = Object.fromEntries(rows.map(r => [r.id, r[value]]))
+
+            const resultKey = alias || fieldName
+            for (const obj of mainTableObjects) {
+                const fk = obj[fieldName]
+                if (!relationData[obj.id]) relationData[obj.id] = {}
+                relationData[obj.id][resultKey] = fk ? (lookup[fk] || null) : null
+            }
+        }
+
+        // NOTE: Also need main table FK columns if fields didn't include them
+        // Load FK values from DB if not already in mainTableObjects
+        // DB column names may differ from Keystone field names (e.g. "operator" → "operatorId")
+        const missingFkEntries = this.singleRelations
+            .map(([, fieldName]) => ({ fieldName, dbCol: this._resolveDbColumn(fieldName) }))
+            .filter(({ fieldName }) => mainTableObjects.length > 0 && !(fieldName in mainTableObjects[0]))
+
+        if (missingFkEntries.length > 0) {
+            const selectCols = ['id', ...missingFkEntries.map(e => e.dbCol)].map(c => `"${c}"`).join(', ')
+            const placeholders = ids.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
+            const sql = `SELECT ${selectCols} FROM "${this.listKey}" WHERE "id" IN (${placeholders})`
+            const fkRows = await this.prisma.$queryRawUnsafe(sql, ...ids)
+            const fkLookup = Object.fromEntries(fkRows.map(r => [r.id, r]))
+
+            // Re-run relation lookups with FK data
+            for (const [Model, fieldName, value, alias] of this.singleRelations) {
+                if (!(fieldName in (mainTableObjects[0] || {}))) {
+                    const dbCol = this._resolveDbColumn(fieldName)
+                    const fkValues = [...new Set(fkRows.map(r => r[dbCol]).filter(Boolean))]
+                    if (fkValues.length === 0) continue
+
+                    const ph = fkValues.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
+                    const relSql = `SELECT "id", "${value}" FROM "${Model}" WHERE "id" IN (${ph})`
+                    const rows = await this.prisma.$queryRawUnsafe(relSql, ...fkValues)
+                    const lookup = Object.fromEntries(rows.map(r => [r.id, r[value]]))
+
+                    const resultKey = alias || fieldName
+                    for (const obj of mainTableObjects) {
+                        const fk = get(fkLookup, [obj.id, dbCol])
+                        if (!relationData[obj.id]) relationData[obj.id] = {}
+                        relationData[obj.id][resultKey] = fk ? (lookup[fk] || null) : null
+                    }
+                }
+            }
+        }
+
+        // Handle multipleRelations via separate aggregate queries
+        // Each entry: [knexSelectFn, knexJoinFn, prismaConfig]
+        // prismaConfig: { select: 'MAX("createdAt")', as: 'startedAt', table: 'TicketChange', fk: 'ticket', where: { statusIdTo: [id1, id2] } }
+        const multipleRelationData = {}
+        for (const relation of this.multipleRelations) {
+            const prismaConfig = relation[2]
+            if (!prismaConfig) {
+                throw new Error(
+                    'GqlWithKnexLoadList: multipleRelations without prismaConfig are not supported with PrismaAdapter. ' +
+                    'Add a prismaConfig object { select, as, table, fk, where } as the 3rd element.'
+                )
+            }
+
+            const { select, as: alias, table, fk, where = {} } = prismaConfig
+            const params = []
+            let paramIdx = 1
+
+            const idPlaceholders = ids.map((v) => { const idx = paramIdx++; return UUID_RE.test(v) ? `$${idx}::uuid` : `$${idx}` }).join(', ')
+            const conditions = [`"${fk}" IN (${idPlaceholders})`]
+            params.push(...ids)
+
+            for (const [col, val] of Object.entries(where)) {
+                if (Array.isArray(val)) {
+                    const ph = val.map((v) => { const idx = paramIdx++; return UUID_RE.test(v) ? `$${idx}::uuid` : `$${idx}` }).join(', ')
+                    conditions.push(`"${col}" IN (${ph})`)
+                    params.push(...val)
+                } else {
+                    conditions.push(UUID_RE.test(val) ? `"${col}" = $${paramIdx++}::uuid` : `"${col}" = $${paramIdx++}`)
+                    params.push(val)
+                }
+            }
+
+            const sql = `SELECT "${fk}", ${select} as "${alias}" FROM "${table}" WHERE ${conditions.join(' AND ')} GROUP BY "${fk}"`
+            const rows = await this.prisma.$queryRawUnsafe(sql, ...params)
+
+            const lookup = Object.fromEntries(rows.map(r => [r[fk], r[alias]]))
+            for (const obj of mainTableObjects) {
+                if (!multipleRelationData[obj.id]) multipleRelationData[obj.id] = {}
+                multipleRelationData[obj.id][alias] = lookup[obj.id] !== undefined ? lookup[obj.id] : null
+            }
+        }
+
+        return mainTableObjects.map(obj => ({
+            ...obj,
+            ...(relationData[obj.id] || {}),
+            ...(multipleRelationData[obj.id] || {}),
+        }))
+    }
+
     async initContext () {
         const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
         this.keystone = modelAdapter
-        this.knex = getDatabaseAdapter(modelAdapter).knex
+        const adapter = getDatabaseAdapter(modelAdapter)
+        this._isPrisma = isPrismaAdapter(modelAdapter)
+        if (this._isPrisma) {
+            this.prisma = adapter.prisma
+            this._listAdapter = adapter.listAdapters[this.listKey]
+            // Cache actual DB column names for _resolveDbColumn fallback
+            const cols = await this.prisma.$queryRawUnsafe(
+                'SELECT column_name FROM information_schema.columns WHERE table_name = $1',
+                this.listKey
+            )
+            this._dbColumns = new Set(cols.map(r => r.column_name))
+        } else {
+            this.knex = adapter.knex
+        }
+    }
+
+    /**
+     * Resolves the actual DB column name for a Keystone FK field path.
+     * Uses the Prisma field adapter's rel.columnName when available.
+     * Falls back to checking actual DB columns (fieldName, then fieldNameId).
+     * @private
+     */
+    _resolveDbColumn (fieldName) {
+        if (!this._listAdapter) return fieldName
+        const fa = this._listAdapter.fieldAdaptersByPath[fieldName]
+        if (fa && fa.isRelationship && fa.rel && fa.rel.columnName) {
+            return fa.rel.columnName
+        }
+        // Field not in schema — check actual DB columns
+        if (this._dbColumns) {
+            if (this._dbColumns.has(fieldName)) return fieldName
+            if (this._dbColumns.has(fieldName + 'Id')) return fieldName + 'Id'
+        }
+        return fieldName
     }
 
     // Takes rawAggregate SQL function and apply it on all objects with id from ids
-    // TODO(Kanol): migrate to prisma
     async loadAggregate (rawAggregate, ids) {
+        if (this._isPrisma) {
+            if (ids.length === 0) return {}
+            const placeholders = ids.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
+            const sql = `SELECT ${rawAggregate} FROM "${this.listKey}" WHERE "id" IN (${placeholders})`
+            const [aggregate] = await this.prisma.$queryRawUnsafe(sql, ...ids)
+            if (aggregate) {
+                for (const key of Object.keys(aggregate)) {
+                    if (typeof aggregate[key] === 'bigint') aggregate[key] = Number(aggregate[key])
+                }
+            }
+            return aggregate
+        }
         const knexQuery = this.knex(`${this.listKey}`)
         knexQuery.select(this.knex.raw(rawAggregate))
         knexQuery.whereIn('id', ids)

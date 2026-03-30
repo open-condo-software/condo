@@ -14,6 +14,7 @@ const uniq = require('lodash/uniq')
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
+const { declareShardingKeys } = require('@open-condo/keystone/databaseAdapters/sharding')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
@@ -1031,6 +1032,8 @@ const Ticket = new GQLListSchema('Ticket', {
         ],
     },
 })
+
+declareShardingKeys('Ticket', ['organization'])
 
 module.exports = {
     Ticket,

@@ -14,6 +14,9 @@
     "./preprocessors": "./preprocessors/index.js",
     "./apolloServerPlugins": "./apolloServerPlugins/index.js",
     "./fileAdapter/": "./fileAdapter/",
+    "./databaseAdapters": "./databaseAdapters/index.js",
+    "./databaseAdapters/utils": "./databaseAdapters/utils/index.js",
+    "./databaseAdapters/sharding": "./databaseAdapters/sharding/index.js",
     "./*": "./*.js",
     "./crypto": "./crypto/index.js"
   },

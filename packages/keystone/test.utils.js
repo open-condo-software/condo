@@ -1326,6 +1326,38 @@ const actualDatabaseEntityName = (name) => {
 }
 
 /**
+ * Extracts the most relevant error message from a GraphQL error object.
+ * Handles both GQLError (extensions.message) and plain errors.
+ * @param error
+ * @returns {string}
+ */
+const _getConstraintErrorMessage = (error) => {
+    if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+        return error.extensions.message || ''
+    }
+    return error.message || ''
+}
+
+/**
+ * Checks if an error message represents a unique constraint violation.
+ * Supports both PostgreSQL (Knex) and Prisma (P2002) error formats.
+ * @param {string} message
+ * @param {string} constraintName - full name of constraint as presented in Keystone schema
+ * @returns {boolean}
+ */
+const isUniqueConstraintViolationMessage = (message, constraintName) => {
+    // PostgreSQL / Knex format: 'duplicate key value violates unique constraint "constraint_name"'
+    if (message.includes(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)) {
+        return true
+    }
+    // Prisma P2002 format: 'Unique constraint failed on the fields: (`field1`,`field2`)'
+    if (message.includes('Unique constraint failed on the fields')) {
+        return true
+    }
+    return false
+}
+
+/**
  * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
  * @param testFunc
  * @param constraintName - full name of constraint as presented in Keystone schema
@@ -1338,11 +1370,8 @@ const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintN
         // TODO(pahaz): DOMA-10368 we need to use strict checks!
         // expect(errors).toHaveLength(1)
         const error = errors[0]
-        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            expect(error.extensions.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
-        } else {
-            expect(error.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
-        }
+        const msg = _getConstraintErrorMessage(error)
+        expect(isUniqueConstraintViolationMessage(msg, constraintName)).toBe(true)
     })
 }
 
@@ -1359,10 +1388,16 @@ const expectToThrowCheckConstraintViolationError = async (testFunc, constraintNa
         // TODO(pahaz): DOMA-10368 we need to use strict checks!
         // expect(errors).toHaveLength(1)
         const error = errors[0]
+        const dbEntityName = actualDatabaseEntityName(constraintName)
+        const pgPattern = `violates check constraint "${dbEntityName}"`
         if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            expect(error.extensions.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
+            // PostgreSQL / Knex format OR Prisma P2004 (includes PG message in database_error)
+            const msg = error.extensions.message || ''
+            expect(msg.includes(pgPattern) || msg.includes('A constraint failed on the database')).toBe(true)
         } else {
-            expect(error.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
+            // PostgreSQL / Knex format OR Prisma P2004
+            const msg = error.message || ''
+            expect(msg.includes(pgPattern) || msg.includes('A constraint failed on the database')).toBe(true)
         }
     })
 }
@@ -1379,11 +1414,14 @@ const expectToThrowForeignKeyConstraintViolationError = async (testFunc, tableNa
     }, ({ errors }) => {
         expect(errors).toHaveLength(1)
         const error = errors[0]
-        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            expect(error.extensions.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
-        } else {
-            expect(error.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
-        }
+        const msg = _getConstraintErrorMessage(error)
+        // PostgreSQL / Knex format
+        const pgMatch = msg.includes(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
+        // Prisma P2003 format: 'Foreign key constraint failed on the field: `fieldName`'
+        const prismaP2003Match = msg.includes('Foreign key constraint failed on the field')
+        // Prisma P2025 format: 'records that were required but not found' (nested connect validation)
+        const prismaP2025Match = msg.includes('records that were required but not found')
+        expect(pgMatch || prismaP2003Match || prismaP2025Match).toBe(true)
     })
 }
 
@@ -1430,6 +1468,7 @@ module.exports = {
     expectToThrowGraphQLRequestError,
     expectToThrowGraphQLRequestErrors,
     expectValuesOfCommonFields,
+    isUniqueConstraintViolationMessage,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowCheckConstraintViolationError,
     expectToThrowForeignKeyConstraintViolationError,

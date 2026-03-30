@@ -34,7 +34,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
         const residents = await find('Resident', {
             address_i: address,
             deletedAt: null,
-            property: { OR: [{ id_not: oldestProperty.id }, { id: null }] },
+            property: { OR: [{ id_not: oldestProperty.id }, { id_is_null: true }] },
         })
 
         // Disconnect residents before reconnecting

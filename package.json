@@ -111,6 +111,7 @@
     "posthog-js": "^1.364.1",
     "rollup": ">=4.59.0",
     "vite/rollup": ">=4.59.0",
-    "tsup/rollup": ">=4.59.0"
+    "tsup/rollup": ">=4.59.0",
+    "@open-keystone/adapter-prisma@4.0.20": "patch:@open-keystone/adapter-prisma@npm:4.0.20#.yarn/patches/@open-keystone-adapter-prisma-npm-4.0.20-bd8566b08e.patch"
   }
 }
