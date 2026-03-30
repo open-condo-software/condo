@@ -5,7 +5,6 @@ import { sync as globSync } from 'glob'
 import matter from 'gray-matter'
 import { serialize } from 'next-mdx-remote/serialize'
 import rehypePrism from 'rehype-prism-plus'
-import { remarkHeadingId } from 'remark-custom-heading-id'
 import remarkGfm from 'remark-gfm'
 
 import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
@@ -40,9 +39,9 @@ export async function extractMdx (docsRoot: string, route: string, locale: strin
     const serialized = await serialize(contentWithIds, {
         parseFrontmatter: false,
         mdxOptions: {
-            remarkPlugins: [remarkGfm, remarkHeadingId],
+            remarkPlugins: [remarkGfm as any],
             rehypePlugins: [
-                rehypePrism,
+                rehypePrism as any,
             ],
         },
     })

@@ -938,7 +938,6 @@ __metadata:
     react-intl: ^7.1.11
     react-simplemde-editor: ^5.2.0
     rehype-prism-plus: 1.5.1
-    remark-custom-heading-id: 1.0.0
     remark-gfm: 3.0.1
     title: 3.5.3
     ts-node: ^10.9.2
@@ -33148,13 +33147,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mdast-heading-id@npm:*":
-  version: 2.0.0
-  resolution: "mdast-heading-id@npm:2.0.0"
-  checksum: e1fab8c6928614d330cfea7b5743a58ab72351ec4cef17589d7edad2fb81e03387f4b0fa1e2baee9d724e596775065e1af24842b093d239b00df0d7d62b977fc
-  languageName: node
-  linkType: hard
-
 "mdast-util-compact@npm:^1.0.0":
   version: 1.0.4
   resolution: "mdast-util-compact@npm:1.0.4"
@@ -34196,15 +34188,6 @@ __metadata:
     micromark-util-symbol: ^2.0.0
     micromark-util-types: ^2.0.0
   checksum: 67b3944d012a42fee9e10e99178254a04d48af762b54c10a50fcab988688799993efb038daf9f5dbc04001a97b9c1b673fc6f00e6a56997877ab25449f0c8650
-  languageName: node
-  linkType: hard
-
-"micromark-heading-id@npm:*":
-  version: 2.0.0
-  resolution: "micromark-heading-id@npm:2.0.0"
-  dependencies:
-    micromark-util-symbol: ^2.0.0
-  checksum: 191ffcf7116a73f09b16448396311ac74feb18e7dbcc66140ce047ace4eaf111526ff34771c18fde6482dbac3b51065d572c96ee7861b64301ae0b7f50834a5e
   languageName: node
   linkType: hard
 
@@ -42922,17 +42905,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-custom-heading-id@npm:1.0.0":
-  version: 1.0.0
-  resolution: "remark-custom-heading-id@npm:1.0.0"
-  dependencies:
-    mdast-heading-id: "*"
-    micromark-heading-id: "*"
-    unist-util-visit: ^4.1.0
-  checksum: c6971008efa21a9d6ebebea0abd73a3fd81a5c512b7ccff7ef70b482065fa8ad7f195cf029db0dc43d93e454aa71fee73a6c8505a2ca947c92c680a89da06c57
-  languageName: node
-  linkType: hard
-
 "remark-gfm@npm:3.0.1":
   version: 3.0.1
   resolution: "remark-gfm@npm:3.0.1"
@@ -48624,7 +48596,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-visit@npm:^4.0.0, unist-util-visit@npm:^4.1.0":
+"unist-util-visit@npm:^4.0.0":
   version: 4.1.2
   resolution: "unist-util-visit@npm:4.1.2"
   dependencies:
