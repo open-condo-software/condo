@@ -5917,6 +5917,7 @@ export const GetSubscriptionContextByIdDocument = gql`
       name
       priority
       canBePromoted
+      trialDays
     }
     invoice {
       id

@@ -93,6 +93,7 @@ query getSubscriptionContextById($id: ID!) {
             name
             priority
             canBePromoted
+            trialDays
         }
         invoice {
             id
