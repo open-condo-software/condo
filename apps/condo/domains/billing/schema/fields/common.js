@@ -4,7 +4,7 @@ const { createExternalDataField } = require('@open-condo/keystone/utils/external
 const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
 
 const BILLING_FILE_ADAPTER = new FileAdapter('BillingIntegrations')
-const RawFieldFileAdapter = new FileAdapter('BillingReceiptRawField')
+const BillingReceiptRawFieldFileAdapter = new FileAdapter('BillingReceiptRawField')
 
 const STATIC_FILE_FIELD = {
     type: 'File',
@@ -28,9 +28,12 @@ const RAW_DATA_FIELD = {
     isRequired: false,
 }
 
-const EXTERNAL_DATA_FIELD = createExternalDataField({
-    ...RAW_DATA_FIELD,
-    adapter: RawFieldFileAdapter,
+const BILLING_RECEIPT_RAW_FIELD = createExternalDataField({
+    schemaDoc: 'Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`. Stored externally in files (not in database) via file adapter.',
+    adapter: BillingReceiptRawFieldFileAdapter,
+    format: 'json',
+    sensitive: true,
+    isRequired: false,
 })
 
 module.exports = {
@@ -38,5 +41,5 @@ module.exports = {
     BILLING_FILE_ADAPTER,
     PERIOD_FIELD,
     RAW_DATA_FIELD,
-    EXTERNAL_DATA_FIELD,
+    BILLING_RECEIPT_RAW_FIELD,
 }
