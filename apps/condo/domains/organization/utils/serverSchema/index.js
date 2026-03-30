@@ -87,19 +87,6 @@ async function acceptOrRejectOrganizationEmployeeRequest (context, data) {
     })
 }
 
-async function registerNewOrganization (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-
-    return await execGqlWithoutAccess(context, {
-        query: REGISTER_NEW_ORGANIZATION_MUTATION,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to registerNewOrganization',
-        dataPath: 'obj',
-    })
-}
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -115,6 +102,5 @@ module.exports = {
     OrganizationEmployeeRequest,
     sendOrganizationEmployeeRequest,
     acceptOrRejectOrganizationEmployeeRequest,
-    registerNewOrganization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
