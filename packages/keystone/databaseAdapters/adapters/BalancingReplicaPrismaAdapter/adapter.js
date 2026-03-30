@@ -49,14 +49,23 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     constructor ({ databaseUrl, replicaPools, routingRules }) {
         // NOTE: Pass a dummy URL to parent - we'll override _connect entirely.
         // The parent PrismaAdapter needs a URL for schema generation, so we extract the first DB URL.
-        const dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
-        const firstUrl = Object.values(dbConnections)[0]
-        super({ url: firstUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
+        console.log('[BalancingReplicaPrismaAdapter.constructor] Initializing adapter')
+        try {
+            const dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
+            console.log('[BalancingReplicaPrismaAdapter.constructor] DB connections parsed:', Object.keys(dbConnections))
+            const firstUrl = Object.values(dbConnections)[0]
+            super({ url: firstUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
 
-        this._dbConnections = dbConnections
-        const availableDatabases = Object.keys(this._dbConnections)
-        this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
-        this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
+            this._dbConnections = dbConnections
+            const availableDatabases = Object.keys(this._dbConnections)
+            this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
+            this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
+            console.log('[BalancingReplicaPrismaAdapter.constructor] Adapter initialized successfully')
+        } catch (err) {
+            console.error('[BalancingReplicaPrismaAdapter.constructor] ERROR:', err.message)
+            console.error('[BalancingReplicaPrismaAdapter.constructor] Stack:', err.stack)
+            throw err
+        }
     }
 
     /**

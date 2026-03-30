@@ -62,7 +62,8 @@ function getAdapter (databaseUrl) {
         return new FakeDatabaseAdapter()
     } else if (databaseUrl.startsWith('prisma-custom:')) {
         // NOTE: prisma-custom:{...} — use BalancingReplicaPrismaAdapter for multi-DB routing without JOINs
-        const realUrl = databaseUrl.replace(/^prisma-/, '')
+        const realUrl = databaseUrl.substring('prisma-'.length)
+        console.log('[setup.utils.getAdapter] Creating BalancingReplicaPrismaAdapter with URL:', realUrl.substring(0, 50) + '...')
         return new BalancingReplicaPrismaAdapter({ databaseUrl: realUrl })
     } else if (databaseUrl.startsWith('custom')) {
         return new BalancingReplicaKnexAdapter({ databaseUrl })
