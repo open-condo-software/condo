@@ -14,17 +14,17 @@ async function processRecurrentSubscriptionPayments () {
     const { keystone } = getSchemaCtx('SubscriptionContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
-    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+    const today = dayjs().format('YYYY-MM-DD')
     const bufferDate = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
 
-    logger.info({ msg: 'searching for subscription contexts to renew', data: { yesterday, bufferDate } })
+    logger.info({ msg: 'searching for subscription contexts to renew', data: { today, bufferDate } })
 
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {
             bindingId_not: null,
             status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             endAt_gte: bufferDate,
-            endAt_lte: yesterday,
+            endAt_lte: today,
             deletedAt: null,
         },
         sortBy: ['endAt_DESC'],
@@ -76,10 +76,14 @@ async function processRecurrentSubscriptionPayments () {
 
             if (!directPaymentUrl || !newContext.invoice) {
                 logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
+                await SubscriptionContext.update(context, newContext.id, {
+                    status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+                    sender,
+                })
                 continue
             }
 
-            const isLastBufferDay = dayjs(endAt).isSameOrBefore(dayjs(bufferDate))
+            const isLastBufferDay = !dayjs(endAt).isAfter(dayjs(bufferDate))
             const errorStatus = isLastBufferDay 
                 ? SUBSCRIPTION_CONTEXT_STATUS.ERROR 
                 : SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY

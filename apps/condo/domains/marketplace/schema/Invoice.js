@@ -305,7 +305,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         payerOrganization: {
-            schemaDoc: 'Organization that issued the invoice (only for b2b invoices)',
+            schemaDoc: 'Organization that will pay the invoice (the billed/recipient organization for B2B invoices)',
             type: 'Relationship',
             ref: 'Organization',
             knexOptions: { isNotNullable: false },

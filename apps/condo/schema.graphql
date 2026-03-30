@@ -85270,7 +85270,8 @@ type Invoice {
   """
   type: InvoiceTypeType
 
-  """ Organization that issued the invoice (only for b2b invoices) """
+  """ Organization that will pay the invoice (the billed/recipient organization for B2B invoices) 
+  """
   payerOrganization: Organization
 
   """ The invoice number within organization """
