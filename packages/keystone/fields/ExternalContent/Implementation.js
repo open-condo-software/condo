@@ -5,8 +5,10 @@ const { Readable } = require('stream')
 const { Implementation } = require('@open-keystone/fields')
 const cuid = require('cuid')
 
-
+const { getLogger } = require('@open-condo/keystone/logging')
 const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
+
+const logger = getLogger('ExternalContent')
 
 const DEFAULT_FORMAT = 'json'
 
@@ -51,7 +53,7 @@ const DEFAULT_PROCESSORS = {
  * - For local adapter we read from filesystem directly via `adapter.src`.
  *
  * @param {*} adapter File adapter instance passed into field config
- * @param {{ filename: string }} fileMeta Stored file-meta object (must contain filename)
+ * @param {{ filename: string, mimetype?: string, originalFilename?: string }} fileMeta Stored file-meta object
  * @returns {Promise<Buffer>}
  */
 async function readFromAdapter (adapter, fileMeta) {
@@ -66,15 +68,26 @@ async function readFromAdapter (adapter, fileMeta) {
     // Cloud adapters provide acl.generateUrl which returns a signed, time-limited direct URL.
     // It does not require auth cookies (unlike indirect /api/files/... urls from publicUrl()).
     if (adapter?.acl && typeof adapter.acl.generateUrl === 'function' && adapter.folder) {
-        const directUrl = adapter.acl.generateUrl({
-            filename: `${adapter.folder}/${filename}`,
-        })
-        const res = await fetch(directUrl)
-        if (!res.ok) {
-            throw new Error(`ExternalContent: fetch failed with status ${res.status}`)
+        try {
+            const directUrl = adapter.acl.generateUrl({
+                filename: `${adapter.folder}/${filename}`,
+                mimetype: fileMeta.mimetype,
+                originalFilename: fileMeta.originalFilename,
+            })
+            
+            if (!directUrl || typeof directUrl !== 'string') {
+                throw new Error(`Invalid URL generated for file: ${filename}`)
+            }
+            
+            const res = await fetch(directUrl)
+            if (!res.ok) {
+                throw new Error(`Fetch failed with status ${res.status} for file: ${filename}`)
+            }
+            const buf = Buffer.from(await res.arrayBuffer())
+            return buf
+        } catch (err) {
+            throw new Error(`ExternalContent: failed to read file ${filename}: ${err.message}`)
         }
-        const buf = Buffer.from(await res.arrayBuffer())
-        return buf
     }
 
     throw new Error('ExternalContent: unsupported file adapter for read')
@@ -124,6 +137,22 @@ class ExternalContentImplementation extends Implementation {
         return [`${this.path}: ${this.graphQLReturnType}`]
     }
 
+    /**
+     * Resolves the field value for GraphQL output by reading the file content from storage.
+     * 
+     * For backward compatibility, returns inline JSON objects directly if they don't have file-meta structure.
+     * For file-meta objects, fetches the file content and deserializes it.
+     * 
+     * Note: This reads the entire file into memory. For very large files (10MB+), this could cause
+     * memory pressure under load. Current use case (BillingReceipt.raw) typically has files <1MB.
+     * TODO: Consider implementing streaming deserialization or file size limits if needed.
+     * 
+     * Note: No request-scoped caching is implemented. Each GraphQL query that includes this field
+     * will fetch from storage. For list queries, consider using DataLoader pattern in the future.
+     * TODO: Implement request-scoped caching using DataLoader to prevent N+1 queries.
+     * 
+     * @returns {Object} Field resolver mapping
+     */
     gqlOutputFieldResolvers () {
         return {
             [this.path]: async (item) => {
@@ -141,20 +170,56 @@ class ExternalContentImplementation extends Implementation {
     }
 
     // GQL Input
+    /**
+     * Returns query input fields for filtering.
+     * We store only file references in DB, so querying by content is not supported.
+     * 
+     * @returns {Array} Empty array - no query filters available
+     */
     gqlQueryInputFields () {
-        // We store only a file reference in DB, so query by content is not supported.
         return []
     }
 
+    /**
+     * Returns GraphQL input fields for update mutations.
+     * 
+     * @returns {Array<string>} Field definitions for GraphQL schema
+     */
     gqlUpdateInputFields () {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 
+    /**
+     * Returns GraphQL input fields for create mutations.
+     * 
+     * @returns {Array<string>} Field definitions for GraphQL schema
+     */
     gqlCreateInputFields () {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 
     // Hooks
+    /**
+     * Resolves input data before saving to database.
+     * 
+     * Handles file lifecycle:
+     * 1. If setting to null: deletes old file (if exists)
+     * 2. If setting new value: saves new file, then deletes old file
+     * 
+     * Save-before-delete pattern prevents data loss if save() fails.
+     * 
+     * Known limitation: If database update fails after save() succeeds but before transaction commits,
+     * the new file will be orphaned in storage while the old file reference remains in DB.
+     * This is an acceptable trade-off vs losing the previous file. Proper cleanup would require
+     * transaction hooks or a background cleanup job.
+     * TODO: Consider implementing orphaned file cleanup mechanism in the future.
+     * 
+     * @param {Object} params
+     * @param {Object} params.resolvedData - New field values
+     * @param {Object} params.existingItem - Current item from database
+     * @param {string} params.listKey - Name of the list/model
+     * @returns {Promise<Object|null|undefined>} File-meta object to store in DB
+     */
     async resolveInput ({ resolvedData, existingItem, listKey }) {
         const nextValue = resolvedData[this.path]
 
@@ -164,11 +229,13 @@ class ExternalContentImplementation extends Implementation {
         const prevLooksLikeFile = isFileMeta(prevValue)
 
         if (nextValue === null) {
-            if (prevLooksLikeFile) {
+            if (prevLooksLikeFile && prevValue) {
                 try {
                     await this.fileAdapter.delete(prevValue)
-                } catch {
-                    // ignore delete errors
+                } catch (err) {
+                    // Ignore delete errors to prevent blocking the update.
+                    // File will remain orphaned in storage but DB will be updated correctly.
+                    logger.debug({ msg: 'Failed to delete old file', err, data: { filename: prevValue.filename } })
                 }
             }
             return null
@@ -180,21 +247,26 @@ class ExternalContentImplementation extends Implementation {
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
         const prefix = listKey || 'item'
-        const originalFilename = `${prefix}_${this.path}.${this.fileExt}`
+        const id = cuid()
+        // Include record ID in filename for uniqueness and consistency with backfill script.
+        // Note: FileAdapter with saveFileName=false will generate actual unique filename.
+        const originalFilename = `${prefix}_${this.path}_${id}.${this.fileExt}`
         const saved = await this.fileAdapter.save({
             stream,
             filename: originalFilename,
             mimetype: this.mimetype,
             encoding: 'utf-8',
-            id: cuid(),
+            id,
             meta: { format: this.format },
         })
 
-        if (prevLooksLikeFile) {
+        if (prevLooksLikeFile && prevValue) {
             try {
                 await this.fileAdapter.delete(prevValue)
-            } catch {
-                // ignore delete errors
+            } catch (err) {
+                // Ignore delete errors. New file is already saved, so update can proceed.
+                // Old file will remain orphaned in storage.
+                logger.debug({ msg: 'Failed to delete old file after save', err, data: { filename: prevValue.filename } })
             }
         }
 

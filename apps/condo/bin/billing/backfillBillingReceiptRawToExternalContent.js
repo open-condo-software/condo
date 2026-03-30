@@ -109,6 +109,11 @@ async function main () {
         throw new Error('Invalid --max-records')
     }
 
+    const progressEvery = opts.progressEvery
+    if (!Number.isFinite(progressEvery) || progressEvery <= 0) {
+        throw new Error('Invalid --progress-every')
+    }
+
     const { keystone: context } = await prepareKeystoneExpressApp(
         path.resolve('./index.js'),
         { excludeApps: ['NextApp', 'AdminUIApp'] },
@@ -117,6 +122,10 @@ async function main () {
     const knex = context.adapter.knex
     await knex.raw(`SET statement_timeout = '${MIGRATION_STATEMENT_TIMEOUT}'`)
 
+    // IMPORTANT: Keep adapter folder name consistent with schema definition.
+    // This folder name MUST match BillingReceiptRawFieldFileAdapter in:
+    // apps/condo/domains/billing/schema/fields/common.js
+    // If they don't match, files will be saved to different locations and won't be readable.
     // Keep adapter config consistent with schema (saveFileName=false).
     // Deterministic filenames are still achieved by passing stable `id` to adapter.save().
     const adapter = new FileAdapter('BillingReceiptRawField')
@@ -183,7 +192,7 @@ async function main () {
             if (!raw || isFileMeta(raw)) {
                 console.log(`   ⏭️  Skipping ${id}: already has file metadata or null`)
                 lastId = id
-                lastProcessedId = id
+                // Don't update lastProcessedId for skipped records - only for actually processed ones
                 continue
             }
 
@@ -225,8 +234,8 @@ async function main () {
             lastId = id
             lastProcessedId = id
 
-            if (processed % opts.progressEvery === 0) {
-                console.log(`📊 Progress: ${processed} records processed (last ID: ${lastProcessedId})`)
+            if (processed % progressEvery === 0) {
+                console.log(`📊 Progress: ${processed} records processed (last processed ID: ${lastProcessedId})`)  
             }
         }
 
@@ -240,7 +249,8 @@ async function main () {
     console.log('='.repeat(60))
     console.log(`   Total records processed: ${processed}`)
     console.log(`   Total batches: ${batchNumber}`)
-    console.log(`   Last ID: ${lastId || 'none'}`)
+    console.log(`   Last cursor position (ID): ${lastId || 'none'}`)
+    console.log(`   Last processed record (ID): ${lastProcessedId || 'none'}`)
     if (opts.dryRun) {
         console.log('\n   ⚠️  DRY RUN - No changes were made to the database')
         console.log('   Run without --dry-run to apply changes')
