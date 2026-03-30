@@ -3147,6 +3147,7 @@
   "subscription.trialEndedModal.nonActiveBanking.featuresTitle": "Останется в базовой версии:",
   "subscription.daysIndicator.tooltip.trial": "Пробный период тарифа «{planName}» действует до {endDate}. Осталось {days, plural, one {# день} few {# дня} many {# дней} other {# дней}} на оплату.",
   "subscription.daysIndicator.tooltip.paid": "Тариф «{planName}» действует до {endDate}. Осталось {days, plural, one {# день} few {# дня} many {# дней} other {# дней}} на оплату.",
+  "subscription.daysIndicator.tooltip.expired": "Тариф «{planName}» истёк. Осталось {days, plural, one {# день} few {# дня} many {# дней} other {# дней}} на оплату.",
   "subscription.accessGuard.title": "Прокачайте свой тариф и получите доступ к разделу",
   "subscription.accessGuard.description": "Воспользуйтесь пробным доступом или подключитесь к тарифу, чтобы получить больше инструментов для вашего бизнеса",
   "subscription.accessGuard.goToPlans": "Подробнее о тарифах",
