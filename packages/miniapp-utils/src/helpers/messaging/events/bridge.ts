@@ -107,7 +107,7 @@ export function registerBridgeEvents ({
     if (notificationsApi) {
         addHandler<ShowNotificationParams, ShowNotificationData>('condo-bridge', 'CondoWebAppShowNotification', '*', zodSchemaToValidator(z.strictObject({
             message: z.string(),
-            description: z.string(),
+            description: z.string().optional(),
             type: z.enum(['success', 'error', 'warning', 'info']),
         })), (params: ShowNotificationParams) => {
             notificationsApi(params)

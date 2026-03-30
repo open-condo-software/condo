@@ -23,12 +23,20 @@ function useControllerState (controller: PostMessageController): ControllerState
     return controllerState
 }
 
-type PostMessageContextType = Pick<PostMessageController, 'addFrame' | 'removeFrame' | 'addHandler'> & ControllerState
+type PostMessageContextType = Pick<PostMessageController,
+'addFrame' |
+'removeFrame' |
+'addHandler' |
+'addMiddleware' |
+'removeMiddleware'
+> & ControllerState
 
 const PostMessageContext = createContext<PostMessageContextType>({
     addFrame: () => '',
     removeFrame: () => {},
     addHandler: () => {},
+    addMiddleware: () => '',
+    removeMiddleware: () => {},
     isBridgeReady: false,
 })
 
@@ -54,6 +62,8 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessagePr
         addFrame: controller.addFrame,
         removeFrame: controller.removeFrame,
         addHandler: controller.addHandler,
+        addMiddleware: controller.addMiddleware,
+        removeMiddleware: controller.removeMiddleware,
     }), [controller, controllerState])
 
     return (

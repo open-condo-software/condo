@@ -25,6 +25,26 @@ export type AddHandlerType = <Params extends EventParams, Result extends Handler
     validator: ParamsValidator<Params>,
     handler: Handler<Params, Result>
 ) => void
+export type MiddlewareArgs<Params extends EventParams, Result extends HandlerResult> = {
+    eventType: EventType
+    eventName: EventName
+    params: Params
+    storage: EventTypeStorage
+    frame?: FrameType
+    next: Handler<Params, Result>
+}
+export type MiddlewareFn<Params extends EventParams, Result extends HandlerResult> = (args: MiddlewareArgs<Params, Result>) => Result | Promise<Result>
+export type MiddlewareId = string
+export type RegisteredMiddleware<Params extends EventParams, Result extends HandlerResult> = {
+    id: MiddlewareId
+    eventType?: EventType
+    eventName?: EventName
+    scope: HandlerScope
+    order?: number
+    fn: MiddlewareFn<Params, Result>
+}
+export type Middleware<Params extends EventParams, Result extends HandlerResult> = Omit<RegisteredMiddleware<Params, Result>, 'id'>
+export type AddMiddlewareType = <Params extends EventParams, Result extends HandlerResult>(mw: Middleware<Params, Result>) => void
 export type ControllerState = {
     isBridgeReady: boolean
 }

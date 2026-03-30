@@ -2,23 +2,28 @@ import { z } from 'zod'
 
 import { getClientErrorMessage } from './errors'
 import { registerBridgeEvents } from './events/bridge'
+import { sortedMiddlewares } from './utils'
 
 import { generateUUIDv4 } from '../uuid'
 
 import type { RegisterBridgeEventsOptions } from './events/bridge'
 import type {
-    FrameId,
-    FrameType,
-    EventType,
+    ControllerState,
+    DataStorage,
     EventName,
     EventParams,
-    ParamsValidator,
-    HandlerResult,
+    EventType,
+    FrameId,
+    FrameType,
     Handler,
     HandlerMethods,
+    HandlerResult,
     HandlerScope,
-    DataStorage,
-    ControllerState,
+    Middleware,
+    MiddlewareFn,
+    MiddlewareId,
+    ParamsValidator,
+    RegisteredMiddleware,
 } from './types'
 
 // NOTE: taken from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
@@ -37,6 +42,8 @@ const MESSAGE_SCHEMA = z.object({
 export class PostMessageController extends EventTarget {
     #registeredFrames: Record<FrameId, FrameType> = {}
     #registeredHandlers: Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>> = {}
+    #registeredMiddlewares: Record<HandlerScope, Array<RegisteredMiddleware<EventParams, HandlerResult>>> = {}
+    #middlewaresIdsMap: Record<MiddlewareId, HandlerScope> = {}
     #storage: DataStorage = {}
     state: ControllerState = { isBridgeReady: false }
 
@@ -47,6 +54,8 @@ export class PostMessageController extends EventTarget {
         this.addHandler = this.addHandler.bind(this)
         this.eventListener = this.eventListener.bind(this)
         this.registerBridgeEvents = this.registerBridgeEvents.bind(this)
+        this.addMiddleware = this.addMiddleware.bind(this)
+        this.removeMiddleware = this.removeMiddleware.bind(this)
     }
 
     private updateState (state: Partial<ControllerState>) {
@@ -69,6 +78,7 @@ export class PostMessageController extends EventTarget {
     removeFrame (frameId: FrameId) {
         delete this.#registeredFrames[frameId]
         delete this.#registeredHandlers[frameId]
+        delete this.#registeredMiddlewares[frameId]
     }
 
     addHandler<Params extends EventParams, Result extends HandlerResult>(
@@ -87,6 +97,64 @@ export class PostMessageController extends EventTarget {
         }
         const eventHandlers = scopedHandlers[eventType]
         eventHandlers[eventName] = { validator, handler } as HandlerMethods<EventParams, HandlerResult>
+    }
+
+    addMiddleware<Params extends EventParams, Result extends HandlerResult>(mw: Middleware<Params, Result>): MiddlewareId {
+        const { scope } = mw
+        if (!this.#registeredMiddlewares[scope]) {
+            this.#registeredMiddlewares[scope] = []
+        }
+        const id = generateUUIDv4()
+        this.#registeredMiddlewares[scope].push({
+            ...mw,
+            fn: mw.fn as MiddlewareFn<EventParams, HandlerResult>,
+            id,
+        })
+        this.#middlewaresIdsMap[id] = scope
+
+        return id
+    }
+
+    removeMiddleware (id: MiddlewareId): void {
+        const scope = this.#middlewaresIdsMap[id]
+        if (scope && this.#registeredMiddlewares[scope]) {
+            this.#registeredMiddlewares[scope] = this.#registeredMiddlewares[scope].filter(mw => mw.id !== id)
+        }
+        delete this.#middlewaresIdsMap[id]
+    }
+
+    #getWrappedHandler (eventType: EventType, eventName: EventName, scope: HandlerScope, handler: Handler<EventParams, HandlerResult>): Handler<EventParams, HandlerResult> {
+        const globalMiddlewares = (this.#registeredMiddlewares['*'] ?? [])
+            .filter(mw =>
+                (!mw.eventType || mw.eventType === eventType) &&
+                (!mw.eventName || mw.eventName === eventName) &&
+                (mw.scope === '*')
+            )
+        const scopedMiddlewares = (this.#registeredMiddlewares[scope] ?? [])
+            .filter(mw =>
+                (!mw.eventType || mw.eventType === eventType) &&
+                (!mw.eventName || mw.eventName === eventName) &&
+                (mw.scope === scope)
+            )
+
+        // NOTE: sort middlewares by execution order
+        const middlewares = sortedMiddlewares([...globalMiddlewares, ...scopedMiddlewares])
+
+        return middlewares.reduce<Handler<EventParams, HandlerResult>>(
+            (nextHandler, mw) => {
+                return async (params, storage, frame) => {
+                    return mw.fn({
+                        eventType,
+                        eventName,
+                        params,
+                        storage,
+                        frame,
+                        next: nextHandler,
+                    })
+                }
+            },
+            handler
+        )
     }
 
     async eventListener (event: MessageEvent) {
@@ -142,9 +210,10 @@ export class PostMessageController extends EventTarget {
         const validatedParams = validationResult.data
         this.#storage[eventType] ??= new Map()
         const storage = this.#storage[eventType]
+        const wrappedHandler = this.#getWrappedHandler(eventType, eventName, frameId, handler)
 
         try {
-            const result = await handler(validatedParams, storage, frame)
+            const result = await wrappedHandler(validatedParams, storage, frame)
             return sourceWindow.postMessage({
                 type: `${eventName}Result`,
                 data: {
