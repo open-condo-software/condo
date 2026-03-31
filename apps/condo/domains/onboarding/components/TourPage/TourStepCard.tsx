@@ -21,12 +21,12 @@ import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import styles from './TourStepCard.module.css'
 
-import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
+import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 /**
  * Mapping of step types to required subscription features
  */
-const TOUR_STEP_REQUIRED_FEATURE: Partial<Record<TourStepTypeType, AvailableFeature>> = {
+const TOUR_STEP_REQUIRED_FEATURE: Partial<Record<TourStepTypeType, AvailableFeatureType>> = {
     [TourStepTypeType.CreateNews]: 'news',
 }
 

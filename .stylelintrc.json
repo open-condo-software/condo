@@ -25,6 +25,11 @@
       "ignoreFunctions": [
         "fade"
       ]
+    }],
+    "property-no-unknown": [true, {
+      "ignoreProperties": [
+        "corner-shape"
+      ]
     }]
   },
   "overrides": [

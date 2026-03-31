@@ -6,17 +6,20 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 
-import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { getRequiredFeature } from '@condo/domains/subscription/constants/routeFeatureMapping'
-import { useActivateSubscriptions, useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import {
+    useActivateSubscriptions,
+    useOrganizationSubscription,
+    useTrialSubscriptions,
+} from '@condo/domains/subscription/hooks'
 
-import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
+import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 export interface NoSubscriptionTooltipProps {
     children: React.ReactElement
     placement?: 'top' | 'bottom' | 'left' | 'right'
-    feature?: AvailableFeature | AvailableFeature[]
+    feature?: AvailableFeatureType | AvailableFeatureType[]
     path?: string
     skipTooltip?: boolean
     b2bAppId?: string
@@ -26,12 +29,13 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
-    const { trialSubscriptions, activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { activatedSubscriptions, handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { trialSubscriptions } = useTrialSubscriptions()
     const { isFeatureAvailable, hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
     const [isActivating, setIsActivating] = useState(false)
 
     const requiredFeature = path ? getRequiredFeature(path) : null
-    const feature = (featureProp || requiredFeature) as AvailableFeature | undefined | null
+    const feature = (featureProp || requiredFeature) as AvailableFeatureType | undefined | null
     const isAppAvailableForTariff = b2bAppId ? isB2BAppEnabled(b2bAppId) : true
 
     const FeatureLockedMessage = intl.formatMessage({ 
@@ -106,12 +110,19 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         return plansWithFeature[0] || null
     }, [feature, b2bAppId, isAvailable, plansData?.result?.plans, activatedSubscriptions])
 
-    const TryTrialButton = useMemo(() => {
+    const formattedPrice = useMemo(() => {
         const currencyCode = bestPlanWithFeature?.prices?.[0]?.currencyCode
-        return intl.formatMessage({
-            id: 'subscription.warns.tryTrialButton',
-        }, { currency: CURRENCY_SYMBOLS[currencyCode] || '' })
-    }, [bestPlanWithFeature, intl])
+        if (!currencyCode) return '0'
+
+        return new Intl.NumberFormat(intl.locale, {
+            style: 'currency',
+            currency: currencyCode,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(0)
+    }, [bestPlanWithFeature?.prices, intl.locale])
+
+    const TryTrialButton = intl.formatMessage({ id: 'subscription.warns.tryTrialButton' }, { formattedPrice })
 
     const handleActivateTrial = useCallback(async () => {
         if (!bestPlanWithFeature) {

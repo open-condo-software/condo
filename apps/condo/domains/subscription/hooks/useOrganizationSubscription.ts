@@ -10,7 +10,7 @@ import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
 import type { GetSubscriptionContextByIdQuery } from '@app/condo/gql/operation.types'
 import type { OrganizationSubscriptionFeatures } from '@app/condo/schema'
-import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
+import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 
 const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
@@ -63,7 +63,7 @@ export const useOrganizationSubscription = () => {
         return Math.max(0, Math.ceil(diff))
     }, [subscriptionFeatures?.activeSubscriptionEndAt])
 
-    const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
+    const isFeatureAvailable = useCallback((feature: AvailableFeatureType): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
         
@@ -103,6 +103,7 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
 
     return {
+        hasSubscriptionsFlag,
         hasSubscription,
         isFeatureAvailable,
         isB2BAppEnabled,

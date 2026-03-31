@@ -95,7 +95,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { SubscriptionAccessGuard, NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { SubscriptionAccessGuard, NoSubscriptionTooltip, SubscriptionFeatureProgress } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -170,7 +170,7 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
+    const { hasSubscription, isB2BAppEnabled, hasSubscriptionsFlag } = useOrganizationSubscription()
     const disabled = !employee || !hasSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
@@ -376,6 +376,7 @@ const MenuItems: React.FC = () => {
 
     return (
         <div>
+            {hasSubscription && hasSubscriptionsFlag && <SubscriptionFeatureProgress />}
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
                     {category.items.map((item) => {

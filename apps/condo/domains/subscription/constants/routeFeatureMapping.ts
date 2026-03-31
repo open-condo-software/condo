@@ -1,4 +1,4 @@
-import type { AvailableFeature } from './features'
+import type { AvailableFeatureType } from './features'
 
 /**
  * Routes that are always accessible without subscription
@@ -23,7 +23,7 @@ const ALLOWED_WITHOUT_SUBSCRIPTION: string[] = [
  * Mapping of routes to specific subscription features
  * Routes not in this map require only active subscription (no specific feature)
  */
-export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeature> = {
+export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeatureType> = {
     '/payments': 'payments',
     '/meter': 'meters',
     '/ticket': 'tickets',
@@ -43,9 +43,9 @@ export function requiresSubscriptionAccess (pathname: string): boolean {
 
 /**
  * Get required feature for a route
- * Returns AvailableFeature if specific feature is required, null otherwise
+ * Returns AvailableFeatureType if specific feature is required, null otherwise
  */
-export function getRequiredFeature (pathname: string): AvailableFeature | null {
+export function getRequiredFeature (pathname: string): AvailableFeatureType | null {
     if (pathname in ROUTE_FEATURE_MAPPING) {
         return ROUTE_FEATURE_MAPPING[pathname]
     }

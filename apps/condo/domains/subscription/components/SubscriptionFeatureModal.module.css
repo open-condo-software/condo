@@ -1,0 +1,36 @@
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.feature-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.modal :global(.condo-promo-block) {
+  height: 280px;
+}
+
+.modal :global(.condo-typography-ellipsis-multiple-line) {
+  -webkit-line-clamp: 3 !important;
+}
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .modal :global(.condo-promo-block) {
+    height: 300px;
+  }
+
+  .modal :global(.condo-typography-ellipsis-multiple-line) {
+    -webkit-line-clamp: 5 !important;
+  }
+}
