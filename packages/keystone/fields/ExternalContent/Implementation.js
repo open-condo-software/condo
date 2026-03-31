@@ -112,9 +112,10 @@ async function readFromAdapter (adapter, fileMeta) {
  * 
  * @param {Object} context - GraphQL context object
  * @param {Object} adapter - File adapter instance
+ * @param {number} [batchDelayMs] - Time window in milliseconds to collect requests before executing batch
  * @returns {FileContentLoader} Loader instance for this adapter
  */
-function getOrCreateLoader (context, adapter) {
+function getOrCreateLoader (context, adapter, batchDelayMs) {
     // Initialize loaders map if not exists
     if (!context._externalContentLoaders) {
         context._externalContentLoaders = new Map()
@@ -129,7 +130,8 @@ function getOrCreateLoader (context, adapter) {
     
     // Return existing loader or create new one
     if (!context._externalContentLoaders.has(loaderKey)) {
-        context._externalContentLoaders.set(loaderKey, new FileContentLoader(adapter))
+        const options = batchDelayMs !== undefined ? { batchDelayMs } : undefined
+        context._externalContentLoaders.set(loaderKey, new FileContentLoader(adapter, options))
     }
     
     return context._externalContentLoaders.get(loaderKey)
@@ -141,6 +143,7 @@ class ExternalContentImplementation extends Implementation {
         format = DEFAULT_FORMAT,
         processors = {},
         maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
+        batchDelayMs,
     } = {}, meta) {
         super(path, { ...arguments[1], maxSizeBytes }, meta)
 
@@ -168,15 +171,16 @@ class ExternalContentImplementation extends Implementation {
             throw new Error(`ExternalContent: unknown format "${format}" for ${path}`)
         }
 
-        this.fileAdapter = adapter
+        this.adapter = adapter
         this.format = format
+        this.maxSizeBytes = maxSizeBytes
+        this.batchDelayMs = batchDelayMs
         this.serialize = serialize || cfg.serialize
         this.deserialize = deserialize || cfg.deserialize
         this.graphQLInputType = graphQLInputType || cfg.graphQLInputType
         this.graphQLReturnType = graphQLReturnType || cfg.graphQLReturnType
         this.mimetype = mimetype || cfg.mimetype
         this.fileExt = fileExt || cfg.fileExt
-        this.maxSizeBytes = maxSizeBytes
     }
 
     // GQL Output
@@ -213,7 +217,7 @@ class ExternalContentImplementation extends Implementation {
                 // Use DataLoader for batching and caching when context is available
                 let buf
                 if (context) {
-                    const loader = getOrCreateLoader(context, this.fileAdapter)
+                    const loader = getOrCreateLoader(context, this.fileAdapter, this.batchDelayMs)
                     buf = await loader.load(value)
                 } else {
                     // Fallback to direct read for non-GraphQL usage (tests, scripts, etc.)

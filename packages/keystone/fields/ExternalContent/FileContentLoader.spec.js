@@ -25,7 +25,7 @@ describe('FileContentLoader', () => {
             expect(loader.adapter).toBe(adapter)
             expect(loader.cache).toBeInstanceOf(Map)
             expect(loader.queue).toEqual([])
-            expect(loader.batchDelay).toBe(10)
+            expect(loader.batchDelayMs).toBe(10)
         })
     })
 

@@ -30,35 +30,39 @@ function isFileMeta (value, opts = {}) {
 
 /**
  * Factory function to create ExternalContent field configuration.
- * Ensures consistency and prevents accidental misconfigurations.
+ * Creates a consistent ExternalContent field configuration.
  * 
- * @param {Object} options - Field options
- * @param {Object} options.adapter - FileAdapter instance
- * @param {string} [options.format='json'] - Data format (json, xml, text)
- * @param {Object} [options.processors] - Custom serialization/deserialization functions
- * @param {number} [options.maxSizeBytes] - Maximum size in bytes (default: 10MB)
- * @param {string} [options.schemaDoc] - Documentation for GraphQL schema
- * @param {boolean} [options.sensitive] - Mark field as sensitive
- * @param {boolean} [options.isRequired] - Mark field as required
+ * @param {Object} options - Field configuration options
+ * @param {Object} options.adapter - File adapter (required)
+ * @param {string} [options.format='json'] - Data format ('json' or 'text')
+ * @param {Object} [options.processors={}] - Data processors
+ * @param {number} [options.maxSizeBytes] - Maximum payload size in bytes
+ * @param {number} [options.batchDelay] - Batch delay in milliseconds (default: 10)
+ * @param {Object} [options.otherProps] - Additional Keystone field properties (schemaDoc, sensitive, isRequired, etc.)
  * @returns {Object} Field configuration object
  * 
  * @example
- * const MY_DATA_FIELD = createExternalDataField({
+ * const myField = createExternalDataField({
  *   adapter: myFileAdapter,
  *   format: 'json',
  *   maxSizeBytes: 50 * 1024 * 1024, // 50MB
+ *   batchDelayMs: 10, // 10ms batch delay
  *   schemaDoc: 'Field description',
  *   sensitive: true,
  *   isRequired: false,
  * })
  */
-function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, ...otherProps }) {
+function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, ...otherProps }) {
     if (!adapter) {
         throw new Error('createExternalDataField: adapter is required')
     }
     
     if (maxSizeBytes !== undefined && (typeof maxSizeBytes !== 'number' || maxSizeBytes <= 0)) {
         throw new Error('createExternalDataField: maxSizeBytes must be a positive number')
+    }
+    
+    if (batchDelayMs !== undefined && (typeof batchDelayMs !== 'number' || batchDelayMs < 0)) {
+        throw new Error('createExternalDataField: batchDelay must be a non-negative number')
     }
     
     const config = {
@@ -72,6 +76,11 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
     // Only include maxSizeBytes if explicitly provided
     if (maxSizeBytes !== undefined) {
         config.maxSizeBytes = maxSizeBytes
+    }
+    
+    // Only include batchDelay if explicitly provided
+    if (batchDelayMs !== undefined) {
+        config.batchDelayMs = batchDelayMs
     }
     
     return config

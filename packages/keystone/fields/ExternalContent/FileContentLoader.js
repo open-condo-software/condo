@@ -2,6 +2,9 @@ const { readFile } = require('fs/promises')
 
 const { validateFilePath } = require('./utils')
 
+// Default batch delay: 10ms
+const DEFAULT_BATCH_DELAY_MS = 10
+
 /**
  * Custom DataLoader for batching and caching file content reads.
  * 
@@ -23,7 +26,7 @@ const { validateFilePath } = require('./utils')
  */
 
 class FileContentLoader {
-    constructor (adapter) {
+    constructor (adapter, options = {}) {
         this.adapter = adapter
         
         // Request-scoped cache: filename -> Promise<Buffer>
@@ -39,7 +42,8 @@ class FileContentLoader {
         this.batchTimer = null
         
         // Batch delay in milliseconds (one event loop tick)
-        this.batchDelay = 10
+        // Can be set to 0 for immediate execution
+        this.batchDelayMs = options.batchDelayMs !== undefined ? options.batchDelayMs : DEFAULT_BATCH_DELAY_MS
         
         // Promise that resolves when current batch completes (for synchronization)
         this.batchCompletionPromise = null
@@ -72,9 +76,16 @@ class FileContentLoader {
             
             // Schedule batch execution if not already scheduled
             if (!this.batchTimer) {
-                this.batchTimer = setTimeout(() => {
-                    this._executeBatch()
-                }, this.batchDelay)
+                if (this.batchDelayMs === 0) {
+                    // Use setImmediate for immediate execution
+                    this.batchTimer = setImmediate(() => {
+                        this._executeBatch()
+                    })
+                } else {
+                    this.batchTimer = setTimeout(() => {
+                        this._executeBatch()
+                    }, this.batchDelayMs)
+                }
             }
         })
         

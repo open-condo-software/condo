@@ -19,6 +19,9 @@ function validateFilePath (basePath, filename) {
         throw new Error(`Invalid filename: path traversal detected in ${filename}`)
     }
     
+    // Path is validated before and after join to prevent traversal attacks
+    // The normalized path is checked to ensure it stays within basePath
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const fullPath = path.join(basePath, filename)
     const normalized = path.normalize(fullPath)
     const normalizedBase = path.normalize(basePath)
