@@ -154,10 +154,11 @@ class FileAdapter {
         if (!this.isConfigValid(conf, ['MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL'])) {
             return null
         }
+        const baseUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL']
         const config = {
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
-            path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
-            mediaPath: `${conf.SERVER_URL}${conf.MEDIA_URL}`,
+            path: `${baseUrl}${conf.MEDIA_URL}/${this.folder}`,
+            mediaPath: `${baseUrl}${conf.MEDIA_URL}`,
         }
 
         if (this.saveFileName) {

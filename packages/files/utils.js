@@ -217,6 +217,7 @@ function parseAndValidateFileMetaSignature (data) {
 // ---------------------- handlers ----------------------
 function authHandler ()  {
     return async function (req, res, next) {
+        console.log('req.user', req.user)
         if (!req.user || req.user.deletedAt !== null) {
 
             const error = new GQLError(ERRORS.AUTHORIZATION_REQUIRED, { req })

@@ -175,25 +175,33 @@ class CustomFile extends FileWithUTF8Name.implementation {
         const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
         if (!hasFileInRequest) return
 
+        // Decode signature to get the original fileClientId
+        const signatureData = jwt.decode(context._fileNewFlow[key].signature)
+        const fileClientId = signatureData?.fileClientId || this._fileClientId
+
         const payload = {
             itemId: resolvedData.id,
             modelName: listKey,
             signature: context._fileNewFlow[key].signature,
-            fileClientId: context._fileNewFlow[key].fileClientId,
+            fileClientId: fileClientId,
             dv: 1, sender: resolvedData.sender,
         }
 
         let attachResult
 
         const headers = { 'Content-Type': 'application/json' }
-        const raw = context?.req?.headers?.cookie || ''
-        const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
-
-        if (cookieMatch) {
-            headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
-        } else if (context?.req?.headers?.authorization) {
+        
+        if (context?.req?.headers?.authorization) {
             headers['Authorization'] = context?.req?.headers?.authorization
+        } else {
+            const raw = context?.req?.headers?.cookie || ''
+            const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
+            if (cookieMatch) {
+                headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
+            }
         }
+
+        console.log('attach request', { url: this._fileServiceUrl, payload, headers: { ...headers, Authorization: headers.Authorization ? 'Bearer ***' : undefined } })
 
         try {
             const res = await fetch(this._fileServiceUrl, {
@@ -204,7 +212,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             attachResult = await res.json()
 
-            console.log('res', JSON.stringify(attachResult))
+            console.log('attach response', { status: res.status, ok: res.ok, result: attachResult })
 
             if (!res.ok) {
                 if (attachResult?.errors && attachResult?.errors?.length > 0) {
