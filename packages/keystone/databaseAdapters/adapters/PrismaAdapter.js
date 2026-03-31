@@ -2,7 +2,7 @@ const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 
-const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter } = require('@open-keystone/adapter-prisma')
+const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter, PrismaFieldAdapter } = require('@open-keystone/adapter-prisma')
 const { defaultObj, mapKeys } = require('@open-keystone/utils')
 
 // NOTE: Utility to recursively strip undefined values from objects.
@@ -213,14 +213,29 @@ if (!PrismaListAdapter.prototype._coerceId) {
             if (first !== undefined) ret.take = first
             if (skip !== undefined) ret.skip = skip
             if (orderBy) {
-                ret.orderBy = orderBy.map(o => {
-                    const [key] = Object.keys(o)
-                    const adapter = this.fieldAdaptersByPath[key]
-                    if (adapter && adapter.dbPath !== key) {
-                        return { [adapter.dbPath]: o[key] }
-                    }
-                    return o
-                })
+                if (typeof orderBy === 'string' || (Array.isArray(orderBy) && typeof orderBy[0] === 'string')) {
+                    const sortByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
+                    ret.orderBy = sortByArr.map(s => {
+                        const _sort = s.split('_')
+                        const order = _sort.pop().toLowerCase()
+                        const sortPath = _sort.join('_')
+                        const adapter = this.fieldAdaptersByPath[sortPath]
+                        if (adapter && adapter.dbPath !== sortPath) {
+                            return { [adapter.dbPath]: order }
+                        }
+                        return { [sortPath]: order }
+                    })
+                } else {
+                    const orderByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
+                    ret.orderBy = orderByArr.map(o => {
+                        const [key] = Object.keys(o)
+                        const adapter = this.fieldAdaptersByPath[key]
+                        if (adapter && adapter.dbPath !== key) {
+                            return { [adapter.dbPath]: o[key] }
+                        }
+                        return o
+                    })
+                }
             } else if (sortBy) {
                 ret.orderBy = sortBy.map(s => {
                     const _sort = s.split('_')
@@ -237,6 +252,74 @@ if (!PrismaListAdapter.prototype._coerceId) {
             if (include) ret.include = include
         }
         return ret
+    }
+}
+
+const _identity = x => x
+
+PrismaFieldAdapter.prototype.equalityConditions = function (dbPath, f = _identity) {
+    return {
+        [this.path]: value => ({ [dbPath]: { equals: f(value) } }),
+        [`${this.path}_not`]: value => ({ NOT: { [dbPath]: { equals: f(value) } } }),
+    }
+}
+
+PrismaFieldAdapter.prototype.equalityConditionsInsensitive = function (dbPath, f = _identity) {
+    return {
+        [`${this.path}_i`]: value => ({ [dbPath]: { equals: f(value), mode: 'insensitive' } }),
+        [`${this.path}_not_i`]: value => ({ NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } }),
+    }
+}
+
+PrismaFieldAdapter.prototype.inConditions = function (dbPath, f = _identity) {
+    return {
+        [`${this.path}_in`]: value =>
+            value.includes(null)
+                ? { OR: [{ [dbPath]: { in: value.filter(x => x !== null).map(f) } }, { [dbPath]: null }] }
+                : { [dbPath]: { in: value.map(f) } },
+        [`${this.path}_not_in`]: value =>
+            value.includes(null)
+                ? {
+                    AND: [
+                        { NOT: { [dbPath]: { in: value.filter(x => x !== null).map(f) } } },
+                        { NOT: { [dbPath]: null } },
+                    ],
+                }
+                : { NOT: { [dbPath]: { in: value.map(f) } } },
+    }
+}
+
+PrismaFieldAdapter.prototype.stringConditions = function (dbPath, f = _identity) {
+    return {
+        [`${this.path}_contains`]: value => value == null ? {} : ({ [dbPath]: { contains: f(value) } }),
+        [`${this.path}_not_contains`]: value => value == null ? {} : ({ NOT: { [dbPath]: { contains: f(value) } } }),
+        [`${this.path}_starts_with`]: value => value == null ? {} : ({ [dbPath]: { startsWith: f(value) } }),
+        [`${this.path}_not_starts_with`]: value => value == null ? {} : ({ NOT: { [dbPath]: { startsWith: f(value) } } }),
+        [`${this.path}_ends_with`]: value => value == null ? {} : ({ [dbPath]: { endsWith: f(value) } }),
+        [`${this.path}_not_ends_with`]: value => value == null ? {} : ({ NOT: { [dbPath]: { endsWith: f(value) } } }),
+    }
+}
+
+PrismaFieldAdapter.prototype.stringConditionsInsensitive = function (dbPath, f = _identity) {
+    return {
+        [`${this.path}_contains_i`]: value => value == null ? {} : ({
+            [dbPath]: { contains: f(value), mode: 'insensitive' },
+        }),
+        [`${this.path}_not_contains_i`]: value => value == null ? {} : ({
+            NOT: { [dbPath]: { contains: f(value), mode: 'insensitive' } },
+        }),
+        [`${this.path}_starts_with_i`]: value => value == null ? {} : ({
+            [dbPath]: { startsWith: f(value), mode: 'insensitive' },
+        }),
+        [`${this.path}_not_starts_with_i`]: value => value == null ? {} : ({
+            NOT: { [dbPath]: { startsWith: f(value), mode: 'insensitive' } },
+        }),
+        [`${this.path}_ends_with_i`]: value => value == null ? {} : ({
+            [dbPath]: { endsWith: f(value), mode: 'insensitive' },
+        }),
+        [`${this.path}_not_ends_with_i`]: value => value == null ? {} : ({
+            NOT: { [dbPath]: { endsWith: f(value), mode: 'insensitive' } },
+        }),
     }
 }
 
