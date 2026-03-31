@@ -252,15 +252,9 @@ function _addFieldToKnexSchema (fa, table, knex) {
     const isUnique = fa.isUnique !== undefined ? !!fa.isUnique : !!cfg.isUnique
     const isIndexed = fa.isIndexed !== undefined ? !!fa.isIndexed : !!cfg.isIndexed
 
-    // Replicate KnexFieldAdapter's isNotNullable getter:
-    // 1. Check knexOptions.isNotNullable explicitly
-    // 2. Fallback to field.isRequired
-    // 3. Fallback to checking field.defaultValue is set and non-null
     let isNotNullable = false
-    if (fa.isNotNullable !== undefined) {
-        isNotNullable = !!fa.isNotNullable
-    } else if (typeof knexOptions.isNotNullable !== 'undefined') {
-        isNotNullable = !!knexOptions.isNotNullable
+    if (typeof knexOptions.isNotNullable !== 'undefined') {
+        isNotNullable = false
     } else if (fa.field.isRequired) {
         isNotNullable = true
     } else if (typeof fa.field.defaultValue === 'function') {

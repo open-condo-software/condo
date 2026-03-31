@@ -362,10 +362,14 @@ function createFakeTable (tableName) {
 
 (async () => {
     keystone.eventHandlers = {}
-    // NOTE: keystone.connect() is intentionally NOT called here.
-    // Schema extraction only needs listAdapters (populated during module loading)
-    // and the Knex connection created by __kmigratorKnexAdapters().
-    // Calling connect() would trigger Prisma client init which is unnecessary for migrations.
+    const rels = keystone._consolidateRelationships()
+    for (const la of Object.values(keystone.adapter.listAdapters)) {
+        la.fieldAdapters.forEach(fa => {
+            fa.rel = rels.find(({ left, right }) =>
+                left.adapter === fa || (right && right.adapter === fa)
+            )
+        })
+    }
     const rootAdapter = keystone.adapter
 
     let knexAdapters = []
