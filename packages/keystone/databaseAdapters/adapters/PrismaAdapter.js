@@ -283,6 +283,13 @@ _PrismaDecimalInterface.prototype.getPrismaSchema = function () {
     return _origDecimalGetPrismaSchema.call(this)
 }
 
+const _PrismaRelationshipInterface = require('@open-keystone/fields').Relationship.adapters.prisma
+_PrismaRelationshipInterface.prototype.getQueryConditions = function (dbPath) {
+    return {
+        [`${this.path}_is_null`]: value => (value ? { [dbPath]: { is: null } } : { [dbPath]: { isNot: null } }),
+    }
+}
+
 const _isNonNullableField = (adapter) => !!(adapter.field && (adapter.field.isPrimaryKey || adapter.field.isRequired))
 
 PrismaFieldAdapter.prototype.equalityConditions = function (dbPath, f = _identity) {
@@ -292,7 +299,7 @@ PrismaFieldAdapter.prototype.equalityConditions = function (dbPath, f = _identit
             return { [dbPath]: { equals: f(value) } }
         },
         [`${this.path}_not`]: value => {
-            if (value == null) return _isNonNullableField(this) ? {} : { NOT: { [dbPath]: null } }
+            if (value == null) return _isNonNullableField(this) ? {} : { [dbPath]: { not: null } }
             return { NOT: { [dbPath]: { equals: f(value) } } }
         },
     }
@@ -305,7 +312,7 @@ PrismaFieldAdapter.prototype.equalityConditionsInsensitive = function (dbPath, f
             return { [dbPath]: { equals: f(value), mode: 'insensitive' } }
         },
         [`${this.path}_not_i`]: value => {
-            if (value == null) return _isNonNullableField(this) ? {} : { NOT: { [dbPath]: null } }
+            if (value == null) return _isNonNullableField(this) ? {} : { [dbPath]: { not: null } }
             return { NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } }
         },
     }
@@ -322,7 +329,7 @@ PrismaFieldAdapter.prototype.inConditions = function (dbPath, f = _identity) {
                 ? {
                     AND: [
                         { NOT: { [dbPath]: { in: value.filter(x => x !== null).map(f) } } },
-                        { NOT: { [dbPath]: null } },
+                        { [dbPath]: { not: null } },
                     ],
                 }
                 : { NOT: { [dbPath]: { in: value.map(f) } } },
