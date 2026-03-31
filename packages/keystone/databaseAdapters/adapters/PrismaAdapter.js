@@ -1,3 +1,7 @@
+const crypto = require('crypto')
+const fs = require('fs')
+const path = require('path')
+
 const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter } = require('@open-keystone/adapter-prisma')
 const { defaultObj, mapKeys } = require('@open-keystone/utils')
 
@@ -639,6 +643,44 @@ class PrismaAdapter extends OriginalPrismaAdapter {
             }
             return result
         })
+    }
+
+
+    async _generateClient (rels) {
+        const clientDir = 'generated-client'
+
+        const prismaSchema = await this._generatePrismaSchema({ rels, clientDir })
+
+        const prismaPath = this.getPrismaPath({ prismaSchema })
+        this.schemaPath = path.join(prismaPath, 'schema.prisma')
+        this.clientPath = path.resolve(`${prismaPath}/${clientDir}`)
+        this.dbSchemaName = this.getDbSchemaName({ prismaSchema })
+
+        const hashFile = path.join(prismaPath, '.schema-hash')
+        const clientIndexFile = path.join(this.clientPath, 'index.js')
+        const newHash = crypto.createHash('sha256').update(prismaSchema).digest('hex')
+
+        try {
+            if (fs.existsSync(clientIndexFile)) {
+                const existingHash = fs.readFileSync(hashFile, 'utf-8').trim()
+                if (existingHash === newHash) {
+                    return // Client already generated with same schema — skip expensive steps
+                }
+            }
+        } catch (e) {
+            // hash file doesn't exist or unreadable — proceed with full generation
+        }
+
+        fs.mkdirSync(path.dirname(this.schemaPath), { recursive: true })
+        fs.writeFileSync(this.schemaPath, prismaSchema)
+        this._runPrismaCmd('format')
+
+        const formattedSchema = fs.readFileSync(this.schemaPath, { encoding: 'utf-8' })
+        await this._writePrismaSchema({ prismaSchema: formattedSchema })
+        await this._generatePrismaClient()
+        await this._runMigrations()
+
+        fs.writeFileSync(hashFile, newHash)
     }
 
     async _connect ({ rels }) {
