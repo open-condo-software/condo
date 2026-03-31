@@ -294,7 +294,7 @@ describe('UserSudoToken', () => {
             await catchErrorFrom(async () => {
                 await createTestUserSudoToken(adminClient, user, { user: undefined })
             }, ({ errors }) => {
-                expect(errors[0].message).toMatch('null value in column "user" of relation "UserSudoToken" violates not-null constraint')
+                expect(errors[0].message).toMatch(/null value in column "user" of relation "UserSudoToken" violates not-null constraint|Null constraint violation on the fields: \(`user`\)/)
                 expect(errors).toMatchObject([{
                     name: 'GraphQLError',
                     path: ['obj'],

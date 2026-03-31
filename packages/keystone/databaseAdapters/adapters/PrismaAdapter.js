@@ -5,6 +5,26 @@ const path = require('path')
 const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter, PrismaFieldAdapter } = require('@open-keystone/adapter-prisma')
 const { defaultObj, mapKeys } = require('@open-keystone/utils')
 
+// NOTE: Prisma treats { OR: [] } as a no-op (matches everything) when nested inside AND,
+// unlike Knex/SQL where empty OR means FALSE (impossible condition).
+// This function recursively replaces { OR: [] } with { id: { in: [] } } which
+// correctly returns 0 results in all contexts.
+function _sanitizeEmptyOrConditions (obj) {
+    if (obj === null || obj === undefined) return obj
+    if (Array.isArray(obj)) return obj.map(_sanitizeEmptyOrConditions)
+    if (typeof obj !== 'object') return obj
+    const proto = Object.getPrototypeOf(obj)
+    if (proto !== Object.prototype && proto !== null) return obj
+    if (Array.isArray(obj.OR) && obj.OR.length === 0) {
+        return { id: { in: [] } }
+    }
+    const result = {}
+    for (const [key, value] of Object.entries(obj)) {
+        result[key] = _sanitizeEmptyOrConditions(value)
+    }
+    return result
+}
+
 // NOTE: Utility to recursively strip undefined values from objects.
 // Prisma rejects objects with undefined values in filters.
 function cleanUndefinedValues (obj) {
@@ -162,97 +182,123 @@ if (!PrismaListAdapter.prototype._coerceId) {
         const whereId = this._coerceId(id, this.key)
         return this.model.delete({ where: { id: whereId } }).then(item => this._mapResultItem(item))
     }
+}
 
-    const _origItemsQuery = PrismaListAdapter.prototype._itemsQuery
-    PrismaListAdapter.prototype._itemsQuery = async function (args, opts = {}) {
-        const { meta = false, from = {} } = opts
-        const rawFilter = await this.prismaFilter({ args, meta, from })
-        const filter = cleanUndefinedValues(rawFilter) || {}
-        if (meta) {
-            let count = await this.model.count(filter)
-            const { first, skip } = args
-            if (skip !== undefined) count -= skip
-            if (first !== undefined) count = Math.min(count, first)
-            count = Math.max(0, count)
-            return { count }
+// NOTE: These patches MUST be outside the if(!_coerceId) guard above because the published
+// @open-keystone/adapter-prisma already has _coerceId, which would skip the entire block.
+// These overrides are always needed for correct Prisma query behavior.
+
+const _origItemsQuery = PrismaListAdapter.prototype._itemsQuery
+PrismaListAdapter.prototype._itemsQuery = async function (args, opts = {}) {
+    const { meta = false, from = {} } = opts
+    const rawFilter = await this.prismaFilter({ args, meta, from })
+    const filter = cleanUndefinedValues(rawFilter) || {}
+    if (meta) {
+        let count = await this.model.count(filter)
+        const { first, skip } = args
+        if (skip !== undefined) count -= skip
+        if (first !== undefined) count = Math.min(count, first)
+        count = Math.max(0, count)
+        return { count }
+    } else {
+        const items = await this.model.findMany(filter)
+        return items.map(item => this._mapResultItem(item))
+    }
+}
+
+// NOTE: Prisma treats { OR: [] } as a no-op (matches everything) when nested inside AND,
+// unlike Knex where it means "impossible condition" (matches nothing).
+// This wrapper sanitizes processWheres output to replace { OR: [] } with { id: { in: [] } }.
+const _origProcessWheres = PrismaListAdapter.prototype.processWheres
+PrismaListAdapter.prototype.processWheres = async function (where) {
+    const result = await _origProcessWheres.call(this, where)
+    return _sanitizeEmptyOrConditions(result)
+}
+
+// NOTE: Helper to resolve the correct Prisma orderBy field name.
+// For scalar fields, uses dbPath. For relationship fields, uses the FK Prisma field name
+// (e.g., `createdById` instead of `createdBy`) since Prisma can't sort by relations directly.
+function _resolveOrderByField (adapter, path) {
+    if (!adapter) return path
+    if (adapter.isRelationship) {
+        // Check for collision FK field (pathFk) vs standard FK field (pathId)
+        const collisionFk = `${path}Fk`
+        const standardFk = `${path}Id`
+        // Use the field adapter's parent list to check which FK name exists in the Prisma schema
+        const listAdapter = adapter.listAdapter
+        if (listAdapter && listAdapter.fieldAdaptersByPath[collisionFk]) {
+            return collisionFk
+        }
+        return standardFk
+    }
+    if (adapter.dbPath !== path) return adapter.dbPath
+    return path
+}
+
+const _origPrismaFilter = PrismaListAdapter.prototype.prismaFilter
+PrismaListAdapter.prototype.prismaFilter = async function ({ args: { where = {}, first, skip, sortBy, orderBy, search }, meta, from }) {
+    const ret = {}
+    const allWheres = await this.processWheres(where)
+    if (allWheres) ret.where = allWheres
+    if (from.fromId) {
+        if (!ret.where) ret.where = {}
+        const a = from.fromList.adapter.fieldAdaptersByPath[from.fromField]
+        const coercedFromId = this._coerceId(from.fromId, from.fromList.key)
+        if (a.rel.cardinality === 'N:N') {
+            const path = a.rel.right
+                ? a.field === a.rel.right ? a.rel.left.path : a.rel.right.path
+                : `from_${a.rel.left.listKey}_${a.rel.left.path}`
+            ret.where[path] = { some: { id: coercedFromId } }
         } else {
-            return this.model.findMany(filter).then(items => items.map(item => this._mapResultItem(item)))
+            ret.where[a.rel.columnName] = { id: coercedFromId }
         }
     }
-
-    const _origPrismaFilter = PrismaListAdapter.prototype.prismaFilter
-    PrismaListAdapter.prototype.prismaFilter = async function ({ args: { where = {}, first, skip, sortBy, orderBy, search }, meta, from }) {
-        const ret = {}
-        const allWheres = await this.processWheres(where)
-        if (allWheres) ret.where = allWheres
-        if (from.fromId) {
-            if (!ret.where) ret.where = {}
-            const a = from.fromList.adapter.fieldAdaptersByPath[from.fromField]
-            const coercedFromId = this._coerceId(from.fromId, from.fromList.key)
-            if (a.rel.cardinality === 'N:N') {
-                const path = a.rel.right
-                    ? a.field === a.rel.right ? a.rel.left.path : a.rel.right.path
-                    : `from_${a.rel.left.listKey}_${a.rel.left.path}`
-                ret.where[path] = { some: { id: coercedFromId } }
+    const searchFieldName = this.config.searchField || 'name'
+    const searchField = this.fieldAdaptersByPath[searchFieldName]
+    if (search !== undefined && search !== null && search !== '' && searchField) {
+        if (searchField.fieldName === 'Text') {
+            if (!ret.where) {
+                ret.where = { [searchFieldName]: { contains: search, mode: 'insensitive' } }
             } else {
-                ret.where[a.rel.columnName] = { id: coercedFromId }
+                ret.where = { AND: [ret.where, { [searchFieldName]: { contains: search, mode: 'insensitive' } }] }
             }
         }
-        const searchFieldName = this.config.searchField || 'name'
-        const searchField = this.fieldAdaptersByPath[searchFieldName]
-        if (search !== undefined && search !== null && search !== '' && searchField) {
-            if (searchField.fieldName === 'Text') {
-                if (!ret.where) {
-                    ret.where = { [searchFieldName]: { contains: search, mode: 'insensitive' } }
-                } else {
-                    ret.where = { AND: [ret.where, { [searchFieldName]: { contains: search, mode: 'insensitive' } }] }
-                }
-            }
-        }
-        if (!meta) {
-            if (first !== undefined) ret.take = first
-            if (skip !== undefined) ret.skip = skip
-            if (orderBy) {
-                if (typeof orderBy === 'string' || (Array.isArray(orderBy) && typeof orderBy[0] === 'string')) {
-                    const sortByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
-                    ret.orderBy = sortByArr.map(s => {
-                        const _sort = s.split('_')
-                        const order = _sort.pop().toLowerCase()
-                        const sortPath = _sort.join('_')
-                        const adapter = this.fieldAdaptersByPath[sortPath]
-                        if (adapter && adapter.dbPath !== sortPath) {
-                            return { [adapter.dbPath]: order }
-                        }
-                        return { [sortPath]: order }
-                    })
-                } else {
-                    const orderByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
-                    ret.orderBy = orderByArr.map(o => {
-                        const [key] = Object.keys(o)
-                        const adapter = this.fieldAdaptersByPath[key]
-                        if (adapter && adapter.dbPath !== key) {
-                            return { [adapter.dbPath]: o[key] }
-                        }
-                        return o
-                    })
-                }
-            } else if (sortBy) {
-                ret.orderBy = sortBy.map(s => {
+    }
+    if (!meta) {
+        if (first !== undefined) ret.take = first
+        if (skip !== undefined) ret.skip = skip
+        if (orderBy) {
+            if (typeof orderBy === 'string' || (Array.isArray(orderBy) && typeof orderBy[0] === 'string')) {
+                const sortByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
+                ret.orderBy = sortByArr.map(s => {
                     const _sort = s.split('_')
                     const order = _sort.pop().toLowerCase()
-                    const path = _sort.join('_')
-                    const adapter = this.fieldAdaptersByPath[path]
-                    if (adapter && adapter.dbPath !== path) {
-                        return { [adapter.dbPath]: order }
-                    }
-                    return { [path]: order }
+                    const sortPath = _sort.join('_')
+                    const adapter = this.fieldAdaptersByPath[sortPath]
+                    return { [_resolveOrderByField(adapter, sortPath)]: order }
+                })
+            } else {
+                const orderByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
+                ret.orderBy = orderByArr.map(o => {
+                    const [key] = Object.keys(o)
+                    const adapter = this.fieldAdaptersByPath[key]
+                    const resolved = _resolveOrderByField(adapter, key)
+                    return resolved !== key ? { [resolved]: o[key] } : o
                 })
             }
-            const include = this._include()
-            if (include) ret.include = include
+        } else if (sortBy) {
+            ret.orderBy = sortBy.map(s => {
+                const _sort = s.split('_')
+                const order = _sort.pop().toLowerCase()
+                const path = _sort.join('_')
+                const adapter = this.fieldAdaptersByPath[path]
+                return { [_resolveOrderByField(adapter, path)]: order }
+            })
         }
-        return ret
+        const include = this._include()
+        if (include) ret.include = include
     }
+    return ret
 }
 
 const _identity = x => x
@@ -295,12 +341,16 @@ const _isNonNullableField = (adapter) => !!(adapter.field && (adapter.field.isPr
 PrismaFieldAdapter.prototype.equalityConditions = function (dbPath, f = _identity) {
     return {
         [this.path]: value => {
-            if (value == null) return _isNonNullableField(this) ? { OR: [] } : { [dbPath]: null }
+            if (value == null) return _isNonNullableField(this) ? { id: { in: [] } } : { [dbPath]: null }
             return { [dbPath]: { equals: f(value) } }
         },
         [`${this.path}_not`]: value => {
             if (value == null) return _isNonNullableField(this) ? {} : { [dbPath]: { not: null } }
             return { NOT: { [dbPath]: { equals: f(value) } } }
+        },
+        [`${this.path}_is_null`]: value => {
+            if (_isNonNullableField(this)) return value ? { id: { in: [] } } : {}
+            return value ? { [dbPath]: null } : { [dbPath]: { not: null } }
         },
     }
 }
@@ -308,7 +358,7 @@ PrismaFieldAdapter.prototype.equalityConditions = function (dbPath, f = _identit
 PrismaFieldAdapter.prototype.equalityConditionsInsensitive = function (dbPath, f = _identity) {
     return {
         [`${this.path}_i`]: value => {
-            if (value == null) return _isNonNullableField(this) ? { OR: [] } : { [dbPath]: null }
+            if (value == null) return _isNonNullableField(this) ? { id: { in: [] } } : { [dbPath]: null }
             return { [dbPath]: { equals: f(value), mode: 'insensitive' } }
         },
         [`${this.path}_not_i`]: value => {

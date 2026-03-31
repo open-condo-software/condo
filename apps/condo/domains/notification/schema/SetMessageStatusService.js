@@ -68,7 +68,7 @@ const SetMessageStatusService = new GQLCustomSchema('SetMessageStatusService', {
                     const attrs = {
                         dv,
                         sender,
-                        [nextStatusType]: 'now()',
+                        [nextStatusType]: new Date().toISOString(),
                         status: MESSAGE_STATUSES[nextStatusType],
                     }
 
