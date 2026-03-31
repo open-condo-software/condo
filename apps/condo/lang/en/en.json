@@ -3217,6 +3217,7 @@
   "subscription.featureProgress.tooltip": "Features in use",
   "subscription.featureProgress.description": "You are using {percentage}% of platform features",
   "subscription.featureProgress.tryButton": "Try 100% for {formattedPrice}",
+  "subscription.featureProgress.tryButton.afterTrial": "Try 100%",
   "subscription.featureProgress.modal.title": "100% of platform features with «{planName}» plan",
   "subscription.planCard.freeForPartner": "Free for bank clients",
   "subscription.planCard.willBeCharged": "will be charged on {date}",
