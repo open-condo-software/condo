@@ -20,10 +20,12 @@ import type {
     CondoBridgeResultResponseEvent,
 } from '@open-condo/bridge'
 
+
 import { isSafeUrl } from '../../urls'
 import { generateUUIDv4 } from '../../uuid'
 import { zodSchemaToValidator, sendResponseMessage } from '../utils'
 
+import type { SourceMetadata } from '../types'
 import type { AddHandlerType } from '../types'
 
 type SimpleRouter = {
@@ -32,7 +34,11 @@ type SimpleRouter = {
 
 export type NotificationsApi = (params: ShowNotificationParams) => void
 
-export type ModalsApi = (params: ShowModalWindowParams & { onCancel?: () => void }) => {
+type ExtraShowModalParams = {
+    onCancel?: () => void
+    metadata?: SourceMetadata
+}
+export type ModalsApi = (params: ShowModalWindowParams & ExtraShowModalParams) => {
     update(params: UpdateModalWindowParams['data']): void
     destroy(): void
 }
@@ -173,6 +179,7 @@ export function registerBridgeEvents ({
                 ...params,
                 url: originalSrc.toString(),
                 onCancel,
+                metadata: source.type === 'frame' ? source.metadata : undefined,
             }))
 
             return { modalId }

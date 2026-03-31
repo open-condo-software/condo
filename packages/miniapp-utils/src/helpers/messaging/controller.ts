@@ -15,6 +15,7 @@ import type {
     EventType,
     FrameId,
     RegisteredFrame,
+    SourceMetadata,
     MessageSource,
     FrameType,
     Handler,
@@ -137,7 +138,7 @@ export class PostMessageController extends EventTarget {
 
     // ---- SOURCE REGISTRATION METHODS ----
 
-    addFrame (frame: FrameType): FrameId {
+    addFrame (frame: FrameType, metadata?: SourceMetadata): FrameId {
         const registeredFrame = Object.entries(this.#registeredFrames)
             .find(([, existingFrame]) => existingFrame.ref === frame)
         if (registeredFrame) {
@@ -145,7 +146,7 @@ export class PostMessageController extends EventTarget {
         }
 
         const frameId = generateUUIDv4()
-        this.#registeredFrames[frameId] = { ref: frame }
+        this.#registeredFrames[frameId] = { ref: frame, metadata }
         return frameId
     }
 
