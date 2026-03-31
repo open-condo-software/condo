@@ -22,7 +22,7 @@ import type {
 
 import { isSafeUrl } from '../../urls'
 import { generateUUIDv4 } from '../../uuid'
-import { zodSchemaToValidator } from '../utils'
+import { zodSchemaToValidator, sendResponseMessage } from '../utils'
 
 import type { AddHandlerType } from '../types'
 
@@ -52,10 +52,13 @@ export function registerBridgeEvents ({
 }: RegisterBridgeEventsOptions) {
     addHandler<ResizeWindowParams, ResizeWindowData>('condo-bridge', 'CondoWebAppResizeWindow', '*', zodSchemaToValidator(z.strictObject({
         height: z.number(),
-    })), (params: ResizeWindowParams, _, frame) => {
-        if (frame) {
-            frame.height = `${params.height}px`
+    })), ({ params, source }) => {
+        if (source.type !== 'frame') {
+            throw new Error('Forbidden source type. Resize window is only available for registered iframes')
         }
+
+        source.ref.height = `${params.height}px`
+
         return { height: params.height }
     })
     addHandler<GetFragmentParams, GetFragmentData>('condo-bridge', 'CondoWebAppGetFragment', '*', zodSchemaToValidator(z.strictObject({})), () => {
@@ -69,7 +72,9 @@ export function registerBridgeEvents ({
     addHandler<RedirectParams, RedirectData>('condo-bridge', 'CondoWebAppRedirect', '*', zodSchemaToValidator(z.strictObject({
         url: z.url(),
         target: z.union([z.literal('_blank'), z.literal('_self')]),
-    })), async ({ url, target }: RedirectParams) => {
+    })), async ({
+        params: { url, target },
+    }) => {
         if (!isSafeUrl(url)) {
             throw new Error('Forbidden url. Your url is probably injected')
         }
@@ -93,7 +98,9 @@ export function registerBridgeEvents ({
 
     addHandler<RequestAuthParams, RequestAuthData>('condo-bridge', 'CondoWebAppRequestAuth', '*', zodSchemaToValidator(z.strictObject({
         url: z.url(),
-    })), async ({ url }) => {
+    })), async ({
+        params: { url },
+    }) => {
         if (!isSafeUrl(url)) {
             throw new Error('Forbidden url. Your url is probably injected')
         }
@@ -107,9 +114,9 @@ export function registerBridgeEvents ({
     if (notificationsApi) {
         addHandler<ShowNotificationParams, ShowNotificationData>('condo-bridge', 'CondoWebAppShowNotification', '*', zodSchemaToValidator(z.strictObject({
             message: z.string(),
-            description: z.string(),
+            description: z.string().optional(),
             type: z.enum(['success', 'error', 'warning', 'info']),
-        })), (params: ShowNotificationParams) => {
+        })), ({ params }) => {
             notificationsApi(params)
             return { success: true }
         })
@@ -120,7 +127,15 @@ export function registerBridgeEvents ({
             title: z.string(),
             url: z.url(),
             size: z.enum(['big', 'small']).optional(),
-        })), (params, storage, frame) => {
+        })), ({
+            source,
+            params,
+            storage,
+        }) => {
+            if (source.type === 'worker') {
+                throw new Error('Forbidden source type. Modals cannot be opened from service workers')
+            }
+
             const modalId = generateUUIDv4()
             if (!isSafeUrl(params.url)) {
                 throw new Error('Forbidden url. Your url is probably injected')
@@ -128,7 +143,10 @@ export function registerBridgeEvents ({
             const originalSrc = new URL(params.url)
             originalSrc.searchParams.set('modalId', modalId)
 
-            if (frame && originalSrc.origin !== new URL(frame.src).origin) {
+            const sourceOrigin = new URL(source.type === 'frame' ? source.ref.src : window.location.href).origin
+            const sourceTarget = source.type === 'frame' ? source.ref.contentWindow : source.ref
+
+            if (sourceOrigin && originalSrc.origin !== sourceOrigin) {
                 throw new Error('Forbidden url. Url must have same origin as sender')
             }
 
@@ -141,14 +159,17 @@ export function registerBridgeEvents ({
             }
 
             const onCancel = () => {
-                storage.delete(`modals:${modalId}`)
-                if (frame) {
-                    const frameOrigin = new URL(frame.src).origin
-                    frame.contentWindow?.postMessage(closeEventData, frameOrigin)
+                storage.events.delete(`modals:${modalId}`)
+                if (sourceTarget) {
+                    sendResponseMessage({
+                        data: closeEventData,
+                        target: sourceTarget,
+                        origin: sourceOrigin,
+                    })
                 }
             }
 
-            storage.set(`modals:${modalId}`, modalsApi({
+            storage.events.set(`modals:${modalId}`, modalsApi({
                 ...params,
                 url: originalSrc.toString(),
                 onCancel,
@@ -163,8 +184,8 @@ export function registerBridgeEvents ({
                 title: z.string().optional(),
                 size: z.enum(['big', 'small']).optional(),
             }),
-        })), (params, storage) => {
-            const modalActions = storage.get(`modals:${params.modalId}`) as ReturnType<ModalsApi>
+        })), ({ params, storage }) => {
+            const modalActions = storage.events.get(`modals:${params.modalId}`) as ReturnType<ModalsApi>
             if (!modalActions) {
                 return { updated: false }
             }
@@ -175,14 +196,14 @@ export function registerBridgeEvents ({
         })
         addHandler<CloseModalWindowParams, CloseModalWindowData>('condo-bridge', 'CondoWebAppCloseModalWindow', '*', zodSchemaToValidator(z.strictObject({
             modalId: z.string(),
-        })), (params, storage) => {
-            const modalActions = storage.get(`modals:${params.modalId}`) as ReturnType<ModalsApi>
+        })), ({ params, storage }) => {
+            const modalActions = storage.events.get(`modals:${params.modalId}`) as ReturnType<ModalsApi>
             if (!modalActions) {
                 return { modalId: params.modalId, success: false }
             }
 
             modalActions.destroy()
-            storage.delete(`modals:${params.modalId}`)
+            storage.events.delete(`modals:${params.modalId}`)
 
             return { modalId: params.modalId, success: true }
         })
