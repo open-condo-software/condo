@@ -10,7 +10,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { AVAILABLE_FEATURES, AvailableFeatureType } from '@condo/domains/subscription/constants/features'
-import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
 import { SubscriptionFeatureModal } from './SubscriptionFeatureModal'
 import styles from './SubscriptionFeatureProgress.module.css'
@@ -32,6 +32,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     const { organization } = useOrganization()
     const { isFeatureAvailable, isB2BAppEnabled } = useOrganizationSubscription()
     const { isCollapsed } = useLayoutContext()
+    const { trialSubscriptions } = useTrialSubscriptions()
     const [animatedPercentage, setAnimatedPercentage] = useState(0)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const isMountedRef = useRef(false)
@@ -81,8 +82,12 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         }).format(0)
     }, [bestPlan, intl.locale])
 
+    const hasActivatedAnyTrial = trialSubscriptions.length > 0
+
     const DescriptionText = intl.formatMessage({ id: 'subscription.featureProgress.description' }, { percentage: animatedPercentage })
-    const TryButtonText = intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { formattedPrice: formattedCurrency })
+    const TryButtonText = hasActivatedAnyTrial
+        ? intl.formatMessage({ id: 'subscription.featureProgress.tryButton.afterTrial' })
+        : intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { formattedPrice: formattedCurrency })
 
     const featurePercentage = useMemo(() => {
         if (!organization || !bestPlan) return 0
