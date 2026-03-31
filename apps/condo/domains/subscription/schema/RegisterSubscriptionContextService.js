@@ -4,7 +4,6 @@
 
 const dayjs = require('dayjs')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
@@ -15,6 +14,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const ERRORS = {
@@ -211,7 +211,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     return { subscriptionContext, directPaymentUrl, multiPayment }
                 }
 
-                const recipientOrganizationId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
+                const { recipientOrgId: recipientOrganizationId } = await getSubscriptionPaymentRecipient()
                 if (!recipientOrganizationId) {
                     throw new GQLError({
                         code: BAD_USER_INPUT,

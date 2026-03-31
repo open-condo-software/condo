@@ -183,66 +183,6 @@ async function updateSubscriptionContextPaymentMethodByTestClient(client, extraA
     return [data.result, attrs]
 }
 
-async function ensureSubscriptionPaymentRecipientForTests (client) {
-    if (!client) throw new Error('no client')
-
-    let recipientOrgId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-    let org
-    
-    if (recipientOrgId) {
-        try {
-            org = await Organization.getOne(client, { id: recipientOrgId, deletedAt: null })
-        } catch (e) {
-            org = null
-        }
-    }
-
-    if (!org) {
-        const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const [newOrg] = await registerNewOrganization(client, {
-            dv: 1,
-            sender,
-            country: 'ru',
-            type: MANAGING_COMPANY_TYPE,
-            tin: '0000000000',
-            meta: { dv: 1 },
-        })
-        org = newOrg
-        process.env.SUBSCRIPTION_PAYMENT_RECIPIENT = org.id
-        recipientOrgId = org.id
-    }
-
-    const existingBillingIntegrations = await BillingIntegration.getAll(client, {
-        group: DEFAULT_BILLING_INTEGRATION_GROUP,
-        deletedAt: null,
-    })
-    if (existingBillingIntegrations.length === 0) {
-        await createTestBillingIntegration(client)
-    }
-
-    const existingContexts = await AcquiringIntegrationContext.getAll(client, {
-        organization: { id: org.id },
-        deletedAt: null,
-    })
-
-    let acquiringIntegration
-    if (existingContexts.length > 0) {
-        const ctx = existingContexts[0]
-        const integrationId = ctx.integration?.id || ctx.integration
-        acquiringIntegration = await AcquiringIntegration.getOne(client, { id: integrationId })
-    } else {
-        const [integration] = await createTestAcquiringIntegration(client, { hostUrl: 'http://localhost:3000' })
-        acquiringIntegration = integration
-        await createTestAcquiringIntegrationContext(client, org, acquiringIntegration, {
-            invoiceStatus: CONTEXT_FINISHED_STATUS,
-            invoiceRecipient: createTestRecipient(),
-            invoiceImplicitFeeDistributionSchema: [],
-        })
-    }
-
-    return { recipientOrgId, acquiringIntegration }
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -253,6 +193,5 @@ module.exports = {
     activateSubscriptionContextByTestClient,
     getAvailableSubscriptionPlansByTestClient,
     updateSubscriptionContextPaymentMethodByTestClient,
-    ensureSubscriptionPaymentRecipientForTests,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
