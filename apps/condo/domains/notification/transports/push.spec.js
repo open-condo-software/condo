@@ -16,8 +16,8 @@ jest.mock('@open-condo/config', () => {
                 group_3: ['appId_6'],
             },
             transportPriorityByAppId: {
-                'test-app-transport-only-apple': ['apple'],
-                'test-app-transport-only-huawei': ['huawei'],
+                'test-app-transport-only-apple': { 'isVoIP': ['apple'], 'isPush': ['apple'] },
+                'test-app-transport-only-huawei': { 'isVoIP': ['huawei'], 'isPush': ['huawei'] },
             },
         }),
     }
@@ -51,6 +51,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
@@ -75,7 +76,7 @@ const {
     REMOTE_CLIENT_GROUP_UNGROUPED,
 } = require('@condo/domains/notification/constants/constants')
 const { prepareMessageData } = require('@condo/domains/notification/tasks/sendMessageBatch.helpers')
-const { Message, sendMessageByTestClient, syncRemoteClientByTestClient, RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/testSchema')
+const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -160,22 +161,10 @@ describe('push transport', () => {
 
             jest.doMock('@open-condo/keystone/schema', () => {
                 return {
-                    find: async (schemaName, where) => {
-                        const res = await {
-                            RemoteClient, RemoteClientPushToken,
-                        }[schemaName]?.getAll(admin, where)
-                        res.forEach(resRow => Object.keys(resRow)
-                            .filter(k => resRow[k]?.id)
-                            .forEach((k) => resRow[k] = resRow[k].id)
-                        )
-                        return res
-                    },
+                    find: async (schemaName, where) => getSchemaCtx(schemaName).list.adapter.find(where),
                 }
             })
 
-            // jest.doMock('@condo/domains/notification/templates', () => ({
-            //     renderTemplate: jest.fn(async () => ({ title: 't', body: 'b' })),
-            // }))
         })
 
         test('sends push only to one token when RemoteClient has multiple isPush tokens (restricted by transportPriorityByAppId)', async () => {

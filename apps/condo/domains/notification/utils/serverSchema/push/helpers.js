@@ -17,10 +17,9 @@ const DEFAULT_TRANSPORT_PRIORITY = [PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPL
  * Prepares conditions
  * @param ownerId
  * @param remoteClientId
- * @param isVoIP
  * @returns {{deletedAt: null, pushToken_not?: null, pushTransport_in?: [string, string, string]}|{deletedAt: null, pushTokenVoIP_not?: null, pushTransportVoIP_in?: [string, string, string]}}
  */
-function getTokensConditions (ownerId, remoteClientId, isVoIP) {
+function getTokensConditions (ownerId, remoteClientId) {
     const conditions = {
         deletedAt: null,
     }
@@ -45,7 +44,7 @@ function isRecipientValid (recipient) {
 async function getTokens (ownerId, remoteClientId, isVoIP = false, transportPriorityByAppId = {}) {
     if (!ownerId && !remoteClientId) return []
 
-    const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
+    const conditions = getTokensConditions(ownerId, remoteClientId)
     const remoteClients =  await find('RemoteClient', conditions)
     const remoteClientById = Object.fromEntries(remoteClients.map(rc => ([rc.id, rc])))
 
@@ -76,7 +75,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false, transportPrio
         .reduce((byTransportAndToken, recipient) => {
             byTransportAndToken[`${recipient.transport}:${recipient.token}`] = recipient
             return byTransportAndToken
-        })
+        }, {})
 
     const recipients = Object.values(recipientsByTransportAndToken)
 

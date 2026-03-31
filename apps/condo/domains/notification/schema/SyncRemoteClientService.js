@@ -155,9 +155,9 @@ function buildDesiredStateFromInput (pushTokensInput, remoteClientId) {
 function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
     const jobs = { create: [], update: [] }
 
-    for (const desired of desiredByKey.values()) {
+    for (const desired of Object.values(desiredByKey)) {
         const key = getPushTokenKey(desired.provider, desired.token)
-        const existing = existingByKey.get(key)
+        const existing = existingByKey[key]
 
         if (!existing) {
             jobs.create.push({
@@ -252,35 +252,10 @@ function buildConflictResolutionJobs ({ desiredByProvider, existingByProviderFor
                     }
                 }
             }
+            return demotionsByIdForProvider
         }, {})
 
         Object.assign(demotionsById, demotionsByIdForProvider)
-
-
-        // for (const existingToken of existingOfProvider) {
-        //     const shouldDisablePush = winners.pushToken && existingToken.isPush && existingToken.token !== winners.pushToken
-        //     const shouldDisableVoIP = winners.voIPToken && existingToken.isVoIP && existingToken.token !== winners.voIPToken
-        //     if (!shouldDisablePush && !shouldDisableVoIP) continue
-        //
-        //     const opToResolvePushTokenInCurrentStep = getOldTokenResolutionOp(existingToken, { shouldDisablePush, shouldDisableVoIP })
-        //
-        //     const prevOp = demotionsById[existingToken.id]
-        //     if (!prevOp) {
-        //         demotionsById[existingToken.id] = opToResolvePushTokenInCurrentStep
-        //     } else if (prevOp.action !== 'delete') {
-        //         if (opToResolvePushTokenInCurrentStep.action === 'delete') {
-        //             demotionsById[existingToken.id] = opToResolvePushTokenInCurrentStep
-        //         } else {
-        //             demotionsById[existingToken.id] = {
-        //                 action: 'update',
-        //                 data: {
-        //                     ...prevOp.data,
-        //                     ...opToResolvePushTokenInCurrentStep.data,
-        //                 },
-        //             }
-        //         }
-        //     }
-        // }
     }
     
     const jobs = { update: [], delete: [] }
@@ -320,7 +295,6 @@ async function syncPushTokens (context, { remoteClient, pushTokensInput, dv, sen
 
     const mergedUpdateJobs = mergeUpdateJobsById([
         ...conflictsJobs.delete,
-        ...jobs.delete,
         ...conflictsJobs.update,
         ...jobs.update,
     ])
