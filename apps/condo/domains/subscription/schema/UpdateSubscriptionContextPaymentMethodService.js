@@ -4,16 +4,15 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/subscription/access/UpdateSubscriptionContextPaymentMethodService')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 
 const logger = getLogger('UpdateSubscriptionContextPaymentMethodService')
 
@@ -88,26 +87,18 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                     })
 
                     if (otherActiveContexts.length === 0) {
-                        const recipientOrganizationId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
+                        const { recipientOrgId: recipientOrganizationId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
 
                         if (!recipientOrganizationId) {
                             throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
                         }
 
-                        const acquiringIntegrationContexts = await find('AcquiringIntegrationContext', {
-                            organization: { id: recipientOrganizationId },
-                            deletedAt: null,
-                        })
-
-                        if (acquiringIntegrationContexts.length === 0) {
+                        if (!acquiringIntegration) {
                             throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
                         }
 
-                        const acquiringIntegrationContext = acquiringIntegrationContexts[0]
-                        const acquiringIntegration = await getById('AcquiringIntegration', acquiringIntegrationContext.integration)
-
-                        if (!acquiringIntegration || !acquiringIntegration.hostUrl) {
-                            logger.warn({ msg: 'AcquiringIntegration not found or missing hostUrl, skipping card token deletion', cardTokenId: currentBindingId })
+                        if (!acquiringIntegration.hostUrl) {
+                            logger.warn({ msg: 'AcquiringIntegration missing hostUrl, skipping card token deletion', cardTokenId: currentBindingId })
                             return { id: subscriptionContextId }
                         }
 

@@ -98,7 +98,6 @@ const {
     createTestSubscriptionContext,
     registerSubscriptionContextByTestClient,
     SubscriptionContext,
-    ensureSubscriptionPaymentRecipientForTests,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
@@ -130,7 +129,6 @@ describe('Invoice', () => {
             invoiceStatus: CONTEXT_FINISHED_STATUS,
             invoiceRecipient: createTestRecipient(),
         })
-        await ensureSubscriptionPaymentRecipientForTests(adminClient)
     })
 
     describe('CRUD tests', () => {

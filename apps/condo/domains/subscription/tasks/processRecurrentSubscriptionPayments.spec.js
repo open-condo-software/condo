@@ -14,7 +14,6 @@ const {
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
     SubscriptionContext,
-    ensureSubscriptionPaymentRecipientForTests,
 } = require('@condo/domains/subscription/utils/testSchema')
 
 
@@ -28,8 +27,6 @@ describe('processRecurrentSubscriptionPayments', () => {
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
-
-        await ensureSubscriptionPaymentRecipientForTests(adminClient)
 
         const [plan] = await createTestSubscriptionPlan(adminClient)
         subscriptionPlan = plan

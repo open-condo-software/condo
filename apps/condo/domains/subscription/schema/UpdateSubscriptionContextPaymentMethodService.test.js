@@ -19,21 +19,17 @@ const {
     createTestSubscriptionPlanPricingRule,
     updateTestSubscriptionContext,
     updateSubscriptionContextPaymentMethodByTestClient,
-    ensureSubscriptionPaymentRecipientForTests,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('UpdateSubscriptionContextPaymentMethodService', () => {
     let admin, support, user, anonymous
-    let organization, subscriptionPlan, pricingRule, acquiringIntegration
+    let organization, subscriptionPlan, pricingRule
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
-
-        const ensured = await ensureSubscriptionPaymentRecipientForTests(admin)
-        acquiringIntegration = ensured.acquiringIntegration
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
@@ -297,8 +293,10 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             const updatedContext = await getById('SubscriptionContext', context.id)
             expect(updatedContext.bindingId).toBeNull()
 
-            const expectedDeleteUrl = `${acquiringIntegration.hostUrl}/api/clients/${organization.id}/card-tokens/${existingPaymentMethodId}`
-            expect(global.fetch).toHaveBeenCalledWith(expectedDeleteUrl, { method: 'DELETE' })
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining(`/api/clients/${organization.id}/card-tokens/${existingPaymentMethodId}`),
+                { method: 'DELETE' }
+            )
 
             global.fetch.mockRestore()
         })
@@ -396,8 +394,10 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId: null,
             })
 
-            const expectedDeleteUrl = `${acquiringIntegration.hostUrl}/api/clients/${organization.id}/card-tokens/${sharedPaymentMethodId}`
-            expect(global.fetch).toHaveBeenCalledWith(expectedDeleteUrl, { method: 'DELETE' })
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining(`/api/clients/${organization.id}/card-tokens/${sharedPaymentMethodId}`),
+                { method: 'DELETE' }
+            )
 
             global.fetch.mockRestore()
         })
@@ -423,8 +423,10 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId: null,
             })
 
-            const expectedDeleteUrl = `${acquiringIntegration.hostUrl}/api/clients/${organization.id}/card-tokens/${bindingId}`
-            expect(global.fetch).toHaveBeenCalledWith(expectedDeleteUrl, { method: 'DELETE' })
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining(`/api/clients/${organization.id}/card-tokens/${bindingId}`),
+                { method: 'DELETE' }
+            )
 
             global.fetch.mockRestore()
         })

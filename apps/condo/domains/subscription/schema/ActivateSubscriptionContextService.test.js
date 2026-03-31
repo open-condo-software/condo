@@ -24,7 +24,6 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
-    ensureSubscriptionPaymentRecipientForTests,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -38,8 +37,6 @@ describe('ActivateSubscriptionContextService', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
-
-        await ensureSubscriptionPaymentRecipientForTests(admin)
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
