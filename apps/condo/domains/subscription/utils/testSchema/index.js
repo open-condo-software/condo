@@ -187,7 +187,15 @@ async function ensureSubscriptionPaymentRecipientForTests (client) {
     if (!client) throw new Error('no client')
 
     let recipientOrgId = process.env.SUBSCRIPTION_PAYMENT_RECIPIENT
-    let org = recipientOrgId ? await Organization.getOne(client, { id: recipientOrgId, deletedAt: null }) : null
+    let org
+    
+    if (recipientOrgId) {
+        try {
+            org = await Organization.getOne(client, { id: recipientOrgId, deletedAt: null })
+        } catch (e) {
+            org = null
+        }
+    }
 
     if (!org) {
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
