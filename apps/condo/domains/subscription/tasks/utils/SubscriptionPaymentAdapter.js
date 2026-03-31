@@ -71,19 +71,15 @@ class SubscriptionPaymentAdapter {
             const deleteUrl = `${hostUrl}/api/clients/${organizationId}/card-tokens/${cardTokenId}`
             const secret = conf['B2B_PAYMENT_GATEWAY_SECRET']
 
-            if (!secret) {
-                logger.error({ msg: 'B2B_PAYMENT_GATEWAY_SECRET is not configured' })
-                throw new Error('B2B_PAYMENT_GATEWAY_SECRET is not configured')
-            }
-
-            const credentials = Buffer.from(`condo:${secret}`).toString('base64')
-            
-            const response = await fetch(deleteUrl, {
-                method: 'DELETE',
-                headers: {
+            const options = { method: 'DELETE' }
+            if (secret) {
+                const credentials = Buffer.from(secret).toString('base64')
+                options.headers = {
                     'Authorization': `Basic ${credentials}`,
-                },
-            })
+                }
+            }
+            
+            const response = await fetch(deleteUrl, options)
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}))
