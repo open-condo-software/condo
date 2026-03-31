@@ -142,6 +142,7 @@ export class PostMessageController extends EventTarget {
         const registeredFrame = Object.entries(this.#registeredFrames)
             .find(([, existingFrame]) => existingFrame.ref === frame)
         if (registeredFrame) {
+            this.#registeredFrames[registeredFrame[0]].metadata = metadata
             return registeredFrame[0]
         }
 
