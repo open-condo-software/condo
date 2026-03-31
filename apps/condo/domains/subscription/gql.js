@@ -14,13 +14,13 @@ const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLA
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = '{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden id dv sender { dv fingerprint } v }'
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId } daysRemaining deletedAt id dv sender { dv fingerprint } v }'
+const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId multiPaymentId } daysRemaining deletedAt id dv sender { dv fingerprint } v }'
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`
     mutation activateSubscriptionContext ($data: ActivateSubscriptionContextInput!) {
         result: activateSubscriptionContext(data: $data) { 
-            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId } }
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId multiPaymentId } }
         }
     }
 `
