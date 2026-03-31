@@ -1332,10 +1332,15 @@ const actualDatabaseEntityName = (name) => {
  * @returns {string}
  */
 const _getConstraintErrorMessage = (error) => {
+    let msg = ''
     if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-        return error.extensions.message || ''
+        msg = error.extensions.message || ''
+    } else {
+        msg = error.message || ''
     }
-    return error.message || ''
+    // NOTE: Prisma wraps PG errors in ConnectorError which escapes quotes (\")
+    // Normalize so constraint name checks work for both Knex and Prisma formats
+    return msg.replace(/\\"/g, '"')
 }
 
 /**
@@ -1388,17 +1393,10 @@ const expectToThrowCheckConstraintViolationError = async (testFunc, constraintNa
         // TODO(pahaz): DOMA-10368 we need to use strict checks!
         // expect(errors).toHaveLength(1)
         const error = errors[0]
+        const msg = _getConstraintErrorMessage(error)
         const dbEntityName = actualDatabaseEntityName(constraintName)
         const pgPattern = `violates check constraint "${dbEntityName}"`
-        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            // PostgreSQL / Knex format OR Prisma P2004 (includes PG message in database_error)
-            const msg = error.extensions.message || ''
-            expect(msg.includes(pgPattern) || msg.includes('A constraint failed on the database')).toBe(true)
-        } else {
-            // PostgreSQL / Knex format OR Prisma P2004
-            const msg = error.message || ''
-            expect(msg.includes(pgPattern) || msg.includes('A constraint failed on the database')).toBe(true)
-        }
+        expect(msg.includes(pgPattern) || msg.includes('A constraint failed on the database')).toBe(true)
     })
 }
 

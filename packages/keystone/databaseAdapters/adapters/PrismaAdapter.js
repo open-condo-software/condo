@@ -257,17 +257,57 @@ if (!PrismaListAdapter.prototype._coerceId) {
 
 const _identity = x => x
 
+const _PrismaDecimalInterface = require('@open-keystone/fields').Decimal.adapters.prisma
+
+const _origDecimalSetupHooks = _PrismaDecimalInterface.prototype.setupHooks
+_PrismaDecimalInterface.prototype.setupHooks = function (hooks) {
+    const knexOpts = this.config.knexOptions || {}
+    if (this.config.precision === undefined && knexOpts.precision !== undefined) {
+        this.precision = knexOpts.precision === null ? null : parseInt(knexOpts.precision) || 18
+    }
+    if (this.config.scale === undefined && knexOpts.scale !== undefined) {
+        this.scale = knexOpts.scale === null ? null : parseInt(knexOpts.scale) || 4
+    }
+    return _origDecimalSetupHooks.call(this, hooks)
+}
+
+const _origDecimalGetPrismaSchema = _PrismaDecimalInterface.prototype.getPrismaSchema
+_PrismaDecimalInterface.prototype.getPrismaSchema = function () {
+    const knexOpts = this.config.knexOptions || {}
+    if (this.config.precision === undefined && knexOpts.precision !== undefined) {
+        this.precision = knexOpts.precision === null ? null : parseInt(knexOpts.precision) || 18
+    }
+    if (this.config.scale === undefined && knexOpts.scale !== undefined) {
+        this.scale = knexOpts.scale === null ? null : parseInt(knexOpts.scale) || 4
+    }
+    return _origDecimalGetPrismaSchema.call(this)
+}
+
+const _isNonNullableField = (adapter) => !!(adapter.field && (adapter.field.isPrimaryKey || adapter.field.isRequired))
+
 PrismaFieldAdapter.prototype.equalityConditions = function (dbPath, f = _identity) {
     return {
-        [this.path]: value => ({ [dbPath]: { equals: f(value) } }),
-        [`${this.path}_not`]: value => ({ NOT: { [dbPath]: { equals: f(value) } } }),
+        [this.path]: value => {
+            if (value == null) return _isNonNullableField(this) ? { OR: [] } : { [dbPath]: null }
+            return { [dbPath]: { equals: f(value) } }
+        },
+        [`${this.path}_not`]: value => {
+            if (value == null) return _isNonNullableField(this) ? {} : { NOT: { [dbPath]: null } }
+            return { NOT: { [dbPath]: { equals: f(value) } } }
+        },
     }
 }
 
 PrismaFieldAdapter.prototype.equalityConditionsInsensitive = function (dbPath, f = _identity) {
     return {
-        [`${this.path}_i`]: value => ({ [dbPath]: { equals: f(value), mode: 'insensitive' } }),
-        [`${this.path}_not_i`]: value => ({ NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } }),
+        [`${this.path}_i`]: value => {
+            if (value == null) return _isNonNullableField(this) ? { OR: [] } : { [dbPath]: null }
+            return { [dbPath]: { equals: f(value), mode: 'insensitive' } }
+        },
+        [`${this.path}_not_i`]: value => {
+            if (value == null) return _isNonNullableField(this) ? {} : { NOT: { [dbPath]: null } }
+            return { NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } }
+        },
     }
 }
 
