@@ -27,10 +27,10 @@
   }
 
   .modal :global(.condo-promo-block) {
-    height: 230px;
+    height: 300px;
   }
 
   .modal :global(.condo-typography-ellipsis-multiple-line) {
-    -webkit-line-clamp: 4 !important;
+    -webkit-line-clamp: 5 !important;
   }
 }
