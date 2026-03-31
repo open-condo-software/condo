@@ -1,10 +1,11 @@
 const { find } = require('@open-condo/keystone/schema')
-const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
 
 const {
-    PUSH_TRANSPORT_TYPES,
-    REMOTE_CLIENT_GROUP_UNGROUPED,
+    REMOTE_CLIENT_GROUP_UNGROUPED, PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_REDSTORE,
+    PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_WEBHOOK,
 } = require('@condo/domains/notification/constants/constants')
+
+const DEFAULT_TRANSPORT_PRIORITY = [PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_WEBHOOK]
 
 
 /**
@@ -54,55 +55,59 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false, transportPrio
         ...isVoIP ? { isVoIP: true } : { isPush: true },
     })
 
-    const byTransportAndToken = {}
-
-    remoteClientPushTokens
-        .map(pushToken => ({
-            appId: remoteClientById[pushToken.remoteClient].appId,
-            token: pushToken.token,
-            transport: pushToken.provider,
-            pushType: remoteClientById[pushToken.remoteClient][isVoIP ? 'pushTypeVoIP' : 'pushType'],
-            remoteClientMeta: remoteClientById[pushToken.remoteClient].meta,
-            remoteClientId: pushToken.remoteClient,
-        }))
-        .filter(recipient => isRecipientValid(recipient, isVoIP))
-        .forEach(recipient => {
+    const recipientsByTransportAndToken = remoteClients
+        .map(remoteClient => ({
+            appId: remoteClient.appId,
+            token: isVoIP ? remoteClient.pushTokenVoIP : remoteClient.pushToken,
+            transport: isVoIP ? remoteClient.pushTransportVoIP : remoteClient.pushTransport,
+            pushType: isVoIP ? remoteClient.pushTypeVoIP : remoteClient.pushType,
+            remoteClientMeta: remoteClient.meta,
+            remoteClientId: remoteClient.id,
+        })).concat(
+            remoteClientPushTokens.map(pushToken => ({
+                appId: remoteClientById[pushToken.remoteClient].appId,
+                token: pushToken.token,
+                transport: pushToken.provider,
+                pushType: remoteClientById[pushToken.remoteClient][isVoIP ? 'pushTypeVoIP' : 'pushType'],
+                remoteClientMeta: remoteClientById[pushToken.remoteClient].meta,
+                remoteClientId: pushToken.remoteClient,
+            }))
+        ).filter(recipient => isRecipientValid(recipient))
+        .reduce((byTransportAndToken, recipient) => {
             byTransportAndToken[`${recipient.transport}:${recipient.token}`] = recipient
+            return byTransportAndToken
         })
 
-    remoteClients.map(remoteClient => ({
-        appId: remoteClient.appId,
-        token: isVoIP ? remoteClient.pushTokenVoIP : remoteClient.pushToken,
-        transport: isVoIP ? remoteClient.pushTransportVoIP : remoteClient.pushTransport,
-        pushType: isVoIP ? remoteClient.pushTypeVoIP : remoteClient.pushType,
-        remoteClientMeta: remoteClient.meta,
-        remoteClientId: remoteClient.id,
-    }))
-        .filter(recipient => isRecipientValid(recipient, isVoIP))
-        .forEach(recipient => {
-            (byTransportAndToken[`${recipient.transport}:${recipient.token}`] ??= recipient)
-        })
+    const recipients = Object.values(recipientsByTransportAndToken)
 
-    const allPushTokensForRemoteClientForVoIPType = Object.values(byTransportAndToken)
     // NOTE(YEgorLu): we must keep only one push token for each remote client
-
-    const pushTokensByRemoteClientId = allPushTokensForRemoteClientForVoIPType.reduce((byAppId, pushToken) => {
-        (byAppId[pushToken.remoteClientId] ??= []).push(pushToken)
-        return byAppId
+    const recipientsByRemoteClientId = recipients.reduce((byRemoteClientId, recipient) => {
+        if (!byRemoteClientId[recipient.remoteClientId]) byRemoteClientId[recipient.remoteClientId] = []
+        byRemoteClientId[recipient.remoteClientId].push(recipient)
+        return byRemoteClientId
     }, {})
+
     const result = []
-    for (const remoteClientId of Object.keys(pushTokensByRemoteClientId)) {
+    for (const remoteClientId of Object.keys(recipientsByRemoteClientId)) {
         const remoteClient = remoteClientById[remoteClientId]
         const appId = remoteClient.appId
 
-        if (!transportPriorityByAppId[appId]) {
-            result.push(pushTokensByRemoteClientId[remoteClientId][0])
-            continue
+        const priority = transportPriorityByAppId[appId]?.[isVoIP ? 'isVoIP' : 'isPush'] || DEFAULT_TRANSPORT_PRIORITY
+
+        const byTransport = recipientsByRemoteClientId[remoteClientId].reduce((byTransport, recipient) => {
+            byTransport[recipient.transport] = recipient
+            return byTransport
+        }, {})
+
+        let recipientToPick = null
+        for (const transport of priority) {
+            if (byTransport[transport]) {
+                recipientToPick = byTransport[transport]
+                break
+            }
         }
-        const [tokenWithAllowedTransportAndMostPriority] = transportPriorityByAppId[appId]
-            .map(transport => pushTokensByRemoteClientId[remoteClientId].find(pushToken => pushToken.transport === transport))
-            .filter(nonNull)
-        if (tokenWithAllowedTransportAndMostPriority) result.push(tokenWithAllowedTransportAndMostPriority)
+
+        if (recipientToPick) result.push(recipientToPick)
     }
 
     return result

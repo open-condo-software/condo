@@ -81,16 +81,15 @@ function getPushTokenKey (provider, token) {
 }
 
 function buildExistingMaps (existingPushTokens, remoteClientId) {
-    const existingByKey = new Map()
+    const existingByKey = {}
     const existingByProviderForRemoteClient = {}
 
     for (const existingPushToken of existingPushTokens) {
         const key = getPushTokenKey(existingPushToken.provider, existingPushToken.token)
-        existingByKey.set(key, existingPushToken)
+        existingByKey[key] = existingPushToken
 
-        const existingRemoteClientId = existingPushToken?.remoteClient?.id || existingPushToken?.remoteClient
         if (
-            existingRemoteClientId !== remoteClientId
+            existingPushToken.remoteClient !== remoteClientId
             || existingPushToken.deletedAt
         ) continue
 
@@ -128,7 +127,7 @@ function mergeUpdateJobsById (jobs) {
 }
 
 function buildDesiredStateFromInput (pushTokensInput, remoteClientId) {
-    const desiredByKey = new Map()
+    const desiredByKey = {}
     const desiredByProvider = {}
 
     for (const pushToken of pushTokensInput) {
@@ -144,7 +143,7 @@ function buildDesiredStateFromInput (pushTokensInput, remoteClientId) {
             isVoIP,
         }
         const key = getPushTokenKey(desired.provider, desired.token)
-        desiredByKey.set(key, desired)
+        desiredByKey[key] = desired
 
         if (!desiredByProvider[desired.provider]) desiredByProvider[desired.provider] = []
         desiredByProvider[desired.provider].push(desired)
@@ -154,7 +153,7 @@ function buildDesiredStateFromInput (pushTokensInput, remoteClientId) {
 }
 
 function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
-    const jobs = { create: [], update: [], delete: [] }
+    const jobs = { create: [], update: [] }
 
     for (const desired of desiredByKey.values()) {
         const key = getPushTokenKey(desired.provider, desired.token)
@@ -175,8 +174,7 @@ function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
             continue
         }
 
-        const existingRemoteClientId = existing?.remoteClient?.id || existing?.remoteClient
-        const needsRemoteClientUpdate = existingRemoteClientId !== desired.remoteClientId
+        const needsRemoteClientUpdate = existing.remoteClient !== desired.remoteClientId
         const needsIsPushUpdate = existing.isPush !== desired.isPush
         const needsIsVoIPUpdate = existing.isVoIP !== desired.isVoIP
         const needsRestore = !!existing.deletedAt
@@ -197,11 +195,9 @@ function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
 function getDesiredWinnerByProvider (desiredByProvider) {
     return Object.fromEntries(
         Object.entries(desiredByProvider).map(([provider, desiredTokens]) => {
-            const push = desiredTokens.find(d => d.isPush)
-            const voip = desiredTokens.find(d => d.isVoIP)
             return [provider, {
-                isPushToken: push ? push.token : null,
-                isVoIPToken: voip ? voip.token : null,
+                pushToken: desiredTokens.find(d => d.isPush)?.token || null,
+                voIPToken: desiredTokens.find(d => d.isVoIP)?.token || null,
             }]
         })
     )
@@ -226,35 +222,67 @@ function buildConflictResolutionJobs ({ desiredByProvider, existingByProviderFor
 
     for (const [provider, winners] of Object.entries(winnersByProvider)) {
         const existingOfProvider = existingByProviderForRemoteClient[provider] || []
-        const winnerPushToken = winners.isPushToken
-        const winnerVoIPToken = winners.isVoIPToken
 
-        for (const existingToken of existingOfProvider) {
-            const shouldDisablePush = !!winnerPushToken && existingToken.isPush && existingToken.token !== winnerPushToken
-            const shouldDisableVoIP = !!winnerVoIPToken && existingToken.isVoIP && existingToken.token !== winnerVoIPToken
-            if (!shouldDisablePush && !shouldDisableVoIP) continue
+        const tokensDemotions = existingOfProvider.map(existingToken => {
+            const shouldDisablePush = winners.pushToken && existingToken.isPush && existingToken.token !== winners.pushToken
+            const shouldDisableVoIP = winners.voIPToken && existingToken.isVoIP && existingToken.token !== winners.voIPToken
+            if (!shouldDisablePush && !shouldDisableVoIP) return null
+            return { existingToken, shouldDisableVoIP, shouldDisablePush }
+        }).filter(Boolean)
 
-            const opToResolvePushTokenInCurrentStep = getOldTokenResolutionOp(existingToken, { shouldDisablePush, shouldDisableVoIP })
+        const operationsToDemoteTokens = tokensDemotions.map(({ existingToken, shouldDisablePush, shouldDisableVoIP }) => ({
+            existingToken, 
+            op: getOldTokenResolutionOp(existingToken, { shouldDisablePush, shouldDisableVoIP }),
+        }))
 
-            const prevOp = demotionsById[existingToken.id]
+        const demotionsByIdForProvider = operationsToDemoteTokens.reduce((demotionsByIdForProvider, { existingToken, op }) => {
+            const prevOp = demotionsByIdForProvider[existingToken.id]
             if (!prevOp) {
-                demotionsById[existingToken.id] = opToResolvePushTokenInCurrentStep
+                demotionsById[existingToken.id] = op
             } else if (prevOp.action !== 'delete') {
-                if (opToResolvePushTokenInCurrentStep.action === 'delete') {
-                    demotionsById[existingToken.id] = opToResolvePushTokenInCurrentStep
+                if (op.action === 'delete') {
+                    demotionsById[existingToken.id] = op
                 } else {
                     demotionsById[existingToken.id] = {
                         action: 'update',
                         data: {
                             ...prevOp.data,
-                            ...opToResolvePushTokenInCurrentStep.data,
+                            ...op.data,
                         },
                     }
                 }
             }
-        }
-    }
+        }, {})
 
+        Object.assign(demotionsById, demotionsByIdForProvider)
+
+
+        // for (const existingToken of existingOfProvider) {
+        //     const shouldDisablePush = winners.pushToken && existingToken.isPush && existingToken.token !== winners.pushToken
+        //     const shouldDisableVoIP = winners.voIPToken && existingToken.isVoIP && existingToken.token !== winners.voIPToken
+        //     if (!shouldDisablePush && !shouldDisableVoIP) continue
+        //
+        //     const opToResolvePushTokenInCurrentStep = getOldTokenResolutionOp(existingToken, { shouldDisablePush, shouldDisableVoIP })
+        //
+        //     const prevOp = demotionsById[existingToken.id]
+        //     if (!prevOp) {
+        //         demotionsById[existingToken.id] = opToResolvePushTokenInCurrentStep
+        //     } else if (prevOp.action !== 'delete') {
+        //         if (opToResolvePushTokenInCurrentStep.action === 'delete') {
+        //             demotionsById[existingToken.id] = opToResolvePushTokenInCurrentStep
+        //         } else {
+        //             demotionsById[existingToken.id] = {
+        //                 action: 'update',
+        //                 data: {
+        //                     ...prevOp.data,
+        //                     ...opToResolvePushTokenInCurrentStep.data,
+        //                 },
+        //             }
+        //         }
+        //     }
+        // }
+    }
+    
     const jobs = { update: [], delete: [] }
     for (const [id, op] of Object.entries(demotionsById)) {
         if (op.action === 'delete') {
@@ -266,17 +294,16 @@ function buildConflictResolutionJobs ({ desiredByProvider, existingByProviderFor
                     deletedAt: new Date().toISOString(),
                 },
             })
-            continue
+        } else {
+            jobs.update.push({
+                id,
+                data: {
+                    dv,
+                    sender,
+                    ...op.data,
+                },
+            })
         }
-
-        jobs.update.push({
-            id,
-            data: {
-                dv,
-                sender,
-                ...op.data,
-            },
-        })
     }
 
     return jobs
@@ -316,36 +343,32 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
 
     const existing = await getByCondition('RemoteClient', { deviceId, appId })
 
-    let resultingRemoteClient
     if (!existing) {
-        resultingRemoteClient = await RemoteClient.create(context, attrs)
-    } else {
-        const diff = {}
-        for (const [key, value] of Object.entries(attrs)) {
-            if (key === 'sender') continue
+        return await RemoteClient.create(context, attrs)
+    }
+    const diff = {}
+    for (const [key, value] of Object.entries(attrs)) {
+        if (key === 'sender') continue
 
-            if (key === 'owner') {
-                const existingOwnerId =  existing?.owner?.id || existing?.owner
-                const newOwnerId = value?.connect?.id ?? null
+        if (key === 'owner') {
+            const existingOwnerId =  existing?.owner
+            const newOwnerId = value?.connect?.id ?? null
 
-                if (existingOwnerId !== newOwnerId) {
-                    diff.owner = value
-                }
-
-                continue
+            if (existingOwnerId !== newOwnerId) {
+                diff.owner = value
             }
-            if (!isEqual(existing[key], value)) {
-                diff[key] = value
-            }
+
+            continue
         }
-
-        if (Object.keys(diff).length > 0) {
-            resultingRemoteClient = await RemoteClient.update(context, existing.id, attrs)
-        } else {
-            resultingRemoteClient = existing
+        if (!isEqual(existing[key], value)) {
+            diff[key] = value
         }
     }
-    return resultingRemoteClient
+
+    if (Object.keys(diff).length > 0) {
+        return await RemoteClient.update(context, existing.id, attrs)
+    }
+    return existing
 }
 
 
@@ -439,29 +462,12 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 } = args
                 pushTokensRaw ??= []
 
-                // AI says that direct modification can affect logs
-                const pushTokensInput = [...pushTokensRaw]
-
-                // const rc = await RemoteClient.create(context, {
-                //     dv: 1,
-                //     deviceId: generateUUIDv4(),
-                //     appId: generateUUIDv4(),
-                //     sender,
-                // })
-                // const s = await RemoteClientPushToken.create(context, {
-                //     token: '1234567',
-                //     provider: 'apple',
-                //     isPush: true,
-                //     isVoIP: false,
-                //     remoteClient: { connect: { id: rc.id } },
-                //     dv: 1,
-                //     sender,
-                // })
-                // console.error('s', JSON.stringify(s, null, 2))
-                // const found = await find('RemoteClientPushToken', { remoteClient: { id: rc.id } })
-                // console.error('found', JSON.stringify(found, null, 2))
-                // const found2 = await find('RemoteClientPushToken', { token: '1234567' })
-                // console.error('found2', JSON.stringify(found2, null, 2))
+                const pushTokensInput = pushTokensRaw.map(pushTokenRaw => ({
+                    token: pushTokenRaw.token,
+                    provider: pushTokenRaw.transport,
+                    isPush: pushTokenRaw.isPush,
+                    isVoIP: pushTokenRaw.isVoIP,
+                }))
 
                 if (pushToken && pushTransport) {
                     pushTokensInput.push({
@@ -479,13 +485,6 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                         isPush: false,
                     })
                 }
-                
-                // --- VALIDATING ONLY IF PROVIDED FOR TESTS BEFORE MIGRATION
-
-                pushTokensInput.forEach(pushToken => {
-                    pushToken.provider = pushToken.provider || pushToken.transport
-                    delete pushToken.transport
-                })
 
                 const pushTokensValidationError = getPushTokensValidationError(pushTokensInput)
                 if (pushTokensValidationError) {
