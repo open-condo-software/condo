@@ -84,7 +84,7 @@ export class PostMessageController extends EventTarget {
         // NOTE: sort middlewares by execution order
         const middlewares = sortedMiddlewares([...globalMiddlewares, ...scopedMiddlewares])
 
-        return middlewares.reduce<Handler<EventParams, HandlerResult>>(
+        return middlewares.reduceRight<Handler<EventParams, HandlerResult>>(
             (nextHandler, mw) => {
                 return async (args) => {
                     return mw.fn({
@@ -142,6 +142,9 @@ export class PostMessageController extends EventTarget {
     }
 
     removeFrame (frameId: FrameId) {
+        (this.#registeredMiddlewares[frameId] ?? []).forEach(mw => {
+            delete this.#middlewaresIdsMap[mw.id]
+        })
         delete this.#registeredFrames[frameId]
         delete this.#registeredHandlers[frameId]
         delete this.#registeredMiddlewares[frameId]
