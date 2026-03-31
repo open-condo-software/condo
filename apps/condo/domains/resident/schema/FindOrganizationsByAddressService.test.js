@@ -49,6 +49,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
 
@@ -944,6 +945,7 @@ describe('FindOrganizationsByAddress', () => {
             const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
             await utils.init()
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const endAtWithBuffer = dayjs().add(30, 'days').add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
             const [subscriptionPlan] = await createTestSubscriptionPlan(utils.clients.admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
@@ -970,15 +972,15 @@ describe('FindOrganizationsByAddress', () => {
             const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
             expect(found).toBeDefined()
             expect(found.subscription).toBeDefined()
-            expect(found.subscription.paymentsEndAt).toBe(endAt)
-            expect(found.subscription.metersEndAt).toBe(endAt)
-            expect(found.subscription.ticketsEndAt).toBe(endAt)
+            expect(found.subscription.paymentsEndAt).toBe(endAtWithBuffer)
+            expect(found.subscription.metersEndAt).toBe(endAtWithBuffer)
+            expect(found.subscription.ticketsEndAt).toBe(endAtWithBuffer)
             expect(found.subscription.newsEndAt).toBeNull()
-            expect(found.subscription.marketplaceEndAt).toBe(endAt)
+            expect(found.subscription.marketplaceEndAt).toBe(endAtWithBuffer)
             expect(found.subscription.supportEndAt).toBeNull()
-            expect(found.subscription.aiEndAt).toBe(endAt)
+            expect(found.subscription.aiEndAt).toBe(endAtWithBuffer)
             expect(found.subscription.activeSubscriptionContextId).toBeDefined()
-            expect(found.subscription.activeSubscriptionEndAt).toBe(endAt)
+            expect(found.subscription.activeSubscriptionEndAt).toBe(endAtWithBuffer)
         })
 
         test('Should return multiple organizations with their own subscription data', async () => {
@@ -988,7 +990,9 @@ describe('FindOrganizationsByAddress', () => {
             await utils2.init()
 
             const endAt1 = dayjs().add(15, 'days').format('YYYY-MM-DD')
+            const endAt1WithBuffer = dayjs().add(15, 'days').add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
             const endAt2 = dayjs().add(60, 'days').format('YYYY-MM-DD')
+            const endAt2WithBuffer = dayjs().add(60, 'days').add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
 
             const [subscriptionPlan1] = await createTestSubscriptionPlan(utils1.clients.admin, {
                 name: faker.commerce.productName(),
@@ -1042,24 +1046,24 @@ describe('FindOrganizationsByAddress', () => {
             const found1 = foundOrganizations.find(({ id }) => id === utils1.organization.id)
             expect(found1).toBeDefined()
             expect(found1.subscription).toBeDefined()
-            expect(found1.subscription.paymentsEndAt).toBe(endAt1)
+            expect(found1.subscription.paymentsEndAt).toBe(endAt1WithBuffer)
             expect(found1.subscription.metersEndAt).toBeNull()
-            expect(found1.subscription.ticketsEndAt).toBe(endAt1)
-            expect(found1.subscription.newsEndAt).toBe(endAt1)
+            expect(found1.subscription.ticketsEndAt).toBe(endAt1WithBuffer)
+            expect(found1.subscription.newsEndAt).toBe(endAt1WithBuffer)
             expect(found1.subscription.marketplaceEndAt).toBeNull()
-            expect(found1.subscription.supportEndAt).toBe(endAt1)
+            expect(found1.subscription.supportEndAt).toBe(endAt1WithBuffer)
             expect(found1.subscription.aiEndAt).toBeNull()
 
             const found2 = foundOrganizations.find(({ id }) => id === utils2.organization.id)
             expect(found2).toBeDefined()
             expect(found2.subscription).toBeDefined()
             expect(found2.subscription.paymentsEndAt).toBeNull()
-            expect(found2.subscription.metersEndAt).toBe(endAt2)
+            expect(found2.subscription.metersEndAt).toBe(endAt2WithBuffer)
             expect(found2.subscription.ticketsEndAt).toBeNull()
             expect(found2.subscription.newsEndAt).toBeNull()
-            expect(found2.subscription.marketplaceEndAt).toBe(endAt2)
+            expect(found2.subscription.marketplaceEndAt).toBe(endAt2WithBuffer)
             expect(found2.subscription.supportEndAt).toBeNull()
-            expect(found2.subscription.aiEndAt).toBe(endAt2)
+            expect(found2.subscription.aiEndAt).toBe(endAt2WithBuffer)
         })
     })
 })

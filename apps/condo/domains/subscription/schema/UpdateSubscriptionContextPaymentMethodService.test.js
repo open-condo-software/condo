@@ -4,7 +4,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -14,6 +13,7 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const { ERRORS } = require('@condo/domains/subscription/schema/UpdateSubscriptionContextPaymentMethodService')
 const {
+    SubscriptionContext,
     createTestSubscriptionContext,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
@@ -72,7 +72,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             expect(result.id).toBe(context.id)
 
-            const updatedContext = await getById('SubscriptionContext', context.id)
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBe(bindingId)
         })
 
@@ -239,7 +239,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             expect(result.id).toBe(context.id)
 
-            const updatedContext = await getById('SubscriptionContext', context.id)
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBe(bindingId)
         })
 
@@ -264,7 +264,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             expect(result.id).toBe(context.id)
 
-            const updatedContext = await getById('SubscriptionContext', context.id)
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBe(newPaymentMethodId)
             expect(updatedContext.bindingId).not.toBe(oldPaymentMethodId)
         })
@@ -290,7 +290,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             expect(result.id).toBe(context.id)
 
-            const updatedContext = await getById('SubscriptionContext', context.id)
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBeNull()
 
             expect(global.fetch).toHaveBeenCalledWith(
@@ -320,7 +320,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             expect(result.id).toBe(context.id)
 
-            const updatedContext = await getById('SubscriptionContext', context.id)
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBeNull()
 
             expect(global.fetch).not.toHaveBeenCalled()
@@ -358,7 +358,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             expect(result.id).toBe(context1.id)
 
-            const updatedContext = await getById('SubscriptionContext', context1.id)
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context1.id })
             expect(updatedContext.bindingId).toBeNull()
 
             expect(global.fetch).not.toHaveBeenCalled()
