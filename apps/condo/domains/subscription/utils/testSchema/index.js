@@ -6,15 +6,15 @@
 const { faker } = require('@faker-js/faker')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { getById, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { 
+    AcquiringIntegration,
     AcquiringIntegrationContext, 
     createTestAcquiringIntegration, 
     createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { createTestRecipient, createTestBillingIntegration, BillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -204,7 +204,7 @@ async function ensureSubscriptionPaymentRecipientForTests (client) {
         recipientOrgId = org.id
     }
 
-    const existingBillingIntegrations = await find('BillingIntegration', {
+    const existingBillingIntegrations = await BillingIntegration.getAll(client, {
         group: DEFAULT_BILLING_INTEGRATION_GROUP,
         deletedAt: null,
     })
@@ -221,7 +221,7 @@ async function ensureSubscriptionPaymentRecipientForTests (client) {
     if (existingContexts.length > 0) {
         const ctx = existingContexts[0]
         const integrationId = ctx.integration?.id || ctx.integration
-        acquiringIntegration = await getById('AcquiringIntegration', integrationId)
+        acquiringIntegration = await AcquiringIntegration.getOne(client, { id: integrationId })
     } else {
         const [integration] = await createTestAcquiringIntegration(client, { hostUrl: 'http://localhost:3000' })
         acquiringIntegration = integration
