@@ -1,4 +1,240 @@
-const { PrismaAdapter: OriginalPrismaAdapter } = require('@open-keystone/adapter-prisma')
+const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter } = require('@open-keystone/adapter-prisma')
+const { defaultObj, mapKeys } = require('@open-keystone/utils')
+
+// NOTE: Utility to recursively strip undefined values from objects.
+// Prisma rejects objects with undefined values in filters.
+function cleanUndefinedValues (obj) {
+    if (obj === undefined) return undefined
+    if (obj === null) return null
+    if (obj instanceof Date) return obj
+    if (Array.isArray(obj)) {
+        const cleaned = obj.map(item => cleanUndefinedValues(item)).filter(item => item !== undefined)
+        return cleaned
+    }
+    if (typeof obj === 'object') {
+        const proto = Object.getPrototypeOf(obj)
+        if (proto !== Object.prototype && proto !== null) return obj
+        const cleaned = {}
+        for (const [key, value] of Object.entries(obj)) {
+            const cleanedValue = cleanUndefinedValues(value)
+            if (cleanedValue !== undefined) {
+                cleaned[key] = cleanedValue
+            }
+        }
+        return Object.keys(cleaned).length > 0 ? cleaned : undefined
+    }
+    return obj
+}
+
+// NOTE: Monkey-patch PrismaListAdapter to fix runtime FK handling.
+// The published @open-keystone/adapter-prisma@4.0.20 hardcodes Number() for all FK values
+// and doesn't handle UUID PKs, null values, or FK field name mapping.
+// These overrides implement the fixes from the patched adapter version.
+
+if (!PrismaListAdapter.prototype._coerceId) {
+    PrismaListAdapter.prototype._getIdTypeForList = function (listKey) {
+        const listAdapter = listKey === this.key ? this : this.getListAdapterByKey(listKey)
+        if (!listAdapter) return 'Int'
+        if (listAdapter._idType) return listAdapter._idType
+        const idField = listAdapter.fieldAdapters && listAdapter.fieldAdapters.find(f => f.path === 'id')
+        if (idField) {
+            const schema = idField.getPrismaSchema()
+            if (schema && schema.length > 0) {
+                const match = schema[0].match(/id\s+(\w+)/)
+                if (match) {
+                    listAdapter._idType = match[1]
+                    return listAdapter._idType
+                }
+            }
+        }
+        listAdapter._idType = 'Int'
+        return listAdapter._idType
+    }
+
+    PrismaListAdapter.prototype._coerceId = function (value, refListKey) {
+        if (value === null || value === undefined) return value
+        const type = this._getIdTypeForList(refListKey)
+        const isString = String(type).toLowerCase() === 'string'
+        if (Array.isArray(value)) {
+            return value.map(v => this._coerceId(v, refListKey))
+        }
+        if (isString) {
+            return String(value)
+        } else {
+            const n = Number(value)
+            return Number.isNaN(n) ? null : n
+        }
+    }
+
+    PrismaListAdapter.prototype._mapResultItem = function (item) {
+        if (!item) return item
+        for (const fa of this.fieldAdapters) {
+            if (!fa.isRelationship) continue
+            const p = fa.path
+            const fkPath = p + 'Fk'
+            const idPath = p + 'Id'
+            if (item.hasOwnProperty(fkPath)) {
+                item[p] = item[fkPath]
+            } else if (item.hasOwnProperty(idPath) && !item.hasOwnProperty(p)) {
+                item[p] = item[idPath]
+            }
+            const val = item[p]
+            if (val !== null && val !== undefined) {
+                if (Array.isArray(val)) {
+                    item[p] = val.map(obj => (obj && obj.id) ? obj.id : obj)
+                } else if (typeof val === 'object' && val.id !== undefined) {
+                    item[p] = val.id
+                }
+            }
+        }
+        return item
+    }
+
+    PrismaListAdapter.prototype._create = async function (_data) {
+        const include = this._include()
+        const data = mapKeys(_data, (value, path) => {
+            const adapter = this.fieldAdaptersByPath[path]
+            if (adapter && adapter.isRelationship) {
+                const refListKey = adapter.refListKey
+                if (value === null || value === undefined) return undefined
+                if (Array.isArray(value)) {
+                    const vs = value
+                        .map(x => this._coerceId(x, refListKey))
+                        .filter(v => v !== null && v !== undefined)
+                    return vs.length ? { connect: vs.map(id => ({ id })) } : undefined
+                }
+                const id = this._coerceId(value, refListKey)
+                return id === null || id === undefined ? undefined : { connect: { id } }
+            }
+            if (adapter && adapter.gqlToPrisma) {
+                return adapter.gqlToPrisma(value)
+            }
+            return value
+        })
+        return this.model.create({ data, include }).then(item => this._mapResultItem(item))
+    }
+
+    PrismaListAdapter.prototype._update = async function (id, _data) {
+        const include = this._include()
+        const whereId = this._coerceId(id, this.key)
+        const existingItem = await this.model.findUnique({ where: { id: whereId }, include })
+        return this.model.update({
+            where: { id: whereId },
+            data: mapKeys(_data, (value, path) => {
+                const adapter = this.fieldAdaptersByPath[path]
+                if (adapter && adapter.isRelationship && Array.isArray(value)) {
+                    const refListKey = adapter.refListKey
+                    const vs = value
+                        .map(x => this._coerceId(x, refListKey))
+                        .filter(v => v !== null && v !== undefined)
+                    const existingRaw = existingItem[path] || []
+                    const existingIds = existingRaw.map(({ id }) => id)
+                    const toDisconnect = existingRaw.filter(({ id }) => !vs.includes(id))
+                    const toConnect = vs.filter(id => !existingIds.includes(id)).map(id => ({ id }))
+                    return {
+                        disconnect: toDisconnect.length ? toDisconnect : undefined,
+                        connect: toConnect.length ? toConnect : undefined,
+                    }
+                }
+                if (adapter && adapter.isRelationship) {
+                    const refListKey = adapter.refListKey
+                    if (value === null) return { disconnect: true }
+                    if (value === undefined) return undefined
+                    const relId = this._coerceId(value, refListKey)
+                    return relId === null || relId === undefined
+                        ? undefined
+                        : { connect: { id: relId } }
+                }
+                if (adapter && adapter.gqlToPrisma) {
+                    return adapter.gqlToPrisma(value)
+                }
+                return value
+            }),
+            include,
+        }).then(item => this._mapResultItem(item))
+    }
+
+    PrismaListAdapter.prototype._delete = async function (id) {
+        const whereId = this._coerceId(id, this.key)
+        return this.model.delete({ where: { id: whereId } }).then(item => this._mapResultItem(item))
+    }
+
+    const _origItemsQuery = PrismaListAdapter.prototype._itemsQuery
+    PrismaListAdapter.prototype._itemsQuery = async function (args, opts = {}) {
+        const { meta = false, from = {} } = opts
+        const rawFilter = await this.prismaFilter({ args, meta, from })
+        const filter = cleanUndefinedValues(rawFilter) || {}
+        if (meta) {
+            let count = await this.model.count(filter)
+            const { first, skip } = args
+            if (skip !== undefined) count -= skip
+            if (first !== undefined) count = Math.min(count, first)
+            count = Math.max(0, count)
+            return { count }
+        } else {
+            return this.model.findMany(filter).then(items => items.map(item => this._mapResultItem(item)))
+        }
+    }
+
+    const _origPrismaFilter = PrismaListAdapter.prototype.prismaFilter
+    PrismaListAdapter.prototype.prismaFilter = async function ({ args: { where = {}, first, skip, sortBy, orderBy, search }, meta, from }) {
+        const ret = {}
+        const allWheres = await this.processWheres(where)
+        if (allWheres) ret.where = allWheres
+        if (from.fromId) {
+            if (!ret.where) ret.where = {}
+            const a = from.fromList.adapter.fieldAdaptersByPath[from.fromField]
+            const coercedFromId = this._coerceId(from.fromId, from.fromList.key)
+            if (a.rel.cardinality === 'N:N') {
+                const path = a.rel.right
+                    ? a.field === a.rel.right ? a.rel.left.path : a.rel.right.path
+                    : `from_${a.rel.left.listKey}_${a.rel.left.path}`
+                ret.where[path] = { some: { id: coercedFromId } }
+            } else {
+                ret.where[a.rel.columnName] = { id: coercedFromId }
+            }
+        }
+        const searchFieldName = this.config.searchField || 'name'
+        const searchField = this.fieldAdaptersByPath[searchFieldName]
+        if (search !== undefined && search !== null && search !== '' && searchField) {
+            if (searchField.fieldName === 'Text') {
+                if (!ret.where) {
+                    ret.where = { [searchFieldName]: { contains: search, mode: 'insensitive' } }
+                } else {
+                    ret.where = { AND: [ret.where, { [searchFieldName]: { contains: search, mode: 'insensitive' } }] }
+                }
+            }
+        }
+        if (!meta) {
+            if (first !== undefined) ret.take = first
+            if (skip !== undefined) ret.skip = skip
+            if (orderBy) {
+                ret.orderBy = orderBy.map(o => {
+                    const [key] = Object.keys(o)
+                    const adapter = this.fieldAdaptersByPath[key]
+                    if (adapter && adapter.dbPath !== key) {
+                        return { [adapter.dbPath]: o[key] }
+                    }
+                    return o
+                })
+            } else if (sortBy) {
+                ret.orderBy = sortBy.map(s => {
+                    const _sort = s.split('_')
+                    const order = _sort.pop().toLowerCase()
+                    const path = _sort.join('_')
+                    const adapter = this.fieldAdaptersByPath[path]
+                    if (adapter && adapter.dbPath !== path) {
+                        return { [adapter.dbPath]: order }
+                    }
+                    return { [path]: order }
+                })
+            }
+            const include = this._include()
+            if (include) ret.include = include
+        }
+        return ret
+    }
+}
 
 // Maps PrismaFieldAdapter info to Knex table builder calls for kmigrator schema extraction.
 // This replicates what the Knex field adapters' addToTableSchema() methods do.

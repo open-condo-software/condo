@@ -49,23 +49,14 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     constructor ({ databaseUrl, replicaPools, routingRules }) {
         // NOTE: Pass a dummy URL to parent - we'll override _connect entirely.
         // The parent PrismaAdapter needs a URL for schema generation, so we extract the first DB URL.
-        console.log('[BalancingReplicaPrismaAdapter.constructor] Initializing adapter')
-        try {
-            const dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
-            console.log('[BalancingReplicaPrismaAdapter.constructor] DB connections parsed:', Object.keys(dbConnections))
-            const firstUrl = Object.values(dbConnections)[0]
-            super({ url: firstUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
+        const dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
+        const firstUrl = Object.values(dbConnections)[0]
+        super({ url: firstUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
 
-            this._dbConnections = dbConnections
-            const availableDatabases = Object.keys(this._dbConnections)
-            this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
-            this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
-            console.log('[BalancingReplicaPrismaAdapter.constructor] Adapter initialized successfully')
-        } catch (err) {
-            console.error('[BalancingReplicaPrismaAdapter.constructor] ERROR:', err.message)
-            console.error('[BalancingReplicaPrismaAdapter.constructor] Stack:', err.stack)
-            throw err
-        }
+        this._dbConnections = dbConnections
+        const availableDatabases = Object.keys(this._dbConnections)
+        this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
+        this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
     }
 
     /**
@@ -216,15 +207,7 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     }
 
     async _connect ({ rels }) {
-        console.log('[BalancingReplicaPrismaAdapter._connect] Starting connection')
-        try {
-            this._prismaClients = await this._initPrismaClients(rels)
-            console.log('[BalancingReplicaPrismaAdapter._connect] Prisma clients initialized')
-        } catch (err) {
-            console.error('[BalancingReplicaPrismaAdapter._connect] Failed to init Prisma clients:', err.message)
-            console.error('[BalancingReplicaPrismaAdapter._connect] Stack:', err.stack)
-            throw err
-        }
+        this._prismaClients = await this._initPrismaClients(rels)
 
         this._replicaPools = Object.fromEntries(
             Object.entries(this._replicaPoolsConfig).map(([name, config]) => [
@@ -242,7 +225,6 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
         // NOTE: Set this.prisma to the default pool's primary client for backward compatibility.
         // This is used by raw queries ($queryRaw, $queryRawUnsafe), health checks, etc.
         this.prisma = this._defaultPool.getPrismaClient()
-        console.log('[BalancingReplicaPrismaAdapter._connect] Connection complete')
     }
 
     async postConnect ({ rels }) {
@@ -300,33 +282,16 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     __kmigratorKnexAdapters () {
         // NOTE: For migrations, use the main database connection (first in the list)
         // Create a temporary adapter with the main database URL for schema extraction
-        console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Called')
-        logger.info('BalancingReplicaPrismaAdapter: Starting schema extraction for migrations')
-        
-        try {
-            const mainDbUrl = Object.values(this._dbConnections)[0]
-            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Main DB URL extracted')
-            
-            const tempAdapter = new PrismaAdapter({ url: mainDbUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
-            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Temp adapter created')
-            
-            // Copy all necessary properties from this adapter to the temp adapter
-            tempAdapter.listAdapters = this.listAdapters
-            tempAdapter.getListAdapterByKey = this.getListAdapterByKey.bind(this)
-            tempAdapter.getDbSchemaName = this.getDbSchemaName ? this.getDbSchemaName.bind(this) : undefined
-            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Properties copied')
-            
-            // Call the parent's __kmigratorKnexAdapters on the temp adapter
-            const result = tempAdapter.__kmigratorKnexAdapters()
-            console.log('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Success')
-            logger.info('BalancingReplicaPrismaAdapter: Successfully extracted schema for migrations')
-            return result
-        } catch (err) {
-            console.error('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] ERROR:', err.message)
-            console.error('[BalancingReplicaPrismaAdapter.__kmigratorKnexAdapters] Stack:', err.stack)
-            logger.error('BalancingReplicaPrismaAdapter: Schema extraction failed', { message: err.message, stack: err.stack })
-            throw err
-        }
+        const mainDbUrl = Object.values(this._dbConnections)[0]
+        const tempAdapter = new PrismaAdapter({ url: mainDbUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
+
+        // Copy all necessary properties from this adapter to the temp adapter
+        tempAdapter.listAdapters = this.listAdapters
+        tempAdapter.getListAdapterByKey = this.getListAdapterByKey.bind(this)
+        tempAdapter.getDbSchemaName = this.getDbSchemaName ? this.getDbSchemaName.bind(this) : undefined
+
+        // Call the parent's __kmigratorKnexAdapters on the temp adapter
+        return tempAdapter.__kmigratorKnexAdapters()
     }
 }
 
