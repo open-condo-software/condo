@@ -5,7 +5,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, waitFor } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -19,6 +18,7 @@ const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
+    SubscriptionContext,
     activateSubscriptionContextByTestClient,
     registerSubscriptionContextByTestClient,
     createTestSubscriptionPlan,
@@ -176,11 +176,11 @@ describe('ActivateSubscriptionContextService', () => {
             await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
             
             await waitFor(async () => {
-                const updatedContext = await getById('SubscriptionContext', subscriptionContext.id)
+                const [updatedContext] = await SubscriptionContext.getAll(admin, { id: subscriptionContext.id })
                 expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
             })
             
-            const finalContext = await getById('SubscriptionContext', subscriptionContext.id)
+            const [finalContext] = await SubscriptionContext.getAll(admin, { id: subscriptionContext.id })
             expect(finalContext.bindingId).toBe(testPaymentMethod.bindingId)
             expect(finalContext.bindingId).toBeDefined()
             

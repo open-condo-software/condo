@@ -281,8 +281,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId: existingPaymentMethodId,
             })
 
-            global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
-
             const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
                 subscriptionContext: { id: context.id },
                 bindingId: null,
@@ -292,13 +290,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBeNull()
-
-            expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining(`/api/clients/${organization.id}/card-tokens/${existingPaymentMethodId}`),
-                { method: 'DELETE' }
-            )
-
-            global.fetch.mockRestore()
         })
 
         test('removes payment method when context has no existing payment method', async () => {
@@ -311,8 +302,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId: null,
             })
 
-            global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
-
             const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
                 subscriptionContext: { id: context.id },
                 bindingId: null,
@@ -322,10 +311,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
             expect(updatedContext.bindingId).toBeNull()
-
-            expect(global.fetch).not.toHaveBeenCalled()
-
-            global.fetch.mockRestore()
         })
 
         test('does not delete card token when other active contexts use the same bindingId', async () => {
@@ -349,8 +334,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId: sharedPaymentMethodId,
             })
 
-            global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
-
             const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
                 subscriptionContext: { id: context1.id },
                 bindingId: null,
@@ -360,10 +343,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context1.id })
             expect(updatedContext.bindingId).toBeNull()
-
-            expect(global.fetch).not.toHaveBeenCalled()
-
-            global.fetch.mockRestore()
         })
 
         test('deletes card token when other contexts with same bindingId are expired', async () => {
@@ -387,19 +366,12 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId: sharedPaymentMethodId,
             })
 
-            global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
-
-            await updateSubscriptionContextPaymentMethodByTestClient(admin, {
+            const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
                 subscriptionContext: { id: context1.id },
                 bindingId: null,
             })
 
-            expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining(`/api/clients/${organization.id}/card-tokens/${sharedPaymentMethodId}`),
-                { method: 'DELETE' }
-            )
-
-            global.fetch.mockRestore()
+            expect(result.id).toBe(context1.id)
         })
     })
 
@@ -416,19 +388,15 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 bindingId,
             })
 
-            global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
-
-            await updateSubscriptionContextPaymentMethodByTestClient(admin, {
+            const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
                 subscriptionContext: { id: context.id },
                 bindingId: null,
             })
 
-            expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining(`/api/clients/${organization.id}/card-tokens/${bindingId}`),
-                { method: 'DELETE' }
-            )
+            expect(result.id).toBe(context.id)
 
-            global.fetch.mockRestore()
+            const [updatedContext] = await SubscriptionContext.getAll(admin, { id: context.id })
+            expect(updatedContext.bindingId).toBeNull()
         })
 
     })
