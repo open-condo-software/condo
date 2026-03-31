@@ -6,7 +6,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Radio } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
-import { useActivateSubscriptions } from '@condo/domains/subscription/hooks'
+import { useActivateSubscriptions, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
 import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionPlanCard } from './SubscriptionPlanCard/SubscriptionPlanCard'
@@ -71,11 +71,12 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const {
         handleActivatePlan,
         activateLoading,
-        trialSubscriptions,
         pendingRequests,
         activatedSubscriptions,
         isLoading: trialActivationLoading,
     } = useActivateSubscriptions()
+
+    const { trialSubscriptions } =  useTrialSubscriptions()
 
     const isLoading = plansLoading || trialActivationLoading
     if (isLoading) return <Loader />

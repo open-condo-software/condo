@@ -72,6 +72,7 @@ const subscriptionFeatureHelpLinks = JSON.parse(conf['SUBSCRIPTION_FEATURE_HELP_
 const subscriptionPayUrl = conf['SUBSCRIPTION_PAY_URL'] || ''
 const cardIssuerImages = JSON.parse(conf['CARD_ISSUER_IMAGES'] || '{}')
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
+const subscriptionProgressModalConfig = JSON.parse(conf['SUBSCRIPTION_PROGRESS_MODAL_CONFIG'] || '{}')
 
 const nextConfig: NextConfig = {
     transpilePackages: [
@@ -150,6 +151,7 @@ const nextConfig: NextConfig = {
         subscriptionPayUrl,
         cardIssuerImages,
         messagingWsUrl,
+        subscriptionProgressModalConfig,
     },
     serverRuntimeConfig: {
         proxyName,

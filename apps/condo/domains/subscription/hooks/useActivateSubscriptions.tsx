@@ -1,4 +1,4 @@
-import { useActivateSubscriptionPlanMutation, useGetOrganizationTrialSubscriptionsQuery, useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import { useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
 import { notification } from 'antd'
 import { useCallback, useState } from 'react'
 
@@ -23,16 +23,6 @@ export const useActivateSubscriptions = () => {
     const ActivationErrorMessage = intl.formatMessage({ id: 'subscription.activation.error' })
 
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
-    const {
-        data: trialSubscriptionsData,
-        loading: trialSubscriptionsLoading,
-        refetch: refetchTrialSubscriptions,
-    } = useGetOrganizationTrialSubscriptionsQuery({
-        variables: {
-            organizationId: organization?.id,
-        },
-        skip: !organization?.id,
-    })
 
     const { data: pendingRequestsData, loading: pendingRequestsLoading, refetch: refetchPendingRequests } = useGetPendingSubscriptionRequestsQuery({
         variables: { organizationId: organization?.id },
@@ -48,7 +38,6 @@ export const useActivateSubscriptions = () => {
 
     const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
 
-    const trialSubscriptions = trialSubscriptionsData?.trialSubscriptions || []
     const pendingRequests = pendingRequestsData?.pendingRequests || []
     const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
 
@@ -89,13 +78,12 @@ export const useActivateSubscriptions = () => {
     const refetchData = useCallback(async (isTrial: boolean) => {
         await refetchPendingRequests()
         if (isTrial) {
-            await refetchTrialSubscriptions()
             await refetchActivatedSubscriptions()
             if (employee?.id) {
                 await selectEmployee(employee.id)
             }
         }
-    }, [refetchPendingRequests, refetchTrialSubscriptions, refetchActivatedSubscriptions, employee?.id, selectEmployee])
+    }, [refetchPendingRequests, refetchActivatedSubscriptions, employee?.id, selectEmployee])
 
     const handleActivatePlan = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false }: ActivatePlanParams) => {
         if (!organization) return
@@ -131,9 +119,8 @@ export const useActivateSubscriptions = () => {
     return {
         handleActivatePlan,
         activateLoading,
-        trialSubscriptions,
         pendingRequests,
         activatedSubscriptions,
-        isLoading: trialSubscriptionsLoading || pendingRequestsLoading || activatedSubscriptionsLoading,
+        isLoading: pendingRequestsLoading || activatedSubscriptionsLoading,
     }
 }

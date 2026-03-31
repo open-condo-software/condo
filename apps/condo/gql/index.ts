@@ -3833,6 +3833,8 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       meta
       subscription {
         paymentsEndAt
+        analyticsEndAt
+        propertiesEndAt
         metersEndAt
         ticketsEndAt
         newsEndAt
