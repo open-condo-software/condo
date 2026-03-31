@@ -23,6 +23,7 @@ import type {
     HandlerScope,
     Middleware,
     MiddlewareFn,
+    MiddlewareNextFn,
     MiddlewareId,
     ParamsValidator,
     RegisteredMiddleware,
@@ -87,9 +88,16 @@ export class PostMessageController extends EventTarget {
         return middlewares.reduceRight<Handler<EventParams, HandlerResult>>(
             (nextHandler, mw) => {
                 return async (args) => {
+                    const nextMiddlewareFn: MiddlewareNextFn<EventParams, HandlerResult> = (nextArgs) => {
+                        return nextHandler({
+                            ...args,
+                            params: nextArgs?.params ?? args.params,
+                        })
+                    }
+
                     return mw.fn({
                         ...args,
-                        next: nextHandler,
+                        next: nextMiddlewareFn,
                     })
                 }
             },

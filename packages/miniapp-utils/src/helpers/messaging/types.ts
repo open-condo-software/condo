@@ -57,8 +57,10 @@ export type AddHandlerType = <Params extends EventParams, Result extends Handler
     validator: ParamsValidator<Params>,
     handler: Handler<Params, Result>
 ) => void
+export type MiddlewareNextFn<Params extends EventParams, Result extends HandlerResult> =
+    (args?: Partial<Pick<HandlerArgs<Params>, 'params'>>) => Result | Promise<Result>
 export type MiddlewareArgs<Params extends EventParams, Result extends HandlerResult> = HandlerArgs<Params> & {
-    next: Handler<Params, Result>
+    next: MiddlewareNextFn<Params, Result>
 }
 export type MiddlewareFn<Params extends EventParams, Result extends HandlerResult> = (args: MiddlewareArgs<Params, Result>) => Result | Promise<Result>
 export type MiddlewareId = string
