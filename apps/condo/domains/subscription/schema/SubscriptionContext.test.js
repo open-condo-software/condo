@@ -16,7 +16,7 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_TYPE_B2C, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
@@ -264,6 +264,7 @@ describe('SubscriptionContext', () => {
         test('trial subscription cannot have invoice', async () => {
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             
+            await createTestBillingIntegration(admin)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
             await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
@@ -289,6 +290,7 @@ describe('SubscriptionContext', () => {
         test('subscription cannot have B2C invoice', async () => {
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             
+            await createTestBillingIntegration(admin)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
             await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
@@ -318,6 +320,7 @@ describe('SubscriptionContext', () => {
             const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             const [payerOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
             
+            await createTestBillingIntegration(admin)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
             await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
