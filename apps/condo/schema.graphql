@@ -3038,7 +3038,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3182,8 +3182,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
-  canExecuteActivateSubscriptionPlan_not: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContext_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3383,8 +3383,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteActivateSubscriptionPlan_ASC
-  canExecuteActivateSubscriptionPlan_DESC
+  canExecuteRegisterSubscriptionContext_ASC
+  canExecuteRegisterSubscriptionContext_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -3469,7 +3469,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3548,7 +3548,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3790,9 +3790,9 @@ type UserRightsSet {
   """
   canExecuteGetAvailableSubscriptionPlans: Boolean
 
-  """ Enables a user with the given UserRightsSet to execute "activateSubscriptionPlan" query/mutation 
+  """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation 
   """
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
 
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
@@ -3965,8 +3965,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
-  canExecuteActivateSubscriptionPlan_not: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContext_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -4146,8 +4146,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteActivateSubscriptionPlan_ASC
-  canExecuteActivateSubscriptionPlan_DESC
+  canExecuteRegisterSubscriptionContext_ASC
+  canExecuteRegisterSubscriptionContext_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -4232,7 +4232,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -4308,7 +4308,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean

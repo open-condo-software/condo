@@ -126,7 +126,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         '_allPaymentsSum',
         '_allBillingReceiptsSum',
         'getAvailableSubscriptionPlans',
-        'activateSubscriptionPlan',
+        'registerSubscriptionContext',
     ],
 }
 
