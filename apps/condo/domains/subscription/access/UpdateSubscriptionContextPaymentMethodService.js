@@ -5,11 +5,15 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { STAFF } = require('@condo/domains/user/constants/common')
+
 
 async function canUpdateSubscriptionContextPaymentMethod ({ authentication: { item: user }, args, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
+
+    if (user.type !== STAFF) return false
 
     const subscriptionContextWhere = args.data?.subscriptionContext
     if (!subscriptionContextWhere?.id) return false
