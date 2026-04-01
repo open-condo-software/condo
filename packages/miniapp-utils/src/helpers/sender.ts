@@ -1,5 +1,6 @@
 import { getCookie, setCookie } from 'cookies-next'
 
+import { getEmbeddingContext } from './embeddingContext'
 import { generateUUIDv4 } from './uuid'
 
 type SenderInfo = {
@@ -32,6 +33,12 @@ export function generateFingerprint (): string {
  * So consider using it instead
  */
 export function getClientSideFingerprint (): string {
+    // NOTE: if we're inside another application, use its device id as fingerprint, but not persist it in cookie
+    const embeddingContext = getEmbeddingContext()
+    if (embeddingContext) {
+        return embeddingContext.ctx.device.id
+    }
+
     let fingerprint = getCookie(FINGERPRINT_ID_COOKIE_NAME)
     if (!fingerprint) {
         fingerprint = generateFingerprint()

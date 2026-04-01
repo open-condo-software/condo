@@ -5,11 +5,9 @@ import { isSSR } from './environment'
 
 import { useEffectOnce } from '../hooks/useEffectOnce'
 
+import type { Optional, AppType } from './common/types'
 import type { IncomingMessage, ServerResponse } from 'http'
-import type { Context, PropsWithChildren, FC, ComponentType as ReactComponentType } from 'react'
-
-
-type Optional<T> = T | undefined
+import type { Context, PropsWithChildren, FC } from 'react'
 
 /**
  * Based on RFC5646: https://datatracker.ietf.org/doc/html/rfc5646
@@ -57,19 +55,7 @@ type SSRResultWithI18N<
     }
 }
 
-type AppInitialProps<PropsType extends Record<string, unknown>> = { pageProps: PropsType }
 
-type AppContext = {
-    ctx: {
-        req: Optional<IncomingMessage>
-        res: Optional<ServerResponse>
-    }
-}
-
-type AppType<PropsType extends Record<string, unknown>, ComponentType, RouterType> =
-    ReactComponentType<{ pageProps: PropsType, Component: ComponentType, router: RouterType }> & {
-        getInitialProps?: (context: AppContext) => Promise<AppInitialProps<PropsType>> | AppInitialProps<PropsType>
-    }
 
 type TranslationsContextType<
     AvailableLocale extends string,
