@@ -6014,7 +6014,7 @@ export type GetOrganizationPaymentHistoryQueryResult = Apollo.QueryResult<Types.
 export const GetLastFailedPaymentContextDocument = gql`
     query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
   lastFailedContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, ERROR_NEED_RETRY]}
+    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, PENDING]}
     sortBy: [createdAt_DESC]
     first: 1
   ) {
