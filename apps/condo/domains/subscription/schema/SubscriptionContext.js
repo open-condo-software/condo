@@ -14,7 +14,7 @@ const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/consta
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS } = require('@condo/domains/subscription/constants')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
@@ -56,6 +56,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'INVOICE_MUST_BE_B2B',
         message: 'Subscription context invoice must be B2B type',
+    },
+    INVALID_STATUS_TRANSITION: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_STATUS_TRANSITION',
+        message: 'Status transition is not allowed', 
     },
 }
 
@@ -294,6 +299,16 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                     if (overlappingSubscriptions.length > 0) {
                         throw new GQLError(ERRORS.OVERLAPPING_SUBSCRIPTION, context)
                     }
+                }
+            }
+
+            const existedStatus = existingItem?.status
+            const newStatus = resolvedData.status
+
+            if (existedStatus && newStatus) {
+                const statusTransitions = SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS[existedStatus]
+                if (!statusTransitions.includes(newStatus)) {
+                    throw new GQLError(ERRORS.INVALID_STATUS_TRANSITION, context)
                 }
             }
         },
