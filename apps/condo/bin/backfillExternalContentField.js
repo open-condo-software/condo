@@ -14,7 +14,6 @@
  *   --field <name>           Field name to migrate (e.g., raw) [required]
  *   --filter <json>          Optional JSON filter for WHERE clause (e.g., '{"organization":"<uuid>"}')
  *   --batch-size <n>         Rows per page (default: 250)
- *   --start-from-id <uuid>   Resume from record.id (exclusive)
  *   --max-records <n>        Stop after processing N records
  *   --progress-every <n>     Log progress every N records (default: 1000)
  *   --dry-run                Do not write files or update database
@@ -29,8 +28,6 @@ const { itemsQuery } = require('@open-condo/keystone/schema')
 const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { prompt } = require('./lib/prompt')
-
-const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 function parseJsonFilter (filterStr) {
     if (!filterStr) return null
@@ -51,10 +48,6 @@ program
     .requiredOption('-f, --field <name>', 'Field name to migrate (e.g., raw)')
     .option('--filter <json>', 'Optional JSON filter for WHERE clause (e.g., \'{"organization":"<uuid>"}\')')
     .option('--batch-size <n>', 'Rows per page (default: 250)', (v) => parseInt(v, 10), 250)
-    .option('--start-from-id <uuid>', 'Resume from record.id (exclusive)', (value) => {
-        if (!UUID_REGEXP.test(value)) throw new commander.InvalidArgumentError('Not a UUID.')
-        return value
-    })
     .option('--max-records <n>', 'Stop after processing N records', (v) => parseInt(v, 10))
     .option('--progress-every <n>', 'Log progress every N processed records (default: 1000)', (v) => parseInt(v, 10), 1000)
     .option('--dry-run', 'Do not write files or update database', false)
@@ -138,7 +131,6 @@ async function main () {
     let processed = 0
     let failed = 0
     let skipped = 0
-    let skip = 0
     let lastProcessedId = null
     const failedRecords = []
 
@@ -148,14 +140,12 @@ async function main () {
     console.log(`  Field: ${field}`)
     console.log(`  Filter: ${filter ? JSON.stringify(filter) : 'NONE (all records)'}`)
     console.log(`  Batch size: ${batchSize}`)
-    console.log(`  Start from ID: ${opts.startFromId || 'beginning'}`)
     console.log(`  Max records: ${maxRecords || 'unlimited'}`)
     console.log(`  Dry run: ${opts.dryRun ? 'YES (no changes will be made)' : 'NO'}`)
     console.log(`  Continue on error: ${opts.continueOnError ? 'YES' : 'NO'}`)
     console.log('\n⚠️  Important:')
     console.log('  - Do NOT run multiple instances of this script concurrently')
     console.log('  - Running concurrent instances will process duplicate records')
-    console.log('  - Use --start-from-id to resume from a specific point if needed')
     console.log('\n📋 Process:')
     console.log(`  1. Query ${model} records with inline JSON ${field} data from database`)
     console.log('  2. Detect records with inline JSON (not file-meta)')
@@ -179,6 +169,9 @@ async function main () {
         }
 
         const where = whereConditions.length === 1 ? whereConditions[0] : { AND: whereConditions }
+        
+        // Calculate skip offset for this batch
+        const skip = (batchNumber - 1) * batchSize
 
         let rows = []
         try {
@@ -213,9 +206,6 @@ async function main () {
             if (maxRecords && processed >= maxRecords) {
                 console.log(`\n⚠️  Reached max records limit (${maxRecords}). Stopping.`)
                 console.log(`   Last processed ID: ${lastProcessedId}`)
-                if (lastProcessedId) {
-                    console.log(`   To resume, use: --start-from-id ${lastProcessedId}`)
-                }
                 hasMore = false
                 break
             }
@@ -224,7 +214,7 @@ async function main () {
             if (!rawFieldValue) {
                 console.log(`   ⏭️  Skipping ${id}: ${field} is null`)
                 skipped++
-                skip++
+                lastProcessedId = id
                 continue
             }
             
@@ -237,7 +227,7 @@ async function main () {
                     // If parsing fails, it's not JSON - skip it
                     console.log(`   ⏭️  Skipping ${id}: ${field} is not valid JSON`)
                     skipped++
-                    skip++
+                    lastProcessedId = id
                     continue
                 }
             }
@@ -245,7 +235,7 @@ async function main () {
             if (isFileMeta(fieldValue)) {
                 console.log(`   ⏭️  Skipping ${id}: already has file metadata`)
                 skipped++
-                skip++
+                lastProcessedId = id
                 continue
             }
 
@@ -279,13 +269,12 @@ async function main () {
                         throw err
                     }
                     // Continue to next record
-                    skip++
+                    lastProcessedId = id
                     continue
                 }
             }
 
             processed++
-            skip++
             lastProcessedId = id
 
             if (processed % progressEvery === 0) {
@@ -305,7 +294,6 @@ async function main () {
     console.log(`   Total records skipped: ${skipped}`)
     console.log(`   Total records failed: ${failed}`)
     console.log(`   Total batches: ${batchNumber}`)
-    console.log(`   Records skipped in pagination: ${skip}`)
     console.log(`   Last processed record (ID): ${lastProcessedId || 'none'}`)
     if (failed > 0) {
         console.log('\n   ⚠️  Failed records:')
