@@ -210,8 +210,9 @@ async function main () {
                 break
             }
 
-            // Validate that field value is not null and not already a file-meta object
-            if (!rawFieldValue) {
+            // Validate that field value is not null/undefined and not already a file-meta object
+            // NOTE: raw JSON can legitimately be falsy (false/0/''), so we must not treat all falsy values as "null".
+            if (rawFieldValue === null || rawFieldValue === undefined) {
                 console.log(`   ⏭️  Skipping ${id}: ${field} is null`)
                 skipped++
                 lastProcessedId = id
@@ -268,8 +269,12 @@ async function main () {
                     if (!opts.continueOnError) {
                         throw err
                     }
-                    // Continue to next record
+                    // Count failed record as processed to keep consistent stats
+                    processed++
                     lastProcessedId = id
+                    if (processed % progressEvery === 0) {
+                        console.log(`📊 Progress: ${processed} records processed (last processed ID: ${lastProcessedId})`)
+                    }
                     continue
                 }
             }
