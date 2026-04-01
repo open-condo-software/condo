@@ -20,7 +20,7 @@ const EMBEDDING_CONTEXT_SCHEMA = z.strictObject({
         version: z.string().optional(),
         build: z.string().optional(),
     }),
-    platform: z.enum(['ios', 'android', 'web']),
+    platform: z.enum(['iOS', 'Android', 'web']),
     device: z.strictObject({
         id: z.string(),
     }),
