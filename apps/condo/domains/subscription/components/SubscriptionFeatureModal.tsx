@@ -45,7 +45,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
     const intl = useIntl()
     const TryTrialButtonText =  intl.formatMessage({ id: 'subscription.featureProgress.modal.tryTrialButton' })
     const router = useRouter()
-    const { handleActivatePlan, activateLoading } = useActivateSubscriptions()
+    const { registerSubscriptionContext, activateLoading } = useActivateSubscriptions()
     const { trialSubscriptions } = useTrialSubscriptions()
     const [isActivating, setIsActivating] = useState(false)
 
@@ -67,7 +67,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         try {
             const planName = plan.plan?.name
 
-            await handleActivatePlan({
+            await registerSubscriptionContext({
                 priceId: price.id,
                 isTrial: true,
                 planName,
@@ -78,7 +78,7 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
         } finally {
             setIsActivating(false)
         }
-    }, [plan, handleActivatePlan, onCancel])
+    }, [plan, registerSubscriptionContext, onCancel])
 
     const handleViewPlans = useCallback(async () => {
         await router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)

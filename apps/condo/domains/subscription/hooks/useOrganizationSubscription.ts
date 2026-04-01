@@ -7,7 +7,6 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
-import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS } from '@condo/domains/subscription/constants'
 
 import type { GetSubscriptionContextByIdQuery } from '@app/condo/gql/operation.types'
 import type { OrganizationSubscriptionFeatures } from '@app/condo/schema'
@@ -82,7 +81,7 @@ export const useOrganizationSubscription = () => {
         return Math.max(0, Math.ceil(diff))
     }, [subscriptionContext?.endAt])
 
-    const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
+    const isFeatureAvailable = useCallback((feature: AvailableFeatureType): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
         
