@@ -3388,9 +3388,13 @@ describe('Invoice', () => {
                     status: INVOICE_STATUS_PAID,
                 })
 
-                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
-                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
-                expect(updatedContext.bindingId).toBeNull()
+                await waitFor(async () => {
+                    const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                    expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                })
+
+                const [finalContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(finalContext.bindingId).toBeNull()
             })
 
             test('activates subscription context with payment method when MultiPayment exists', async () => {
@@ -3431,10 +3435,14 @@ describe('Invoice', () => {
                     status: INVOICE_STATUS_PAID,
                 })
 
-                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
-                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
-                expect(updatedContext.bindingId).toBeDefined()
-                expect(updatedContext.frozenPaymentInfo.paymentMethod).toEqual(paymentMethod)
+                await waitFor(async () => {
+                    const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                    expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                })
+
+                const [finalContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(finalContext.bindingId).toBeDefined()
+                expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(paymentMethod)
             })
 
             test('does not fail when B2B invoice is paid without subscription context', async () => {
@@ -3493,9 +3501,13 @@ describe('Invoice', () => {
                     status: INVOICE_STATUS_PAID,
                 })
 
-                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
-                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
-                expect(updatedContext.frozenPaymentInfo.paymentMethod.cardNumber).toBe('1234')
+                await waitFor(async () => {
+                    const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                    expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                })
+
+                const [finalContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(finalContext.frozenPaymentInfo.paymentMethod.cardNumber).toBe('1234')
             })
 
             test('does not activate subscription context when status does not change', async () => {
