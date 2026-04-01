@@ -197,7 +197,7 @@ query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!
             organization: { id: $organizationId }
             subscriptionPlan: { id: $subscriptionPlanId }
             bindingId_not: null
-            status_in: [ERROR, ERROR_NEED_RETRY]
+            status_in: [ERROR, PENDING]
         }
         sortBy: [createdAt_DESC]
         first: 1

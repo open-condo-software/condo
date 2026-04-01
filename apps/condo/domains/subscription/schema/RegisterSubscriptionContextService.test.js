@@ -347,7 +347,7 @@ describe('RegisterSubscriptionContextService', () => {
             expect(sameRegisteredContext.subscriptionContext.id).toBe(firstRegisteredContext.subscriptionContext.id)
         })
 
-        test('reuses existing ERROR_NEED_RETRY context from buffer period', async () => {
+        test('reuses existing PENDING context from buffer period', async () => {
             const [firstRegisteredContext] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
@@ -355,7 +355,7 @@ describe('RegisterSubscriptionContextService', () => {
             })
 
             await updateTestSubscriptionContext(admin, firstRegisteredContext.subscriptionContext.id, {
-                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             const [sameRegisteredContext] = await registerSubscriptionContextByTestClient(user, {
@@ -365,17 +365,17 @@ describe('RegisterSubscriptionContextService', () => {
             })
 
             expect(sameRegisteredContext.subscriptionContext.id).toBe(firstRegisteredContext.subscriptionContext.id)
-            expect(sameRegisteredContext.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY)
+            expect(sameRegisteredContext.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.PENDING)
         })
 
-        test('does not reuse ERROR_NEED_RETRY context older than buffer period', async () => {
+        test('does not reuse PENDING context older than buffer period', async () => {
             const bufferDays = 5
             const oldDate = dayjs().subtract(bufferDays + 1, 'days').startOf('day').format('YYYY-MM-DD')
             const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                 startAt: oldDate,
                 endAt: dayjs(oldDate).add(1, 'month').format('YYYY-MM-DD'),
-                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
                 isTrial: false,
             })
 

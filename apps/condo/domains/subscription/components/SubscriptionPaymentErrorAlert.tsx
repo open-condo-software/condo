@@ -37,7 +37,7 @@ export const SubscriptionPaymentErrorAlert: React.FC<SubscriptionPaymentErrorAle
         }
 
         const context = data.lastFailedContext[0]
-        return context.status === 'ERROR' || context.status === 'ERROR_NEED_RETRY'
+        return context.status === 'ERROR' || context.status === 'PENDING'
     }, [data])
 
     if (loading || !hasFailedPayment) {

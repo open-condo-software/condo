@@ -177,7 +177,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 }
             }
 
-            if (status === SUBSCRIPTION_CONTEXT_STATUS.ERROR || status === SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY) {
+            if (status === SUBSCRIPTION_CONTEXT_STATUS.ERROR || status === SUBSCRIPTION_CONTEXT_STATUS.PENDING) {
                 const daysSinceStarted = now.diff(dayjs(context.startAt), 'day')
                 
                 if (daysSinceStarted >= 0 && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS) {
