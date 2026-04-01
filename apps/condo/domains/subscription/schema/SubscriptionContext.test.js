@@ -699,6 +699,43 @@ describe('SubscriptionContext', () => {
 
             expect(updated.bindingId).toBe(newBindingId)
         })
+
+        test('can update SubscriptionContext status with correct status tranistion', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: '2024-01-01',
+                endAt: '2024-02-15',
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            const [updatedContext] = await updateTestSubscriptionContext(admin, context.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('can not update SubscriptionContext status with incorrect status tranistion', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: '2024-01-01',
+                endAt: '2024-02-15',
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, context.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestSubscriptionContext(admin, context.id, {
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_STATUS_TRANSITION',
+            }, 'obj')
+        })
     })
 
     describe('Field access restrictions', () => {
