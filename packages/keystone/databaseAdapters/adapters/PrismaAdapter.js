@@ -3,12 +3,8 @@ const fs = require('fs')
 const path = require('path')
 
 const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter, PrismaFieldAdapter } = require('@open-keystone/adapter-prisma')
-const { defaultObj, mapKeys } = require('@open-keystone/utils')
+const { mapKeys } = require('@open-keystone/utils')
 
-// NOTE: Prisma treats { OR: [] } as a no-op (matches everything) when nested inside AND,
-// unlike Knex/SQL where empty OR means FALSE (impossible condition).
-// This function recursively replaces { OR: [] } with { id: { in: [] } } which
-// correctly returns 0 results in all contexts.
 function _sanitizeEmptyOrConditions (obj) {
     if (obj === null || obj === undefined) return obj
     if (Array.isArray(obj)) return obj.map(_sanitizeEmptyOrConditions)
@@ -24,36 +20,6 @@ function _sanitizeEmptyOrConditions (obj) {
     }
     return result
 }
-
-// NOTE: Utility to recursively strip undefined values from objects.
-// Prisma rejects objects with undefined values in filters.
-function cleanUndefinedValues (obj) {
-    if (obj === undefined) return undefined
-    if (obj === null) return null
-    if (obj instanceof Date) return obj
-    if (Array.isArray(obj)) {
-        const cleaned = obj.map(item => cleanUndefinedValues(item)).filter(item => item !== undefined)
-        return cleaned
-    }
-    if (typeof obj === 'object') {
-        const proto = Object.getPrototypeOf(obj)
-        if (proto !== Object.prototype && proto !== null) return obj
-        const cleaned = {}
-        for (const [key, value] of Object.entries(obj)) {
-            const cleanedValue = cleanUndefinedValues(value)
-            if (cleanedValue !== undefined) {
-                cleaned[key] = cleanedValue
-            }
-        }
-        return Object.keys(cleaned).length > 0 ? cleaned : undefined
-    }
-    return obj
-}
-
-// NOTE: Monkey-patch PrismaListAdapter to fix runtime FK handling.
-// The published @open-keystone/adapter-prisma@4.0.20 hardcodes Number() for all FK values
-// and doesn't handle UUID PKs, null values, or FK field name mapping.
-// These overrides implement the fixes from the patched adapter version.
 
 if (!PrismaListAdapter.prototype._coerceId) {
     PrismaListAdapter.prototype._getIdTypeForList = function (listKey) {
@@ -184,47 +150,17 @@ if (!PrismaListAdapter.prototype._coerceId) {
     }
 }
 
-// NOTE: These patches MUST be outside the if(!_coerceId) guard above because the published
-// @open-keystone/adapter-prisma already has _coerceId, which would skip the entire block.
-// These overrides are always needed for correct Prisma query behavior.
-
-const _origItemsQuery = PrismaListAdapter.prototype._itemsQuery
-PrismaListAdapter.prototype._itemsQuery = async function (args, opts = {}) {
-    const { meta = false, from = {} } = opts
-    const rawFilter = await this.prismaFilter({ args, meta, from })
-    const filter = cleanUndefinedValues(rawFilter) || {}
-    if (meta) {
-        let count = await this.model.count(filter)
-        const { first, skip } = args
-        if (skip !== undefined) count -= skip
-        if (first !== undefined) count = Math.min(count, first)
-        count = Math.max(0, count)
-        return { count }
-    } else {
-        const items = await this.model.findMany(filter)
-        return items.map(item => this._mapResultItem(item))
-    }
-}
-
-// NOTE: Prisma treats { OR: [] } as a no-op (matches everything) when nested inside AND,
-// unlike Knex where it means "impossible condition" (matches nothing).
-// This wrapper sanitizes processWheres output to replace { OR: [] } with { id: { in: [] } }.
 const _origProcessWheres = PrismaListAdapter.prototype.processWheres
 PrismaListAdapter.prototype.processWheres = async function (where) {
     const result = await _origProcessWheres.call(this, where)
     return _sanitizeEmptyOrConditions(result)
 }
 
-// NOTE: Helper to resolve the correct Prisma orderBy field name.
-// For scalar fields, uses dbPath. For relationship fields, uses the FK Prisma field name
-// (e.g., `createdById` instead of `createdBy`) since Prisma can't sort by relations directly.
 function _resolveOrderByField (adapter, path) {
     if (!adapter) return path
     if (adapter.isRelationship) {
-        // Check for collision FK field (pathFk) vs standard FK field (pathId)
         const collisionFk = `${path}Fk`
         const standardFk = `${path}Id`
-        // Use the field adapter's parent list to check which FK name exists in the Prisma schema
         const listAdapter = adapter.listAdapter
         if (listAdapter && listAdapter.fieldAdaptersByPath[collisionFk]) {
             return collisionFk
@@ -236,69 +172,18 @@ function _resolveOrderByField (adapter, path) {
 }
 
 const _origPrismaFilter = PrismaListAdapter.prototype.prismaFilter
-PrismaListAdapter.prototype.prismaFilter = async function ({ args: { where = {}, first, skip, sortBy, orderBy, search }, meta, from }) {
-    const ret = {}
-    const allWheres = await this.processWheres(where)
-    if (allWheres) ret.where = allWheres
-    if (from.fromId) {
-        if (!ret.where) ret.where = {}
-        const a = from.fromList.adapter.fieldAdaptersByPath[from.fromField]
-        const coercedFromId = this._coerceId(from.fromId, from.fromList.key)
-        if (a.rel.cardinality === 'N:N') {
-            const path = a.rel.right
-                ? a.field === a.rel.right ? a.rel.left.path : a.rel.right.path
-                : `from_${a.rel.left.listKey}_${a.rel.left.path}`
-            ret.where[path] = { some: { id: coercedFromId } }
-        } else {
-            ret.where[a.rel.columnName] = { id: coercedFromId }
-        }
+PrismaListAdapter.prototype.prismaFilter = async function (opts) {
+    const result = await _origPrismaFilter.call(this, opts)
+    if (result.orderBy && Array.isArray(result.orderBy)) {
+        result.orderBy = result.orderBy.map(o => {
+            if (!o || typeof o !== 'object') return o
+            const [key] = Object.keys(o)
+            const adapter = this.fieldAdaptersByPath[key]
+            const resolved = _resolveOrderByField(adapter, key)
+            return resolved !== key ? { [resolved]: o[key] } : o
+        })
     }
-    const searchFieldName = this.config.searchField || 'name'
-    const searchField = this.fieldAdaptersByPath[searchFieldName]
-    if (search !== undefined && search !== null && search !== '' && searchField) {
-        if (searchField.fieldName === 'Text') {
-            if (!ret.where) {
-                ret.where = { [searchFieldName]: { contains: search, mode: 'insensitive' } }
-            } else {
-                ret.where = { AND: [ret.where, { [searchFieldName]: { contains: search, mode: 'insensitive' } }] }
-            }
-        }
-    }
-    if (!meta) {
-        if (first !== undefined) ret.take = first
-        if (skip !== undefined) ret.skip = skip
-        if (orderBy) {
-            if (typeof orderBy === 'string' || (Array.isArray(orderBy) && typeof orderBy[0] === 'string')) {
-                const sortByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
-                ret.orderBy = sortByArr.map(s => {
-                    const _sort = s.split('_')
-                    const order = _sort.pop().toLowerCase()
-                    const sortPath = _sort.join('_')
-                    const adapter = this.fieldAdaptersByPath[sortPath]
-                    return { [_resolveOrderByField(adapter, sortPath)]: order }
-                })
-            } else {
-                const orderByArr = Array.isArray(orderBy) ? orderBy : [orderBy]
-                ret.orderBy = orderByArr.map(o => {
-                    const [key] = Object.keys(o)
-                    const adapter = this.fieldAdaptersByPath[key]
-                    const resolved = _resolveOrderByField(adapter, key)
-                    return resolved !== key ? { [resolved]: o[key] } : o
-                })
-            }
-        } else if (sortBy) {
-            ret.orderBy = sortBy.map(s => {
-                const _sort = s.split('_')
-                const order = _sort.pop().toLowerCase()
-                const path = _sort.join('_')
-                const adapter = this.fieldAdaptersByPath[path]
-                return { [_resolveOrderByField(adapter, path)]: order }
-            })
-        }
-        const include = this._include()
-        if (include) ret.include = include
-    }
-    return ret
+    return result
 }
 
 const _identity = x => x
@@ -420,15 +305,13 @@ PrismaFieldAdapter.prototype.stringConditionsInsensitive = function (dbPath, f =
     }
 }
 
-// Maps PrismaFieldAdapter info to Knex table builder calls for kmigrator schema extraction.
-// This replicates what the Knex field adapters' addToTableSchema() methods do.
+
 function _addFieldToKnexSchema (fa, table, knex) {
     const path = fa.path
     const fieldName = fa.fieldName
     const cfg = fa.config || {}
     const knexOptions = cfg.knexOptions || {}
 
-    // Replicate KnexFieldAdapter's isUnique/isIndexed from config
     const isUnique = fa.isUnique !== undefined ? !!fa.isUnique : !!cfg.isUnique
     const isIndexed = fa.isIndexed !== undefined ? !!fa.isIndexed : !!cfg.isIndexed
 
@@ -443,22 +326,17 @@ function _addFieldToKnexSchema (fa, table, knex) {
         isNotNullable = typeof fa.field.defaultValue !== 'undefined' && fa.field.defaultValue !== null
     }
 
-    // Replicate KnexFieldAdapter's defaultTo getter from knexOptions
-    // If defaultTo is a function, call it with knex instance to resolve the value
+
     const defaultToRaw = knexOptions.defaultTo
     const defaultTo = typeof defaultToRaw === 'function' ? defaultToRaw(knex) : defaultToRaw
 
-    // Relationship fields: create FK column based on cardinality
-    // NOTE: fieldName is this.constructor.name from Implementation class, e.g.
-    // 'Relationship', 'AuthedRelationship', 'HiddenRelationshipImplementation'
     if (fa.isRelationship) {
         if (fa.field.many) return // N:N — no column in this table
         if (fa.rel) {
             const { right, cardinality } = fa.rel
-            // 1:1 right side — FK is on the left side only
             if (cardinality === '1:1' && right && right.adapter === fa) return
         }
-        // Determine FK column type from referenced model's PK
+
         const refListAdapter = fa.listAdapter.parentAdapter.getListAdapterByKey(fa.refListKey)
         if (!refListAdapter) return
         const refPkAdapter = refListAdapter.getPrimaryKeyAdapter()
@@ -471,16 +349,11 @@ function _addFieldToKnexSchema (fa, table, knex) {
         }
         if (isUnique) column.unique()
         else if (isIndexed) column.index()
-        // FK fields default to nullable (matching Knex adapter's KnexRelationshipInterface)
-        // Only knexOptions.isNotNullable can make them NOT NULL, not isRequired
         if (knexOptions.isNotNullable) column.notNullable()
         if (cfg.kmigratorOptions) table.kmigrator(path, cfg.kmigratorOptions)
         return
     }
 
-    // HiddenRelationship: uses Text.adapters.prisma (fa.isRelationship=false) but
-    // the Knex adapter (HiddenKnexRelationshipInterface) creates UUID FK columns.
-    // Replicate that behavior here.
     if (fieldName === 'HiddenRelationshipImplementation') {
         const [refListKey] = (cfg.ref || '').split('.')
         const refListAdapter = refListKey && fa.listAdapter.parentAdapter.getListAdapterByKey(refListKey)
@@ -502,9 +375,7 @@ function _addFieldToKnexSchema (fa, table, knex) {
         // Fallback to text if ref not found
     }
 
-    // Scalar fields
-    // NOTE: fieldName is this.constructor.name from the Implementation class.
-    // Names include full class names like 'UuidImplementation', 'DateTimeUtcImplementation', etc.
+
     let column
     switch (fieldName) {
         case 'Uuid':
@@ -542,7 +413,6 @@ function _addFieldToKnexSchema (fa, table, knex) {
             break
         case 'Decimal':
         case 'SignedDecimal': {
-            // Use knexOptions for precision/scale (matching KnexDecimalInterface defaults)
             const decPrecision = knexOptions.precision || 18
             const decScale = knexOptions.scale || 4
             column = table.decimal(path, decPrecision, decScale)
@@ -596,7 +466,6 @@ function _addFieldToKnexSchema (fa, table, knex) {
         case 'Virtual':
             return // No column
         default:
-            // Fallback: most custom types extending Text use text columns
             column = table.text(path)
             break
     }
@@ -613,11 +482,7 @@ function _addFieldToKnexSchema (fa, table, knex) {
 class PrismaAdapter extends OriginalPrismaAdapter {
     constructor () {
         super(...arguments)
-        // NOTE: Disable JOINs globally by default.
-        // Prisma 6+ uses JOINs (lateral joins) by default for relation queries.
-        // Setting relationLoadStrategy to 'query' forces Prisma to use separate queries
-        // instead of JOINs. This is critical for cross-database table splitting where
-        // related tables may reside in different databases.
+
         this.relationLoadStrategy = this.config.relationLoadStrategy || 'query'
 
         // NOTE: Disable migrations by default - we use external (Django/Python) migrations
@@ -627,10 +492,6 @@ class PrismaAdapter extends OriginalPrismaAdapter {
         this.enableLogging = this.config.enableLogging || process.env.KEYSTONE_ENABLE_LOGGING === 'true'
     }
 
-    // NOTE: Provides a Knex-compatible interface for kmigrator (bin/kmigrator.py).
-    // The kmigrator uses Knex for schema extraction and migration execution.
-    // This method creates a temporary Knex connection and implements _createTables()
-    // that maps PrismaFieldAdapter types to Knex table builder calls.
     __kmigratorKnexAdapters () {
         const url = this._url()
         const knexInstance = require('knex')({
@@ -677,7 +538,6 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                     }
                 }
 
-                // 2. Create N:N adjacency tables and FK constraints
                 for (const rel of allRels) {
                     const { left, right, cardinality, tableName } = rel
                     try {
@@ -690,13 +550,11 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                             const rightPkName = rightListAdapter.getPrimaryKeyAdapter().fieldName
 
                             await adapter.schema().createTable(tableName, (table) => {
-                                // Left FK column
                                 const leftCol = (leftPkName === 'AutoIncrementInteger' || leftPkName === 'Integer')
                                     ? table.integer(near) : table.uuid(near)
                                 leftCol.index().notNullable()
                                 table.foreign(near).references('id').inTable(`${schemaName}.${left.listKey}`)
 
-                                // Right FK column
                                 const rightCol = (rightPkName === 'AutoIncrementInteger' || rightPkName === 'Integer')
                                     ? table.integer(far) : table.uuid(far)
                                 rightCol.index().notNullable()
@@ -730,10 +588,6 @@ class PrismaAdapter extends OriginalPrismaAdapter {
         return [adapter]
     }
 
-    // NOTE: Override schema generation to inject previewFeatures = ["relationJoins"]
-    // into the generator block. Even though Prisma 6 claims relationJoins is GA,
-    // the generated client still requires this preview feature flag to recognize
-    // the relationLoadStrategy query argument.
     async _generatePrismaSchema ({ rels, clientDir }) {
         let schema = await super._generatePrismaSchema({ rels, clientDir })
         if (this.relationLoadStrategy === 'query') {
@@ -742,16 +596,12 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                 'provider        = "prisma-client-js"\n  previewFeatures = ["relationJoins"]'
             )
         }
-        // NOTE: Fix issues in the Prisma schema generated by the published adapter:
-        // 1. FK type mismatch: published adapter hardcodes Int? for FK fields, but models use UUID PKs (String)
-        // 2. FK name collision: when a model has both a Relationship (e.g. "organization") and a scalar
-        //    field "organizationId", both generate "organizationId" in Prisma — fix by renaming FK to pathFk
+
         schema = this._fixGeneratedPrismaSchema(schema)
         return schema
     }
 
     _fixGeneratedPrismaSchema (schema) {
-        // Pass 1: Build map of model name → PK type from @id annotations
         const modelPkTypes = {}
         const pkRegex = /model\s+(\w+)\s*\{[\s\S]*?\n\s*\}/g
         let m
@@ -764,11 +614,9 @@ class PrismaAdapter extends OriginalPrismaAdapter {
             }
         }
 
-        // Pass 2: Fix each model block
         return schema.replace(/model\s+(\w+)\s*\{([\s\S]*?)\n\s*\}/g, (modelBlock, modelName, modelBody) => {
             const lines = modelBody.split('\n')
 
-            // Collect relations: FK field name → referenced model name
             const fkToRefModel = {}
             for (const line of lines) {
                 const relMatch = line.match(/(\w+)\s+(\w+)\??\s+@relation\([^)]*fields:\s*\[(\w+)\]/)
@@ -778,7 +626,6 @@ class PrismaAdapter extends OriginalPrismaAdapter {
             }
             if (Object.keys(fkToRefModel).length === 0) return modelBlock
 
-            // Collect scalar field names (non-relation, non-FK-with-@map)
             const scalarFieldNames = new Set()
             for (const line of lines) {
                 const trimmed = line.trim()
@@ -791,7 +638,6 @@ class PrismaAdapter extends OriginalPrismaAdapter {
 
             let result = modelBlock
             for (const [fkName, refModel] of Object.entries(fkToRefModel)) {
-                // Fix 1: FK type — replace Int? with the referenced model's PK type
                 const expectedType = modelPkTypes[refModel] || 'String'
                 if (expectedType !== 'Int') {
                     result = result.replace(
@@ -800,7 +646,6 @@ class PrismaAdapter extends OriginalPrismaAdapter {
                     )
                 }
 
-                // Fix 2: FK name collision — if scalar field with same name exists, rename FK to pathFk
                 if (scalarFieldNames.has(fkName)) {
                     const newFkName = fkName.replace(/Id$/, 'Fk')
                     if (newFkName === fkName) continue
