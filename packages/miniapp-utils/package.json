@@ -51,6 +51,9 @@
       "helpers/cookies": [
         "dist/helpers/cookies.d.ts"
       ],
+      "helpers/embeddingContext": [
+        "dist/helpers/embeddingContext.d.ts"
+      ],
       "helpers/environment": [
         "dist/helpers/environment.d.ts"
       ],
@@ -125,6 +128,11 @@
       "types": "./dist/helpers/cookies.d.ts",
       "require": "./dist/helpers/cookies.js",
       "import": "./dist/helpers/cookies.mjs"
+    },
+    "./helpers/embeddingContext": {
+      "types": "./dist/helpers/embeddingContext.d.ts",
+      "require": "./dist/helpers/embeddingContext.js",
+      "import": "./dist/helpers/embeddingContext.mjs"
     },
     "./helpers/environment": {
       "types": "./dist/helpers/environment.d.ts",

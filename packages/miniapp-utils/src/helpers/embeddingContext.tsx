@@ -1,4 +1,4 @@
-import { deleteCookie, getCookie } from 'cookies-next'
+import { deleteCookie, getCookie, setCookie } from 'cookies-next'
 import React, { useEffect, useMemo, useState, createContext, useContext } from 'react'
 import { z } from 'zod'
 
@@ -46,7 +46,7 @@ const IS_PRIMARY_ALIVE_RESPONSE_SCHEMA = z.object({
     }),
 })
 
-type EmbeddingContext = z.infer<typeof EMBEDDING_CONTEXT_SCHEMA>
+export type EmbeddingContext = z.infer<typeof EMBEDDING_CONTEXT_SCHEMA>
 type EmbeddingContextWithSource = z.infer<typeof EMBEDDING_CONTEXT_WITH_SOURCE_SCHEMA>
 type IsPrimaryAliveMessage = z.infer<typeof IS_PRIMARY_ALIVE_MESSAGE_SCHEMA>
 type IsPrimaryAliveResponse = z.infer<typeof IS_PRIMARY_ALIVE_RESPONSE_SCHEMA>
@@ -68,14 +68,24 @@ function b64toContext (b64: string): EmbeddingContext | null {
     }
 }
 
+function contextToB64 (ctx: EmbeddingContext): string {
+    const stringCtx = JSON.stringify(ctx)
+    const bytes = new TextEncoder().encode(stringCtx)
+    return btoa(String.fromCharCode(...bytes))
+}
+
 export function getEmbeddingContext (req?: Optional<IncomingMessage>, res?: Optional<ServerResponse>): EmbeddingContextWithSource | null {
     // NOTE: context can be found in query for primary tab
-    const queryParamValue = req
-        ? new URL(req.url ?? '/', 'https://_').searchParams.get(EMBEDDING_CONTEXT_QUERY_PARAM)
-        : new URLSearchParams(window.location.search).get(EMBEDDING_CONTEXT_QUERY_PARAM)
-    if (queryParamValue) {
-        const ctx = b64toContext(decodeURIComponent(queryParamValue))
-        if (ctx) return { ctx, source: 'query' }
+    try {
+        const queryParamValue = req
+            ? new URL(req.url ?? '/', 'https://_').searchParams.get(EMBEDDING_CONTEXT_QUERY_PARAM)
+            : new URLSearchParams(window.location.search).get(EMBEDDING_CONTEXT_QUERY_PARAM)
+        if (queryParamValue) {
+            const ctx = b64toContext(decodeURIComponent(queryParamValue))
+            if (ctx) return { ctx, source: 'query' }
+        }
+    } catch {
+        // NOTE: decodeURIComponent might throw on invalid input, ignore it as non-valid query-param
     }
 
     // NOTE: context can be found in cookie for secondary tabs
@@ -118,7 +128,15 @@ export function withEmbeddingContext<
         }, [isPrimaryTab])
 
         useEffect(() => {
-            setBCChannel(new BroadcastChannel('embeddingContext'))
+            if (typeof window === 'undefined' || !('BroadcastChannel' in window)) return
+
+            const bc = new BroadcastChannel('embeddingContext')
+            setBCChannel(bc)
+
+            return () => {
+                bc.close()
+                setBCChannel(null)
+            }
         }, [])
 
         // NOTE: Embedding context is shared between tabs by browser technology (cookies)
@@ -196,6 +214,13 @@ export function withEmbeddingContext<
             const appProps = await appGetInitialProps(context)
             const { ctx } = context
             const embeddingContextWithSource = getEmbeddingContext(ctx.req, ctx.res)
+            if (embeddingContextWithSource && embeddingContextWithSource.source === 'query') {
+                // Save context in cookie for new tabs
+                setCookie(EMBEDDING_CONTEXT_COOKIE_NAME, contextToB64(embeddingContextWithSource.ctx), {
+                    req: ctx.req,
+                    res: ctx.res,
+                })
+            }
 
             return {
                 ...appProps,
