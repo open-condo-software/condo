@@ -61,9 +61,16 @@ async function loadResidentsByIds (residentIds) {
 }
 
 async function loadInvoicesByIds (invoiceIds) {
-    const foundInvoices = await find('Invoice', { id_in: [...new Set(invoiceIds)] })
-    const byId = Object.assign({}, ...foundInvoices.map(obj => ({ [obj.id]: obj })))
-    return { byId, list: foundInvoices }
+    const invoices = await find('Invoice', { id_in: [...new Set(invoiceIds)] })
+
+    if (invoices.length !== invoiceIds.length) {
+        const existingInvoicesIds = new Set(invoices.map(({ id }) => id))
+        const missingReceipts = invoiceIds.filter(receiptId => !existingInvoicesIds.has(receiptId))
+        throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_INVOICES, messageInterpolation: { missingInvoiceIds: missingReceipts.join(', ') } }, context)
+    }
+
+    const byId = Object.assign({}, ...invoices.map(obj => ({ [obj.id]: obj })))
+    return { byId, list: invoices }
 }
 
 async function loadBillingContextsByIds (contextIds) {
@@ -120,43 +127,20 @@ function buildResolvedAcquiringContextMaps ({
     const contextsByOrganizationId = groupBy(acquiringContexts, 'organization')
     const resolvedByOrganizationId = {}
     const missingEntityIds = []
-    const deletedEntities = []
 
     for (const [organizationId, entityIds] of Object.entries(entityIdsByOrganizationId)) {
         const organizationContexts = contextsByOrganizationId[organizationId] || []
-        const activeContexts = organizationContexts.filter(({ deletedAt }) => !deletedAt)
-        const deletedContexts = organizationContexts.filter(({ deletedAt }) => !!deletedAt)
 
-        if (activeContexts.length > 1) {
+        if (organizationContexts.length > 1) {
             throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
         }
 
-        if (activeContexts.length === 1) {
-            resolvedByOrganizationId[organizationId] = activeContexts[0]
-            continue
-        }
-
-        if (deletedContexts.length > 0) {
-            deletedEntities.push(...entityIds.map((entityId) => ({
-                entityId,
-                acquiringContextId: deletedContexts[0].id,
-            })))
+        if (organizationContexts.length === 1) {
+            resolvedByOrganizationId[organizationId] = organizationContexts[0]
             continue
         }
 
         missingEntityIds.push(...entityIds)
-    }
-
-    if (deletedEntities.length > 0) {
-        throw new GQLError({
-            ...ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-            data: {
-                failedConsumers: deletedEntities.map(({ entityId, acquiringContextId }) => ({
-                    consumerId: entityId,
-                    acquiringContextId,
-                })),
-            },
-        }, context)
     }
 
     if (missingEntityIds.length > 0) {
@@ -184,6 +168,7 @@ async function resolveAcquiringContextsForConsumers (consumers, context) {
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         organization: { id_in: [...new Set(consumers.map(({ organization }) => organization))] },
         integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE },
+        deletedAt: null,
     })
     const resolvedContexts = buildResolvedAcquiringContextMaps({
         acquiringContexts,
@@ -208,6 +193,7 @@ async function resolveAcquiringContextsForInvoices (foundInvoices, context) {
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         organization: { id_in: [...new Set(foundInvoices.map(({ organization }) => organization))] },
         integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE },
+        deletedAt: null,
     })
 
     return buildResolvedAcquiringContextMaps({

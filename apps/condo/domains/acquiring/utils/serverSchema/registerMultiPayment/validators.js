@@ -75,7 +75,7 @@ function assertEntitiesNotDeleted (entities, errorTemplate, context) {
 function assertSingleAcquiringIntegration (acquiringContexts, context) {
     const acquiringIntegrations = new Set(acquiringContexts.map(({ integration }) => integration))
     if (acquiringIntegrations.size > 1) {
-        throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
+        throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION, context)
     }
 }
 
@@ -86,7 +86,7 @@ function assertServiceConsumersBelongToCurrentUser (consumers, residentsById, au
     })
 
     if (foreignConsumers.length > 0) {
-        throw new GQLError(ERRORS.SERVICE_CONSUMERS_FOR_THIRD_USER, context)
+        throw new GQLError(ERRORS.SERVICE_CONSUMERS_NOT_OWNED_BY_USER, context)
     }
 }
 
@@ -185,7 +185,7 @@ function assertInvoicesArePublished (foundInvoices, context) {
 
 function assertInvoicesBelongToCurrentUser (foundInvoices, authedUserId, context) {
     if (foundInvoices.some(({ client }) => !!client && client !== authedUserId)) {
-        throw new GQLError(ERRORS.INVOICES_FOR_THIRD_USER, context)
+        throw new GQLError(ERRORS.INVOICES_NOT_OWNED_BY_USER, context)
     }
 }
 
@@ -234,7 +234,7 @@ async function validateRecurrentPaymentContext (recurrentPaymentContext, context
 
     if (recurrentContexts.length === 0) {
         throw new GQLError({
-            ...ERRORS.RECURRENT_PAYMENT_CONTEXT_IS_MISSING,
+            ...ERRORS.RECURRENT_PAYMENT_CONTEXT_NOT_FOUND,
             messageInterpolation: { id: recurrentPaymentContextId },
         }, context)
     }

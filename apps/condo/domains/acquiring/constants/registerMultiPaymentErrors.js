@@ -1,7 +1,7 @@
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
 const {
-    MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
+    MULTIPLE_ACQUIRING_INTEGRATION,
     RECEIPTS_ARE_DELETED,
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
@@ -13,13 +13,13 @@ const {
     ACQUIRING_INTEGRATION_IS_DELETED,
     RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
-    INVOICES_FOR_THIRD_USER,
+    INVOICES_NOT_OWNED_BY_USER,
     INVOICE_CONTEXT_NOT_FINISHED,
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
     GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
     FULL_PAYMENT_AMOUNT_MISMATCH,
+    CANNOT_FIND_ALL_INVOICES,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     REQUIRED,
@@ -29,9 +29,6 @@ const {
     WRONG_VALUE,
     WRONG_FORMAT,
 } = require('@condo/domains/common/constants/errors')
-const {
-    ERROR_DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
-} = require('@condo/domains/marketplace/constants')
 
 const REGISTER_MULTI_PAYMENT_ERRORS = {
     DV_VERSION_MISMATCH: {
@@ -106,11 +103,11 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: INVOICES_ARE_NOT_PUBLISHED,
         message: 'Found invoices with not "published" status',
     },
-    INVOICES_FOR_THIRD_USER: {
+    INVOICES_NOT_OWNED_BY_USER: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'invoices'],
         code: BAD_USER_INPUT,
-        type: INVOICES_FOR_THIRD_USER,
+        type: INVOICES_NOT_OWNED_BY_USER,
         message: 'Found invoices not related to the current user',
     },
     INVOICE_CONTEXT_NOT_FINISHED: {
@@ -134,7 +131,7 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: NOT_FOUND,
         message: 'Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore',
     },
-    SERVICE_CONSUMERS_FOR_THIRD_USER: {
+    SERVICE_CONSUMERS_NOT_OWNED_BY_USER: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
@@ -153,20 +150,13 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
-        message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
+        message: 'ServiceConsumers with ids {ids} is not linked to AcquiringIntegrationContext',
     },
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
+    MULTIPLE_ACQUIRING_INTEGRATION: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
-        type: ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-        message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
-    },
-    MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-        code: BAD_USER_INPUT,
-        type: MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
+        type: MULTIPLE_ACQUIRING_INTEGRATION,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
     },
     ACQUIRING_INTEGRATION_IS_DELETED: {
@@ -239,7 +229,7 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: RECEIPTS_HAS_MULTIPLE_CURRENCIES,
         message: 'BillingReceipts has multiple currencies',
     },
-    RECURRENT_PAYMENT_CONTEXT_IS_MISSING: {
+    RECURRENT_PAYMENT_CONTEXT_NOT_FOUND: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'recurrentPaymentContext', 'id'],
         code: BAD_USER_INPUT,
@@ -260,13 +250,6 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: WRONG_VALUE,
         message: 'RecurrentPaymentContext is forbidden for invoice-only payments',
     },
-    DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES: {
-        mutation: 'registerMultiPayment',
-        variable: ['data'],
-        code: BAD_USER_INPUT,
-        type: ERROR_DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
-        message: 'Receipts and invoices has different currency codes',
-    },
     RECEIPTS_WITH_INVOICES_FORBIDDEN: {
         code: BAD_USER_INPUT,
         type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
@@ -285,6 +268,13 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'All payment amounts must be positive (> 0)',
+    },
+    CANNOT_FIND_ALL_INVOICES: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'invoices', '[]', 'id'],
+        code: BAD_USER_INPUT,
+        type: CANNOT_FIND_ALL_INVOICES,
+        message: 'Cannot find all specified Invoices with ids {missingInvoiceIds}',
     },
 }
 

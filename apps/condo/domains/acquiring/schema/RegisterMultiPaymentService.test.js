@@ -576,7 +576,7 @@ describe('RegisterMultiPaymentService', () => {
                     variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
                     code: 'BAD_USER_INPUT',
                     type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING',
-                    message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
+                    message: 'ServiceConsumers with ids {ids} is not linked to AcquiringIntegrationContext',
                     messageInterpolation: {
                         ids: serviceConsumerWithoutAcquiringContext.id,
                     },
@@ -617,7 +617,7 @@ describe('RegisterMultiPaymentService', () => {
                                 mutation: 'registerMultiPayment',
                                 variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
                                 code: 'BAD_USER_INPUT',
-                                type: 'MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS',
+                                type: 'MULTIPLE_ACQUIRING_INTEGRATION',
                                 message: 'Listed serviceConsumers are linked to different acquiring integrations',
                             },
                         }])
@@ -1012,7 +1012,7 @@ describe('RegisterMultiPaymentService', () => {
                         mutation: 'registerMultiPayment',
                         variable: ['data', 'invoices'],
                         code: 'BAD_USER_INPUT',
-                        type: 'INVOICES_FOR_THIRD_USER',
+                        type: 'INVOICES_NOT_OWNED_BY_USER',
                         message: 'Found invoices not related to the current user',
                     },
                     'result',
@@ -1045,46 +1045,6 @@ describe('RegisterMultiPaymentService', () => {
                         code: 'BAD_USER_INPUT',
                         type: 'INVOICE_CONTEXT_NOT_FINISHED',
                         message: 'Invoice context is not finished',
-                    },
-                    'result',
-                )
-            })
-
-            test.todo('DOMA-8265 Skip this test until we allow to create the multi-payment which including both, invoices and receipts')
-            test.skip('receipts and invoices must have the same currency', async () => {
-                const { billingReceipts, serviceConsumer, billingIntegration, acquiringIntegration, acquiringContext, organization } = await makePayer()
-
-                await updateTestBillingIntegration(adminClient, billingIntegration.id, { currencyCode: 'USD' })
-                await updateTestAcquiringIntegration(adminClient, acquiringIntegration.id, { canGroupReceipts: true })
-
-                await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, {
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    invoiceImplicitFeeDistributionSchema: [{
-                        recipient: 'organization',
-                        percent: '5',
-                    }],
-                    invoiceRecipient: createTestRecipient(),
-                })
-
-                const [invoice1] = await createTestInvoice(adminClient, organization, { status: INVOICE_STATUS_PUBLISHED })
-
-                const payload = [{
-                    serviceConsumer: { id: serviceConsumer.id },
-                    receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
-                }]
-
-                await expectToThrowGQLError(
-                    async () => await registerMultiPaymentByTestClient(
-                        adminClient,
-                        payload,
-                        { invoices: [pick(invoice1, 'id')] },
-                    ),
-                    {
-                        mutation: 'registerMultiPayment',
-                        variable: ['data'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES',
-                        message: 'Receipts and invoices has different currency codes',
                     },
                     'result',
                 )
@@ -1180,26 +1140,17 @@ describe('RegisterMultiPaymentService', () => {
                 await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED',
-                            message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
-                            data: {
-                                failedConsumers: [{
-                                    consumerId: batches[1].serviceConsumer.id,
-                                    acquiringContextId: batches[1].acquiringContext.id,
-                                }],
-                            },
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPayment',
+                    variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING',
+                    message: 'ServiceConsumers with ids {ids} is not linked to AcquiringIntegrationContext',
+                    messageInterpolation: {
+                        ids: payload[1].serviceConsumer.id,
+                    },
                 })
             })
             test('Should not be able to pay using deleted acquiring integration', async () => {
