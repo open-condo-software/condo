@@ -1,6 +1,10 @@
 const { readFile } = require('fs/promises')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { validateFilePath } = require('./utils')
+
+const logger = getLogger('FileContentLoader')
 
 // Default batch delay: 10ms
 const DEFAULT_BATCH_DELAY_MS = 10
@@ -193,9 +197,15 @@ class FileContentLoader {
                 const buffer = Buffer.from(await readFile(fullPath))
                 resolve(buffer)
             } catch (err) {
-                const error = err instanceof Error ? err : new Error(String(err))
-                error.message = `ExternalContent: failed to read local file ${fileMeta.filename}: ${error.message}`
-                reject(error)
+                // Handle missing files gracefully - resolve with null instead of rejecting
+                if (err.code === 'ENOENT') {
+                    logger.warn({ msg: 'File not found in FileContentLoader', filename: fileMeta.filename })
+                    resolve(null)
+                } else {
+                    const error = err instanceof Error ? err : new Error(String(err))
+                    error.message = `ExternalContent: failed to read local file ${fileMeta.filename}: ${error.message}`
+                    reject(error)
+                }
             }
         })
         

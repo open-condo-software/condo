@@ -208,20 +208,45 @@ class ExternalContentImplementation extends Implementation {
     gqlOutputFieldResolvers () {
         return {
             [this.path]: async (item, args, context) => {
-                const value = item?.[this.path]
+                let value = item?.[this.path]
                 if (value === null || typeof value === 'undefined') return value
+
+                // Parse JSON string if needed (database stores serialized JSON)
+                if (typeof value === 'string') {
+                    try {
+                        value = JSON.parse(value)
+                    } catch (err) {
+                        // If parsing fails, return the string as-is (backward compatibility)
+                        return value
+                    }
+                }
 
                 // Backward compatibility: old `Json` field stored raw object directly in DB
                 if (!isFileMeta(value)) return value
 
                 // Use DataLoader for batching and caching when context is available
                 let buf
-                if (context) {
-                    const loader = getOrCreateLoader(context, this.fileAdapter, this.batchDelayMs)
-                    buf = await loader.load(value)
-                } else {
-                    // Fallback to direct read for non-GraphQL usage (tests, scripts, etc.)
-                    buf = await readFromAdapter(this.fileAdapter, value)
+                try {
+                    if (context) {
+                        const loader = getOrCreateLoader(context, this.adapter, this.batchDelayMs)
+                        buf = await loader.load(value)
+                    } else {
+                        // Fallback to direct read for non-GraphQL usage (tests, scripts, etc.)
+                        buf = await readFromAdapter(this.adapter, value)
+                    }
+                } catch (err) {
+                    // Handle missing files gracefully - return null instead of crashing
+                    if (err.code === 'ENOENT') {
+                        const itemId = item?.id || 'unknown'
+                        logger.warn({ msg: 'File not found for ExternalContent field', field: this.path, itemId, filename: value?.filename || 'unknown' })
+                        return null
+                    }
+                    throw err
+                }
+                
+                // Handle null buffer from FileContentLoader (missing file)
+                if (buf === null) {
+                    return null
                 }
                 
                 try {
@@ -313,7 +338,7 @@ class ExternalContentImplementation extends Implementation {
         if (nextValue === null) {
             if (prevLooksLikeFile && prevValue) {
                 try {
-                    await this.fileAdapter.delete(prevValue)
+                    await this.adapter.delete(prevValue)
                 } catch (err) {
                     // Ignore delete errors to prevent blocking the update.
                     // File will remain orphaned in storage but DB will be updated correctly.
@@ -345,7 +370,7 @@ class ExternalContentImplementation extends Implementation {
         // Include record ID in filename for uniqueness and consistency with backfill script.
         // Note: FileAdapter with saveFileName=false will generate actual unique filename.
         const originalFilename = `${prefix}_${this.path}_${id}.${this.fileExt}`
-        const saved = await this.fileAdapter.save({
+        const saved = await this.adapter.save({
             stream,
             filename: originalFilename,
             mimetype: this.mimetype,
@@ -356,7 +381,7 @@ class ExternalContentImplementation extends Implementation {
 
         if (prevLooksLikeFile && prevValue) {
             try {
-                await this.fileAdapter.delete(prevValue)
+                await this.adapter.delete(prevValue)
             } catch (err) {
                 // Ignore delete errors. New file is already saved, so update can proceed.
                 // Old file will remain orphaned in storage.

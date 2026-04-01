@@ -10,6 +10,9 @@ function isPlainObject (value) {
  * This helper is intended for scripts/tooling (e.g. backfills) and field implementations
  * that need to distinguish between inline JSON values and file-meta references.
  *
+ * File-meta objects have id and filename properties. The combination of these two
+ * properties is sufficient to identify a file reference vs inline JSON data.
+ *
  * @param {unknown} value
  * @param {{ requireNonEmpty?: boolean }} [opts]
  * @returns {boolean}
@@ -22,6 +25,7 @@ function isFileMeta (value, opts = {}) {
     const id = value.id
     const filename = value.filename
 
+    // File-meta objects must have id and filename
     if (typeof id !== 'string' || typeof filename !== 'string') return false
     if (!requireNonEmpty) return true
 
