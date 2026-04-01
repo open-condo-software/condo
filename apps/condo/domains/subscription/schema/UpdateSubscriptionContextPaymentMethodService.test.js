@@ -76,7 +76,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             expect(updatedContext.bindingId).toBe(bindingId)
         })
 
-        test('support can update subscription context payment method', async () => {
+        test('support can not update subscription context payment method', async () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
@@ -87,12 +87,12 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const bindingId = faker.datatype.uuid()
 
-            const [result] = await updateSubscriptionContextPaymentMethodByTestClient(support, {
-                subscriptionContext: { id: context.id },
-                bindingId,
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await updateSubscriptionContextPaymentMethodByTestClient(support, {
+                    subscriptionContext: { id: context.id },
+                    bindingId,
+                })
             })
-
-            expect(result.id).toBe(context.id)
         })
 
         test('employee with canManageSubscriptions can update payment method', async () => {
