@@ -410,8 +410,8 @@ describe('processRecurrentSubscriptionPayments', () => {
         })
     })
 
-    describe('ERROR_NEED_RETRY status handling', () => {
-        test('does not process ERROR_NEED_RETRY contexts (only DONE)', async () => {
+    describe('PENDING status handling', () => {
+        test('does not process PENDING contexts (only DONE)', async () => {
             const [organization] = await createTestOrganization(adminClient)
             
             const bindingId = faker.datatype.uuid()
@@ -427,7 +427,7 @@ describe('processRecurrentSubscriptionPayments', () => {
 
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
                 bindingId,
                 startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
                 endAt,

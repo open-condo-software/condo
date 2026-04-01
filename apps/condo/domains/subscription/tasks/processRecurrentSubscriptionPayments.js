@@ -86,7 +86,7 @@ async function processRecurrentSubscriptionPayments () {
             const isLastBufferDay = !dayjs(endAt).isAfter(dayjs(bufferDate))
             const errorStatus = isLastBufferDay 
                 ? SUBSCRIPTION_CONTEXT_STATUS.ERROR 
-                : SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY
+                : SUBSCRIPTION_CONTEXT_STATUS.PENDING
 
             try {
                 const paymentResult = await SubscriptionPaymentAdapter.proceedPayment({

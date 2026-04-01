@@ -183,13 +183,13 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     return { subscriptionContext, directPaymentUrl, multiPayment }
                 }
 
-                // Reuse existing ERROR_NEED_RETRY context from buffer period (retry failed payments)
+                // Reuse existing PENDING context from buffer period (retry failed payments)
                 const [existingErrorNeedRetry] = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     subscriptionPlanPricingRule: { id: pricingRule.id },
                     startAt_gte: bufferDate,
                     startAt_lte: today.format('YYYY-MM-DD'),
-                    status: SUBSCRIPTION_CONTEXT_STATUS.ERROR_NEED_RETRY,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
                     deletedAt: null,
                 })
                 if (existingErrorNeedRetry) {
