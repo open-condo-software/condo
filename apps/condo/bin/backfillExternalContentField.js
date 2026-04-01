@@ -125,7 +125,7 @@ async function main () {
 
     // Initialize Keystone app
     console.log('\n🔧 Initializing Keystone app...')
-    const { keystone } = await prepareKeystoneExpressApp(path.resolve(__dirname, '..'))
+    const { keystone } = await prepareKeystoneExpressApp(path.resolve(__dirname, '..'), { excludeApps: ['NextApp', 'AdminUIApp'] })
     const context = await keystone.createContext({ skipAccessControl: true })
 
     let processed = 0
