@@ -15,18 +15,41 @@ function isPlainObject (value) {
  * This helper is intended for scripts/tooling (e.g. backfills) and field implementations
  * that need to distinguish between inline JSON values and file-meta references.
  *
- * File-meta objects have id and filename properties. The combination of these two
- * properties is sufficient to identify a file reference vs inline JSON data.
+ * File-meta objects always have `id` and `filename` properties.
+ *
+ * We accept both shapes:
+ * - `{ _type: FILE_META_TYPE, id, filename, ... }` (preferred)
+ * - `{ id, filename, ... }` (also accepted for compatibility)
  *
  * @param {unknown} value
  * @param {{ requireNonEmpty?: boolean }} [opts]
  * @returns {boolean}
  */
-function isFileMeta (value) {
+function isFileMeta (value, opts = {}) {
     if (!isPlainObject(value)) return false
 
-    // File-meta objects must have the _type marker
-    return value._type === FILE_META_TYPE
+    const { requireNonEmpty = true } = opts
+
+    // If _type is present it must match
+    if (typeof value._type !== 'undefined' && value._type !== FILE_META_TYPE) return false
+
+    const hasValidString = (v) => typeof v === 'string' && (!requireNonEmpty || v.length > 0)
+
+    if (!hasValidString(value.id)) return false
+    if (!hasValidString(value.filename)) return false
+
+    // Guard against accidentally treating arbitrary JSON as file-meta:
+    // require the object to contain only known file-meta keys.
+    const allowedKeys = new Set([
+        '_type',
+        'id',
+        'filename',
+        'mimetype',
+        'originalFilename',
+        'encoding',
+        'meta',
+    ])
+    return Object.keys(value).every((key) => allowedKeys.has(key))
 }
 
 /**

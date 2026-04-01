@@ -52,7 +52,7 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(res).toEqual({ id: 'new', filename: 'new.bin' })
+            expect(res).toEqual({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' })
             expect(calls).toEqual(['save', 'delete'])
         })
 
@@ -144,7 +144,7 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(result).toEqual({ id: 'new', filename: 'new.bin' })
+            expect(result).toEqual({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' })
             expect(adapter.delete).toHaveBeenCalled()
         })
     })
@@ -582,8 +582,64 @@ describe('ExternalContent field type', () => {
                 listKey: 'TestList',
             })
             
-            expect(result).toEqual({ id: 'new', filename: 'new.json' })
+            expect(result).toEqual({ id: 'new', filename: 'new.json', _type: 'ExternalContent.file-meta' })
             expect(adapter.save).toHaveBeenCalled()
+        })
+    })
+
+    describe('File-meta type marker', () => {
+        describe('Type identification', () => {
+            test('should add _type marker to saved file-meta objects', async () => {
+                const adapter = {
+                    save: jest.fn(async () => ({ id: 'test-id', filename: 'test.json' })),
+                    delete: jest.fn(),
+                }
+
+                const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+                const result = await impl.resolveInput({
+                    resolvedData: { raw: { test: 'data' } },
+                    existingItem: null,
+                    listKey: 'TestList',
+                })
+
+                // Verify _type marker is added
+                expect(result).toHaveProperty('_type', 'ExternalContent.file-meta')
+                expect(result).toEqual({
+                    id: 'test-id',
+                    filename: 'test.json',
+                    _type: 'ExternalContent.file-meta',
+                })
+            })
+
+            test('should preserve other properties when adding _type marker', async () => {
+                const adapter = {
+                    save: jest.fn(async () => ({
+                        id: 'test-id',
+                        filename: 'test.json',
+                        mimetype: 'application/json',
+                        originalFilename: 'original.json',
+                        size: 1234,
+                    })),
+                    delete: jest.fn(),
+                }
+
+                const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+                const result = await impl.resolveInput({
+                    resolvedData: { raw: { test: 'data' } },
+                    existingItem: null,
+                    listKey: 'TestList',
+                })
+
+                // Verify all properties are preserved and _type is added
+                expect(result).toEqual({
+                    id: 'test-id',
+                    filename: 'test.json',
+                    mimetype: 'application/json',
+                    originalFilename: 'original.json',
+                    size: 1234,
+                    _type: 'ExternalContent.file-meta',
+                })
+            })
         })
     })
 })
