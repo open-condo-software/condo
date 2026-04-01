@@ -16,7 +16,7 @@ const {
     ACQUIRING_INTEGRATION_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
     INVOICE_CONTEXT_NOT_FINISHED,
-    MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
+    MULTIPLE_ACQUIRING_INTEGRATION,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
@@ -62,9 +62,9 @@ const ERRORS = {
         message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
         messageInterpolation: { ids: ids.sort().join(',') },
     }),
-    MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
+    MULTIPLE_ACQUIRING_INTEGRATION: {
         code: BAD_USER_INPUT,
-        type: MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
+        type: MULTIPLE_ACQUIRING_INTEGRATION,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
@@ -149,7 +149,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                 ])
 
                 if (acquiringIntegrations.size > 1) {
-                    throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
+                    throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION, context)
                 }
 
                 const [acquiringIntegrationModel] = await AcquiringIntegration.getAll(context, {

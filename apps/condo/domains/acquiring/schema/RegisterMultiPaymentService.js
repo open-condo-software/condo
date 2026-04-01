@@ -146,7 +146,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     acquiringContexts = resolvedAcquiringContexts.list
                     acquiringContextsByConsumerId = resolvedAcquiringContexts.byConsumerId
                 } else {
-                    const loadedInvoices = await loadInvoicesByIds(invoices.map(({ id }) => id))
+                    const loadedInvoices = await loadInvoicesByIds(invoices.map(({ id }) => id), context)
                     foundInvoices = loadedInvoices.list
 
                     const deletedInvoicesIds = foundInvoices.filter(({ deletedAt }) => !!deletedAt).map(({ id }) => id)

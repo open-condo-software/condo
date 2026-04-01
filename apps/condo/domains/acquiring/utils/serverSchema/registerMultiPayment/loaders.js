@@ -60,7 +60,7 @@ async function loadResidentsByIds (residentIds) {
     return { byId, list: residents }
 }
 
-async function loadInvoicesByIds (invoiceIds) {
+async function loadInvoicesByIds (invoiceIds, context) {
     const invoices = await find('Invoice', { id_in: [...new Set(invoiceIds)] })
 
     if (invoices.length !== invoiceIds.length) {
