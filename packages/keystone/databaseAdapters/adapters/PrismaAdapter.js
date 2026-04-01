@@ -150,9 +150,39 @@ if (!PrismaListAdapter.prototype._coerceId) {
     }
 }
 
-const _origProcessWheres = PrismaListAdapter.prototype.processWheres
 PrismaListAdapter.prototype.processWheres = async function (where) {
-    const result = await _origProcessWheres.call(this, where)
+    const processRelClause = async (fieldPath, clause) =>
+        this.getListAdapterByKey(this.fieldAdaptersByPath[fieldPath].refListKey).processWheres(clause)
+
+    const wheres = await Promise.all(Object.entries(where).map(async ([condition, value]) => {
+        if (condition === 'AND' || condition === 'OR') {
+            return { [condition]: await Promise.all(value.map(w => this.processWheres(w))) }
+        } else if (
+            this.fieldAdaptersByPath[condition] &&
+            this.fieldAdaptersByPath[condition].isRelationship
+        ) {
+            const refListAdapter = this.getListAdapterByKey(this.fieldAdaptersByPath[condition].refListKey)
+            const processedWhere = await refListAdapter.processWheres(value)
+            return processedWhere ? { [condition]: { is: processedWhere } } : { [condition]: { isNot: null } }
+        } else {
+            let dbPath = condition
+            let fieldAdapter = this.fieldAdaptersByPath[dbPath]
+            while (!fieldAdapter && dbPath.includes('_')) {
+                dbPath = dbPath.split('_').slice(0, -1).join('_')
+                fieldAdapter = this.fieldAdaptersByPath[dbPath]
+            }
+
+            const supported = fieldAdapter && fieldAdapter.getQueryConditions(fieldAdapter.dbPath)[condition]
+            if (supported) {
+                return supported(value)
+            } else {
+                const [fieldPath, constraintType] = condition.split('_')
+                return { [fieldPath]: { [constraintType]: await processRelClause(fieldPath, value) } }
+            }
+        }
+    }))
+
+    const result = wheres.length === 0 ? undefined : wheres.length === 1 ? wheres[0] : { AND: wheres }
     return _sanitizeEmptyOrConditions(result)
 }
 
