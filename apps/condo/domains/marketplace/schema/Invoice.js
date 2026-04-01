@@ -78,8 +78,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
-const { activateSubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { activateSubscriptionForInvoice } = require('@condo/domains/subscription/tasks')
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -770,22 +769,7 @@ const Invoice = new GQLListSchema('Invoice', {
             const isPaid = get(updatedItem, 'status') === INVOICE_STATUS_PAID
             
             if (statusChanged && isB2BInvoice && isPaid) {
-                const sender = { dv: 1, fingerprint: 'invoice_afterChange' }
-                
-                const [subscriptionContext] = await find('SubscriptionContext', {
-                    invoice: { id: updatedItem.id },
-                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                    deletedAt: null,
-                })
-                
-                if (subscriptionContext) {
-                    await activateSubscriptionContext(context, {
-                        sender,
-                        subscriptionContext: { id: subscriptionContext.id },
-                    })
-                } else {
-                    logger.warn({ msg: 'SubscriptionContext not found for paid B2B invoice', data: { invoiceId: updatedItem.id, invoiceStatus: updatedItem.status, invoiceType: updatedItem.type } })
-                }
+                await activateSubscriptionForInvoice.delay(updatedItem.id)
             }
         },
     },
