@@ -5,7 +5,7 @@ const { Implementation } = require('@open-keystone/fields')
 const cuid = require('cuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
+const { FILE_META_TYPE, isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { FileContentLoader } = require('./FileContentLoader')
 const { validateFilePath } = require('./utils')
@@ -25,14 +25,13 @@ const DEFAULT_PROCESSORS = {
         graphQLInputType: 'JSON',
         graphQLReturnType: 'JSON',
         serialize: (value) => JSON.stringify(value ?? null),
-        deserialize: (raw) => {
-            if (raw.length === 0) return null
+        deserialize: (raw) => (raw.length === 0 ? null : (() => {
             try {
                 return JSON.parse(raw)
             } catch (err) {
                 throw new Error(`Failed to parse JSON content: ${err.message}`)
             }
-        },
+        })()),
         mimetype: 'application/json',
         fileExt: 'json',
     },
@@ -317,9 +316,16 @@ class ExternalContentImplementation extends Implementation {
      * 
      * Known limitation: If database update fails after save() succeeds but before transaction commits,
      * the new file will be orphaned in storage while the old file reference remains in DB.
-     * This is an acceptable trade-off vs losing the previous file. Proper cleanup would require
-     * transaction hooks or a background cleanup job.
-     * TODO: Consider implementing orphaned file cleanup mechanism in the future.
+     * This is an acceptable trade-off vs losing the previous file.
+     * 
+     * Potential mitigation strategies for future implementation:
+     * 1. Transaction hooks: Use Keystone afterChange hooks to delete orphaned files on transaction rollback
+     * 2. Background cleanup job: Periodic scan for files not referenced in database
+     * 3. Two-phase commit: Implement compensation logic to rollback file save on DB failure
+     * 4. Reference counting: Track file references and delete when count reaches zero
+     * 
+     * Current impact: Low - orphaned files accumulate slowly and only on transaction failures.
+     * Storage cost is typically negligible compared to preventing data loss.
      * 
      * @param {Object} params
      * @param {Object} params.resolvedData - New field values
@@ -351,16 +357,10 @@ class ExternalContentImplementation extends Implementation {
         // Save first, then delete old file.
         // This prevents losing the previous file if save() fails.
         
-        // For JSON format, do early size estimation before expensive serialization
-        if (this.format === 'json' && nextValue !== null && typeof nextValue === 'object') {
-            const estimatedSize = Buffer.byteLength(JSON.stringify(nextValue), 'utf-8')
-            this._validatePayloadSize(estimatedSize)
-        }
-        
         const payload = this.serialize(nextValue)
         const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
         
-        // Validate size limit (final check after serialization)
+        // Validate size limit after serialization
         this._validatePayloadSize(payloadSizeBytes)
         
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
@@ -389,7 +389,8 @@ class ExternalContentImplementation extends Implementation {
             }
         }
 
-        return saved
+        // Add _type marker for better file-meta detection
+        return { ...saved, _type: FILE_META_TYPE }
     }
 }
 

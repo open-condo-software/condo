@@ -1,3 +1,8 @@
+// WARNING: Changing this value requires database migration!
+// All existing file-meta objects in the database have _type set to this value.
+// If you change it, you must migrate all existing records to use the new value.
+const FILE_META_TYPE = 'ExternalContent.file-meta'
+
 function isPlainObject (value) {
     if (value === null || typeof value !== 'object') return false
     const proto = Object.getPrototypeOf(value)
@@ -17,19 +22,11 @@ function isPlainObject (value) {
  * @param {{ requireNonEmpty?: boolean }} [opts]
  * @returns {boolean}
  */
-function isFileMeta (value, opts = {}) {
-    const requireNonEmpty = opts.requireNonEmpty !== false
-
+function isFileMeta (value) {
     if (!isPlainObject(value)) return false
 
-    const id = value.id
-    const filename = value.filename
-
-    // File-meta objects must have id and filename
-    if (typeof id !== 'string' || typeof filename !== 'string') return false
-    if (!requireNonEmpty) return true
-
-    return id.length > 0 && filename.length > 0
+    // File-meta objects must have the _type marker
+    return value._type === FILE_META_TYPE
 }
 
 /**
@@ -91,6 +88,7 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
 }
 
 module.exports = {
+    FILE_META_TYPE,
     createExternalDataField,
     isFileMeta,
 }

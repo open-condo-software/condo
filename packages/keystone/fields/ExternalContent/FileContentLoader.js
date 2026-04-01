@@ -1,5 +1,6 @@
 const { readFile } = require('fs/promises')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { validateFilePath } = require('./utils')
@@ -45,6 +46,9 @@ class FileContentLoader {
         // Batch timer
         this.batchTimer = null
         
+        // Flag to prevent race condition in batch scheduling
+        this._schedulingBatch = false
+        
         // Batch delay in milliseconds (one event loop tick)
         // Can be set to 0 for immediate execution
         this.batchDelayMs = options.batchDelayMs !== undefined ? options.batchDelayMs : DEFAULT_BATCH_DELAY_MS
@@ -79,14 +83,18 @@ class FileContentLoader {
             this.queue.push({ fileMeta, resolve, reject })
             
             // Schedule batch execution if not already scheduled
-            if (!this.batchTimer) {
+            // Use flag to prevent race condition between check and set
+            if (!this.batchTimer && !this._schedulingBatch) {
+                this._schedulingBatch = true
                 if (this.batchDelayMs === 0) {
                     // Use setImmediate for immediate execution
                     this.batchTimer = setImmediate(() => {
+                        this._schedulingBatch = false
                         this._executeBatch()
                     })
                 } else {
                     this.batchTimer = setTimeout(() => {
+                        this._schedulingBatch = false
                         this._executeBatch()
                     }, this.batchDelayMs)
                 }
@@ -98,7 +106,10 @@ class FileContentLoader {
         this.cache.set(cacheKey, promise)
         
         // Clean up pending map after promise settles
-        promise.finally(() => {
+        // Remove from cache on rejection to allow retry of transient errors
+        promise.catch(() => {
+            this.cache.delete(cacheKey)
+        }).finally(() => {
             this.pending.delete(cacheKey)
         })
         
@@ -170,6 +181,12 @@ class FileContentLoader {
                 } else {
                     await this._executeBatchCloud(batch)
                 }
+            } catch (err) {
+                // Reject all pending promises on batch failure
+                batch.forEach(({ reject }) => {
+                    reject(new Error(`Batch execution failed: ${err.message}`))
+                })
+                throw err
             } finally {
                 // Batch processing complete
             }
@@ -232,8 +249,18 @@ class FileContentLoader {
                     throw new Error(`Invalid URL generated for file: ${fileMeta.filename}`)
                 }
                 
-                const res = await fetch(directUrl)
+                const res = await fetch(directUrl, {
+                    abortRequestTimeout: 30000, // 30 second timeout
+                    skipTracingHeaders: true,
+                    skipXTargetHeader: true,
+                })
                 if (!res.ok) {
+                    // Handle 404 like local adapter - resolve with null instead of rejecting
+                    if (res.status === 404) {
+                        logger.warn({ msg: 'File not found in cloud storage', filename: fileMeta.filename })
+                        resolve(null)
+                        return
+                    }
                     throw new Error(`Fetch failed with status ${res.status} for file: ${fileMeta.filename}`)
                 }
                 
