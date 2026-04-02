@@ -92,7 +92,6 @@ describe('pushTokensInput', () => {
                     { token: 'token2', provider: 'ios', isVoIP: true, isPush: true, pushType: 'simple' },
                     { token: 'token3', provider: 'ios', isVoIP: true, isPush: false, pushType: 'simple' },
                 ],
-                expectedError: PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_provider,
             },
             {
                 testName: 'exactly 2 voip and 1 simple tokens for same provider',
@@ -117,7 +116,7 @@ describe('pushTokensInput', () => {
                     { token: 'token3', provider: 'ios', isVoIP: false, isPush: true },
                 ],
             },
-        ])('should return TOO_MANY_TOKENS_FOR_provider error when $testName', ({ tokens }) => {
+        ])('should return TOO_MANY_TOKENS_FOR_TRANSPORT error when $testName', ({ tokens }) => {
             const error = getPushTokensValidationError(tokens)
             expect(error).toEqual(PUSH_TOKENS_VALIDATION_ERRORS.TOO_MANY_TOKENS_FOR_TRANSPORT)
         })
