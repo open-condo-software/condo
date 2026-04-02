@@ -3,7 +3,8 @@ const { readFile } = require('fs/promises')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { validateFilePath } = require('./utils')
+const {  validateFilePath } = require('./validateFilePath')
+
 
 const logger = getLogger('FileContentLoader')
 
@@ -277,6 +278,4 @@ class FileContentLoader {
     }
 }
 
-module.exports = {
-    FileContentLoader,
-}
+module.exports = { FileContentLoader }

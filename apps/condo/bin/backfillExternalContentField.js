@@ -23,9 +23,9 @@ const path = require('path')
 
 const commander = require('commander')
 
+const { ExternalContent: { isFileMeta } } = require('@open-condo/keystone/fieldsUtils')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { itemsQuery } = require('@open-condo/keystone/schema')
-const { isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { prompt } = require('./lib/prompt')
 

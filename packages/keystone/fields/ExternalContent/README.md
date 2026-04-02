@@ -36,7 +36,8 @@ const MySchema = {
 ### Using the Helper Function
 
 ```javascript
-const { createExternalDataField } = require('@open-condo/keystone/utils/externalContentFieldType')
+const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
+const { createExternalDataField } = ExternalContent
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
 const MyFieldFileAdapter = new FileAdapter('MyFieldFolder')

@@ -1,7 +1,8 @@
+const { ExternalContent: { createExternalDataField } } = require('@open-condo/keystone/fieldsUtils')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { createExternalDataField } = require('@open-condo/keystone/utils/externalContentFieldType')
 
 const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
+
 
 const BILLING_FILE_ADAPTER = new FileAdapter('BillingIntegrations')
 const BillingReceiptRawFieldFileAdapter = new FileAdapter('BillingReceiptRawField')

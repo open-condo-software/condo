@@ -1,25 +1,17 @@
-const { readFile } = require('fs/promises')
 const { Readable } = require('stream')
 
 const { Implementation } = require('@open-keystone/fields')
 const cuid = require('cuid')
 
+const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { FILE_META_TYPE, isFileMeta } = require('@open-condo/keystone/utils/externalContentFieldType')
 
-const { FileContentLoader } = require('./FileContentLoader')
-const { validateFilePath } = require('./utils')
 
+const { FILE_META_TYPE, isFileMeta, resolveExternalContentValue } = ExternalContent
 const logger = getLogger('ExternalContent')
 
-// WeakMap to store unique loader keys per adapter instance
-// This prevents loader key collisions when multiple adapters have the same folder name
-const adapterLoaderKeys = new WeakMap()
-
 const DEFAULT_FORMAT = 'json'
-// Default max size: 10MB
-const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024
-
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
 const DEFAULT_PROCESSORS = {
     json: {
         graphQLInputType: 'JSON',
@@ -51,89 +43,6 @@ const DEFAULT_PROCESSORS = {
         mimetype: 'text/plain',
         fileExt: 'txt',
     },
-}
-
-/**
- * Reads file contents for ExternalContent field from the provided adapter.
- *
- * Why not just `fetch(file.publicUrl)`?
- * - `publicUrl()` often returns an indirect URL like `/api/files/...` served by our app.
- * - Those endpoints frequently require authentication (cookie / Authorization / signature).
- * - Field resolvers do not have a browser session and should not depend on request-specific auth.
- *
- * Therefore:
- * - For cloud adapters we use `adapter.acl.generateUrl(...)` to get a short-lived signed *direct* URL
- *   (S3/OBS), and fetch bytes from it without cookies.
- * - For local adapter we read from filesystem directly via `adapter.src`.
- *
- * @param {*} adapter File adapter instance passed into field config
- * @param {{ filename: string, mimetype?: string, originalFilename?: string }} fileMeta Stored file-meta object
- * @returns {Promise<Buffer>}
- */
-async function readFromAdapter (adapter, fileMeta) {
-    const filename = fileMeta.filename
-
-    // Local adapter (from `packages/keystone/fileAdapter/fileAdapter.js`)
-    if (typeof adapter?.src === 'string') {
-        const fullPath = validateFilePath(adapter.src, filename)
-        return Buffer.from(await readFile(fullPath))
-    }
-
-    // Cloud adapters provide acl.generateUrl which returns a signed, time-limited direct URL.
-    // It does not require auth cookies (unlike indirect /api/files/... urls from publicUrl()).
-    if (adapter?.acl && typeof adapter.acl.generateUrl === 'function' && adapter.folder) {
-        const directUrl = adapter.acl.generateUrl({
-            filename: `${adapter.folder}/${filename}`,
-            mimetype: fileMeta.mimetype,
-            originalFilename: fileMeta.originalFilename,
-        })
-        
-        if (!directUrl || typeof directUrl !== 'string') {
-            throw new Error(`Invalid URL generated for file: ${filename}`)
-        }
-        
-        const res = await fetch(directUrl)
-        if (!res.ok) {
-            throw new Error(`Fetch failed with status ${res.status} for file: ${filename}`)
-        }
-        const buf = Buffer.from(await res.arrayBuffer())
-        return buf
-    }
-
-    throw new Error('ExternalContent: unsupported file adapter for read')
-}
-
-/**
- * Get or create a FileContentLoader for the given adapter.
- * 
- * Implements lazy initialization: creates loader on first access and reuses it for subsequent calls.
- * Each adapter instance gets its own unique loader (keyed by adapter instance via WeakMap).
- * 
- * @param {Object} context - GraphQL context object
- * @param {Object} adapter - File adapter instance
- * @param {number} [batchDelayMs] - Time window in milliseconds to collect requests before executing batch
- * @returns {FileContentLoader} Loader instance for this adapter
- */
-function getOrCreateLoader (context, adapter, batchDelayMs) {
-    // Initialize loaders map if not exists
-    if (!context._externalContentLoaders) {
-        context._externalContentLoaders = new Map()
-    }
-    
-    // Use adapter instance as key via WeakMap to prevent collisions
-    // This ensures different adapter instances get different loaders even if they have the same folder
-    if (!adapterLoaderKeys.has(adapter)) {
-        adapterLoaderKeys.set(adapter, Symbol('loader'))
-    }
-    const loaderKey = adapterLoaderKeys.get(adapter)
-    
-    // Return existing loader or create new one
-    if (!context._externalContentLoaders.has(loaderKey)) {
-        const options = batchDelayMs !== undefined ? { batchDelayMs } : undefined
-        context._externalContentLoaders.set(loaderKey, new FileContentLoader(adapter, options))
-    }
-    
-    return context._externalContentLoaders.get(loaderKey)
 }
 
 class ExternalContentImplementation extends Implementation {
@@ -222,71 +131,30 @@ class ExternalContentImplementation extends Implementation {
     /**
      * Resolves the field value for GraphQL output by reading the file content from storage.
      * 
-     * For backward compatibility, returns inline JSON objects directly if they don't have file-meta structure.
-     * For file-meta objects, fetches the file content and deserializes it.
-     * 
-     * Performance optimization:
-     * - Uses DataLoader for batching and caching when context is available (GraphQL queries)
-     * - Batches multiple file reads into single operation (10ms window)
-     * - Caches results within request to prevent duplicate reads
-     * - Falls back to direct readFromAdapter for non-GraphQL usage
-     * 
-     * Note: This reads the entire file into memory. For very large files (10MB+), this could cause
-     * memory pressure under load. Current use case (BillingReceipt.raw) typically has files <1MB.
+     * Delegates to resolveExternalContentValue utility which handles:
+     * - Backward compatibility with inline JSON objects
+     * - File-meta object resolution with DataLoader batching
+     * - Graceful handling of missing files
      * 
      * @returns {Object} Field resolver mapping
      */
     gqlOutputFieldResolvers () {
         return {
             [this.path]: async (item, args, context) => {
-                let value = item?.[this.path]
-                if (value === null || typeof value === 'undefined') return value
-
-                // Parse JSON string if needed (database stores serialized JSON)
-                if (typeof value === 'string') {
-                    try {
-                        value = JSON.parse(value)
-                    } catch (err) {
-                        // If parsing fails, return the string as-is (backward compatibility)
-                        return value
-                    }
-                }
-
-                // Backward compatibility: old `Json` field stored raw object directly in DB
-                if (!isFileMeta(value)) return value
-
-                // Use DataLoader for batching and caching when context is available
-                let buf
+                const value = item?.[this.path]
                 try {
-                    if (context) {
-                        const loader = getOrCreateLoader(context, this.adapter, this.batchDelayMs)
-                        buf = await loader.load(value)
-                    } else {
-                        // Fallback to direct read for non-GraphQL usage (tests, scripts, etc.)
-                        buf = await readFromAdapter(this.adapter, value)
-                    }
-                } catch (err) {
-                    // Handle missing files gracefully - return null instead of crashing
-                    if (err.code === 'ENOENT') {
-                        const itemId = item?.id || 'unknown'
-                        logger.warn({ msg: 'File not found for ExternalContent field', field: this.path, itemId, filename: value?.filename || 'unknown' })
-                        return null
-                    }
-                    throw err
-                }
-                
-                // Handle null buffer from FileContentLoader (missing file)
-                if (buf === null) {
-                    return null
-                }
-                
-                try {
-                    const raw = buf.toString('utf-8')
-                    return this.deserialize(raw)
+                    return await resolveExternalContentValue(value, {
+                        adapter: this.adapter,
+                        deserialize: this.deserialize,
+                        context,
+                        batchDelayMs: this.batchDelayMs,
+                        fieldPath: this.path,
+                        item,
+                    })
                 } catch (err) {
                     const itemId = item?.id || 'unknown'
-                    const errMsg = err?.message || String(err)
-                    throw new Error(`Failed to deserialize ${this.path} for item ${itemId}: ${errMsg}`)
+                    logger.warn({ msg: 'Error resolving ExternalContent field', field: this.path, itemId, err })
+                    throw err
                 }
             },
         }
@@ -388,13 +256,13 @@ class ExternalContentImplementation extends Implementation {
 
         // Save first, then delete old file.
         // This prevents losing the previous file if save() fails.
-        
+
         const payload = this.serialize(nextValue)
         const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
-        
+
         // Validate size limit after serialization
         this._validatePayloadSize(payloadSizeBytes)
-        
+
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
         const prefix = listKey || 'item'

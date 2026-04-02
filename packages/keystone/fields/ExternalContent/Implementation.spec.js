@@ -4,6 +4,12 @@ jest.mock('fs/promises', () => ({
     readFile: mockReadFile,
 }))
 
+// Mock fetch before importing Implementation
+const mockFetch = jest.fn()
+jest.mock('@open-condo/keystone/fetch', () => ({
+    fetch: mockFetch,
+}))
+
 // Mock logger to avoid console output in tests
 jest.mock('@open-condo/keystone/logging', () => ({
     getLogger: () => ({
@@ -262,8 +268,12 @@ describe('ExternalContent field type', () => {
     describe('readFromAdapter error handling', () => {
         // Note: readFromAdapter is not exported, so we test it indirectly through gqlOutputFieldResolvers
         
+        beforeEach(() => {
+            mockFetch.mockClear()
+        })
+        
         afterEach(() => {
-            delete global.fetch
+            mockFetch.mockClear()
         })
 
         test('handles cloud adapter with mimetype parameter', async () => {
@@ -275,11 +285,14 @@ describe('ExternalContent field type', () => {
                 folder: 'test-folder',
             }
 
-            // Mock global fetch
-            global.fetch = jest.fn(async () => ({
+            // Setup mock fetch to return successful response
+            mockFetch.mockResolvedValueOnce({
                 ok: true,
-                arrayBuffer: async () => Buffer.from(JSON.stringify({ test: 'data' })),
-            }))
+                arrayBuffer: async () => {
+                    const data = JSON.stringify({ test: 'data' })
+                    return new TextEncoder().encode(data).buffer
+                },
+            })
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             const resolver = impl.gqlOutputFieldResolvers().raw
@@ -325,10 +338,10 @@ describe('ExternalContent field type', () => {
                 folder: 'test-folder',
             }
 
-            global.fetch = jest.fn(async () => ({
+            mockFetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404,
-            }))
+            })
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             const resolver = impl.gqlOutputFieldResolvers().raw
@@ -346,16 +359,15 @@ describe('ExternalContent field type', () => {
                 folder: 'test-folder',
             }
 
-            global.fetch = jest.fn(async () => {
-                throw new Error('Network error')
-            })
+            // Setup mock fetch to throw network error
+            mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             const resolver = impl.gqlOutputFieldResolvers().raw
             
             await expect(resolver({
                 raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('Network error')
+            })).rejects.toThrow('ExternalContent: failed to read file test.json: Network error')
         })
     })
 

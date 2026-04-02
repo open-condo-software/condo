@@ -5,6 +5,7 @@
   "bin": "./bin/cli.js",
   "exports": {
     "./fields": "./fields/index.js",
+    "./fieldsUtils": "./fieldsUtils/index.js",
     "./file": "./file/index.js",
     "./logging": "./logging/index.js",
     "./middlewares": "./middlewares/index.js",
