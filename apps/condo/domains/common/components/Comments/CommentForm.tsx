@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import cookie from 'js-cookie'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Paperclip, Sparkles } from '@open-condo/icons'
+import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Input, Button, Tour, Tooltip } from '@open-condo/ui'
 
@@ -21,6 +21,7 @@ import { CommentWithFiles } from './index'
 
 const ENTER_KEY_CODE = 13
 const TourStepZIndex = 1071
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
 interface IRewriteTextButtonProps {
     hasText: boolean
@@ -154,9 +155,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })   
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
 
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')
+    const [copied, setCopied] = useState<boolean>()
     const [isUpdateLoading, setIsUpdateLoading] = useState(false)
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
@@ -250,6 +254,19 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             setAiNotificationShow(true)
         }
     }, [errorMessage, generateCommentAnswer, rewriteTextAnswer, setAiNotificationShow])
+
+    const handleCopyClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            await navigator.clipboard.writeText(commentValue)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied, commentValue])
 
     useEffect(() => {
         commentForm.setFieldsValue({ [fieldName]: commentValue })
@@ -368,7 +385,21 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     key='uploadButton'
                                     isInputDisable={isInputDisable}
                                 />,
-                                'copy',
+                                <Tooltip
+                                    title={copied ? CopiedTooltipText : CopyTooltipText }
+                                    placement='top'
+                                    key='copyButton'
+                                >
+                                    <Button
+                                        minimal
+                                        compact
+                                        type='secondary'
+                                        size='medium'
+                                        disabled={!hasText || isInputDisable}
+                                        onClick={handleCopyClick}
+                                        icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+                                    />
+                                </Tooltip>,
                                 ...(rewriteCommentEnabled ? [
                                     <SubscriptionGuardWithTooltip
                                         key='10'

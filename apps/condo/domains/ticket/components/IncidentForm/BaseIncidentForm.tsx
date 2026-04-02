@@ -31,11 +31,11 @@ import { DefaultOptionType } from 'rc-select/lib/Select'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
-import { Sparkles } from '@open-condo/icons'
+import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Space, Radio, RadioGroup, Input, Button } from '@open-condo/ui'
+import { Alert, Space, Radio, RadioGroup, Input, Button, Tooltip } from '@open-condo/ui'
 
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FLOW_TYPES } from '@condo/domains/ai/constants'
@@ -301,6 +301,8 @@ const getPropertyKey = (incidentProperty: GetIncidentPropertiesByIncidentIdQuery
 
 const INITIAL_VALUES = {} as BaseIncidentFormProps['initialValues']
 
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
+
 type TextForResidentInputProps = {
     incidentForm: FormInstance
     incidentId?: string
@@ -310,11 +312,14 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
 
     const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
     const TextForResidentPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.textForResident.placeholder' })
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.improveText' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
     const textAreaRef = useRef<InputRef>()
     const [rewriteText, setRewriteText] = useState<string>('')
+    const [copied, setCopied] = useState<boolean>()
     const [aiNotificationShow, setAiNotificationShow] = useState<boolean>(false)
     const [errorMessage, setErrorMessage] = useState('')
 
@@ -410,6 +415,20 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
         closeAINotification()
     }
 
+    const handleCopyClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            const value = incidentForm.getFieldValue('textForResident')
+            await navigator.clipboard.writeText(value)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied])
+
     return (
         <Form.Item
             label={TextForResidentLabel}
@@ -443,7 +462,21 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                     autoSize={{ minRows: 2, maxRows: 5 }}
                                     className={styles.textAreaWithoutSubmit}
                                     bottomPanelUtils={[
-                                        'copy',
+                                        <Tooltip
+                                            title={copied ? CopiedTooltipText : CopyTooltipText }
+                                            placement='top'
+                                            key='copyButton'
+                                        >
+                                            <Button
+                                                minimal
+                                                compact
+                                                type='secondary'
+                                                size='medium'
+                                                disabled={!value || rewriteTextLoading}
+                                                onClick={handleCopyClick}
+                                                icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+                                            />
+                                        </Tooltip>,
                                         ...(aiEnabled && rewriteIncidentTextForResidentEnabled ? [
                                             <SubscriptionGuardWithTooltip
                                                 key='improveButton'

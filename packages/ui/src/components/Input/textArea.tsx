@@ -5,7 +5,7 @@ import { TextAreaProps as AntdTextAreaProps } from 'antd/es/input'
 import classNames from 'classnames'
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, TextareaHTMLAttributes } from 'react'
 
-import { ArrowUp, CheckCircle, Copy, Smile } from '@open-condo/icons'
+import { ArrowUp, Smile } from '@open-condo/icons'
 
 import { Button } from '../Button'
 import { Dropdown } from '../Dropdown'
@@ -16,7 +16,6 @@ import type { InputRef } from 'antd'
 const { TextArea: DefaultTextArea } = DefaultInput
 
 export const TEXTAREA_CLASS_PREFIX = 'condo-input'
-const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 2000
 
 export type TextAreaCustomLabels = {
     emojiDropdown?: Partial<TextAreaEmojiDropdownLabels>
@@ -50,7 +49,7 @@ const DEFAULT_EMOJI_DROPDOWN_LABELS: TextAreaEmojiDropdownLabels = {
     },
 }
 
-type BottomPanelBuiltinKey = 'emoji' | 'copy'
+type BottomPanelBuiltinKey = 'emoji'
 type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
 
 export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size' | 'onResize'> &
@@ -83,7 +82,6 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     const [internalValue, setInternalValue] = useState('')
     const [isFocused, setIsFocused] = useState(false)
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
     const textAreaContainerRef = useRef<HTMLDivElement>(null)
 
     const resolvedEmojiDropdownLabels = useMemo(() => ({
@@ -195,31 +193,6 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     }, [currentValue, disabled, emitValueChange])
 
     const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
-        if (util === 'copy') {
-            return (
-                <Tooltip title={isCopied ? 'Copied' : 'Copy'} mouseLeaveDelay={0} key={`builtin-${util}-${index}`}>
-                    <Button
-                        minimal
-                        compact
-                        type='secondary'
-                        size='medium'
-                        disabled={disabled}
-                        icon={isCopied ? <CheckCircle size='small' /> : <Copy size='small' />}
-                        onClick={async () => {
-                            if (disabled || isCopied) return
-                            try {
-                                await navigator.clipboard.writeText(currentValue || '')
-                                setIsCopied(true)
-                                setTimeout(() => setIsCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
-                            } catch {
-                                setIsCopied(false)
-                            }
-                        }}
-                    />
-                </Tooltip>
-            )
-        }
-        
         if (util !== 'emoji') return null
 
         const emojiDropdownContent = (
@@ -264,11 +237,9 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     }, [
         disabled,
         emojiPickerOpen,
-        isCopied,
         handleBottomEmojiOpenChange,
         handleBottomEmojiSelect,
         resolvedEmojiDropdownLabels,
-        currentValue,
     ])
 
 

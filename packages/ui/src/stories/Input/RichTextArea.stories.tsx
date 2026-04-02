@@ -20,7 +20,6 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 )
 
 const DEMO_BOTTOM_PANEL_UTILS = [
-    'copy',
     'emoji',
     <DemoButton icon={<Sparkles size='small'/>} text='Sparkles' key='sparkles' />,
 ]

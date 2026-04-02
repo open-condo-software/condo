@@ -319,7 +319,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                             placeholder={HintMessage}
                                             maxLength={5000}
                                             autoSize={{ minRows: 2 }}
-                                            bottomPanelUtils={['copy', 'emoji'] as unknown as React.ReactElement[]}
+                                            bottomPanelUtils={['emoji']}
                                             customLabels={{
                                                 toolbar: toolbarLabels,
                                                 linkModal: linkModalLabels,

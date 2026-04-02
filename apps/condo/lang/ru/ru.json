@@ -3832,7 +3832,7 @@
   "richTextArea.toolbar.undo": "Шаг назад",
   "richTextArea.toolbar.redo": "Шаг вперед",
   "richTextArea.toolbar.link": "Вставить ссылку",
-  "richTextArea.toolbar.emoji": "Вставить эмоцию",
+  "richTextArea.toolbar.emoji": "Вставить смайлик",
   "richTextArea.toolbar.bold": "Полужирный текст",
   "richTextArea.toolbar.italic": "Курсивный текст",
   "richTextArea.toolbar.unorderedList": "Маркированный список",

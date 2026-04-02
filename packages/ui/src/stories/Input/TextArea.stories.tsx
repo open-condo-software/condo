@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Search, Edit, Eye, FileUp, Trash, Lock } from '@open-condo/icons'
+import { Search, Edit, Eye, FileUp, Trash, Lock, Copy } from '@open-condo/icons'
 import { Button, Input as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5'
@@ -19,12 +19,12 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 const iconCombinations = {
     'empty': [],
     'copy-emoji': [
-        'copy',
+        <DemoButton icon={<Copy size='small'/>} key='copy' />,
         'emoji',
     ],
     'edit-copy': [
         <DemoButton icon={<Edit size='small'/>} key='edit' />,
-        'copy',
+        <DemoButton icon={<Copy size='small'/>} key='copy' />,
     ],
     'lock-eye': [
         <DemoButton icon={<Lock size='small'/>} key='lock' />,
@@ -32,7 +32,7 @@ const iconCombinations = {
         <DemoButton icon={<FileUp size='small'/>} key='eye-invisible' />,
     ],
     'full-set': [
-        'copy',
+        <DemoButton icon={<Copy size='small'/>} key='copy' />,
         <DemoButton icon={<Search size='small'/>} key='search' />,
         <DemoButton icon={<Edit size='small'/>} key='edit' />,
         <DemoButton icon={<Trash size='small'/>} key='trash' text='Delete'/>,

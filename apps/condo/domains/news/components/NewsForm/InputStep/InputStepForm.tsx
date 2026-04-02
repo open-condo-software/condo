@@ -4,11 +4,13 @@ import classNames from 'classnames'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Sparkles } from '@open-condo/icons'
+import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import {
     Button,
     Input,
+    RichTextAreaProps,
+    Tooltip,
     Typography,
 } from '@open-condo/ui'
 
@@ -18,6 +20,7 @@ import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { UI_NEWS_MARKDOWN } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
@@ -61,6 +64,7 @@ interface InputStepFormProps {
     }
 }
 
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 interface DefaultAiTextAreaProps {
     inputType: 'title' | 'body'
     value: string
@@ -82,6 +86,8 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
 
     const TitlePlaceholderMessage = intl.formatMessage({ id: 'news.fields.title.placeholder' })
     const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.improveText' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
     const UndoTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.undo' })
@@ -153,6 +159,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
 
     const [rewriteNewsText, setRewriteNewsText] = useState('')
     const [newsTextAiNotificationShow, setNewsTextAiNotificationShow] = useState(false)
+    const [copied, setCopied] = useState<boolean>()
 
     const [ { execute: runRewriteNewsTextAIFlow }, {
         loading: isRewriteNewsTextLoading,
@@ -225,8 +232,37 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         await handleRewriteNewsTextClick()
     }, [handleRewriteNewsTextClick, inputType])
 
-    const bottomPanelUtils = [
-        'copy',
+    const handleCopyTextClick = useCallback(async () => {
+        if (copied) return
+    
+        const plainText = useRichText ? stripMarkdown(value) : value
+    
+        try {
+            await navigator.clipboard.writeText(plainText)
+            setCopied(true)
+    
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied, useRichText, value])
+
+    const bottomPanelUtils: RichTextAreaProps['bottomPanelUtils'] = [
+        <Tooltip
+            title={copied ? CopiedTooltipText : CopyTooltipText }
+            placement='top'
+            key='copyButton'
+        >
+            <Button
+                minimal
+                compact
+                type='secondary'
+                size='medium'
+                disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
+                onClick={handleCopyTextClick}
+                icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+            />
+        </Tooltip>,
         'emoji',
         ...(rewriteNewsTextEnabled ? [
             <Button
@@ -270,7 +306,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                         linkModal: linkModalLabels,
                     }}
                     type='inline'
-                    bottomPanelUtils={bottomPanelUtils as unknown as React.ReactElement[]}
+                    bottomPanelUtils={bottomPanelUtils}
                 />
             ) : (
                 <Input.TextArea
@@ -286,7 +322,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     customLabels={{
                         emojiDropdown: emojiDropdownLabels,
                     }}
-                    bottomPanelUtils={bottomPanelUtils as unknown as React.ReactElement[]}
+                    bottomPanelUtils={bottomPanelUtils}
                 />
             )}
         </AIInputNotification>

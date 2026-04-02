@@ -27,9 +27,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import {
     ArrowUp,
     Bold,
-    CheckCircle,
     CheckSquare,
-    Copy,
     Italic,
     Link as LinkIcon,
     List,
@@ -152,8 +150,11 @@ type RichTextAreaToolbarLabels = {
     table: string
     blockquote: string
     image: string
-    emoji: string
     heading: string
+}
+
+type RichTextAreaBottomPanelLabels = {
+    emoji: string
 }
 
 type RichTextAreaLinkModalLabels = {
@@ -183,12 +184,13 @@ type RichTextAreaEmojiDropdownLabels = {
 
 export type RichTextAreaCustomLabels = {
     toolbar?: Partial<RichTextAreaToolbarLabels>
+    bottomPanelLabels?: Partial<RichTextAreaBottomPanelLabels>
     linkModal?: Partial<RichTextAreaLinkModalLabels>
     imageModal?: Partial<RichTextAreaImageModalLabels>
     emojiDropdown?: Partial<RichTextAreaEmojiDropdownLabels>
 }
 
-type BottomPanelBuiltinKey = 'emoji' | 'copy'
+type BottomPanelBuiltinKey = 'emoji'
 type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
 
 type ToolbarButtonKey =
@@ -197,7 +199,7 @@ type ToolbarButtonKey =
     | 'link'
     | 'unorderedList' | 'orderedList' | 'taskList'
     | 'removeFormatting'
-    | 'table' | 'blockquote' | 'image' | 'emoji' | 'heading'
+    | 'table' | 'blockquote' | 'image' | 'heading'
 
 export type ToolbarGroup = ToolbarButtonKey[]
 
@@ -215,8 +217,11 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     table: 'Table',
     blockquote: 'Blockquote',
     image: 'Image',
-    emoji: 'Emoji',
     heading: 'Heading',
+}
+
+const DEFAULT_BOTTOM_PANEL_LABELS: RichTextAreaBottomPanelLabels = {
+    emoji: 'Emoji',
 }
 
 const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
@@ -332,11 +337,6 @@ const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
         icon: <Paperclip size='small' />,
         labelKey: 'image',
         action: (_editor, helpers) => helpers.openImageModal(),
-    },
-    emoji: {
-        icon: <Smile size='small' />,
-        labelKey: 'emoji',
-        action: () => null,
     },
     heading: {
         icon: <Subtitles size='small' />,
@@ -716,7 +716,6 @@ export type RichTextAreaProps = {
 
 const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
 const DEFAULT_LINE_HEIGHT = 24
-const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 2000
 
 export const RichTextArea: React.FC<RichTextAreaProps> = ({
     value,
@@ -738,6 +737,11 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         ...DEFAULT_TOOLBAR_LABELS,
         ...customLabels?.toolbar,
     }), [customLabels?.toolbar])
+
+    const resolvedBottomPanelLabels = useMemo(() => ({
+        ...DEFAULT_BOTTOM_PANEL_LABELS,
+        ...customLabels?.bottomPanelLabels,
+    }), [customLabels?.bottomPanelLabels])
 
     const resolvedLinkModalLabels = useMemo(() => ({
         ...DEFAULT_LINK_MODAL_LABELS,
@@ -767,7 +771,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
 
     const editor = useEditor({
@@ -873,38 +876,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         }
     }, [disabled, editor])
 
-    const handleCopy = useCallback(async () => {
-        if (!editor || disabled || isCopied) return
-
-        const plainText = editor.getText({
-            blockSeparator: '\n',
-        })
-
-        try {
-            await navigator.clipboard.writeText(plainText)
-            setIsCopied(true)
-            setTimeout(() => setIsCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
-        } catch {
-            setIsCopied(false)
-        }
-    }, [disabled, editor, isCopied])
-
     const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
-        if (util === 'copy') {
-            return (
-                <Tooltip title={isCopied ? 'Copied' : 'Copy'} mouseLeaveDelay={0} key={`builtin-${util}-${index}`}>
-                    <Button
-                        type='secondary'
-                        minimal
-                        compact
-                        size='medium'
-                        disabled={Boolean(disabled)}
-                        icon={isCopied ? <CheckCircle size='small' /> : <Copy size='small' />}
-                        onClick={handleCopy}
-                    />
-                </Tooltip>
-            )
-        }
         if (util !== 'emoji') return null
 
         const isBuiltinDisabled = Boolean(disabled)
@@ -933,7 +905,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                 dropdownRender={() => emojiDropdownContent}
             >
                 <span>
-                    <Tooltip title={resolvedToolbarLabels.emoji} mouseLeaveDelay={0}>
+                    <Tooltip title={resolvedBottomPanelLabels.emoji} mouseLeaveDelay={0}>
                         <Button
                             type='secondary'
                             minimal
@@ -950,12 +922,10 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     }, [
         disabled,
         emojiPickerOpen,
-        handleCopy,
         handleBottomEmojiOpenChange,
         handleBottomEmojiSelect,
-        isCopied,
         resolvedEmojiDropdownLabels,
-        resolvedToolbarLabels.emoji,
+        resolvedBottomPanelLabels,
     ])
 
     const style = useMemo(() => {
