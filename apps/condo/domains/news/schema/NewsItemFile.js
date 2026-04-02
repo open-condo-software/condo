@@ -47,6 +47,11 @@ const ERRORS = {
         type: 'UNKNOWN_FILE_TYPE',
         message: 'Unknown file type',
     },
+    NEWS_ITEM_CANNOT_BE_UPDATED: {
+        code: BAD_USER_INPUT,
+        type: 'NEWS_ITEM_CANNOT_BE_UPDATED',
+        message: 'News item cannot be updated',
+    },
 }
 
 const DOCUMENT_FOLDER_NAME = 'NewsItemFile'
@@ -61,9 +66,22 @@ const NewsItemFile = new GQLListSchema('NewsItemFile', {
             schemaDoc: 'The news item this file belongs to',
             type: 'Relationship',
             ref: 'NewsItem',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // NewsItemFile can be without newsItem on create (temporary)
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            hooks: {
+                validateInput: async (args) => {
+                    const { fieldPath, context, resolvedData, operation, existingItem } = args
+
+                    if (operation === 'update') {
+                        const newItemFile = { ...existingItem, ...resolvedData }
+                        const newsItemToBeChange = existingItem?.[fieldPath] && newItemFile?.[fieldPath] !== existingItem?.[fieldPath]
+                        if (newsItemToBeChange) {
+                            throw new GQLError(ERRORS.NEWS_ITEM_CANNOT_BE_UPDATED, context)
+                        }
+                    }
+                },
+            },
         },
 
         file: {
@@ -71,6 +89,9 @@ const NewsItemFile = new GQLListSchema('NewsItemFile', {
             type: 'File',
             adapter: Adapter,
             isRequired: true,
+            access: {
+                update: false,
+            },
             hooks: {
                 validateInput: async (args) => {
                     const { fieldPath, context, resolvedData } = args

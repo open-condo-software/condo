@@ -45,9 +45,15 @@ async function canReadNewsItemFiles ({ authentication: { item: user }, context }
         const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
 
         return {
-            organization: {
-                id_in: permittedOrganizations,
-            },
+            OR:[
+                { organization: { id_in: permittedOrganizations } },
+                {
+                    AND:[
+                        { organization_is_null: true },
+                        { createdBy: { id: user.id } },
+                    ],
+                },
+            ],
         }
     }
 
@@ -57,18 +63,9 @@ async function canReadNewsItemFiles ({ authentication: { item: user }, context }
 async function canManageNewsItemFiles ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
     const isBulkRequest = Array.isArray(originalInput)
-    const isSoftDeleteOperation = operation === 'update'
-        && (
-            isBulkRequest
-                ? (Array.isArray(itemIds) && originalInput.every(item => isSoftDelete(item?.data)))
-                : (itemId && isSoftDelete(originalInput))
-        )
-
-    if (operation === 'update' && !isSoftDeleteOperation) return false
-
-    if (user.isAdmin) return true
 
     if (user.type === STAFF) {
         if (operation === 'create') {
@@ -81,7 +78,7 @@ async function canManageNewsItemFiles ({ authentication: { item: user }, origina
 
                 return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
             }
-            return false
+            return true
         } else if (operation === 'update') {
             if (isBulkRequest) {
                 if (!itemIds || !Array.isArray(itemIds)) return false
@@ -97,8 +94,9 @@ async function canManageNewsItemFiles ({ authentication: { item: user }, origina
                 return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageNewsItems')
             } else {
                 const newsItemFile = await getById('NewsItemFile', itemId)
-                const organizationId = newsItemFile?.organization || null
+                if (!newsItemFile) return false
 
+                const organizationId = newsItemFile?.organization || null
                 if (!organizationId) return newsItemFile?.createdBy === user.id
 
                 return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
