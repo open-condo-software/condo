@@ -202,14 +202,14 @@ function isServiceUser ({ authentication: { item: user } }) {
 }
 
 function getRefSchemaName (schemaConfig, listKey) {
-    const pathToAddressKey = get(schemaConfig, 'pathToB2CAppPropertyAddressKey', null)
+    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey', null)
 
     if (!isArray(pathToAddressKey) || isEmpty(pathToAddressKey)) {
-        throw new Error('"pathToB2CAppPropertyAddressKey" must be not empty array!')
+        throw new Error('"pathToAddressKey" must be not empty array!')
     }
     for (const pathPart of pathToAddressKey) {
         if (!isString(pathPart) || pathPart.trim().length < 1) {
-            throw new Error(`"pathToB2CAppPropertyAddressKey" must contain array of string! But was: ${pathToAddressKey}`)
+            throw new Error(`"pathToAddressKey" must contain array of string! But was: ${pathToAddressKey}`)
         }
     }
 
