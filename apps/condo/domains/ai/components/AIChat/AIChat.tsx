@@ -72,6 +72,11 @@ export const AIChat: React.FC<AIChatProps> = ({
         aiSessionId: aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
+        defaultContext: {
+            userTimezoneName: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            userTimezoneOffset: new Date().getTimezoneOffset(),
+            currentUrl: typeof window !== 'undefined' ? window.location.href : null,
+        },
     })
 
     // Load messages from localStorage when aiSessionId changes

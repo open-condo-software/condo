@@ -7090,9 +7090,6 @@ export const GetTicketsForAiAssistantDocument = gql`
         name
       }
     }
-    contact {
-      name
-    }
     executor {
       name
     }
@@ -7190,9 +7187,6 @@ export const GetTicketWithDetailsForAiAssistantDocument = gql`
       place {
         name
       }
-    }
-    contact {
-      name
     }
     executor {
       name

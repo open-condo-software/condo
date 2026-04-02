@@ -126,7 +126,6 @@ query getTicketsForAIAssistant ($where: TicketWhereInput!, $sortBy: [SortTickets
         clientName
         clientPhone
         classifier { category { name } place { name } }
-        contact { name }
         executor { name }
         assignee { name }
         status { name }
@@ -168,7 +167,6 @@ query getTicketWithDetailsForAIAssistant ($id: ID!) {
         clientName
         clientPhone
         classifier { category { name } place { name } }
-        contact { name }
         executor { name }
         assignee { name }
         status { name }
