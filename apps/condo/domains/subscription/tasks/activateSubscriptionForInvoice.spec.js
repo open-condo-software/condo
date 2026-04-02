@@ -52,10 +52,6 @@ describe('activateSubscriptionForInvoice', () => {
         test('finds subscription context by invoice and activates it', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
-                invoiceStatus: CONTEXT_FINISHED_STATUS,
-            })
-
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
@@ -81,8 +77,6 @@ describe('activateSubscriptionForInvoice', () => {
             await updateTestInvoice(adminClient, invoice.id, {
                 status: INVOICE_STATUS_PAID,
             })
-
-            await activateSubscriptionForInvoiceFn(invoice.id)
 
             await waitFor(async () => {
                 const [updatedContext] = await SubscriptionContext.getAll(adminClient, {
@@ -125,10 +119,6 @@ describe('activateSubscriptionForInvoice', () => {
         test('does not change already DONE subscription context', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
-                invoiceStatus: CONTEXT_FINISHED_STATUS,
-            })
-
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
@@ -142,8 +132,6 @@ describe('activateSubscriptionForInvoice', () => {
             await updateTestInvoice(adminClient, invoice.id, {
                 status: INVOICE_STATUS_PAID,
             })
-
-            await activateSubscriptionForInvoiceFn(invoice.id)
 
             let firstUpdatedAt
             await waitFor(async () => {
