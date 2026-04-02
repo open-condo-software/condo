@@ -206,7 +206,7 @@ describe('B2CAppAccessRight', () => {
             const [anotherRightsSet] = await createTestB2CAppAccessRightSet(admin, anotherApp)
             await expectToThrowGQLError(async () => {
                 await createTestB2CAppAccessRight(admin, serviceUser, app, { accessRightSet: { connect: { id: anotherRightsSet.id } } })
-            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2C_APP)
         })
     })
     describe('Constraints', () => {
