@@ -216,8 +216,6 @@ const runApolloQueryTool = async (
             const chunkDelay = config.chunkDelay || DEFAULT_CHUNK_DELAY
             let maxIterations = Math.ceil(limit / size)
 
-            console.log('using chunking')
-
             do {
                 const res = await client.query({
                     query: config.query,
@@ -232,8 +230,7 @@ const runApolloQueryTool = async (
                 skip += chunk.length
 
                 // Do not add delay after the last chunk
-                console.log(maxIterations, chunk.length, size, maxIterations > 1 || chunk.length !== size)
-                if (maxIterations > 1 || chunk.length !== size) {
+                if (maxIterations > 1 && chunk.length === size) {
                     await new Promise(resolve => setTimeout(resolve, chunkDelay))
                 }
             } while (--maxIterations > 0 && chunk.length === size)
