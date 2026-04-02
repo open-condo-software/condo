@@ -19,11 +19,7 @@ import { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } from '@
 const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 const isStoredToday = (storedDate: string): boolean => {
-    const stored = new Date(storedDate)
-    const now = new Date()
-    return stored.getFullYear() === now.getFullYear() &&
-        stored.getMonth() === now.getMonth() &&
-        stored.getDate() === now.getDate()
+    return dayjs(storedDate).isSame(dayjs(), 'day')
 }
 
 function isForeverSubscription (endAt: string): boolean {
