@@ -182,6 +182,7 @@ type RichTextAreaEmojiDropdownLabels = {
     }
 }
 
+// TODO: DOMA-10997 Please add locale support before adding a new translation
 export type RichTextAreaCustomLabels = {
     toolbar?: Partial<RichTextAreaToolbarLabels>
     bottomPanelLabels?: Partial<RichTextAreaBottomPanelLabels>

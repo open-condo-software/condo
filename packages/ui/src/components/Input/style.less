@@ -367,4 +367,9 @@
   --rgb-accent: red(@condo-global-color-green-5), green(@condo-global-color-green-5), blue(@condo-global-color-green-5);
   --rgb-input: red(@condo-global-color-green-1), green(@condo-global-color-green-1), blue(@condo-global-color-green-1);
   --border-radius: @condo-global-border-radius-large;
+  
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    --border-radius: calc(@condo-global-border-radius-large * 1.85);
+  }
 }
