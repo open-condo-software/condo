@@ -3,7 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -11,7 +11,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
 const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
-const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { sendMessage, RemoteClientPushToken} = require('@condo/domains/notification/utils/serverSchema')
 
 const TODAY = dayjs().format(DATE_FORMAT)
 const CHUNK_SIZE = 50
@@ -50,36 +50,38 @@ const prepareAndSendNotification = async (context, remoteClient) => {
 
 const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
     const { keystone: context } = getSchemaCtx('RemoteClient')
-    const remoteClientWhere = { ...where, appId: 'unknown', owner: { id_not: null }, pushToken_not: null, pushTransport: PUSH_TRANSPORT_FIREBASE }
-    const remoteClientsCount = await RemoteClient.count(context, remoteClientWhere)
+    const remoteClientPushTokensWhere = { remoteClient: { ...where, appId: 'unknown', owner: { id_not: null } }, isPush: true, provider: PUSH_TRANSPORT_FIREBASE, deletedAt: null }
+    const remoteClientPushTokensCount = await RemoteClientPushToken.count(context, remoteClientPushTokensWhere)
+    //const remoteClientWhere = { ...where, appId: 'unknown', owner: { id_not: null }, pushToken_not: null, pushTransport: PUSH_TRANSPORT_FIREBASE }
+    //const remoteClientsCount = await RemoteClient.count(context, remoteClientWhere)
     let skip = 0, successCnt = 0
 
     logger.info({
-        msg: 'available obsolete remote clients',
-        count: remoteClientsCount,
-        data: remoteClientWhere,
+        msg: 'available obsolete remote clients push tokens',
+        count: remoteClientPushTokensCount,
+        data: remoteClientPushTokensWhere,
     })
 
-    if (!remoteClientsCount) return
+    if (!remoteClientPushTokensCount) return
 
-    while (skip < remoteClientsCount) {
-        const remoteClients = await RemoteClient.getAll(context,
-            remoteClientWhere,
-            'id owner { id type }',
+    while (skip < remoteClientPushTokensCount) {
+        const remoteClientsPushTokens = await RemoteClientPushToken.getAll(context,
+            remoteClientPushTokensWhere,
+            'remoteClient { id owner { id type } }',
             { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip }
         )
 
-        if (isEmpty(remoteClients)) break
+        if (isEmpty(remoteClientsPushTokens)) break
 
-        skip += remoteClients.length
+        skip += remoteClientsPushTokens.length
 
-        for (const remoteClient of remoteClients) {
-            const success = await prepareAndSendNotification(context, remoteClient)
+        for (const remoteClientPushToken of remoteClientsPushTokens) {
+            const success = await prepareAndSendNotification(context, remoteClientPushToken.remoteClient)
             successCnt += success
         }
     }
 
-    logger.info({ msg: 'notifications sent', data: { successCnt, attempts: remoteClientsCount } })
+    logger.info({ msg: 'notifications sent', data: { successCnt, attempts: remoteClientPushTokensCount } })
 }
 
 module.exports = {
