@@ -76,7 +76,7 @@ function isFileMeta (value, opts = {}) {
  *   isRequired: false,
  * })
  */
-function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, ...otherProps }) {
+function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, schemaDoc, ...otherProps }) {
     if (!adapter) {
         throw new Error('createExternalDataField: adapter is required')
     }
@@ -95,6 +95,8 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
         adapter,
         format,
         processors,
+        graphQLAdminFragment: '',  // Prevent 'undefined' in admin UI queries (JsonController adds this to query)
+        schemaDoc: schemaDoc || `External content field storing ${format} data in files`,
     }
     
     // Only include maxSizeBytes if explicitly provided

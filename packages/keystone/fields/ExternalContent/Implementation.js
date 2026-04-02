@@ -143,17 +143,29 @@ class ExternalContentImplementation extends Implementation {
         processors = {},
         maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
         batchDelayMs,
+        graphQLInputType,
+        graphQLReturnType,
+        serialize,
+        deserialize,
+        mimetype,
+        fileExt,
+        schemaDoc,
+        graphQLAdminFragment = '',
     } = {}, meta) {
-        super(path, { ...arguments[1], maxSizeBytes }, meta)
+        // Compute processor config
+        const byFormat = { ...DEFAULT_PROCESSORS, ...processors }
+        const cfg = byFormat[format]
+        if (!cfg) {
+            throw new Error(`ExternalContent: unknown format "${format}" for ${path}`)
+        }
 
-        const {
-            graphQLInputType,
-            graphQLReturnType,
-            serialize,
-            deserialize,
-            mimetype,
-            fileExt,
-        } = arguments[1]
+        // Resolve final values using defaults from processor config
+        const finalGraphQLInputType = graphQLInputType || cfg.graphQLInputType
+        const finalGraphQLReturnType = graphQLReturnType || cfg.graphQLReturnType
+        const finalSerialize = serialize || cfg.serialize
+        const finalDeserialize = deserialize || cfg.deserialize
+        const finalMimetype = mimetype || cfg.mimetype
+        const finalFileExt = fileExt || cfg.fileExt
 
         if (!adapter) {
             throw new Error(`ExternalContent: "adapter" is required for ${path}`)
@@ -164,27 +176,47 @@ class ExternalContentImplementation extends Implementation {
             throw new Error(`ExternalContent: adapter is not properly configured for ${path}. Check FILE_FIELD_ADAPTER and storage configuration.`)
         }
 
-        const byFormat = { ...DEFAULT_PROCESSORS, ...processors }
-        const cfg = byFormat[format]
-        if (!cfg) {
-            throw new Error(`ExternalContent: unknown format "${format}" for ${path}`)
-        }
+        // Pass resolved values to parent class (don't spread arguments[1] to avoid passing undefined graphQLReturnType)
+        super(path, {
+            adapter,
+            format,
+            processors,
+            maxSizeBytes,
+            batchDelayMs,
+            graphQLInputType: finalGraphQLInputType,
+            graphQLReturnType: finalGraphQLReturnType,
+            serialize: finalSerialize,
+            deserialize: finalDeserialize,
+            mimetype: finalMimetype,
+            fileExt: finalFileExt,
+            schemaDoc,
+            graphQLAdminFragment,
+        }, meta)
 
         this.adapter = adapter
         this.format = format
         this.maxSizeBytes = maxSizeBytes
         this.batchDelayMs = batchDelayMs
-        this.serialize = serialize || cfg.serialize
-        this.deserialize = deserialize || cfg.deserialize
-        this.graphQLInputType = graphQLInputType || cfg.graphQLInputType
-        this.graphQLReturnType = graphQLReturnType || cfg.graphQLReturnType
-        this.mimetype = mimetype || cfg.mimetype
-        this.fileExt = fileExt || cfg.fileExt
+        this.serialize = finalSerialize
+        this.deserialize = finalDeserialize
+        this.graphQLInputType = finalGraphQLInputType
+        this.graphQLReturnType = finalGraphQLReturnType
+        this.mimetype = finalMimetype
+        this.fileExt = finalFileExt
+        this.graphQLAdminFragment = graphQLAdminFragment
     }
 
     // GQL Output
     gqlOutputFields () {
         return [`${this.path}: ${this.graphQLReturnType}`]
+    }
+
+    // Admin
+    extendAdminMeta (meta) {
+        return {
+            graphQLAdminFragment: this.graphQLAdminFragment,
+            ...meta,
+        }
     }
 
     /**
