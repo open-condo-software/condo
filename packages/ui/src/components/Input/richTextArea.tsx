@@ -1,3 +1,5 @@
+import emojiData from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { CharacterCount } from '@tiptap/extension-character-count'
 import { CodeBlock } from '@tiptap/extension-code-block'
 import { Heading } from '@tiptap/extension-heading'
@@ -36,6 +38,7 @@ import {
     RemoveFormatting,
     Sheet,
     Slash,
+    Smile,
     Subtitles,
     Undo,
 } from '@open-condo/icons'
@@ -44,6 +47,7 @@ import { Input as TextInput } from './input'
 
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
+import { Dropdown } from '../Dropdown'
 import { CodeWrapper } from '../Markdown/codeWrapper'
 import { Modal } from '../Modal'
 import { Tooltip } from '../Tooltip'
@@ -149,6 +153,10 @@ type RichTextAreaToolbarLabels = {
     heading: string
 }
 
+type RichTextAreaBottomPanelLabels = {
+    emoji: string
+}
+
 type RichTextAreaLinkModalLabels = {
     urlLabel: string
     textLabel: string
@@ -160,11 +168,31 @@ type RichTextAreaImageModalLabels = {
     submitLabel: string
 }
 
+type RichTextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: string
+        flags: string
+        foods: string
+        frequent: string
+        nature: string
+        objects: string
+        people: string
+        places: string
+        symbols: string
+    }
+}
+
+// TODO: DOMA-10997 Please add locale support before adding a new translation
 export type RichTextAreaCustomLabels = {
     toolbar?: Partial<RichTextAreaToolbarLabels>
+    bottomPanelLabels?: Partial<RichTextAreaBottomPanelLabels>
     linkModal?: Partial<RichTextAreaLinkModalLabels>
     imageModal?: Partial<RichTextAreaImageModalLabels>
+    emojiDropdown?: Partial<RichTextAreaEmojiDropdownLabels>
 }
+
+type BottomPanelBuiltinKey = 'emoji'
+type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
 
 type ToolbarButtonKey =
     | 'undo' | 'redo'
@@ -193,6 +221,10 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     heading: 'Heading',
 }
 
+const DEFAULT_BOTTOM_PANEL_LABELS: RichTextAreaBottomPanelLabels = {
+    emoji: 'Emoji',
+}
+
 const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
     urlLabel: 'Link',
     textLabel: 'Text',
@@ -202,6 +234,20 @@ const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
 const DEFAULT_IMAGE_MODAL_LABELS: RichTextAreaImageModalLabels = {
     urlLabel: 'Image URL',
     submitLabel: 'Ok',
+}
+
+const DEFAULT_EMOJI_DROPDOWN_LABELS: RichTextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: 'Activity',
+        flags: 'Flags',
+        foods: 'Foods',
+        frequent: 'Frequent',
+        nature: 'Nature',
+        objects: 'Objects',
+        people: 'People',
+        places: 'Places',
+        symbols: 'Symbols',
+    },
 }
 
 type ToolbarHelpers = {
@@ -615,6 +661,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                             const config = BUILTIN_BUTTON_CONFIG[item]
                             const state = buttonStates?.[item]
                             const isToolbarButtonDisabled = disabled || (state?.isDisabled ?? config.isDisabled?.(editor) ?? false)
+
                             return (
                                 <ToolbarButton
                                     key={item}
@@ -664,7 +711,7 @@ export type RichTextAreaProps = {
     overflowPolicy?: 'crop' | 'show'
     toolbarGroups?: ToolbarGroup[]
     customLabels?: RichTextAreaCustomLabels
-    bottomPanelUtils?: React.ReactElement[]
+    bottomPanelUtils?: BottomPanelUtilsItem[]
     type?: RenderType
 }
 
@@ -692,6 +739,11 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         ...customLabels?.toolbar,
     }), [customLabels?.toolbar])
 
+    const resolvedBottomPanelLabels = useMemo(() => ({
+        ...DEFAULT_BOTTOM_PANEL_LABELS,
+        ...customLabels?.bottomPanelLabels,
+    }), [customLabels?.bottomPanelLabels])
+
     const resolvedLinkModalLabels = useMemo(() => ({
         ...DEFAULT_LINK_MODAL_LABELS,
         ...customLabels?.linkModal,
@@ -701,6 +753,13 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         ...DEFAULT_IMAGE_MODAL_LABELS,
         ...customLabels?.imageModal,
     }), [customLabels?.imageModal])
+
+    const resolvedEmojiDropdownLabels = useMemo(() => ({
+        categories: {
+            ...DEFAULT_EMOJI_DROPDOWN_LABELS.categories,
+            ...customLabels?.emojiDropdown?.categories,
+        },
+    }), [customLabels?.emojiDropdown])
 
     const onChangeRef = useRef(onChange)
     onChangeRef.current = onChange
@@ -712,6 +771,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
 
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
+    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
 
     const editor = useEditor({
@@ -797,6 +857,78 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         selector: ({ editor: e }) => e?.storage.characterCount?.characters() ?? 0,
     })
 
+    const handleBottomEmojiOpenChange = useCallback((open: boolean) => {
+        if (disabled) {
+            setEmojiPickerOpen(false)
+            return
+        }
+        setEmojiPickerOpen(open)
+    }, [disabled])
+
+    const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
+        setEmojiPickerOpen(false)
+        if (!editor || disabled || !editor.isEditable) return
+
+        const nativeEmoji = emoji?.native
+        if (nativeEmoji) {
+            editor.chain().focus().insertContent(nativeEmoji).run()
+        } else {
+            editor.chain().focus().run()
+        }
+    }, [disabled, editor])
+
+    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
+        if (util !== 'emoji') return null
+
+        const isBuiltinDisabled = Boolean(disabled)
+        const emojiDropdownContent = (
+            <div className='condo-input-emoji-dropdown'>
+                <Picker
+                    data={emojiData}
+                    onEmojiSelect={handleBottomEmojiSelect}
+                    previewPosition='none'
+                    skinTonePosition='none'
+                    searchPosition='none'
+                    theme='light'
+                    icons='outline'
+                    i18n={resolvedEmojiDropdownLabels}
+                />
+            </div>
+        )
+
+        return (
+            <Dropdown
+                key={`builtin-${util}-${index}`}
+                trigger={['click']}
+                open={emojiPickerOpen}
+                onOpenChange={handleBottomEmojiOpenChange}
+                overlayClassName='condo-input-emoji-dropdown-overlay'
+                dropdownRender={() => emojiDropdownContent}
+            >
+                <span>
+                    <Tooltip title={resolvedBottomPanelLabels.emoji} mouseLeaveDelay={0}>
+                        <Button
+                            type='secondary'
+                            minimal
+                            compact
+                            size='medium'
+                            disabled={isBuiltinDisabled}
+                            icon={<Smile size='small' />}
+                            onClick={() => null}
+                        />
+                    </Tooltip>
+                </span>
+            </Dropdown>
+        )
+    }, [
+        disabled,
+        emojiPickerOpen,
+        handleBottomEmojiOpenChange,
+        handleBottomEmojiSelect,
+        resolvedEmojiDropdownLabels,
+        resolvedBottomPanelLabels,
+    ])
+
     const style = useMemo(() => {
         const minRows = autoSizeConfig.minRows || 1
         const minH = minRows * lineHeight + EDITOR_VERTICAL_PADDING
@@ -824,7 +956,14 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     return (
         <RichTextTypeContext.Provider value={type}>
             <div className={containerClassName} style={style}>
-                <Toolbar editor={editor} labels={resolvedToolbarLabels} linkModalLabels={resolvedLinkModalLabels} imageModalLabels={resolvedImageModalLabels} groups={toolbarGroups} disabled={disabled} />
+                <Toolbar 
+                    editor={editor} 
+                    labels={resolvedToolbarLabels} 
+                    linkModalLabels={resolvedLinkModalLabels} 
+                    imageModalLabels={resolvedImageModalLabels} 
+                    groups={toolbarGroups} 
+                    disabled={disabled}
+                />
                 <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-editor-wrap`} ref={editorWrapRef}>
                     <EditorContent editor={editor} />
                 </div>
@@ -833,12 +972,16 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         <span className='condo-input-bottom-panel'>
                             {hasBottomPanelUtils && (
                                 <span className='condo-input-utils'>
-                                    {bottomPanelUtils.map((util, index) => (
-                                        React.cloneElement(util, {
+                                    {bottomPanelUtils.map((util, index) => {
+                                        if (typeof util === 'string') {
+                                            return renderBottomPanelBuiltinUtil(util, index)
+                                        }
+
+                                        return React.cloneElement(util, {
                                             key: util.key ?? index,
                                             disabled: util.props.disabled || disabled,
                                         })
-                                    ))}
+                                    })}
                                 </span>
                             )}
 

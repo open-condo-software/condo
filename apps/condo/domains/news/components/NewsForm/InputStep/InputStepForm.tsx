@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import {
     Button,
     Input,
+    RichTextAreaProps,
     Tooltip,
     Typography,
 } from '@open-condo/ui'
@@ -91,6 +92,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
     const UndoTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.undo' })
     const RedoTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.redo' })
+    const EmojiTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.emoji' })
     const BoldTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.bold' })
     const ItalicTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.italic' })
     const OrderedListTooltipText = intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' })
@@ -100,6 +102,16 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const LinkModalUrlLabel = intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' })
     const LinkModalTextLabel = intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' })
     const LinkModalSubmitLabel = intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' })
+    const EmojiDropdownCategoriesActivity = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.activity' })
+    const EmojiDropdownCategoriesFlags = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.flags' })
+    const EmojiDropdownCategoriesFoods = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.foods' })
+    const EmojiDropdownCategoriesFrequent = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.frequent' })
+    const EmojiDropdownCategoriesNature = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.nature' })
+    const EmojiDropdownCategoriesObjects = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.objects' })
+    const EmojiDropdownCategoriesPeople = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.people' })
+    const EmojiDropdownCategoriesPlaces = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.places' })
+    const EmojiDropdownCategoriesSymbols = intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.symbols' })
+
 
     const toolbarLabels = useMemo(() => ({
         undo: UndoTooltipText,
@@ -112,11 +124,29 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         removeFormatting: RemoveFormattingTooltipText,
     }), [LinkTooltipText, UnorderedListTooltipText, RemoveFormattingTooltipText, OrderedListTooltipText, BoldTooltipText, ItalicTooltipText, RedoTooltipText, UndoTooltipText])
 
+    const bottomPanelLabels = useMemo(() => ({
+        emoji: EmojiTooltipText,
+    }), [EmojiTooltipText])
+
     const linkModalLabels = useMemo(() => ({
         urlLabel: LinkModalUrlLabel,
         textLabel: LinkModalTextLabel,
         submitLabel: LinkModalSubmitLabel,
     }), [LinkModalUrlLabel, LinkModalTextLabel, LinkModalSubmitLabel])
+
+    const emojiDropdownLabels = useMemo(() => ({
+        categories: {
+            activity: EmojiDropdownCategoriesActivity,
+            flags: EmojiDropdownCategoriesFlags,
+            foods: EmojiDropdownCategoriesFoods,
+            frequent: EmojiDropdownCategoriesFrequent,
+            nature: EmojiDropdownCategoriesNature,
+            objects: EmojiDropdownCategoriesObjects,
+            people: EmojiDropdownCategoriesPeople,
+            places: EmojiDropdownCategoriesPlaces,
+            symbols: EmojiDropdownCategoriesSymbols,
+        },
+    }), [EmojiDropdownCategoriesActivity, EmojiDropdownCategoriesFlags, EmojiDropdownCategoriesFoods, EmojiDropdownCategoriesFrequent, EmojiDropdownCategoriesNature, EmojiDropdownCategoriesObjects, EmojiDropdownCategoriesPeople, EmojiDropdownCategoriesPlaces, EmojiDropdownCategoriesSymbols])
 
     const { status: validationStatus } = Form.Item.useStatus()
     const inputHasError = validationStatus === 'error'
@@ -220,7 +250,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         }
     }, [copied, useRichText, value])
 
-    const bottomPanelUtils = [
+    const bottomPanelUtils: RichTextAreaProps['bottomPanelUtils'] = [
         <Tooltip
             title={copied ? CopiedTooltipText : CopyTooltipText }
             placement='top'
@@ -236,6 +266,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                 icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
             />
         </Tooltip>,
+        'emoji',
         ...(rewriteNewsTextEnabled ? [
             <Button
                 key='improveButton'
@@ -274,7 +305,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     disabled={isRewriteNewsTextLoading}
                     customLabels={{
                         toolbar: toolbarLabels,
+                        emojiDropdown: emojiDropdownLabels,
                         linkModal: linkModalLabels,
+                        bottomPanelLabels: bottomPanelLabels,
                     }}
                     type='inline'
                     bottomPanelUtils={bottomPanelUtils}
@@ -290,6 +323,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     value={value}
                     autoSize={{ minRows: 2, maxRows: 5 }}
                     disabled={isRewriteNewsTextLoading}
+                    customLabels={{
+                        emojiDropdown: emojiDropdownLabels,
+                    }}
                     bottomPanelUtils={bottomPanelUtils}
                 />
             )}

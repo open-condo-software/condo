@@ -118,10 +118,28 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         removeFormatting: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' }),
     }), [intl])
 
+    const bottomPanelLabels = useMemo(() => ({
+        emoji: intl.formatMessage({ id: 'richTextArea.toolbar.emoji' }),
+    }), [intl])
+
     const linkModalLabels = useMemo(() => ({
         urlLabel: intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' }),
         textLabel: intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' }),
         submitLabel: intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' }),
+    }), [intl])
+
+    const emojiDropdownLabels = useMemo(() => ({
+        categories: {
+            activity: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.activity' }),
+            flags: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.flags' }),
+            foods: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.foods' }),
+            frequent: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.frequent' }),
+            nature: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.nature' }),
+            objects: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.objects' }),
+            people: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.people' }),
+            places: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.places' }),
+            symbols: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.symbols' }),
+        },
     }), [intl])
 
     const router = useRouter()
@@ -304,9 +322,12 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                             placeholder={HintMessage}
                                             maxLength={5000}
                                             autoSize={{ minRows: 2 }}
+                                            bottomPanelUtils={['emoji']}
                                             customLabels={{
                                                 toolbar: toolbarLabels,
                                                 linkModal: linkModalLabels,
+                                                emojiDropdown: emojiDropdownLabels,
+                                                bottomPanelLabels: bottomPanelLabels,
                                             }}
                                         />
                                     </Col>

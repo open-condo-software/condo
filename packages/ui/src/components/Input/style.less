@@ -327,3 +327,52 @@
   width: 100%;
   min-width: 0;
 }
+
+.condo-rich-text-area-emoji-dropdown {
+  overflow: hidden;
+  background: @condo-global-color-white;
+  border-radius: @condo-global-border-radius-medium;
+}
+
+.condo-rich-text-area-emoji-dropdown-overlay.condo-dropdown {
+  min-width: auto;
+  margin-top: @condo-global-spacing-8;
+  overflow: hidden;
+  background: @condo-global-color-white;
+  border: 1px solid @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-medium;
+  box-shadow: 0 8px 24px rgb(26 26 26 / 12%);
+}
+
+.condo-input-emoji-dropdown {
+  overflow: hidden;
+  background: @condo-global-color-white;
+  border-radius: @condo-global-border-radius-medium;
+}
+
+.condo-input-emoji-dropdown-overlay.condo-dropdown {
+  min-width: auto;
+  margin-top: @condo-global-spacing-8;
+  overflow: hidden;
+  background: @condo-global-color-white;
+  border: 1px solid @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-medium;
+  box-shadow: 0 8px 24px rgb(26 26 26 / 12%);
+}
+
+.condo-rich-text-area-emoji-dropdown em-emoji-picker,
+.condo-input-emoji-dropdown em-emoji-picker {
+  // emoji-mart expects CSS vars as numeric "r, g, b" tuples.
+  // We keep explicit constants here because stylelint doesn't allow LESS red()/green()/blue() in this project.
+  // Values map design tokens: white (#fff), green-5 (#2bc359), green-1 (#ebfaef).
+  --rgb-background: 255, 255, 255;
+  --rgb-accent: 43, 195, 89;
+  --rgb-input: 235, 250, 239;
+  --border-radius: @condo-global-border-radius-large;
+
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+
+    --border-radius: calc(@condo-global-border-radius-large * 1.85);
+  }
+}

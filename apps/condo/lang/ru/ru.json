@@ -3832,6 +3832,7 @@
   "richTextArea.toolbar.undo": "Шаг назад",
   "richTextArea.toolbar.redo": "Шаг вперед",
   "richTextArea.toolbar.link": "Вставить ссылку",
+  "richTextArea.toolbar.emoji": "Вставить смайлик",
   "richTextArea.toolbar.bold": "Полужирный текст",
   "richTextArea.toolbar.italic": "Курсивный текст",
   "richTextArea.toolbar.unorderedList": "Маркированный список",
@@ -3839,5 +3840,14 @@
   "richTextArea.toolbar.removeFormatting": "Очистить форматирование",
   "richTextArea.linkModal.urlLabel": "Ссылка",
   "richTextArea.linkModal.textLabel": "Текст",
-  "richTextArea.linkModal.submitLabel": "Ок"
+  "richTextArea.linkModal.submitLabel": "Ок",
+  "richTextArea.emojiDropdown.categories.activity": "Активности",
+  "richTextArea.emojiDropdown.categories.flags": "Флаги",
+  "richTextArea.emojiDropdown.categories.foods": "Еда и напитки",
+  "richTextArea.emojiDropdown.categories.frequent": "Часто используемые",
+  "richTextArea.emojiDropdown.categories.nature": "Животные и природа",
+  "richTextArea.emojiDropdown.categories.objects": "Предметы",
+  "richTextArea.emojiDropdown.categories.people": "Эмоции и люди",
+  "richTextArea.emojiDropdown.categories.places": "Путешествия и места",
+  "richTextArea.emojiDropdown.categories.symbols": "Символы"
 }

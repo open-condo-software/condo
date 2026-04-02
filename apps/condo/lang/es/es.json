@@ -3832,6 +3832,7 @@
   "richTextArea.toolbar.undo": "Deshacer",
   "richTextArea.toolbar.redo": "Rehacer",
   "richTextArea.toolbar.link": "Enlace",
+  "richTextArea.toolbar.emoji": "Emoji",
   "richTextArea.toolbar.bold": "Negrita",
   "richTextArea.toolbar.italic": "Cursiva",
   "richTextArea.toolbar.unorderedList": "Lista con viñetas",
@@ -3839,5 +3840,14 @@
   "richTextArea.toolbar.removeFormatting": "Quitar formato",
   "richTextArea.linkModal.urlLabel": "Enlace",
   "richTextArea.linkModal.textLabel": "Texto",
-  "richTextArea.linkModal.submitLabel": "Ok"
+  "richTextArea.linkModal.submitLabel": "Ok",
+  "richTextArea.emojiDropdown.categories.activity": "Actividad",
+  "richTextArea.emojiDropdown.categories.flags": "Banderas",
+  "richTextArea.emojiDropdown.categories.foods": "Comida",
+  "richTextArea.emojiDropdown.categories.frequent": "Frecuentes",
+  "richTextArea.emojiDropdown.categories.nature": "Naturaleza",
+  "richTextArea.emojiDropdown.categories.objects": "Objetos",
+  "richTextArea.emojiDropdown.categories.people": "Personas",
+  "richTextArea.emojiDropdown.categories.places": "Lugares",
+  "richTextArea.emojiDropdown.categories.symbols": "Símbolos"
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Copy, Search, Edit, Eye, FileUp, Trash, Lock } from '@open-condo/icons'
+import { Search, Edit, Eye, FileUp, Trash, Lock, Copy } from '@open-condo/icons'
 import { Button, Input as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5'
@@ -18,9 +18,9 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 
 const iconCombinations = {
     'empty': [],
-    'copy-search': [
+    'copy-emoji': [
         <DemoButton icon={<Copy size='small'/>} key='copy' />,
-        <DemoButton icon={<Search size='small'/>} key='search' />,
+        'emoji',
     ],
     'edit-copy': [
         <DemoButton icon={<Edit size='small'/>} key='edit' />,
@@ -44,7 +44,7 @@ export default {
     component: Component.TextArea,
     args: {
         placeholder: 'Placeholder',
-        bottomPanelUtils: iconCombinations['copy-search'],
+        bottomPanelUtils: iconCombinations['copy-emoji'],
         autoSize: { minRows: 1, maxRows: 4 },
         disabled: false,
         showCount: true,

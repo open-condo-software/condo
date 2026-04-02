@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Copy, Smile, Sparkles } from '@open-condo/icons'
+import { Sparkles } from '@open-condo/icons'
 import { Button, Tooltip, Input as Component } from '@open-condo/ui/src'
 import type { ToolbarGroup } from '@open-condo/ui/src'
 
@@ -20,8 +20,7 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 )
 
 const DEMO_BOTTOM_PANEL_UTILS = [
-    <DemoButton icon={<Copy size='small'/>} text='Copy' key='copy' />,
-    <DemoButton icon={<Smile size='small'/>} text='Smile' key='smile' />,
+    'emoji',
     <DemoButton icon={<Sparkles size='small'/>} text='Sparkles' key='sparkles' />,
 ]
 
@@ -83,6 +82,8 @@ const ALL_FEATURES_MD = [
     '---',
     '',
     '![Sample image](https://placehold.co/400x120/e2e8f0/475569?text=Image+Preview)',
+    '',
+    'Emoji demo: 😊 🚀 🏠',
     '',
     'Inline `code snippet` inside a paragraph.',
 ].join('\n')
