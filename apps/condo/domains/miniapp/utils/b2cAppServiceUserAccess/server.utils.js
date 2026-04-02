@@ -266,6 +266,7 @@ function canReadObjectsAsB2CAppServiceUserWithoutSpecificRights (args) {
             },
             deletedAt: null,
         },
+        deletedAt: null,
     }
 }
 
