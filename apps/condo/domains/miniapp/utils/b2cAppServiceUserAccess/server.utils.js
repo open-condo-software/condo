@@ -86,18 +86,10 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
     if (operation === 'create') {
         // addressKey is present in schema we want to change
         if (pathToAddressKey.length === 1) {
-            // NOTE(YEgorLu): We don't have "addressKey" until we pass access check and call address-service
-            //                What we maybe can do is:
-            //                1) Call address-service here anyway, maybe provide some value so inner addressService plugin will not make duplicate call
-            //                X) Somehow let addressService plugin know that we need to check "addressKey" and basically move this check in it
-            //                X) Just let to create anything, user just would not be able to see entity if made it wrong
-            //                X) Search B2CAppProperties by "address". This way "address" must be normalized just before call, but potentially we may be having 2 similar addresses (addressKey is same, address differs a little, so no access when it should be)
-            //
-            //  Decided to go with option 1). But just call address-service. Later we can make optimizations like exclude duplicate calls, search only in database and not in provider (if no addressKey in database, then B2CAppProperty does not exist anyway and no access)
+            // NOTE(YEgorLu): We don't have "addressKey" here yet
             if (!pathToAddress) return false
             const address = get(originalInput, pathToAddress, null)
             if (!address) return false
-
             addressKey = await fetchAddressKey(address)
         // addressKey is present in already created relationship
         } else if (pathToAddressKey.length > 1) {
