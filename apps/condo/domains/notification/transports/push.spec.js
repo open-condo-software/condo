@@ -15,6 +15,10 @@ jest.mock('@open-condo/config', () => {
                 group_2: ['appId_4', 'appId_5'],
                 group_3: ['appId_6'],
             },
+            transportPriorityByAppId: {
+                'test-app-transport-only-apple': { 'isVoIP': ['apple'], 'isPush': ['apple'] },
+                'test-app-transport-only-huawei': { 'isVoIP': ['huawei'], 'isPush': ['huawei'] },
+            },
         }),
     }
     return new Proxy(actual, {
@@ -26,7 +30,6 @@ jest.mock('@open-condo/config', () => {
             if (p === 'PUSH_MESSAGE_OVERRIDES') {
                 return global.__pushMessageOverrides || actual[p]
             }
-            //if (p === '')
             return actual[p]
         },
     })
@@ -48,9 +51,11 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
+const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
 const {
@@ -92,6 +97,12 @@ function mockFirebaseAdapterModule (mockFirebaseAdapter) {
     }))
 }
 
+function mockAppleAdapterModule (mockAppleAdapter) {
+    jest.doMock('@condo/domains/notification/adapters/appleAdapter', () => ({
+        AppleAdapter: jest.fn(() => mockAppleAdapter),
+    }))
+}
+
 function requirePushTransportIsolated () {
     let pushTransport
     jest.isolateModules(() => {
@@ -108,6 +119,124 @@ describe('push transport', () => {
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+    })
+
+    describe('getTokens selection (multiple tokens & transportPriorityByAppId)', () => {
+        const testMessageType = BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE
+
+        /** @type {jest.MockedFunction<any>} */
+        let sendNotificationFirebaseSpy
+        /** @type {jest.MockedFunction<any>} */
+        let sendNotificationAppleSpy
+
+        beforeEach(() => {
+            jest.resetModules()
+
+            sendNotificationFirebaseSpy = jest.fn(async (payload) => {
+                return new FirebaseAdapter().sendNotification(payload)
+            })
+
+            sendNotificationAppleSpy = jest.fn(async (payload) => {
+                return new AppleAdapter().sendNotification(payload)
+            })
+
+            const mockFirebaseAdapter = {
+                constructor: {
+                    prepareData: jest.fn((...args) => FirebaseAdapter.prepareData(...args)),
+                    validateAndPrepareNotification: jest.fn((...args) => FirebaseAdapter.validateAndPrepareNotification(...args)),
+                },
+                sendNotification: sendNotificationFirebaseSpy,
+            }
+
+            const mockAppleAdapter = {
+                constructor: {
+                    prepareData: jest.fn((...args) => AppleAdapter.prepareData(...args)),
+                    validateAndPrepareNotification: jest.fn((...args) => AppleAdapter.validateAndPrepareNotification(...args)),
+                },
+                sendNotification: sendNotificationAppleSpy,
+            }
+
+            mockFirebaseAdapterModule(mockFirebaseAdapter)
+            mockAppleAdapterModule(mockAppleAdapter)
+
+            jest.doMock('@open-condo/keystone/schema', () => {
+                return {
+                    find: async (schemaName, where) => getSchemaCtx(schemaName).list.adapter.find(where),
+                }
+            })
+
+        })
+
+        test('sends push only to one token when RemoteClient has multiple isPush tokens (restricted by transportPriorityByAppId)', async () => {
+            const client = await makeClientWithResidentUser()
+
+            const tokenApple = getRandomFakeSuccessToken()
+            const tokenFirebase = getRandomFakeSuccessToken()
+
+            const payload = getRandomTokenData({
+                appId: 'test-app-transport-only-apple',
+                pushToken: null,
+                pushTransport: null,
+                pushTokenVoIP: null,
+                pushTransportVoIP: null,
+                meta: null,
+                pushTokens: [
+                    { token: tokenFirebase, transport: PUSH_TRANSPORT_FIREBASE, isPush: true, isVoIP: false },
+                    { token: tokenApple, transport: 'apple', isPush: true, isVoIP: false },
+                ],
+            })
+
+            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+
+            const pushTransport = requirePushTransportIsolated()
+
+            const [isOk] = await pushTransport.send({
+                data: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString() },
+                message: { id: faker.datatype.uuid(), type: testMessageType, lang: conf.DEFAULT_LOCALE, meta: { dv: 1, data: {} } },
+                remoteClient: { id: remoteClient.id },
+            })
+
+            expect(isOk).toEqual(true)
+            expect(sendNotificationAppleSpy).toHaveBeenCalledTimes(1)
+            expect(sendNotificationFirebaseSpy).not.toHaveBeenCalled()
+            const calledPayload = sendNotificationAppleSpy.mock.calls[0][0]
+            expect(calledPayload.tokens).toEqual([tokenApple])
+        })
+
+        test('does not send push when transportPriorityByAppId does not allow any available token transports', async () => {
+            const client = await makeClientWithResidentUser()
+
+            const tokenFirebase = getRandomFakeSuccessToken()
+
+            const payload = getRandomTokenData({
+                appId: 'test-app-transport-only-huawei',
+                pushToken: null,
+                pushTransport: null,
+                pushTokenVoIP: null,
+                pushTransportVoIP: null,
+                meta: null,
+                pushTokens: [
+                    { token: tokenFirebase, transport: PUSH_TRANSPORT_FIREBASE, isPush: true, isVoIP: false },
+                ],
+            })
+
+            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+
+            const pushTransport = requirePushTransportIsolated()
+
+            const [isOk, result] = await pushTransport.send({
+                data: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString() },
+                message: { id: faker.datatype.uuid(), type: testMessageType, lang: conf.DEFAULT_LOCALE, meta: { dv: 1, data: {} } },
+                remoteClient: { id: remoteClient.id },
+            })
+
+            expect(isOk).toEqual(false)
+            expect(sendNotificationAppleSpy).not.toHaveBeenCalled()
+            expect(sendNotificationFirebaseSpy).not.toHaveBeenCalled()
+            expect(result).toMatchObject({
+                error: 'No pushTokens available.',
+            })
+        })
     })
 
     describe('Huawei', () => {
@@ -1345,7 +1474,6 @@ describe('push transport', () => {
             transportMeta = message.processingMeta.transportsMeta[0]
 
             const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
-            console.error(JSON.stringify(transportMeta, null, 2))
             // Expect that only message with appId_1 is sent, since it's the first in the group and successful
             expect(responses).toHaveLength(payloadsForAppId1.length)
             const uniqueGroupNames = [...new Set(responses.map(r => r.groupName))]

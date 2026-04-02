@@ -106803,6 +106803,18 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
+    "type": "TOO_MANY_TOKENS",
+    "message": "You shouldn't put more than 100 tokens in mutation input at once"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MANY_TOKENS",
+    "message": "You shouldn't put more than 50 unique tokens at once"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
     "type": "DEVICE_KEY_VALIDATION_ERROR",
     "message": "\"deviceKey\" validation error"
   }`

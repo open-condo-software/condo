@@ -41,6 +41,8 @@ describe('sendResidentsNoAccountNotifications', () => {
             type: RESIDENT_UPGRADE_APP_TYPE,
             uniqKey: notificationKey,
         }
+        const lastMessages = await Message.getAll(admin, {}, { first: 2 })
+        console.error(JSON.stringify(lastMessages, null, 2))
         const message = await Message.getOne(admin, messageWhere)
 
         expect(message).toBeDefined()
