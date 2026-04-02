@@ -27,7 +27,7 @@ describe('stripMarkdown', () => {
     })
 
     it('handles mixed emphasis formatting', () => {
-        expect(stripMarkdown('***bold italic*** __bold__')).toBe('*bold italic* bold')
+        expect(stripMarkdown('***bold italic*** __bold__')).toBe('bold italic bold')
     })
 
     it('preserves list markers (-, *, +) in plain text', () => {
@@ -47,6 +47,11 @@ describe('stripMarkdown', () => {
     it('handles complex markdown combinations', () => {
         const input = '# Main Title\n\n## Subtitle\n\nThis is **bold** and _italic_ text with [a link](http://example.com) and `inline code`.\n\n- List item 1\n- List item 2 with **bold**\n\n> A blockquote with `code` inside'
         expect(stripMarkdown(input)).toBe('Main Title Subtitle This is bold and _italic_ text with a link and inline code. - List item 1 - List item 2 with bold A blockquote with code inside')
+    })
+
+    it('removes italic with asterisks, but preserves list markers', () => {
+        expect(stripMarkdown('This is *italic* text')).toBe('This is italic text')
+        expect(stripMarkdown('* item one\n* item two')).toBe('* item one * item two')
     })
 
     it('preserves plain text and special characters', () => {

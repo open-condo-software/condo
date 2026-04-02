@@ -13,6 +13,7 @@ const stripMarkdown = (input) => {
         .replaceAll(/!\[[^\]]{0,1000}\]\([^)]{0,1000}\)/g, '')
         .replaceAll(/\[([^\]]{1,1000})\]\(([^)]{1,1000})\)/g, '$1')
         .replaceAll(/\*\*|__/g, '')
+        .replaceAll(/(^|[^\w*])\*([^*\s][^*]{0,1000}?)\*(?=[^\w*]|$)/g, '$1$2')
         .replaceAll(/[`]/g, '')
         .replaceAll(/^\s{0,3}>\s?/gm, '')
         .replaceAll(/^#{1,6}\s*/gm, '')
