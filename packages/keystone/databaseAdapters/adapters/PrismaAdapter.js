@@ -175,6 +175,12 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
             const supported = fieldAdapter && fieldAdapter.getQueryConditions(fieldAdapter.dbPath)[condition]
             if (supported) {
                 return supported(value)
+            } else if (fieldAdapter && condition.match(/_(gt|gte|lt|lte)$/)) {
+                // Handle ordering operators directly
+                const match = condition.match(/_(gt|gte|lt|lte)$/)
+                const op = match[1]
+                const prismaOp = op === 'gt' ? 'gt' : op === 'gte' ? 'gte' : op === 'lt' ? 'lt' : 'lte'
+                return { [dbPath]: { [prismaOp]: value } }
             } else {
                 const [fieldPath, constraintType] = condition.split('_')
                 return { [fieldPath]: { [constraintType]: await processRelClause(fieldPath, value) } }
@@ -343,6 +349,61 @@ PrismaFieldAdapter.prototype.orderingConditions = function (dbPath, f = _identit
         [`${this.path}_lt`]: value => value == null ? {} : { [dbPath]: { lt: f(value) } },
         [`${this.path}_lte`]: value => value == null ? {} : { [dbPath]: { lte: f(value) } },
     }
+}
+
+// NOTE: Override getQueryConditions to include orderingConditions
+// The base class doesn't include orderingConditions by default
+PrismaFieldAdapter.prototype.getQueryConditions = function (dbPath) {
+    return {
+        ...this.equalityConditions(dbPath),
+        ...this.equalityConditionsInsensitive(dbPath),
+        ...this.inConditions(dbPath),
+        ...this.stringConditions(dbPath),
+        ...this.stringConditionsInsensitive(dbPath),
+        ...this.orderingConditions(dbPath),
+    }
+}
+
+// NOTE: Also patch specific field adapter classes that override getQueryConditions
+const _patchFieldAdapter = (fieldAdapterClass) => {
+    if (fieldAdapterClass && fieldAdapterClass.prototype && !fieldAdapterClass.prototype._patchedForOrdering) {
+        fieldAdapterClass.prototype._patchedForOrdering = true
+        const original = fieldAdapterClass.prototype.getQueryConditions
+        fieldAdapterClass.prototype.getQueryConditions = function (dbPath) {
+            const conditions = original.call(this, dbPath)
+            // Add ordering conditions if not present
+            const ordering = this.orderingConditions(dbPath)
+            for (const [key, handler] of Object.entries(ordering)) {
+                if (!(key in conditions)) {
+                    conditions[key] = handler
+                }
+            }
+            return conditions
+        }
+    }
+}
+
+// Patch field adapters synchronously
+try {
+    const fields = require('@open-keystone/fields')
+    
+    // Patch all field types that have Prisma adapters
+    const fieldTypes = ['Text', 'DateTimeUtc', 'Integer', 'Decimal', 'Checkbox', 'Float', 'Json', 'Select', 'CalendarDay', 'Password', 'File']
+    
+    for (const fieldType of fieldTypes) {
+        if (fields[fieldType] && fields[fieldType].adapters && fields[fieldType].adapters.prisma) {
+            _patchFieldAdapter(fields[fieldType].adapters.prisma)
+        }
+    }
+    
+    // Also patch any other exported adapters
+    for (const [name, FieldType] of Object.entries(fields)) {
+        if (FieldType && FieldType.adapters && FieldType.adapters.prisma && !FieldType.adapters.prisma.prototype._patchedForOrdering) {
+            _patchFieldAdapter(FieldType.adapters.prisma)
+        }
+    }
+} catch (e) {
+    console.error('[PrismaAdapter] Failed to patch field adapters:', e)
 }
 
 
