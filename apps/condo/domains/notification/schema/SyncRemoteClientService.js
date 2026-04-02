@@ -57,7 +57,7 @@ function _cleanRemoteClient (rawClient) {
 const redisGuard = new RedisGuard()
 
 const checkLimits = async (ip, userId, context) => {
-    const uniqueField = [ip, userId].filter(nonNull).join(':')
+    const uniqueField = [ip, userId].filter(identity => nonNull(identity)).join(':')
     await redisGuard.checkCustomLimitCounters(
         `sync-remote-client-tokens-clear-${uniqueField}`,
         SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
