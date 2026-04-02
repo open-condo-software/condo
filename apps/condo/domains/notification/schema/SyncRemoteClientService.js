@@ -51,6 +51,7 @@ async function loadRemoteClientPushTokens (remoteClient, pushTokensInput) {
 
     const remoteClientTokens = await find('RemoteClientPushToken', {
         remoteClient: { id: remoteClient.id },
+        deletedAt: null,
     })
     for (const token of remoteClientTokens) {
         resultById[token.id] = token
@@ -60,6 +61,7 @@ async function loadRemoteClientPushTokens (remoteClient, pushTokensInput) {
         const currentPushTokens = await find('RemoteClientPushToken', {
             AND: [{
                 remoteClient: { id_not: remoteClient.id },
+                deletedAt: null,
                 OR: pushTokensChunk.map(pushToken => ({
                     AND: [{
                         token: pushToken.token,
@@ -177,14 +179,12 @@ function buildCreateOrUpdateJobs ({ desiredByKey, existingByKey, dv, sender }) {
         const needsRemoteClientUpdate = existing.remoteClient !== desired.remoteClientId
         const needsIsPushUpdate = existing.isPush !== desired.isPush
         const needsIsVoIPUpdate = existing.isVoIP !== desired.isVoIP
-        const needsRestore = !!existing.deletedAt
 
-        if (needsRemoteClientUpdate || needsIsPushUpdate || needsIsVoIPUpdate || needsRestore) {
+        if (needsRemoteClientUpdate || needsIsPushUpdate || needsIsVoIPUpdate) {
             const data = { dv, sender }
             if (needsRemoteClientUpdate) data.remoteClient = { connect: { id: desired.remoteClientId } }
             if (needsIsPushUpdate) data.isPush = desired.isPush
             if (needsIsVoIPUpdate) data.isVoIP = desired.isVoIP
-            if (needsRestore) data.deletedAt = null
             jobs.update.push({ id: existing.id, data })
         }
     }

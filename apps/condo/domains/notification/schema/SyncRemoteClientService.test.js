@@ -17,15 +17,15 @@ const { getRandomTokenData, getRandomPushTokenData } = require('@condo/domains/n
 
 describe('SyncRemoteClientService', () => {
     let admin
+    let anonymous
     
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        anonymous = await makeClient()
     })
 
     describe('syncPushTokens persistence', () => {
         it('creates RemoteClientPushToken models from legacy pushToken/pushTransport fields in payload', async () => {
-            const client = await makeClient()
-
             const payload = getRandomTokenData({
                 pushTokens: [],
                 pushToken: faker.datatype.uuid(),
@@ -35,7 +35,7 @@ describe('SyncRemoteClientService', () => {
                 meta: null,
             })
 
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const tokens = await RemoteClientPushToken.getAll(admin, {
                 remoteClient: { id: remoteClient.id },
@@ -48,14 +48,12 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('saves legacy pushToken fields as null\'s and creates RemoteClientPushTokens from them', async () => {
-            const client = await makeClient()
-
             const deviceId = faker.datatype.uuid()
             const appId = faker.datatype.uuid()
             const legacyPushToken = faker.datatype.uuid()
             const legacyVoipToken = faker.datatype.uuid()
 
-            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(client, {
+            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(anonymous, {
                 deviceId,
                 appId,
                 pushToken: legacyPushToken,
@@ -83,15 +81,13 @@ describe('SyncRemoteClientService', () => {
             expect(pushToken).toBeDefined()
             expect(voipToken).not.toEqual(pushToken)
 
-            //expect(pushToken.token).toEqual(legacyPushToken)
+            //expect(pushToken.token).toEqual(legacyPushToken) // It would, but access to "token" got restricted
             expect(pushToken.provider).toEqual('firebase')
             //expect(voipToken.token).toEqual(legacyVoipToken)
             expect(voipToken.provider).toEqual('apple')
         })
 
         it('creates new RemoteClientPushToken records from pushTokens', async () => {
-            const client = await makeClient()
-
             const pushTokenToken = faker.datatype.uuid()
 
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, pushTransport: 'firebase', meta: null })
@@ -102,7 +98,7 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payloadWithPushTokens)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payloadWithPushTokens)
 
             const tokens = await RemoteClientPushToken.getAll(admin, {
                 remoteClient: { id: remoteClient.id },
@@ -116,11 +112,8 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('updates existing RemoteClientPushToken flags when same (provider, token) is provided', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, pushTransport: 'firebase', meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const pushTokenToken = faker.datatype.uuid()
 
@@ -138,7 +131,7 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithPushTokens)
+            await syncRemoteClientByTestClient(anonymous, payloadWithPushTokens)
 
             const updatedToken = await RemoteClientPushToken.getOne(admin, { id: oldToken.id })
             expect(updatedToken.isPush).toEqual(true)
@@ -147,11 +140,8 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('does not delete old tokens when they are not provided in mutation (append-only)', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const oldPushTokenToken = faker.datatype.uuid()
             const newPushTokenToken = faker.datatype.uuid()
@@ -170,20 +160,18 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithFirebaseOnly)
+            await syncRemoteClientByTestClient(anonymous, payloadWithFirebaseOnly)
 
             const oldTokenAfter = await RemoteClientPushToken.getOne(admin, { id: oldAppleToken.id })
             expect(oldTokenAfter.deletedAt).toBeNull()
         })
 
         it('reassigns token from another remoteClient due to unique (provider, token) constraint', async () => {
-            const client1 = await makeClient()
             const client2 = await makeClient()
-            const admin = await makeLoggedInAdminClient()
 
             const payload1 = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
             const payload2 = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [rc1] = await syncRemoteClientByTestClient(client1, payload1)
+            const [rc1] = await syncRemoteClientByTestClient(anonymous, payload1)
             const [rc2] = await syncRemoteClientByTestClient(client2, payload2)
 
             const sharedPushTokenToken = faker.datatype.uuid()
@@ -211,11 +199,8 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('soft-deletes old isPush-only token when new isPush token for same provider is provided', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const oldPushTokenToken = faker.datatype.uuid()
             const newPushTokenToken = faker.datatype.uuid()
@@ -234,22 +219,19 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithNewPush)
+            await syncRemoteClientByTestClient(anonymous, payloadWithNewPush)
 
             const oldTokenAfter = await RemoteClientPushToken.getOne(admin, { id: oldToken.id, deletedAt_not: null })
             expect(oldTokenAfter.deletedAt).not.toBeNull()
         })
 
-        it('restores soft-deleted token when same (provider, token) is received again', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
+        it('does not restore soft-deleted token when same (provider, token) is received again', async () => {
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
 
             const oldPushTokenToken = faker.datatype.uuid()
             const restoreTokenToken = faker.datatype.uuid()
 
-            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(client, {
+            const [{ id: remoteClientId }] = await syncRemoteClientByTestClient(anonymous, {
                 ...payload,
                 pushTokens: [
                     { token: oldPushTokenToken, transport: 'firebase', isPush: true, isVoIP: false },
@@ -258,7 +240,7 @@ describe('SyncRemoteClientService', () => {
 
             const initialPushTokenState = await RemoteClientPushToken.getOne(admin, { remoteClient: { id: remoteClientId } })
 
-            await syncRemoteClientByTestClient(client, {
+            await syncRemoteClientByTestClient(anonymous, {
                 ...payload,
                 pushTokens: [
                     { token: restoreTokenToken, transport: 'firebase', isPush: true, isVoIP: false },
@@ -268,24 +250,20 @@ describe('SyncRemoteClientService', () => {
             const softDeleted = await RemoteClientPushToken.getOne(admin, { id: initialPushTokenState.id, deletedAt_not: null })
             expect(softDeleted.deletedAt).not.toBeNull()
 
-            await syncRemoteClientByTestClient(client, {
+            await syncRemoteClientByTestClient(anonymous, {
                 ...payload,
                 pushTokens: [
                     { token: oldPushTokenToken, transport: 'firebase', isPush: true, isVoIP: false },
                 ],
             })
 
-            const restored = await RemoteClientPushToken.getOne(admin, { id: initialPushTokenState.id })
-            expect(restored.deletedAt).toBeNull()
-            expect(restored.remoteClient.id).toBe(remoteClientId)
+            const notRestored = await RemoteClientPushToken.getOne(admin, { id: initialPushTokenState.id, deletedAt_not: null })
+            expect(notRestored.deletedAt).not.toBeNull()
         })
 
         it('demotes only conflicting flag on old token when it has both isPush and isVoIP', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const oldBothPushTokenToken = faker.datatype.uuid()
             const newOnlyPushTokenToken = faker.datatype.uuid()
@@ -304,7 +282,7 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithNewPush)
+            await syncRemoteClientByTestClient(anonymous, payloadWithNewPush)
 
             const oldTokenAfter = await RemoteClientPushToken.getOne(admin, { id: oldToken.id })
             expect(oldTokenAfter.deletedAt).toBeNull()
@@ -313,11 +291,8 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('soft-deletes old isVoIP-only token when new isVoIP token for same provider is provided', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const oldVoIPPushTokenToken = faker.datatype.uuid()
             const newVoIPPushTokenToken = faker.datatype.uuid()
@@ -336,16 +311,13 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithNewVoip)
+            await syncRemoteClientByTestClient(anonymous, payloadWithNewVoip)
 
             const oldTokenAfter = await RemoteClientPushToken.getOne(admin, { id: oldToken.id, deletedAt_not: null })
             expect(oldTokenAfter.deletedAt).not.toBeNull()
         })
 
         it('keeps both tokens when mutation provides push+voip split for same provider', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
 
             const pushPushTokenToken = faker.datatype.uuid()
@@ -359,7 +331,7 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payloadWithSplit)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payloadWithSplit)
 
             const tokens = await RemoteClientPushToken.getAll(admin, {
                 remoteClient: { id: remoteClient.id },
@@ -373,11 +345,8 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('soft-deletes old push+voip split tokens when mutation provides one token with isPush+isVoIP', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const oldPushSplitPushTokenToken = faker.datatype.uuid()
             const oldVoIPSplitPushTokenToken = faker.datatype.uuid()
@@ -404,7 +373,7 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithCombined)
+            await syncRemoteClientByTestClient(anonymous, payloadWithCombined)
 
             const oldPushAfter = await RemoteClientPushToken.getOne(admin, { id: oldPushToken.id, deletedAt_not: null })
             const oldVoipAfter = await RemoteClientPushToken.getOne(admin, { id: oldVoipToken.id, deletedAt_not: null })
@@ -422,11 +391,8 @@ describe('SyncRemoteClientService', () => {
         })
 
         it('does not demote old isPush token when mutation provides only isVoIP token for same provider', async () => {
-            const client = await makeClient()
-            const admin = await makeLoggedInAdminClient()
-
             const payload = getRandomTokenData({ pushToken: null, pushTokenVoIP: null, meta: null })
-            const [remoteClient] = await syncRemoteClientByTestClient(client, payload)
+            const [remoteClient] = await syncRemoteClientByTestClient(anonymous, payload)
 
             const oldPushTokenToken = faker.datatype.uuid()
             const newVoIPPushTokenToken = faker.datatype.uuid()
@@ -445,7 +411,7 @@ describe('SyncRemoteClientService', () => {
                 ],
             }
 
-            await syncRemoteClientByTestClient(client, payloadWithVoipOnly)
+            await syncRemoteClientByTestClient(anonymous, payloadWithVoipOnly)
 
             const oldPushAfter = await RemoteClientPushToken.getOne(admin, { id: oldPush.id })
             expect(oldPushAfter.deletedAt).toBeNull()
@@ -455,14 +421,13 @@ describe('SyncRemoteClientService', () => {
     
     describe('Anonymous', () => {
         it('registers deviceId + pushTransport (no pushToken/meta | pushToken | meta | pushType | pushToken + meta)', async () => {
-            const client = await makeClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null }) // no meta or pushToken
             const payload1 = getRandomTokenData({ meta: null }) // no meta, with pushToken
             const payload2 = getRandomTokenData({ pushToken: null }) // no pushToken, with meta
             const payload3 = getRandomTokenData() // with meta & pushToken
             const payload4 = getRandomTokenData({ pushType: PUSH_TYPE_SILENT_DATA }) // with pushType
 
-            const [device] = await syncRemoteClientByTestClient(client, payload)
+            const [device] = await syncRemoteClientByTestClient(anonymous, payload)
 
             expect(device.id).not.toBeFalsy()
             expect(device.deviceId).toEqual(payload.deviceId)
@@ -475,7 +440,7 @@ describe('SyncRemoteClientService', () => {
             expect(device.meta).toBeNull()
             expect(device.owner).toBeNull()
 
-            const [device1] = await syncRemoteClientByTestClient(client, payload1)
+            const [device1] = await syncRemoteClientByTestClient(anonymous, payload1)
 
             expect(device1.id).not.toBeFalsy()
             expect(device1.deviceId).toEqual(payload1.deviceId)
@@ -488,7 +453,7 @@ describe('SyncRemoteClientService', () => {
             expect(device1.meta).toBeNull()
             expect(device1.owner).toBeNull()
 
-            const [device2] = await syncRemoteClientByTestClient(client, payload2)
+            const [device2] = await syncRemoteClientByTestClient(anonymous, payload2)
 
             expect(device2.id).not.toBeFalsy()
             expect(device2.deviceId).toEqual(payload2.deviceId)
@@ -501,7 +466,7 @@ describe('SyncRemoteClientService', () => {
             expect(device2.meta).toBeNull()
             expect(device2.owner).toBeNull()
 
-            const [device3] = await syncRemoteClientByTestClient(client, payload3)
+            const [device3] = await syncRemoteClientByTestClient(anonymous, payload3)
 
             expect(device3.id).not.toBeFalsy()
             expect(device3.deviceId).toEqual(payload3.deviceId)
@@ -514,7 +479,7 @@ describe('SyncRemoteClientService', () => {
             expect(device3.meta).toBeNull()
             expect(device3.owner).toBeNull()
 
-            const [device4] = await syncRemoteClientByTestClient(client, payload4)
+            const [device4] = await syncRemoteClientByTestClient(anonymous, payload4)
 
             expect(device4.id).not.toBeFalsy()
             expect(device4.deviceId).toEqual(payload4.deviceId)
