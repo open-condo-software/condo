@@ -192,7 +192,7 @@ describe('B2CAppAccessRight', () => {
             await createTestB2CAppAccessRight(admin, serviceUser, app2)
         })
 
-        test('Can connect only to relative rights set', async () => {
+        test('Can connect only to related rights set', async () => {
             const admin = await makeLoggedInAdminClient()
             const [serviceUser] = await registerNewServiceUserByTestClient(admin)
 

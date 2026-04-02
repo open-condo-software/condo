@@ -98,7 +98,7 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
             const address = get(originalInput, pathToAddress, null)
             if (!address) return false
 
-            addressKey = await fetchAddressKey()
+            addressKey = await fetchAddressKey(address)
         // addressKey is present in already created relationship
         } else if (pathToAddressKey.length > 1) {
             const parentObjectId = get(originalInput, [pathToAddressKey[0], 'connect', 'id'], null)

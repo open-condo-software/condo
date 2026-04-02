@@ -14,7 +14,7 @@ const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/acc
 const { ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2C_APP } = require('../constants')
 
 const ERRORS = {
-    ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP: {
+    ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2C_APP: {
         code: BAD_USER_INPUT,
         type: ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2C_APP,
         message: '"accessRightSet" must be connected to B2CApp, which specified in "app"',
@@ -61,7 +61,7 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
                 })
 
                 if (!accessRightSet) {
-                    throw new GQLError(ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, context)
+                    throw new GQLError(ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2C_APP, context)
                 }
             }
         },

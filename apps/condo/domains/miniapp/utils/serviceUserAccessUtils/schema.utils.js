@@ -1,4 +1,7 @@
-const { get, isObject, isString, upperFirst } = require('lodash')
+const get = require('lodash/get')
+const isObject = require('lodash/isObject')
+const isString = require('lodash/isString')
+const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
 
@@ -108,9 +111,26 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  */
 
 /**
- * Generation of fields for scheme  B2BAppAccessRightSet canRead... and canManage... for the necessary schemes.
+ * @typedef {Object} B2cAppServiceUserAccessListSchemaConfig
+ * @property {Array.<string>} pathToAddressKey - Way to get the addressKey (default value: ['addressKey'])
+ * @property {Array.<string>} pathToAddress - Way to get the address (default value: ['address'])
+ * @property {boolean} canBeRead - Service users can read schema (default value: true)
+ * @property {boolean} canBeManaged - Service users can manage schema (default value: true)
+ */
+
+/**
+ * @typedef {Object} B2cAppServiceUserAccessServiceSchemaConfig
+ * @property {Array.<string>} pathToAddressKey - Way to get the addressKey (default value: ['addressKey'])
+ * @property {Array.<string>} pathToAddress - Way to get the address (default value: ['address'])*/
+
+/**
+ * @typedef {{lists: Record<string, B2cAppServiceUserAccessListSchemaConfig>, services: Record<string, B2cAppServiceUserAccessServiceSchemaConfig>, noRightSetRequired: Omit<B2cAppServiceUserAccessConfig, 'noRightSetRequired'>}} B2cAppServiceUserAccessConfig
+ */
+
+/**
+ * Generation of fields for schemas B2BAppAccessRightSet and B2CAppAccessRightSet canRead... and canManage... for the necessary schemes.
  *
- * @param {B2bAppServiceUserAccessConfig} config  - Determines which models can be accessed by a service user linked to a B2B app
+ * @param {B2bAppServiceUserAccessConfig | B2cAppServiceUserAccessConfig} config  - Determines which models can be accessed by a service user linked to a B2B app
  * @return {Record<string, Object>}
  */
 const generatePermissionFields = ({ config }) => {

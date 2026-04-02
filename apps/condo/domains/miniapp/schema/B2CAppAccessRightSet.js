@@ -6,8 +6,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2CAppAccessRightSet')
-const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
 const { B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/config')
+const { generatePermissionFields } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/schema.utils')
 
 
 const B2CAppAccessRightSet = new GQLListSchema('B2CAppAccessRightSet', {

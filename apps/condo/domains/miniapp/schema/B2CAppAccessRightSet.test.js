@@ -18,9 +18,7 @@ describe('B2CAppAccessRightSet', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
-                //const permittedUser = await makeClientWithServiceUser()
                 const [b2cApp] = await createTestB2CApp(admin)
-                // await createTestB2CAppAccessRight(admin, permittedUser.user, b2cApp)
                 const [obj] = await createTestB2CAppAccessRightSet(admin, b2cApp)
                 expect(obj).toBeDefined()
             })
@@ -28,9 +26,7 @@ describe('B2CAppAccessRightSet', () => {
             test('support can', async () => {
                 const client = await makeClientWithSupportUser()
                 const admin = await makeLoggedInAdminClient()
-                //const permittedUser = await makeClientWithServiceUser()
                 const [b2cApp] = await createTestB2CApp(admin)
-                // await createTestB2CAppAccessRight(admin, permittedUser.user, b2cApp)
                 const [obj] = await createTestB2CAppAccessRightSet(client, b2cApp)
                 expect(obj).toBeDefined()
             })
@@ -329,9 +325,7 @@ describe('B2CAppAccessRightSet', () => {
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const admin = await makeLoggedInAdminClient()
-            //const permittedUser = await makeClientWithServiceUser()
             const [b2cApp] = await createTestB2CApp(admin)
-            // await createTestB2CAppAccessRight(admin, permittedUser.user, b2cApp)
             const [obj] = await createTestB2CAppAccessRightSet(admin, b2cApp)
             expect(obj).toBeDefined()
             expect(obj).toHaveProperty('dv', 1)
