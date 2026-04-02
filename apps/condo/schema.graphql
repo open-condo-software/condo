@@ -106845,14 +106845,14 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "DEVICE_KEY_VALIDATION_ERROR",
-    "message": "\"deviceKey\" validation error"
+    "type": "INVALID_DEVICE_KEY",
+    "message": "\"deviceKey\" should be a valid UUID"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "INVALID_DEVICE_KEY",
-    "message": "\"deviceKey\" should be a valid UUID"
+    "type": "DEVICE_KEY_VALIDATION_ERROR",
+    "message": "\"deviceKey\" validation error"
   }`
   
   `{
