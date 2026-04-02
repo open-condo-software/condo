@@ -344,7 +344,6 @@
   box-shadow: 0 8px 24px rgb(26 26 26 / 12%);
 }
 
-
 .condo-input-emoji-dropdown {
   overflow: hidden;
   background: @condo-global-color-white;
@@ -363,13 +362,17 @@
 
 .condo-rich-text-area-emoji-dropdown em-emoji-picker,
 .condo-input-emoji-dropdown em-emoji-picker {
-  --rgb-background: red(@condo-global-color-white), green(@condo-global-color-white), blue(@condo-global-color-white);
-  --rgb-accent: red(@condo-global-color-green-5), green(@condo-global-color-green-5), blue(@condo-global-color-green-5);
-  --rgb-input: red(@condo-global-color-green-1), green(@condo-global-color-green-1), blue(@condo-global-color-green-1);
+  // emoji-mart expects CSS vars as numeric "r, g, b" tuples.
+  // We keep explicit constants here because stylelint doesn't allow LESS red()/green()/blue() in this project.
+  // Values map design tokens: white (#fff), green-5 (#2bc359), green-1 (#ebfaef).
+  --rgb-background: 255, 255, 255;
+  --rgb-accent: 43, 195, 89;
+  --rgb-input: 235, 250, 239;
   --border-radius: @condo-global-border-radius-large;
-  
+
   @supports (corner-shape: squircle) {
     corner-shape: squircle;
+
     --border-radius: calc(@condo-global-border-radius-large * 1.85);
   }
 }
