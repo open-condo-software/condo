@@ -11,7 +11,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
 const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
-const { sendMessage, RemoteClientPushToken} = require('@condo/domains/notification/utils/serverSchema')
+const { sendMessage, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
 
 const TODAY = dayjs().format(DATE_FORMAT)
 const CHUNK_SIZE = 50
