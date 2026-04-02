@@ -13,8 +13,7 @@ const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES, PUSH_TRANSPORT_ONESIGNAL, PUSH_TRANSPORT_FIREBASE,
-    PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI, PUSH_TRANSPORT_REDSTORE, PUSH_TRANSPORT_WEBHOOK,
+const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES,
     SYNC_REMOTE_CLIENT_TOKENS_RESET_WINDOW_SEC,
     MAX_SYNC_REMOTE_CLIENT_TOKENS_RESET_BY_WINDOW_SEC,
 } = require('@condo/domains/notification/constants/constants')
@@ -338,12 +337,19 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
 
     const existing = await getByCondition('RemoteClient', { deviceId, appId })
 
-    let needToUpdateDeviceKey =
-        deviceKey
-        && (
-            !existing?.deviceKey
-            || existing && !(await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey))
-        )
+    let needToUpdateDeviceKey = false
+    if (deviceKey) {
+        if (!existing?.deviceKey) needToUpdateDeviceKey = true
+        if (existing) {
+            const { keystone } = getSchemaCtx('RemoteClient')
+            const deviceKeyIsSimilarToExisting = await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey)
+            needToUpdateDeviceKey = !deviceKeyIsSimilarToExisting
+        }
+    }
+
+    if (existing?.deviceKey && !deviceKey) {
+        throw new GQLError(ERRORS.DEVICE_KEY_REQUIRED, context)
+    }
     if (needToUpdateDeviceKey && existing) {
         await checkLimits(context.req.ip, userId, context)
         const remoteClientPushTokensToDelete = await find('RemoteClientPushToken', { remoteClient: { id: existing.id }, deletedAt: null })
@@ -351,9 +357,6 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
             context,
             remoteClientPushTokensToDelete.map(pushToken => ({ id: pushToken.id, data: { deletedAt: new Date().toISOString(), dv: 1, sender } })),
         )
-    }
-    if (existing?.deviceKey && !deviceKey) {
-        throw new GQLError(ERRORS.DEVICE_KEY_REQUIRED, context)
     }
 
     if (!existing) {
