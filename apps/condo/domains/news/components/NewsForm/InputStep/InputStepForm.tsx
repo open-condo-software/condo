@@ -116,14 +116,17 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const toolbarLabels = useMemo(() => ({
         undo: UndoTooltipText,
         redo: RedoTooltipText,
-        emoji: EmojiTooltipText,
         bold: BoldTooltipText,
         italic: ItalicTooltipText,
         orderedList: OrderedListTooltipText,
         link: LinkTooltipText,
         unorderedList: UnorderedListTooltipText,
         removeFormatting: RemoveFormattingTooltipText,
-    }), [LinkTooltipText, UnorderedListTooltipText, RemoveFormattingTooltipText, OrderedListTooltipText, BoldTooltipText, ItalicTooltipText, RedoTooltipText, UndoTooltipText, EmojiTooltipText])
+    }), [LinkTooltipText, UnorderedListTooltipText, RemoveFormattingTooltipText, OrderedListTooltipText, BoldTooltipText, ItalicTooltipText, RedoTooltipText, UndoTooltipText])
+
+    const bottomPanelLabels = useMemo(() => ({
+        emoji: EmojiTooltipText,
+    }), [EmojiTooltipText])
 
     const linkModalLabels = useMemo(() => ({
         urlLabel: LinkModalUrlLabel,
@@ -304,6 +307,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                         toolbar: toolbarLabels,
                         emojiDropdown: emojiDropdownLabels,
                         linkModal: linkModalLabels,
+                        bottomPanelLabels: bottomPanelLabels,
                     }}
                     type='inline'
                     bottomPanelUtils={bottomPanelUtils}

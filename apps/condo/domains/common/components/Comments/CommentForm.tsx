@@ -13,15 +13,16 @@ import { Module, useMultipleFileUploadHook } from '@condo/domains/common/compone
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import styles from './Comments.module.css'
 
 import { CommentWithFiles } from './index'
 
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 const ENTER_KEY_CODE = 13
 const TourStepZIndex = 1071
-const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
 interface IRewriteTextButtonProps {
     hasText: boolean
@@ -154,9 +155,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const intl = useIntl()
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
-    const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })   
+    const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
+
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const hasAiFeature = isFeatureAvailable('ai')
 
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')

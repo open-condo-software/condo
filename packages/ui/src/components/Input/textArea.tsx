@@ -168,27 +168,20 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
         setEmojiPickerOpen(false)
         if (disabled) return
-
         const nativeEmoji = emoji?.native
         if (!nativeEmoji) return
-
         const textAreaElement = textAreaContainerRef.current?.querySelector('textarea')
         const currentText = currentValue || ''
-
         if (!textAreaElement) {
             emitValueChange(currentText + nativeEmoji)
             return
         }
-
         const start = textAreaElement.selectionStart ?? currentText.length
         const end = textAreaElement.selectionEnd ?? currentText.length
-        const nextValue = currentText.slice(0, start) + nativeEmoji + currentText.slice(end)
-        emitValueChange(nextValue)
-
-        const nextCursor = start + nativeEmoji.length
+        textAreaElement.setRangeText(nativeEmoji, start, end, 'end')
+        emitValueChange(textAreaElement.value)
         requestAnimationFrame(() => {
             textAreaElement.focus()
-            textAreaElement.setSelectionRange(nextCursor, nextCursor)
         })
     }, [currentValue, disabled, emitValueChange])
 

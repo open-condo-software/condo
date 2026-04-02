@@ -477,7 +477,8 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                                 icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
                                             />
                                         </Tooltip>,
-                                        ...(aiEnabled && rewriteIncidentTextForResidentEnabled ? [
+                                        ...
+                                        aiEnabled && rewriteIncidentTextForResidentEnabled ? [
                                             <SubscriptionGuardWithTooltip
                                                 key='improveButton'
                                                 feature='ai'
@@ -509,7 +510,7 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                                     {UpdateTextMessage}
                                                 </Button>
                                             </SubscriptionGuardWithTooltip>,
-                                        ] : []),
+                                        ] : [],
                                     ]}
                                 />
                             </Form.Item>

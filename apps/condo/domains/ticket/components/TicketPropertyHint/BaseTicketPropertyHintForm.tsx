@@ -111,12 +111,15 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         undo: intl.formatMessage({ id: 'richTextArea.toolbar.undo' }),
         redo: intl.formatMessage({ id: 'richTextArea.toolbar.redo' }),
         link: intl.formatMessage({ id: 'richTextArea.toolbar.link' }),
-        emoji: intl.formatMessage({ id: 'richTextArea.toolbar.emoji' }),
         bold: intl.formatMessage({ id: 'richTextArea.toolbar.bold' }),
         italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
         unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
         orderedList: intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' }),
         removeFormatting: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' }),
+    }), [intl])
+
+    const bottomPanelLabels = useMemo(() => ({
+        emoji: intl.formatMessage({ id: 'richTextArea.toolbar.emoji' }),
     }), [intl])
 
     const linkModalLabels = useMemo(() => ({
@@ -324,6 +327,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                                 toolbar: toolbarLabels,
                                                 linkModal: linkModalLabels,
                                                 emojiDropdown: emojiDropdownLabels,
+                                                bottomPanelLabels: bottomPanelLabels,
                                             }}
                                         />
                                     </Col>
