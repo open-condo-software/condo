@@ -5,7 +5,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -87,19 +87,13 @@ async function enrichContextsWithPlans (contexts) {
     }))
 }
 
-function addBufferDaysToDate (dateString, isTrial) {
-    if (isTrial || !dateString) return dateString
-    return dayjs(dateString).add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'day').format('YYYY-MM-DD')
-}
-
 function filterActiveContexts (contexts, now) {
     const nowDate = dayjs(now).startOf('day')
     return contexts.filter(ctx => {
         if (!ctx.startAt || !ctx.endAt) return false
         if (ctx.status !== SUBSCRIPTION_CONTEXT_STATUS.DONE) return false
         const startAt = dayjs(ctx.startAt).startOf('day')
-        const endAtWithBuffer = addBufferDaysToDate(ctx.endAt, ctx.isTrial)
-        const endAt = dayjs(endAtWithBuffer).startOf('day')
+        const endAt = dayjs(ctx.endAt).startOf('day')
         return (startAt.isBefore(nowDate) || startAt.isSame(nowDate)) && endAt.isAfter(nowDate)
     })
 }
@@ -117,19 +111,18 @@ function findLatestEndAt (sortedContexts, now, filterFn) {
     
     for (const ctx of filteredContexts) {
         const startAt = dayjs(ctx.startAt).startOf('day')
-        const endAtWithBuffer = addBufferDaysToDate(ctx.endAt, ctx.isTrial)
-        const endAt = dayjs(endAtWithBuffer).startOf('day')
+        const endAt = dayjs(ctx.endAt).startOf('day')
         const isActiveOrFuture = endAt.isAfter(nowDate)
         
         if (isActiveOrFuture) {
             if (lastEndDate) {
                 const prevEndDate = dayjs(lastEndDate).startOf('day')
-                const prevEndDateWithBuffer = addBufferDaysToDate(lastEndDate, ctx.isTrial)
-                const prevEndDateBuffered = dayjs(prevEndDateWithBuffer).startOf('day')
-                if (startAt.isAfter(prevEndDateBuffered, 'day')) {
+                // If there's a gap, stop extending
+                if (startAt.isAfter(prevEndDate, 'day')) {
                     break
                 }
             } else {
+                // First active/future context must cover or start from now
                 if (startAt.isAfter(nowDate, 'day')) {
                     break
                 }
@@ -138,9 +131,8 @@ function findLatestEndAt (sortedContexts, now, filterFn) {
             lastEndDate = ctx.endAt
         }
         
-        const endAtToCompare = addBufferDaysToDate(ctx.endAt, ctx.isTrial)
-        if (!maxEndAt || endAtToCompare > maxEndAt) {
-            maxEndAt = endAtToCompare
+        if (!maxEndAt || ctx.endAt > maxEndAt) {
+            maxEndAt = ctx.endAt
         }
     }
     
@@ -183,15 +175,13 @@ function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
 
     for (const ctx of contextsWithActivePlan) {
         const startAt = dayjs(ctx.startAt).startOf('day')
-        const endAtWithBuffer = addBufferDaysToDate(ctx.endAt, ctx.isTrial)
-        const endAt = dayjs(endAtWithBuffer).startOf('day')
+        const endAt = dayjs(ctx.endAt).startOf('day')
         const isActiveOrFuture = endAt.isAfter(nowDate)
 
         if (isActiveOrFuture) {
             if (lastEndDate) {
-                const prevEndDateWithBuffer = addBufferDaysToDate(lastEndDate, ctx.isTrial)
-                const prevEndDateBuffered = dayjs(prevEndDateWithBuffer).startOf('day')
-                if (startAt.isAfter(prevEndDateBuffered, 'day')) {
+                const prevEndDate = dayjs(lastEndDate).startOf('day')
+                if (startAt.isAfter(prevEndDate, 'day')) {
                     break
                 }
             } else {
@@ -201,9 +191,8 @@ function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
             }
 
             lastEndDate = ctx.endAt
-            const endAtToCompare = addBufferDaysToDate(ctx.endAt, ctx.isTrial)
-            if (!maxEndAt || endAtToCompare > maxEndAt) {
-                maxEndAt = endAtToCompare
+            if (!maxEndAt || ctx.endAt > maxEndAt) {
+                maxEndAt = ctx.endAt
             }
         }
     }
