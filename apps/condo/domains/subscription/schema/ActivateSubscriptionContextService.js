@@ -5,7 +5,7 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
-const { createFrozenPaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
+const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
@@ -126,7 +126,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     throw new GQLError(ERRORS.MULTI_PAYMENT_NOT_FOUND, context)
                 }
 
-                const frozenPaymentInfo = createFrozenPaymentInfo(
+                const frozenPaymentInfo = freezePaymentInfo(
                     multiPayment,
                     invoice,
                     subscriptionContext.subscriptionPlanPricingRule

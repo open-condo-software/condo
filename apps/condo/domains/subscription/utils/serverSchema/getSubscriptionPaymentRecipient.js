@@ -13,7 +13,7 @@ async function getSubscriptionPaymentRecipient () {
     const recipientOrgId = conf['SUBSCRIPTION_PAYMENT_RECIPIENT']
     
     if (!recipientOrgId) {
-        throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT environment variable is not set. Run bin/prepare.js to set it up.')
+        throw new Error('SUBSCRIPTION_PAYMENT_RECIPIENT environment variable is not set.')
     }
     
     const acquiringIntegrationContexts = await find('AcquiringIntegrationContext', {
