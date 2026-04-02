@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter, PrismaFieldAdapter } = require('@open-keystone/adapter-prisma')
-const { mapKeys } = require('@open-keystone/utils')
+
 
 function _sanitizeEmptyOrConditions (obj) {
     if (obj === null || obj === undefined) return obj
@@ -245,6 +245,7 @@ _PrismaDecimalInterface.prototype.getPrismaSchema = function () {
 }
 
 const _PrismaRelationshipInterface = require('@open-keystone/fields').Relationship.adapters.prisma
+const { mapKeys } = require('@open-keystone/utils')
 _PrismaRelationshipInterface.prototype.getQueryConditions = function (dbPath) {
     return {
         [`${this.path}_is_null`]: value => (value ? { [dbPath]: { is: null } } : { [dbPath]: { isNot: null } }),
@@ -332,6 +333,15 @@ PrismaFieldAdapter.prototype.stringConditionsInsensitive = function (dbPath, f =
         [`${this.path}_not_ends_with_i`]: value => value == null ? {} : ({
             NOT: { [dbPath]: { endsWith: f(value), mode: 'insensitive' } },
         }),
+    }
+}
+
+PrismaFieldAdapter.prototype.orderingConditions = function (dbPath, f = _identity) {
+    return {
+        [`${this.path}_gt`]: value => value == null ? {} : { [dbPath]: { gt: f(value) } },
+        [`${this.path}_gte`]: value => value == null ? {} : { [dbPath]: { gte: f(value) } },
+        [`${this.path}_lt`]: value => value == null ? {} : { [dbPath]: { lt: f(value) } },
+        [`${this.path}_lte`]: value => value == null ? {} : { [dbPath]: { lte: f(value) } },
     }
 }
 
