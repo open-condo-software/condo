@@ -68,7 +68,7 @@ async function freezeInvoice (flatInvoice) {
  * @param {string} pricingRuleId - ID of the subscription plan pricing rule
  * @returns {Object} Frozen payment info object
  */
-function createFrozenPaymentInfo (multiPayment, invoice, pricingRuleId) {
+function freezePaymentInfo (multiPayment, invoice, pricingRuleId) {
     const paymentMethod = multiPayment?.meta?.paymentMethod || null
 
     return {
@@ -87,5 +87,5 @@ function createFrozenPaymentInfo (multiPayment, invoice, pricingRuleId) {
 module.exports = {
     freezeBillingReceipt,
     freezeInvoice,
-    createFrozenPaymentInfo,
+    freezePaymentInfo,
 }

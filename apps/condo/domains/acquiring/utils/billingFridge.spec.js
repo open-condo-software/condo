@@ -12,13 +12,12 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestBillingIntegration,
-    updateTestBillingReceipt,
     createTestBillingRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
-const { freezeBillingReceipt, freezeInvoice, createFrozenPaymentInfo } = require('./billingFridge')
+const { freezeBillingReceipt, freezeInvoice, freezePaymentInfo } = require('./billingFridge')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('./testSchema')
 
 const { createTestBillingReceipt } = require('../../billing/utils/testSchema')
@@ -154,7 +153,7 @@ describe('billingFridge', () => {
         })
     })
 
-    describe('createFrozenPaymentInfo', () => {
+    describe('freezePaymentInfo', () => {
         test('should create frozen payment info with all fields', () => {
             const multiPayment = {
                 id: 'multi-payment-id',
@@ -182,7 +181,7 @@ describe('billingFridge', () => {
 
             const pricingRuleId = 'pricing-rule-id'
 
-            const result = createFrozenPaymentInfo(multiPayment, invoice, pricingRuleId)
+            const result = freezePaymentInfo(multiPayment, invoice, pricingRuleId)
 
             expect(result).toHaveProperty('paymentMethod')
             expect(result.paymentMethod).toEqual(multiPayment.meta.paymentMethod)
