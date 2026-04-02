@@ -187,7 +187,6 @@ describe('RegisterSubscriptionContextService', () => {
             expect(result.subscriptionContext.organization.id).toBe(organization.id)
             expect(result.subscriptionContext.subscriptionPlan.id).toBe(subscriptionPlan.id)
             expect(result.subscriptionContext.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
-
             expect(result.multiPayment).toBeDefined()
             expect(result.directPaymentUrl).toBeDefined()
             expect(typeof result.directPaymentUrl).toBe('string')

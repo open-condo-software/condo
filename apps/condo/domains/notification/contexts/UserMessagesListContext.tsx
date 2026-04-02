@@ -159,6 +159,20 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         }
     )
 
+    const messageHandlers = useMemo(() => [
+        markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
+        markPaymentReminderAsRead,
+        markPaymentSuccessAsRead,
+        markPaymentErrorAsRead,
+    ], [
+        markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
+        markPaymentReminderAsRead,
+        markPaymentSuccessAsRead,
+        markPaymentErrorAsRead,
+    ])
+
     const updateReadUserMessagesAt = useCallback(() => {
         const newestMessageCreatedAt = userMessagesWithCustomMessages?.[0]?.createdAt
 
@@ -167,29 +181,18 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
             sendReadUserMessagesAtToBroadcast(newestMessageCreatedAt)
 
-            if (typeof markEmailConfirmationMessageAsRead === 'function') {
-                markEmailConfirmationMessageAsRead()
-            }
-            if (typeof markSubscriptionExpirationMessageAsRead === 'function') {
-                markSubscriptionExpirationMessageAsRead()
-            }
-            if (typeof markPaymentReminderAsRead === 'function') {
-                markPaymentReminderAsRead()
-            }
-            if (typeof markPaymentSuccessAsRead === 'function') {
-                markPaymentSuccessAsRead()
-            }
-            if (typeof markPaymentErrorAsRead === 'function') {
-                markPaymentErrorAsRead()
-            }
+            messageHandlers.forEach(fn => {
+                if (typeof fn === 'function') {
+                    fn()
+                }
+            })
         }
     }, [
-        readUserMessagesAt,
-        sendReadUserMessagesAtToBroadcast,
         userMessagesWithCustomMessages,
+        readUserMessagesAt,
         userMessagesSettingsStorage,
-        markEmailConfirmationMessageAsRead,
-        markSubscriptionExpirationMessageAsRead,
+        sendReadUserMessagesAtToBroadcast,
+        messageHandlers,
     ])
 
     const handleDropdownOpenChange = useCallback((isOpen: boolean) => {
