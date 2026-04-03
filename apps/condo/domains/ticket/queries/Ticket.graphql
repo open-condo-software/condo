@@ -126,7 +126,6 @@ query getTicketsForAIAssistant ($where: TicketWhereInput!, $sortBy: [SortTickets
         clientName
         clientPhone
         classifier { category { name } place { name } }
-        contact { name }
         executor { name }
         assignee { name }
         status { name }
@@ -168,7 +167,6 @@ query getTicketWithDetailsForAIAssistant ($id: ID!) {
         clientName
         clientPhone
         classifier { category { name } place { name } }
-        contact { name }
         executor { name }
         assignee { name }
         status { name }
@@ -188,6 +186,22 @@ query getTicketWithDetailsForAIAssistant ($id: ID!) {
         deletedAt
         content
         user { type name }
+    }
+
+    invoices: allInvoices (
+        where: { ticket: { id: $id } },
+        sortBy: [createdAt_DESC],
+        first: 50,
+    ) {
+        id
+        status
+        number
+        paymentType
+        status
+        currencyCode
+        rows { name toPay isMin count sku }
+        organization { id name }
+        createdBy { id name type }
     }
 }
 
