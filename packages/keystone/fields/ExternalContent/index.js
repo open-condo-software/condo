@@ -1,5 +1,3 @@
-const { Text } = require('@open-keystone/fields')
-
 const { ExternalContentImplementation } = require('./Implementation')
 
 const { JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('../Json/Implementation')
@@ -13,11 +11,10 @@ module.exports = {
         prisma: JsonPrismaFieldAdapter,
     },
     views: {
-        // This field is not intended to be edited via Admin UI.
-        // Reuse Text views to keep UI stable if it is shown somewhere.
+        // Admin UI renders file metadata as a clickable download link
         Controller: require.resolve('../Json/views/Controller'),
-        Field: Text.views.Field,
-        Cell: Text.views.Cell,
+        Field: require.resolve('./views/Field'),
+        Cell: require.resolve('./views/Cell'),
     },
 }
 

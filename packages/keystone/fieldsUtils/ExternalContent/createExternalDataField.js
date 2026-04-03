@@ -41,7 +41,6 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
         adapter,
         format,
         processors,
-        graphQLAdminFragment: '',  // Prevent 'undefined' in admin UI queries (JsonController adds this to query)
         schemaDoc: schemaDoc || `External content field storing ${format} data in files`,
     }
     

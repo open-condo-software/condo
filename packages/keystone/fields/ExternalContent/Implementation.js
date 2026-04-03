@@ -117,7 +117,27 @@ class ExternalContentImplementation extends Implementation {
 
     // GQL Output
     gqlOutputFields () {
-        return [`${this.path}: ${this.graphQLReturnType}`]
+        // For admin interface, return ExternalContentFile type with metadata fields
+        // For API requests, the resolver will return the full content
+        return [`${this.path}: ExternalContentFile`]
+    }
+
+    /**
+     * Defines GraphQL auxiliary types for the field.
+     * For admin interface, returns a File-like type with metadata fields.
+     * 
+     * @returns {Array<string>} GraphQL type definitions
+     */
+    getGqlAuxTypes () {
+        return [`
+      type ExternalContentFile {
+        id: ID
+        filename: String
+        originalFilename: String
+        mimetype: String
+        publicUrl: String
+      }
+    `]
     }
 
     // Admin
@@ -129,9 +149,12 @@ class ExternalContentImplementation extends Implementation {
     }
 
     /**
-     * Resolves the field value for GraphQL output by reading the file content from storage.
+     * Resolves the field value for GraphQL output.
      * 
-     * Delegates to resolveExternalContentValue utility which handles:
+     * For admin interface requests: returns file metadata with publicUrl without loading content.
+     * This avoids expensive file I/O operations when browsing models in admin UI.
+     * 
+     * For API requests: delegates to resolveExternalContentValue utility which handles:
      * - Backward compatibility with inline JSON objects
      * - File-meta object resolution with DataLoader batching
      * - Graceful handling of missing files
@@ -142,6 +165,38 @@ class ExternalContentImplementation extends Implementation {
         return {
             [this.path]: async (item, args, context) => {
                 const value = item?.[this.path]
+                
+                // Parse value if it's a JSON string (from database storage)
+                let parsedValue = value
+                if (typeof value === 'string') {
+                    try {
+                        parsedValue = JSON.parse(value)
+                    } catch (err) {
+                        // If parsing fails, return as-is (backward compatibility)
+                        parsedValue = value
+                    }
+                }
+                
+                // For admin interface, return file metadata with publicUrl without loading content
+                // Admin context is detected via authedItem.isAdmin (from Keystone authentication)
+                const user = context?.authedItem || context?.req?.user || null
+                const isAdminUser = user?.isAdmin === true
+                
+                if (isAdminUser) {
+                    if (isFileMeta(parsedValue)) {
+                        const publicUrl = this.adapter.publicUrl(parsedValue)
+                        return {
+                            id: parsedValue.id,
+                            filename: parsedValue.filename,
+                            originalFilename: parsedValue.originalFilename,
+                            publicUrl,
+                            mimetype: parsedValue.mimetype,
+                        }
+                    }
+                    return parsedValue
+                }
+                
+                // For API requests, load and resolve the full content
                 try {
                     return await resolveExternalContentValue(value, {
                         adapter: this.adapter,
