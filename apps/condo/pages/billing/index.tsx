@@ -42,7 +42,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
     }, [refetchBilling, refetchAcquiring])
 
     const onlineProcessingAcquiringContext = useMemo(() => {
-        return acquiringContexts.find(({ integration: { type } }) => type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
+        return acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
     }, [acquiringContexts])
 
     const providerValue = useMemo(() => ({ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }), [acquiringContexts, billingContexts, refetchBilling])

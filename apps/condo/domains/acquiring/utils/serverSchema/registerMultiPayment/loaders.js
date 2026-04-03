@@ -57,8 +57,8 @@ async function loadInvoicesByIds (invoiceIds, context) {
 
     if (invoices.length !== invoiceIds.length) {
         const existingInvoicesIds = new Set(invoices.map(({ id }) => id))
-        const missingReceipts = invoiceIds.filter(receiptId => !existingInvoicesIds.has(receiptId))
-        throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_INVOICES, messageInterpolation: { missingInvoiceIds: missingReceipts.join(', ') } }, context)
+        const missingInvoices = invoiceIds.filter(receiptId => !existingInvoicesIds.has(receiptId))
+        throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_INVOICES, messageInterpolation: { missingInvoiceIds: missingInvoices.join(', ') } }, context)
     }
 
     const byId = Object.assign({}, ...invoices.map(obj => ({ [obj.id]: obj })))
