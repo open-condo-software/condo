@@ -5479,7 +5479,10 @@ export type GetPropertyScopeOrganizationEmployeesSuspenseQueryHookResult = Retur
 export type GetPropertyScopeOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetPropertyScopeOrganizationEmployeesQuery, Types.GetPropertyScopeOrganizationEmployeesQueryVariables>;
 export const GetAvailableSubscriptionPlansDocument = gql`
     query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
-  result: getAvailableSubscriptionPlans(organization: $organization) {
+  result: getAvailableSubscriptionPlans(
+    organization: $organization
+    planType: service
+  ) {
     plans {
       plan {
         id
@@ -5487,6 +5490,7 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         name
         description
         organizationType
+        planType
         isHidden
         trialDays
         canBePromoted

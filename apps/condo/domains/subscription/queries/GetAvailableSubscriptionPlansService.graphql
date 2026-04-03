@@ -1,5 +1,5 @@
 query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
-    result: getAvailableSubscriptionPlans(organization: $organization) {
+    result: getAvailableSubscriptionPlans(organization: $organization, planType: service) {
         plans {
             plan {
                 id
@@ -7,6 +7,7 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 name
                 description
                 organizationType
+                planType
                 isHidden
                 trialDays
                 canBePromoted
