@@ -13,13 +13,72 @@ The `ExternalContent` field type stores large data externally in files rather th
 
 ## Usage
 
-### Basic Configuration
+### Creating ExternalContent Fields (Recommended)
+
+Use the `createExternalDataField` utility function to create ExternalContent fields. This is the recommended approach:
+
+```javascript
+const { ExternalContent: { createExternalDataField } } = require('@open-condo/keystone/fieldsUtils')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+
+const MyFieldFileAdapter = new FileAdapter('MyFieldFolder') // The folder where files will be stored
+
+const MY_DATA_FIELD = createExternalDataField({
+    adapter: MyFieldFileAdapter,
+    format: 'json', // or 'xml', 'text'
+    maxSizeBytes: 50 * 1024 * 1024, // 50MB (optional, default: 10MB)
+})
+
+const MySchema = {
+    fields: {
+        myData: MY_DATA_FIELD,
+    },
+}
+```
+
+### Reading ExternalContent Values
+
+When you need to read ExternalContent field values in scripts or utilities (outside of GraphQL), use the `resolveExternalContentValue` utility:
+
+```javascript
+const { ExternalContent: { resolveExternalContentValue } } = require('@open-condo/keystone/fieldsUtils')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+
+const BillingReceiptRawFieldFileAdapter = new FileAdapter('BillingReceiptRawField') // The folder where files are stored
+
+// In your script or utility function
+const rawValue = await resolveExternalContentValue(receipt.raw, {
+    adapter: BillingReceiptRawFieldFileAdapter,
+    deserialize: (raw) => (raw.length === 0 ? null : JSON.parse(raw)), // Just an example of deserialization function
+    fieldPath: 'raw',
+    item: receipt,
+})
+```
+
+**Parameters:**
+- **`value`** - The field value from database (could be inline JSON or file-meta)
+- **`adapter`** (required) - File adapter instance for reading files
+- **`deserialize`** (required) - Function to deserialize the raw file content
+- **`fieldPath`** (optional) - Field path for error messages (e.g., 'raw', 'metadata')
+- **`item`** (optional) - Item object for error context
+- **`context`** (optional) - GraphQL context for DataLoader batching (used automatically in GraphQL resolvers)
+
+**Notes:**
+- For GraphQL queries, the field resolver automatically uses `resolveExternalContentValue` with DataLoader batching
+- For scripts and utilities using `find()`, you need to manually call this function to load the file content
+- Returns `null` if the file doesn't exist (graceful handling)
+- Throws an error if deserialization fails
+- You may use adapter directly from your field configuration if needed
+
+### Basic Configuration (Legacy)
+
+If you prefer to configure the field directly without the helper function:
 
 ```javascript
 const { ExternalContent } = require('@open-condo/keystone/fields')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
-const MyFieldFileAdapter = new FileAdapter('MyFieldFolder')
+const MyFieldFileAdapter = new FileAdapter('MyFieldFolder') // The folder where files will be stored
 
 const MySchema = {
     fields: {
@@ -29,28 +88,6 @@ const MySchema = {
             format: 'json', // or 'xml', 'text'
             maxSizeBytes: 10 * 1024 * 1024, // 10MB (optional, default: 10MB)
         },
-    },
-}
-```
-
-### Using the Helper Function
-
-```javascript
-const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
-const { createExternalDataField } = ExternalContent
-const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-
-const MyFieldFileAdapter = new FileAdapter('MyFieldFolder')
-
-const MY_DATA_FIELD = createExternalDataField({
-    adapter: MyFieldFileAdapter,
-    format: 'json',
-    maxSizeBytes: 50 * 1024 * 1024, // 50MB (optional, default: 10MB)
-})
-
-const MySchema = {
-    fields: {
-        myData: MY_DATA_FIELD,
     },
 }
 ```
@@ -139,37 +176,44 @@ When a field is accessed, the complete file content is loaded into memory. For l
 If you're migrating from a `Json` field to `ExternalContent`:
 
 1. **Update Schema**: Change field type to `ExternalContent`
-2. **Run Migration**: Use the backfill script to migrate existing data
+2. **Run Migration**: Use the generic backfill script to migrate existing data
 3. **Deploy**: Deploy schema changes first, then run backfill
 
-Example backfill script pattern:
-```javascript
-const cuid = require('cuid')
-const { Readable } = require('stream')
+### Using the Backfill Script
 
-// For each record with inline JSON
-const payload = JSON.stringify(record.myData)
-const fileId = cuid()
-const filename = `MyList_myData_${fileId}.json`
+Use the generic `backfillExternalContentField.js` script to migrate any JSON field to ExternalContent:
 
-await knex.transaction(async (trx) => {
-    const saved = await adapter.save({
-        stream: Readable.from([Buffer.from(payload, 'utf-8')]),
-        filename,
-        mimetype: 'application/json',
-        encoding: 'utf-8',
-        id: fileId,
-    })
-    
-    await trx.raw(`
-        UPDATE "MyList"
-        SET "myData" = ?
-        WHERE "id" = ?
-    `, [JSON.stringify(saved), record.id])
-})
+```bash
+yarn workspace @app/condo node bin/backfillExternalContentField.js \
+  --schema billing.BillingReceipt \
+  --field raw \
+  [--filter '{"organization":"<uuid>"}'] \
+  [--dry-run]
 ```
 
-See `apps/condo/bin/billing/backfillBillingReceiptRawToExternalContent.js` for a complete example.
+**Parameters:**
+- **`--schema <domain.model>`** (required) - Schema in format `domain.model` (e.g., `billing.BillingReceipt`)
+- **`--field <name>`** (required) - Field name to migrate (e.g., `raw`)
+- **`--filter <json>`** (optional) - JSON filter for WHERE clause to limit records (e.g., `'{"organization":"<uuid>"}'`)
+- **`--batch-size <n>`** (optional) - Rows per page (default: 250)
+- **`--max-records <n>`** (optional) - Stop after processing N records
+- **`--progress-every <n>`** (optional) - Log progress every N records (default: 1000)
+- **`--dry-run`** (optional) - Preview changes without writing files or updating database
+- **`--continue-on-error`** (optional) - Continue processing on error instead of stopping
+
+**Example with dry-run:**
+```bash
+yarn workspace @app/condo node bin/backfillExternalContentField.js \
+  --schema billing.BillingReceipt \
+  --field raw \
+  --dry-run
+```
+
+The script handles the complete migration process:
+1. Reads inline JSON data from the database
+2. Saves data to external files via the FileAdapter
+3. Updates database records with file-meta references
+4. Supports filtering, batching, and error handling
 
 ## Security
 
