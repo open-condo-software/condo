@@ -13,7 +13,7 @@ import {
 const DEFAULT_MAX_LIMIT = 1000
 const DEFAULT_CHUNK_SIZE = 100
 const DEFAULT_FIRST = 100
-const DEFAULT_CHUNK_DELAY = 1000 // 1s
+const DEFAULT_CHUNK_DELAY_MS = 1000 // 1s
 
 export type ToolCallResult = {
     name: string
@@ -163,7 +163,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
                 where,
                 sortBy: args.sortBy || ['createdAt_DESC'],
                 first: args.first || 300,
-                skip: args.skip,
+                skip: args.skip || 0,
             }
         },
     },
@@ -218,6 +218,7 @@ const runApolloQueryTool = async (
     try {
         let resultData: any
 
+        // true if query can use chunking and user did not set skip or first
         const shouldUseChunking =
             config.canUseChunking &&
             typeof args?.first !== 'number' &&
@@ -226,10 +227,11 @@ const runApolloQueryTool = async (
         const variables = config.getGraphQLVariables(args, userData)
 
         if (!shouldUseChunking) {
-            // User did set skip, but didn't set first
-            // if canUseChunking -- first and skip are supported by query, with first being required
+            // User did set skip, but didn't set first or vice versa
+            // if canUseChunking -- first and skip are supported by query
             if (config.canUseChunking) {
                 if (typeof variables.first !== 'number') { variables.first = DEFAULT_FIRST}
+                if (typeof variables.skip !== 'number') { variables.skip = 0}
             }
 
             const res = await client.query({
@@ -245,7 +247,7 @@ const runApolloQueryTool = async (
             let chunk: any[]
             const limit = config.limit || DEFAULT_MAX_LIMIT
             const size = config.chunkSize || DEFAULT_CHUNK_SIZE
-            const chunkDelay = config.chunkDelay || DEFAULT_CHUNK_DELAY
+            const chunkDelay = config.chunkDelay || DEFAULT_CHUNK_DELAY_MS
             let maxIterations = Math.ceil(limit / size)
 
             do {
