@@ -325,7 +325,7 @@ async function syncPushTokens (context, { remoteClient, pushTokensInput, dv, sen
     return jobs
 }
 
-async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta, deviceKey }) {
+async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta, deviceKey, pushTokensInput }) {
     const attrs = pickBy({
         dv, sender, deviceId, appId,
         pushToken: null, pushTokenVoIP: null,
@@ -339,8 +339,8 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
 
     let needToUpdateDeviceKey = false
     if (deviceKey) {
-        if (!existing?.deviceKey) needToUpdateDeviceKey = true
-        if (existing) {
+        if (!existing || !existing.deviceKey) needToUpdateDeviceKey = true
+        if (existing && existing.deviceKey) {
             const { keystone } = getSchemaCtx('RemoteClient')
             const deviceKeyIsSimilarToExisting = await keystone.lists['RemoteClient'].fieldsByPath.deviceKey.compare(deviceKey, existing.deviceKey)
             needToUpdateDeviceKey = !deviceKeyIsSimilarToExisting
@@ -353,9 +353,12 @@ async function syncRemoteClient (context, { userId, dv, sender, deviceId, appId,
     if (needToUpdateDeviceKey && existing) {
         await checkLimits(context.req.ip, userId, context)
         const remoteClientPushTokensToDelete = await find('RemoteClientPushToken', { remoteClient: { id: existing.id }, deletedAt: null })
+        const uniquePushTokensKeys = new Set(pushTokensInput.map(pushToken => getPushTokenKey(pushToken.provider, pushToken.token)))
         await RemoteClientPushToken.updateMany(
             context,
-            remoteClientPushTokensToDelete.map(pushToken => ({ id: pushToken.id, data: { deletedAt: new Date().toISOString(), dv: 1, sender } })),
+            remoteClientPushTokensToDelete
+                .filter(pushToken => !uniquePushTokensKeys.has(getPushTokenKey(pushToken.provider, pushToken.token)))
+                .map(pushToken => ({ id: pushToken.id, data: { deletedAt: new Date().toISOString(), dv: 1, sender } })),
         )
     }
 
@@ -528,7 +531,7 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 }
 
                 const userId = get(context, 'authedItem.id', null)
-                const remoteClient = await syncRemoteClient(context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta, deviceKey })
+                const remoteClient = await syncRemoteClient(context, { userId, dv, sender, deviceId, appId, devicePlatform, pushType, pushTypeVoIP, meta, deviceKey, pushTokensInput: pushTokens })
                 await syncPushTokens(context, { remoteClient, pushTokensInput: pushTokens, dv, sender })
 
                 const client = await getById('RemoteClient', remoteClient.id)
