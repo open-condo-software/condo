@@ -6,7 +6,7 @@ const { get, isNil } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { getByCondition, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForVirtualReceiptService')
 const {
@@ -17,6 +17,7 @@ const {
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -30,8 +31,7 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-
+const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -94,6 +94,13 @@ const ERRORS = {
         type: RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
         message: 'Cannot pay for Receipt with invalid "currencyCode" value',
     },
+    ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'acquiringIntegrationContext'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Specified AcquiringIntegrationContext was not found',
+    },
 }
 
 const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('RegisterMultiPaymentForVirtualReceiptService', {
@@ -133,7 +140,14 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
-                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+                const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                    id: acquiringIntegrationContext.id,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+                })
+
+                if (!acquiringContext) {
+                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND, context)
+                }
 
                 if (acquiringContext.deletedAt) {
                     throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)

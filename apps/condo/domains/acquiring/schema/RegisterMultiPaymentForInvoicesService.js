@@ -140,6 +140,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     organization: { id_in: uniq(map(foundInvoices, 'organization')) },
                     integration: {
                         type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                        deletedAt: null,
                     },
                     deletedAt: null,
                 })

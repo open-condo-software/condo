@@ -424,6 +424,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: invoice.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 return get(acquiringContext, 'invoiceRecipient')
             },
@@ -438,6 +439,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: item.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 return get(acquiringContext, 'integration', null)
             },
@@ -453,6 +455,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: item.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 const integrationId = get(acquiringContext, 'integration')
                 if (!integrationId) return null
@@ -471,6 +474,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: item.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 const integrationId = get(acquiringContext, 'integration')
                 if (!integrationId) return null
