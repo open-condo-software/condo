@@ -285,13 +285,10 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                     await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
                 }, {
                     mutation: 'registerMultiPaymentForVirtualReceipt',
-                    variable: ['data', 'acquiringIntegrationContext', 'id'],
+                    variable: ['data', 'acquiringIntegrationContext'],
                     code: 'BAD_USER_INPUT',
-                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                    messageInterpolation: {
-                        id: acquiringIntegration.id,
-                    },
+                    type: 'NOT_FOUND',
+                    message: 'Specified AcquiringIntegrationContext was not found',
                 })
             })
         })

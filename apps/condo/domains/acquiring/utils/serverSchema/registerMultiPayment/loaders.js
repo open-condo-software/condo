@@ -52,14 +52,6 @@ async function loadReceiptsByIds (receiptIds, context) {
     return { byId, list: receipts }
 }
 
-async function loadResidentsByIds (residentIds) {
-    const residents = await find('Resident', {
-        id_in: [...new Set(residentIds)],
-    })
-    const byId = Object.assign({}, ...residents.map(obj => ({ [obj.id]: obj })))
-    return { byId, list: residents }
-}
-
 async function loadInvoicesByIds (invoiceIds, context) {
     const invoices = await find('Invoice', { id_in: [...new Set(invoiceIds)] })
 
@@ -71,6 +63,14 @@ async function loadInvoicesByIds (invoiceIds, context) {
 
     const byId = Object.assign({}, ...invoices.map(obj => ({ [obj.id]: obj })))
     return { byId, list: invoices }
+}
+
+async function loadResidentsByIds (residentIds) {
+    const residents = await find('Resident', {
+        id_in: [...new Set(residentIds)],
+    })
+    const byId = Object.assign({}, ...residents.map(obj => ({ [obj.id]: obj })))
+    return { byId, list: residents }
 }
 
 async function loadBillingContextsByIds (contextIds) {

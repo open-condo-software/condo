@@ -7,13 +7,13 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
-function assertGroupedReceiptsHaveReceipts (groupedReceipts, context) {
+function validateGroupedReceiptsHaveReceipts (groupedReceipts, context) {
     if (groupedReceipts?.some(group => !group.receipts?.length)) {
         throw new GQLError(ERRORS.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
     }
 }
 
-function assertNoDuplicateServiceConsumers (groupedReceipts, context) {
+function validateNoDuplicateServiceConsumers (groupedReceipts, context) {
     const consumersIds = groupedReceipts.map(group => group.serviceConsumer.id)
     const uniqueConsumerIds = new Set(consumersIds)
     if (consumersIds.length !== uniqueConsumerIds.size) {
@@ -21,7 +21,7 @@ function assertNoDuplicateServiceConsumers (groupedReceipts, context) {
     }
 }
 
-function assertNoDuplicateReceipts (groupedReceipts, context) {
+function validateNoDuplicateReceipts (groupedReceipts, context) {
     const receiptsIds = groupedReceipts
         .flatMap(group => group.receipts)
         .map(receiptInfo => receiptInfo.id)
@@ -31,7 +31,7 @@ function assertNoDuplicateReceipts (groupedReceipts, context) {
     }
 }
 
-function assertValidAmountDistribution (groupedReceipts, context) {
+function validateValidAmountDistribution (groupedReceipts, context) {
     const receiptsIds = groupedReceipts
         .flatMap(group => group.receipts)
         .map(receiptInfo => receiptInfo.id)
@@ -59,27 +59,27 @@ function assertValidAmountDistribution (groupedReceipts, context) {
     }
 }
 
-function assertNoDuplicateInvoices (invoices, context) {
+function validateNoDuplicateInvoices (invoices, context) {
     if (invoices.length > 0 && invoices.length !== new Set(invoices.map(({ id }) => id)).size) {
         throw new GQLError(ERRORS.DUPLICATED_INVOICE, context)
     }
 }
 
-function assertEntitiesNotDeleted (entities, errorTemplate, context) {
+function validateEntitiesNotDeleted (entities, errorTemplate, context) {
     const deletedIds = entities.filter(({ deletedAt }) => deletedAt).map(entity => entity.id)
     if (deletedIds.length) {
         throw new GQLError({ ...errorTemplate, messageInterpolation: { ids: deletedIds.join(', ') } }, context)
     }
 }
 
-function assertSingleAcquiringIntegration (acquiringContexts, context) {
+function validateSingleAcquiringIntegration (acquiringContexts, context) {
     const acquiringIntegrations = new Set(acquiringContexts.map(({ integration }) => integration))
     if (acquiringIntegrations.size > 1) {
         throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION, context)
     }
 }
 
-function assertServiceConsumersBelongToCurrentUser (consumers, residentsById, authedUserId, context) {
+function validateServiceConsumersBelongToCurrentUser (consumers, residentsById, authedUserId, context) {
     const foreignConsumers = consumers.filter(({ resident }) => {
         const residentRecord = residentsById[resident]
         return !residentRecord || residentRecord.user !== authedUserId
@@ -90,19 +90,19 @@ function assertServiceConsumersBelongToCurrentUser (consumers, residentsById, au
     }
 }
 
-function assertAcquiringIntegrationIsActive (acquiringIntegration, context) {
+function validateAcquiringIntegrationIsActive (acquiringIntegration, context) {
     if (acquiringIntegration.deletedAt) {
         throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
     }
 }
 
-function assertCanGroupReceiptsIfNeeded (receiptCount, acquiringIntegration, context) {
+function validateCanGroupReceiptsIfNeeded (receiptCount, acquiringIntegration, context) {
     if (receiptCount > 1 && !acquiringIntegration.canGroupReceipts) {
         throw new GQLError({ ...ERRORS.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION, messageInterpolation: { id: acquiringIntegration.id } }, context)
     }
 }
 
-function assertBillingContextsNotDeleted (billingContexts, receipts, context) {
+function validateBillingContextsNotDeleted (billingContexts, receipts, context) {
     const deletedBillingContextsIds = new Set(billingContexts.filter(item => item.deletedAt).map(item => item.id))
     if (deletedBillingContextsIds.size) {
         const failedReceipts = receipts
@@ -112,14 +112,14 @@ function assertBillingContextsNotDeleted (billingContexts, receipts, context) {
     }
 }
 
-function assertBillingIntegrationsSupportedByAcquiring (billingIntegrations, supportedGroup, context) {
+function validateBillingIntegrationsSupportedByAcquiring (billingIntegrations, supportedGroup, context) {
     const unsupportedBillings = billingIntegrations.filter(integration => integration.group !== supportedGroup)
     if (unsupportedBillings.length) {
         throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations: unsupportedBillings.map(billing => billing.id).join(', ') } }, context)
     }
 }
 
-function assertBillingIntegrationsNotDeleted (billingIntegrations, receipts, billingContextsById, context) {
+function validateBillingIntegrationsNotDeleted (billingIntegrations, receipts, billingContextsById, context) {
     const deletedBillingIntegrationsIds = new Set(billingIntegrations.filter(integration => integration.deletedAt).map(integration => integration.id))
     if (deletedBillingIntegrationsIds.size) {
         const failedReceipts = receipts
@@ -129,7 +129,7 @@ function assertBillingIntegrationsNotDeleted (billingIntegrations, receipts, bil
     }
 }
 
-function assertReceiptBelongsToServiceConsumer (groupedReceipts, consumersByIds, receiptsByIds, billingAccountsById, billingContextsByOrganizationId, context) {
+function validateReceiptBelongsToServiceConsumer (groupedReceipts, consumersByIds, receiptsByIds, billingAccountsById, billingContextsByOrganizationId, context) {
     for (const group of groupedReceipts) {
         const consumer = consumersByIds[group.serviceConsumer.id]
 
@@ -156,14 +156,14 @@ function assertReceiptBelongsToServiceConsumer (groupedReceipts, consumersByIds,
     }
 }
 
-function assertCurrencyConsistency (billingIntegrations, context) {
+function validateCurrencyConsistency (billingIntegrations, context) {
     const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
     if (currencies.size > 1) {
         throw new GQLError(ERRORS.RECEIPTS_HAS_MULTIPLE_CURRENCIES, context)
     }
 }
 
-function assertReceiptsHavePositiveToPay (receipts, hasDistribution, context) {
+function validateReceiptsHavePositiveToPay (receipts, hasDistribution, context) {
     if (!hasDistribution) {
         const negativeReceiptsIds = receipts
             .filter(receipt => Big(receipt.toPay).lte(0))
@@ -177,38 +177,38 @@ function assertReceiptsHavePositiveToPay (receipts, hasDistribution, context) {
     }
 }
 
-function assertInvoicesArePublished (foundInvoices, context) {
+function validateInvoicesArePublished (foundInvoices, context) {
     if (foundInvoices.some(({ status }) => status !== INVOICE_STATUS_PUBLISHED)) {
         throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
     }
 }
 
-function assertInvoicesBelongToCurrentUser (foundInvoices, authedUserId, context) {
+function validateInvoicesBelongToCurrentUser (foundInvoices, authedUserId, context) {
     if (foundInvoices.some(({ client }) => !!client && client !== authedUserId)) {
         throw new GQLError(ERRORS.INVOICES_NOT_OWNED_BY_USER, context)
     }
 }
 
-function assertInvoiceAcquiringContextsFinished (acquiringContexts, context) {
+function validateInvoiceAcquiringContextsFinished (acquiringContexts, context) {
     if (acquiringContexts.some(({ invoiceStatus }) => invoiceStatus !== CONTEXT_FINISHED_STATUS)) {
         throw new GQLError(ERRORS.INVOICE_CONTEXT_NOT_FINISHED, context)
     }
 }
 
-function assertNoRecurrentPaymentContextForInvoiceMode (recurrentPaymentContext, context) {
+function validateNoRecurrentPaymentContextForInvoiceMode (recurrentPaymentContext, context) {
     if (recurrentPaymentContext) {
         throw new GQLError(ERRORS.RECURRENT_PAYMENT_CONTEXT_FORBIDDEN_FOR_INVOICES, context)
     }
 }
 
-function assertAllPaymentAmountsPositive (paymentCreateInputs, context) {
+function validateAllPaymentAmountsPositive (paymentCreateInputs, context) {
     const negativePayments = paymentCreateInputs.filter(payment => Big(payment.amount).lte(0))
     if (negativePayments.length > 0) {
         throw new GQLError(ERRORS.PAYMENT_AMOUNT_NOT_POSITIVE, context)
     }
 }
 
-function assertTotalAmountWithinAcquiringLimits (amountToPay, acquiringIntegration, context) {
+function validateTotalAmountWithinAcquiringLimits (amountToPay, acquiringIntegration, context) {
     if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
         throw new GQLError({
             ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
@@ -252,27 +252,27 @@ async function validateRecurrentPaymentContext (recurrentPaymentContext, context
 }
 
 module.exports = {
-    assertAcquiringIntegrationIsActive,
-    assertAllPaymentAmountsPositive,
-    assertBillingContextsNotDeleted,
-    assertBillingIntegrationsNotDeleted,
-    assertBillingIntegrationsSupportedByAcquiring,
-    assertCanGroupReceiptsIfNeeded,
-    assertCurrencyConsistency,
-    assertEntitiesNotDeleted,
-    assertGroupedReceiptsHaveReceipts,
-    assertInvoiceAcquiringContextsFinished,
-    assertInvoicesArePublished,
-    assertInvoicesBelongToCurrentUser,
-    assertNoDuplicateInvoices,
-    assertNoDuplicateReceipts,
-    assertNoDuplicateServiceConsumers,
-    assertNoRecurrentPaymentContextForInvoiceMode,
-    assertReceiptBelongsToServiceConsumer,
-    assertReceiptsHavePositiveToPay,
-    assertSingleAcquiringIntegration,
-    assertServiceConsumersBelongToCurrentUser,
-    assertTotalAmountWithinAcquiringLimits,
-    assertValidAmountDistribution,
+    validateAcquiringIntegrationIsActive,
+    validateAllPaymentAmountsPositive,
+    validateBillingContextsNotDeleted,
+    validateBillingIntegrationsNotDeleted,
+    validateBillingIntegrationsSupportedByAcquiring,
+    validateCanGroupReceiptsIfNeeded,
+    validateCurrencyConsistency,
+    validateEntitiesNotDeleted,
+    validateGroupedReceiptsHaveReceipts,
+    validateInvoiceAcquiringContextsFinished,
+    validateInvoicesArePublished,
+    validateInvoicesBelongToCurrentUser,
+    validateNoDuplicateInvoices,
+    validateNoDuplicateReceipts,
+    validateNoDuplicateServiceConsumers,
+    validateNoRecurrentPaymentContextForInvoiceMode,
+    validateReceiptBelongsToServiceConsumer,
+    validateReceiptsHavePositiveToPay,
+    validateSingleAcquiringIntegration,
+    validateServiceConsumersBelongToCurrentUser,
+    validateTotalAmountWithinAcquiringLimits,
+    validateValidAmountDistribution,
     validateRecurrentPaymentContext,
 }

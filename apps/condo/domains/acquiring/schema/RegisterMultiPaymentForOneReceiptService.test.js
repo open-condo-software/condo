@@ -300,13 +300,10 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
                 }, {
                     mutation: 'registerMultiPaymentForOneReceipt',
-                    variable: ['data', 'acquiringIntegrationContext', 'id'],
+                    variable: ['data', 'acquiringIntegrationContext'],
                     code: 'BAD_USER_INPUT',
-                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                    messageInterpolation: {
-                        id: acquiringIntegration.id,
-                    },
+                    type: 'NOT_FOUND',
+                    message: 'Specified AcquiringIntegrationContext was not found',
                 })
             })
             test('Should not be able to pay for receipt with deleted BillingIntegrationOrganizationContext', async () => {

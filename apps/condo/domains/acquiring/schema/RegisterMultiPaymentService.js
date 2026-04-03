@@ -15,9 +15,9 @@ const { MultiPayment, Payment } = require('@condo/domains/acquiring/utils/server
 const {
     buildInvoicePaymentInputs,
     buildReceiptPaymentInputs,
+    buildOutputUrls,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/builders')
 const {
-    buildOutputUrls,
     calculateTotals,
     detectRequestMode,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/helpers')
@@ -35,28 +35,28 @@ const {
     resolveAcquiringContextsForInvoices,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/loaders')
 const {
-    assertAcquiringIntegrationIsActive,
-    assertAllPaymentAmountsPositive,
-    assertBillingContextsNotDeleted,
-    assertBillingIntegrationsNotDeleted,
-    assertBillingIntegrationsSupportedByAcquiring,
-    assertCanGroupReceiptsIfNeeded,
-    assertCurrencyConsistency,
-    assertEntitiesNotDeleted,
-    assertGroupedReceiptsHaveReceipts,
-    assertInvoiceAcquiringContextsFinished,
-    assertInvoicesArePublished,
-    assertInvoicesBelongToCurrentUser,
-    assertNoDuplicateInvoices,
-    assertNoDuplicateReceipts,
-    assertNoDuplicateServiceConsumers,
-    assertNoRecurrentPaymentContextForInvoiceMode,
-    assertReceiptBelongsToServiceConsumer,
-    assertReceiptsHavePositiveToPay,
-    assertSingleAcquiringIntegration,
-    assertServiceConsumersBelongToCurrentUser,
-    assertTotalAmountWithinAcquiringLimits,
-    assertValidAmountDistribution,
+    validateAcquiringIntegrationIsActive,
+    validateAllPaymentAmountsPositive,
+    validateBillingContextsNotDeleted,
+    validateBillingIntegrationsNotDeleted,
+    validateBillingIntegrationsSupportedByAcquiring,
+    validateCanGroupReceiptsIfNeeded,
+    validateCurrencyConsistency,
+    validateEntitiesNotDeleted,
+    validateGroupedReceiptsHaveReceipts,
+    validateInvoiceAcquiringContextsFinished,
+    validateInvoicesArePublished,
+    validateInvoicesBelongToCurrentUser,
+    validateNoDuplicateInvoices,
+    validateNoDuplicateReceipts,
+    validateNoDuplicateServiceConsumers,
+    validateNoRecurrentPaymentContextForInvoiceMode,
+    validateReceiptBelongsToServiceConsumer,
+    validateReceiptsHavePositiveToPay,
+    validateSingleAcquiringIntegration,
+    validateServiceConsumersBelongToCurrentUser,
+    validateTotalAmountWithinAcquiringLimits,
+    validateValidAmountDistribution,
     validateRecurrentPaymentContext,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/validators')
 const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
@@ -96,13 +96,15 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const mode = detectRequestMode(groupedReceipts, invoices, context)
 
                 if (mode === REQUEST_MODE.RECEIPTS) {
-                    assertGroupedReceiptsHaveReceipts(groupedReceipts, context)
-                    assertNoDuplicateServiceConsumers(groupedReceipts, context)
-                    assertNoDuplicateReceipts(groupedReceipts, context)
-                    assertValidAmountDistribution(groupedReceipts, context)
+                    validateGroupedReceiptsHaveReceipts(groupedReceipts, context)
+                    validateNoDuplicateServiceConsumers(groupedReceipts, context)
+                    validateNoDuplicateReceipts(groupedReceipts, context)
+                    validateValidAmountDistribution(groupedReceipts, context)
+                } else if (mode === REQUEST_MODE.INVOICES) {
+                    validateNoDuplicateInvoices(invoices, context)
+                    validateNoRecurrentPaymentContextForInvoiceMode(recurrentPaymentContext, context)
                 } else {
-                    assertNoDuplicateInvoices(invoices, context)
-                    assertNoRecurrentPaymentContextForInvoiceMode(recurrentPaymentContext, context)
+                    throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
 
                 let consumers, consumersByIds, receipts, receiptsByIds, foundInvoices
@@ -129,9 +131,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const loadedAccounts = await loadBillingAccountsByIds(receipts.map(({ account }) => account))
                     billingAccountsById = loadedAccounts.byId
 
-                    assertEntitiesNotDeleted(consumers, ERRORS.DELETED_CONSUMERS, context)
-                    assertEntitiesNotDeleted(receipts, ERRORS.RECEIPTS_ARE_DELETED, context)
-                    assertReceiptsHavePositiveToPay(receipts, hasDistribution, context)
+                    validateEntitiesNotDeleted(consumers, ERRORS.DELETED_CONSUMERS, context)
+                    validateEntitiesNotDeleted(receipts, ERRORS.RECEIPTS_ARE_DELETED, context)
+                    validateReceiptsHavePositiveToPay(receipts, hasDistribution, context)
 
                     const loadedBillingContexts = await loadBillingContextsByIds(receipts.map(({ context }) => context))
                     billingContexts = loadedBillingContexts.list
@@ -145,7 +147,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const resolvedAcquiringContexts = await resolveAcquiringContextsForConsumers(consumers, context)
                     acquiringContexts = resolvedAcquiringContexts.list
                     acquiringContextsByConsumerId = resolvedAcquiringContexts.byConsumerId
-                } else {
+                } else if (mode === REQUEST_MODE.INVOICES) {
                     const loadedInvoices = await loadInvoicesByIds(invoices.map(({ id }) => id), context)
                     foundInvoices = loadedInvoices.list
 
@@ -159,25 +161,27 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                     const resolvedAcquiringContexts = await resolveAcquiringContextsForInvoices(foundInvoices, context)
                     acquiringContexts = resolvedAcquiringContexts.list
+                } else {
+                    throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
 
-                assertSingleAcquiringIntegration(acquiringContexts, context)
+                validateSingleAcquiringIntegration(acquiringContexts, context)
 
                 const [acquiringIntegrationId] = Array.from(new Set(acquiringContexts.map(item => item.integration)))
                 const acquiringIntegration = await loadAcquiringIntegration(acquiringIntegrationId, context)
 
-                assertAcquiringIntegrationIsActive(acquiringIntegration, context)
+                validateAcquiringIntegrationIsActive(acquiringIntegration, context)
                 if (mode === REQUEST_MODE.RECEIPTS) {
-                    assertServiceConsumersBelongToCurrentUser(consumers, residentsById, context.authedItem.id, context)
+                    validateServiceConsumersBelongToCurrentUser(consumers, residentsById, context.authedItem.id, context)
                 }
 
                 if (mode === REQUEST_MODE.RECEIPTS) {
-                    assertCanGroupReceiptsIfNeeded(receipts.length, acquiringIntegration, context)
-                    assertBillingContextsNotDeleted(billingContexts, receipts, context)
-                    assertBillingIntegrationsSupportedByAcquiring(billingIntegrations, acquiringIntegration.supportedBillingIntegrationsGroup, context)
-                    assertBillingIntegrationsNotDeleted(billingIntegrations, receipts, billingContextsById, context)
-                    assertCurrencyConsistency(billingIntegrations, context)
-                    assertReceiptBelongsToServiceConsumer(
+                    validateCanGroupReceiptsIfNeeded(receipts.length, acquiringIntegration, context)
+                    validateBillingContextsNotDeleted(billingContexts, receipts, context)
+                    validateBillingIntegrationsSupportedByAcquiring(billingIntegrations, acquiringIntegration.supportedBillingIntegrationsGroup, context)
+                    validateBillingIntegrationsNotDeleted(billingIntegrations, receipts, billingContextsById, context)
+                    validateCurrencyConsistency(billingIntegrations, context)
+                    validateReceiptBelongsToServiceConsumer(
                         groupedReceipts,
                         consumersByIds,
                         receiptsByIds,
@@ -185,10 +189,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         billingContextsByOrganizationId,
                         context,
                     )
+                } else if (mode === REQUEST_MODE.INVOICES) {
+                    validateInvoicesArePublished(foundInvoices, context)
+                    validateInvoicesBelongToCurrentUser(foundInvoices, context.authedItem.id, context)
+                    validateInvoiceAcquiringContextsFinished(acquiringContexts, context)
                 } else {
-                    assertInvoicesArePublished(foundInvoices, context)
-                    assertInvoicesBelongToCurrentUser(foundInvoices, context.authedItem.id, context)
-                    assertInvoiceAcquiringContextsFinished(acquiringContexts, context)
+                    throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
 
                 await validateRecurrentPaymentContext(recurrentPaymentContext, context)
@@ -211,14 +217,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         context,
                     })
 
-                assertAllPaymentAmountsPositive(paymentCreateInputs, context)
+                validateAllPaymentAmountsPositive(paymentCreateInputs, context)
 
                 const totalAmount = calculateTotals(paymentCreateInputs)
                 const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
                     .add(Big(totalAmount.explicitServiceCharge))
                     .add(Big(totalAmount.explicitFee))
 
-                assertTotalAmountWithinAcquiringLimits(amountToPay, acquiringIntegration, context)
+                validateTotalAmountWithinAcquiringLimits(amountToPay, acquiringIntegration, context)
 
                 const payments = await Promise.all(paymentCreateInputs.map((paymentInput) => Payment.create(context, paymentInput)))
                 const currencyCode = billingIntegrationCurrencyCode || DEFAULT_INVOICE_CURRENCY_CODE

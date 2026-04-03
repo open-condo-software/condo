@@ -65,7 +65,7 @@ const ERRORS = {
     MULTIPLE_ACQUIRING_INTEGRATION: {
         code: BAD_USER_INPUT,
         type: MULTIPLE_ACQUIRING_INTEGRATION,
-        message: 'Listed serviceConsumers are linked to different acquiring integrations',
+        message: 'Listed invoices are linked to different acquiring integrations',
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
@@ -140,7 +140,6 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     organization: { id_in: uniq(map(foundInvoices, 'organization')) },
                     integration: {
                         type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
-                        deletedAt: null,
                     },
                     deletedAt: null,
                 })

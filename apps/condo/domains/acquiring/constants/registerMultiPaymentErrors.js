@@ -20,6 +20,7 @@ const {
     GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
     FULL_PAYMENT_AMOUNT_MISMATCH,
     CANNOT_FIND_ALL_INVOICES,
+    INVALID_REQUEST_MODE,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     REQUIRED,
@@ -275,6 +276,12 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         code: BAD_USER_INPUT,
         type: CANNOT_FIND_ALL_INVOICES,
         message: 'Cannot find all specified Invoices with ids {missingInvoiceIds}',
+    },
+    INVALID_REQUEST_MODE: {
+        mutation: 'registerMultiPayment',
+        code: BAD_USER_INPUT,
+        type: INVALID_REQUEST_MODE,
+        message: 'Cannot detect receipt or invoice request',
     },
 }
 

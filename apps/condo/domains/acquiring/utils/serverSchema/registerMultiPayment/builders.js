@@ -4,6 +4,12 @@ const dayjs = require('dayjs')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { find } = require('@open-condo/keystone/schema')
 
+const {
+    FEE_CALCULATION_PATH,
+    WEB_VIEW_PATH,
+    DIRECT_PAYMENT_PATH,
+    GET_CARD_TOKENS_PATH,
+} = require('@condo/domains/acquiring/constants/links')
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 const { freezeBillingReceipt, freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
 const {
@@ -148,7 +154,17 @@ async function buildInvoicePaymentInputs ({
     return paymentCreateInputs
 }
 
+function buildOutputUrls (hostUrl, multiPaymentId, userId) {
+    return {
+        webViewUrl: `${hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPaymentId)}`,
+        feeCalculationUrl: `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPaymentId)}`,
+        directPaymentUrl: `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPaymentId)}`,
+        getCardTokensUrl: `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', userId)}`,
+    }
+}
+
 module.exports = {
     buildInvoicePaymentInputs,
     buildReceiptPaymentInputs,
+    buildOutputUrls,
 }

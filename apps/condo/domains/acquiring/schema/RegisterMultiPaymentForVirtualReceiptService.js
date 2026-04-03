@@ -95,7 +95,7 @@ const ERRORS = {
         message: 'Cannot pay for Receipt with invalid "currencyCode" value',
     },
     ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND: {
-        mutation: 'registerMultiPaymentForOneReceipt',
+        mutation: 'registerMultiPaymentForVirtualReceipt',
         variable: ['data', 'acquiringIntegrationContext'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,

@@ -2,12 +2,6 @@ const Big = require('big.js')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 
-const {
-    FEE_CALCULATION_PATH,
-    WEB_VIEW_PATH,
-    DIRECT_PAYMENT_PATH,
-    GET_CARD_TOKENS_PATH,
-} = require('@condo/domains/acquiring/constants/links')
 const { REQUEST_MODE } = require('@condo/domains/acquiring/constants/registerMultiPaymentDomain')
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 
@@ -43,15 +37,6 @@ function buildCommissionFields ({ type, explicitFee = '0', implicitFee = '0', fr
     }
 }
 
-function buildOutputUrls (hostUrl, multiPaymentId, userId) {
-    return {
-        webViewUrl: `${hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPaymentId)}`,
-        feeCalculationUrl: `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPaymentId)}`,
-        directPaymentUrl: `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPaymentId)}`,
-        getCardTokensUrl: `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', userId)}`,
-    }
-}
-
 function detectRequestMode (groupedReceipts, invoices, context) {
     const hasReceipts = groupedReceipts && groupedReceipts.length > 0
     const hasInvoices = invoices && invoices.length > 0
@@ -69,7 +54,6 @@ function detectRequestMode (groupedReceipts, invoices, context) {
 
 module.exports = {
     buildCommissionFields,
-    buildOutputUrls,
     calculateTotals,
     detectRequestMode,
 }
