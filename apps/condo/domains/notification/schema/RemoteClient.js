@@ -3,17 +3,29 @@
  */
 const get = require('lodash/get')
 
+const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { REQUIRED_NO_VALUE_ERROR, VALUE_TOO_SHORT } = require('@condo/domains/common/constants/errors')
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/notification/access/RemoteClient')
 const {
     PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES,
-    PUSH_TYPE_DEFAULT, PUSH_TYPE_SILENT_DATA,
+    PUSH_TYPE_DEFAULT, MIN_DEVICE_KEY_LENGTH,
 } = require('@condo/domains/notification/constants/constants')
+const { INVALID_DEVICE_KEY } = require('@condo/domains/notification/constants/errors')
 
 const APP_ID_MIN_LENGTH = 7
+
+const ERRORS = {
+    INVALID_DEVICE_KEY: {
+        code: BAD_USER_INPUT,
+        type: INVALID_DEVICE_KEY,
+        message: '"deviceKey" should be a valid UUID',
+    },
+}
 
 const RemoteClient = new GQLListSchema('RemoteClient', {
     schemaDoc:  'Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. ' +
@@ -151,6 +163,27 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             isRequired: false,
         },
 
+        deviceKey: {
+            schemaDoc: 'Second private factor of ownership to remote client, since deviceId is treated as public info.',
+            type: 'Password',
+            isRequired: false, // for backwards compatibility
+            sensitive: true,
+            rejectCommon: true,
+            minLength: MIN_DEVICE_KEY_LENGTH,
+            access: access.canAccessToPasswordField,
+            hooks: {
+                validateInput: async ({ context, resolvedData, existingItem, fieldPath }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const pass = newItem[fieldPath]
+
+                    const isValidUuid = UUID_REGEXP.test(pass)
+                    if (!isValidUuid) {
+                        throw new GQLError(ERRORS.INVALID_DEVICE_KEY, context)
+                    }
+                },
+            },
+        },
+
     },
     kmigratorOptions: {
         constraints: [
@@ -174,4 +207,5 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
 
 module.exports = {
     RemoteClient,
+    ERRORS,
 }
