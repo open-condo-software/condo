@@ -9,7 +9,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/subscription/access/SubscriptionPlan')
-const { SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPES, SUBSCRIPTION_PLAN_FEATURE_FIELDS } = require('@condo/domains/subscription/constants/plans')
+const { SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPES, SUBSCRIPTION_PLAN_FEATURE_FIELDS } = require('@condo/domains/subscription/constants')
 
 const ERRORS = {
     TRIAL_DAYS_MUST_BE_NON_NEGATIVE: {

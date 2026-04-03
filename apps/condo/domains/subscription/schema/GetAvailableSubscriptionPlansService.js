@@ -6,7 +6,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/subscription/access/GetAvailableSubscriptionPlansService')
-const { SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PERIODS, SUBSCRIPTION_PLAN_TYPES } = require('@condo/domains/subscription/constants')
 const { findMatchingPricingRule } = require('@condo/domains/subscription/utils/findMatchingPricingRule')
 
 /**
@@ -27,6 +27,10 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     types: [
         {
             access: true,
+            type: `enum SubscriptionPlanType { ${SUBSCRIPTION_PLAN_TYPES.join(' ')} }`,
+        },
+        {
+            access: true,
             type: 'type SubscriptionPlanPrice { id: ID!, name: String!, period: String!, price: String, currencyCode: String }',
         },
         {
@@ -42,13 +46,13 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     queries: [
         {
             access: access.canGetAvailableSubscriptionPlans,
-            schema: 'getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!): GetAvailableSubscriptionPlansOutput',
+            schema: 'getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!, planType: SubscriptionPlanType): GetAvailableSubscriptionPlansOutput',
             doc: {
                 summary: 'Returns available subscription plans with calculated prices for the organization based on pricing rules and conditions.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
-                const { organization: organizationInput } = args
+                const { organization: organizationInput, planType } = args
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -58,11 +62,17 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
-                const plans = await find('SubscriptionPlan', {
+                const whereConditions = {
                     isHidden: false,
                     organizationType: organization.type,
                     deletedAt: null,
-                })
+                }
+
+                if (planType) {
+                    whereConditions.planType = planType
+                }
+
+                const plans = await find('SubscriptionPlan', whereConditions)
 
                 const result = []
 
