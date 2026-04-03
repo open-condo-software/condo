@@ -12,6 +12,7 @@ import {
 
 const DEFAULT_MAX_LIMIT = 1000
 const DEFAULT_CHUNK_SIZE = 100
+const DEFAULT_FIRST = 100
 const DEFAULT_CHUNK_DELAY = 1000 // 1s
 
 export type ToolCallResult = {
@@ -215,15 +216,22 @@ const runApolloQueryTool = async (
     client: ApolloClient<any>
 ): Promise<ToolCallResult> => {
     try {
-        const variables = config.getGraphQLVariables(args, userData)
+        let resultData: any
 
-        const shouldUseChunking = config.canUseChunking &&
+        const shouldUseChunking =
+            config.canUseChunking &&
             typeof args?.first !== 'number' &&
             typeof args?.skip !== 'number'
 
-        let resultData: any
+        const variables = config.getGraphQLVariables(args, userData)
 
         if (!shouldUseChunking) {
+            // User did set skip, but didn't set first
+            // if canUseChunking -- first and skip are supported by query, with first being required
+            if (config.canUseChunking) {
+                if (typeof variables.first !== 'number') { variables.first = DEFAULT_FIRST}
+            }
+
             const res = await client.query({
                 query: config.query,
                 variables,
