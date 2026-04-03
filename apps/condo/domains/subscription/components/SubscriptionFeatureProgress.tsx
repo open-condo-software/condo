@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
 import Progress from 'antd/lib/progress'
 import getConfig from 'next/config'
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
@@ -49,7 +49,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         skip: !activeSubscriptionContextId,
     })
 
-    const { data: plansData } = useGetAvailableSubscriptionPlansQuery({
+    const { data: plansData } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
         },
