@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useMemo, useCallback } from 'react'
@@ -28,7 +28,7 @@ export const useOrganizationSubscription = () => {
         return organization?.subscription as SubscriptionFeatures
     }, [organization])
 
-    const { data: allPlansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
+    const { data: allPlansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id || '' },
         },

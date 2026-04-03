@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
@@ -24,7 +24,7 @@ export const UpgradePlanButton: React.FC = () => {
     const { useFlag } = useFeatureFlags()
     const isSubscriptionsFlagEnabled = useFlag(SUBSCRIPTIONS)
 
-    const { data: plansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
+    const { data: plansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
         },

@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
 import React, { useState, useMemo, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -27,7 +27,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
-    const { data: plansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
+    const { data: plansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
         },

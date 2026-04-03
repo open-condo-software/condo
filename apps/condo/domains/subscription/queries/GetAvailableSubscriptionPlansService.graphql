@@ -1,4 +1,4 @@
-query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
+query getAvailableServiceSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
     result: getAvailableSubscriptionPlans(organization: $organization, planType: service) {
         plans {
             plan {
