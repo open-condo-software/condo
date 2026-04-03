@@ -30,7 +30,7 @@ const { AMOUNT_DISTRIBUTION_FIELD } = require('./fields/AmountDistribution')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
-const { BILLING_RECEIPT_RAW_FIELD, PERIOD_FIELD } = require('./fields/common')
+const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 
 const ERRORS = {
@@ -108,7 +108,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         raw: {
-            ...BILLING_RECEIPT_RAW_FIELD,
+            ...RAW_DATA_FIELD,
             access: { read: access.canReadSensitiveBillingReceiptData },
         },
 

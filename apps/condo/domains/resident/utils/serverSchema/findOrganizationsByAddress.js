@@ -1,5 +1,4 @@
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { ExternalContent: { resolveExternalContentValue } } = require('@open-condo/keystone/fieldsUtils')
 const { find } = require('@open-condo/keystone/schema')
 
 const {
@@ -9,11 +8,9 @@ const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
-const { BILLING_RECEIPT_RAW_FIELD: { adapter: BillingReceiptRawFieldFileAdapter } } = require('@condo/domains/billing/schema/fields/common')
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-
 
 /*
     TODO: (DOMA-11059) Eliminate unnecessary subqueries like MeterResourceOwner and BillingContext.
@@ -179,8 +176,6 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
         address: receipt?.raw?.address ?? null,
         contextId: receipt.context,
     }))
-    
-    return resolvedReceipts
 }
 
 async function getOrganizationMeters (organization, addressKey, properties, query = {}) {

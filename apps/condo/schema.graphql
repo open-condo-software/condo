@@ -16122,7 +16122,7 @@ type BillingReceipt {
   """ A number to print on the payment document. """
   printableNumber: String
 
-  """ Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`. Stored externally in files (not in database) via file adapter. 
+  """ Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`. 
   """
   raw: JSON
 
@@ -16287,6 +16287,10 @@ input BillingReceiptWhereInput {
   printableNumber_not_ends_with_i: String
   printableNumber_in: [String]
   printableNumber_not_in: [String]
+  raw: JSON
+  raw_not: JSON
+  raw_in: [JSON]
+  raw_not_in: [JSON]
   toPay: String
   toPay_not: String
   toPay_lt: String
