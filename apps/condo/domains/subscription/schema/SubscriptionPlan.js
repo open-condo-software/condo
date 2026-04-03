@@ -9,6 +9,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/subscription/access/SubscriptionPlan')
+const { SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPES, SUBSCRIPTION_PLAN_FEATURE_FIELDS } = require('@condo/domains/subscription/constants/plans')
 
 const ERRORS = {
     TRIAL_DAYS_MUST_BE_NON_NEGATIVE: {
@@ -44,6 +45,20 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             type: 'Select',
             options: ORGANIZATION_TYPES,
             dataType: 'string',
+            isRequired: true,
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
+
+        planType: {
+            schemaDoc: 'Type of subscription plan: service (base tariff) or feature (individual feature like News, AI). Feature plans require an active service subscription.',
+            type: 'Select',
+            options: SUBSCRIPTION_PLAN_TYPES.join(', '),
+            dataType: 'string',
+            defaultValue: SUBSCRIPTION_PLAN_TYPE_SERVICE,
             isRequired: true,
             access: {
                 read: true,
@@ -89,75 +104,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
-        payments: {
-            schemaDoc: 'Whether payments feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        meters: {
-            schemaDoc: 'Whether meters feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        tickets: {
-            schemaDoc: 'Whether tickets feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        news: {
-            schemaDoc: 'Whether news feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        marketplace: {
-            schemaDoc: 'Whether marketplace feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        support: {
-            schemaDoc: 'Whether support feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        ai: {
-            schemaDoc: 'Whether AI feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        customization: {
-            schemaDoc: 'Whether customization feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        properties: {
-            schemaDoc: 'Whether properties feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
-        analytics: {
-            schemaDoc: 'Whether analytics feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
+        ...SUBSCRIPTION_PLAN_FEATURE_FIELDS,
 
         enabledB2BApps: {
             schemaDoc: 'List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type.',

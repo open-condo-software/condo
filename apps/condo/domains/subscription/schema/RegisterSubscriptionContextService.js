@@ -15,6 +15,7 @@ const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/m
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants/plans')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
@@ -56,6 +57,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription for this plan was already activated',
+    },
+    NO_ACTIVE_SERVICE_SUBSCRIPTION: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'organization'],
+        code: BAD_USER_INPUT,
+        type: 'NO_ACTIVE_SERVICE_SUBSCRIPTION',
+        message: 'Cannot subscribe to a feature plan without an active service subscription',
     },
 }
 
@@ -113,6 +121,22 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 if (plan.organizationType && plan.organizationType !== organization.type) {
                     throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
+                }
+
+                if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
+                    const today = dayjs().format('YYYY-MM-DD')
+                    const hasActiveServiceSubscription = await find('SubscriptionContext', {
+                        organization: { id: organization.id },
+                        subscriptionPlan: { planType: SUBSCRIPTION_PLAN_TYPE_SERVICE },
+                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                        startAt_lte: today,
+                        endAt_gt: today,
+                        deletedAt: null,
+                    })
+
+                    if (hasActiveServiceSubscription.length === 0) {
+                        throw new GQLError(ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, context)
+                    }
                 }
 
                 // Trial subscription logic
