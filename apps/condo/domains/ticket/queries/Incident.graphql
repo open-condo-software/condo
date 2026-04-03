@@ -13,6 +13,22 @@ query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $fi
     }
 }
 
+query getIncidentsForAIAssistant ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int!, $skip: Int) {
+    incidents: allIncidents (
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+        skip: $skip
+    ) {
+        id
+        details
+        workStart
+        workFinish
+        status
+        textForResident
+    }
+}
+
 query getIncidentById ($incidentId: ID!) {
     incident: Incident (
         where: {

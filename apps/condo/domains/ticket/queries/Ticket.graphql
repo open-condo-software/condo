@@ -187,6 +187,22 @@ query getTicketWithDetailsForAIAssistant ($id: ID!) {
         content
         user { type name }
     }
+
+    invoices: allInvoices (
+        where: { ticket: { id: $id } },
+        sortBy: [createdAt_DESC],
+        first: 50,
+    ) {
+        id
+        status
+        number
+        paymentType
+        status
+        currencyCode
+        rows { name toPay isMin count sku }
+        organization { id name }
+        createdBy { id name type }
+    }
 }
 
 query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {

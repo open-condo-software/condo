@@ -1,15 +1,23 @@
-import { ApolloClient } from '@apollo/client'
-import { GetContactEditorOrganizationEmployeesDocument, GetTicketsForAiAssistantDocument, GetIncidentsDocument, GetTicketCommentsDocument, GetPropertiesDocument, GetContactForClientCardDocument, GetNewsItemsForAiAssistantDocument, GetTicketWithDetailsForAiAssistantDocument } from '@app/condo/gql'
+import { ApolloClient, DocumentNode } from '@apollo/client'
+import {
+    GetContactForAiAssistantDocument,
+    GetIncidentsForAiAssistantDocument,
+    GetNewsItemsForAiAssistantDocument,
+    GetOrganizationEmployeesForAiAssistantDocument,
+    GetPropertiesDocument,
+    GetTicketCommentsForAiAssistantDocument,
+    GetTicketsForAiAssistantDocument,
+    GetTicketWithDetailsForAiAssistantDocument,
+} from '@app/condo/gql'
 
 const DEFAULT_MAX_LIMIT = 1000
 const DEFAULT_CHUNK_SIZE = 100
-const DEFAULT_FIRST = 100
 const DEFAULT_CHUNK_DELAY = 1000 // 1s
 
 export type ToolCallResult = {
     name: string
     args: any
-    result?: any
+    result?: string
     resultMessage?: string | { key: string }
     error?: string
     errorMessage?: string
@@ -22,7 +30,7 @@ export type UserData = {
 
 type ToolConfig = {
     name: string
-    query: any
+    query: DocumentNode
     resultKey: string | null
     // Use this to transform tool args to GraphQL variables and/or add filters
     getGraphQLVariables: (args: any, userData: UserData) => any
@@ -30,12 +38,13 @@ type ToolConfig = {
     limit?: number
     chunkSize?: number
     chunkDelay?: number
-    // If true, tool will use chunking, if `skip` and `first` are not provided in args
+    // If true, tool will use chunking, if `skip` or `first` are not provided in args
     // If false (default) tool will always use single query
     canUseChunking?: boolean
 }
 
 const TOOL_CONFIGS: Record<string, ToolConfig> = {
+    // Queries with chunking
     getTickets: {
         name: 'getTickets',
         query: GetTicketsForAiAssistantDocument,
@@ -50,16 +59,17 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
-                sortBy: args.sortBy,
-                first: args.first || DEFAULT_FIRST,
+                sortBy: args.sortBy || ['createdAt_DESC'],
+                first: args.first,
                 skip: args.skip,
             }
         },
     },
-    getIncidents: {
-        name: 'getIncidents',
-        query: GetIncidentsDocument,
-        resultKey: 'incidents',
+    getNewsItems: {
+        name: 'getNewsItems',
+        query: GetNewsItemsForAiAssistantDocument,
+        resultKey: 'newsItems',
+        canUseChunking: true,
         getGraphQLVariables: (args, userData) => {
             args = args || {}
             const where = { ...args.where }
@@ -68,14 +78,79 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
-                first: args.first || DEFAULT_FIRST,
-                sortBy: args.sortBy,
+                sortBy: args.sortBy || ['publishedAt_DESC'],
+                first: args.first,
+                skip: args.skip,
             }
         },
     },
+    getIncidents: {
+        name: 'getIncidents',
+        query: GetIncidentsForAiAssistantDocument,
+        resultKey: 'incidents',
+        canUseChunking: true,
+        chunkSize: 200,
+        getGraphQLVariables: (args, userData) => {
+            args = args || {}
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.organization = { id: userData.organizationId }
+            }
+            return {
+                where,
+                sortBy: args.sortBy || ['workFinish_DESC'],
+                first: args.first,
+                skip: args.skip,
+            }
+        },
+    },
+    getTicketComments: {
+        name: 'getTicketComments',
+        query: GetTicketCommentsForAiAssistantDocument,
+        resultKey: 'ticketComments',
+        canUseChunking: true,
+        getGraphQLVariables: (args, userData) => {
+            args = args || {}
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.ticket = {
+                    ...where.ticket,
+                    organization: { id: userData.organizationId },
+                }
+            }
+            return {
+                where,
+                sortBy: args.sortBy || ['createdAt_DESC'],
+                first: args.first,
+                skip: args.skip,
+            }
+        },
+    },
+    getContacts: {
+        name: 'getContacts',
+        query: GetContactForAiAssistantDocument,
+        resultKey: 'contacts',
+        canUseChunking: true,
+        chunkSize: 200,
+        getGraphQLVariables: (args, userData) => {
+            args = args || {}
+            const where = { ...args.where }
+            if (userData.organizationId) {
+                where.organization = { id: userData.organizationId }
+            }
+            return {
+                where,
+                sortBy: args.sortBy || ['createdAt_DESC'],
+                first: args.first,
+                skip: args.skip,
+            }
+        },
+    },
+
+    // Queries WO Chunking
     getOrganizationEmployees: {
         name: 'getOrganizationEmployees',
-        query: GetContactEditorOrganizationEmployeesDocument,
+        query: GetOrganizationEmployeesForAiAssistantDocument,
         resultKey: 'employees',
         getGraphQLVariables: (args, userData) => {
             args = args || {}
@@ -85,6 +160,9 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
+                sortBy: args.sortBy || ['createdAt_DESC'],
+                first: args.first || 300,
+                skip: args.skip,
             }
         },
     },
@@ -100,72 +178,18 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
             }
             return {
                 where,
-                first: args.first || DEFAULT_FIRST,
-            }
-        },
-    },
-    getTicketComments: {
-        name: 'getTicketComments',
-        query: GetTicketCommentsDocument,
-        resultKey: 'ticketComments',
-        getGraphQLVariables: (args, userData) => {
-            args = args || {}
-            const where = { ...args.where }
-            if (userData.organizationId) {
-                where.ticket = { 
-                    ...where.ticket,
-                    organization: { id: userData.organizationId },
-                }
-            }
-            return {
-                where,
                 sortBy: args.sortBy || ['createdAt_DESC'],
-                first: args.first || DEFAULT_FIRST,
-                skip: args.skip,
+                first: args.first || 300,
             }
         },
     },
-    getContacts: {
-        name: 'getContacts',
-        query: GetContactForClientCardDocument,
-        resultKey: 'contacts',
-        getGraphQLVariables: (args, userData) => {
-            args = args || {}
-            const where = { ...args.where }
-            if (userData.organizationId) {
-                where.organization = { id: userData.organizationId }
-            }
-            return {
-                where,
-                sortBy: args.sortBy || ['createdAt_DESC'],
-                first: args.first || DEFAULT_FIRST,
-                skip: args.skip,
-            }
-        },
-    },
-    getNewsItems: {
-        name: 'getNewsItems',
-        query: GetNewsItemsForAiAssistantDocument,
-        resultKey: 'newsItems',
-        getGraphQLVariables: (args, userData) => {
-            args = args || {}
-            const where = { ...args.where }
-            if (userData.organizationId) {
-                where.organization = { id: userData.organizationId }
-            }
-            return {
-                where,
-                sortBy: args.sortBy || ['publishedAt_DESC'],
-                first: args.first || DEFAULT_FIRST,
-                skip: args.skip,
-            }
-        },
-    },
+
+    // Custom Queries (Queries that do not support first / skip))
     getTicketWithDetails: {
         name: 'getTicketWithDetails',
         query: GetTicketWithDetailsForAiAssistantDocument,
         resultKey: null,
-        getGraphQLVariables: (args, userData) => {
+        getGraphQLVariables: (args, _) => {
             args = args || {}
             if (!args.id) {
                 throw new Error('Ticket ID is required for getTicketWithDetails')

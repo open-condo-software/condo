@@ -92,6 +92,26 @@ query getContactForClientCard($where: ContactWhereInput, $first: Int!, $skip: In
     }
 }
 
+query getContactForAIAssistant($where: ContactWhereInput, $first: Int!, $skip: Int, $sortBy: [SortContactsBy!]) {
+    contacts: allContacts(
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        unitName
+        unitType
+        phone
+        email
+        ownershipPercentage
+        note
+        communityFee
+        property { address }
+    }
+}
+
 query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
     contacts: allContacts(
         where: $where

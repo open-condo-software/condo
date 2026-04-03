@@ -211,6 +211,24 @@ query getLastEmployeeInvite($userId: ID!) {
     }
 }
 
+query getOrganizationEmployeesForAIAssistant ($where: OrganizationEmployeeWhereInput, $sortBy: [SortOrganizationEmployeesBy!], $first: Int!, $skip: Int) {
+    employees: allOrganizationEmployees (
+        where: $where,
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        phone
+        email
+        role {
+            name
+            description
+        }
+    }
+}
+
 query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereInput) {
     employees: allOrganizationEmployees (
         where: $where,
