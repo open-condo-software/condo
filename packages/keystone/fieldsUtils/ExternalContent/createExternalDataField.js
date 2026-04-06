@@ -2,7 +2,7 @@
  * Factory function to create ExternalContent field configuration.
  * Creates a consistent ExternalContent field configuration.
  * 
- * @typedef {import('@open-condo/packages/keystone/fields/ExternalContent/Implementation').ExternalContentProcessor} ExternalContentProcessor
+ * @typedef {import('./defaultProcessors').ExternalContentProcessor} ExternalContentProcessor
  * 
  * @param {Object} options - Field configuration options
  * @param {Object} options.adapter - File adapter (required)
@@ -37,26 +37,16 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
         throw new Error('createExternalDataField: batchDelay must be a non-negative number')
     }
     
-    const config = {
+    return {
         type: 'ExternalContent',
         schemaDoc: `External content field storing ${format} data in external files`,
         adapter,
         format,
         processors,
+        maxSizeBytes,
+        batchDelayMs,
         ...otherProps,
     }
-    
-    // Only include maxSizeBytes if explicitly provided
-    if (maxSizeBytes !== undefined) {
-        config.maxSizeBytes = maxSizeBytes
-    }
-    
-    // Only include batchDelay if explicitly provided
-    if (batchDelayMs !== undefined) {
-        config.batchDelayMs = batchDelayMs
-    }
-    
-    return config
 }
 
 module.exports = {
