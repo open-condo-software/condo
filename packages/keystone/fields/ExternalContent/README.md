@@ -8,8 +8,9 @@ The `ExternalContent` field type stores large data externally in files rather th
 - **Transparent Access**: Data is automatically loaded and deserialized when accessed via GraphQL
 - **Performance Optimization**: Uses DataLoader for batching and caching in GraphQL queries
 - **Backward Compatibility**: Supports both inline JSON (legacy) and file-meta references
-- **Multiple Formats**: JSON, XML, and plain text supported
+- **Multiple Formats**: JSON, XML, and plain text supported with format-specific serialization
 - **Size Limits**: Configurable maximum size to prevent abuse
+- **Format-Aware GraphQL Types**: Returns correct GraphQL type based on format (String for XML/text, JSON for json)
 
 ## Usage
 
@@ -145,16 +146,18 @@ const LARGE_DATA_FIELD = createExternalDataField({
 
 ### Data Storage
 
+**Database Column Type**: ExternalContent fields use TEXT columns in PostgreSQL (not JSON/JSONB)
+
 1. When you create/update a record with ExternalContent field:
-   - Data is serialized (e.g., JSON.stringify)
+   - Data is serialized using the format-specific processor (e.g., JSON.stringify for json format)
    - Size is validated against `maxSizeBytes`
    - Content is saved to a file via FileAdapter
-   - Database stores only file metadata: `{ id, filename }`
+   - Database stores file metadata as JSON string: `{ "id": "...", "filename": "...", "_type": "ExternalContent.file-meta", "meta": { "format": "xml" } }`
 
 2. When you read a record:
-   - GraphQL resolver loads file content
-   - Content is deserialized (e.g., JSON.parse)
-   - Original data structure is returned
+   - GraphQL resolver loads file content via DataLoader
+   - Content is deserialized using the format-specific processor
+   - Original data structure is returned (object for JSON, string for XML/text)
 
 ### File Naming
 
