@@ -7,45 +7,50 @@ const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 
-const { FILE_META_TYPE, isFileMeta, resolveExternalContentValue } = ExternalContent
+const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta, resolveExternalContentValue } = ExternalContent
 const logger = getLogger('ExternalContent')
 
 const DEFAULT_FORMAT = 'json'
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
-const DEFAULT_PROCESSORS = {
-    json: {
-        graphQLInputType: 'JSON',
-        graphQLReturnType: 'JSON',
-        serialize: (value) => JSON.stringify(value ?? null),
-        deserialize: (raw) => (raw.length === 0 ? null : (() => {
-            try {
-                return JSON.parse(raw)
-            } catch (err) {
-                throw new Error(`Failed to parse JSON content: ${err.message}`)
-            }
-        })()),
-        mimetype: 'application/json',
-        fileExt: 'json',
-    },
-    xml: {
-        graphQLInputType: 'String',
-        graphQLReturnType: 'String',
-        serialize: (value) => (value == null ? '' : String(value)),
-        deserialize: (raw) => (raw.length === 0 ? null : raw),
-        mimetype: 'application/xml',
-        fileExt: 'xml',
-    },
-    text: {
-        graphQLInputType: 'String',
-        graphQLReturnType: 'String',
-        serialize: (value) => (value == null ? '' : String(value)),
-        deserialize: (raw) => (raw.length === 0 ? null : raw),
-        mimetype: 'text/plain',
-        fileExt: 'txt',
-    },
-}
 
+/**
+ * ExternalContent field implementation for Keystone.
+ * 
+ * Stores large data externally in files rather than directly in the database.
+ * Provides transparent access to file content through GraphQL with DataLoader batching.
+ * 
+ * @extends {import('@keystonejs/fields').Implementation}
+ * 
+ * @example
+ * const impl = new ExternalContentImplementation('raw', {
+ *   adapter: fileAdapter,
+ *   format: 'json',
+ *   maxSizeBytes: 50 * 1024 * 1024,
+ * })
+ */
 class ExternalContentImplementation extends Implementation {
+    /**
+     * Creates an ExternalContent field implementation.
+     * 
+     * @param {string} path - Field path (e.g., 'raw', 'metadata')
+     * @param {Object} options - Configuration options
+     * @param {Object} options.adapter - File adapter instance (required)
+     * @param {string} [options.format='json'] - Data format ('json', 'xml', or 'text')
+     * @param {Object.<string, ExternalContentProcessor>} [options.processors={}] - Custom format processors
+     * @param {number} [options.maxSizeBytes=10485760] - Maximum payload size in bytes (default: 10MB)
+     * @param {number} [options.batchDelayMs] - DataLoader batch delay in milliseconds
+     * @param {string} [options.graphQLInputType] - Override GraphQL input type
+     * @param {string} [options.graphQLReturnType] - Override GraphQL return type
+     * @param {string} [options.mimetype] - Override MIME type
+     * @param {string} [options.fileExt] - Override file extension
+     * @param {string} [options.schemaDoc] - Field description for schema
+     * @param {string} [options.graphQLAdminFragment=''] - GraphQL fragment for admin UI
+     * @param {Object} [meta] - Keystone field metadata
+     * 
+     * @throws {Error} If adapter is not provided
+     * @throws {Error} If format is unknown
+     * @throws {Error} If adapter is not properly configured
+     */
     constructor (path, {
         adapter,
         format = DEFAULT_FORMAT,
@@ -54,8 +59,6 @@ class ExternalContentImplementation extends Implementation {
         batchDelayMs,
         graphQLInputType,
         graphQLReturnType,
-        serialize,
-        deserialize,
         mimetype,
         fileExt,
         schemaDoc,
@@ -71,8 +74,6 @@ class ExternalContentImplementation extends Implementation {
         // Resolve final values using defaults from processor config
         const finalGraphQLInputType = graphQLInputType || cfg.graphQLInputType
         const finalGraphQLReturnType = graphQLReturnType || cfg.graphQLReturnType
-        const finalSerialize = serialize || cfg.serialize
-        const finalDeserialize = deserialize || cfg.deserialize
         const finalMimetype = mimetype || cfg.mimetype
         const finalFileExt = fileExt || cfg.fileExt
 
@@ -94,8 +95,6 @@ class ExternalContentImplementation extends Implementation {
             batchDelayMs,
             graphQLInputType: finalGraphQLInputType,
             graphQLReturnType: finalGraphQLReturnType,
-            serialize: finalSerialize,
-            deserialize: finalDeserialize,
             mimetype: finalMimetype,
             fileExt: finalFileExt,
             schemaDoc,
@@ -106,8 +105,6 @@ class ExternalContentImplementation extends Implementation {
         this.format = format
         this.maxSizeBytes = maxSizeBytes
         this.batchDelayMs = batchDelayMs
-        this.serialize = finalSerialize
-        this.deserialize = finalDeserialize
         this.graphQLInputType = finalGraphQLInputType
         this.graphQLReturnType = finalGraphQLReturnType
         this.mimetype = finalMimetype
@@ -152,13 +149,14 @@ class ExternalContentImplementation extends Implementation {
     /**
      * Resolves the field value for GraphQL output.
      * 
-     * For admin interface requests: returns file metadata with publicUrl without loading content.
-     * This avoids expensive file I/O operations when browsing models in admin UI.
-     * 
-     * For API requests: delegates to resolveExternalContentValue utility which handles:
+     * Delegates to resolveExternalContentValue utility which handles:
      * - Backward compatibility with inline JSON objects
      * - File-meta object resolution with DataLoader batching
+     * - Format-aware deserialization using formatProcessors
      * - Graceful handling of missing files
+     * 
+     * Uses DataLoader for batching and caching when context is available,
+     * falls back to direct file reading for non-GraphQL usage.
      * 
      * @returns {Object} Field resolver mapping
      */
@@ -170,12 +168,9 @@ class ExternalContentImplementation extends Implementation {
                 try {
                     return await resolveExternalContentValue(value, {
                         adapter: this.adapter,
-                        deserialize: this.deserialize,
                         formatProcessors: this.formatProcessors,
                         context,
                         batchDelayMs: this.batchDelayMs,
-                        fieldPath: this.path,
-                        item,
                     })
                 } catch (err) {
                     const itemId = item?.id || 'unknown'
@@ -283,7 +278,8 @@ class ExternalContentImplementation extends Implementation {
         // Save first, then delete old file.
         // This prevents losing the previous file if save() fails.
 
-        const payload = this.serialize(nextValue)
+        const processor = this.formatProcessors[this.format]
+        const payload = processor.serialize(nextValue)
         const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
 
         // Validate size limit after serialization
@@ -322,5 +318,6 @@ class ExternalContentImplementation extends Implementation {
 
 module.exports = {
     ExternalContentImplementation,
+    DEFAULT_PROCESSORS,
 }
 

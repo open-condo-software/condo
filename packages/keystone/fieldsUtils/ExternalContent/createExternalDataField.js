@@ -2,12 +2,14 @@
  * Factory function to create ExternalContent field configuration.
  * Creates a consistent ExternalContent field configuration.
  * 
+ * @typedef {import('@open-condo/packages/keystone/fields/ExternalContent/Implementation').ExternalContentProcessor} ExternalContentProcessor
+ * 
  * @param {Object} options - Field configuration options
  * @param {Object} options.adapter - File adapter (required)
- * @param {string} [options.format='json'] - Data format ('json' or 'text')
- * @param {Object} [options.processors={}] - Data processors
+ * @param {string} [options.format='json'] - Data format ('json', 'xml', or 'text')
+ * @param {Object.<string, ExternalContentProcessor>} [options.processors={}] - Custom data processors by format
  * @param {number} [options.maxSizeBytes] - Maximum payload size in bytes
- * @param {number} [options.batchDelay] - Batch delay in milliseconds (default: 10)
+ * @param {number} [options.batchDelayMs] - Batch delay in milliseconds (default: 10)
  * @param {Object} [options.otherProps] - Additional Keystone field properties (schemaDoc, sensitive, isRequired, etc.)
  * @returns {Object} Field configuration object
  * 
@@ -15,14 +17,14 @@
  * const myField = createExternalDataField({
  *   adapter: myFileAdapter,
  *   format: 'json',
- *   maxSizeBytes: 50 * 1024 * 1024, // 50MB
+ *   maxSizeBytes: 10 * 1024 * 1024, // 10MB
  *   batchDelayMs: 10, // 10ms batch delay
  *   schemaDoc: 'Field description',
  *   sensitive: true,
  *   isRequired: false,
  * })
  */
-function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, schemaDoc, ...otherProps }) {
+function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, ...otherProps }) {
     if (!adapter) {
         throw new Error('createExternalDataField: adapter is required')
     }
@@ -36,12 +38,12 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
     }
     
     const config = {
-        ...otherProps,
         type: 'ExternalContent',
+        schemaDoc: `External content field storing ${format} data in external files`,
         adapter,
         format,
         processors,
-        schemaDoc: schemaDoc || `External content field storing ${format} data in files`,
+        ...otherProps,
     }
     
     // Only include maxSizeBytes if explicitly provided

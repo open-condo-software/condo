@@ -1,5 +1,6 @@
 const { getObjectStream, readFileFromStream } = require('@open-condo/keystone/file/utils')
 
+const { DEFAULT_PROCESSORS } = require('./defaultProcessors')
 const { getOrCreateLoader } = require('./getOrCreateLoader')
 const { isFileMeta } = require('./isFileMeta')
 
@@ -21,30 +22,24 @@ const { isFileMeta } = require('./isFileMeta')
  * @param {unknown} value - The field value from database (could be inline JSON or file-meta)
  * @param {Object} options - Resolution options
  * @param {Object} options.adapter - File adapter instance (required)
- * @param {Function} options.deserialize - Deserialization function (required, used as fallback)
- * @param {Object} [options.formatProcessors] - Map of format -> deserialize function (optional)
+ * @param {Object} [options.formatProcessors] - Custom format processors (optional, uses defaults for json/xml/text)
  * @param {Object} [options.context] - GraphQL context for DataLoader batching (optional)
  * @param {number} [options.batchDelayMs] - Batch delay for DataLoader (optional)
- * @param {string} [options.fieldPath] - Field path for error messages (optional)
- * @param {Object} [options.item] - Item object for error context (optional)
  * @returns {Promise<unknown>} Resolved field value or null if file not found
  * @throws {Error} If file read or deserialization fails (except for missing files)
  */
 async function resolveExternalContentValue (value, {
     adapter,
-    deserialize,
     formatProcessors,
     context,
     batchDelayMs,
-    fieldPath = 'field',
-    item = {},
 } = {}) {
     if (!adapter) {
         throw new Error('resolveExternalContentValue: adapter is required')
     }
-    if (!deserialize) {
-        throw new Error('resolveExternalContentValue: deserialize is required')
-    }
+    
+    // Merge custom processors with defaults
+    const processors = { ...DEFAULT_PROCESSORS, ...formatProcessors }
 
     if (value === null || typeof value === 'undefined') return value
 
@@ -91,18 +86,16 @@ async function resolveExternalContentValue (value, {
     try {
         const raw = buf.toString('utf-8')
         
-        // Use format from file metadata if available and processors provided
+        // Get format from file metadata
         const format = parsedValue?.meta?.format
-        if (format && formatProcessors && formatProcessors[format]) {
-            return formatProcessors[format].deserialize(raw)
+        if (!format || !processors[format]) {
+            throw new Error(`Unknown or missing format in file metadata: ${format}`)
         }
         
-        // Fall back to provided deserialize function
-        return deserialize(raw)
+        return processors[format].deserialize(raw)
     } catch (err) {
-        const itemId = item?.id || 'unknown'
         const errMsg = err?.message || String(err)
-        throw new Error(`Failed to deserialize ${fieldPath} for item ${itemId}: ${errMsg}`)
+        throw new Error(`Failed to deserialize ExternalContent value: ${errMsg}`)
     }
 }
 

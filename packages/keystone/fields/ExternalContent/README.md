@@ -36,6 +36,32 @@ const MySchema = {
 }
 ```
 
+### Using Default Processors
+
+The `DEFAULT_PROCESSORS` object is available for import and contains the built-in processor definitions for json, xml, and text formats:
+
+```javascript
+const { ExternalContent: { DEFAULT_PROCESSORS } } = require('@open-condo/keystone/fieldsUtils')
+
+// Access default processors
+const jsonProcessor = DEFAULT_PROCESSORS.json
+const xmlProcessor = DEFAULT_PROCESSORS.xml
+const textProcessor = DEFAULT_PROCESSORS.text
+
+// Or use them to create custom processors by extending
+const customProcessors = {
+    ...DEFAULT_PROCESSORS,
+    myFormat: {
+        graphQLInputType: 'String',
+        graphQLReturnType: 'String',
+        serialize: (value) => customSerialize(value),
+        deserialize: (raw) => customDeserialize(raw),
+        mimetype: 'application/custom',
+        fileExt: 'custom',
+    },
+}
+```
+
 ### Reading ExternalContent Values
 
 When you need to read ExternalContent field values in scripts or utilities (outside of GraphQL), use the `resolveExternalContentValue` utility:
@@ -49,25 +75,23 @@ const BillingReceiptRawFieldFileAdapter = new FileAdapter('BillingReceiptRawFiel
 // In your script or utility function
 const rawValue = await resolveExternalContentValue(receipt.raw, {
     adapter: BillingReceiptRawFieldFileAdapter,
-    deserialize: (raw) => (raw.length === 0 ? null : JSON.parse(raw)), // Just an example of deserialization function
-    fieldPath: 'raw',
-    item: receipt,
 })
 ```
 
 **Parameters:**
 - **`value`** - The field value from database (could be inline JSON or file-meta)
-- **`adapter`** (required) - File adapter instance for reading files
-- **`deserialize`** (required) - Function to deserialize the raw file content
-- **`fieldPath`** (optional) - Field path for error messages (e.g., 'raw', 'metadata')
-- **`item`** (optional) - Item object for error context
-- **`context`** (optional) - GraphQL context for DataLoader batching (used automatically in GraphQL resolvers)
+- **`options.adapter`** (required) - File adapter instance for reading files
+- **`options.formatProcessors`** (optional) - Custom format processors (uses built-in defaults for json/xml/text)
+- **`options.context`** (optional) - GraphQL context for DataLoader batching
+- **`options.batchDelayMs`** (optional) - Batch delay for DataLoader in milliseconds
 
 **Notes:**
 - For GraphQL queries, the field resolver automatically uses `resolveExternalContentValue` with DataLoader batching
 - For scripts and utilities using `find()`, you need to manually call this function to load the file content
+- Format is determined from file metadata (`meta.format`), uses built-in processors for common formats (json, xml, text)
+- Pass custom `formatProcessors` only if you need to override defaults or add custom formats
 - Returns `null` if the file doesn't exist (graceful handling)
-- Throws an error if deserialization fails
+- Throws an error if deserialization fails or format is unknown
 - You may use adapter directly from your field configuration if needed
 
 ### Basic Configuration (Legacy)
@@ -127,9 +151,9 @@ const LARGE_DATA_FIELD = createExternalDataField({
 
 ### File Naming
 
-Files are named using the pattern: `{ListKey}_{fieldPath}_{cuid}.{ext}`
+Files are named using the pattern: `{ListKey}_{fieldPath}_{uuid}.{ext}`
 
-Example: `BillingReceipt_raw_ck123abc.json`
+Example: `BillingReceipt_raw_550e8400-e29b-41d4-a716-446655440000.json`
 
 ### Performance Optimization
 
