@@ -22,14 +22,6 @@ const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
  * @typedef {import('@open-condo/keystone/fieldsUtils/ExternalContent/defaultProcessors').ExternalContentProcessor} ExternalContentProcessor
  * 
  * @extends {import('@keystonejs/fields').Implementation}
- * 
- * @example
- * const impl = new ExternalContentImplementation('raw', {
- *   adapter: fileAdapter,
- *   format: 'json',
- *   maxSizeBytes: 50 * 1024 * 1024,
- *   batchDelayMs: 10,
- * })
  */
 class ExternalContentImplementation extends Implementation {
     /**
@@ -50,15 +42,16 @@ class ExternalContentImplementation extends Implementation {
      * @throws {Error} If format is unknown
      * @throws {Error} If adapter is not properly configured
      */
-    constructor (path, {
-        adapter,
-        format = DEFAULT_FORMAT,
-        processors = {},
-        maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
-        batchDelayMs,
-        schemaDoc,
-        graphQLAdminFragment = '',
-    } = {}, meta) {
+    constructor (path, options = {}, meta) {
+        const {
+            adapter,
+            format = DEFAULT_FORMAT,
+            processors = {},
+            maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
+            batchDelayMs,
+            graphQLAdminFragment = '',
+        } = options
+        
         // Compute processor config
         const byFormat = { ...DEFAULT_PROCESSORS, ...processors }
         const cfg = byFormat[format]
@@ -77,17 +70,13 @@ class ExternalContentImplementation extends Implementation {
 
         // Pass resolved values to parent class
         super(path, {
-            adapter,
+            ...options,
             format,
             processors,
-            maxSizeBytes,
-            batchDelayMs,
             graphQLInputType: cfg.graphQLInputType,
             graphQLReturnType: cfg.graphQLReturnType,
             mimetype: cfg.mimetype,
             fileExt: cfg.fileExt,
-            schemaDoc,
-            graphQLAdminFragment,
         }, meta)
 
         this.adapter = adapter
@@ -122,9 +111,8 @@ class ExternalContentImplementation extends Implementation {
 
     // GQL Output
     gqlOutputFields () {
-        // For admin interface, return ExternalContentFile type with metadata fields
-        // For API requests, the resolver will return the full content
-        return [`${this.path}: ExternalContentFile`]
+        // Return the actual content type based on format (String for XML/text, JSON for json)
+        return [`${this.path}: ${this.graphQLReturnType}`]
     }
 
     // Admin
@@ -153,7 +141,7 @@ class ExternalContentImplementation extends Implementation {
         return {
             [this.path]: async (item, args, context) => {
                 const value = item?.[this.path]
-                
+
                 try {
                     return await resolveExternalContentValue(value, {
                         adapter: this.adapter,
