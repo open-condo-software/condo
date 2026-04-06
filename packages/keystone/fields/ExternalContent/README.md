@@ -122,8 +122,12 @@ const MySchema = {
 
 - **`adapter`** (required): FileAdapter instance for storing files
 - **`format`** (optional): Data format - `'json'`, `'xml'`, or `'text'` (default: `'json'`)
-- **`processors`** (optional): Custom serialization/deserialization functions
+- **`processors`** (optional): Custom format processors (uses built-in defaults if not provided)
 - **`maxSizeBytes`** (optional): Maximum size in bytes for field content (default: 10485760 = 10MB)
+- **`batchDelayMs`** (optional): DataLoader batch delay in milliseconds (default: 10ms)
+- **`schemaDoc`** (optional): Field description for schema documentation
+- **`sensitive`** (optional): Mark field as sensitive for audit logging
+- **`isRequired`** (optional): Whether the field is required
 
 Example with custom size limit:
 ```javascript
@@ -131,6 +135,9 @@ const LARGE_DATA_FIELD = createExternalDataField({
     adapter: myFileAdapter,
     format: 'json',
     maxSizeBytes: 100 * 1024 * 1024, // 100MB
+    batchDelayMs: 20,
+    schemaDoc: 'Large data field',
+    sensitive: true,
 })
 ```
 

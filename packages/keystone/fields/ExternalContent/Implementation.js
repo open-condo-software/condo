@@ -19,6 +19,8 @@ const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
  * Stores large data externally in files rather than directly in the database.
  * Provides transparent access to file content through GraphQL with DataLoader batching.
  * 
+ * @typedef {import('@open-condo/keystone/fieldsUtils/ExternalContent/defaultProcessors').ExternalContentProcessor} ExternalContentProcessor
+ * 
  * @extends {import('@keystonejs/fields').Implementation}
  * 
  * @example
@@ -26,6 +28,7 @@ const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
  *   adapter: fileAdapter,
  *   format: 'json',
  *   maxSizeBytes: 50 * 1024 * 1024,
+ *   batchDelayMs: 10,
  * })
  */
 class ExternalContentImplementation extends Implementation {
@@ -39,10 +42,6 @@ class ExternalContentImplementation extends Implementation {
      * @param {Object.<string, ExternalContentProcessor>} [options.processors={}] - Custom format processors
      * @param {number} [options.maxSizeBytes=10485760] - Maximum payload size in bytes (default: 10MB)
      * @param {number} [options.batchDelayMs] - DataLoader batch delay in milliseconds
-     * @param {string} [options.graphQLInputType] - Override GraphQL input type
-     * @param {string} [options.graphQLReturnType] - Override GraphQL return type
-     * @param {string} [options.mimetype] - Override MIME type
-     * @param {string} [options.fileExt] - Override file extension
      * @param {string} [options.schemaDoc] - Field description for schema
      * @param {string} [options.graphQLAdminFragment=''] - GraphQL fragment for admin UI
      * @param {Object} [meta] - Keystone field metadata
@@ -57,10 +56,6 @@ class ExternalContentImplementation extends Implementation {
         processors = {},
         maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
         batchDelayMs,
-        graphQLInputType,
-        graphQLReturnType,
-        mimetype,
-        fileExt,
         schemaDoc,
         graphQLAdminFragment = '',
     } = {}, meta) {
@@ -71,12 +66,6 @@ class ExternalContentImplementation extends Implementation {
             throw new Error(`ExternalContent: unknown format "${format}" for ${path}`)
         }
 
-        // Resolve final values using defaults from processor config
-        const finalGraphQLInputType = graphQLInputType || cfg.graphQLInputType
-        const finalGraphQLReturnType = graphQLReturnType || cfg.graphQLReturnType
-        const finalMimetype = mimetype || cfg.mimetype
-        const finalFileExt = fileExt || cfg.fileExt
-
         if (!adapter) {
             throw new Error(`ExternalContent: "adapter" is required for ${path}`)
         }
@@ -86,17 +75,17 @@ class ExternalContentImplementation extends Implementation {
             throw new Error(`ExternalContent: adapter is not properly configured for ${path}. Check FILE_FIELD_ADAPTER and storage configuration.`)
         }
 
-        // Pass resolved values to parent class (don't spread arguments[1] to avoid passing undefined graphQLReturnType)
+        // Pass resolved values to parent class
         super(path, {
             adapter,
             format,
             processors,
             maxSizeBytes,
             batchDelayMs,
-            graphQLInputType: finalGraphQLInputType,
-            graphQLReturnType: finalGraphQLReturnType,
-            mimetype: finalMimetype,
-            fileExt: finalFileExt,
+            graphQLInputType: cfg.graphQLInputType,
+            graphQLReturnType: cfg.graphQLReturnType,
+            mimetype: cfg.mimetype,
+            fileExt: cfg.fileExt,
             schemaDoc,
             graphQLAdminFragment,
         }, meta)
@@ -105,19 +94,12 @@ class ExternalContentImplementation extends Implementation {
         this.format = format
         this.maxSizeBytes = maxSizeBytes
         this.batchDelayMs = batchDelayMs
-        this.graphQLInputType = finalGraphQLInputType
-        this.graphQLReturnType = finalGraphQLReturnType
-        this.mimetype = finalMimetype
-        this.fileExt = finalFileExt
+        this.graphQLInputType = cfg.graphQLInputType
+        this.graphQLReturnType = cfg.graphQLReturnType
+        this.mimetype = cfg.mimetype
+        this.fileExt = cfg.fileExt
         this.graphQLAdminFragment = graphQLAdminFragment
         this.formatProcessors = byFormat
-    }
-
-    // GQL Output
-    gqlOutputFields () {
-        // For admin interface, return ExternalContentFile type with metadata fields
-        // For API requests, the resolver will return the full content
-        return [`${this.path}: ExternalContentFile`]
     }
 
     /**
@@ -136,6 +118,13 @@ class ExternalContentImplementation extends Implementation {
         publicUrl: String
       }
     `]
+    }
+
+    // GQL Output
+    gqlOutputFields () {
+        // For admin interface, return ExternalContentFile type with metadata fields
+        // For API requests, the resolver will return the full content
+        return [`${this.path}: ExternalContentFile`]
     }
 
     // Admin
