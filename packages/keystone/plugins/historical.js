@@ -51,6 +51,7 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
         Text: (field) => ({ type: 'Text' }),
         LocalizedText: (field) => ({ type: 'Text' }),
         SignedDecimal: (field) => ({ type: 'Decimal' }),
+        ExternalContent: (field) => ({ type: 'Text' }),
         AuthedRelationship: (field) => ({
             type: 'HiddenRelationship',
             ref: field.ref,
