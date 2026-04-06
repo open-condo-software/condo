@@ -111,6 +111,8 @@
     "posthog-js": "^1.364.1",
     "rollup": ">=4.59.0",
     "vite/rollup": ">=4.59.0",
-    "tsup/rollup": ">=4.59.0"
+    "tsup/rollup": ">=4.59.0",
+    "node-forge": "^1.3.2",
+    "defu": "^6.1.6"
   }
 }
