@@ -4,6 +4,7 @@
 
 const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
@@ -174,8 +175,12 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
+                        const provider = conf['B2B_PAYMENTS_PROVIDER']
+                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
                         const url = new URL(directPaymentUrl)
                         url.searchParams.append('organizationId', organization.id)
+                        url.searchParams.append('provider', provider)
+                        url.searchParams.append('returnUrl', returnUrl)
                         directPaymentUrl = url.toString()
                     }
 
@@ -202,8 +207,12 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
+                        const provider = conf['B2B_PAYMENTS_PROVIDER']
+                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
                         const url = new URL(directPaymentUrl)
                         url.searchParams.append('organizationId', organization.id)
+                        url.searchParams.append('provider', provider)
+                        url.searchParams.append('returnUrl', returnUrl)
                         directPaymentUrl = url.toString()
                     }
 
@@ -260,8 +269,12 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 let directPaymentUrl = multiPaymentResult.directPaymentUrl
                 if (directPaymentUrl) {
+                    const provider = conf['B2B_PAYMENTS_PROVIDER']
+                    const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
                     const url = new URL(directPaymentUrl)
                     url.searchParams.append('organizationId', organization.id)
+                    url.searchParams.append('provider', provider)
+                    url.searchParams.append('returnUrl', returnUrl)
                     directPaymentUrl = url.toString()
                 }
 

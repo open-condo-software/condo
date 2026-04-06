@@ -7,16 +7,8 @@ class SubscriptionPaymentAdapter {
 
     static async proceedPayment ({ directPaymentUrl, cardTokenId }) {
         try {
-            const provider = conf['B2B_PAYMENTS_PROVIDER']
-            if (!provider) {
-                throw new Error('B2B_PAYMENTS_PROVIDER is not configured')
-            }
-
-            const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
             const url = new URL(directPaymentUrl)
-            url.searchParams.append('provider', provider)
             url.searchParams.append('cardTokenId', cardTokenId)
-            url.searchParams.append('returnUrl', returnUrl)
 
             const response = await fetch(url.toString())
             
