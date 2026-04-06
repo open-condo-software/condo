@@ -4,13 +4,17 @@
  * 
  * @typedef {import('./defaultProcessors').ExternalContentProcessor} ExternalContentProcessor
  * 
- * @param {Object} options - Field configuration options
- * @param {Object} options.adapter - File adapter (required)
- * @param {string} [options.format='json'] - Data format ('json', 'xml', or 'text')
- * @param {Object.<string, ExternalContentProcessor>} [options.processors={}] - Custom data processors by format
- * @param {number} [options.maxSizeBytes] - Maximum payload size in bytes
- * @param {number} [options.batchDelayMs] - Batch delay in milliseconds (default: 10)
- * @param {Object} [options.otherProps] - Additional Keystone field properties (schemaDoc, sensitive, isRequired, etc.)
+ * @typedef {Object} ExternalContentFieldConfig
+ * @property {Object} adapter - File adapter (required)
+ * @property {string} [format='json'] - Data format ('json', 'xml', or 'text')
+ * @property {Object.<string, ExternalContentProcessor>} [processors={}] - Custom data processors by format
+ * @property {number} [maxSizeBytes] - Maximum payload size in bytes
+ * @property {number} [batchDelayMs] - Batch delay in milliseconds (default: 10)
+ * @property {string} [schemaDoc] - Field description for schema documentation
+ * @property {boolean} [sensitive] - Mark field as sensitive for audit logging
+ * @property {boolean} [isRequired] - Whether the field is required
+ * 
+ * @param {ExternalContentFieldConfig} options - Field configuration options
  * @returns {Object} Field configuration object
  * 
  * @example
