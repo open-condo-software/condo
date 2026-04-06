@@ -1,4 +1,5 @@
-const { get, isFunction } = require('lodash')
+const get = require('lodash/get')
+const isFunction = require('lodash/isFunction')
 const { v4: uuid } = require('uuid')
 
 const { composeNonResolveInputHook, isValidDate } = require('./utils')
