@@ -228,6 +228,9 @@ const EDITABLE_FIELD = createExternalDataField({
 
 When a user edits the field with `isAdminUIReadOnly: false`, the content is saved in the new file-based format with proper metadata, `publicUrl`, and format information.
 
+**⚠️ File Management Note:**
+Each time the field is edited and saved, a **new file is created** with a new UUID. The old file is **not automatically deleted** to preserve data integrity and maintain an audit trail. This means files will accumulate in storage over time. You may need to implement a cleanup strategy to remove unreferenced files periodically.
+
 ### Legacy Content Handling
 
 The field maintains backward compatibility with data stored before the ExternalContent refactoring:
