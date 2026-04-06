@@ -110,7 +110,7 @@ const PaymentStatusChangeWebhookUrl = generateGqlQueries('PaymentStatusChangeWeb
 
 const REGISTER_EXTERNAL_PAYMENTS_MUTATION = gql`
     mutation registerExternalPayments ($data: RegisterExternalPaymentsInput!) {
-        result: registerExternalPayments(data: $data) { id }
+        result: registerExternalPayments(data: $data) { status }
     }
 `
 

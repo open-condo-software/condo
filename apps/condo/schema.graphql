@@ -92971,7 +92971,7 @@ input ExternalPaymentsInput {
   explicitFee: String
   implicitFee: String
   paymentOrder: String!
-  currencyCode: String
+  currencyCode: String!
 }
 
 input RegisterExternalPaymentsInput {
@@ -92982,7 +92982,7 @@ input RegisterExternalPaymentsInput {
 }
 
 type RegisterExternalPaymentsOutput {
-  id: String!
+  status: String!
 }
 
 enum TicketReportPeriodType {
@@ -107462,6 +107462,8 @@ type Mutation {
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
   setPaymentPosReceiptUrl(data: SetPaymentPosReceiptUrlInput!): SetPaymentPosReceiptUrlOutput
+
+  """Registers external payments"""
   registerExternalPayments(data: RegisterExternalPaymentsInput!): RegisterExternalPaymentsOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 

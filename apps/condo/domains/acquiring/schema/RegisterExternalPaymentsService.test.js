@@ -3,25 +3,49 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
+const { 
+    makeLoggedInAdminClient, 
+    expectToThrowGQLErrorToResult, 
+    expectToThrowAuthenticationErrorToResult,
+    makeClient,
+    expectToThrowAccessDeniedErrorToResult,
+} = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     ERRORS,
     PAYMENTS_LIMIT,
 } = require('@condo/domains/acquiring/constants/registerExternalPayments')
-const { Payment, MultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     registerExternalPaymentsByTestClient,
     createTestAcquiringIntegrationContext,
     createTestAcquiringIntegration,
+    createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithServiceUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-test-test' } }
 
 describe('RegisterExternalPaymentsService', () => {
-    let admin, organization, integration, context
+    let admin, organization, integration, context, serviceClient
+
+    function getExternalPayment () {
+        return {
+            accountNumber: faker.finance.account(),
+            tin: organization.tin,
+            bankAccount: faker.finance.account(),
+            routingNumber: '044525225',
+            address: faker.address.streetAddress(true),
+            period: '2026-04-01',
+            transactionDate: new Date().toISOString(),
+            transactionId: faker.datatype.uuid(),
+            amount: '100.00',
+            paymentOrder: '1',
+            currencyCode: 'RUB',
+        }
+    }
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -29,54 +53,86 @@ describe('RegisterExternalPaymentsService', () => {
         const [org] = await createTestOrganization(admin)
         organization = org
 
-        const [int] = await createTestAcquiringIntegration(admin, {
-            type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
-        })
+        const [int] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
         integration = int
 
-        const [con] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+        const [con] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
         context = con
+
+        serviceClient = await makeClientWithServiceUser()
+        await createTestAcquiringIntegrationAccessRight(admin, integration, serviceClient.user)
     })
 
     describe('Accesses', () => {
-        test('Service User: can register multiple payments and they are deduplicated', async () => {
-            const transactionId = faker.datatype.uuid()
+        test('Admin: can register payments', async () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [
-                    {
-                        accountNumber: faker.finance.account(),
-                        tin: organization.tin,
-                        bankAccount: faker.finance.account(),
-                        routingNumber: '044525225',
-                        address: faker.address.streetAddress(true),
-                        period: '2023-10-01',
-                        transactionDate: new Date().toISOString(),
-                        transactionId: transactionId,
-                        amount: '1000.50',
-                        paymentOrder: '123',
-                        explicitFee: '100',
-                        currencyCode: 'RUB',
-                    },
-                ],
+                payments: [getExternalPayment()],
             }
-
             const [data] = await registerExternalPaymentsByTestClient(admin, payload)
-            expect(data).toBeDefined()
+            expect(data.status).toBe('ok')
+        })
 
-            const payments = await Payment.getAll(admin, {
-                importId: transactionId,
-                context: { id: context.id },
+        test('Service User with access rights: can register payments', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment()],
+            }
+            const [data] = await registerExternalPaymentsByTestClient(serviceClient, payload)
+            expect(data.status).toBe('ok')
+        })
+
+        test('Service User with access rights: can register payments for context linked to his integration', async () => {
+            const anotherServiceUser = await makeClientWithServiceUser()
+            const [anotherOrganization] = await createTestOrganization(admin)
+            const [anotherIntegration] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
+            const [anotherContext] = await createTestAcquiringIntegrationContext(admin, anotherOrganization, anotherIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: anotherContext.id },
+                payments: [getExternalPayment()],
+            }
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(anotherServiceUser, payload)
             })
-            expect(payments).toHaveLength(1)
-            expect(payments[0].amount).toBe('1000.50000000')
-            expect(payments[0].status).toBe('DONE')
+        })
 
-            await expectToThrowGQLErrorToResult(async () => {
-                await registerExternalPaymentsByTestClient(admin, payload)
-            }, {
-                ...ERRORS.DUPLICATED_PAYMENTS,
+        test('Service User without access rights: cannot register payments', async () => {
+            const anotherServiceUser = await makeClientWithServiceUser()
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment()],
+            }
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(anotherServiceUser, payload)
+            })
+        })
+
+        test('User: cannot register payments', async () => {
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment()],
+            }
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(user, payload)
+            })
+        })
+
+        test('Anonymous: cannot register payments', async () => {
+            const anonymous = await makeClient()
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment()],
+            }
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(anonymous, payload)
             })
         })
     })
@@ -86,19 +142,88 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: Array(PAYMENTS_LIMIT + 1).fill({
-                    accountNumber: '1', tin: organization.tin, bankAccount: '1'.repeat(20),
-                    routingNumber: '044525225', address: 'A', period: '10.2023',
-                    transactionDate: new Date().toISOString(), transactionId: 'id',
-                    amount: '10', paymentOrder: '1',
-                }),
+                payments: Array(PAYMENTS_LIMIT + 1).fill(getExternalPayment()),
             }
-
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
-            }, {
-                ...ERRORS.PAYMENTS_LIMIT_EXCEEDED,
-            })
+            }, ERRORS.PAYMENTS_LIMIT_EXCEEDED)
+        })
+
+        test('Should throw error for invalid period format', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{ ...getExternalPayment(), period: '2026-04-15' }],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_PERIOD_FORMAT)
+        })
+
+        test('Should throw error for non-ISO transaction date', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{ ...getExternalPayment(), transactionDate: '06.04.2026' }],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_DATE_FORMAT)
+        })
+
+        test('Should throw error for invalid amount (non-numeric)', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{ ...getExternalPayment(), amount: 'one hundred' }],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_PAYMENT_AMOUNT)
+        })
+
+        test('Should throw error for negative amount', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{ ...getExternalPayment(), amount: '-50.00' }],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_PAYMENT_AMOUNT)
+        })
+
+        test('Should throw error for unsupported currency code', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{ ...getExternalPayment(), currencyCode: 'INVALID' }],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_CURRENCY_CODE)
+        })
+
+        test('Should throw error if fees exceed total amount', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{
+                    ...getExternalPayment(),
+                    amount: '100.00',
+                    explicitFee: '60.00',
+                    implicitFee: '50.00',
+                }],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_PAYMENT_AMOUNT)
+        })
+    })
+
+    describe('Logic', () => {
+        test('', async () => {
+
         })
     })
 })

@@ -10,35 +10,22 @@ const {
 const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canRegisterExternalPayments ({ authentication: { item: user }, originalInput }) {
+async function canRegisterExternalPayments ({ authentication: { item: user }, args: { data: { acquiringIntegrationContext } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+    if (user.type !== SERVICE) return false
 
-    if (user.type === SERVICE) {
-        const contextId = originalInput?.data?.acquiringIntegrationContext?.id || null
+    const context = await getByCondition('AcquiringIntegrationContext', { id: acquiringIntegrationContext.id, deletedAt: null })
+    if (!context?.integration) return false
 
-        if (!contextId) return false
+    const integration = await getByCondition('AcquiringIntegration', {
+        id: context.integration,
+        type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+        deletedAt: null,
+    })
 
-        const context = await getByCondition('AcquiringIntegrationContext', {
-            id: contextId,
-            deletedAt: null,
-        })
-
-        if (!context) return false
-
-        const integration = await getByCondition('AcquiringIntegration', {
-            id: context.integration,
-            type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
-            deletedAt: null,
-        })
-
-        if (!integration) return false
-
-        return await checkAcquiringIntegrationAccessRights(user.id, [integration.id])
-    }
-
-    return false
+    return !!integration && await checkAcquiringIntegrationAccessRights(user.id, [integration.id])
 }
 
 /*
