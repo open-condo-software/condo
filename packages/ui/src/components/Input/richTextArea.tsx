@@ -991,7 +991,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         <span className='condo-input-bottom-panel'>
                             {hasBottomPanelUtils && (
                                 <span className='condo-input-utils'>
-                                    {bottomPanelUtils.map(renderBottomPanelBuiltinUtil)}
+                                    {bottomPanelUtils.map((util, index) => renderBottomPanelBuiltinUtil(util, index))}
                                 </span>
                             )}
 
