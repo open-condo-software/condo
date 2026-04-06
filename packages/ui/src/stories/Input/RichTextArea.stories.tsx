@@ -20,7 +20,7 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 )
 
 const DEMO_BOTTOM_PANEL_UTILS = [
-    { key: 'emoji', dropdownProps: { placement: 'topRight' as const } },
+    { key: 'emoji', dropdownProps: { placement: 'topRight' } },
     <DemoButton icon={<Sparkles size='small'/>} text='Sparkles' key='sparkles' />,
 ]
 

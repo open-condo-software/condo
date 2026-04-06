@@ -278,9 +278,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                 <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel`}>
                     {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
-                            {bottomPanelUtils.map((util, index) => {
-                                return renderBottomPanelBuiltinUtil(util, index)
-                            })}
+                            {bottomPanelUtils.map(renderBottomPanelBuiltinUtil)}
                         </span>
                     )}
 
