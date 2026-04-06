@@ -45,6 +45,7 @@ function isFileMeta (value, opts = {}) {
         'originalFilename',
         'encoding',
         'meta',
+        'publicUrl',
     ])
     return Object.keys(value).every((key) => allowedKeys.has(key))
 }

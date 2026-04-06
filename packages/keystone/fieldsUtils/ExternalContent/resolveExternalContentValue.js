@@ -88,8 +88,14 @@ async function resolveExternalContentValue (value, {
         
         // Get format from file metadata
         const format = parsedValue?.meta?.format
-        if (!format || !processors[format]) {
-            throw new Error(`Unknown or missing format in file metadata: ${format}`)
+        
+        // If format is missing, return raw content as-is (legacy files without format metadata)
+        if (!format) {
+            return raw
+        }
+        
+        if (!processors[format]) {
+            throw new Error(`Unknown format in file metadata: ${format}`)
         }
         
         return processors[format].deserialize(raw)

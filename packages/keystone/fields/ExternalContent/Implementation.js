@@ -4,13 +4,10 @@ const { Readable } = require('stream')
 const { Implementation } = require('@open-keystone/fields')
 
 const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
-const { getLogger } = require('@open-condo/keystone/logging')
+const logger = require('@open-condo/keystone/logging')
 
+const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta } = ExternalContent
 
-const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta, resolveExternalContentValue } = ExternalContent
-const logger = getLogger('ExternalContent')
-
-const DEFAULT_FORMAT = 'json'
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
 
 /**
@@ -45,11 +42,12 @@ class ExternalContentImplementation extends Implementation {
     constructor (path, options = {}, meta) {
         const {
             adapter,
-            format = DEFAULT_FORMAT,
+            format = 'json',
             processors = {},
             maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
             batchDelayMs,
-            graphQLAdminFragment = '',
+            graphQLAdminFragment,
+            adminConfig,
         } = options
         
         // Compute processor config
@@ -87,8 +85,10 @@ class ExternalContentImplementation extends Implementation {
         this.graphQLReturnType = cfg.graphQLReturnType
         this.mimetype = cfg.mimetype
         this.fileExt = cfg.fileExt
-        this.graphQLAdminFragment = graphQLAdminFragment
+        // Admin UI should query raw database value (file metadata) not deserialized content
+        this.graphQLAdminFragment = graphQLAdminFragment || ''
         this.formatProcessors = byFormat
+        this.adminConfig = adminConfig || {}
     }
 
     /**
@@ -111,35 +111,38 @@ class ExternalContentImplementation extends Implementation {
 
     // GQL Output
     gqlOutputFields () {
-        // Return the actual content type based on format (String for XML/text, JSON for json)
-        return [`${this.path}: ${this.graphQLReturnType}`]
+        // Return both raw metadata field and virtual deserialized content field
+        return [
+            `${this.path}: String`,  // Raw file metadata (JSON string) for admin UI
+            `${this.path}Resolved: ${this.graphQLReturnType}`,  // Deserialized content for API clients
+        ]
     }
 
     // Admin
     extendAdminMeta (meta) {
         return {
             graphQLAdminFragment: this.graphQLAdminFragment,
+            format: this.format,
+            processors: this.formatProcessors,
+            adminConfig: this.adminConfig,
             ...meta,
         }
     }
 
     /**
-     * Resolves the field value for GraphQL output.
+     * Provides both raw file metadata and deserialized content via GraphQL.
      * 
-     * Delegates to resolveExternalContentValue utility which handles:
-     * - Backward compatibility with inline JSON objects
-     * - File-meta object resolution with DataLoader batching
-     * - Format-aware deserialization using formatProcessors
-     * - Graceful handling of missing files
-     * 
-     * Uses DataLoader for batching and caching when context is available,
-     * falls back to direct file reading for non-GraphQL usage.
+     * - `fieldName` - Returns raw file metadata (JSON string from DB) for admin UI
+     * - `fieldNameResolved` - Virtual field that returns deserialized content for API clients
      * 
      * @returns {Object} Field resolver mapping
      */
     gqlOutputFieldResolvers () {
+        const { resolveExternalContentValue } = require('@open-condo/keystone/fieldsUtils/ExternalContent/resolveExternalContentValue')
+        
         return {
-            [this.path]: async (item, args, context) => {
+            // Virtual field for deserialized content (for API clients)
+            [`${this.path}Resolved`]: async (item, args, context) => {
                 const value = item?.[this.path]
 
                 try {
@@ -288,8 +291,11 @@ class ExternalContentImplementation extends Implementation {
             }
         }
 
-        // Add _type marker for better file-meta detection
-        return { ...saved, _type: FILE_META_TYPE }
+        // Generate publicUrl using adapter's publicUrl method
+        const publicUrl = this.adapter.publicUrl(saved)
+
+        // Add _type marker and ensure meta.format is included for deserialization
+        return { ...saved, publicUrl, meta: { format: this.format }, _type: FILE_META_TYPE }
     }
 }
 

@@ -28,6 +28,7 @@ const MY_DATA_FIELD = createExternalDataField({
     adapter: MyFieldFileAdapter,
     format: 'json', // or 'xml', 'text'
     maxSizeBytes: 50 * 1024 * 1024, // 50MB (optional, default: 10MB)
+    isAdminUIReadOnly: true, // (optional, default: true) - if false, allows editing in admin UI
 })
 
 const MySchema = {
@@ -152,18 +153,98 @@ const LARGE_DATA_FIELD = createExternalDataField({
    - Data is serialized using the format-specific processor (e.g., JSON.stringify for json format)
    - Size is validated against `maxSizeBytes`
    - Content is saved to a file via FileAdapter
-   - Database stores file metadata as JSON string: `{ "id": "...", "filename": "...", "_type": "ExternalContent.file-meta", "meta": { "format": "xml" } }`
+   - FileAdapter generates `publicUrl` based on storage configuration (local, S3, Sbercloud, etc.)
+   - Database stores file metadata as JSON string: `{ "id": "...", "filename": "...", "publicUrl": "...", "_type": "ExternalContent.file-meta", "meta": { "format": "xml" } }`
 
-2. When you read a record:
+2. When you read a record via GraphQL:
+   - **`fieldName`** - Returns raw file metadata (JSON string) for admin UI
+   - **`fieldNameResolved`** - Virtual field that loads and deserializes file content for API clients
+   
+3. Admin UI behavior:
+   - Queries the `fieldName` field to get raw file metadata
+   - Controller parses JSON string into object
+   - Field/Cell components display clickable link using stored `publicUrl`
+   
+4. API client behavior:
+   - Query `fieldNameResolved` to get deserialized content
    - GraphQL resolver loads file content via DataLoader
    - Content is deserialized using the format-specific processor
-   - Original data structure is returned (object for JSON, string for XML/text)
+   - Returns the actual data (object for JSON, string for XML/text)
 
 ### File Naming
 
 Files are named using the pattern: `{ListKey}_{fieldPath}_{uuid}.{ext}`
 
 Example: `BillingReceipt_raw_550e8400-e29b-41d4-a716-446655440000.json`
+
+### GraphQL Query Examples
+
+**Admin UI - Get file metadata with download link:**
+```graphql
+query {
+  XmlLog(where: { id: "..." }) {
+    id
+    log  # Returns: '{"filename":"...","publicUrl":"https://...","_type":"ExternalContent.file-meta",...}'
+  }
+}
+```
+
+**API Client - Get deserialized content:**
+```graphql
+query {
+  XmlLog(where: { id: "..." }) {
+    id
+    logResolved  # Returns: "<REQ><GUID>...</GUID>...</REQ>" (actual XML string)
+  }
+}
+```
+
+**Get both metadata and content:**
+```graphql
+query {
+  XmlLog(where: { id: "..." }) {
+    id
+    log          # File metadata for download link
+    logResolved  # Actual XML content for processing
+  }
+}
+```
+
+### Admin UI Editing
+
+By default, ExternalContent fields are **read-only** in the admin UI. You can enable editing by setting `isAdminUIReadOnly: false`:
+
+```javascript
+const EDITABLE_FIELD = createExternalDataField({
+    adapter: myFileAdapter,
+    format: 'xml',
+    isAdminUIReadOnly: false, // Allow editing in admin UI
+})
+```
+
+**Behavior:**
+- **`isAdminUIReadOnly: true` (default)**: Field displays as clickable download link (for new files) or plain text (for legacy content)
+- **`isAdminUIReadOnly: false`**: Field displays as a textarea input, allowing users to edit the content directly in the admin UI
+
+When a user edits the field with `isAdminUIReadOnly: false`, the content is saved in the new file-based format with proper metadata, `publicUrl`, and format information.
+
+### Legacy Content Handling
+
+The field maintains backward compatibility with data stored before the ExternalContent refactoring:
+
+**Legacy XML/text content** (stored directly as string):
+- **Admin UI (`log` field)**: Displays the actual XML/text content as plain text
+- **API Client (`logResolved` field)**: Returns the XML/text content as-is
+
+**Legacy inline JSON** (stored as JSON object without file metadata):
+- **Admin UI (`log` field)**: Displays the JSON content as formatted string
+- **API Client (`logResolved` field)**: Returns the JSON object as-is
+
+**New file-based content** (stored as file metadata):
+- **Admin UI (`log` field)**: Displays clickable download link with filename
+- **API Client (`logResolved` field)**: Loads file from storage and returns deserialized content
+
+The field automatically detects the data format using the `_type` marker and handles each case appropriately.
 
 ### Performance Optimization
 

@@ -1,20 +1,16 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 
-export default function ExternalContentCell ({ data = '{}' }) {
-    let fileMeta = {}
-    try {
-        fileMeta = typeof data === 'string' ? JSON.parse(data || '{}') : (data || {})
-    } catch (err) {
-        fileMeta = {}
-    }
+import { parseExternalContentValue } from './utils'
 
-    const { publicUrl, filename, originalFilename } = fileMeta
-    const displayName = originalFilename || filename || 'No file'
+export default function ExternalContentCell ({ data = '{}' }) {
+    const { fileMeta, isFileMetadata } = parseExternalContentValue(data)
+    const { publicUrl, filename, originalFilename, legacyContent } = fileMeta
+    const displayName = originalFilename || filename || legacyContent || 'No file'
 
     return (
         <div>
-            {publicUrl ? (
+            {isFileMetadata && publicUrl ? (
                 <a
                     href={publicUrl}
                     target='_blank'
