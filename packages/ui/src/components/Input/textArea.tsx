@@ -50,7 +50,14 @@ const DEFAULT_EMOJI_DROPDOWN_LABELS: TextAreaEmojiDropdownLabels = {
 }
 
 type BottomPanelBuiltinKey = 'emoji'
-type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
+type BottomPanelBuiltinUtilConfig =
+    | {
+        key: 'emoji'
+        dropdownProps?: Pick<React.ComponentProps<typeof Dropdown>, 'placement'>
+    }
+
+type BottomPanelReactUtilElement = React.ReactElement<{ disabled?: boolean }>
+type BottomPanelUtilsItem = BottomPanelBuiltinKey | BottomPanelBuiltinUtilConfig | BottomPanelReactUtilElement
 
 export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size' | 'onResize'> &
 Pick<AntdTextAreaProps, 'autoSize'> & {
@@ -166,7 +173,6 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     }, [disabled])
 
     const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
-        setEmojiPickerOpen(false)
         if (disabled) return
         const nativeEmoji = emoji?.native
         if (!nativeEmoji) return
@@ -185,8 +191,20 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         })
     }, [currentValue, disabled, emitValueChange])
 
-    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
-        if (util !== 'emoji') return null
+    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelUtilsItem, index: number) => {
+        if (React.isValidElement<{ disabled?: boolean }>(util)) {
+            return (
+                <React.Fragment key={util.key ?? index}>
+                    {React.cloneElement(util, { disabled: util.props?.disabled || disabled })}
+                </React.Fragment>
+            )
+        }
+
+        const normalizedUtil: BottomPanelBuiltinUtilConfig = typeof util === 'string'
+            ? { key: util }
+            : util
+
+        if (normalizedUtil.key !== 'emoji') return null
 
         const emojiDropdownContent = (
             <div className='condo-input-emoji-dropdown'>
@@ -205,12 +223,14 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
         return (
             <Dropdown
-                key={`builtin-${util}-${index}`}
+                key={`builtin-${normalizedUtil.key}-${index}`}
                 trigger={['click']}
+                placement='bottomLeft'
                 open={emojiPickerOpen}
                 onOpenChange={handleBottomEmojiOpenChange}
                 overlayClassName='condo-input-emoji-dropdown-overlay'
                 dropdownRender={() => emojiDropdownContent}
+                {...normalizedUtil.dropdownProps}
             >
                 <span>
                     <Tooltip title='Emoji' mouseLeaveDelay={0}>
@@ -259,15 +279,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                     {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
                             {bottomPanelUtils.map((util, index) => {
-                                if (typeof util === 'string') {
-                                    return renderBottomPanelBuiltinUtil(util, index)
-                                }
-
-                                return (
-                                    <React.Fragment key={index}>
-                                        {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
-                                    </React.Fragment>
-                                )
+                                return renderBottomPanelBuiltinUtil(util, index)
                             })}
                         </span>
                     )}
