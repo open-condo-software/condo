@@ -265,8 +265,8 @@ describe('ExternalContent field type', () => {
         })
     })
 
-    describe('readFromAdapter error handling', () => {
-        // Note: readFromAdapter is not exported, so we test it indirectly through gqlOutputFieldResolvers
+    describe('File reading error handling', () => {
+        // File reading logic is tested indirectly through gqlOutputFieldResolvers
         
         beforeEach(() => {
             mockFetch.mockClear()
@@ -406,7 +406,7 @@ describe('ExternalContent field type', () => {
             expect(mockReadFile).toHaveBeenCalledTimes(1) // Cached!
         })
 
-        test('falls back to readFromAdapter when context is not provided', async () => {
+        test('falls back to direct file reading when context is not provided', async () => {
             const adapter = {
                 src: '/test/path',
             }

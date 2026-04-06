@@ -3,7 +3,6 @@ const { createExternalDataField } = require('./createExternalDataField')
 const { FileContentLoader } = require('./FileContentLoader')
 const { getOrCreateLoader } = require('./getOrCreateLoader')
 const { isFileMeta } = require('./isFileMeta')
-const { readFromAdapter } = require('./readFromAdapter')
 const { resolveExternalContentValue } = require('./resolveExternalContentValue')
 const { validateFilePath } = require('./validateFilePath')
 
@@ -13,7 +12,6 @@ module.exports = {
     createExternalDataField,
     getOrCreateLoader,
     isFileMeta,
-    readFromAdapter,
     resolveExternalContentValue,
     validateFilePath,
 }

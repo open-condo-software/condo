@@ -1,12 +1,13 @@
+const { getObjectStream, readFileFromStream } = require('@open-condo/keystone/file/utils')
+
 const { getOrCreateLoader } = require('./getOrCreateLoader')
 const { isFileMeta } = require('./isFileMeta')
-const { readFromAdapter } = require('./readFromAdapter')
 
 /**
  * Resolves ExternalContent field value by reading file content from storage if needed.
  * 
  * For backward compatibility, returns inline JSON objects directly if they don't have file-meta structure.
- * For file-meta objects, fetches the file content and deserializes it.
+ * For file-meta objects, fetches the file content and deserializes it using the format stored in meta.
  * 
  * This utility is designed for use in:
  * 1. Field type resolvers (gqlOutputFieldResolvers)
@@ -20,7 +21,8 @@ const { readFromAdapter } = require('./readFromAdapter')
  * @param {unknown} value - The field value from database (could be inline JSON or file-meta)
  * @param {Object} options - Resolution options
  * @param {Object} options.adapter - File adapter instance (required)
- * @param {Function} options.deserialize - Deserialization function (required)
+ * @param {Function} options.deserialize - Deserialization function (required, used as fallback)
+ * @param {Object} [options.formatProcessors] - Map of format -> deserialize function (optional)
  * @param {Object} [options.context] - GraphQL context for DataLoader batching (optional)
  * @param {number} [options.batchDelayMs] - Batch delay for DataLoader (optional)
  * @param {string} [options.fieldPath] - Field path for error messages (optional)
@@ -31,6 +33,7 @@ const { readFromAdapter } = require('./readFromAdapter')
 async function resolveExternalContentValue (value, {
     adapter,
     deserialize,
+    formatProcessors,
     context,
     batchDelayMs,
     fieldPath = 'field',
@@ -67,7 +70,8 @@ async function resolveExternalContentValue (value, {
             buf = await loader.load(parsedValue)
         } else {
             // Fallback to direct read for non-GraphQL usage (tests, scripts, etc.)
-            buf = await readFromAdapter(adapter, parsedValue)
+            const stream = await getObjectStream(parsedValue, adapter)
+            buf = await readFileFromStream(stream)
         }
     } catch (err) {
         // Handle missing files gracefully - return null instead of crashing
@@ -86,6 +90,14 @@ async function resolveExternalContentValue (value, {
 
     try {
         const raw = buf.toString('utf-8')
+        
+        // Use format from file metadata if available and processors provided
+        const format = parsedValue?.meta?.format
+        if (format && formatProcessors && formatProcessors[format]) {
+            return formatProcessors[format].deserialize(raw)
+        }
+        
+        // Fall back to provided deserialize function
         return deserialize(raw)
     } catch (err) {
         const itemId = item?.id || 'unknown'

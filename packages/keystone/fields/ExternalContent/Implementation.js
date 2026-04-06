@@ -1,7 +1,7 @@
+const { randomUUID } = require('crypto')
 const { Readable } = require('stream')
 
 const { Implementation } = require('@open-keystone/fields')
-const cuid = require('cuid')
 
 const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -113,6 +113,7 @@ class ExternalContentImplementation extends Implementation {
         this.mimetype = finalMimetype
         this.fileExt = finalFileExt
         this.graphQLAdminFragment = graphQLAdminFragment
+        this.formatProcessors = byFormat
     }
 
     // GQL Output
@@ -166,41 +167,11 @@ class ExternalContentImplementation extends Implementation {
             [this.path]: async (item, args, context) => {
                 const value = item?.[this.path]
                 
-                // Parse value if it's a JSON string (from database storage)
-                let parsedValue = value
-                if (typeof value === 'string') {
-                    try {
-                        parsedValue = JSON.parse(value)
-                    } catch (err) {
-                        // If parsing fails, return as-is (backward compatibility)
-                        parsedValue = value
-                    }
-                }
-                
-                // For admin interface, return file metadata with publicUrl without loading content
-                // Admin context is detected via authedItem.isAdmin (from Keystone authentication)
-                const user = context?.authedItem || context?.req?.user || null
-                const isAdminUser = user?.isAdmin === true
-                
-                if (isAdminUser) {
-                    if (isFileMeta(parsedValue)) {
-                        const publicUrl = this.adapter.publicUrl(parsedValue)
-                        return {
-                            id: parsedValue.id,
-                            filename: parsedValue.filename,
-                            originalFilename: parsedValue.originalFilename,
-                            publicUrl,
-                            mimetype: parsedValue.mimetype,
-                        }
-                    }
-                    return parsedValue
-                }
-                
-                // For API requests, load and resolve the full content
                 try {
                     return await resolveExternalContentValue(value, {
                         adapter: this.adapter,
                         deserialize: this.deserialize,
+                        formatProcessors: this.formatProcessors,
                         context,
                         batchDelayMs: this.batchDelayMs,
                         fieldPath: this.path,
@@ -321,7 +292,7 @@ class ExternalContentImplementation extends Implementation {
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
         const prefix = listKey || 'item'
-        const id = cuid()
+        const id = randomUUID()
         // Include record ID in filename for uniqueness and consistency with backfill script.
         // Note: FileAdapter with saveFileName=false will generate actual unique filename.
         const originalFilename = `${prefix}_${this.path}_${id}.${this.fileExt}`
