@@ -263,7 +263,12 @@ function parserHandler ({ processRequestOptions } = {}) {
         form.parse(req, (err, fields, files) => {
             if (err) {
                 if (err.code === 'ETOOBIG') return next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req }))
-                logger.error({ msg: 'unexpected file parsing error', data: { req, err, fields } })
+                logger.error({
+                    msg: 'unexpected file parsing error',
+                    err,
+                    req,
+                    data: { fields },
+                })
                 return next(new GQLError(ERRORS.UNABLE_TO_PARSE_FILE_CONTENT, { req }, [err]))
             }
 
