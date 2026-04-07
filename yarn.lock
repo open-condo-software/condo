@@ -1540,6 +1540,7 @@ __metadata:
     body-parser: ^1.20.3
     body-parser-xml: ^2.0.3
     carbone: 3.2.3
+    commander: 14.0.1
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
