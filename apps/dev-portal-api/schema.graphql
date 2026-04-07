@@ -2809,8 +2809,11 @@ type B2CAppHistoryRecord {
   """
   _label_: String
   name: String
+  type: String
   logo: JSON
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -2849,6 +2852,24 @@ input B2CAppHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   logo: JSON
   logo_not: JSON
   logo_in: [JSON]
@@ -2871,6 +2892,10 @@ input B2CAppHistoryRecordWhereInput {
   developer_not_ends_with_i: String
   developer_in: [String]
   developer_not_in: [String]
+  developmentWebTransformEnabled: Boolean
+  developmentWebTransformEnabled_not: Boolean
+  productionWebTransformEnabled: Boolean
+  productionWebTransformEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2992,8 +3017,14 @@ input B2CAppHistoryRecordWhereUniqueInput {
 enum SortB2CAppHistoryRecordsBy {
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   developer_ASC
   developer_DESC
+  developmentWebTransformEnabled_ASC
+  developmentWebTransformEnabled_DESC
+  productionWebTransformEnabled_ASC
+  productionWebTransformEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3018,8 +3049,11 @@ enum SortB2CAppHistoryRecordsBy {
 
 input B2CAppHistoryRecordUpdateInput {
   name: String
+  type: String
   logo: JSON
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3043,8 +3077,11 @@ input B2CAppHistoryRecordsUpdateInput {
 
 input B2CAppHistoryRecordCreateInput {
   name: String
+  type: String
   logo: JSON
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3065,6 +3102,11 @@ input B2CAppHistoryRecordsCreateInput {
   data: B2CAppHistoryRecordCreateInput
 }
 
+enum B2CAppTypeType {
+  cordova
+  web
+}
+
 """ B2C application """
 type B2CApp {
   """
@@ -3079,12 +3121,23 @@ type B2CApp {
   """ Name of application """
   name: String
 
+  """ Type of application """
+  type: B2CAppTypeType
+
   """ Icon of application """
   logo: File
 
   """ Developer company name which will be exported. If not specified, creator name will be taken 
   """
   developer: String
+
+  """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for development environment 
+  """
+  developmentWebTransformEnabled: Boolean
+
+  """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for production environment 
+  """
+  productionWebTransformEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3137,6 +3190,10 @@ input B2CAppWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: B2CAppTypeType
+  type_not: B2CAppTypeType
+  type_in: [B2CAppTypeType]
+  type_not_in: [B2CAppTypeType]
   logo: String
   logo_not: String
   logo_in: [String]
@@ -3159,6 +3216,10 @@ input B2CAppWhereInput {
   developer_not_ends_with_i: String
   developer_in: [String]
   developer_not_in: [String]
+  developmentWebTransformEnabled: Boolean
+  developmentWebTransformEnabled_not: Boolean
+  productionWebTransformEnabled: Boolean
+  productionWebTransformEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3260,8 +3321,14 @@ input B2CAppWhereUniqueInput {
 enum SortB2CAppsBy {
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   developer_ASC
   developer_DESC
+  developmentWebTransformEnabled_ASC
+  developmentWebTransformEnabled_DESC
+  productionWebTransformEnabled_ASC
+  productionWebTransformEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3286,8 +3353,11 @@ enum SortB2CAppsBy {
 
 input B2CAppUpdateInput {
   name: String
+  type: B2CAppTypeType
   logo: FileMeta
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3308,8 +3378,11 @@ input B2CAppsUpdateInput {
 
 input B2CAppCreateInput {
   name: String
+  type: B2CAppTypeType
   logo: FileMeta
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5272,10 +5345,10 @@ type WebhookSubscriptionHistoryRecord {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: String
   id: ID!
   v: Int
   createdAt: String
@@ -5340,24 +5413,6 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: String
-  model_not: String
-  model_contains: String
-  model_not_contains: String
-  model_starts_with: String
-  model_not_starts_with: String
-  model_ends_with: String
-  model_not_ends_with: String
-  model_i: String
-  model_not_i: String
-  model_contains_i: String
-  model_not_contains_i: String
-  model_starts_with_i: String
-  model_not_starts_with_i: String
-  model_ends_with_i: String
-  model_not_ends_with_i: String
-  model_in: [String]
-  model_not_in: [String]
   fields: String
   fields_not: String
   fields_contains: String
@@ -5388,6 +5443,24 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
+  model: String
+  model_not: String
+  model_contains: String
+  model_not_contains: String
+  model_starts_with: String
+  model_not_starts_with: String
+  model_ends_with: String
+  model_not_ends_with: String
+  model_i: String
+  model_not_i: String
+  model_contains_i: String
+  model_not_contains_i: String
+  model_starts_with_i: String
+  model_not_starts_with_i: String
+  model_ends_with_i: String
+  model_not_ends_with_i: String
+  model_in: [String]
+  model_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5479,12 +5552,12 @@ enum SortWebhookSubscriptionHistoryRecordsBy {
   syncedAmount_DESC
   failuresCount_ASC
   failuresCount_DESC
-  model_ASC
-  model_DESC
   fields_ASC
   fields_DESC
   maxPackSize_ASC
   maxPackSize_DESC
+  model_ASC
+  model_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5509,10 +5582,10 @@ input WebhookSubscriptionHistoryRecordUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -5538,10 +5611,10 @@ input WebhookSubscriptionHistoryRecordCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -5603,9 +5676,6 @@ type WebhookSubscription {
   """
   failuresCount: Int
 
-  """ The data model (schema) that the webhook is subscribed to """
-  model: WebhookSubscriptionModelType
-
   """ String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }" 
   """
   fields: String
@@ -5617,6 +5687,9 @@ type WebhookSubscription {
   """ The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks. 
   """
   maxPackSize: Int
+
+  """ The data model (schema) that the webhook is subscribed to """
+  model: WebhookSubscriptionModelType
   id: ID!
   v: Int
   createdAt: String
@@ -5687,10 +5760,6 @@ input WebhookSubscriptionWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: WebhookSubscriptionModelType
-  model_not: WebhookSubscriptionModelType
-  model_in: [WebhookSubscriptionModelType]
-  model_not_in: [WebhookSubscriptionModelType]
   fields: String
   fields_not: String
   fields_contains: String
@@ -5721,6 +5790,10 @@ input WebhookSubscriptionWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
+  model: WebhookSubscriptionModelType
+  model_not: WebhookSubscriptionModelType
+  model_in: [WebhookSubscriptionModelType]
+  model_not_in: [WebhookSubscriptionModelType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5794,12 +5867,12 @@ enum SortWebhookSubscriptionsBy {
   syncedAmount_DESC
   failuresCount_ASC
   failuresCount_DESC
-  model_ASC
-  model_DESC
   fields_ASC
   fields_DESC
   maxPackSize_ASC
   maxPackSize_DESC
+  model_ASC
+  model_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5824,10 +5897,10 @@ input WebhookSubscriptionUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: WebhookSubscriptionModelType
   v: Int
   createdAt: String
   updatedAt: String
@@ -5850,10 +5923,10 @@ input WebhookSubscriptionCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: WebhookSubscriptionModelType
   v: Int
   createdAt: String
   updatedAt: String

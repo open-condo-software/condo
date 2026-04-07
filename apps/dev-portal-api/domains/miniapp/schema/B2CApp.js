@@ -11,8 +11,11 @@ const {
     FileAdapter,
     getMimeTypesValidator,
 } = require('@dev-portal-api/domains/common/utils/files')
+const { B2C_APP_TYPES, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
+
+const { getEnvironmentalFields } = require('./fields/environmental')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos', true)
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
@@ -24,6 +27,14 @@ const B2CApp = new GQLListSchema('B2CApp', {
             schemaDoc: 'Name of application',
             type: 'Text',
             isRequired: true,
+        },
+        type: {
+            schemaDoc: 'Type of application',
+            type: 'Select',
+            dataType: 'string',
+            isRequired: true,
+            options: B2C_APP_TYPES,
+            defaultValue: B2C_APP_CORDOVA_TYPE,
         },
         logo: {
             schemaDoc: 'Icon of application',
@@ -39,6 +50,14 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: 'Text',
             isRequired: false,
         },
+        ...getEnvironmentalFields('webTransformEnabled', {
+            schemaDoc:
+                'Enables automatic transformation from native environments to web ' +
+                'and allows automatic web-hosting on publish for {environment} environment',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+        }),
     },
     hooks: {
         validateInput: getSharedConstraintsValidator(['B2BApp']),
