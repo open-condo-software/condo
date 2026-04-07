@@ -232,9 +232,10 @@ class ExternalContentImplementation extends Implementation {
      * @param {Object} params.resolvedData - New field values
      * @param {Object} params.existingItem - Current item from database
      * @param {string} params.listKey - Name of the list/model
+     * @param {Object} [params.context] - Keystone context (used for authed user when generating public URLs)
      * @returns {Promise<Object|null|undefined>} File-meta object to store in DB
      */
-    async resolveInput ({ resolvedData, existingItem, listKey }) {
+    async resolveInput ({ resolvedData, existingItem, listKey, context }) {
         const nextValue = resolvedData[this.path]
 
         if (typeof nextValue === 'undefined') return undefined
@@ -292,7 +293,7 @@ class ExternalContentImplementation extends Implementation {
         }
 
         // Generate publicUrl using adapter's publicUrl method
-        const publicUrl = this.adapter.publicUrl(saved)
+        const publicUrl = this.adapter.publicUrl(saved, context?.authedItem)
 
         // Add _type marker and ensure meta.format is included for deserialization
         return { ...saved, publicUrl, meta: { format: this.format }, _type: FILE_META_TYPE }

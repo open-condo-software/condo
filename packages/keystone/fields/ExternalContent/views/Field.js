@@ -49,7 +49,7 @@ const ExternalContentField = ({ onChange, field, errors, value = '{}', isDisable
     // Update editValue when resolved content loads
     useEffect(() => {
         if (resolvedContent) {
-            setEditValue(resolvedContent)
+            setEditValue(typeof resolvedContent === 'string' ? resolvedContent : JSON.stringify(resolvedContent, null, 2))
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resolvedContent])
