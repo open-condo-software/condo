@@ -200,6 +200,17 @@ class OneSignalAdapter {
         return [notifications, fakeNotifications, pushContext]
     }
 
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        if (!response.errors) return false
+        if (Array.isArray(response.errors) && response.errors.includes('All included players are not subscribed')) {
+            return true
+        }
+        else if (response.errors.invalid_player_ids?.length) {
+            return !!response.errors.invalid_player_ids.find(providerPushToken => response.pushToken === providerPushToken)
+        }
+        return false
+    }
+
     async sendNotificationsForApp ({ appId, notificationsBatchForApp, pushTypes, appIds, metaByToken, isVoIP }) {
         const app = this.appsByAppId[appId]
         if (!app) {

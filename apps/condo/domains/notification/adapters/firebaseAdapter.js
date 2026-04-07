@@ -226,6 +226,12 @@ class FirebaseAdapter {
         return [notifications, fakeNotifications, pushContext]
     }
 
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://firebase.google.com/docs/cloud-messaging/error-codes
+        if (get(response, 'error.code') === 'messaging/registration-token-not-registered') return true
+        return false
+    }
+
     /**
      * Manages to send notification to all available pushTokens of the user.
      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes

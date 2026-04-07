@@ -204,6 +204,13 @@ class AppleAdapter {
         return [notifications, fakeNotifications, pushContext]
     }
 
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://developer.apple.com/documentation/usernotifications/handling-notification-responses-from-apns
+        if (response?.error?.reason === 'Unregistered') return true
+        if (response?.error?.reason === 'ExpiredToken') return true
+        return false
+    }
+
     /**
      * Manages to send notification to all available pushTokens of the user.
      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes

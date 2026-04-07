@@ -57,13 +57,19 @@ const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-c
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
-const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
+const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE, ALL_TOKENS_ARE_INVALID_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
+const { HCMAdapter } = require('@condo/domains/notification/adapters/hcmAdapter')
+const { OneSignalAdapter } = require('@condo/domains/notification/adapters/oneSignalAdapter')
+const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const {
     BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
     CUSTOM_CONTENT_MESSAGE_TYPE,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     DEVICE_PLATFORM_ANDROID,
     PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_APPLE,
+    PUSH_TRANSPORT_ONESIGNAL,
+    PUSH_TRANSPORT_REDSTORE,
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
@@ -74,11 +80,13 @@ const {
     MESSAGE_ERROR_STATUS,
     PUSH_TRANSPORT, DEVICE_PLATFORM_TYPES, PUSH_TRANSPORT_TYPES, PUSH_TRANSPORT_WEBHOOK,
     REMOTE_CLIENT_GROUP_UNGROUPED,
+    PUSH_FAKE_TOKEN_FAIL,
 } = require('@condo/domains/notification/constants/constants')
 const { prepareMessageData } = require('@condo/domains/notification/tasks/sendMessageBatch.helpers')
-const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { Message, sendMessageByTestClient, syncRemoteClientByTestClient, RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+
 
 
 function mockGetTokensModule (mockGetTokens) {
@@ -1833,6 +1841,138 @@ describe('push transport', () => {
             expect(pushContext[PUSH_TYPE_DEFAULT].notification.title).toEqual(batch.title)
         })
     })
-})
 
+    describe('expired pushToken cleanup', () => {
+        const testMessageType = BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE
+        let residentUser
+        let payload
+
+        beforeAll(async () => {
+            residentUser = await makeClientWithResidentUser()
+            payload = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: 'test-tokens-invalidation-app',
+                pushToken: null,
+                pushTokenVoIP: null,
+            })
+        })
+
+        function getAdapterMock (adapterType, error) {
+            const staticProperties = { 
+                ...adapterType,
+            }
+            Object.getOwnPropertyNames(adapterType)
+                .filter(k => typeof adapterType[k] === 'function' )
+                .forEach(k => staticProperties[k] = adapterType[k])
+            return {
+                constructor: staticProperties,
+                sendNotification: jest.fn(({ tokens }) => {
+                    return [false, {
+                        responses: tokens.map(token => ({
+                            pushToken: token,
+                            success: false,
+                            ...(typeof error === 'function') ? error(token) : error,
+                        })),
+                        failureCount: tokens.length,
+                        successCount: 0,
+                    }]
+                }),
+            }
+        }
+
+        function mockAdapter ({ adapterType, adapterFileName, error }) {
+            const mock = getAdapterMock(adapterType, error)
+            const fileName = adapterFileName || (adapterType.name[0].toLowerCase() + adapterType.name.slice(1))
+            jest.doMock(`@condo/domains/notification/adapters/${fileName}`, () => ({
+                [adapterType.name]: jest.fn(() => mock),
+            }))
+            jest.doMock('@open-condo/keystone/schema', () => {
+                return {
+                    find: async (schemaName, where) => getSchemaCtx(schemaName).list.adapter.find(where),
+                    getSchemaCtx: (schemaName) => getSchemaCtx(schemaName),
+                }
+            })
+        }
+
+        const TEST_CASES = [
+            { 
+                adapter: FirebaseAdapter,
+                pushTransportType: PUSH_TRANSPORT_FIREBASE,
+                expectedErrors: [
+                    { error: { code: 'messaging/registration-token-not-registered' } },
+                ],
+            },
+            { 
+                adapter: AppleAdapter,
+                pushTransportType: PUSH_TRANSPORT_APPLE,
+                expectedErrors: [
+                    { error: { reason: 'Unregistered' } },
+                    { error: { reason: 'ExpiredToken' } },
+                ],
+            },
+            { 
+                adapter: HCMAdapter,
+                adapterFileName: 'hcmAdapter',
+                pushTransportType: PUSH_TRANSPORT_HUAWEI,
+                expectedErrors: [
+                    { code: ALL_TOKENS_ARE_INVALID_CODE },
+                    (token) => (
+                        { code: PUSH_PARTIAL_SUCCESS_CODE, msg: JSON.stringify({ illegal_tokens: [token] }) }
+                    ),
+                ],
+            },
+            { 
+                adapter: RedStoreAdapter,
+                pushTransportType: PUSH_TRANSPORT_REDSTORE,
+                expectedErrors: [
+                    { error: { status: 'NOT_FOUND', code: 404 } },
+                ],
+            },
+            { 
+                adapter: OneSignalAdapter,
+                pushTransportType: PUSH_TRANSPORT_ONESIGNAL,
+                expectedErrors: [
+                    { errors: ['All included players are not subscribed'] },
+                    (token) => ({ errors: { invalid_player_ids: [token] } }),
+                ],
+            },
+        ]
+        
+        describe.each(TEST_CASES)('$adapter.name', ({ adapter, adapterFileName, pushTransportType, expectedErrors }) => {
+
+            test.each(expectedErrors)('%#', async (expectedError) => {
+                const fakeFailToken = getRandomFakeFailToken()
+                const [remoteClient] = await syncRemoteClientByTestClient(residentUser, {
+                    ...payload,
+                    pushTokens: [
+                        { token: fakeFailToken, transport: pushTransportType, isPush: true, isVoIP: false },
+                    ],
+                })
+                const remoteClientPushToken = await RemoteClientPushToken.getOne(admin, { remoteClient: { id: remoteClient.id } })
+
+                jest.resetModules()
+                mockAdapter({ adapterType: adapter, adapterFileName, error: expectedError })
+                const pushTransport = requirePushTransportIsolated()
+
+                const [isOk] = await pushTransport.send({
+                    notification: { title: 'Test', body: 'Test' },
+                    data: { notificationId: faker.datatype.uuid(), type: testMessageType, messageCreatedAt: new Date().toISOString() },
+                    message: { id: faker.datatype.uuid(), type: testMessageType, lang: conf.DEFAULT_LOCALE, meta: { dv: 1, data: {} } },
+                    remoteClient: { id: remoteClient.id },
+                })
+                expect(isOk).toEqual(false)
+
+                const updatedRemoteClient = await RemoteClient.getOne(admin, { id: remoteClient.id })
+                expect(updatedRemoteClient.pushToken).toBeNull()
+                expect(updatedRemoteClient.pushTransport).toBeNull()
+
+                const [pushToken] = await RemoteClientPushToken.getAll(admin, { id: remoteClientPushToken.id, deletedAt_not: null })
+                expect(pushToken).toBeDefined()
+                expect(pushToken.deletedAt).not.toBeNull()
+            })
+
+        })
+
+    })
+})
 

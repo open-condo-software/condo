@@ -29,6 +29,7 @@ const {
 const {
     DEFAULT_NOTIFICATION_OPTIONS,
     PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE, SUCCESS_CODES,
+    ALL_TOKENS_ARE_INVALID_CODE,
 } = require('./hcm/constants')
 const HCMMessaging = require('./hcm/messaging')
 
@@ -247,6 +248,18 @@ class HCMAdapter {
         return [notifications, fakeNotifications, pushContext]
     }
 
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://developer.huawei.com/consumer/en/doc/quickapp-access-push-kit#h2-1582279813559
+        if (response?.code === ALL_TOKENS_ARE_INVALID_CODE) return true
+        if (response?.code === PUSH_PARTIAL_SUCCESS_CODE) {
+            try {
+                const msg = JSON.parse(response.msg)
+                return !!(msg?.illegal_tokens ?? []).find(illegalToken => response.pushToken === illegalToken)
+            } catch { /**/ }
+        }
+        return false
+    }
+
     /**
      * Manages to send notification to all available pushTokens of the user.
      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
@@ -382,4 +395,4 @@ class HCMAdapter {
 
 }
 
-module.exports = HCMAdapter
+module.exports = { HCMAdapter }

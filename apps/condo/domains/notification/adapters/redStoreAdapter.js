@@ -148,6 +148,13 @@ class RedStoreAdapter {
         return [notifications, fakeNotifications, pushContext]
     }
 
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        const error = response?.error
+        if (!error || typeof error !== 'object') return false
+        if (error.status === 'NOT_FOUND' && error.code === 404) return true
+        return false
+    }
+
     /**
      * Manages to send notification to all available pushTokens of the user.
      */

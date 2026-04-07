@@ -8,7 +8,7 @@ const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
-const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
+const { HCMAdapter } = require('@condo/domains/notification/adapters/hcmAdapter')
 const { OneSignalAdapter } = require('@condo/domains/notification/adapters/oneSignalAdapter')
 const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const { WebhookAdapter } = require('@condo/domains/notification/adapters/webhookAdapter')
@@ -26,7 +26,7 @@ const {
     PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
-const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
 const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
 const { encryptPushData } = require('@condo/domains/notification/utils/serverSchema/push/encryption')
 const { getTokens, groupIntoParallelGroupsWithSequentialBatches } = require('@condo/domains/notification/utils/serverSchema/push/helpers')
@@ -125,31 +125,56 @@ const mixResult = (container, result, additionalResponsesData = {}) => {
 }
 
 async function deleteRemoteClientsIfTokenIsInvalid ({ transportType, result, isVoIP }) {
-    if (transportType === PUSH_TRANSPORT_FIREBASE) {
-        // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
-        if (get(result, 'responses')) {
-            for (const res of result.responses) {
-                const context = getSchemaCtx('RemoteClient')
-                if (get(res, 'error.code') === 'messaging/registration-token-not-registered') {
-                    const field = isVoIP ? 'pushTokenVoIP' : 'pushToken'
-                    const [remoteClient] = await find('RemoteClient', {
-                        [field]: res.pushToken,
-                        deletedAt: null,
-                    })
+    const cleanRemoteClientsArgs = []
+    const deleteRemoteClientPushTokensArgs = []
+    for (const response of result?.responses ?? []) {
+        if (!ADAPTERS[transportType].constructor.shouldClearPushTokenByErrorsInResponse?.(response)) continue
 
-                    if (get(remoteClient, 'id')) {
-                        await RemoteClient.update(context, get(remoteClient, 'id'), {
-                            [field]: null,
-                            dv: 1,
-                            sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
-                        })
-                        logger.info({ msg: 'remove expired FCM token', data: { remoteClientId: remoteClient.id, field } })
-                    }
-                }
-            }
+        const tokenField = isVoIP ? 'pushTokenVoIP' : 'pushToken'
+        const transportField = isVoIP ? 'pushTransportVoIP' : 'pushTransport'
+        const [remoteClient] = await find('RemoteClient', {
+            [tokenField]: response.pushToken,
+            [transportField]: transportType,
+            deletedAt: null,
+        })
+        const [remoteClientPushToken] = await find('RemoteClientPushToken', {
+            token: response.pushToken,
+            provider: transportType,
+        })
+
+        if (get(remoteClient, 'id')) {
+            cleanRemoteClientsArgs.push({
+                id: remoteClient.id,
+                data: {
+                    [tokenField]: null,
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'internal-update-token-not-registered' },
+                },
+            })
+            logger.info({ msg: `remove expired ${transportType} token`, entityName: 'RemoteClient', entityId: remoteClient.id, data: { tokenField } })
+        }
+        if (get(remoteClientPushToken, 'id')) {
+            deleteRemoteClientPushTokensArgs.push({
+                id: remoteClientPushToken.id,
+                data: {
+                    deletedAt: new Date().toISOString(),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'internal-update-token-not-registered' },
+                },
+            })
+            logger.info({ msg: `remove expired ${transportType} token`, entityName: 'RemoteClientPushToken', entityId: remoteClientPushToken.id })
         }
     }
-    // TODO: handle invalid / expired tokens for apple and others
+
+    const { keystone } = getSchemaCtx('RemoteClient')
+    const context = await keystone.createContext({ skipAccessControl: true })
+
+    if (cleanRemoteClientsArgs.length) {
+        await RemoteClient.updateMany(context, cleanRemoteClientsArgs)
+    }
+    if (deleteRemoteClientPushTokensArgs.length) {
+        await RemoteClientPushToken.updateMany(context, deleteRemoteClientPushTokensArgs)
+    }
 }
 
 async function sendMessageToTransports ({ recipients, isVoIP }) {
@@ -228,7 +253,6 @@ async function sendSequentialBatchesInGroup ({ groupName, sequentialBatchesInGro
 async function prepareRecipients ({ pushTokens, originalData, originalNotification, message }) {
     const statsInfo = { encryption: {} }
     const notificationsByAppId = await prepareNotificationsByAppId({ message, appIds: pushTokens.map(pushToken => pushToken.appId) })
-
     const recipients = []
     for (const pushToken of pushTokens) {
         const adapter = ADAPTERS[pushToken.transport]
@@ -280,7 +304,6 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     }
 
     const pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
-
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.
     const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(message, 'type'))
@@ -293,7 +316,6 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     let container = { failureCount: 0, successCount: 0, responses: [] }
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
-
     const invalidRecipients = recipients.filter(recipient => !recipient.notification || !recipient.data)
     recipients = recipients.filter(recipient => !invalidRecipients.includes(recipient))
 

@@ -119,6 +119,10 @@ class WebhookAdapter {
         return [notifications, {}]
     }
 
+    static shouldClearPushTokenByErrorsInResponse () {
+        return false
+    }
+
     /**
      * Sends notification via webhook with message type based routing
      * @param {Object} options - Notification options
