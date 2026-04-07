@@ -13,9 +13,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
-    MULTIPAYMENT_INIT_STATUS,
     MULTIPAYMENT_DONE_STATUS,
-    PAYMENT_INIT_STATUS,
     PAYMENT_DONE_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const { ERRORS, PAYMENTS_LIMIT } = require('@condo/domains/acquiring/constants/registerExternalPayments')
@@ -37,7 +35,7 @@ function validatePayments (payments, context) {
         if (dayjs(transactionDate).toISOString() !== transactionDate) {
             throw new GQLError({ ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: transactionDate, transactionId } }, context)
         }
-        if (depositedDate && dayjs(depositedDate).toISOString() === depositedDate) {
+        if (depositedDate && dayjs(depositedDate).toISOString() !== depositedDate) {
             throw new GQLError({ ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: depositedDate, transactionId } }, context)
         }
 
@@ -117,13 +115,10 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
 
                 validatePayments(paymentsInput, context)
 
-                const createdPaymentsIds = []
-                const createdMultiPaymentsIds = []
-
                 for (const input of paymentsInput) {
                     const payment = await Payment.create(context, {
                         dv: 1, sender,
-                        status: PAYMENT_INIT_STATUS,
+                        status: PAYMENT_DONE_STATUS,
                         amount: Big(input.amount).toFixed(2),
                         explicitFee: Big(input.explicitFee || 0).toFixed(2),
                         implicitFee: Big(input.implicitFee || 0).toFixed(2),
@@ -138,10 +133,11 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                         order: input.paymentOrder,
                         organization: { connect: { id: acquiringContext.organization } },
                         context: { connect: { id: acquiringContext.id } },
-                    }, 'id')
+                    })
 
-                    const multiPayment = await MultiPayment.create(context, {
+                    await MultiPayment.create(context, {
                         dv: 1, sender,
+                        status: MULTIPAYMENT_DONE_STATUS,
                         amountWithoutExplicitFee: Big(input.amount).toFixed(2),
                         explicitFee: Big(input.explicitFee || 0).toFixed(2),
                         implicitFee: Big(input.implicitFee || 0).toFixed(2),
@@ -150,20 +146,10 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                         integration: { connect: { id: acquiringIntegration.id } },
                         payments: { connect: [{ id: payment.id }] },
                         serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
-                        status: MULTIPAYMENT_INIT_STATUS,
-                        // TODO: fix cardNumber and paymentWay. They are required by DONE status but external payments have no these fields
-                        cardNumber: 'IMPORT',
-                        paymentWay: 'CARD',
                         transactionId: input.transactionId,
                         withdrawnAt: input.transactionDate,
-                    }, 'id')
-
-                    createdPaymentsIds.push(payment.id)
-                    createdMultiPaymentsIds.push(multiPayment.id)
+                    })
                 }
-
-                await Payment.updateMany(context, createdPaymentsIds.map(id => ({ id, data: { dv: 1, sender, status: PAYMENT_DONE_STATUS } })))
-                await MultiPayment.updateMany(context, createdMultiPaymentsIds.map(id => ({ id, data: { dv: 1, sender, status: MULTIPAYMENT_DONE_STATUS } })))
 
                 return { status: 'ok' }
             },

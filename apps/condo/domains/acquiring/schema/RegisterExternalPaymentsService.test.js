@@ -222,6 +222,29 @@ describe('RegisterExternalPaymentsService', () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
             }, ERRORS.INVALID_PAYMENT_AMOUNT)
         })
+
+        test('Should allow same transactionId for different integrations', async () => {
+            const transactionId = faker.datatype.uuid()
+
+            const [anotherIntegration] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
+            const [anotherOrganization] = await createTestOrganization(admin)
+            const [anotherContext] = await createTestAcquiringIntegrationContext(admin, anotherOrganization, anotherIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const firstPayload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ transactionId })],
+            }
+            await registerExternalPaymentsByTestClient(admin, firstPayload)
+
+            const secondPayload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: anotherContext.id },
+                payments: [getExternalPayment({ transactionId })],
+            }
+            const [data] = await registerExternalPaymentsByTestClient(admin, secondPayload)
+            expect(data.status).toBe('ok')
+        })
     })
 
     describe('Logic', () => {

@@ -32,7 +32,7 @@ const {
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
     MULTIPAYMENT_DELETED_PAYMENTS,
-    MULTIPAYMENT_NON_INIT_PAYMENTS,
+    MULTIPAYMENT_NON_MATCHING_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
     MULTIPAYMENT_NOT_UNIQUE_INVOICES,
@@ -47,7 +47,6 @@ const {
     MULTIPAYMENT_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELDS,
     PAYMENT_DONE_STATUS,
-    PAYMENT_INIT_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     CURRENCY_CODE_FIELD,
@@ -272,11 +271,14 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     id_in: paymentsIds,
                 })
 
-                const noInitPayments = payments
-                    .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
+                const multiPaymentStatus = resolvedData?.status
+
+                const mismatchedPayments = payments
+                    .filter(payment => payment.status !== multiPaymentStatus)
                     .map(payment => payment.id)
-                if (noInitPayments.length) {
-                    addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+
+                if (mismatchedPayments.length) {
+                    addValidationError(`${MULTIPAYMENT_NON_MATCHING_PAYMENTS} Expected status: "${multiPaymentStatus}". Failed ids: ${mismatchedPayments.join(', ')}`)
                 }
 
                 const alreadyWithMPPayments = payments

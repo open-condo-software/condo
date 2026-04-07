@@ -68,7 +68,7 @@ const MULTIPAYMENT_EXPLICIT_FEE_MISMATCH = '[multiPayment:explicitFee:formulaMis
 const MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH = '[multiPayment:explicitServiceCharge:formulaMismatch] Explicit service charge equality is not satisfied (multiPayment.explicitServiceCharge = sum of multiPayment.payments.explicitServiceCharge)'
 const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitFee:inconsistentBehaviour] Implicit fee must be indicated either for all payments, or for none of them, but was partially indicated'
 const MULTIPAYMENT_INCONSISTENT_SERVICE_FEE = '[multiPayment:payments:serviceFee:inconsistentBehaviour] Service fee must be indicated either for all payments, or for none of them, but was partially indicated'
-const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
+const MULTIPAYMENT_NON_MATCHING_PAYMENTS = '[multiPayment:payments:status:mismatch] MultiPayment cannot be created if any of payments has status different from multipayment status.'
 const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayment:not:null] Some of payments are already linked to multipayments.'
 const MULTIPAYMENT_NOT_UNIQUE_INVOICES = 'MULTIPAYMENT_NOT_UNIQUE_INVOICES'
 const MULTIPAYMENT_MULTIPLE_INTEGRATIONS = 'MULTIPAYMENT_MULTIPLE_INTEGRATIONS'
@@ -186,7 +186,7 @@ module.exports = {
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
     MULTIPAYMENT_DELETED_PAYMENTS,
-    MULTIPAYMENT_NON_INIT_PAYMENTS,
+    MULTIPAYMENT_NON_MATCHING_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
