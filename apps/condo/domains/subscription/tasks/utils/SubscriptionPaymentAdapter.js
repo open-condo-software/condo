@@ -5,13 +5,13 @@ const logger = getLogger('SubscriptionPaymentAdapter')
 
 class SubscriptionPaymentAdapter {
 
-    static async proceedPayment ({ directPaymentUrl, cardTokenId }) {
+    static async proceedPayment({ directPaymentUrl, cardTokenId }) {
         try {
             const url = new URL(directPaymentUrl)
             url.searchParams.append('cardTokenId', cardTokenId)
 
             const response = await fetch(url.toString())
-            
+
             if (!response.ok) {
                 const errorText = await response.text()
                 logger.error({
@@ -25,16 +25,14 @@ class SubscriptionPaymentAdapter {
             }
 
             const data = await response.json()
-            const status = data?.status
-            const paymentId = data?.paymentId
-            const cancellationDetails = data?.cancellationDetails
+            const { isSucceeded, isCanceled, paymentId, cancellationDetails } = data
 
-            if (status === 'success' && paymentId) {
+            if (isSucceeded && paymentId) {
                 logger.info({ msg: 'payment succeeded', data: { paymentId, cardTokenId } })
                 return { status: 'success', paid: true, paymentId }
-            } else if (status === 'canceled') {
+            } else if (isCanceled) {
                 const cancelReason = cancellationDetails?.reason || 'Unknown error'
-                logger.warn({ msg: 'payment canceled', data: { status, cardTokenId, cancellationDetails, response: data } })
+                logger.warn({ msg: 'payment canceled', data: { isCanceled, cardTokenId, cancellationDetails, response: data } })
                 return {
                     status: 'canceled',
                     paid: false,
@@ -43,9 +41,9 @@ class SubscriptionPaymentAdapter {
                 }
             } else {
                 const errorMessage = data?.error || 'Payment failed'
-                logger.warn({ msg: 'payment not successful', data: { status, cardTokenId, response: data } })
+                logger.warn({ msg: 'payment not successful', data: { isSucceeded, isCanceled, cardTokenId, response: data } })
                 return {
-                    status,
+                    status: 'failed',
                     paid: false,
                     errorMessage,
                 }
@@ -64,7 +62,7 @@ class SubscriptionPaymentAdapter {
         }
     }
 
-    static async deleteCardToken ({ hostUrl, organizationId, cardTokenId }) {
+    static async deleteCardToken({ hostUrl, organizationId, cardTokenId }) {
         try {
             const deleteUrl = `${hostUrl}/api/clients/${organizationId}/card-tokens/${cardTokenId}`
             const secret = conf['B2B_PAYMENT_GATEWAY_SECRET']
@@ -76,7 +74,7 @@ class SubscriptionPaymentAdapter {
                     'Authorization': `Basic ${credentials}`,
                 }
             }
-            
+
             const response = await fetch(deleteUrl, options)
 
             if (!response.ok) {
