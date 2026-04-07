@@ -136,7 +136,6 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                         depositedDate: input.depositedDate,
                         rawAddress: input.address,
                         order: input.paymentOrder,
-                        importId: input.transactionId,
                         organization: { connect: { id: acquiringContext.organization } },
                         context: { connect: { id: acquiringContext.id } },
                     }, 'id')

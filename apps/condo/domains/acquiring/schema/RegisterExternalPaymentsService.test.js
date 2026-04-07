@@ -3,6 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 
+const { find } = require('@open-condo/keystone/schema')
 const { 
     makeLoggedInAdminClient, 
     expectToThrowGQLErrorToResult, 
@@ -13,6 +14,7 @@ const {
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
+const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     ERRORS,
     PAYMENTS_LIMIT,
@@ -23,6 +25,7 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { MultiPayment, Payment } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithServiceUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -222,8 +225,24 @@ describe('RegisterExternalPaymentsService', () => {
     })
 
     describe('Logic', () => {
-        test('', async () => {
+        test('Should create payment and multipayment in DONE status', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [{
+                    ...getExternalPayment(),
+                }],
+            }
 
+            const [{ status }] = await registerExternalPaymentsByTestClient(admin, payload)
+            
+            expect(status).toBe('ok')
+            
+            const multipayment = await MultiPayment.getOne(admin, { transactionId: payload.payments[0].transactionId })
+            expect(multipayment.status).toBe(MULTIPAYMENT_DONE_STATUS)
+
+            const payment = await Payment.getOne(admin, { id: multipayment.payments[0].id })
+            expect(payment.status).toBe(PAYMENT_DONE_STATUS)
         })
     })
 })
