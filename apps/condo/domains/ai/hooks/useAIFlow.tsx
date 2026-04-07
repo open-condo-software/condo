@@ -25,6 +25,7 @@ type FlowType = typeof FLOW_TYPES_LIST[number]
 
 type UseAIFlowPropsType<T = object> = {
     flowType: FlowType
+    flowStage?: string
     itemId?: string
     modelName?: string
     defaultContext?: object
@@ -58,6 +59,7 @@ const TASK_POLLING_INTERVAL_MS = 1000
 
 export function useAIFlow<T = object> ({
     flowType,
+    flowStage,
     modelName,
     itemId,
     defaultContext = {},
@@ -191,6 +193,7 @@ export function useAIFlow<T = object> ({
                 dv: 1,
                 sender: getClientSideSenderInfo(),
                 flowType,
+                flowStage,
                 modelName,
                 itemId,
                 organization: { connect: { id: organization.id } },

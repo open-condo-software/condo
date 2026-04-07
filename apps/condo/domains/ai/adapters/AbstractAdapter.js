@@ -7,11 +7,13 @@ class AbstractAdapter {
     }
 
     /**
+     * @param {string} flowType
      * @param {string} predictUrl
      * @param {object} context
-     * @return {Promise<{result: string, _fullResult: any}>}
+     * @param {(event: { type: string, content?: string, meta?: object }) => Promise<void>|void} onEvent
+     * @return {Promise<{result: object, _response: any}>}
      */
-    async execute (predictUrl, context) {
+    async execute (flowType, predictUrl, context, onEvent) {
         throw new Error('Method not implemented!')
     }
 }
