@@ -252,6 +252,10 @@ for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
     }
 }
 
+const FLOW_STAGES = {
+    [FLOW_TYPES.CHAT_WITH_CONDO]: { enum: ['router', 'summary'] },
+}
+
 module.exports = {
     TASK_STATUSES,
     FLOW_TYPES,
@@ -260,4 +264,5 @@ module.exports = {
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
     CHAT_WITH_CONDO_FLOW_TYPE,
+    FLOW_STAGES,
 }

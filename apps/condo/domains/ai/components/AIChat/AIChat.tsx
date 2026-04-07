@@ -1,5 +1,5 @@
 import { useApolloClient } from '@apollo/client'
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -9,7 +9,8 @@ import { Input, Space, Typography } from '@open-condo/ui'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
-import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
+import { useAIFlowStream } from '@condo/domains/ai/hooks/useAIFlowStream'
+import { runToolCall } from '@condo/domains/ai/utils/toolCalls'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 import styles from './AIChat.module.css'
@@ -17,24 +18,21 @@ import { AIChatMessage } from './AIChatMessage'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
 
-// Tools that require user action or data from condo can be run recursively
-// -- this setting clamps the maximum depth for these tool calls
-const MAX_TOOL_CALL_DEPTH = 10
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
 
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
 
-export type MessageContent = {
-    text: string
-}
-
 export type Message = {
     id: string
-    content: MessageContent
+    content: {
+        text: string
+    }
     role: 'user' | 'assistant'
     timestamp: Date
     status?: 'sending' | 'sent' | 'error'
+    stage?: 'router' | 'summary'
     executionAIFlowTaskId?: string
+    userInput?: string
 }
 
 type AIChatProps = {
@@ -52,30 +50,70 @@ export const AIChat: React.FC<AIChatProps> = ({
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
-    const toolDepthExceededMessage = intl.formatMessage({ id: 'ai.chat.toolDepthExceeded' })
     const noResponseMessage = intl.formatMessage({ id: 'ai.chat.noResponse' })
-    const executingToolsMessage = intl.formatMessage({ id: 'ai.chat.executingTools' })
-    const errorExecutingToolsMessage = intl.formatMessage({ id: 'ai.chat.errorExecutingTools' })
+    const dataFetchingMessage = intl.formatMessage({ id: 'ai.chat.dataFetching' })
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-
     const client = useApolloClient()
 
     const [inputValue, setInputValue] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
+    const [isInputLocked, setIsInputLocked] = useState(false)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
+    const currentSummaryMessageIdRef = useRef<string | null>(null)
+    const resumedTaskIdRef = useRef<string | null>(null)
 
-    const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
-        aiSessionId: aiSessionId,
+    const [{ execute: executeRouterFlow, resume: resumeRouterFlow }, { loading: routerLoading, currentTaskId: routerTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+        aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+        flowStage: 'router',
         timeout: AI_FLOW_TIMEOUT_MS,
         defaultContext: {
             userTimezoneName: Intl.DateTimeFormat().resolvedOptions().timeZone,
             userTimezoneOffset: new Date().getTimezoneOffset(),
             currentUrl: typeof window !== 'undefined' ? window.location.href : null,
+        },
+    })
+    const [{ resume: resumeSummaryFlow }] = useAIFlow<{ answer: string }>({
+        aiSessionId,
+        flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+        flowStage: 'summary',
+        timeout: AI_FLOW_TIMEOUT_MS,
+    })
+
+    const [executeSummaryFlowStream, { loading: summaryLoading, currentTaskId: summaryTaskId }] = useAIFlowStream<{ answer: string }>({
+        flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+        flowStage: 'summary',
+        timeout: AI_FLOW_TIMEOUT_MS,
+        onChunk: (message) => {
+            const messageId = currentSummaryMessageIdRef.current
+            if (!messageId) return
+
+            if (message.type === 'flow_start') {
+                setMessages(prev => prev.map((msg) => msg.id === messageId ? { ...msg, content: { text: '' } } : msg))
+                return
+            }
+
+            if (message.type === 'flow_item' && message.item) {
+                setMessages(prev => prev.map((msg) => msg.id === messageId ? { ...msg, content: { text: `${msg.content.text}${message.item}` } } : msg))
+                return
+            }
+
+            if (message.type === 'flow_end' || message.type === 'task_end' || message.type === 'task_complete') {
+                setMessages(prev => prev.map((msg) => msg.id === messageId ? { ...msg, status: 'sent' } : msg))
+                setIsInputLocked(false)
+                currentSummaryMessageIdRef.current = null
+                return
+            }
+
+            if (message.type === 'flow_error' || message.type === 'task_error') {
+                setMessages(prev => prev.map((msg) => msg.id === messageId ? { ...msg, content: { text: errorMessage }, status: 'error' } : msg))
+                setIsInputLocked(false)
+                currentSummaryMessageIdRef.current = null
+            }
         },
     })
 
@@ -102,23 +140,23 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         // Convert timestamp strings back to Date objects
-        const historyWithDates = historyArray.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp),
-        }))
+        const historyWithDates = historyArray.map((msg: any) => {
+            const text = typeof msg.content === 'string' ? msg.content : msg?.content?.text
+            return {
+                ...msg,
+                content: { text: text || '' },
+                timestamp: new Date(msg.timestamp),
+            }
+        })
         setMessages(historyWithDates)
 
-        // Check for active task in the last message and resume if needed
         const lastMessage = historyWithDates[historyWithDates.length - 1]
-
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
-            resume(lastMessage.executionAIFlowTaskId)
+            setIsInputLocked(true)
+        } else {
+            setIsInputLocked(false)
         }
-    }, [aiSessionId, resume])
-
-    const canExecuteAIFlow = useMemo(() => {
-        return !(currentTaskId && loading)
-    }, [currentTaskId, loading])
+    }, [aiSessionId])
 
     const addMessage = useCallback((newMessage: Message) => {
         setMessages(prev => {
@@ -132,11 +170,29 @@ export const AIChat: React.FC<AIChatProps> = ({
         })
     }, [])
 
-    const removeMessage = useCallback((messageId: string) => {
+    useEffect(() => {
+        if (!routerTaskId) return
         setMessages(prev => {
-            return prev.filter(msg => msg.id !== messageId)
+            return prev.map((msg) => {
+                if (msg.role === 'assistant' && msg.status === 'sending' && msg.stage === 'router' && !msg.executionAIFlowTaskId) {
+                    return { ...msg, executionAIFlowTaskId: routerTaskId }
+                }
+                return msg
+            })
         })
-    }, [])
+    }, [routerTaskId])
+
+    useEffect(() => {
+        if (!summaryTaskId) return
+        setMessages(prev => {
+            return prev.map((msg) => {
+                if (msg.id === currentSummaryMessageIdRef.current && !msg.executionAIFlowTaskId) {
+                    return { ...msg, executionAIFlowTaskId: summaryTaskId }
+                }
+                return msg
+            })
+        })
+    }, [summaryTaskId])
 
     const saveMessagesToLocalStorage = useCallback(() => {
         try {
@@ -163,25 +219,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [aiSessionId, messages, saveMessagesToLocalStorage])
 
-    // Update message with executionAIFlowTaskId when currentTaskId changes
-    useEffect(() => {
-        if (currentTaskId) {
-            // Find the last assistant message with 'sending' status and update it with currentTaskId
-            setMessages(prev => {
-                const updated = prev.map(msg => {
-                    if (msg.role === 'assistant' && msg.status === 'sending' && !msg.executionAIFlowTaskId) {
-                        return {
-                            ...msg,
-                            executionAIFlowTaskId: currentTaskId,
-                        }
-                    }
-                    return msg
-                })
-                return updated
-            })
-        }
-    }, [currentTaskId])
-
     const scrollToBottom = useCallback(() => {
         const messagesContainer = messagesEndRef.current?.parentElement
         if (messagesContainer) {
@@ -200,141 +237,219 @@ export const AIChat: React.FC<AIChatProps> = ({
         }, 100)
     }, [])
 
-    const executeAIMessage = useCallback(async (userInput: string, additionalContext?: any, toolCallDepth = 0, messageId = null) => {
-        console.info('executeAIMessage called:', { userInput, additionalContext, toolCallDepth, messageId })
-
-        if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
-            addMessage({
-                id: `depth-error-${Date.now()}`,
-                role: 'assistant',
-                content: { text: toolDepthExceededMessage },
-                status: 'sent',
-                timestamp: new Date(),
-            })
-            return
-        }
-
+    const executeSummaryStage = useCallback(async (userInput: string, toolCalls: Array<{ name: string, args: any, result: any }>) => {
         const assistantMessage: Message = {
             id: uuidV4(),
             content: { text: loadingLabel },
             role: 'assistant',
             timestamp: new Date(),
             status: 'sending',
+            stage: 'summary',
+            userInput,
         }
-
-        if (!messageId) {
-            addMessage(assistantMessage)
-        } else {
-            changeMessage(messageId, assistantMessage)
-        }
+        addMessage(assistantMessage)
+        currentSummaryMessageIdRef.current = assistantMessage.id
 
         try {
-            const result = await execute({ userInput, userData: {
-                userId: user.id,
-                organizationId: organization?.id,
-                ...additionalContext,
-            } })
-
-            // If no data returned or there's an error - show error and return
-            if (!result.data || result.error) {
-                changeMessage(assistantMessage.id, {
-                    ...assistantMessage,
-                    content: { text: result.localizedErrorText || failedToGetResponseMessage },
-                    status: 'sent',
-                })
-                return
-            }
-
-            // Data is received - show answer
-            changeMessage(assistantMessage.id, {
-                ...assistantMessage,
-                content: { text: result.data.result?.answer ?? noResponseMessage },
-                status: 'sent',
+            const streamResult = await executeSummaryFlowStream({
+                context: {
+                    userInput,
+                    userData: {
+                        userId: user.id,
+                        organizationId: organization?.id,
+                        toolCalls,
+                    },
+                    aiSessionId,
+                },
             })
 
-            // If had toolcalls -> add message about toolcalls and start executing toolcalls
-            if (result.data?.status === TASK_STATUSES.COMPLETED && result.data?.result?.toolCalls) {
-                const toolCalls = result.data.result.toolCalls
-
-                // Create new message for tool execution
-                const toolExecutionMessage: Message = {
-                    id: `tool-execution-${Date.now()}`,
-                    content: { text: executingToolsMessage },
-                    role: 'assistant',
-                    timestamp: new Date(),
-                    status: 'sending',
-                }
-                addMessage(toolExecutionMessage)
-
-                try {
-                    if (!organization?.id || !user?.id) {
-                        throw new Error('Organization or user not available')
-                    }
-
-                    const userData = {
-                        organizationId: organization.id,
-                        userId: user.id,
-                    }
-
-                    const toolCallPromises = toolCalls.map((toolCall: any) =>
-                        runToolCall(
-                            toolCall.name,
-                            toolCall.args,
-                            userData,
-                            client,
-                            intl
-                        )
-                    )
-
-                    const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
-
-                    const resultsMessage = toolCallResults
-                        .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
-                        .filter(Boolean)
-                        .join('\n')
-
-                    if (resultsMessage) {
-                        changeMessage(toolExecutionMessage.id, {
-                            ...toolExecutionMessage,
-                            content: { text: resultsMessage },
-                            status: 'sent',
-                            timestamp: new Date(),
-                        })
-                    }
-
-                    // Continue the conversation with the additional data
-                    const allToolCallResults = toolCallResults.map(toolCall => (
-                        {
-                            name: toolCall.name,
-                            args: toolCall.args,
-                            result: toolCall.result,
-                        }))
-
-                    if (allToolCallResults.length > 0) {
-                        await executeAIMessage('toolCalls:', { toolCalls: allToolCallResults }, toolCallDepth + 1, messageId = toolExecutionMessage.id)
-                    }
-                } catch (error) {
-                    changeMessage(toolExecutionMessage.id, {
-                        id: `tool-error-${Date.now()}`,
-                        role: 'assistant',
-                        content: { text: errorExecutingToolsMessage },
-                        status: 'sent',
-                        timestamp: new Date(),
-                    })
-                }
+            if (streamResult?.error) {
+                changeMessage(assistantMessage.id, {
+                    ...assistantMessage,
+                    content: { text: errorMessage },
+                    status: 'error',
+                })
+                setIsInputLocked(false)
+                currentSummaryMessageIdRef.current = null
             }
+
         } catch (error) {
             console.error('Error in executeAIMessage:', error)
             changeMessage(assistantMessage.id, {
                 ...assistantMessage,
                 content: { text: errorMessage },
-                status: 'sent',
+                status: 'error',
             })
+            setIsInputLocked(false)
+            currentSummaryMessageIdRef.current = null
         }
-    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute])
+    }, [aiSessionId, loadingLabel, errorMessage, organization?.id, user?.id, addMessage, changeMessage, executeSummaryFlowStream])
+
+    const processRouterResult = useCallback(async (
+        assistantMessage: Message,
+        userInput: string,
+        routerResult: { answer?: string, toolCalls?: Array<{ name: string, args: any }> }
+    ) => {
+        const answer = routerResult?.answer?.trim() || ''
+        const toolCalls = Array.isArray(routerResult?.toolCalls) ? routerResult.toolCalls : []
+
+        if (!answer && toolCalls.length === 0) {
+            changeMessage(assistantMessage.id, {
+                ...assistantMessage,
+                content: { text: failedToGetResponseMessage },
+                status: 'error',
+            })
+            setIsInputLocked(false)
+            return
+        }
+
+        const routerMessageText = answer || dataFetchingMessage
+        changeMessage(assistantMessage.id, {
+            ...assistantMessage,
+            content: { text: routerMessageText },
+            status: 'sent',
+        })
+
+        if (toolCalls.length === 0) {
+            setIsInputLocked(false)
+            return
+        }
+
+        if (!organization?.id || !user?.id) {
+            changeMessage(assistantMessage.id, {
+                ...assistantMessage,
+                content: { text: errorMessage },
+                status: 'error',
+            })
+            setIsInputLocked(false)
+            return
+        }
+
+        const toolCallResults = await Promise.all(toolCalls.map((toolCall) => runToolCall(
+            toolCall.name,
+            toolCall.args,
+            {
+                organizationId: organization.id,
+                userId: user.id,
+            },
+            client,
+            intl
+        )))
+
+        const successfulToolCalls = toolCallResults
+            .filter((toolResult) => !toolResult.error)
+            .map((toolResult) => ({
+                name: toolResult.name,
+                args: toolResult.args,
+                result: toolResult.result,
+            }))
+
+        await executeSummaryStage(userInput, successfulToolCalls)
+    }, [
+        failedToGetResponseMessage,
+        dataFetchingMessage,
+        organization?.id,
+        user?.id,
+        errorMessage,
+        changeMessage,
+        client,
+        intl,
+        executeSummaryStage,
+    ])
+
+    const executeRouterStage = useCallback(async (userInput: string, assistantMessageId?: string) => {
+        const assistantMessage: Message = {
+            id: assistantMessageId || uuidV4(),
+            content: { text: loadingLabel },
+            role: 'assistant',
+            timestamp: new Date(),
+            status: 'sending',
+            stage: 'router',
+            userInput,
+        }
+
+        if (assistantMessageId) {
+            changeMessage(assistantMessageId, assistantMessage)
+        } else {
+            addMessage(assistantMessage)
+        }
+
+        const result = await executeRouterFlow({
+            userInput,
+            userData: {
+                userId: user.id,
+                organizationId: organization?.id,
+            },
+            aiSessionId,
+        })
+
+        if (!result?.data || result?.error) {
+            changeMessage(assistantMessage.id, {
+                ...assistantMessage,
+                content: { text: result?.localizedErrorText || failedToGetResponseMessage },
+                status: 'error',
+            })
+            setIsInputLocked(false)
+            return
+        }
+
+        await processRouterResult(assistantMessage, userInput, result.data.result || {})
+    }, [
+        aiSessionId,
+        loadingLabel,
+        failedToGetResponseMessage,
+        addMessage,
+        changeMessage,
+        executeRouterFlow,
+        processRouterResult,
+    ])
+
+    useEffect(() => {
+        const resumeLastMessageIfNeeded = async () => {
+            const lastMessage = messages[messages.length - 1]
+            if (!lastMessage || lastMessage.status !== 'sending' || !lastMessage.executionAIFlowTaskId) return
+            if (resumedTaskIdRef.current === lastMessage.executionAIFlowTaskId) return
+            resumedTaskIdRef.current = lastMessage.executionAIFlowTaskId
+
+            if (lastMessage.stage === 'router' && lastMessage.userInput) {
+                const resumedResult = await resumeRouterFlow(lastMessage.executionAIFlowTaskId)
+                if (resumedResult?.data?.status === TASK_STATUSES.COMPLETED) {
+                    await processRouterResult(lastMessage, lastMessage.userInput, resumedResult?.data?.result || {})
+                    return
+                }
+                changeMessage(lastMessage.id, {
+                    ...lastMessage,
+                    content: { text: resumedResult?.localizedErrorText || errorMessage },
+                    status: 'error',
+                })
+                setIsInputLocked(false)
+                return
+            }
+
+            if (lastMessage.stage === 'summary') {
+                const resumedResult = await resumeSummaryFlow(lastMessage.executionAIFlowTaskId)
+                if (resumedResult?.data?.status === TASK_STATUSES.COMPLETED) {
+                    changeMessage(lastMessage.id, {
+                        ...lastMessage,
+                        content: { text: resumedResult?.data?.result?.answer || noResponseMessage },
+                        status: 'sent',
+                    })
+                } else {
+                    changeMessage(lastMessage.id, {
+                        ...lastMessage,
+                        content: { text: resumedResult?.localizedErrorText || errorMessage },
+                        status: 'error',
+                    })
+                }
+                setIsInputLocked(false)
+            }
+        }
+
+        resumeLastMessageIfNeeded()
+    }, [messages, processRouterResult, resumeRouterFlow, resumeSummaryFlow, changeMessage, errorMessage, noResponseMessage])
 
     const handleSendMessage = async () => {
-        if (!inputValue.trim() || loading || !user) return
+        if (!inputValue.trim() || !user || isInputLocked) return
 
         const userMessage: Message = {
             id: Date.now().toString(),
@@ -348,8 +463,9 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const currentInput = inputValue.trim()
         setInputValue('')
+        setIsInputLocked(true)
 
-        await executeAIMessage(currentInput)
+        await executeRouterStage(currentInput)
     }
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -386,7 +502,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                     onKeyDown={handleKeyPress}
                     onSubmit={() => handleSendMessage()}
                     placeholder={placeholder}
-                    disabled={!canExecuteAIFlow}
+                    disabled={isInputLocked || routerLoading || summaryLoading}
                     autoSize={{ minRows: 1, maxRows: 4 }}
                 />
             </div>
