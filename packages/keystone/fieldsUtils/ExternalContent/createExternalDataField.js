@@ -43,8 +43,9 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
     }
     
     return {
-        type: 'ExternalContent',
         schemaDoc: `External content field storing ${format} data in external files`,
+        ...otherProps,
+        type: 'ExternalContent',
         adapter,
         format,
         processors,
@@ -53,7 +54,6 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
         adminConfig: {
             isReadOnly: isAdminUIReadOnly,
         },
-        ...otherProps,
     }
 }
 

@@ -18,6 +18,10 @@ jest.mock('@open-condo/keystone/logging', () => ({
         warn: jest.fn(),
         error: jest.fn(),
     }),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
 }))
 
 const { ExternalContentImplementation } = require('./Implementation')
@@ -49,6 +53,7 @@ describe('ExternalContent field type', () => {
                 delete: async () => {
                     calls.push('delete')
                 },
+                publicUrl: () => 'https://example.com/new.bin',
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -58,7 +63,7 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(res).toEqual({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' })
+            expect(res).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
             expect(calls).toEqual(['save', 'delete'])
         })
 
@@ -68,6 +73,7 @@ describe('ExternalContent field type', () => {
                     throw new Error('save failed')
                 },
                 delete: jest.fn(),
+                publicUrl: jest.fn(),
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -85,6 +91,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
+                publicUrl: jest.fn(() => 'https://example.com/new.bin'),
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -96,7 +103,7 @@ describe('ExternalContent field type', () => {
 
             const saveArgs = adapter.save.mock.calls[0][0]
             // Filename should include listKey, field path, and ID for uniqueness
-            expect(saveArgs.filename).toMatch(/^BillingReceipt_raw_[a-z0-9]+\.json$/)
+            expect(saveArgs.filename).toMatch(/^BillingReceipt_raw_[a-z0-9-]+\.json$/)
             expect(saveArgs.id).toBeTruthy()
         })
 
@@ -104,6 +111,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
+                publicUrl: jest.fn(() => 'https://example.com/new.bin'),
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -141,6 +149,7 @@ describe('ExternalContent field type', () => {
                 delete: jest.fn(async () => {
                     throw new Error('delete failed')
                 }),
+                publicUrl: jest.fn(() => 'https://example.com/new.bin'),
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -150,42 +159,30 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(result).toEqual({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' })
+            expect(result).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
             expect(adapter.delete).toHaveBeenCalled()
         })
     })
 
     describe('processors', () => {
+        const { DEFAULT_PROCESSORS } = require('./Implementation')
+
         test('text/xml deserialize empty string to null', () => {
-            const adapter = { save: async () => ({}), delete: async () => undefined }
-
-            const textImpl = new ExternalContentImplementation('raw', { adapter, format: 'text' }, createMeta())
-            expect(textImpl.deserialize('')).toBe(null)
-
-            const xmlImpl = new ExternalContentImplementation('raw', { adapter, format: 'xml' }, createMeta())
-            expect(xmlImpl.deserialize('')).toBe(null)
+            expect(DEFAULT_PROCESSORS.text.deserialize('')).toBe(null)
+            expect(DEFAULT_PROCESSORS.xml.deserialize('')).toBe(null)
         })
 
         test('json deserialize handles corrupted JSON with error', () => {
-            const adapter = { save: async () => ({}), delete: async () => undefined }
-            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            
-            expect(() => impl.deserialize('{invalid json}'))
+            expect(() => DEFAULT_PROCESSORS.json.deserialize('{invalid json}'))
                 .toThrow('Failed to parse JSON content')
         })
 
         test('json deserialize empty string returns null', () => {
-            const adapter = { save: async () => ({}), delete: async () => undefined }
-            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            
-            expect(impl.deserialize('')).toBe(null)
+            expect(DEFAULT_PROCESSORS.json.deserialize('')).toBe(null)
         })
 
         test('json deserialize valid JSON succeeds', () => {
-            const adapter = { save: async () => ({}), delete: async () => undefined }
-            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            
-            const result = impl.deserialize('{"test": "data"}')
+            const result = DEFAULT_PROCESSORS.json.deserialize('{"test": "data"}')
             expect(result).toEqual({ test: 'data' })
         })
     })
@@ -203,11 +200,11 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from('{"test": "data"}'))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: '../../../etc/passwd' },
-            })).rejects.toThrow('path traversal detected')
+                raw: { id: 'test-id', filename: '../../../etc/passwd', meta: { format: 'json' } },
+            }, {}, {})).rejects.toThrow('path traversal detected')
         })
 
         test('allows valid filenames in local adapter', async () => {
@@ -218,11 +215,11 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from('{"test": "data"}'))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const result = await resolver({
-                raw: { id: 'test-id', filename: 'valid-file.json' },
-            })
+                raw: { id: 'test-id', filename: 'valid-file.json', meta: { format: 'json' } },
+            }, {}, {})
             
             expect(result).toEqual({ test: 'data' })
         })
@@ -233,7 +230,7 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockClear()
         })
 
-        test('includes item ID in deserialization error', async () => {
+        test('re-throws deserialization error with original message', async () => {
             const adapter = {
                 src: '/test/path',
             }
@@ -241,15 +238,15 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from('{invalid json}'))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
                 id: 'item-123',
-                raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('Failed to deserialize raw for item item-123')
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+            }, {}, {})).rejects.toThrow('Failed to deserialize ExternalContent value')
         })
 
-        test('uses "unknown" when item ID is missing', async () => {
+        test('re-throws deserialization error when item ID is missing', async () => {
             const adapter = {
                 src: '/test/path',
             }
@@ -257,11 +254,11 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from('{invalid json}'))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('Failed to deserialize raw for item unknown')
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+            }, {}, {})).rejects.toThrow('Failed to deserialize ExternalContent value')
         })
     })
 
@@ -295,7 +292,7 @@ describe('ExternalContent field type', () => {
             })
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const result = await resolver({
                 raw: {
@@ -303,8 +300,9 @@ describe('ExternalContent field type', () => {
                     filename: 'test.json',
                     mimetype: 'application/json',
                     originalFilename: 'original.json',
+                    meta: { format: 'json' },
                 },
-            })
+            }, {}, {})
 
             expect(result).toEqual({ test: 'data' })
             expect(mockGenerateUrl).toHaveBeenCalledWith({
@@ -323,14 +321,14 @@ describe('ExternalContent field type', () => {
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('Invalid URL generated for file: test.json')
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+            }, {}, {})).rejects.toThrow('Invalid URL generated for file: test.json')
         })
 
-        test('throws error when fetch fails', async () => {
+        test('resolves with null for 404 fetch response', async () => {
             const adapter = {
                 acl: {
                     generateUrl: jest.fn(() => 'https://example.com/file.json'),
@@ -344,11 +342,12 @@ describe('ExternalContent field type', () => {
             })
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
-            await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('Fetch failed with status 404 for file: test.json')
+            const result = await resolver({
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+            }, {}, {})
+            expect(result).toBeNull()
         })
 
         test('throws error with context when network error occurs', async () => {
@@ -363,11 +362,11 @@ describe('ExternalContent field type', () => {
             mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
-            })).rejects.toThrow('ExternalContent: failed to read file test.json: Network error')
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+            }, {}, {})).rejects.toThrow('ExternalContent: failed to read file test.json: Network error')
         })
     })
 
@@ -384,29 +383,29 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from(JSON.stringify({ test: 'data' })))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const context = {}
             
             // First call should create loader
             const result1 = await resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
             }, {}, context)
             
             expect(result1).toEqual({ test: 'data' })
             expect(context._externalContentLoaders).toBeDefined()
             expect(context._externalContentLoaders.size).toBe(1)
             
-            // Second call should reuse loader
+            // Second call should reuse loader (cached)
             const result2 = await resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
             }, {}, context)
             
             expect(result2).toEqual({ test: 'data' })
             expect(mockReadFile).toHaveBeenCalledTimes(1) // Cached!
         })
 
-        test('falls back to direct file reading when context is not provided', async () => {
+        test('uses DataLoader even when context is an empty object', async () => {
             const adapter = {
                 src: '/test/path',
             }
@@ -414,12 +413,12 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from(JSON.stringify({ test: 'data' })))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
-            // Call without context
+            const context = {}
             const result = await resolver({
-                raw: { id: 'test-id', filename: 'test.json' },
-            })
+                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+            }, {}, context)
             
             expect(result).toEqual({ test: 'data' })
             expect(mockReadFile).toHaveBeenCalledTimes(1)
@@ -440,17 +439,17 @@ describe('ExternalContent field type', () => {
             const impl1 = new ExternalContentImplementation('raw', { adapter: adapter1, format: 'json' }, createMeta())
             const impl2 = new ExternalContentImplementation('raw', { adapter: adapter2, format: 'json' }, createMeta())
             
-            const resolver1 = impl1.gqlOutputFieldResolvers().raw
-            const resolver2 = impl2.gqlOutputFieldResolvers().raw
+            const resolver1 = impl1.gqlOutputFieldResolvers().rawResolved
+            const resolver2 = impl2.gqlOutputFieldResolvers().rawResolved
             
             const context = {}
             
             await resolver1({
-                raw: { id: 'test-id', filename: 'test1.json' },
+                raw: { id: 'test-id', filename: 'test1.json', meta: { format: 'json' } },
             }, {}, context)
             
             await resolver2({
-                raw: { id: 'test-id', filename: 'test2.json' },
+                raw: { id: 'test-id', filename: 'test2.json', meta: { format: 'json' } },
             }, {}, context)
             
             // Should have two separate loaders
@@ -473,17 +472,17 @@ describe('ExternalContent field type', () => {
             const impl1 = new ExternalContentImplementation('raw', { adapter: adapter1, format: 'json' }, createMeta())
             const impl2 = new ExternalContentImplementation('raw', { adapter: adapter2, format: 'json' }, createMeta())
             
-            const resolver1 = impl1.gqlOutputFieldResolvers().raw
-            const resolver2 = impl2.gqlOutputFieldResolvers().raw
+            const resolver1 = impl1.gqlOutputFieldResolvers().rawResolved
+            const resolver2 = impl2.gqlOutputFieldResolvers().rawResolved
             
             const context = {}
             
             await resolver1({
-                raw: { id: 'test-id', filename: 'test1.json' },
+                raw: { id: 'test-id', filename: 'test1.json', meta: { format: 'json' } },
             }, {}, context)
             
             await resolver2({
-                raw: { id: 'test-id', filename: 'test2.json' },
+                raw: { id: 'test-id', filename: 'test2.json', meta: { format: 'json' } },
             }, {}, context)
             
             // Should have two separate loaders even though they have the same folder
@@ -502,19 +501,19 @@ describe('ExternalContent field type', () => {
                 .mockResolvedValueOnce(Buffer.from(JSON.stringify({ id: 3 })))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const context = {}
             
             // Simulate list query - multiple items resolved in parallel
             const promise1 = resolver({
-                raw: { id: 'id1', filename: 'file1.json' },
+                raw: { id: 'id1', filename: 'file1.json', meta: { format: 'json' } },
             }, {}, context)
             const promise2 = resolver({
-                raw: { id: 'id2', filename: 'file2.json' },
+                raw: { id: 'id2', filename: 'file2.json', meta: { format: 'json' } },
             }, {}, context)
             const promise3 = resolver({
-                raw: { id: 'id3', filename: 'file3.json' },
+                raw: { id: 'id3', filename: 'file3.json', meta: { format: 'json' } },
             }, {}, context)
             
             const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
@@ -533,19 +532,19 @@ describe('ExternalContent field type', () => {
             mockReadFile.mockResolvedValue(Buffer.from(JSON.stringify({ shared: 'data' })))
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            const resolver = impl.gqlOutputFieldResolvers().raw
+            const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const context = {}
             
             // Multiple items with same file
             const promise1 = resolver({
-                raw: { id: 'id1', filename: 'shared.json' },
+                raw: { id: 'id1', filename: 'shared.json', meta: { format: 'json' } },
             }, {}, context)
             const promise2 = resolver({
-                raw: { id: 'id2', filename: 'shared.json' },
+                raw: { id: 'id2', filename: 'shared.json', meta: { format: 'json' } },
             }, {}, context)
             const promise3 = resolver({
-                raw: { id: 'id3', filename: 'shared.json' },
+                raw: { id: 'id3', filename: 'shared.json', meta: { format: 'json' } },
             }, {}, context)
             
             const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
@@ -581,6 +580,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.json' })),
                 delete: jest.fn(),
+                publicUrl: jest.fn(() => 'https://example.com/new.json'),
             }
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -594,7 +594,7 @@ describe('ExternalContent field type', () => {
                 listKey: 'TestList',
             })
             
-            expect(result).toEqual({ id: 'new', filename: 'new.json', _type: 'ExternalContent.file-meta' })
+            expect(result).toEqual({ id: 'new', filename: 'new.json', publicUrl: 'https://example.com/new.json', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
             expect(adapter.save).toHaveBeenCalled()
         })
     })
@@ -605,6 +605,7 @@ describe('ExternalContent field type', () => {
                 const adapter = {
                     save: jest.fn(async () => ({ id: 'test-id', filename: 'test.json' })),
                     delete: jest.fn(),
+                    publicUrl: jest.fn(() => 'https://example.com/test.json'),
                 }
 
                 const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -616,9 +617,11 @@ describe('ExternalContent field type', () => {
 
                 // Verify _type marker is added
                 expect(result).toHaveProperty('_type', 'ExternalContent.file-meta')
-                expect(result).toEqual({
+                expect(result).toMatchObject({
                     id: 'test-id',
                     filename: 'test.json',
+                    publicUrl: 'https://example.com/test.json',
+                    meta: { format: 'json' },
                     _type: 'ExternalContent.file-meta',
                 })
             })
@@ -633,6 +636,7 @@ describe('ExternalContent field type', () => {
                         size: 1234,
                     })),
                     delete: jest.fn(),
+                    publicUrl: jest.fn(() => 'https://example.com/test.json'),
                 }
 
                 const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -643,12 +647,14 @@ describe('ExternalContent field type', () => {
                 })
 
                 // Verify all properties are preserved and _type is added
-                expect(result).toEqual({
+                expect(result).toMatchObject({
                     id: 'test-id',
                     filename: 'test.json',
                     mimetype: 'application/json',
                     originalFilename: 'original.json',
                     size: 1234,
+                    publicUrl: 'https://example.com/test.json',
+                    meta: { format: 'json' },
                     _type: 'ExternalContent.file-meta',
                 })
             })

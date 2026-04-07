@@ -77,4 +77,32 @@ describe('createExternalDataField', () => {
         expect(field.sensitive).toBe(true)
         expect(field.isRequired).toBe(false)
     })
+
+    test('adminConfig.isReadOnly defaults to true when isAdminUIReadOnly is not provided', () => {
+        const adapter = { save: async () => ({}), delete: async () => undefined }
+        const field = createExternalDataField({ adapter })
+
+        expect(field.adminConfig).toEqual({ isReadOnly: true })
+    })
+
+    test('adminConfig.isReadOnly is false when isAdminUIReadOnly is false', () => {
+        const adapter = { save: async () => ({}), delete: async () => undefined }
+        const field = createExternalDataField({ adapter, isAdminUIReadOnly: false })
+
+        expect(field.adminConfig).toEqual({ isReadOnly: false })
+    })
+
+    test('adminConfig.isReadOnly is true when isAdminUIReadOnly is true', () => {
+        const adapter = { save: async () => ({}), delete: async () => undefined }
+        const field = createExternalDataField({ adapter, isAdminUIReadOnly: true })
+
+        expect(field.adminConfig).toEqual({ isReadOnly: true })
+    })
+
+    test('isAdminUIReadOnly is not leaked into the returned field object', () => {
+        const adapter = { save: async () => ({}), delete: async () => undefined }
+        const field = createExternalDataField({ adapter, isAdminUIReadOnly: false })
+
+        expect(field).not.toHaveProperty('isAdminUIReadOnly')
+    })
 })

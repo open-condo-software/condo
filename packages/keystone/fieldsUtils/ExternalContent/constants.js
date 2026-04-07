@@ -3,10 +3,6 @@
 // If you change it, you must migrate all existing records to use the new value.
 const FILE_META_TYPE = 'ExternalContent.file-meta'
 
-// Default batch delay: 10ms
-const DEFAULT_BATCH_DELAY_MS = 10
-
 module.exports = {
     FILE_META_TYPE,
-    DEFAULT_BATCH_DELAY_MS,
 }
