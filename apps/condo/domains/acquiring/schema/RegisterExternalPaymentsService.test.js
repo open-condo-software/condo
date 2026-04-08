@@ -3,8 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { find } = require('@open-condo/keystone/schema')
-const { 
+const {
     makeLoggedInAdminClient, 
     expectToThrowGQLErrorToResult, 
     expectToThrowAuthenticationErrorToResult,
@@ -34,7 +33,7 @@ const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-test-test' } }
 describe('RegisterExternalPaymentsService', () => {
     let admin, organization, integration, context, serviceClient
 
-    function getExternalPayment () {
+    function getExternalPayment (extraAttrs) {
         return {
             accountNumber: faker.finance.account(),
             tin: organization.tin,
@@ -47,20 +46,21 @@ describe('RegisterExternalPaymentsService', () => {
             amount: '100.00',
             paymentOrder: '1',
             currencyCode: 'RUB',
+            ...extraAttrs,
         }
     }
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
 
-        const [org] = await createTestOrganization(admin)
-        organization = org
+        const [tempOrganization] = await createTestOrganization(admin)
+        organization = tempOrganization
 
-        const [int] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
-        integration = int
+        const [tempIntegration] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
+        integration = tempIntegration
 
-        const [con] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
-        context = con
+        const [tempContext] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+        context = tempContext
 
         serviceClient = await makeClientWithServiceUser()
         await createTestAcquiringIntegrationAccessRight(admin, integration, serviceClient.user)
@@ -156,7 +156,7 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{ ...getExternalPayment(), period: '2026-04-15' }],
+                payments: [getExternalPayment({ period: '2026-04-15' })],
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
@@ -167,7 +167,7 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{ ...getExternalPayment(), transactionDate: '06.04.2026' }],
+                payments: [getExternalPayment({ transactionDate: '06.04.2026' })],
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
@@ -178,7 +178,7 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{ ...getExternalPayment(), amount: 'one hundred' }],
+                payments: [getExternalPayment({ amount: 'one hundred' })],
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
@@ -189,7 +189,7 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{ ...getExternalPayment(), amount: '-50.00' }],
+                payments: [getExternalPayment({ amount: '-50.00' })],
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
@@ -200,27 +200,31 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{ ...getExternalPayment(), currencyCode: 'INVALID' }],
+                payments: [getExternalPayment({ currencyCode: 'INVALID' })],
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
             }, ERRORS.INVALID_CURRENCY_CODE)
         })
 
-        test('Should throw error if fees exceed total amount', async () => {
-            const payload = {
+        test('Should throw error for same transactionId in context', async () => {
+            const transactionId = faker.datatype.uuid()
+
+            const firstPayload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{
-                    ...getExternalPayment(),
-                    amount: '100.00',
-                    explicitFee: '60.00',
-                    implicitFee: '50.00',
-                }],
+                payments: [getExternalPayment({ transactionId })],
+            }
+            await registerExternalPaymentsByTestClient(admin, firstPayload)
+
+            const secondPayload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ transactionId })],
             }
             await expectToThrowGQLErrorToResult(async () => {
-                await registerExternalPaymentsByTestClient(admin, payload)
-            }, ERRORS.INVALID_PAYMENT_AMOUNT)
+                await registerExternalPaymentsByTestClient(admin, secondPayload)
+            }, ERRORS.DUPLICATED_PAYMENTS)
         })
 
         test('Should allow same transactionId for different integrations', async () => {
@@ -229,6 +233,29 @@ describe('RegisterExternalPaymentsService', () => {
             const [anotherIntegration] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
             const [anotherOrganization] = await createTestOrganization(admin)
             const [anotherContext] = await createTestAcquiringIntegrationContext(admin, anotherOrganization, anotherIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const firstPayload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ transactionId })],
+            }
+            await registerExternalPaymentsByTestClient(admin, firstPayload)
+
+            const secondPayload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: anotherContext.id },
+                payments: [getExternalPayment({ transactionId })],
+            }
+
+            const [data] = await registerExternalPaymentsByTestClient(admin, secondPayload)
+            expect(data.status).toBe('ok')
+        })
+
+        test('Should allow same transactionId for different contexts', async () => {
+            const transactionId = faker.datatype.uuid()
+
+            const [anotherOrganization] = await createTestOrganization(admin)
+            const [anotherContext] = await createTestAcquiringIntegrationContext(admin, anotherOrganization, integration, { status: CONTEXT_FINISHED_STATUS })
 
             const firstPayload = {
                 ...DV_SENDER,
@@ -252,9 +279,7 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: [{
-                    ...getExternalPayment(),
-                }],
+                payments: [getExternalPayment()],
             }
 
             const [{ status }] = await registerExternalPaymentsByTestClient(admin, payload)

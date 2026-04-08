@@ -106,8 +106,6 @@ const SET_PAYMENT_POS_RECEIPT_URL_MUTATION = gql`
 const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS = `{ name url isEnabled description organization { id name } ${COMMON_FIELDS} }`
 const PaymentStatusChangeWebhookUrl = generateGqlQueries('PaymentStatusChangeWebhookUrl', PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS)
 
-// TODO(codegen): write return type result!
-
 const REGISTER_EXTERNAL_PAYMENTS_MUTATION = gql`
     mutation registerExternalPayments ($data: RegisterExternalPaymentsInput!) {
         result: registerExternalPayments(data: $data) { status }
@@ -146,6 +144,6 @@ module.exports = {
     SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS,
     PaymentStatusChangeWebhookUrl,
-REGISTER_EXTERNAL_PAYMENTS_MUTATION,
+    REGISTER_EXTERNAL_PAYMENTS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -24,8 +24,9 @@ async function canRegisterExternalPayments ({ authentication: { item: user }, ar
         type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
         deletedAt: null,
     })
+    if (!integration) return false
 
-    return !!integration && await checkAcquiringIntegrationAccessRights(user.id, [integration.id])
+    return checkAcquiringIntegrationAccessRights(user.id, [integration.id])
 }
 
 /*

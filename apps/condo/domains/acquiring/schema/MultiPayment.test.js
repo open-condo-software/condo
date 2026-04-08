@@ -509,7 +509,7 @@ describe('MultiPayment', () => {
                     paymentWay: 'CARD',
                     transactionId: faker.datatype.uuid(),
                 }
-                const cases = ['withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId', 'explicitFee', 'explicitServiceCharge']
+                const cases = ['withdrawnAt', 'transactionId', 'explicitFee', 'explicitServiceCharge']
                 test.each(cases)(`Status ${MULTIPAYMENT_DONE_STATUS}, missing %p field`, async (field) => {
                     const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {

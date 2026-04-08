@@ -32,12 +32,15 @@ const {
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
     MULTIPAYMENT_DELETED_PAYMENTS,
-    MULTIPAYMENT_NON_MATCHING_PAYMENTS,
+    MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
     MULTIPAYMENT_NOT_UNIQUE_INVOICES,
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
+    MULTIPAYMENT_NON_DONE_PAYMENTS,
+    MULTIPAYMENT_SEVERAL_PAYMENTS,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
@@ -47,6 +50,7 @@ const {
     MULTIPAYMENT_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELDS,
     PAYMENT_DONE_STATUS,
+    PAYMENT_INIT_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     CURRENCY_CODE_FIELD,
@@ -271,14 +275,31 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     id_in: paymentsIds,
                 })
 
-                const multiPaymentStatus = resolvedData?.status
+                const externalImportIntegration = await getByCondition('AcquiringIntegration', {
+                    id: resolvedData?.integration,
+                    type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+                    deletedAt: null,
+                })
+                
+                if (externalImportIntegration) {
+                    const mismatchedPayments = payments
+                        .filter(payment => payment.status !== PAYMENT_DONE_STATUS)
+                        .map(payment => payment.id)
 
-                const mismatchedPayments = payments
-                    .filter(payment => payment.status !== multiPaymentStatus)
-                    .map(payment => payment.id)
+                    if (mismatchedPayments.length) {
+                        addValidationError(`${MULTIPAYMENT_NON_DONE_PAYMENTS} Failed ids: ${mismatchedPayments.join(', ')}`)
+                    }
 
-                if (mismatchedPayments.length) {
-                    addValidationError(`${MULTIPAYMENT_NON_MATCHING_PAYMENTS} Expected status: "${multiPaymentStatus}". Failed ids: ${mismatchedPayments.join(', ')}`)
+                    if (payments.length !== 1) {
+                        addValidationError(MULTIPAYMENT_SEVERAL_PAYMENTS)
+                    }
+                } else {
+                    const noInitPayments = payments
+                        .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
+                        .map(payment => payment.id)
+                    if (noInitPayments.length) {
+                        addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+                    }
                 }
 
                 const alreadyWithMPPayments = payments

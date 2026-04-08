@@ -40,17 +40,10 @@ function validatePayments (payments, context) {
         }
 
         try {
-            const bAmount = new Big(amount)
-            const bExplicit = new Big(explicitFee || 0)
-            const bImplicit = new Big(implicitFee || 0)
-
-            if (bAmount.lte(0)) throw new Error('lower than zero')
-
-            if (bExplicit.plus(bImplicit).gte(bAmount)) {
-                throw new Error('mismatch')
-            }
+            Big(amount)
+            if (explicitFee) Big(explicitFee)
+            if (implicitFee) Big(implicitFee)
         } catch (e) {
-            if (e instanceof GQLError) throw e
             throw new GQLError({ ...ERRORS.INVALID_PAYMENT_AMOUNT, messageInterpolation: { amount, transactionId } }, context)
         }
     }
@@ -64,7 +57,7 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
         },
         {
             access: true,
-            type: 'input RegisterExternalPaymentsInput { dv: Int!, sender: JSON!, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!, payments: [ExternalPaymentsInput!]! }',
+            type: 'input RegisterExternalPaymentsInput { dv: Int!, sender: SenderFieldInput!, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!, payments: [ExternalPaymentsInput!]! }',
         },
         {
             access: true,
@@ -100,14 +93,16 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                 })
                 if (!acquiringIntegration) throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
 
-                const externalIds = paymentsInput.map(p => p.transactionId)
+                const externalIds = paymentsInput.map(({ transactionId }) => transactionId)
                 if (new Set(externalIds).size !== externalIds.length) throw new GQLError({ ...ERRORS.DUPLICATED_PAYMENTS, messageInterpolation: { ids: externalIds.join(', ') } }, context)
 
                 const existingMultiPayments = await find('MultiPayment', {
-                    transactionId_in: externalIds,
                     integration: { id: acquiringIntegration.id },
+                    transactionId_in: externalIds,
+                    payments_some: { organization: { id: acquiringContext.organization } },
                     deletedAt: null,
                 })
+
                 if (existingMultiPayments.length > 0) {
                     const ids = existingMultiPayments.map(p => p.transactionId).join(', ')
                     throw new GQLError({ ...ERRORS.DUPLICATED_PAYMENTS, messageInterpolation: { ids } }, context)
@@ -119,16 +114,16 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                     const payment = await Payment.create(context, {
                         dv: 1, sender,
                         status: PAYMENT_DONE_STATUS,
-                        amount: Big(input.amount).toFixed(2),
-                        explicitFee: Big(input.explicitFee || 0).toFixed(2),
-                        implicitFee: Big(input.implicitFee || 0).toFixed(2),
+                        amount: Big(input.amount).toString(),
+                        explicitFee: Big(input.explicitFee || 0).toString(),
+                        implicitFee: Big(input.implicitFee || 0).toString(),
                         currencyCode: input.currencyCode,
                         accountNumber: input.accountNumber,
                         period: input.period,
                         recipientBic: input.routingNumber,
                         recipientBankAccount: input.bankAccount,
                         advancedAt: input.transactionDate,
-                        depositedDate: input.depositedDate,
+                        depositedDate: input.depositedDate ? input.depositedDate : input.transactionDate,
                         rawAddress: input.address,
                         order: input.paymentOrder,
                         organization: { connect: { id: acquiringContext.organization } },
@@ -138,10 +133,10 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                     await MultiPayment.create(context, {
                         dv: 1, sender,
                         status: MULTIPAYMENT_DONE_STATUS,
-                        amountWithoutExplicitFee: Big(input.amount).toFixed(2),
-                        explicitFee: Big(input.explicitFee || 0).toFixed(2),
-                        implicitFee: Big(input.implicitFee || 0).toFixed(2),
-                        explicitServiceCharge: Big(input.explicitFee || 0).toFixed(2),
+                        amountWithoutExplicitFee: Big(input.amount).toString(),
+                        explicitFee: Big(input.explicitFee || 0).toString(),
+                        implicitFee: Big(input.implicitFee || 0).toString(),
+                        explicitServiceCharge: Big(0).toString(),
                         currencyCode: input.currencyCode,
                         integration: { connect: { id: acquiringIntegration.id } },
                         payments: { connect: [{ id: payment.id }] },

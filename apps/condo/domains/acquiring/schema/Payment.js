@@ -365,8 +365,8 @@ const Payment = new GQLListSchema('Payment', {
             if (resolvedData['explicitServiceCharge'] && !resolvedData['explicitFee']) {
                 resolvedData['explicitFee'] = '0'
             }
-            if (isCreate) {
-                resolvedData['rawAddress'] = get(resolvedData, ['frozenReceipt', 'data', 'raw', 'address'])
+            if (isCreate && !resolvedData?.rawAddress) {
+                resolvedData['rawAddress'] = resolvedData?.frozenReceipt?.data?.raw?.address
             }
 
             // Calculate splits if distribution was set
