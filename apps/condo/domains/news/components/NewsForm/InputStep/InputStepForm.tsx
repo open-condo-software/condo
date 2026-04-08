@@ -385,7 +385,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     }, [BodyErrorMessage, TemplateBlanksNotFilledErrorMessage])
 
     const commonTemplates = useMemo(() => {
-        return Object.entries(templates).reduce((result, [key, value]) => {
+        return Object.entries(templates || {}).reduce((result, [key, value]) => {
             if (value.type === NEWS_TYPE_COMMON || value.type === null) {
                 result[key] = value
             }
@@ -394,7 +394,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     }, [templates])
 
     const emergencyTemplates = useMemo(() => {
-        return Object.entries(templates).reduce((result, [key, value]) => {
+        return Object.entries(templates || {}).reduce((result, [key, value]) => {
             if (value.type === NEWS_TYPE_EMERGENCY || value.type === null) {
                 result[key] = value
             }

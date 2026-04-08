@@ -3274,6 +3274,131 @@ export type GetNewsItemsForAiAssistantQueryHookResult = ReturnType<typeof useGet
 export type GetNewsItemsForAiAssistantLazyQueryHookResult = ReturnType<typeof useGetNewsItemsForAiAssistantLazyQuery>;
 export type GetNewsItemsForAiAssistantSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemsForAiAssistantSuspenseQuery>;
 export type GetNewsItemsForAiAssistantQueryResult = Apollo.QueryResult<Types.GetNewsItemsForAiAssistantQuery, Types.GetNewsItemsForAiAssistantQueryVariables>;
+export const CreateNewsItemFileDocument = gql`
+    mutation createNewsItemFile($data: NewsItemFileCreateInput!) {
+  newsItemFile: createNewsItemFile(data: $data) {
+    id
+    file {
+      publicUrl
+      originalFilename
+    }
+  }
+}
+    `;
+export type CreateNewsItemFileMutationFn = Apollo.MutationFunction<Types.CreateNewsItemFileMutation, Types.CreateNewsItemFileMutationVariables>;
+
+/**
+ * __useCreateNewsItemFileMutation__
+ *
+ * To run a mutation, you first call `useCreateNewsItemFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNewsItemFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNewsItemFileMutation, { data, loading, error }] = useCreateNewsItemFileMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateNewsItemFileMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateNewsItemFileMutation, Types.CreateNewsItemFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateNewsItemFileMutation, Types.CreateNewsItemFileMutationVariables>(CreateNewsItemFileDocument, options);
+      }
+export type CreateNewsItemFileMutationHookResult = ReturnType<typeof useCreateNewsItemFileMutation>;
+export type CreateNewsItemFileMutationResult = Apollo.MutationResult<Types.CreateNewsItemFileMutation>;
+export type CreateNewsItemFileMutationOptions = Apollo.BaseMutationOptions<Types.CreateNewsItemFileMutation, Types.CreateNewsItemFileMutationVariables>;
+export const UpdateNewsItemFileDocument = gql`
+    mutation updateNewsItemFile($id: ID!, $data: NewsItemFileUpdateInput!) {
+  newsItemFile: updateNewsItemFile(data: $data, id: $id) {
+    id
+    file {
+      publicUrl
+      originalFilename
+    }
+  }
+}
+    `;
+export type UpdateNewsItemFileMutationFn = Apollo.MutationFunction<Types.UpdateNewsItemFileMutation, Types.UpdateNewsItemFileMutationVariables>;
+
+/**
+ * __useUpdateNewsItemFileMutation__
+ *
+ * To run a mutation, you first call `useUpdateNewsItemFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNewsItemFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNewsItemFileMutation, { data, loading, error }] = useUpdateNewsItemFileMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateNewsItemFileMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateNewsItemFileMutation, Types.UpdateNewsItemFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateNewsItemFileMutation, Types.UpdateNewsItemFileMutationVariables>(UpdateNewsItemFileDocument, options);
+      }
+export type UpdateNewsItemFileMutationHookResult = ReturnType<typeof useUpdateNewsItemFileMutation>;
+export type UpdateNewsItemFileMutationResult = Apollo.MutationResult<Types.UpdateNewsItemFileMutation>;
+export type UpdateNewsItemFileMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemFileMutation, Types.UpdateNewsItemFileMutationVariables>;
+export const GetNewsItemFilesDocument = gql`
+    query getNewsItemFiles($where: NewsItemFileWhereInput!, $sortBy: [SortNewsItemFilesBy!] = [createdAt_ASC], $first: Int = 10) {
+  newsItemFiles: allNewsItemFiles(where: $where, sortBy: $sortBy, first: $first) {
+    id
+    file {
+      publicUrl
+      originalFilename
+      mimetype
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetNewsItemFilesQuery__
+ *
+ * To run a query within a React component, call `useGetNewsItemFilesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsItemFilesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsItemFilesQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export function useGetNewsItemFilesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables> & ({ variables: Types.GetNewsItemFilesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>(GetNewsItemFilesDocument, options);
+      }
+export function useGetNewsItemFilesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>(GetNewsItemFilesDocument, options);
+        }
+// @ts-ignore
+export function useGetNewsItemFilesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>;
+export function useGetNewsItemFilesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetNewsItemFilesQuery | undefined, Types.GetNewsItemFilesQueryVariables>;
+export function useGetNewsItemFilesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>(GetNewsItemFilesDocument, options);
+        }
+export type GetNewsItemFilesQueryHookResult = ReturnType<typeof useGetNewsItemFilesQuery>;
+export type GetNewsItemFilesLazyQueryHookResult = ReturnType<typeof useGetNewsItemFilesLazyQuery>;
+export type GetNewsItemFilesSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemFilesSuspenseQuery>;
+export type GetNewsItemFilesQueryResult = Apollo.QueryResult<Types.GetNewsItemFilesQuery, Types.GetNewsItemFilesQueryVariables>;
 export const GetNewsItemRecipientsExportTasksDocument = gql`
     query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
   tasks: allNewsItemRecipientsExportTasks(where: $where) {

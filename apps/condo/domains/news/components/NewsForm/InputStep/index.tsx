@@ -23,10 +23,13 @@ import {
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { searchOrganizationProperty } from '@condo/domains/scope/utils/clientSchema/search'
 
+import { InputStepFilesSelector } from './InputStepFilesSelector'
 import { InputStepForm } from './InputStepForm'
 import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
 import { InputStepSelector, Properties } from './InputStepSelector'
+
+import { UploadFileType } from '../../FilesUploadList'
 
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
@@ -83,6 +86,9 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     form: FormInstance
     scope: ScopeType
     setScope: React.Dispatch<React.SetStateAction<ScopeType>>
+    files: Array<UploadFileType>
+    setFiles: React.Dispatch<React.SetStateAction<Array<UploadFileType>>>
+    modifyFiles
     isSharingStep: boolean
     selectedProperty: {
         loading: boolean
@@ -130,6 +136,9 @@ export const InputStep: React.FC<InputStepProps> = ({
     selectedProperty,
     initialPropertyIds,
     initialFormValues,
+    files,
+    setFiles,
+    modifyFiles,
 }
 ) => {
     const intl = useIntl()
@@ -315,7 +324,7 @@ export const InputStep: React.FC<InputStepProps> = ({
         <Row gutter={BIG_VERTICAL_GUTTER}>
             <FormContainer>
                 <InputStepForm
-                    template={{ id: templateId, ...templates[templateId] }}
+                    template={{ id: templateId, ...templates?.[templateId] }}
                     sharingAppId={sharingAppId}
                     newsSharingConfig={newsSharingConfig}
                     isSharingStep={isSharingStep}
@@ -340,6 +349,18 @@ export const InputStep: React.FC<InputStepProps> = ({
                     selectedBody={selectedBody}
                     selectedTitle={selectedTitle}
                     sharingAppId={sharingAppId}
+                />
+            </FormContainer>
+
+            <FormContainer>
+                <InputStepFilesSelector
+                    form={form}
+                    onChange={(fileList) => {
+                        form.setFieldsValue({ 'files': fileList })
+                        setFiles(fileList)
+                    }}
+                    files={files}
+                    modifyFiles={modifyFiles}
                 />
             </FormContainer>
 
