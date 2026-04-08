@@ -39,6 +39,8 @@ const {
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
+    MULTIPAYMENT_NON_DONE_PAYMENTS,
+    MULTIPAYMENT_SEVERAL_PAYMENTS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
@@ -76,9 +78,6 @@ const {
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { UserAdmin, makeClientWithSupportUser, makeClientWithServiceUser, createTestPhone, createTestEmail, updateTestUser } = require('@condo/domains/user/utils/testSchema')
-
-const { MULTIPAYMENT_NON_DONE_PAYMENTS, MULTIPAYMENT_SEVERAL_PAYMENTS } = require('../constants/errors')
-
 
 
 describe('MultiPayment', () => {

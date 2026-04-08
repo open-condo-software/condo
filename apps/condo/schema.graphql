@@ -92976,7 +92976,7 @@ input ExternalPaymentsInput {
 
 input RegisterExternalPaymentsInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!
   payments: [ExternalPaymentsInput!]!
 }
