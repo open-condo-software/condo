@@ -70,6 +70,7 @@ class SbbolOauth2Api {
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
             revocation_endpoint: this.revokeUrl,
+            jwks_uri: this.config.jwks_uri ? this.config.jwks_uri : `${this.protectedUrl}/jwks`,
         })
         // turn off JWKS storage as it's not workin with sbbol
         // TODO(zuch): Find a way to turn on jwks
