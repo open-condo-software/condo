@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require('node:path')
 
 /**
  * Validates file path to prevent path traversal attacks.

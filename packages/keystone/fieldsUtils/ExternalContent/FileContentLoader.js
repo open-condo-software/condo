@@ -1,4 +1,4 @@
-const { readFile } = require('fs/promises')
+const { readFile } = require('node:fs/promises')
 
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')

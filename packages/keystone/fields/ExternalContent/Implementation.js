@@ -1,5 +1,5 @@
-const { randomUUID } = require('crypto')
-const { Readable } = require('stream')
+const { randomUUID } = require('node:crypto')
+const { Readable } = require('node:stream')
 
 const { Implementation } = require('@open-keystone/fields')
 
