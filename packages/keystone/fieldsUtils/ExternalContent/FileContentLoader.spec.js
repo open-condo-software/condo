@@ -1,5 +1,5 @@
 const mockReadFile = jest.fn()
-jest.mock('fs/promises', () => ({
+jest.mock('node:fs/promises', () => ({
     readFile: mockReadFile,
 }))
 
