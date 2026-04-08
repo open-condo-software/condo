@@ -9,11 +9,13 @@ const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, waitFor } = 
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const {
+    PAYMENT_DONE_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
+const {
     updateTestMultiPayment,
+    updateTestPayment,
     Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
-const { updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
@@ -172,8 +174,10 @@ describe('ActivateSubscriptionContextService', () => {
             await updateTestMultiPayment(admin, payment.multiPayment.id, {
                 meta: { paymentMethod: testPaymentMethod },
             })
-            
-            await updateTestInvoice(admin, invoice.id, { status: INVOICE_STATUS_PAID })
+            await updateTestPayment(admin, payment.id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
             
             await waitFor(async () => {
                 const [updatedContext] = await SubscriptionContext.getAll(admin, { id: subscriptionContext.id })

@@ -4,8 +4,11 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById, itemsQuery } = require('@open-condo/keystone/schema')
 
+const {
+    PAYMENT_DONE_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
 const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
@@ -99,7 +102,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 }
                 logger.info({ msg: 'Found subscription context', data: { subscriptionContextId: subscriptionContext.id, status: subscriptionContext.status, invoiceId: subscriptionContext.invoice } })
 
-                if (subscriptionContext.status !== SUBSCRIPTION_CONTEXT_STATUS.CREATED) {
+                if (subscriptionContext.status !== SUBSCRIPTION_CONTEXT_STATUS.CREATED && subscriptionContext.status !== SUBSCRIPTION_CONTEXT_STATUS.PENDING && subscriptionContext.status !== SUBSCRIPTION_CONTEXT_STATUS.ERROR) {
                     logger.warn({ msg: 'SubscriptionContext has invalid status', data: { subscriptionContextId: subscriptionContext.id, status: subscriptionContext.status } })
                     throw new GQLError(ERRORS.SUBSCRIPTION_CONTEXT_INVALID_STATUS, context)
                 }
@@ -123,10 +126,14 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     throw new GQLError(ERRORS.INVOICE_NOT_PAID, context)
                 }
 
-                const payments = await find('Payment', {
-                    invoice: { id: invoice.id, deletedAt: null },
-                    deletedAt: null,
-                }, { sortBy: ['createdAt_DESC'] })
+                const payments = await itemsQuery('Payment', {
+                    where: {
+                        invoice: { id: invoice.id, deletedAt: null },
+                        status: PAYMENT_DONE_STATUS,
+                        deletedAt: null,
+                    },
+                    sortBy: ['createdAt_DESC'],
+                })
                 const payment = payments[0]
                 logger.info({ msg: 'Found payments for invoice', data: { invoiceId: invoice.id, paymentCount: payments.length, latestPaymentId: payment?.id, latestPaymentMultiPaymentId: payment?.multiPayment } })
 

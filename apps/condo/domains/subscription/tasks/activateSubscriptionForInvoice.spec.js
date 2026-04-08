@@ -6,6 +6,11 @@ const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-c
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
+    PAYMENT_DONE_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
+const {
+    updateTestPayment,
+    Payment,
     updateTestMultiPayment,
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
@@ -21,6 +26,7 @@ const {
     registerSubscriptionContextByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
+
 
 describe('activateSubscriptionForInvoice', () => {
     setFakeClientMode(index)
@@ -70,13 +76,19 @@ describe('activateSubscriptionForInvoice', () => {
                 bankCountryCode: 'RU',
             }
 
+            const [payment] = await Payment.getAll(adminClient, {
+                invoice: { id: invoice.id },
+                deletedAt: null,
+            })
+
             await updateTestMultiPayment(adminClient, result.multiPayment.id, {
                 meta: { paymentMethod },
             })
 
-            await updateTestInvoice(adminClient, invoice.id, {
-                status: INVOICE_STATUS_PAID,
-            })
+            await updateTestPayment(adminClient, payment.id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })             
 
             await waitFor(async () => {
                 const [updatedContext] = await SubscriptionContext.getAll(adminClient, {
@@ -129,9 +141,15 @@ describe('activateSubscriptionForInvoice', () => {
 
             expect(subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
 
-            await updateTestInvoice(adminClient, invoice.id, {
-                status: INVOICE_STATUS_PAID,
+            const [payment] = await Payment.getAll(adminClient, {
+                invoice: { id: invoice.id },
+                deletedAt: null,
             })
+
+            await updateTestPayment(adminClient, payment.id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })             
 
             let firstUpdatedAt
             await waitFor(async () => {
@@ -167,7 +185,7 @@ describe('activateSubscriptionForInvoice', () => {
 
             await SubscriptionContext.update(adminClient, subscriptionContext.id, {
                 status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
-                sender: { dv: 1, fingerprint: 'test' },
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
             })
 
             const bindingId = faker.datatype.uuid()
@@ -184,8 +202,14 @@ describe('activateSubscriptionForInvoice', () => {
                 meta: { paymentMethod },
             })
 
-            await updateTestInvoice(adminClient, invoice.id, {
-                status: INVOICE_STATUS_PAID,
+            const [payment] = await Payment.getAll(adminClient, {
+                invoice: { id: invoice.id },
+                deletedAt: null,
+            })
+
+            await updateTestPayment(adminClient, payment.id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
             })
 
             await waitFor(async () => {

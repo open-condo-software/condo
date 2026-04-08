@@ -11,7 +11,6 @@ const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/
 const { FIND_ORGANIZATIONS_BY_TIN_MUTATION } = require('@condo/domains/organization/gql')
 const { SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
 const { ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
-const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils('Organization')
