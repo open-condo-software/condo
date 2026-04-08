@@ -19,9 +19,12 @@ const set = require('lodash/set')
 const conf = require('@open-condo/config')
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
+
+const logger = getLogger('Invoice')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
@@ -55,6 +58,15 @@ const {
     ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
     ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
     ERROR_NO_FINISHED_ACQUIRING_CONTEXT, DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_PAYMENT_TYPE_CASH,
+    INVOICE_TYPES,
+    INVOICE_TYPE_B2C,
+    INVOICE_TYPE_B2B,
+    B2B_INVOICE_FIELDS,
+    B2C_INVOICE_FIELDS,
+    ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+    ERROR_B2B_INVOICE_SAME_ORGANIZATION,
+    ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+    ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
@@ -66,6 +78,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { activateSubscriptionForInvoice } = require('@condo/domains/subscription/tasks')
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -247,6 +260,32 @@ const ERRORS = {
         message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
         messageForUser: 'api.marketplace.invoice.WEBHOOK_URL_NOT_IN_WHITELIST',
     },
+    B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION: {
+        code: BAD_USER_INPUT,
+        type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+        message: 'B2B invoice must have payerOrganization field',
+        messageForUser: 'api.marketplace.invoice.B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION',
+    },
+    B2B_INVOICE_SAME_ORGANIZATION: {
+        code: BAD_USER_INPUT,
+        type: ERROR_B2B_INVOICE_SAME_ORGANIZATION,
+        message: 'B2B invoice organization and payerOrganization must be different',
+        messageForUser: 'api.marketplace.invoice.B2B_INVOICE_SAME_ORGANIZATION',
+    },
+    B2B_INVOICE_WITH_B2C_FIELDS: (fields) => ({
+        code: BAD_USER_INPUT,
+        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+        message: `B2B invoice cannot have B2C fields: ${fields.join(', ')}`,
+        messageForUser: 'api.marketplace.invoice.B2B_INVOICE_WITH_B2C_FIELDS',
+        messageInterpolation: { fields: fields.join(', ') },
+    }),
+    B2C_INVOICE_WITH_B2B_FIELDS: (fields) => ({
+        code: BAD_USER_INPUT,
+        type: ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
+        message: `B2C invoice cannot have B2B fields: ${fields.join(', ')}`,
+        messageForUser: 'api.marketplace.invoice.B2C_INVOICE_WITH_B2B_FIELDS',
+        messageInterpolation: { fields: fields.join(', ') },
+    }),
 }
 
 const Invoice = new GQLListSchema('Invoice', {
@@ -254,6 +293,23 @@ const Invoice = new GQLListSchema('Invoice', {
     fields: {
 
         organization: ORGANIZATION_OWNED_FIELD,
+
+        type: {
+            schemaDoc: 'Invoice type: b2b (business to business) or b2c (business to consumer)',
+            isRequired: true,
+            type: 'Select',
+            dataType: 'string',
+            options: INVOICE_TYPES,
+            defaultValue: INVOICE_TYPE_B2C,
+        },
+
+        payerOrganization: {
+            schemaDoc: 'Organization that will pay the invoice (the billed/recipient organization for B2B invoices)',
+            type: 'Relationship',
+            ref: 'Organization',
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
 
         number: {
             schemaDoc: 'The invoice number within organization',
@@ -540,6 +596,38 @@ const Invoice = new GQLListSchema('Invoice', {
                     throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
                 }
             }
+
+            const invoiceType = nextData?.type
+            
+            if (invoiceType === INVOICE_TYPE_B2B) {
+                const payerOrganization = nextData?.payerOrganization
+                if (!payerOrganization) {
+                    throw new GQLError(ERRORS.B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION, context)
+                }
+                
+                const organization = nextData?.organization
+                if (organization && payerOrganization === organization) {
+                    throw new GQLError(ERRORS.B2B_INVOICE_SAME_ORGANIZATION, context)
+                }
+                
+                const filledB2CFields = B2C_INVOICE_FIELDS.filter(field => {
+                    const value = nextData?.[field]
+                    return !isNil(value) && value !== ''
+                })
+                
+                if (filledB2CFields.length > 0) {
+                    throw new GQLError(ERRORS.B2B_INVOICE_WITH_B2C_FIELDS(filledB2CFields), context)
+                }
+            } else if (invoiceType === INVOICE_TYPE_B2C) {
+                const filledB2BFields = B2B_INVOICE_FIELDS.filter(field => {
+                    const value = nextData?.[field]
+                    return !isNil(value) && value !== ''
+                })
+                
+                if (filledB2BFields.length > 0) {
+                    throw new GQLError(ERRORS.B2C_INVOICE_WITH_B2B_FIELDS(filledB2BFields), context)
+                }
+            }
         },
 
         resolveInput: async ({ context, operation, resolvedData, existingItem }) => {
@@ -672,9 +760,17 @@ const Invoice = new GQLListSchema('Invoice', {
             return resolvedData
         },
         afterChange: async (args) => {
-            const { context, originalInput, updatedItem } = args
+            const { context, originalInput, updatedItem, existingItem } = args
             const { client: userId, property: propertyId, unitName, unitType } = updatedItem
             await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
+            
+            const statusChanged = get(existingItem, 'status') !== get(updatedItem, 'status')
+            const isB2BInvoice = get(updatedItem, 'type') === INVOICE_TYPE_B2B
+            const isPaid = get(updatedItem, 'status') === INVOICE_STATUS_PAID
+            
+            if (statusChanged && isB2BInvoice && isPaid) {
+                await activateSubscriptionForInvoice.delay(updatedItem.id)
+            }
         },
     },
     plugins: [

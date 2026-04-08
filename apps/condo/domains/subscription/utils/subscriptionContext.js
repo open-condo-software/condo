@@ -50,32 +50,38 @@ function selectBestSubscriptionContext (contexts) {
 }
 
 /**
- * Checks if a subscription context is currently active (not expired)
+ * Calculates the start date for a new subscription based on existing contexts.
+ * If there are active contexts that end in the future, the new subscription
+ * will start from the latest end date. Otherwise, it starts from today.
  * 
- * @param {Object} context - Subscription context
- * @returns {boolean} - True if context is active
+ * @param {Array} existingContexts - Array of existing subscription contexts
+ * @returns {Object} - dayjs object representing the start date
  */
-function isSubscriptionContextActive (context) {
-    if (!context) return false
-    if (!context.endAt) return true
-    const now = dayjs().startOf('day')
-    const endAt = dayjs(context.endAt)
-    return endAt.isSameOrAfter(now, 'day')
+function calculateSubscriptionStartDate (existingContexts) {
+    const today = dayjs().startOf('day')
+    let startAt = today
+    
+    if (!existingContexts || existingContexts.length === 0) {
+        return startAt
+    }
+
+    const sortedContexts = existingContexts
+        .filter(ctx => ctx.endAt)
+        .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
+
+    if (sortedContexts.length > 0) {
+        const lastContext = sortedContexts[0]
+        const lastEndAt = dayjs(lastContext.endAt).startOf('day')
+        if (lastEndAt.isAfter(today)) {
+            startAt = lastEndAt
+        }
+    }
+
+    return startAt
 }
 
-/**
- * Filters subscription contexts to only include active ones
- * 
- * @param {Array} contexts - Array of subscription contexts
- * @returns {Array} - Array of active subscription contexts
- */
-function filterActiveSubscriptionContexts (contexts) {
-    if (!contexts) return []
-    return contexts.filter(isSubscriptionContextActive)
-}
 
 module.exports = {
     selectBestSubscriptionContext,
-    isSubscriptionContextActive,
-    filterActiveSubscriptionContexts,
+    calculateSubscriptionStartDate,
 }

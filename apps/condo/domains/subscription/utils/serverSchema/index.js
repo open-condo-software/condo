@@ -6,23 +6,25 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { ACTIVATE_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
+const { ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
 const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
+const { REGISTER_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
+const { UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
 const SubscriptionPlanPricingRule = generateServerUtils('SubscriptionPlanPricingRule')
 const SubscriptionContext = generateServerUtils('SubscriptionContext')
-async function activateSubscriptionPlan (context, data) {
+async function activateSubscriptionContext (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
+        query: ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to activateSubscriptionPlan',
-        dataPath: 'obj',
+        errorMessage: '[error] Unable to activateSubscriptionContext',
+        dataPath: 'result',
     })
 }
 
@@ -38,13 +40,41 @@ async function getAvailableSubscriptionPlans (context, organizationId) {
     })
 }
 
+async function registerSubscriptionContext (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerSubscriptionContext',
+        dataPath: 'result',
+    })
+}
+
+async function updateSubscriptionContextPaymentMethod (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to updateSubscriptionContextPaymentMethod',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     SubscriptionPlan,
     SubscriptionPlanPricingRule,
     SubscriptionContext,
-    activateSubscriptionPlan,
+    activateSubscriptionContext,
     getAvailableSubscriptionPlans,
+    registerSubscriptionContext,
+    updateSubscriptionContextPaymentMethod,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -11,10 +11,19 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { INVOICE_TYPE_B2C, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionContext,
     createTestSubscriptionContext,
@@ -132,9 +141,9 @@ describe('SubscriptionContext', () => {
                     isTrial: true,
                 })
 
-                const deletedAt = dayjs().toISOString()
-                const [obj] = await updateTestSubscriptionContext(support, objCreated.id, { deletedAt })
-
+                const [obj] = await updateTestSubscriptionContext(support, objCreated.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
                 expect(obj.deletedAt).toBeTruthy()
             })
 
@@ -226,6 +235,116 @@ describe('SubscriptionContext', () => {
     })
 
     describe('Validation tests', () => {
+        test('trial subscription cannot have subscriptionPlanPricingRule', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                    isTrial: true,
+                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TRIAL_CANNOT_HAVE_PRICING_RULE',
+            }, 'obj')
+        })
+
+        test('paid subscription can have subscriptionPlanPricingRule', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+        })
+
+        test('trial subscription cannot have invoice', async () => {
+            const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            
+            await createTestBillingIntegration(admin)
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+            
+            const [invoice] = await createTestInvoice(admin, testOrg)
+
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                    isTrial: true,
+                    invoice: { connect: { id: invoice.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TRIAL_CANNOT_HAVE_INVOICE',
+            }, 'obj')
+        })
+
+        test('subscription cannot have B2C invoice', async () => {
+            const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            
+            await createTestBillingIntegration(admin)
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+            
+            const [invoice] = await createTestInvoice(admin, testOrg, {
+                type: INVOICE_TYPE_B2C,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                    invoice: { connect: { id: invoice.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVOICE_MUST_BE_B2B',
+            }, 'obj')
+        })
+
+        test('subscription can have B2B invoice', async () => {
+            const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            const [payerOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            
+            await createTestBillingIntegration(admin)
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, testOrg, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [],
+            })
+            
+            const [invoice] = await createTestInvoice(admin, testOrg, {
+                type: INVOICE_TYPE_B2B,
+                payerOrganization: { connect: { id: payerOrg.id } },
+            })
+
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                invoice: { connect: { id: invoice.id } },
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.invoice.id).toBe(invoice.id)
+        })
+
         test('endAt must be after startAt', async () => {
             const startAt = dayjs().format('YYYY-MM-DD')
             const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
@@ -508,6 +627,114 @@ describe('SubscriptionContext', () => {
 
                 expect(obj.id).toMatch(UUID_RE)
             })
+
+            test('allows creating subscription with overlapping dates if existing subscription is not DONE', async () => {
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
+
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.startAt).toBe(startAt)
+                expect(obj.endAt).toBe(endAt)
+            })
+        })
+
+        test('bindingId field stores card token ID correctly', async () => {
+            const bindingId = faker.datatype.uuid()
+
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                bindingId,
+            })
+
+            expect(obj.bindingId).toBeDefined()
+            expect(obj.bindingId).toBe(bindingId)
+        })
+
+        test('can set bindingId for subscription', async () => {
+            const bindingId = faker.datatype.uuid()
+
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                bindingId,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.bindingId).toBe(bindingId)
+        })
+
+        test('can update bindingId on existing subscription', async () => {
+            const oldBindingId = faker.datatype.uuid()
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                bindingId: oldBindingId,
+            })
+
+            const newBindingId = faker.datatype.uuid()
+            const [updated] = await updateTestSubscriptionContext(admin, obj.id, {
+                bindingId: newBindingId,
+            })
+
+            expect(updated.bindingId).toBe(newBindingId)
+        })
+
+        test('can update SubscriptionContext status with correct status tranistion', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: '2024-01-01',
+                endAt: '2024-02-15',
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            const [updatedContext] = await updateTestSubscriptionContext(admin, context.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('can not update SubscriptionContext status with incorrect status tranistion', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: '2024-01-01',
+                endAt: '2024-02-15',
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, context.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestSubscriptionContext(admin, context.id, {
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_STATUS_TRANSITION',
+            }, 'obj')
         })
     })
 
@@ -667,6 +894,75 @@ describe('SubscriptionContext', () => {
             // Check that the other organization's UserHelpRequest is not affected
             const otherUpdated = await UserHelpRequest.getOne(admin, { id: otherHelpRequest.id })
             expect(otherUpdated.deletedAt).toBeNull()
+        })
+    })
+
+    describe('Status field tests', () => {
+        test('status defaults to CREATED when not specified', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: undefined,
+            })
+
+            expect(obj.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('can create subscription with status DONE', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            expect(obj.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('can create subscription with status ERROR', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            expect(obj.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR)
+        })
+
+        test('can update status from CREATED to DONE', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            expect(objCreated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+
+            const [objUpdated] = await updateTestSubscriptionContext(admin, objCreated.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            expect(objUpdated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('can update status from CREATED to ERROR', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            expect(objCreated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+
+            const [objUpdated] = await updateTestSubscriptionContext(admin, objCreated.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            expect(objUpdated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR)
         })
     })
 })

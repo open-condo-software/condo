@@ -1,11 +1,16 @@
-import { useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
+import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import { useCallback, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
+
+import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
+
 
 interface ActivatePlanParams {
     priceId: string
@@ -13,6 +18,7 @@ interface ActivatePlanParams {
     planName?: string
     trialDays?: number
     isCustomPrice?: boolean
+    paymentType?: PaymentType
 }
 
 export const useActivateSubscriptions = () => {
@@ -36,7 +42,9 @@ export const useActivateSubscriptions = () => {
         skip: !organization?.id,
     })
 
-    const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
+    const [registerSubscriptionContextMutation] = useRegisterSubscriptionContextMutation()
+    const [createUserHelpRequest] = useCreateUserHelpRequestMutation()
+    const { user } = useAuth()
 
     const pendingRequests = pendingRequestsData?.pendingRequests || []
     const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
@@ -85,22 +93,42 @@ export const useActivateSubscriptions = () => {
         }
     }, [refetchPendingRequests, refetchActivatedSubscriptions, employee?.id, selectEmployee])
 
-    const handleActivatePlan = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false }: ActivatePlanParams) => {
+    const registerSubscriptionContext = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false, paymentType = 'card' }: ActivatePlanParams) => {
         if (!organization) return
 
         setActivateLoading(true)
         try {
-            await activateSubscriptionPlan({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        organization: { id: organization.id },
-                        pricingRule: { id: priceId },
-                        isTrial,
+            if (paymentType === 'userHelpRequest') {
+                await createUserHelpRequest({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            type: UserHelpRequestTypeType.ActivateSubscription,
+                            organization: { connect: { id: organization.id } },
+                            subscriptionPlanPricingRule: { connect: { id: priceId } },
+                            phone: user?.phone || '',
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                const result = await registerSubscriptionContextMutation({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            organization: { id: organization.id },
+                            subscriptionPlanPricingRule: { id: priceId },
+                            isTrial,
+                        },
+                    },
+                })
+
+                if (!isTrial && result.data?.result?.directPaymentUrl) {
+                    window.open(result.data.result.directPaymentUrl, '_self')
+                    return
+                }
+            }
 
             await refetchData(isTrial)
             showSuccessNotification(isTrial, planName, trialDays, isCustomPrice)
@@ -114,13 +142,14 @@ export const useActivateSubscriptions = () => {
         } finally {
             setActivateLoading(false)
         }
-    }, [organization, activateSubscriptionPlan, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
+    }, [organization, user, registerSubscriptionContextMutation, createUserHelpRequest, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
 
     return {
-        handleActivatePlan,
+        registerSubscriptionContext,
         activateLoading,
         pendingRequests,
         activatedSubscriptions,
         isLoading: pendingRequestsLoading || activatedSubscriptionsLoading,
+        refetchActivatedSubscriptions,
     }
 }

@@ -12,13 +12,12 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestBillingIntegration,
-    updateTestBillingReceipt,
     createTestBillingRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
-const { freezeBillingReceipt, freezeInvoice } = require('./billingFridge')
+const { freezeBillingReceipt, freezeInvoice, freezePaymentInfo } = require('./billingFridge')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('./testSchema')
 
 const { createTestBillingReceipt } = require('../../billing/utils/testSchema')
@@ -151,6 +150,50 @@ describe('billingFridge', () => {
             expect(row).toHaveProperty('toPay')
             expect(row).toHaveProperty('count')
             expect(row).toHaveProperty('currencyCode')
+        })
+    })
+
+    describe('freezePaymentInfo', () => {
+        test('should create frozen payment info with all fields', () => {
+            const multiPayment = {
+                id: 'multi-payment-id',
+                meta: {
+                    paymentMethod: {
+                        bindingId: 'test-binding-id',
+                        paymentSystem: 'MasterCard',
+                        cardNumber: '****1234',
+                        expiration: '12/25',
+                        bankName: 'Test Bank',
+                        bankCountryCode: 'RU',
+                    },
+                },
+            }
+
+            const invoice = {
+                id: 'invoice-id',
+                rows: [
+                    { name: 'Service 1', toPay: '100.00', count: 1 },
+                    { name: 'Service 2', toPay: '200.00', count: 2 },
+                ],
+                toPay: '500.00',
+                currencyCode: 'RUB',
+            }
+
+            const pricingRuleId = 'pricing-rule-id'
+
+            const result = freezePaymentInfo(multiPayment, invoice, pricingRuleId)
+
+            expect(result).toHaveProperty('paymentMethod')
+            expect(result.paymentMethod).toEqual(multiPayment.meta.paymentMethod)
+            expect(result).toHaveProperty('invoice')
+            expect(result.invoice).toEqual({
+                id: invoice.id,
+                rows: invoice.rows,
+                toPay: invoice.toPay,
+                currencyCode: invoice.currencyCode,
+            })
+            expect(result).toHaveProperty('pricingRuleId', pricingRuleId)
+            expect(result).toHaveProperty('multiPaymentId', multiPayment.id)
         })
     })
 })

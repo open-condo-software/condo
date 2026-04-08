@@ -28,11 +28,15 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
     createTestPaymentStatusChangeWebhookUrl,
     updateTestPaymentStatusChangeWebhookUrl,
+    updateTestMultiPayment,
+    updateTestPayment,
+    Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
@@ -45,6 +49,12 @@ const {
     INVOICE_PAYMENT_TYPE_CASH,
     INVOICE_PAYMENT_TYPE_ONLINE,
     INVOICE_STATUS_CANCELED, CLIENT_DATA_FIELDS, DEFAULT_INVOICE_CURRENCY_CODE,
+    INVOICE_TYPE_B2B,
+    INVOICE_TYPE_B2C,
+    ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+    ERROR_B2B_INVOICE_SAME_ORGANIZATION,
+    ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+    ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
 } = require('@condo/domains/marketplace/constants')
 const {
     Invoice,
@@ -84,6 +94,14 @@ const {
     registerResidentInvoiceByTestClient,
     updateTestResident,
 } = require('@condo/domains/resident/utils/testSchema')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const {
+    createTestSubscriptionPlan,
+    createTestSubscriptionPlanPricingRule,
+    createTestSubscriptionContext,
+    registerSubscriptionContextByTestClient,
+    SubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -3074,6 +3092,469 @@ describe('Invoice', () => {
             // It should be different from the plain text secret returned on creation
             expect(updatedInvoice.paymentStatusChangeWebhookSecret).not.toBe(originalSecret)
             expect(updatedInvoice.paymentStatusChangeWebhookSecret).toContain(':condo_')
+        })
+    })
+
+    describe('B2B/B2C invoice types', () => {
+        describe('create', () => {
+            test('can create B2C invoice (default type) without payerOrganization', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+
+                expect(invoice.type).toBe(INVOICE_TYPE_B2C)
+                expect(invoice.payerOrganization).toBeNull()
+                expect(invoice.organization.id).toBe(dummyOrganization.id)
+            })
+
+            test('can create B2B invoice with payerOrganization', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                expect(invoice.type).toBe(INVOICE_TYPE_B2B)
+                expect(invoice.payerOrganization.id).toBe(payerOrg.id)
+                expect(invoice.organization.id).toBe(dummyOrganization.id)
+                expect(invoice.property).toBeNull()
+                expect(invoice.unitType).toBeNull()
+                expect(invoice.unitName).toBeNull()
+            })
+
+            test('cannot create B2B invoice without payerOrganization', async () => {
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+                        message: 'B2B invoice must have payerOrganization field',
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice when organization and payerOrganization are the same', async () => {
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: dummyOrganization.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_SAME_ORGANIZATION,
+                        message: 'B2B invoice organization and payerOrganization must be different',
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice with B2C fields (property)', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, dummyOrganization)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                            property: { connect: { id: property.id } },
+                            unitType: FLAT_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice with B2C fields', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, dummyOrganization)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                            property: { connect: { id: property.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice with B2C fields (clientName, clientPhone)', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                            clientName: faker.name.firstName(),
+                            clientPhone: createTestPhone(),
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2C invoice with B2B fields (payerOrganization)', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2C,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+        })
+
+        describe('update', () => {
+            test('can update B2B invoice fields', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [newPayerOrg] = await createTestOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                const [updated] = await updateTestInvoice(adminClient, invoice.id, {
+                    payerOrganization: { connect: { id: newPayerOrg.id } },
+                })
+
+                expect(updated.payerOrganization.id).toBe(newPayerOrg.id)
+                expect(updated.type).toBe(INVOICE_TYPE_B2B)
+            })
+
+            test('cannot update B2B invoice to remove payerOrganization', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await updateTestInvoice(adminClient, invoice.id, {
+                            payerOrganization: { disconnectAll: true },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot update B2B invoice to add B2C fields', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await updateTestInvoice(adminClient, invoice.id, {
+                            clientName: faker.name.firstName(),
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot update B2C invoice to add B2B fields', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2C,
+                })
+                const [payerOrg] = await registerNewOrganization(adminClient)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await updateTestInvoice(adminClient, invoice.id, {
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+        })
+
+        describe('read permissions', () => {
+            test('employees of payerOrganization can read B2B invoice', async () => {
+                const staffClient = await makeClientWithStaffUser()
+                const [payerOrg] = await registerNewOrganization(staffClient)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
+                expect(invoices).toHaveLength(1)
+                expect(invoices[0].id).toBe(invoice.id)
+                expect(invoices[0].payerOrganization.id).toBe(payerOrg.id)
+            })
+
+            test('employees of recipient organization can read B2B invoice', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const staffClient = await makeClientWithStaffUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                    canReadInvoices: true,
+                })
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, staffClient.user, role)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
+                expect(invoices).toHaveLength(1)
+                expect(invoices[0].id).toBe(invoice.id)
+                expect(invoices[0].organization.id).toBe(dummyOrganization.id)
+            })
+
+            test('employees of unrelated organization cannot read B2B invoice', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const staffClient = await makeClientWithStaffUser()
+                await registerNewOrganization(staffClient)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                })
+
+                const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
+                expect(invoices).toHaveLength(0)
+            })
+        })
+
+        describe('subscription context activation', () => {
+            test('activates subscription context when B2B invoice is paid', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                    organization: { id: payerOrg.id },
+                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    isTrial: false,
+                })
+
+                expect(result.subscriptionContext).toBeDefined()
+                expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(result.multiPayment).toBeDefined()
+                expect(result.subscriptionContext.invoice).toBeDefined()
+
+                const invoice = result.subscriptionContext.invoice
+                const subscriptionContext = result.subscriptionContext
+
+                // Update payment to DONE status
+                const [payment] = await Payment.getAll(adminClient, {
+                    invoice: { id: invoice.id },
+                    deletedAt: null,
+                })
+                await updateTestPayment(adminClient, payment.id, {
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: dayjs().toISOString(),
+                })
+                
+                await waitFor(async () => {
+                    const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                    expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                })
+
+                const [finalContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(finalContext.bindingId).toBeNull()
+            })
+
+            test('activates subscription context with payment method when MultiPayment exists', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                    organization: { id: payerOrg.id },
+                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    isTrial: false,
+                })
+
+                expect(result.subscriptionContext).toBeDefined()
+                expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(result.multiPayment).toBeDefined()
+
+                const invoice = result.subscriptionContext.invoice
+                const subscriptionContext = result.subscriptionContext
+                const multiPayment = result.multiPayment
+
+                const paymentMethod = {
+                    bindingId: 'test-binding-id',
+                    paymentSystem: 'test-system',
+                    cardNumber: '1234',
+                    expiration: '12/25',
+                    bankName: 'Test Bank',
+                    bankCountryCode: 'RU',
+                }
+                await updateTestMultiPayment(adminClient, multiPayment.id, {
+                    meta: { paymentMethod },
+                })
+
+                // Update payment to DONE status
+                const [payment] = await Payment.getAll(adminClient, {
+                    invoice: { id: invoice.id },
+                    deletedAt: null,
+                })
+                await updateTestPayment(adminClient, payment.id, {
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: dayjs().toISOString(),
+                })
+
+                await waitFor(async () => {
+                    const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                    expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                })
+
+                const [finalContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(finalContext.bindingId).toBeDefined()
+                expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(paymentMethod)
+            })
+
+            test('does not fail when B2B invoice is paid without subscription context', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                const [updatedInvoice] = await Invoice.getAll(adminClient, { id: invoice.id })
+                expect(updatedInvoice.status).toBe(INVOICE_STATUS_PAID)
+            })
+
+            test('does not activate subscription context if already DONE', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, payerOrg, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    bindingId: 'test-binding-id',
+                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                    frozenPaymentInfo: {
+                        paymentMethod: {
+                            bindingId: 'test-binding-id',
+                            paymentSystem: 'test-system',
+                            cardNumber: '1234',
+                            expiration: '12/25',
+                            bankName: 'Test Bank',
+                            bankCountryCode: 'RU',
+                        },
+                        pricingRuleId: pricingRule.id,
+                    },
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PAID,
+                })
+
+                await waitFor(async () => {
+                    const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                    expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+                })
+
+                const [finalContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(finalContext.frozenPaymentInfo.paymentMethod.cardNumber).toBe('1234')
+            })
+
+            test('does not activate subscription context when status does not change', async () => {
+                const [payerOrg] = await registerNewOrganization(adminClient)
+                const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
+                const [pricingRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                    price: '1000',
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [subscriptionContext] = await createTestSubscriptionContext(adminClient, payerOrg, subscriptionPlan, {
+                    invoice: { connect: { id: invoice.id } },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                    isTrial: false,
+                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                })
+
+                await updateTestInvoice(adminClient, invoice.id, {
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            })
         })
     })
 })

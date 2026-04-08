@@ -4,15 +4,17 @@
 
 const dayjs = require('dayjs')
 
+const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 
-const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS } = require('@condo/domains/subscription/constants')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
@@ -29,6 +31,36 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'OVERLAPPING_SUBSCRIPTION',
         message: 'Cannot create subscription with the same plan and isTrial value on overlapping dates',
+    },
+    TRIAL_CANNOT_HAVE_PRICING_RULE: {
+        code: BAD_USER_INPUT,
+        type: 'TRIAL_CANNOT_HAVE_PRICING_RULE',
+        message: 'Trial subscription cannot have subscriptionPlanPricingRule',
+    },
+    TRIAL_CANNOT_HAVE_INVOICE: {
+        code: BAD_USER_INPUT,
+        type: 'TRIAL_CANNOT_HAVE_INVOICE',
+        message: 'Trial subscription cannot have invoice',
+    },
+    SUBSCRIPTION_PLAN_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: 'SUBSCRIPTION_PLAN_MISMATCH',
+        message: 'subscriptionPlan in context must match subscriptionPlan in subscriptionPlanPricingRule',
+    },
+    RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION: {
+        code: BAD_USER_INPUT,
+        type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
+        message: 'bindingId can only be set for paid subscriptions with pricing rule',
+    },
+    INVOICE_MUST_BE_B2B: {
+        code: BAD_USER_INPUT,
+        type: 'INVOICE_MUST_BE_B2B',
+        message: 'Subscription context invoice must be B2B type',
+    },
+    INVALID_STATUS_TRANSITION: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_STATUS_TRANSITION',
+        message: 'Status transition is not allowed', 
     },
 }
 
@@ -78,10 +110,13 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        basePrice: {
-            ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Base price from the subscription plan (before any rules applied). Not required for trial subscriptions',
+        subscriptionPlanPricingRule: {
+            schemaDoc: 'Pricing rule that was used for this subscription',
+            type: 'Relationship',
+            ref: 'SubscriptionPlanPricingRule',
             isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
                 read: true,
                 create: true,
@@ -89,25 +124,16 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        calculatedPrice: {
-            ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Final calculated price after applying all pricing rules. Not required for trial subscriptions',
+        invoice: {
+            schemaDoc: 'Invoice for this subscription payment. Populated from payment invoice',
+            type: 'Relationship',
+            ref: 'Invoice',
             isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
                 read: true,
-                create: false,
-                update: false,
-            },
-        },
-
-        appliedRules: {
-            schemaDoc: 'JSON array of applied pricing rules with audit information',
-            type: 'Json',
-            isRequired: false,
-            defaultValue: [],
-            access: {
-                read: true,
-                create: false,
+                create: true,
                 update: false,
             },
         },
@@ -124,14 +150,48 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        meta: {
-            schemaDoc: 'Subscription metadata containing paymentMethod, price, and pricingRuleId',
-            type: 'Json',
+        status: {
+            schemaDoc: 'Subscription context status. CREATED - context created but not yet active, DONE - context is fully processed and active, ERROR - processing failed',
+            type: 'Select',
+            options: SUBSCRIPTION_CONTEXT_STATUSES.join(', '),
+            defaultValue: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            isRequired: true,
+            access: {
+                read: true,
+                create: true,
+                update: true,
+            },
+        },
+
+        bindingId: {
+            schemaDoc: 'Saved card token on acquiring side used for subscription auto-payments. The presence of this value indicates that auto-payments are enabled',
+            type: 'Text',
+            sensitive: true,
             isRequired: false,
             access: {
                 read: true,
                 create: true,
-                update: false,
+                update: true,
+            },
+        },
+
+        frozenPaymentInfo: {
+            schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID',
+            type: 'Json',
+            isRequired: false,
+            sensitive: true,
+            extendGraphQLTypes: [
+                'type PaymentMethod { bindingId: String!, paymentSystem: String!, cardNumber: String!, expiration: String!, bankName: String!, bankCountryCode: String! }',
+                'type InvoiceRow { name: String, count: String, price: String, toPay: String }',
+                'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String, currencyCode: String }',
+                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String, multiPaymentId: String }',
+            ],
+            graphQLReturnType: 'FrozenPaymentInfo',
+            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay currencyCode } pricingRuleId multiPaymentId }',
+            access: {
+                read: true,
+                create: userIsAdmin,
+                update: userIsAdmin,
             },
         },
 
@@ -180,6 +240,44 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 }
             }
 
+            const isTrial = resolvedData.isTrial !== undefined ? resolvedData.isTrial : existingItem?.isTrial
+            const subscriptionPlanPricingRuleId = resolvedData.subscriptionPlanPricingRule
+            const invoiceId = resolvedData.invoice
+
+            if (isTrial && subscriptionPlanPricingRuleId) {
+                throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_PRICING_RULE, context)
+            }
+
+            if (subscriptionPlanPricingRuleId) {
+                const subscriptionPlanId = resolvedData.subscriptionPlan || existingItem?.subscriptionPlan
+                const [pricingRule] = await find('SubscriptionPlanPricingRule', { 
+                    id: subscriptionPlanPricingRuleId, 
+                    deletedAt: null,
+                })
+
+                if (pricingRule && subscriptionPlanId && pricingRule.subscriptionPlan !== subscriptionPlanId) {
+                    throw new GQLError(ERRORS.SUBSCRIPTION_PLAN_MISMATCH, context)
+                }
+            }
+
+            if (isTrial && invoiceId) {
+                throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_INVOICE, context)
+            }
+
+            if (invoiceId) {
+                const invoiceItem = await getById('Invoice', invoiceId)
+                if (invoiceItem && invoiceItem.type !== INVOICE_TYPE_B2B) {
+                    throw new GQLError(ERRORS.INVOICE_MUST_BE_B2B, context)
+                }
+            }
+
+            const bindingId = resolvedData.bindingId
+            const hasPricingRule = subscriptionPlanPricingRuleId || existingItem?.subscriptionPlanPricingRule
+
+            if (bindingId && (isTrial || !hasPricingRule)) {
+                throw new GQLError(ERRORS.RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION, context)
+            }
+
             if (operation === 'create') {
                 const organizationId = resolvedData.organization
                 const subscriptionPlanId = resolvedData.subscriptionPlan
@@ -192,6 +290,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         organization: { id: organizationId },
                         subscriptionPlan: { id: subscriptionPlanId },
                         isTrial,
+                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                         deletedAt: null,
                         startAt_lt: endAt,
                         endAt_gt: startAt,
@@ -200,6 +299,16 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                     if (overlappingSubscriptions.length > 0) {
                         throw new GQLError(ERRORS.OVERLAPPING_SUBSCRIPTION, context)
                     }
+                }
+            }
+
+            const existedStatus = existingItem?.status
+            const newStatus = resolvedData.status
+
+            if (existedStatus && newStatus) {
+                const statusTransitions = SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS[existedStatus]
+                if (!statusTransitions.includes(newStatus)) {
+                    throw new GQLError(ERRORS.INVALID_STATUS_TRANSITION, context)
                 }
             }
         },

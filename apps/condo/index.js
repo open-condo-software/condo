@@ -85,6 +85,7 @@ const tasks = () => [
     require('@condo/domains/marketplace/tasks'),
     require('@condo/domains/analytics/tasks'),
     require('@condo/domains/ai/tasks'),
+    require('@condo/domains/subscription/tasks'),
 ]
 
 const checks = [

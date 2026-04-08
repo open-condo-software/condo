@@ -63,6 +63,24 @@ export const useOrganizationSubscription = () => {
         return Math.max(0, Math.ceil(diff))
     }, [subscriptionFeatures?.activeSubscriptionEndAt])
 
+    const isInBufferPeriod = useMemo<boolean>(() => {
+        if (!subscriptionContext || subscriptionContext.isTrial) return false
+        if (!subscriptionContext.endAt) return false
+        
+        const originalEndDate = dayjs(subscriptionContext.endAt)
+        const now = dayjs()
+        
+        return now.isAfter(originalEndDate) && daysRemaining > 0
+    }, [subscriptionContext, daysRemaining])
+
+    const daysRemainingWithoutBuffer = useMemo<number>(() => {
+        if (!subscriptionContext?.endAt) return 0
+        const endDateDayjs = dayjs(subscriptionContext.endAt)
+        const now = dayjs()
+        const diff = endDateDayjs.diff(now, 'day', true)
+        return Math.max(0, Math.ceil(diff))
+    }, [subscriptionContext?.endAt])
+
     const isFeatureAvailable = useCallback((feature: AvailableFeatureType): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
@@ -110,6 +128,8 @@ export const useOrganizationSubscription = () => {
         subscriptionContext,
         activeSubscriptionEndAt: subscriptionFeatures?.activeSubscriptionEndAt || null,
         daysRemaining,
+        daysRemainingWithoutBuffer,
+        isInBufferPeriod,
         loading: orgLoading || plansLoading || contextLoading,
         hasAvailablePlans,
         refetch: refetchContext,

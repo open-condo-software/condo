@@ -17,6 +17,7 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
 import { useEmailConfirmationNotification } from '@condo/domains/notification/hooks/useEmailConfirmationNotification'
 import { useSubscriptionExpirationNotification } from '@condo/domains/notification/hooks/useSubscriptionExpirationNotification'
+import { useSubscriptionPaymentNotifications } from '@condo/domains/notification/hooks/useSubscriptionPaymentNotifications'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
@@ -115,14 +116,22 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         markAsRead: markSubscriptionExpirationMessageAsRead,
     } = useSubscriptionExpirationNotification()
 
+    const {
+        messages: subscriptionPaymentMessages,
+        markReminderAsRead: markPaymentReminderAsRead,
+        markSuccessAsRead: markPaymentSuccessAsRead,
+        markErrorAsRead: markPaymentErrorAsRead,
+    } = useSubscriptionPaymentNotifications()
+
     const userMessagesWithCustomMessages = useMemo(() => [
         emailConfirmationMessage,
         subscriptionExpirationMessage,
+        ...subscriptionPaymentMessages,
         ...(userMessages || []),
     ]
         .filter(Boolean)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage])
+    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage, subscriptionPaymentMessages])
 
     // Set initial settings to state
     useEffect(() => {
@@ -150,6 +159,20 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         }
     )
 
+    const messageHandlers = useMemo(() => [
+        markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
+        markPaymentReminderAsRead,
+        markPaymentSuccessAsRead,
+        markPaymentErrorAsRead,
+    ], [
+        markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
+        markPaymentReminderAsRead,
+        markPaymentSuccessAsRead,
+        markPaymentErrorAsRead,
+    ])
+
     const updateReadUserMessagesAt = useCallback(() => {
         const newestMessageCreatedAt = userMessagesWithCustomMessages?.[0]?.createdAt
 
@@ -158,20 +181,18 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
             sendReadUserMessagesAtToBroadcast(newestMessageCreatedAt)
 
-            if (typeof markEmailConfirmationMessageAsRead === 'function') {
-                markEmailConfirmationMessageAsRead()
-            }
-            if (typeof markSubscriptionExpirationMessageAsRead === 'function') {
-                markSubscriptionExpirationMessageAsRead()
-            }
+            messageHandlers.forEach(fn => {
+                if (typeof fn === 'function') {
+                    fn()
+                }
+            })
         }
     }, [
-        readUserMessagesAt,
-        sendReadUserMessagesAtToBroadcast,
         userMessagesWithCustomMessages,
+        readUserMessagesAt,
         userMessagesSettingsStorage,
-        markEmailConfirmationMessageAsRead,
-        markSubscriptionExpirationMessageAsRead,
+        sendReadUserMessagesAtToBroadcast,
+        messageHandlers,
     ])
 
     const handleDropdownOpenChange = useCallback((isOpen: boolean) => {

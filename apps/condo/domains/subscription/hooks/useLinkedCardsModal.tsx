@@ -1,4 +1,4 @@
-import { useGetOrganizationMetaQuery, useUpdateOrganizationPaymentMethodsMutation } from '@app/condo/gql'
+import { useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery, useUpdateSubscriptionContextPaymentMethodMutation } from '@app/condo/gql'
 import { notification, Row, Col } from 'antd'
 import getConfig from 'next/config'
 import { useCallback, useMemo, useState } from 'react'
@@ -12,12 +12,11 @@ import { Modal, Typography, Space, Card, Button } from '@open-condo/ui'
 const { publicRuntimeConfig } = getConfig()
 const CARD_ISSUER_IMAGES = publicRuntimeConfig?.cardIssuerImages || {}
 
-// TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
 type PaymentMethod = {
     id: string
-    type: string
+    bindingId: string
     cardMask: string
-    cardType: string
+    paymentSystem: string
     title: string
     cardIssuerCountry?: string
     cardIssuerName?: string
@@ -25,20 +24,21 @@ type PaymentMethod = {
 
 const getCardIssuerImageUrl = (cardIssuerName?: string): string => {
     if (!cardIssuerName) return '/otherCard.svg'
-    
+
     const lowerIssuerName = cardIssuerName.toLowerCase()
-    const matchingKey = Object.keys(CARD_ISSUER_IMAGES).find(key => 
+    const matchingKey = Object.keys(CARD_ISSUER_IMAGES).find(key =>
         lowerIssuerName.includes(key.toLowerCase())
     )
-    
+
     return matchingKey ? CARD_ISSUER_IMAGES[matchingKey] : '/otherCard.svg'
 }
 
 type UseLinkedCardsModalProps = {
     activePaymentMethodId?: string | null
+    onCardUnbound?: () => void | Promise<void>
 }
 
-export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsModalProps = {}) => {
+export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: UseLinkedCardsModalProps = {}) => {
     const intl = useIntl()
     const { organization, role } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -47,8 +47,8 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
     const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
 
-    const { data: organizationMetaData, refetch: refetchOrganizationMeta } = useGetOrganizationMetaQuery({
-        variables: { id: organization?.id || '' },
+    const { data: subscriptionContextsData, refetch: refetchSubscriptionContexts } = useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery({
+        variables: { organizationId: organization?.id || '' },
         skip: !organization?.id,
     })
 
@@ -64,10 +64,10 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
 
     const getCardTypeTranslation = useCallback((cardType?: string): string => {
         if (!cardType) return ''
-        
+
         const upperCardType = cardType.toUpperCase()
         const translationKey = `subscription.linkedCards.cardType.${upperCardType}`
-        
+
         try {
             return intl.formatMessage({ id: translationKey as FormatjsIntl.Message['ids'] })
         } catch {
@@ -76,10 +76,35 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
     }, [intl])
 
     const paymentMethods: PaymentMethod[] = useMemo(() => {
-        return organizationMetaData?.organization?.meta?.paymentMethods || organization?.meta?.paymentMethods || []
-    }, [organizationMetaData, organization])
+        if (!subscriptionContextsData?.subscriptionContexts) return []
+
+        const uniquePaymentMethods = new Map<string, PaymentMethod>()
+
+        subscriptionContextsData.subscriptionContexts.forEach(context => {
+            const paymentMethod = context.frozenPaymentInfo?.paymentMethod
+            if (!paymentMethod || !paymentMethod.bindingId) return
+
+            if (!uniquePaymentMethods.has(paymentMethod.bindingId)) {
+                uniquePaymentMethods.set(paymentMethod.bindingId, {
+                    id: paymentMethod.bindingId,
+                    bindingId: paymentMethod.bindingId,
+                    cardMask: paymentMethod.cardNumber || '',
+                    paymentSystem: paymentMethod.paymentSystem || '',
+                    title: `${paymentMethod.paymentSystem || ''} ${paymentMethod.cardNumber?.slice(-4) || ''}`,
+                    cardIssuerCountry: paymentMethod.bankCountryCode || undefined,
+                    cardIssuerName: paymentMethod.bankName || undefined,
+                })
+            }
+        })
+
+        return Array.from(uniquePaymentMethods.values())
+    }, [subscriptionContextsData])
 
     const canManageSubscriptions = role?.canManageSubscriptions
+
+    const handleImageError = useCallback((bindingId: string) => {
+        setImageErrors(prev => ({ ...prev, [bindingId]: true }))
+    }, [])
 
     const openModal = useCallback(() => {
         setIsModalOpen(true)
@@ -99,7 +124,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
         setSelectedCardId(null)
     }, [])
 
-    const [updateOrganization] = useUpdateOrganizationPaymentMethodsMutation()
+    const [updateSubscriptionContextPaymentMethod] = useUpdateSubscriptionContextPaymentMethodMutation()
 
     const handleUnbindConfirm = useCallback(async () => {
         if (!organization || !canManageSubscriptions || !selectedCardId) return
@@ -107,24 +132,29 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
         setIsUnbinding(true)
         try {
             const sender = getClientSideSenderInfo()
-            
-            const updatedPaymentMethods = paymentMethods.filter(pm => pm.id !== selectedCardId)
-            
-            await updateOrganization({
-                variables: {
-                    id: organization.id,
-                    data: {
-                        dv: 1,
-                        sender,
-                        meta: {
-                            ...organization.meta,
-                            paymentMethods: updatedPaymentMethods,
+
+            const contextsToUnbind = subscriptionContextsData?.subscriptionContexts?.filter(
+                context => context.frozenPaymentInfo?.paymentMethod?.bindingId === selectedCardId
+            ) || []
+
+            for (const context of contextsToUnbind) {
+                await updateSubscriptionContextPaymentMethod({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender,
+                            subscriptionContext: { id: context.id },
+                            bindingId: null,
                         },
                     },
-                },
-            })
+                })
+            }
 
-            await refetchOrganizationMeta()
+            await refetchSubscriptionContexts()
+
+            if (onCardUnbound) {
+                await onCardUnbound()
+            }
 
             setIsConfirmModalOpen(false)
             setIsModalOpen(false)
@@ -143,7 +173,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
         } finally {
             setIsUnbinding(false)
         }
-    }, [organization, canManageSubscriptions, selectedCardId, paymentMethods, updateOrganization, refetchOrganizationMeta, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
+    }, [organization, canManageSubscriptions, selectedCardId, subscriptionContextsData, updateSubscriptionContextPaymentMethod, refetchSubscriptionContexts, onCardUnbound, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
 
     const LinkedCardsModal = useMemo(() => (
         <>
@@ -155,23 +185,23 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
             >
                 <Space size={12} direction='vertical' width='100%'>
                     {paymentMethods.map((paymentMethod) => {
-                        const isActiveCard = paymentMethod.id === activePaymentMethodId
+                        const isActiveCard = paymentMethod.bindingId === activePaymentMethodId
                         return (
-                            <Card key={paymentMethod.id} width='100%'>
+                            <Card key={paymentMethod.bindingId} width='100%'>
                                 <Row justify='space-between' align='middle'>
                                     <Col>
                                         <Space size={8} direction='horizontal'>
-                                            <img 
-                                                src={imageErrors[paymentMethod.id] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)} 
+                                            <img
+                                                src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)}
                                                 alt={paymentMethod.cardIssuerName || 'card'}
                                                 width={60}
                                                 height={40}
                                                 style={{ display: 'block' }}
-                                                onError={() => setImageErrors(prev => ({ ...prev, [paymentMethod.id]: true }))}
+                                                onError={() => handleImageError(paymentMethod.bindingId)}
                                             />
                                             <Space size={4} direction='horizontal'>
                                                 <Typography.Text>
-                                                    {getCardTypeTranslation(paymentMethod.cardType)} ∙ {paymentMethod.cardMask?.slice(-4)}
+                                                    {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
                                                 </Typography.Text>
                                                 {isActiveCard && (
                                                     <Typography.Text type='secondary'>
@@ -188,7 +218,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsMod
                                             size='large'
                                             type='primary'
                                             icon={<Trash size='small' />}
-                                            onClick={() => handleUnbindClick(paymentMethod.id)}
+                                            onClick={() => handleUnbindClick(paymentMethod.bindingId)}
                                             disabled={!canManageSubscriptions}
                                         />
                                     </Col>

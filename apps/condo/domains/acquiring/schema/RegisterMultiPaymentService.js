@@ -652,7 +652,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
                     }
                     // All invoices with client must be related to the current user
-                    if (foundInvoices.some(({ client }) => !!client && client !== context.authedItem.id)) {
+                    const authedItemId = context.authedItem?.id
+                    if (foundInvoices.some(({ client }) => !!client && client !== authedItemId)) {
                         throw new GQLError(ERRORS.INVOICES_FOR_THIRD_USER, context)
                     }
                     // All acquiring contexts must be finished
@@ -755,12 +756,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const recurrentPaymentContextField = recurrentPaymentContext ? {
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}
+                const authedItemId = context.authedItem?.id
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
                     ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
                     currencyCode,
-                    user: { connect: { id: context.authedItem.id } },
+                    ...isNil(authedItemId) ? {} : { user: { connect: { id: authedItemId } } },
                     integration: { connect: { id: acquiringIntegration.id } },
                     payments: { connect: paymentIds },
                     // TODO(DOMA-1574): add correct category
@@ -773,7 +775,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
                     feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
                     directPaymentUrl: `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
-                    getCardTokensUrl: `${acquiringIntegration.hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', context.authedItem.id)}`,
+                    getCardTokensUrl: isNil(authedItemId) ? '' : `${acquiringIntegration.hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', authedItemId)}`,
                 }
             },
         },

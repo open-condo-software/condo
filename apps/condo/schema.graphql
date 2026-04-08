@@ -3038,7 +3038,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3182,8 +3182,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
-  canExecuteActivateSubscriptionPlan_not: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContext_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3383,8 +3383,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteActivateSubscriptionPlan_ASC
-  canExecuteActivateSubscriptionPlan_DESC
+  canExecuteRegisterSubscriptionContext_ASC
+  canExecuteRegisterSubscriptionContext_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -3469,7 +3469,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3548,7 +3548,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3790,9 +3790,9 @@ type UserRightsSet {
   """
   canExecuteGetAvailableSubscriptionPlans: Boolean
 
-  """ Enables a user with the given UserRightsSet to execute "activateSubscriptionPlan" query/mutation 
+  """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation 
   """
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
 
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
@@ -3965,8 +3965,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
-  canExecuteActivateSubscriptionPlan_not: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContext_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -4146,8 +4146,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteActivateSubscriptionPlan_ASC
-  canExecuteActivateSubscriptionPlan_DESC
+  canExecuteRegisterSubscriptionContext_ASC
+  canExecuteRegisterSubscriptionContext_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -4232,7 +4232,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -4308,7 +4308,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteRegisterSubscriptionContext: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -60032,11 +60032,12 @@ type SubscriptionContextHistoryRecord {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: String
+  invoice: String
   isTrial: Boolean
-  meta: JSON
+  status: String
+  bindingId: String
+  frozenPaymentInfo: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -60079,32 +60080,56 @@ input SubscriptionContextHistoryRecordWhereInput {
   endAt_gte: String
   endAt_in: [String]
   endAt_not_in: [String]
-  basePrice: String
-  basePrice_not: String
-  basePrice_lt: String
-  basePrice_lte: String
-  basePrice_gt: String
-  basePrice_gte: String
-  basePrice_in: [String]
-  basePrice_not_in: [String]
-  calculatedPrice: String
-  calculatedPrice_not: String
-  calculatedPrice_lt: String
-  calculatedPrice_lte: String
-  calculatedPrice_gt: String
-  calculatedPrice_gte: String
-  calculatedPrice_in: [String]
-  calculatedPrice_not_in: [String]
-  appliedRules: JSON
-  appliedRules_not: JSON
-  appliedRules_in: [JSON]
-  appliedRules_not_in: [JSON]
+  subscriptionPlanPricingRule: String
+  subscriptionPlanPricingRule_not: String
+  subscriptionPlanPricingRule_in: [String]
+  subscriptionPlanPricingRule_not_in: [String]
+  invoice: String
+  invoice_not: String
+  invoice_in: [String]
+  invoice_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  bindingId: String
+  bindingId_not: String
+  bindingId_contains: String
+  bindingId_not_contains: String
+  bindingId_starts_with: String
+  bindingId_not_starts_with: String
+  bindingId_ends_with: String
+  bindingId_not_ends_with: String
+  bindingId_i: String
+  bindingId_not_i: String
+  bindingId_contains_i: String
+  bindingId_not_contains_i: String
+  bindingId_starts_with_i: String
+  bindingId_not_starts_with_i: String
+  bindingId_ends_with_i: String
+  bindingId_not_ends_with_i: String
+  bindingId_in: [String]
+  bindingId_not_in: [String]
+  frozenPaymentInfo: JSON
+  frozenPaymentInfo_not: JSON
+  frozenPaymentInfo_in: [JSON]
+  frozenPaymentInfo_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60192,12 +60217,12 @@ enum SortSubscriptionContextHistoryRecordsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
-  basePrice_ASC
-  basePrice_DESC
-  calculatedPrice_ASC
-  calculatedPrice_DESC
   isTrial_ASC
   isTrial_DESC
+  status_ASC
+  status_DESC
+  bindingId_ASC
+  bindingId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -60221,11 +60246,12 @@ input SubscriptionContextHistoryRecordUpdateInput {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: String
+  invoice: String
   isTrial: Boolean
-  meta: JSON
+  status: String
+  bindingId: String
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60250,11 +60276,12 @@ input SubscriptionContextHistoryRecordCreateInput {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: String
+  invoice: String
   isTrial: Boolean
-  meta: JSON
+  status: String
+  bindingId: String
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60271,6 +60298,50 @@ input SubscriptionContextHistoryRecordCreateInput {
 
 input SubscriptionContextHistoryRecordsCreateInput {
   data: SubscriptionContextHistoryRecordCreateInput
+}
+
+input InvoiceRelateToOneInput {
+  create: InvoiceCreateInput
+  connect: InvoiceWhereUniqueInput
+  disconnect: InvoiceWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum SubscriptionContextStatusType {
+  CREATED
+  DONE
+  PENDING
+  ERROR
+}
+
+type PaymentMethod {
+  bindingId: String!
+  paymentSystem: String!
+  cardNumber: String!
+  expiration: String!
+  bankName: String!
+  bankCountryCode: String!
+}
+
+type InvoiceRow {
+  name: String
+  count: String
+  price: String
+  toPay: String
+}
+
+type FrozenInvoice {
+  id: String
+  rows: [InvoiceRow]
+  toPay: String
+  currencyCode: String
+}
+
+type FrozenPaymentInfo {
+  paymentMethod: PaymentMethod
+  invoice: FrozenInvoice
+  pricingRuleId: String
+  multiPaymentId: String
 }
 
 """ Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
@@ -60297,24 +60368,28 @@ type SubscriptionContext {
   """ Subscription end date """
   endAt: String
 
-  """ Base price from the subscription plan (before any rules applied). Not required for trial subscriptions 
-  """
-  basePrice: String
+  """ Pricing rule that was used for this subscription """
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRule
 
-  """ Final calculated price after applying all pricing rules. Not required for trial subscriptions 
+  """ Invoice for this subscription payment. Populated from payment invoice 
   """
-  calculatedPrice: String
-
-  """ JSON array of applied pricing rules with audit information """
-  appliedRules: JSON
+  invoice: Invoice
 
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
 
-  """ Subscription metadata containing paymentMethod, price, and pricingRuleId 
+  """ Subscription context status. CREATED - context created but not yet active, DONE - context is fully processed and active, ERROR - processing failed 
   """
-  meta: JSON
+  status: SubscriptionContextStatusType
+
+  """ Saved card token on acquiring side used for subscription auto-payments. The presence of this value indicates that auto-payments are enabled 
+  """
+  bindingId: String
+
+  """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID 
+  """
+  frozenPaymentInfo: FrozenPaymentInfo
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
@@ -60365,32 +60440,38 @@ input SubscriptionContextWhereInput {
   endAt_gte: String
   endAt_in: [String]
   endAt_not_in: [String]
-  basePrice: String
-  basePrice_not: String
-  basePrice_lt: String
-  basePrice_lte: String
-  basePrice_gt: String
-  basePrice_gte: String
-  basePrice_in: [String]
-  basePrice_not_in: [String]
-  calculatedPrice: String
-  calculatedPrice_not: String
-  calculatedPrice_lt: String
-  calculatedPrice_lte: String
-  calculatedPrice_gt: String
-  calculatedPrice_gte: String
-  calculatedPrice_in: [String]
-  calculatedPrice_not_in: [String]
-  appliedRules: JSON
-  appliedRules_not: JSON
-  appliedRules_in: [JSON]
-  appliedRules_not_in: [JSON]
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereInput
+  subscriptionPlanPricingRule_is_null: Boolean
+  invoice: InvoiceWhereInput
+  invoice_is_null: Boolean
   isTrial: Boolean
   isTrial_not: Boolean
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
+  status: SubscriptionContextStatusType
+  status_not: SubscriptionContextStatusType
+  status_in: [SubscriptionContextStatusType]
+  status_not_in: [SubscriptionContextStatusType]
+  bindingId: String
+  bindingId_not: String
+  bindingId_contains: String
+  bindingId_not_contains: String
+  bindingId_starts_with: String
+  bindingId_not_starts_with: String
+  bindingId_ends_with: String
+  bindingId_not_ends_with: String
+  bindingId_i: String
+  bindingId_not_i: String
+  bindingId_contains_i: String
+  bindingId_not_contains_i: String
+  bindingId_starts_with_i: String
+  bindingId_not_starts_with_i: String
+  bindingId_ends_with_i: String
+  bindingId_not_ends_with_i: String
+  bindingId_in: [String]
+  bindingId_not_in: [String]
+  frozenPaymentInfo: JSON
+  frozenPaymentInfo_not: JSON
+  frozenPaymentInfo_in: [JSON]
+  frozenPaymentInfo_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60462,12 +60543,16 @@ enum SortSubscriptionContextsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
-  basePrice_ASC
-  basePrice_DESC
-  calculatedPrice_ASC
-  calculatedPrice_DESC
+  subscriptionPlanPricingRule_ASC
+  subscriptionPlanPricingRule_DESC
+  invoice_ASC
+  invoice_DESC
   isTrial_ASC
   isTrial_DESC
+  status_ASC
+  status_DESC
+  bindingId_ASC
+  bindingId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -60491,11 +60576,12 @@ input SubscriptionContextUpdateInput {
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  invoice: InvoiceRelateToOneInput
   isTrial: Boolean
-  meta: JSON
+  status: SubscriptionContextStatusType
+  bindingId: String
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60517,11 +60603,12 @@ input SubscriptionContextCreateInput {
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  invoice: InvoiceRelateToOneInput
   isTrial: Boolean
-  meta: JSON
+  status: SubscriptionContextStatusType
+  bindingId: String
+  frozenPaymentInfo: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -64477,13 +64564,6 @@ enum PaymentCurrencyCodeType {
   ZAR
   ZMW
   ZWL
-}
-
-input InvoiceRelateToOneInput {
-  create: InvoiceCreateInput
-  connect: InvoiceWhereUniqueInput
-  disconnect: InvoiceWhereUniqueInput
-  disconnectAll: Boolean
 }
 
 input MultiPaymentRelateToOneInput {
@@ -84624,6 +84704,8 @@ type InvoiceHistoryRecord {
   """
   _label_: String
   organization: String
+  type: String
+  payerOrganization: String
   number: JSON
   property: String
   unitType: String
@@ -84666,6 +84748,28 @@ input InvoiceHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  payerOrganization: String
+  payerOrganization_not: String
+  payerOrganization_in: [String]
+  payerOrganization_not_in: [String]
   number: JSON
   number_not: JSON
   number_in: [JSON]
@@ -84957,6 +85061,8 @@ input InvoiceHistoryRecordWhereUniqueInput {
 }
 
 enum SortInvoiceHistoryRecordsBy {
+  type_ASC
+  type_DESC
   unitType_ASC
   unitType_DESC
   unitName_ASC
@@ -85001,6 +85107,8 @@ enum SortInvoiceHistoryRecordsBy {
 
 input InvoiceHistoryRecordUpdateInput {
   organization: String
+  type: String
+  payerOrganization: String
   number: JSON
   property: String
   unitType: String
@@ -85042,6 +85150,8 @@ input InvoiceHistoryRecordsUpdateInput {
 
 input InvoiceHistoryRecordCreateInput {
   organization: String
+  type: String
+  payerOrganization: String
   number: JSON
   property: String
   unitType: String
@@ -85078,6 +85188,11 @@ input InvoiceHistoryRecordCreateInput {
 
 input InvoiceHistoryRecordsCreateInput {
   data: InvoiceHistoryRecordCreateInput
+}
+
+enum InvoiceTypeType {
+  b2b
+  b2c
 }
 
 enum InvoiceUnitTypeType {
@@ -85150,6 +85265,14 @@ type Invoice {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
+
+  """ Invoice type: b2b (business to business) or b2c (business to consumer) 
+  """
+  type: InvoiceTypeType
+
+  """ Organization that will pay the invoice (the billed/recipient organization for B2B invoices) 
+  """
+  payerOrganization: Organization
 
   """ The invoice number within organization """
   number: Int
@@ -85261,6 +85384,12 @@ input InvoiceWhereInput {
   OR: [InvoiceWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  type: InvoiceTypeType
+  type_not: InvoiceTypeType
+  type_in: [InvoiceTypeType]
+  type_not_in: [InvoiceTypeType]
+  payerOrganization: OrganizationWhereInput
+  payerOrganization_is_null: Boolean
   number: Int
   number_not: Int
   number_lt: Int
@@ -85502,6 +85631,10 @@ input InvoiceWhereUniqueInput {
 enum SortInvoicesBy {
   organization_ASC
   organization_DESC
+  type_ASC
+  type_DESC
+  payerOrganization_ASC
+  payerOrganization_DESC
   number_ASC
   number_DESC
   property_ASC
@@ -85558,6 +85691,8 @@ enum SortInvoicesBy {
 
 input InvoiceUpdateInput {
   organization: OrganizationRelateToOneInput
+  type: InvoiceTypeType
+  payerOrganization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
   unitType: InvoiceUnitTypeType
@@ -85596,6 +85731,8 @@ input InvoicesUpdateInput {
 
 input InvoiceCreateInput {
   organization: OrganizationRelateToOneInput
+  type: InvoiceTypeType
+  payerOrganization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
   unitType: InvoiceUnitTypeType
@@ -92603,29 +92740,39 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
-input PaymentMethodInput {
-  id: String!
-  type: String!
-  cardMask: String
-  cardType: String
-  title: String
-  cardIssuerCountry: String
-  cardIssuerName: String
+input ActivateSubscriptionContextInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  subscriptionContext: SubscriptionContextWhereUniqueInput!
 }
 
-input ActivateSubscriptionPlanInput {
+type ActivateSubscriptionContextOutput {
+  subscriptionContext: SubscriptionContext
+}
+
+input RegisterSubscriptionContextInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
-  paymentMethod: PaymentMethodInput
-  paymentId: String
 }
 
-type ActivateSubscriptionPlanOutput {
+type RegisterSubscriptionContextOutput {
   subscriptionContext: SubscriptionContext
-  userHelpRequest: UserHelpRequest
+  directPaymentUrl: String
+  multiPayment: MultiPayment
+}
+
+input UpdateSubscriptionContextPaymentMethodInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  subscriptionContext: SubscriptionContextWhereUniqueInput!
+  bindingId: String
+}
+
+type UpdateSubscriptionContextPaymentMethodOutput {
+  id: String!
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -107194,7 +107341,7 @@ type Mutation {
   registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
 
   """
-  Activates a subscription plan for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext. For paid subscriptions (isTrial=false), creates UserHelpRequest for manual processing.
+  Activates a subscription context with status CREATED. Checks that invoice is paid, retrieves payment method from multiPayment, and updates context status to DONE.
   
   
   
@@ -107204,35 +107351,83 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "ORGANIZATION_NOT_FOUND",
+    "type": "SUBSCRIPTION_CONTEXT_NOT_FOUND",
+    "message": "SubscriptionContext not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SUBSCRIPTION_CONTEXT_INVALID_STATUS",
+    "message": "SubscriptionContext must have status CREATED"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVOICE_NOT_FOUND",
+    "message": "Invoice not found for SubscriptionContext"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVOICE_NOT_PAID",
+    "message": "Invoice is not paid"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "MULTI_PAYMENT_NOT_FOUND",
+    "message": "MultiPayment not found for invoice"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PAYMENT_NOT_FOUND",
+    "message": "Payment not found in MultiPayment"
+  }`
+  """
+  activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput
+
+  """
+  Registers a subscription context for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext with status DONE. For paid subscriptions (isTrial=false), creates Invoice + SubscriptionContext with status CREATED + MultiPayment.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
     "message": "Organization not found"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "PRICING_RULE_NOT_FOUND",
-    "message": "Pricing rule not found or inactive"
+    "type": "NOT_FOUND",
+    "message": "Subscription plan pricing rule not found or is hidden"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "INVALID_ORGANIZATION_TYPE",
-    "message": "Plan is not available for this organization type"
+    "type": "NOT_FOUND",
+    "message": "Organization type does not match subscription plan organization type"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "TRIAL_ALREADY_USED",
-    "message": "Trial subscription for this plan has already been used"
+    "type": "NOT_FOUND",
+    "message": "Trial subscription is not available for this plan"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "TRIAL_NOT_AVAILABLE",
-    "message": "Trial is not available for this subscription plan"
+    "type": "NOT_FOUND",
+    "message": "Trial subscription for this plan was already activated"
   }`
   """
-  activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput
+  registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput
+  updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

@@ -7,14 +7,27 @@ const { faker } = require('@faker-js/faker')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { 
+    AcquiringIntegration,
+    AcquiringIntegrationContext, 
+    createTestAcquiringIntegration, 
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient, createTestBillingIntegration, BillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan: SubscriptionPlanGQL,
     SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
     SubscriptionContext: SubscriptionContextGQL,
-    ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
+    ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+    REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
 } = require('@condo/domains/subscription/gql')
+const { UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateGQLTestUtils(SubscriptionPlanGQL)
@@ -95,6 +108,7 @@ async function createTestSubscriptionContext (client, organization, subscription
         sender,
         organization: { connect: { id: organization.id } },
         subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
         ...extraAttrs,
     }
     const obj = await SubscriptionContext.create(client, attrs)
@@ -115,21 +129,19 @@ async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function activateSubscriptionPlanByTestClient (client, organization, pricingRule, extraAttrs = {}) {
+async function activateSubscriptionContextByTestClient (client, subscriptionContext, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!pricingRule || !pricingRule.id) throw new Error('no pricingRule.id')
+    if (!subscriptionContext || !subscriptionContext.id) throw new Error('no subscriptionContext.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        organization: { id: organization.id },
-        pricingRule: { id: pricingRule.id },
+        subscriptionContext: { id: subscriptionContext.id },
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(ACTIVATE_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
+
+    const { data, errors } = await client.mutate(ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -142,13 +154,44 @@ async function getAvailableSubscriptionPlansByTestClient (client, organization) 
     throwIfError(data, errors, { query: GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, variables: { organization: { id: organization.id } } })
     return [data.result, {}]
 }
+
+async function registerSubscriptionContextByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_SUBSCRIPTION_CONTEXT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function updateSubscriptionContextPaymentMethodByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
     SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
-    activateSubscriptionPlanByTestClient,
+    registerSubscriptionContextByTestClient,
+    activateSubscriptionContextByTestClient,
     getAvailableSubscriptionPlansByTestClient,
+    updateSubscriptionContextPaymentMethodByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
