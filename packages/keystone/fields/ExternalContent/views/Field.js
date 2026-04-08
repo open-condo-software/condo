@@ -65,46 +65,53 @@ const ExternalContentField = ({ onChange, field, errors, value = '{}', isDisable
         onChange(newValue)
     }
 
+    let fieldContent
+    if (!canRead) {
+        fieldContent = <div>{error?.message || 'Access denied'}</div>
+    } else if (!isReadOnly) {
+        // Editable mode - show textarea
+        fieldContent = (
+            <textarea
+                value={editValue}
+                onChange={handleChange}
+                disabled={isDisabled}
+                css={{
+                    width: '100%',
+                    minHeight: '200px',
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                }}
+            />
+        )
+    } else if (isFileMetadata && publicUrl) {
+        // Read-only mode with file metadata - show download link
+        fieldContent = (
+            <a
+                href={publicUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                css={{
+                    color: '#0066cc',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                }}
+            >
+                {displayName}
+            </a>
+        )
+    } else {
+        // Read-only mode with legacy content - show as text
+        fieldContent = <div>{displayName}</div>
+    }
+
     return (
         <FieldContainer>
             <FieldLabel field={field} errors={errors}/>
             <FieldInput>
-                {!canRead ? (
-                    <div>{error?.message || 'Access denied'}</div>
-                ) : !isReadOnly ? (
-                    // Editable mode - show textarea
-                    <textarea
-                        value={editValue}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                        css={{
-                            width: '100%',
-                            minHeight: '200px',
-                            fontFamily: 'monospace',
-                            fontSize: '12px',
-                            padding: '8px',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                        }}
-                    />
-                ) : isFileMetadata && publicUrl ? (
-                    // Read-only mode with file metadata - show download link
-                    <a
-                        href={publicUrl}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        css={{
-                            color: '#0066cc',
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        {displayName}
-                    </a>
-                ) : (
-                    // Read-only mode with legacy content - show as text
-                    <div>{displayName}</div>
-                )}
+                {fieldContent}
             </FieldInput>
         </FieldContainer>
     )
