@@ -3,6 +3,7 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
@@ -10,6 +11,8 @@ const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+
+const logger = getLogger('ActivateSubscriptionContextService')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -84,19 +87,25 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 const { data } = args
                 const { dv, sender, subscriptionContext: subscriptionContextInput } = data
 
+                logger.info({ msg: 'Starting subscription context activation', data: { subscriptionContextId: subscriptionContextInput.id } })
+
                 const [subscriptionContext] = await find('SubscriptionContext', {
                     id: subscriptionContextInput.id,
                     deletedAt: null,
                 })
                 if (!subscriptionContext) {
+                    logger.warn({ msg: 'SubscriptionContext not found', data: { subscriptionContextId: subscriptionContextInput.id } })
                     throw new GQLError(ERRORS.SUBSCRIPTION_CONTEXT_NOT_FOUND, context)
                 }
+                logger.info({ msg: 'Found subscription context', data: { subscriptionContextId: subscriptionContext.id, status: subscriptionContext.status, invoiceId: subscriptionContext.invoice } })
 
                 if (subscriptionContext.status !== SUBSCRIPTION_CONTEXT_STATUS.CREATED) {
+                    logger.warn({ msg: 'SubscriptionContext has invalid status', data: { subscriptionContextId: subscriptionContext.id, status: subscriptionContext.status } })
                     throw new GQLError(ERRORS.SUBSCRIPTION_CONTEXT_INVALID_STATUS, context)
                 }
 
                 if (!subscriptionContext.invoice) {
+                    logger.warn({ msg: 'SubscriptionContext has no invoice', data: { subscriptionContextId: subscriptionContext.id } })
                     throw new GQLError(ERRORS.INVOICE_NOT_FOUND, context)
                 }
                 const [invoice] = await find('Invoice', {
@@ -104,17 +113,25 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     deletedAt: null,
                 })
                 if (!invoice) {
+                    logger.warn({ msg: 'Invoice not found', data: { invoiceId: subscriptionContext.invoice } })
                     throw new GQLError(ERRORS.INVOICE_NOT_FOUND, context)
                 }
+                logger.info({ msg: 'Found invoice', data: { invoiceId: invoice.id, status: invoice.status } })
+
                 if (invoice.status !== INVOICE_STATUS_PAID) {
+                    logger.warn({ msg: 'Invoice is not paid', data: { invoiceId: invoice.id, status: invoice.status } })
                     throw new GQLError(ERRORS.INVOICE_NOT_PAID, context)
                 }
 
-                const [payment] = await find('Payment', {
+                const payments = await find('Payment', {
                     invoice: { id: invoice.id, deletedAt: null },
                     deletedAt: null,
-                })
+                }, { sortBy: ['createdAt_DESC'] })
+                const payment = payments[0]
+                logger.info({ msg: 'Found payments for invoice', data: { invoiceId: invoice.id, paymentCount: payments.length, latestPaymentId: payment?.id, latestPaymentMultiPaymentId: payment?.multiPayment } })
+
                 if (!payment) {
+                    logger.warn({ msg: 'No payment found for invoice', data: { invoiceId: invoice.id } })
                     throw new GQLError(ERRORS.MULTI_PAYMENT_NOT_FOUND, context)
                 }
 
@@ -123,8 +140,10 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     deletedAt: null,
                 })
                 if (!multiPayment) {
+                    logger.warn({ msg: 'MultiPayment not found for payment', data: { paymentId: payment.id, multiPaymentId: payment.multiPayment } })
                     throw new GQLError(ERRORS.MULTI_PAYMENT_NOT_FOUND, context)
                 }
+                logger.info({ msg: 'Found multiPayment', data: { multiPaymentId: multiPayment.id, paymentMethod: multiPayment.meta?.paymentMethod } })
 
                 const frozenPaymentInfo = freezePaymentInfo(
                     multiPayment,
@@ -132,16 +151,21 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     subscriptionContext.subscriptionPlanPricingRule
                 )
                 const paymentMethod = multiPayment.meta?.paymentMethod || null
+                const bindingId = paymentMethod?.bindingId || null
+
+                logger.info({ msg: 'Updating subscription context', data: { subscriptionContextId: subscriptionContext.id, bindingId, hasPaymentMethod: !!paymentMethod } })
 
                 await SubscriptionContext.update(context, subscriptionContext.id, {
                     dv,
                     sender,
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                    bindingId: paymentMethod?.bindingId || null,
+                    bindingId,
                     frozenPaymentInfo,
                 })
 
                 const updatedSubscriptionContext = await getById('SubscriptionContext', subscriptionContext.id)
+                logger.info({ msg: 'Subscription context activated successfully', data: { subscriptionContextId: subscriptionContext.id, status: updatedSubscriptionContext.status, bindingId: updatedSubscriptionContext.bindingId } })
+
                 return { subscriptionContext: updatedSubscriptionContext }
             },
         },

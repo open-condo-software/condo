@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
@@ -16,6 +17,8 @@ const access = require('@condo/domains/subscription/access/RegisterSubscriptionC
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
+
+const logger = getLogger('RegisterSubscriptionContextService')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const ERRORS = {
@@ -80,13 +83,17 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 const { data } = args
                 const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial } = data
 
+                logger.info({ msg: 'Starting subscription context registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, isTrial } })
+
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
                     deletedAt: null,
                 })
                 if (!organization) {
+                    logger.warn({ msg: 'Organization not found', data: { organizationId: organizationInput.id } })
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
+                logger.info({ msg: 'Found organization', data: { organizationId: organization.id, orgType: organization.type } })
 
                 const [pricingRule] = await find('SubscriptionPlanPricingRule', {
                     id: pricingRuleInput.id,
@@ -94,8 +101,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     deletedAt: null,
                 })
                 if (!pricingRule) {
+                    logger.warn({ msg: 'Pricing rule not found', data: { pricingRuleId: pricingRuleInput.id } })
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
+                logger.info({ msg: 'Found pricing rule', data: { pricingRuleId: pricingRule.id, period: pricingRule.period, price: pricingRule.price } })
 
                 const plan = await getById('SubscriptionPlan', pricingRule.subscriptionPlan)
                 if (!plan || plan.isHidden || plan.deletedAt) {
@@ -166,12 +175,14 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     deletedAt: null,
                 })
                 if (existingCreated) {
+                    logger.info({ msg: 'Reusing existing CREATED context', data: { subscriptionContextId: existingCreated.id, invoiceId: existingCreated.invoice } })
                     const subscriptionContext = await getById('SubscriptionContext', existingCreated.id)
 
                     const multiPaymentResult = await registerMultiPayment(context, {
                         invoices: [{ id: subscriptionContext.invoice }],
                         sender,
                     })
+                    logger.info({ msg: 'Created new multiPayment for reused context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
 
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
@@ -185,6 +196,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     }
 
                     const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    logger.info({ msg: 'Returning reused context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
                     return { subscriptionContext, directPaymentUrl, multiPayment }
                 }
 
@@ -198,12 +210,14 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     deletedAt: null,
                 })
                 if (existingErrorNeedRetry) {
+                    logger.info({ msg: 'Reusing existing PENDING context for retry', data: { subscriptionContextId: existingErrorNeedRetry.id, invoiceId: existingErrorNeedRetry.invoice } })
                     const subscriptionContext = await getById('SubscriptionContext', existingErrorNeedRetry.id)
 
                     const multiPaymentResult = await registerMultiPayment(context, {
                         invoices: [{ id: subscriptionContext.invoice }],
                         sender,
                     })
+                    logger.info({ msg: 'Created new multiPayment for retry context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
 
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
@@ -217,17 +231,20 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     }
 
                     const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    logger.info({ msg: 'Returning retry context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
                     return { subscriptionContext, directPaymentUrl, multiPayment }
                 }
 
                 const { recipientOrgId: recipientOrganizationId } = await getSubscriptionPaymentRecipient()
                 if (!recipientOrganizationId) {
+                    logger.error({ msg: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured', data: {} })
                     throw new GQLError({
                         code: BAD_USER_INPUT,
                         type: NOT_FOUND,
                         message: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured',
                     }, context)
                 }
+                logger.info({ msg: 'Creating new subscription context', data: { organizationId: organization.id, pricingRuleId: pricingRule.id, startAt: startAt.format('YYYY-MM-DD') } })
 
                 const createdInvoice = await Invoice.create(context, {
                     dv,
@@ -281,8 +298,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
                 const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
 
-                return { 
-                    subscriptionContext, 
+                logger.info({ msg: 'Created new subscription context and multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id, invoiceId: createdInvoice.id } })
+
+                return {
+                    subscriptionContext,
                     directPaymentUrl,
                     multiPayment,
                 }
