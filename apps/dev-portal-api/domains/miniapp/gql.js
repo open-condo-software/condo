@@ -27,7 +27,7 @@ const PUBLISH_B2B_APP_MUTATION = gql`
 
 
 
-const B2C_APP_FIELDS = `{ name type developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['webTransformEnabled'])}  ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2C_APP_FIELDS = `{ name type developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['webTransformEnabled', 'publishedAt'])}  ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
 const B2C_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`

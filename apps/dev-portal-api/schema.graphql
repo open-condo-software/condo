@@ -2814,6 +2814,8 @@ type B2CAppHistoryRecord {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -2896,6 +2898,22 @@ input B2CAppHistoryRecordWhereInput {
   developmentWebTransformEnabled_not: Boolean
   productionWebTransformEnabled: Boolean
   productionWebTransformEnabled_not: Boolean
+  developmentPublishedAt: String
+  developmentPublishedAt_not: String
+  developmentPublishedAt_lt: String
+  developmentPublishedAt_lte: String
+  developmentPublishedAt_gt: String
+  developmentPublishedAt_gte: String
+  developmentPublishedAt_in: [String]
+  developmentPublishedAt_not_in: [String]
+  productionPublishedAt: String
+  productionPublishedAt_not: String
+  productionPublishedAt_lt: String
+  productionPublishedAt_lte: String
+  productionPublishedAt_gt: String
+  productionPublishedAt_gte: String
+  productionPublishedAt_in: [String]
+  productionPublishedAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3025,6 +3043,10 @@ enum SortB2CAppHistoryRecordsBy {
   developmentWebTransformEnabled_DESC
   productionWebTransformEnabled_ASC
   productionWebTransformEnabled_DESC
+  developmentPublishedAt_ASC
+  developmentPublishedAt_DESC
+  productionPublishedAt_ASC
+  productionPublishedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3054,6 +3076,8 @@ input B2CAppHistoryRecordUpdateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -3082,6 +3106,8 @@ input B2CAppHistoryRecordCreateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -3138,6 +3164,13 @@ type B2CApp {
   """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for production environment 
   """
   productionWebTransformEnabled: Boolean
+
+  """ The last time a mini-app was published on the development environment 
+  """
+  developmentPublishedAt: String
+
+  """ The last time a mini-app was published on the production environment """
+  productionPublishedAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -3220,6 +3253,22 @@ input B2CAppWhereInput {
   developmentWebTransformEnabled_not: Boolean
   productionWebTransformEnabled: Boolean
   productionWebTransformEnabled_not: Boolean
+  developmentPublishedAt: String
+  developmentPublishedAt_not: String
+  developmentPublishedAt_lt: String
+  developmentPublishedAt_lte: String
+  developmentPublishedAt_gt: String
+  developmentPublishedAt_gte: String
+  developmentPublishedAt_in: [String]
+  developmentPublishedAt_not_in: [String]
+  productionPublishedAt: String
+  productionPublishedAt_not: String
+  productionPublishedAt_lt: String
+  productionPublishedAt_lte: String
+  productionPublishedAt_gt: String
+  productionPublishedAt_gte: String
+  productionPublishedAt_in: [String]
+  productionPublishedAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3329,6 +3378,10 @@ enum SortB2CAppsBy {
   developmentWebTransformEnabled_DESC
   productionWebTransformEnabled_ASC
   productionWebTransformEnabled_DESC
+  developmentPublishedAt_ASC
+  developmentPublishedAt_DESC
+  productionPublishedAt_ASC
+  productionPublishedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3358,6 +3411,8 @@ input B2CAppUpdateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -3383,6 +3438,8 @@ input B2CAppCreateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String

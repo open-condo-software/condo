@@ -476,7 +476,10 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
             access: access.canPublishB2CApp,
             schema: 'publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput',
             resolver: async (parent, args, context) => {
-                const { data: { app: { id }, options, environment } } = args
+                const { data: { app: { id }, options, environment, dv, sender } } = args
+
+                const publishingTime = dayjs().toISOString()
+                const publishingField = getEnvironmentalFieldName(environment, 'publishedAt')
 
                 const app = await B2CApp.getOne(
                     context,
@@ -564,6 +567,12 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
                 await syncOIDCClient({ args, serverClient, condoApp })
+
+                await B2CApp.update(context, app.id, {
+                    dv,
+                    sender,
+                    [publishingField]: publishingTime,
+                })
 
                 return {
                     success: true,

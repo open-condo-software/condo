@@ -58,6 +58,17 @@ const B2CApp = new GQLListSchema('B2CApp', {
             isRequired: true,
             defaultValue: false,
         }),
+        ...getEnvironmentalFields('publishedAt', {
+            schemaDoc: 'The last time a mini-app was published on the {environment} environment',
+            type: 'DateTimeUtc',
+            kmigratorOptions: { db_index: true },
+            access: {
+                read: true,
+                create: false,
+                // NOTE: function used to make it appear in B2CAppUpdateInput
+                update: () => false,
+            },
+        }),
     },
     hooks: {
         validateInput: getSharedConstraintsValidator(['B2BApp']),

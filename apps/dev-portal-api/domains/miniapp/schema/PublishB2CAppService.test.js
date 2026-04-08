@@ -468,6 +468,20 @@ describe('PublishB2CAppService', () => {
                     })
                 })
             })
+            describe('publishedAt', () => {
+                describe.each(AVAILABLE_ENVIRONMENTS)('%s environment', (environment) => {
+                    const fieldName = getEnvironmentalFieldName(environment, 'publishedAt')
+                    test(`Publish mutation must set "${fieldName}" field to B2CApp on successful publish to ${environment} environment`, async () => {
+                        const [app] = await createTestB2CApp(user)
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, app)
+                        }
+                        await publishB2CAppByTestClient(user, app, { info: true }, environment)
+                        const apiApp = await B2CApp.getOne(support, { id: app.id })
+                        expect(apiApp[fieldName]).toBeDefined()
+                    })
+                })
+            })
         })
         describe('B2CAppBuild', () => {
             let app
