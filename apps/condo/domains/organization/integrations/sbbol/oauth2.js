@@ -41,9 +41,9 @@ class SbbolOauth2Api {
             if (SBBOL_PFX.certificate) {
                 return {
                     ...options,
-                    ...(SBBOL_PFX.https || {}),
+                    ...SBBOL_PFX.https,
                     agent: new https.Agent({
-                        ...(SBBOL_PFX.https || {}),
+                        ...SBBOL_PFX.https,
                     }),
                     pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
                     passphrase: SBBOL_PFX.passphrase,
