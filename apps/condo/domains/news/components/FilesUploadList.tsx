@@ -1,12 +1,13 @@
-import { useCreateNewsItemFileMutation, useUpdateNewsItemFileMutation } from '@app/condo/gql'
+import { GetNewsItemFilesQuery, useCreateNewsItemFileMutation } from '@app/condo/gql'
 import { File as FileSchema } from '@app/condo/schema'
 import styled from '@emotion/styled'
+import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { buildMeta, upload as uploadFiles } from '@open-condo/files'
@@ -17,11 +18,27 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { colors } from '@open-condo/ui/colors'
 
-
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 import styles from './FilesUploadList.module.css'
+
+
+let ffmpeg: FFmpeg | null = null
+let ffmpegLoaded = false
+
+const loadFFmpeg = async () => {
+    if (!ffmpeg) {
+        ffmpeg = new FFmpeg()
+        ffmpeg.on('log', ({ message }) => {
+            console.log(message)
+        })
+    }
+    if (!ffmpegLoaded) {
+        await ffmpeg.load()
+        ffmpegLoaded = true
+    }
+}
 
 const { publicRuntimeConfig: { fileClientId } = {} } = getConfig()
 
@@ -115,7 +132,7 @@ export type UploadFileType = {
     name: string
     status: 'done' | 'uploading'
     url: string
-    response: { id: string, url: string }
+    response: { id: string, url: string, originalName: string, mimetype: string }
 }
 
 export type DBFile = {
@@ -133,6 +150,8 @@ type ImagesUploadListProps = {
     fileList?: UploadFileType[]
     createAction?: ({ file }: { file: UploadFile }) => Promise<DBFile>
     imageSize?: number
+    updateFileList: React.Dispatch<Action>
+    maxCount?: number
 }
 
 const formatDuration = (sec) => {
@@ -142,122 +161,59 @@ const formatDuration = (sec) => {
     return `${m}:${s}`
 }
 
-const customItemRender = (originNode, file, fileList, actions) => {
-    const hasThumb = !!file.thumbUrl || !!file.url
-    const isVideo = file.type?.startsWith('video/')
-
-    const getFileIcon = () => {
-        if (file.type?.startsWith('image/')) return '🖼'
-        if (isVideo) return '🎬'
-        if (file.type?.startsWith('audio/')) return '🎵'
-        if (file.type === 'application/pdf') return '📄'
-        if (file.name.match(/\.(zip|rar|7z)$/i)) return '🗜'
-        return '📁'
-    }
-
-    return (
-        <div
-            className={`${styles.uploadItem} ${
-                hasThumb
-                    ? styles.uploadItemWithThumb
-                    : styles.uploadItemNoThumb
-            }`}
-        >
-            <div className={styles.mediaWrapper}>
-                {hasThumb ? (
-                    <img
-                        src={file.thumbUrl || file.url}
-                        alt={file.name}
-                        className={styles.image}
-                    />
-                ) : (
-                    <div className={styles.iconWrapper}>
-                        {getFileIcon()}
-                    </div>
-                )}
-
-                {/* Длительность */}
-                {isVideo && file.videoMeta?.duration && hasThumb && (
-                    <div className={styles.duration}>
-                        {formatDuration(file.videoMeta.duration)}
-                    </div>
-                )}
-
-                {/* Hover overlay */}
-                <div className={styles.hoverOverlay}>
-                    <div
-                        onClick={actions.preview}
-                        className={`${styles.actionButton} ${styles.eyeButton}`}
-                    >
-                        👁
-                    </div>
-
-                    <div
-                        onClick={actions.remove}
-                        className={`${styles.actionButton} ${styles.deleteButton}`}
-                    >
-                        ✕
-                    </div>
-                </div>
-            </div>
-
-            {!hasThumb && (
-                <div className={styles.fileName} title={file.name}>
-                    {file.name}
-                </div>
-            )}
-        </div>
-    )
-}
-
-const getImageThumbnail: (file) => Promise<string> = (file) => {
-    return new Promise((resolve, reject) => {
+const getImageThumbnailFromUrl = (url: string) => {
+    return new Promise<string>((resolve, reject) => {
         const img = new Image()
-        const reader = new FileReader()
-
-        reader.onload = (e) => {
-            // @ts-ignore
-            img.src = e.target.result
-        }
+        img.crossOrigin = 'anonymous'
 
         img.onload = () => {
             const canvas = document.createElement('canvas')
             const ctx = canvas.getContext('2d')
 
-            const MAX_WIDTH = 400
-            const scale = Math.min(1, MAX_WIDTH / img.width)
+            const SIZE = 400 // квадрат как в видео
 
-            canvas.width = img.width * scale
-            canvas.height = img.height * scale
+            canvas.width = SIZE
+            canvas.height = SIZE
 
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            const iw = img.width
+            const ih = img.height
 
-            resolve(canvas.toDataURL('image/jpeg', 0.85) as string)
+            // =========================
+            // 🧠 object-fit: cover
+            // =========================
+
+            const scale = Math.max(SIZE / iw, SIZE / ih)
+
+            const drawWidth = iw * scale
+            const drawHeight = ih * scale
+
+            const offsetX = (SIZE - drawWidth) / 2
+            const offsetY = (SIZE - drawHeight) / 2
+
+            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+
+            resolve(canvas.toDataURL('image/jpeg', 0.85))
         }
 
         img.onerror = reject
-        reader.onerror = reject
-
-        reader.readAsDataURL(file)
+        img.src = url
     })
 }
 
-const createVideoThumbnail: (file) => Promise<string> = (file) => {
-    return new Promise((resolve, reject) => {
+const createVideoThumbnailFromUrl = (url: string) => {
+    return new Promise<string>((resolve, reject) => {
         const video = document.createElement('video')
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
 
         video.preload = 'metadata'
-        video.src = URL.createObjectURL(file)
+        video.src = url
+        video.crossOrigin = 'anonymous' // ВАЖНО для canvas
         video.muted = true
         video.playsInline = true
 
         video.onloadedmetadata = () => {
-            file.videoMeta = { duration: video.duration }
-
-            const safeTime = Math.min(1, video.duration / 2)
-            video.currentTime = safeTime
+            video.currentTime = Math.min(1, video.duration / 2)
         }
 
         video.onseeked = () => {
@@ -326,13 +282,259 @@ const createVideoThumbnail: (file) => Promise<string> = (file) => {
             ctx.fillStyle = '#fff'
             ctx.textBaseline = 'top'
             ctx.fillText(duration, x + paddingX, y + paddingY)
-
-            URL.revokeObjectURL(video.src)
-            resolve(canvas.toDataURL('image/jpeg', 0.9) as string)
+            
+            resolve(canvas.toDataURL('image/jpeg', 0.9))
         }
 
         video.onerror = reject
     })
+}
+
+async function smartTranscode (ffmpeg: FFmpeg, inputName, outputName) {
+    const getCodec = async (type) => {
+        const outputName = `${inputName}_ffprobe_output.json`
+        await ffmpeg.ffprobe([
+            '-v', 'error',
+            '-select_streams', `${type}:0`,
+            '-show_entries', 'stream=codec_name',
+            '-of', 'json',
+            inputName,
+            '-o', outputName,
+        ])
+
+        const data = await ffmpeg.readFile(outputName)
+        const metadata = JSON.parse(new TextDecoder().decode(data as any))
+
+        return metadata.streams?.[0]?.codec_name || null
+    }
+
+    const videoCodec = await getCodec('v')
+    const audioCodec = await getCodec('a')
+
+    const isH264 = videoCodec === 'h264'
+    const isAAC = audioCodec === 'aac'
+    const hasAudio = audioCodec !== null
+
+    console.log('Video codec:', videoCodec)
+    console.log('Audio codec:', audioCodec)
+
+    const args = [
+        '-i', inputName,
+        '-movflags', 'faststart',
+    ]
+
+    // 🔥 1. Идеальный случай — всё копируем
+    if (isH264 && (isAAC || !hasAudio)) {
+        args.push('-c', 'copy')
+    }
+
+    // 🎬 2. Видео ок, аудио нет → только аудио encode
+    else if (isH264 && hasAudio && !isAAC) {
+        args.push(
+            '-c:v', 'copy',
+            '-c:a', 'aac'
+        )
+    }
+
+    // 🎬 3. Видео не ок, аудио ок → только видео encode
+    else if (!isH264 && isAAC) {
+        args.push(
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-c:a', 'copy'
+        )
+    }
+
+    // 🐢 4. Всё плохо → encode всё
+    else {
+        args.push(
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-c:a', 'aac'
+        )
+    }
+
+    args.push(outputName)
+
+    console.log('smartTranscode/args >>> ', {
+        args,
+    })
+
+    await ffmpeg.exec(args)
+}
+
+let heic2any: any
+const convertFileIfNeeded = async (file: File, onProgress?): Promise<File> => {
+    // 🖼 HEIC → JPEG
+    if (file.type === 'image/heic') {
+        if (!heic2any) {
+            heic2any = (await import('heic2any')).default
+        }
+
+        const blob = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.9,
+        }) as Blob
+
+        return new File(
+            [blob],
+            file.name.replace(/\.heic$/i, '.jpeg'),
+            { type: 'image/jpeg' }
+        )
+    }
+
+    // 🖼 WebP → JPEG
+    if (file.type === 'image/webp') {
+        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const i = new Image()
+            i.onload = () => resolve(i)
+            i.onerror = reject
+            i.src = URL.createObjectURL(file)
+        })
+
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0)
+
+        const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, 'image/jpeg', 0.9)
+        })
+
+        return new File(
+            [blob],
+            file.name.replace(/\.webp$/i, '.jpeg'),
+            { type: 'image/jpeg' }
+        )
+    }
+
+    // 🎬 MOV/MP4 → MP4
+    if (file.type === 'video/mp4' || file.type === 'video/quicktime') {
+        await loadFFmpeg()
+
+        let inputType = 'mp4'
+        if (file.type === 'video/quicktime') inputType = 'mov'
+
+        const random = Math.random()
+        const inputName = `input_${random}.${inputType}`
+        const outputName = `output_${random}.mp4`
+
+        const onProgressHandler = ({ progress }) => {
+            console.log('Progress >>> ', progress, ' --- Percent >>> ', progress * 0.5 * 100)
+            if (progress < 1) {
+                onProgress && onProgress({ percent: progress * 0.5 * 100 })
+            }
+        }
+
+        if (onProgress) {
+            ffmpeg.on('progress', onProgressHandler)
+        }
+
+        await ffmpeg.writeFile(inputName, await file.bytes())
+
+        await smartTranscode(ffmpeg, inputName, outputName)
+
+        const data = await ffmpeg.readFile(outputName)
+
+        if (onProgress) {
+            ffmpeg.off('progress', onProgressHandler)
+        }
+
+        let filename = file.name
+        if (file.type === 'video/quicktime') filename = file.name.replace(/\.mov$/i, '.mp4')
+
+        return new File(
+            // @ts-ignore
+            [data.buffer],
+            filename,
+            { type: 'video/mp4' }
+        )
+    }
+
+    return file
+}
+
+export const convertFilesToUploadType: (files: GetNewsItemFilesQuery['newsItemFiles']) => UploadFileType[] = (files) => {
+    if (!Array.isArray(files)) {
+        return []
+    }
+
+    return files.map(fileObj => {
+        return {
+            uid: fileObj?.id,
+            id: fileObj?.id,
+            name: fileObj?.file?.originalFilename,
+            status: 'done',
+            url: fileObj?.file?.publicUrl,
+            response: { id: fileObj?.id, url: fileObj?.file?.publicUrl, originalName: fileObj?.file?.originalFilename, mimetype: fileObj?.file?.mimetype },
+        }
+    })
+}
+
+type State = {
+    added: Array<{ id: string }>
+    deleted: Array<{ id: string }>
+}
+
+type Action =
+    | { type: 'delete', payload: { id: string } }
+    | { type: 'add', payload: { id: string } }
+    | { type: 'reset', payload?: undefined }
+
+const reducer = (state: State, action: Action): State => {
+    const { type, payload: file } = action
+    switch (type) {
+        case 'delete': {
+
+            console.log('reducer/delete >>> ', {
+                file,
+            })
+
+            if (file.id) {
+                return {
+                    ...state,
+                    added: state.added.filter(addFile => addFile.id !== file.id),
+                    deleted: [...state.deleted, file],
+                }
+            }
+
+            const fileToDeleteId = (file as any)?.response?.id
+
+            if (!fileToDeleteId) return state
+
+            const fileToDelete = state.added.find(addedFile => addedFile.id === fileToDeleteId)
+            return {
+                ...state,
+                added: state.added.filter(addFile => addFile.id !== fileToDeleteId),
+                deleted: [...state.deleted, fileToDelete],
+            }
+        }
+        case 'add':
+            return {
+                ...state,
+                added: [...state.added, file],
+            }
+        case 'reset':
+            return {
+                added: [],
+                deleted: [],
+            }
+        default:
+            throw new Error(`unknown action ${type}`)
+    }
+}
+
+const initialState: State = { added: [], deleted: [] }
+
+export const useFilesUploadListHook = () => {
+    const [modifiedFiles, dispatch] = useReducer(reducer, initialState)
+
+    return {
+        modifyFiles: dispatch,
+        modifiedFiles,
+    }
 }
 
 export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
@@ -343,6 +545,8 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     fileList,
     // createAction,
     imageSize = 80,
+    updateFileList,
+    maxCount = 5,
 }) => {
     const intl = useIntl()
     const { user } = useAuth()
@@ -351,13 +555,13 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
         { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
 
-    const [files, setFiles] = useState<UploadFile[]>(fileList)
+    const [isReady, setIsReady] = useState<boolean>(!!fileList?.length)
+    const [files, setFiles] = useState<UploadFile[]>(fileList || [])
     useDeepCompareEffect(() => {
         setFiles(fileList)
     }, [fileList])
 
     const [createNewsItemFile] = useCreateNewsItemFileMutation()
-    const [updateNewsItemFile] = useUpdateNewsItemFileMutation()
 
     const imagesListWrapperRef = useRef<HTMLDivElement>()
     const imagesListRef = useRef<HTMLDivElement>()
@@ -380,15 +584,15 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
 
     useEffect(() => {
         if (!imagesListWrapperRef.current) return
-        
+
         const wrapper = imagesListWrapperRef.current // Store ref in a variable
         const resizeObserver = new ResizeObserver(handleScrollX)
         const imagesList = getImagesList()
-    
+
         wrapper.addEventListener('scroll', handleScrollX)
         imagesListRef.current = imagesList
         resizeObserver.observe(imagesList)
-    
+
         return () => {
             if (!wrapper) return
 
@@ -412,6 +616,74 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
         }
     }, [])
 
+    useDeepCompareEffect(() => {
+        const process = async () => {
+            const updated = await Promise.all(
+                (fileList || files).map(async (file) => {
+                    if (file.thumbUrl) return file
+
+                    console.log('useEffect >>>', {
+                        fileList,
+                        file,
+                        'file.response?.mimetype': file.response?.mimetype,
+                    })
+
+                    try {
+                        if (file.response?.mimetype?.startsWith('image/')) {
+                            const thumb = await getImageThumbnailFromUrl(file.url)
+
+                            console.log('useEffect/image >>>', {
+                                thumb,
+                            })
+
+                            return {
+                                ...file,
+                                thumbUrl: thumb,
+                            }
+                        }
+
+                        if (file.response?.mimetype?.startsWith('video/')) {
+                            const thumb = await createVideoThumbnailFromUrl(file.url)
+
+
+                            console.log('useEffect/video >>>', {
+                                thumb,
+                            })
+
+                            return {
+                                ...file,
+                                thumbUrl: thumb,
+                            }
+                        }
+
+                        return file
+                    } catch (e) {
+                        console.error(e)
+                        return file
+                    }
+                })
+            )
+
+            setFiles(updated)
+            setIsReady(true)
+        }
+
+        if ((fileList || files)?.length) {
+            process()
+        } else {
+            setIsReady(true)
+        }
+    }, [fileList])
+
+    console.log({
+        defaultFileList,
+        fileList,
+        files,
+        isReady,
+    })
+
+    if (!isReady) return null
+
     return (
         <UploadWrapper
             ref={imagesListWrapperRef}
@@ -427,9 +699,10 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
             <div className='upload-images-wrapper'>
                 <Upload
                     multiple
-                    accept='image/*,video/*,application/pdf,text/plain,application/zip,application/x-zip-compressed,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    accept='image/png,image/jpeg,image/heic,video/mp4,video/mov,video/quicktime,application/pdf,text/plain,application/zip,application/x-zip-compressed,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                     listType='picture-card'
-                    maxCount={20}
+                    maxCount={maxCount}
+                    isImageUrl={() => true}
                     showUploadList={{
                         showPreviewIcon: true,
                         previewIcon: <Eye color={colors.white}/>,
@@ -437,30 +710,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                         removeIcon:<Trash size='small' color={colors.white}/>,
                     }}
                     onRemove={async (file) => {
-                        const newsItemFileId = file?.response?.id
-
-                        const sender = getClientSideSenderInfo()
-                        const dvAndSender = { dv: 1, sender }
-
-                        try {
-                            const deletedFile = await updateNewsItemFile({
-                                variables: {
-                                    id: newsItemFileId,
-                                    data: {
-                                        ...dvAndSender,
-                                        deletedAt: new Date().toISOString(),
-                                    },
-                                },
-                            })
-
-                            if (deletedFile.errors) {
-                                return false
-                            }
-                        } catch (error) {
-                            console.log(error)
-                            return false
-                        }
-
+                        updateFileList({ type: 'delete', payload: file as any })
                         return true
                     }}
                     onChange={(info) => {
@@ -472,8 +722,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
 
                             return {
                                 ...file,
-                                // @ts-ignore
-                                duration: file?.videoMeta?.duration,
                             }
                         })
 
@@ -484,23 +732,43 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                         setFiles(fileList)
                     }}
                     defaultFileList={defaultFileList}
-                    fileList={fileList || files}
+                    fileList={files}
                     customRequest={async (options) => {
-                        const { onSuccess, onError } = options
-                        const file = options.file as File
+                        const { onSuccess, onError, onProgress } = options
 
+                        onProgress({ percent: 0 })
+
+                        let file = options.file as File
+
+                        try {
+                            file = await convertFileIfNeeded(file, onProgress)
+                        } catch (error) {
+                            console.error('Conversion failed', error)
+                            throw error
+                        }
+
+                        onProgress({ percent: 50 })
+
+                        // TODO(DOMA-13015)
                         // if (!isFunction(createAction)) {
                         //     console.error('Specify createActionProp to upload files')
                         //     return
                         // }
 
-                        if (file.size > MAX_UPLOAD_FILE_SIZE) {
+                        if (file.size > 512 * 1024 * 1024) {
                             const error = new Error(FileTooBigErrorMessage)
                             onError(error)
                             return
                         }
 
                         try {
+
+                            console.log('customRequest >>> ', {
+                                file,
+                                options,
+                            })
+
+
                             let createInput
 
                             if (fileClientId && user?.id) {
@@ -536,8 +804,11 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                                 },
                             })
 
-                            // const dbFile = await createAction({ file: createInput })
-                            onSuccess({ id: dbFile?.data?.newsItemFile?.id, url: dbFile?.data?.newsItemFile?.file?.publicUrl }, null)
+                            //TODO(DOMA-13015)
+                            updateFileList({ type: 'add', payload: dbFile?.data?.newsItemFile as any })
+
+                            onProgress({ percent: 100 })
+                            onSuccess({ id: dbFile?.data?.newsItemFile?.id, url: dbFile?.data?.newsItemFile?.file?.publicUrl, originalName: dbFile?.data?.newsItemFile?.file?.originalFilename }, null)
                         } catch (err) {
                             const error = new Error(UploadFailedErrorMessage)
                             console.error('Upload failed', err)
@@ -546,10 +817,23 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     }}
                     onPreview={handlePreview}
                     // itemRender={customItemRender}
-                    // @ts-ignore
                     previewFile={async (file) => {
-                        if (file.type?.startsWith('image/')) return getImageThumbnail(file)
-                        if (file.type?.startsWith('video/')) return createVideoThumbnail(file) // сохраняет file.videoMeta.duration
+                        console.log('previewFile >>> ', {
+                            file,
+                            json: JSON.stringify(file),
+                        })
+                        if (file.type?.startsWith('image/')) {
+                            const url = URL.createObjectURL(file)
+                            const thumbnail = await getImageThumbnailFromUrl(url)
+                            URL.revokeObjectURL(url)
+                            return thumbnail
+                        }
+                        if (file.type?.startsWith('video/')) {
+                            const url = URL.createObjectURL(file)
+                            const thumbnail = await createVideoThumbnailFromUrl(url)
+                            URL.revokeObjectURL(url)
+                            return thumbnail
+                        }
                         return null
                     }}
                     iconRender={(file) => {
@@ -566,10 +850,10 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                         if (file.type?.startsWith('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) typeToView = 'DOC'
                         if (file.type?.startsWith('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) typeToView = 'XLSX'
                         if (typeToView) return <span style={{ fontWeight: 'bold', color: 'grey' }}>{typeToView}</span>
-                        return '📄'
+                        return ''
                     }}
                 >
-                    {type === 'upload' ? <PlusCircle/> : null}
+                    {(type === 'upload' && (!maxCount || files?.length < maxCount)) ? <PlusCircle/> : null}
                 </Upload>
             </div>
             {

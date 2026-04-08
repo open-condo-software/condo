@@ -176,6 +176,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allNewsItemFiles: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                 },
             },
 
@@ -254,6 +259,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     timeToLive: 5 * 60 * 1000,
                 },
                 GetNewsSharingRecipientsOutput: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                NewsItemFile: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
             },

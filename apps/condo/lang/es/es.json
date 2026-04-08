@@ -1598,6 +1598,7 @@
   "news.component.RecipientCounter.willReceive.label": "recibirá \nlocales",
   "news.create.title": "Nueva noticia",
   "news.createNews": "Añadir noticia",
+  "news.fields.files.label": "Agregar archivos multimedia",
   "news.fields.address.label": "Seleccionar destinatarios",
   "news.fields.body.error.length": "Por favor, añade el texto principal",
   "news.fields.body.placeholder": "El texto de la noticia aparecerá en la pantalla principal de la aplicación del vecino, en la sección ¨Noticias¨.\nTambién le enviaremos una notificación push.",

@@ -1598,6 +1598,7 @@
   "news.component.RecipientCounter.willReceive.label": "will receive \npremises",
   "news.create.title": "New news",
   "news.createNews": "Add news",
+  "news.fields.files.label": "Add media files",
   "news.fields.address.label": "Select addressees",
   "news.fields.body.error.length": "Please add message",
   "news.fields.body.placeholder": "News will appear in the 'News' section on the main screen, and a push notification will be sent to the resident",

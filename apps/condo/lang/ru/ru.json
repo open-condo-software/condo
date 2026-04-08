@@ -1598,6 +1598,7 @@
   "news.component.RecipientCounter.willReceive.label": "получат \nпомещений",
   "news.create.title": "Новая новость",
   "news.createNews": "Добавить новость",
+  "news.fields.files.label": "Добавьте медиафайлы",
   "news.fields.address.label": "Выберите адресатов",
   "news.fields.body.error.length": "Пожалуйста, добавьте основной текст",
   "news.fields.body.placeholder": "Текст новости появится на главном экране приложения жителя, в разделе «Новости».\nТакже отправим пользователю push-уведомление.",

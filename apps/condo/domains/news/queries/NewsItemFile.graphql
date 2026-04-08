@@ -1,0 +1,24 @@
+mutation createNewsItemFile ($data: NewsItemFileCreateInput!) {
+    newsItemFile: createNewsItemFile(data: $data) {
+        id
+        file { publicUrl originalFilename }
+    }
+}
+
+mutation updateNewsItemFile ($id: ID!, $data: NewsItemFileUpdateInput!) {
+    newsItemFile: updateNewsItemFile(data: $data, id: $id) {
+        id
+        file { publicUrl originalFilename }
+    }
+}
+
+query getNewsItemFiles ($where: NewsItemFileWhereInput!, $sortBy: [SortNewsItemFilesBy!] = [createdAt_ASC], $first: Int = 10) {
+    newsItemFiles: allNewsItemFiles(
+        where: $where,
+        sortBy: $sortBy,
+        first: $first
+    ) {
+        id
+        file { publicUrl originalFilename mimetype }
+    }
+}
