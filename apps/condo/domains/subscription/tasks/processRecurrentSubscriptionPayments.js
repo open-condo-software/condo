@@ -43,7 +43,7 @@ async function processRecurrentSubscriptionPayments() {
                 endAt,
             } = subscriptionContext
 
-            const [latestContext] = await itemsQuery('SubscriptionContext', {
+            const latestContexts = await itemsQuery('SubscriptionContext', {
                 where: {
                     organization: { id: organization },
                     subscriptionPlan: { id: subscriptionPlan },
@@ -54,6 +54,12 @@ async function processRecurrentSubscriptionPayments() {
                 first: 1,
             })
 
+            if (!latestContexts || latestContexts.length === 0) {
+                logger.warn({ msg: 'no latest context found, skipping', data: { subscriptionContextId: id } })
+                continue
+            }
+
+            const latestContext = latestContexts[0]
             if (latestContext.id !== id) {
                 logger.info({ msg: 'subscription context is not the latest, skipping', data: { subscriptionContextId: id, latestContextId: latestContext.id } })
                 continue

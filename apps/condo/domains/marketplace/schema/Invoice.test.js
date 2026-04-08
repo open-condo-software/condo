@@ -28,12 +28,15 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
     createTestPaymentStatusChangeWebhookUrl,
     updateTestPaymentStatusChangeWebhookUrl,
     updateTestMultiPayment,
+    updateTestPayment,
+    Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
@@ -3384,6 +3387,16 @@ describe('Invoice', () => {
                 const invoice = result.subscriptionContext.invoice
                 const subscriptionContext = result.subscriptionContext
 
+                // Update payment to DONE status
+                const [payment] = await Payment.getAll(adminClient, {
+                    invoice: { id: invoice.id },
+                    deletedAt: null,
+                })
+                await updateTestPayment(adminClient, payment.id, {
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: dayjs().toISOString(),
+                })
+
                 await updateTestInvoice(adminClient, invoice.id, {
                     status: INVOICE_STATUS_PAID,
                 })
@@ -3429,6 +3442,16 @@ describe('Invoice', () => {
                 }
                 await updateTestMultiPayment(adminClient, multiPayment.id, {
                     meta: { paymentMethod },
+                })
+
+                // Update payment to DONE status
+                const [payment] = await Payment.getAll(adminClient, {
+                    invoice: { id: invoice.id },
+                    deletedAt: null,
+                })
+                await updateTestPayment(adminClient, payment.id, {
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: dayjs().toISOString(),
                 })
 
                 await updateTestInvoice(adminClient, invoice.id, {
