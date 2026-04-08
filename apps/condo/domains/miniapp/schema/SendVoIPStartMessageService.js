@@ -363,7 +363,6 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
 
                 /** @type {Array<Promise<{status, id, isDuplicateMessage}>>} */
                 const sendMessagePromises = verifiedResidentsWithUniqueUsers
-                    // .filter(resident => !rateLimitsErrorsByUserIds[resident.user])
                     .map(async (resident) => {
                         // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
                         let preparedDataArgs = {
@@ -406,8 +405,6 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                             to: { user: { id: resident.user } },
                             meta: {
                                 dv,
-                                title: i18n('api.miniapp.sendVoIPStartMessage.pushData.title', { locale: userIdToLocale[resident.user] }),
-                                body: i18n('api.miniapp.sendVoIPStartMessage.pushData.body', { locale: userIdToLocale[resident.user] }),
                                 data: metaData,
                             },
                         }
