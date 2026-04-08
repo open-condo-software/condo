@@ -152,4 +152,56 @@ describe('activateSubscriptionForInvoice', () => {
             expect(contextAfterTask.updatedAt).toBe(firstUpdatedAt)
         })
     })
+
+    describe('PENDING status activation', () => {
+        test('activates subscription context with PENDING status', async () => {
+            const [organization] = await registerNewOrganization(adminClient)
+
+            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+            })
+
+            const subscriptionContext = result.subscriptionContext
+            const invoice = subscriptionContext.invoice
+
+            await SubscriptionContext.update(adminClient, subscriptionContext.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
+                sender: { dv: 1, fingerprint: 'test' },
+            })
+
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '1234',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
+
+            await updateTestMultiPayment(adminClient, result.multiPayment.id, {
+                meta: { paymentMethod },
+            })
+
+            await updateTestInvoice(adminClient, invoice.id, {
+                status: INVOICE_STATUS_PAID,
+            })
+
+            await waitFor(async () => {
+                const [updatedContext] = await SubscriptionContext.getAll(adminClient, {
+                    id: subscriptionContext.id,
+                })
+                expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            })
+
+            const [finalContext] = await SubscriptionContext.getAll(adminClient, {
+                id: subscriptionContext.id,
+            })
+
+            expect(finalContext.bindingId).toBe(bindingId)
+            expect(finalContext.frozenPaymentInfo).toBeDefined()
+            expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(paymentMethod)
+        })
+    })
 })

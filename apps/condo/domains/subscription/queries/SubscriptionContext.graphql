@@ -2,7 +2,7 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
     activatedSubscriptions: allSubscriptionContexts(
         where: {
             organization: { id: $organizationId }
-            status: DONE
+            status: done
         }
         sortBy: [createdAt_DESC]
         first: 100
@@ -34,7 +34,7 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         where: {
             organization: { id: $organizationId }
             isTrial: true
-            status: DONE
+            status: done
         }
         sortBy: [createdAt_DESC]
         first: 100
@@ -63,7 +63,7 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         where: {
             organization: { id: $organizationId }
             endAt_lte: $now
-            status: DONE
+            status: done
         }
         sortBy: [endAt_DESC]
         first: 1
@@ -156,7 +156,7 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
         where: {
             organization: { id: $organizationId }
             invoice_is_null: false
-            status: DONE
+            status: done
         }
         sortBy: [createdAt_DESC]
         skip: $offset
@@ -184,7 +184,7 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
         where: {
             organization: { id: $organizationId }
             invoice_is_null: false
-            status: DONE
+            status: done
         }
     ) {
         count
@@ -197,7 +197,7 @@ query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!
             organization: { id: $organizationId }
             subscriptionPlan: { id: $subscriptionPlanId }
             bindingId_not: null
-            status_in: [ERROR, PENDING]
+            status_in: [error, pending]
         }
         sortBy: [createdAt_DESC]
         first: 1

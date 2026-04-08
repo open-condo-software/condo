@@ -24,12 +24,12 @@ type PaymentMethod = {
 
 const getCardIssuerImageUrl = (cardIssuerName?: string): string => {
     if (!cardIssuerName) return '/otherCard.svg'
-    
+
     const lowerIssuerName = cardIssuerName.toLowerCase()
-    const matchingKey = Object.keys(CARD_ISSUER_IMAGES).find(key => 
+    const matchingKey = Object.keys(CARD_ISSUER_IMAGES).find(key =>
         lowerIssuerName.includes(key.toLowerCase())
     )
-    
+
     return matchingKey ? CARD_ISSUER_IMAGES[matchingKey] : '/otherCard.svg'
 }
 
@@ -64,10 +64,10 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
 
     const getCardTypeTranslation = useCallback((cardType?: string): string => {
         if (!cardType) return ''
-        
+
         const upperCardType = cardType.toUpperCase()
         const translationKey = `subscription.linkedCards.cardType.${upperCardType}`
-        
+
         try {
             return intl.formatMessage({ id: translationKey as FormatjsIntl.Message['ids'] })
         } catch {
@@ -132,7 +132,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
         setIsUnbinding(true)
         try {
             const sender = getClientSideSenderInfo()
-            
+
             const contextsToUnbind = subscriptionContextsData?.subscriptionContexts?.filter(
                 context => context.frozenPaymentInfo?.paymentMethod?.bindingId === selectedCardId
             ) || []
@@ -191,8 +191,8 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
                                 <Row justify='space-between' align='middle'>
                                     <Col>
                                         <Space size={8} direction='horizontal'>
-                                            <img 
-                                                src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)} 
+                                            <img
+                                                src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)}
                                                 alt={paymentMethod.cardIssuerName || 'card'}
                                                 width={60}
                                                 height={40}

@@ -80,7 +80,7 @@ type PendingRequest = GetPendingSubscriptionRequestsQueryResult['data']['pending
 type TrialContextType = GetOrganizationTrialSubscriptionsQuery['trialSubscriptions'][number]
 type ActivatedSubscriptionType = GetOrganizationActivatedSubscriptionsQuery['activatedSubscriptions'][number]
 
-interface SubscriptionPlanCardProps { 
+interface SubscriptionPlanCardProps {
     planInfo: PlanType
     activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
@@ -193,16 +193,16 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const { useFlagValue } = useFeatureFlags()
     const { subscriptionContext: activeSubscriptionContext, daysRemaining } = useOrganizationSubscription()
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
-    
+
     const { plan, prices } = planInfo
     const price = prices?.[0]
     const usePaymentModal = useFlagValue(SUBSCRIPTION_PAYMENT_MODAL)
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
-    
+
     const formattedPriceForTrial = useMemo(() => {
         const currencyCode = price?.currencyCode
         if (!currencyCode) return '0'
-        
+
         return new Intl.NumberFormat(intl.locale, {
             style: 'currency',
             currency: currencyCode,
@@ -210,10 +210,10 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             maximumFractionDigits: 0,
         }).format(0)
     }, [price?.currencyCode, intl.locale])
-    
+
     const TryFreeMessage = intl.formatMessage({ id: 'subscription.planCard.tryFree' }, { formattedPrice: formattedPriceForTrial })
     const PeriodMessage = intl.formatMessage({ id: `subscription.planCard.planPrice.${price?.period}` as FormatjsIntl.Message['ids'] })
-    
+
     const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
     const isActiveBankingPlan = activeBankingPlanId && plan?.id === activeBankingPlanId
     const isCustomPrice = price?.price === null || price?.price === undefined
@@ -222,54 +222,54 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const isFreeForPartner = hasActiveBanking && isActiveBankingPlan
     const hasActivatedThisPlanOrHigher = activatedSubscriptions.some(
         ctx => ctx.subscriptionPlan && (
-            ctx.subscriptionPlan.id === plan.id || 
+            ctx.subscriptionPlan.id === plan.id ||
             ctx.subscriptionPlan.priority > (plan.priority || 0)
         )
     )
     const canActivateTrial = !activatedTrial && plan.trialDays > 0 && !hasActivatedThisPlanOrHigher
     const hasPendingRequest = !!pendingRequest
-    
+
     const primaryButtonLabel = useMemo(() => {
         if (hasPendingRequest) return RequestPendingMessage
         if (isCustomPrice) return SubmitRequestMessage
         if (usePaymentModal) return PayMessage
         return BuyMessage
     }, [hasPendingRequest, isCustomPrice, usePaymentModal, RequestPendingMessage, SubmitRequestMessage, PayMessage, BuyMessage])
-    
+
     const canManageSubscriptions = role?.canManageSubscriptions
     const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
     const currentPlanPriority = plan?.priority
-    
+
     const hasHigherPriorityPaidSubscription = useMemo(() => {
         if (currentPlanPriority === undefined) return false
-        
+
         const now = new Date()
-        
+
         return activatedSubscriptions.some(ctx => {
             const isPaid = !ctx.isTrial
             const ctxPriority = ctx.subscriptionPlan?.priority
             const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
             const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
             const isActive = hasStarted && hasNotEnded
-            
+
             return isPaid && isActive && ctxPriority !== undefined && ctxPriority > currentPlanPriority
         })
     }, [activatedSubscriptions, currentPlanPriority])
-    
+
     const isActivePaidPlan = useMemo(() => {
         const now = new Date()
-        
+
         return activatedSubscriptions.some(ctx => {
             const isCurrentPlan = ctx.subscriptionPlan?.id === plan?.id
             const isPaid = !ctx.isTrial
             const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
             const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
             const isActive = hasStarted && hasNotEnded
-            
+
             return isCurrentPlan && isPaid && isActive
         })
     }, [activatedSubscriptions, plan?.id])
-    
+
     const registerSubscriptionContextForModal = useCallback(async ({ paymentType }: { paymentType: PaymentType }) => {
         if (!price?.id) return
 
@@ -287,22 +287,22 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             setActivateLoading(false)
         }
     }, [price, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
-    
+
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerSubscriptionContextForModal,
         activateLoading,
     })
-    
-    const contextPaymentMethodId = useMemo(() => {
-        const contextsWithSamePlan = activatedSubscriptions
-            .filter(ctx => ctx?.subscriptionPlan?.id === plan?.id)
-            .sort((a, b) => {
-                return dayjs(b.endAt).diff(dayjs(a.endAt))
-            })
 
-        return contextsWithSamePlan.length > 0 ? contextsWithSamePlan[0]?.bindingId : null
+    const autoPaymentContext = useMemo(() => {
+        const contextsWithPaymentMethod = activatedSubscriptions
+            .filter(ctx => ctx?.subscriptionPlan?.id === plan?.id && ctx?.bindingId)
+            .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
+
+        return contextsWithPaymentMethod.length > 0 ? contextsWithPaymentMethod[0] : null
     }, [activatedSubscriptions, plan?.id])
-    
+
+    const contextPaymentMethodId = autoPaymentContext?.bindingId || null
+
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
         activePaymentMethodId: contextPaymentMethodId,
         onCardUnbound: refetchActivatedSubscriptions,
@@ -345,65 +345,70 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     }, [price?.id, plan.name, plan.trialDays, isCustomPrice, registerSubscriptionContext])
 
     const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
-        <FeatureItem 
-            key={featureKey || label} 
-            label={label} 
-            available={!featureKey ? true : Boolean(plan?.[featureKey as keyof typeof plan])} 
-            helpLink={featureKey ? subscriptionFeatureHelpLinks[featureKey] : undefined} 
-            hint={hint} 
+        <FeatureItem
+            key={featureKey || label}
+            label={label}
+            available={!featureKey ? true : Boolean(plan?.[featureKey as keyof typeof plan])}
+            helpLink={featureKey ? subscriptionFeatureHelpLinks[featureKey] : undefined}
+            hint={hint}
         />
     ), [plan])
-    
+
     const hasPaymentMethodForActivePlan = Boolean(
         isActivePlan &&
         contextPaymentMethodId
     )
-    
+
     const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId
-    
-    const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0 
-        ? dayjs().add(daysRemaining, 'day') 
+
+    const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0
+        ? dayjs().add(daysRemaining, 'day')
         : null
     const currentYear = dayjs().year()
     const isCurrentYear = endDate?.year() === currentYear
     const dateFormat = isCurrentYear ? 'D MMMM' : 'D MMMM YYYY'
     const formattedDate = endDate ? endDate.format(dateFormat) : null
-    
+
     const isNonTrialWithEndDate = !activeSubscriptionContext?.isTrial && endDate
     const endsInLessThan10Years = endDate && endDate.diff(dayjs(), 'year') < 10
-    
+
+    const autoPaymentEndDate = autoPaymentContext?.endAt ? dayjs(autoPaymentContext.endAt) : null
+    const autoPaymentFormattedDate = autoPaymentEndDate
+        ? autoPaymentEndDate.format(autoPaymentEndDate.year() === currentYear ? 'D MMMM' : 'D MMMM YYYY')
+        : formattedDate
+
     const dateMessage = useMemo(() => {
         if (isActivePlan && formattedDate) {
             if (isCustomPrice) {
                 return `✅ ${intl.formatMessage({ id: 'subscription.planCard.custom.paidUntil' }, { date: formattedDate })}`
             } else if (isFreeForPartner) {
                 return `✅ ${FreeForPartnerMessage}`
-            } else if (hasPaymentMethodForActivePlan) {
-                return ` /${intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedDate })}`
+            } else if (hasPaymentMethodForActivePlan && autoPaymentFormattedDate) {
+                return ` /${intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: autoPaymentFormattedDate })}`
             } else if (isNonTrialWithEndDate && endsInLessThan10Years) {
                 return ` /${intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedDate })}`
             }
         } else if (!isCustomPrice && !isFreeForPartner) {
             return ` /${PeriodMessage}`
         }
-    }, [FreeForPartnerMessage, PeriodMessage, endsInLessThan10Years, formattedDate, hasPaymentMethodForActivePlan, intl, isActivePlan, isCustomPrice, isFreeForPartner, isNonTrialWithEndDate])
+    }, [FreeForPartnerMessage, PeriodMessage, endsInLessThan10Years, formattedDate, hasPaymentMethodForActivePlan, intl, isActivePlan, isCustomPrice, isFreeForPartner, isNonTrialWithEndDate, autoPaymentFormattedDate])
 
 
     const displayPrice = useMemo(() => {
         if (!price) return null
-        
+
         if (isCustomPrice) {
             return isActivePlan ? null : price.name
         } else if (isFreeForPartner) {
             return null
-        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.invoice?.toPay !== undefined) {
-            const contextPrice = Math.floor(Number(activeSubscriptionContext.invoice.toPay))
+        } else if (hasPaymentMethodForActivePlan && autoPaymentContext?.frozenPaymentInfo?.invoice?.toPay !== undefined) {
+            const contextPrice = Math.floor(Number(autoPaymentContext.frozenPaymentInfo.invoice.toPay))
             const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
             return `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         } else {
             return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
         }
-    }, [price, activeSubscriptionContext?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner]) 
+    }, [price, activeSubscriptionContext?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner])
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
@@ -426,7 +431,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     <Typography.Title level={3}>
                                         {plan.name} {emoji ? emoji : ''}
                                     </Typography.Title>
-                                    <SubscriptionPlanBadge 
+                                    <SubscriptionPlanBadge
                                         plan={plan}
                                         activatedTrial={activatedTrial}
                                         hasPaymentMethod={hasPaymentMethodForActivePlan}
@@ -449,9 +454,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                                 </Typography.Text>
                                             </Typography.Title>
                                         </Space>
-                                        {hasPaymentMethodForActivePlan && hasPaymentMethod && (
+                                        {isActivePlan && (
                                             <>
                                                 <SubscriptionPaymentErrorAlert subscriptionPlanId={plan.id} />
+                                            </>
+                                        )}
+                                        {hasPaymentMethodForActivePlan && hasPaymentMethod && (
+                                            <>
                                                 <Space size={8} direction='vertical'>
                                                     <Typography.Link onClick={openPaymentHistoryModal}>
                                                         <Space size={4} direction='horizontal' align='center'>
@@ -484,7 +493,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                                 <Button
                                                     block
                                                     type='accent'
-                                                    onClick={handleTrialActivateClick} 
+                                                    onClick={handleTrialActivateClick}
                                                     loading={trialActivateLoading}
                                                     disabled={!canManageSubscriptions || trialActivateLoading}
                                                 >

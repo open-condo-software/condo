@@ -60308,10 +60308,10 @@ input InvoiceRelateToOneInput {
 }
 
 enum SubscriptionContextStatusType {
-  CREATED
-  DONE
-  PENDING
-  ERROR
+  created
+  done
+  pending
+  error
 }
 
 type PaymentMethod {

@@ -6,6 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Typography, Space } from '@open-condo/ui'
 
+import { SUBSCRIPTION_CONTEXT_STATUS } from '@condo/domains/subscription/constants'
+
 
 const { publicRuntimeConfig: { HelpRequisites } } = getConfig()
 
@@ -37,7 +39,7 @@ export const SubscriptionPaymentErrorAlert: React.FC<SubscriptionPaymentErrorAle
         }
 
         const context = data.lastFailedContext[0]
-        return context.status === 'ERROR' || context.status === 'PENDING'
+        return context.status === SUBSCRIPTION_CONTEXT_STATUS.ERROR || context.status === SUBSCRIPTION_CONTEXT_STATUS.PENDING
     }, [data])
 
     if (loading || !hasFailedPayment) {

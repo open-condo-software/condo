@@ -110,7 +110,8 @@ export const usePaymentHistoryModal = () => {
                 const invoice = record.frozenPaymentInfo?.invoice
                 if (!invoice?.toPay) return '—'
                 const currencySymbol = invoice.currencyCode || '₽'
-                return `${invoice.toPay} ${currencySymbol}`
+                const amount = Number(invoice.toPay)
+                return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`
             },
         },
         {

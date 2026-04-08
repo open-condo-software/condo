@@ -28,7 +28,9 @@ export const SubscriptionDaysIndicator: React.FC = () => {
     
     const shouldShow = useMemo(() => {
         if (!subscriptionContext || daysRemaining === undefined || daysRemaining === null) return false
-        
+
+        if (daysRemaining > 365) return false
+
         if (hasPaymentMethod && !isInBufferPeriod) return false
         
         if (isTrial && daysRemainingWithoutBuffer >= 0) {

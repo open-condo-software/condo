@@ -18,7 +18,7 @@ async function activateSubscriptionForInvoice (invoiceId) {
 
     const [subscriptionContext] = await find('SubscriptionContext', {
         invoice: { id: invoiceId },
-        status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+        status_in: [SUBSCRIPTION_CONTEXT_STATUS.CREATED, SUBSCRIPTION_CONTEXT_STATUS.PENDING],
         deletedAt: null,
     })
 
