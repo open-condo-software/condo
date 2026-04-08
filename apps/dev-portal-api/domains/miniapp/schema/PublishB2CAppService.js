@@ -20,7 +20,7 @@ const {
     CondoB2CAppAccessRightGql,
 } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/PublishB2CAppService')
-const { DEFAULT_COLOR_SCHEMA } = require('@dev-portal-api/domains/miniapp/constants/b2c')
+const { DEFAULT_COLOR_SCHEMA, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
 const {
     FIRST_PUBLISH_WITHOUT_INFO,
     APP_NOT_FOUND,
@@ -41,7 +41,10 @@ const {
     B2CAppAccessRight,
 } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/index')
 
+const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
+
+const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {
@@ -82,6 +85,17 @@ function getExportIdField (environment) {
     return `${environment}ExportId`
 }
 
+function getAppStaticUrl ({ condoApp, serverClient }) {
+    const condoUrl = new URL(serverClient.endpoint)
+    const condoDomainParts = condoUrl.hostname.split('.')
+    // NOTE: condo.example.com -> example.com, localhost -> localhost, example.com -> example.com
+    const domainSuffix = condoDomainParts.length > 2 ? condoDomainParts.slice(1) : condoDomainParts
+    const domainParts = [condoApp.id, 'miniapps-static', ...domainSuffix]
+    const port = condoUrl.port
+
+    return `${condoUrl.protocol}//${domainParts.join('.')}${port ? `:${port}` : ''}`
+}
+
 async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
     const { data: { dv, sender, environment } } = args
     logger.info({
@@ -92,6 +106,9 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     })
     const exportIdField = getExportIdField(environment)
     const exportId = app[exportIdField]
+
+    const webTransformField = getEnvironmentalFieldName(environment, 'webTransformEnabled')
+    const webTransformEnabled = app[webTransformField] === true
 
     // Step 1. Prepare payload
     const appPayload = {
@@ -123,6 +140,13 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
             environment,
             data: { condoAppId: condoApp.id },
         })
+
+        if (app.type === B2C_APP_CORDOVA_TYPE) {
+            appPayload.appUrl = webTransformEnabled
+                ? getAppStaticUrl({ condoApp, serverClient })
+                : null
+        }
+
         updatedCondoApp = await serverClient.updateModel({
             modelGql: CondoB2CAppGql,
             id: condoApp.id,
@@ -147,6 +171,17 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
             modelGql: CondoB2CAppGql,
             createInput: appPayload,
         })
+        if (app.type === B2C_APP_CORDOVA_TYPE && webTransformEnabled) {
+            updatedCondoApp = await serverClient.updateModel({
+                modelGql: CondoB2CAppGql,
+                id: updatedCondoApp.id,
+                updateInput: {
+                    dv,
+                    sender,
+                    appUrl: getAppStaticUrl({ condoApp: updatedCondoApp, serverClient }),
+                },
+            })
+        }
         logger.info({
             msg: 'condo app successfully created',
             entityId: app.id,
@@ -441,12 +476,15 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
             access: access.canPublishB2CApp,
             schema: 'publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput',
             resolver: async (parent, args, context) => {
-                const { data: { app: { id }, options, environment } } = args
+                const { data: { app: { id }, options, environment, dv, sender } } = args
+
+                const publishingTime = dayjs().toISOString()
+                const publishingField = getEnvironmentalFieldName(environment, 'publishedAt')
 
                 const app = await B2CApp.getOne(
                     context,
                     { id, deletedAt: null },
-                    'id developmentExportId productionExportId name developer createdBy { name } logo { publicUrl originalFilename }'
+                    B2C_APP_FIELDS,
                 )
                 if (!app) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
@@ -529,6 +567,12 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
                 await syncOIDCClient({ args, serverClient, condoApp })
+
+                await B2CApp.update(context, app.id, {
+                    dv,
+                    sender,
+                    [publishingField]: publishingTime,
+                })
 
                 return {
                     success: true,

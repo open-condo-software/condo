@@ -2,12 +2,15 @@ query getB2CApp($id: ID!) {
     app: B2CApp(where: { id: $id }) {
         id
         name
+        type
         developer
         logo {
             publicUrl
         }
         developmentExportId
         productionExportId
+        developmentWebTransformEnabled
+        productionWebTransformEnabled
     }
 }
 
