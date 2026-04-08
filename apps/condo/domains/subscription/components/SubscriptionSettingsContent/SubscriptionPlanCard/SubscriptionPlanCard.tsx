@@ -356,10 +356,10 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     const hasPaymentMethodForActivePlan = Boolean(
         isActivePlan &&
-        contextPaymentMethodId
+        (contextPaymentMethodId || activeSubscriptionContext?.bindingId)
     )
 
-    const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId
+    const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId && !activeSubscriptionContext?.bindingId
 
     const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0
         ? dayjs().add(daysRemaining, 'day')
