@@ -1,6 +1,7 @@
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
 const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -10,9 +11,8 @@ const {
     REDSTORE_CONFIG_ENV,
     PUSH_TYPE_DEFAULT,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
+    PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL,
 } = require('@condo/domains/notification/constants/constants')
-
-const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL } = require('../constants/constants')
 
 const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
@@ -149,10 +149,12 @@ class RedStoreAdapter {
     }
 
     static shouldClearPushTokenByErrorsInResponse (response) {
-        const error = response?.error
-        if (!error || typeof error !== 'object') return false
-        if (error.status === 'NOT_FOUND' && error.code === 404) return true
-        return false
+        return z.object({
+            error: z.object({
+                status: z.literal('NOT_FOUND'),
+                code: z.literal(404),
+            }),
+        }).safeParse(response).success
     }
 
     /**

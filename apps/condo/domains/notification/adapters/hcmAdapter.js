@@ -3,6 +3,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
 const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -250,14 +251,16 @@ class HCMAdapter {
 
     static shouldClearPushTokenByErrorsInResponse (response) {
         // https://developer.huawei.com/consumer/en/doc/quickapp-access-push-kit#h2-1582279813559
-        if (response?.code === ALL_TOKENS_ARE_INVALID_CODE) return true
-        if (response?.code === PUSH_PARTIAL_SUCCESS_CODE) {
-            try {
-                const msg = JSON.parse(response.msg)
-                return !!(msg?.illegal_tokens ?? []).find(illegalToken => response.pushToken === illegalToken)
-            } catch { /**/ }
-        }
-        return false
+        return z.union([
+            z.object({
+                code: z.literal(ALL_TOKENS_ARE_INVALID_CODE),
+            }),
+            z.object({
+                code: z.literal(PUSH_PARTIAL_SUCCESS_CODE),
+                msg: z.string()
+                    .refine(msg => response.pushToken && JSON.parse(msg).illegal_tokens.includes(response.pushToken)),
+            }),
+        ]).safeParse(response).success
     }
 
     /**

@@ -2,6 +2,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
 const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -206,9 +207,14 @@ class AppleAdapter {
 
     static shouldClearPushTokenByErrorsInResponse (response) {
         // https://developer.apple.com/documentation/usernotifications/handling-notification-responses-from-apns
-        if (response?.error?.reason === 'Unregistered') return true
-        if (response?.error?.reason === 'ExpiredToken') return true
-        return false
+        return z.object({
+            error: z.object({
+                reason: z.union([
+                    z.literal('Unregistered'),
+                    z.literal('ExpiredToken'),
+                ]),
+            }),
+        }).safeParse(response).success
     }
 
     /**

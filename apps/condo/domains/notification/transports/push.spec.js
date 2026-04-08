@@ -1932,8 +1932,8 @@ describe('push transport', () => {
                 adapter: OneSignalAdapter,
                 pushTransportType: PUSH_TRANSPORT_ONESIGNAL,
                 expectedErrors: [
-                    { errors: ['All included players are not subscribed'] },
-                    (token) => ({ errors: { invalid_player_ids: [token] } }),
+                    { response: { errors: ['All included players are not subscribed'] } },
+                    (token) => ({ response: { errors: { invalid_player_ids: [token] } } }),
                 ],
             },
         ]

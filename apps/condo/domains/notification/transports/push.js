@@ -140,20 +140,22 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ transportType, result, isV
         const [remoteClientPushToken] = await find('RemoteClientPushToken', {
             token: response.pushToken,
             provider: transportType,
+            deletedAt: null,
         })
 
-        if (get(remoteClient, 'id')) {
+        if (remoteClient) {
             cleanRemoteClientsArgs.push({
                 id: remoteClient.id,
                 data: {
                     [tokenField]: null,
+                    [transportField]: null,
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'internal-update-token-not-registered' },
                 },
             })
-            logger.info({ msg: `remove expired ${transportType} token`, entityName: 'RemoteClient', entityId: remoteClient.id, data: { tokenField } })
+            logger.info({ msg: 'remove expired token', entity: 'RemoteClient', entityId: remoteClient.id, data: { tokenField, transportType } })
         }
-        if (get(remoteClientPushToken, 'id')) {
+        if (remoteClientPushToken) {
             deleteRemoteClientPushTokensArgs.push({
                 id: remoteClientPushToken.id,
                 data: {
@@ -162,7 +164,7 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ transportType, result, isV
                     sender: { dv: 1, fingerprint: 'internal-update-token-not-registered' },
                 },
             })
-            logger.info({ msg: `remove expired ${transportType} token`, entityName: 'RemoteClientPushToken', entityId: remoteClientPushToken.id })
+            logger.info({ msg: 'remove expired token', entity: 'RemoteClientPushToken', entityId: remoteClientPushToken.id, data: { transportType } })
         }
     }
 
