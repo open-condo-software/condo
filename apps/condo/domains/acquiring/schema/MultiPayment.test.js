@@ -40,6 +40,7 @@ const {
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     MULTIPAYMENT_INIT_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
@@ -62,6 +63,7 @@ const {
     createTestAcquiringIntegration,
     updateTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
+    AcquiringIntegration,
     createTestPayment,
     updateTestPayment,
     getRandomHiddenCard,
@@ -74,6 +76,9 @@ const {
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { UserAdmin, makeClientWithSupportUser, makeClientWithServiceUser, createTestPhone, createTestEmail, updateTestUser } = require('@condo/domains/user/utils/testSchema')
+
+const { MULTIPAYMENT_NON_DONE_PAYMENTS, MULTIPAYMENT_SEVERAL_PAYMENTS } = require('../constants/errors')
+
 
 
 describe('MultiPayment', () => {
@@ -339,6 +344,48 @@ describe('MultiPayment', () => {
         })
     })
     describe('Validation tests', () => {
+        describe('External import', () => {
+            async function setup (count = 1){
+                const data = await makePayerAndPayments(count)
+                await AcquiringIntegration.update(data.admin, data.acquiringIntegration.id, {
+                    dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+                })
+                return data
+            }
+
+            test('Should pass with valid data', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup()
+                await Payment.update(admin, payments[0].id, {
+                    dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS,
+                })
+                const [mp] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: PAYMENT_DONE_STATUS })
+                expect(mp).toBeDefined()
+            })
+
+            test('Should throw if payments not done', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                }, MULTIPAYMENT_NON_DONE_PAYMENTS)
+            })
+
+            test('Should throw if multipayment has several payments', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup(2)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                }, MULTIPAYMENT_SEVERAL_PAYMENTS)
+            })
+
+            test('Should throw if multipayment not done', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup()
+                await Payment.update(admin, payments[0].id, {
+                    dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS,
+                })
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: MULTIPAYMENT_INIT_STATUS })
+                }, MULTIPAYMENT_NOT_ALLOWED_TRANSITION)
+            })
+        })
         describe('Fields validation', () => {
             test('Should have correct dv field (=== 1)', async () => {
                 const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()

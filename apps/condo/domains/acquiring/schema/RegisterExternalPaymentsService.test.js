@@ -193,7 +193,7 @@ describe('RegisterExternalPaymentsService', () => {
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
-            }, ERRORS.INVALID_PAYMENT_AMOUNT)
+            }, ERRORS.NEGATIVE_PAYMENT_AMOUNT)
         })
 
         test('Should throw error for unsupported currency code', async () => {

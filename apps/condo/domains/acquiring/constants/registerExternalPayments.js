@@ -89,7 +89,13 @@ const ERRORS = {
         type: 'INVALID_VALUE',
         message: 'Unsupported currency code: {currencyCode} for transaction: {transactionId}',
     },
-
+    NEGATIVE_PAYMENT_AMOUNT: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Payment amount cannot be negative. Found: {amount} for transaction: {transactionId}',
+    },
 }
 
 module.exports = {

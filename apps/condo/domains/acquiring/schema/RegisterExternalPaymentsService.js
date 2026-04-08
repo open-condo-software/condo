@@ -46,6 +46,10 @@ function validatePayments (payments, context) {
         } catch (e) {
             throw new GQLError({ ...ERRORS.INVALID_PAYMENT_AMOUNT, messageInterpolation: { amount, transactionId } }, context)
         }
+
+        if (Big(amount).lte(0)) {
+            throw new GQLError({ ...ERRORS.NEGATIVE_PAYMENT_AMOUNT, messageInterpolation: { amount, transactionId } }, context)
+        }
     }
 }
 
