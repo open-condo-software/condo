@@ -5,7 +5,7 @@ const logger = getLogger('SubscriptionPaymentAdapter')
 
 class SubscriptionPaymentAdapter {
 
-    static async proceedPayment({ directPaymentUrl, cardTokenId }) {
+    static async proceedPayment ({ directPaymentUrl, cardTokenId }) {
         try {
             const url = new URL(directPaymentUrl)
             url.searchParams.append('cardTokenId', cardTokenId)
@@ -62,7 +62,7 @@ class SubscriptionPaymentAdapter {
         }
     }
 
-    static async deleteCardToken({ hostUrl, organizationId, cardTokenId }) {
+    static async deleteCardToken ({ hostUrl, organizationId, cardTokenId }) {
         try {
             const deleteUrl = `${hostUrl}/api/clients/${organizationId}/card-tokens/${cardTokenId}`
             const secret = conf['B2B_PAYMENT_GATEWAY_SECRET']
