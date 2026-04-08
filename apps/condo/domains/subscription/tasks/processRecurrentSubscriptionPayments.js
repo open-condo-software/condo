@@ -10,7 +10,7 @@ const { registerSubscriptionContext, SubscriptionContext } = require('@condo/dom
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
-async function processRecurrentSubscriptionPayments () {
+async function processRecurrentSubscriptionPayments() {
     const { keystone } = getSchemaCtx('SubscriptionContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
@@ -54,8 +54,8 @@ async function processRecurrentSubscriptionPayments () {
                 first: 1,
             })
 
-            if (!latestContext) {
-                logger.info({ msg: 'subscription context is not the latest, skipping', data: { subscriptionContextId: id } })
+            if (latestContext.id !== id) {
+                logger.info({ msg: 'subscription context is not the latest, skipping', data: { subscriptionContextId: id, latestContextId: latestContext.id } })
                 continue
             }
 
@@ -84,8 +84,8 @@ async function processRecurrentSubscriptionPayments () {
             }
 
             const isLastBufferDay = !dayjs(endAt).isAfter(dayjs(bufferDate))
-            const errorStatus = isLastBufferDay 
-                ? SUBSCRIPTION_CONTEXT_STATUS.ERROR 
+            const errorStatus = isLastBufferDay
+                ? SUBSCRIPTION_CONTEXT_STATUS.ERROR
                 : SUBSCRIPTION_CONTEXT_STATUS.PENDING
 
             try {
@@ -99,19 +99,19 @@ async function processRecurrentSubscriptionPayments () {
                 if (paid) {
                     logger.info({ msg: 'payment succeeded', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice } })
                 } else {
-                    logger.error({ 
-                        msg: 'payment failed', 
-                        data: { 
-                            subscriptionContextId: newContext.id, 
-                            invoiceId: newContext.invoice, 
-                            paymentStatus, 
+                    logger.error({
+                        msg: 'payment failed',
+                        data: {
+                            subscriptionContextId: newContext.id,
+                            invoiceId: newContext.invoice,
+                            paymentStatus,
                             errorMessage,
                             cancellationDetails,
                             isLastBufferDay,
                             willSetStatus: errorStatus,
                         },
                     })
-                    
+
                     await SubscriptionContext.update(context, newContext.id, {
                         dv: 1,
                         sender,
@@ -119,16 +119,16 @@ async function processRecurrentSubscriptionPayments () {
                     })
                 }
             } catch (paymentError) {
-                logger.error({ 
-                    msg: 'payment processing error', 
-                    err: paymentError, 
-                    data: { 
+                logger.error({
+                    msg: 'payment processing error',
+                    err: paymentError,
+                    data: {
                         subscriptionContextId: newContext.id,
                         isLastBufferDay,
                         willSetStatus: errorStatus,
                     },
                 })
-                
+
                 await SubscriptionContext.update(context, newContext.id, {
                     dv: 1,
                     sender,
