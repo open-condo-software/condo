@@ -41,7 +41,7 @@ async function resolveExternalContentValue (value, {
     // Merge custom processors with defaults
     const processors = { ...DEFAULT_PROCESSORS, ...formatProcessors }
 
-    if (value === null || typeof value === 'undefined') return value
+    if (value === null || value === undefined) return value
 
     // Parse JSON string if needed (database stores serialized JSON)
     let parsedValue = value

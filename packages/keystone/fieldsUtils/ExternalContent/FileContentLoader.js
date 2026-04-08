@@ -52,7 +52,7 @@ class FileContentLoader {
         
         // Batch delay in milliseconds (one event loop tick)
         // Can be set to 0 for immediate execution
-        this.batchDelayMs = options.batchDelayMs !== undefined ? options.batchDelayMs : DEFAULT_BATCH_DELAY_MS
+        this.batchDelayMs = options.batchDelayMs ?? DEFAULT_BATCH_DELAY_MS
         
         // Promise that resolves when current batch completes (for synchronization)
         this.batchCompletionPromise = null

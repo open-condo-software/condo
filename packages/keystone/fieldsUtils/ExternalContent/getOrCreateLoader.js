@@ -30,7 +30,7 @@ function getOrCreateLoader (context, adapter, batchDelayMs) {
     
     // Return existing loader or create new one
     if (!context._externalContentLoaders.has(loaderKey)) {
-        const options = batchDelayMs !== undefined ? { batchDelayMs } : undefined
+        const options = batchDelayMs === undefined ? undefined : { batchDelayMs }
         context._externalContentLoaders.set(loaderKey, new FileContentLoader(adapter, options))
     }
     

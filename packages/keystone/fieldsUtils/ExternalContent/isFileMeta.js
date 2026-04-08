@@ -28,7 +28,7 @@ function isFileMeta (value, opts = {}) {
     const { requireNonEmpty = true } = opts
 
     // If _type is present it must match
-    if (typeof value._type !== 'undefined' && value._type !== FILE_META_TYPE) return false
+    if (value._type !== undefined && value._type !== FILE_META_TYPE) return false
 
     const hasValidString = (v) => typeof v === 'string' && (!requireNonEmpty || v.length > 0)
 

@@ -238,7 +238,7 @@ class ExternalContentImplementation extends Implementation {
     async resolveInput ({ resolvedData, existingItem, listKey, context }) {
         const nextValue = resolvedData[this.path]
 
-        if (typeof nextValue === 'undefined') return undefined
+        if (nextValue === undefined) return undefined
 
         const prevValue = existingItem?.[this.path]
         const prevLooksLikeFile = isFileMeta(prevValue)
