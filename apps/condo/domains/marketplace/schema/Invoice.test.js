@@ -3396,11 +3396,7 @@ describe('Invoice', () => {
                     status: PAYMENT_DONE_STATUS,
                     advancedAt: dayjs().toISOString(),
                 })
-
-                await updateTestInvoice(adminClient, invoice.id, {
-                    status: INVOICE_STATUS_PAID,
-                })
-
+                
                 await waitFor(async () => {
                     const [updatedContext] = await SubscriptionContext.getAll(adminClient, { id: subscriptionContext.id })
                     expect(updatedContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
@@ -3452,10 +3448,6 @@ describe('Invoice', () => {
                 await updateTestPayment(adminClient, payment.id, {
                     status: PAYMENT_DONE_STATUS,
                     advancedAt: dayjs().toISOString(),
-                })
-
-                await updateTestInvoice(adminClient, invoice.id, {
-                    status: INVOICE_STATUS_PAID,
                 })
 
                 await waitFor(async () => {

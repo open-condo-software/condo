@@ -10,7 +10,7 @@ const { registerSubscriptionContext, SubscriptionContext } = require('@condo/dom
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
-async function processRecurrentSubscriptionPayments() {
+async function processRecurrentSubscriptionPayments () {
     const { keystone } = getSchemaCtx('SubscriptionContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
