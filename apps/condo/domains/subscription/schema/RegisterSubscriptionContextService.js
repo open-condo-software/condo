@@ -17,9 +17,9 @@ const access = require('@condo/domains/subscription/access/RegisterSubscriptionC
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
+const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextService')
-const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const ERRORS = {
     ORGANIZATION_NOT_FOUND: {
