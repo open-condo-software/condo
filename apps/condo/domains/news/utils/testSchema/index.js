@@ -349,7 +349,7 @@ async function getNewsSharingRecipientsCountersByTestClient(client, b2bAppContex
 }
 async function createTestNewsItemFile (client, newsItem, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
+    if (newsItem && !newsItem.id) throw new Error('no newsItem.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -370,7 +370,7 @@ async function createTestNewsItemFile (client, newsItem, organization, extraAttr
     const attrs = {
         dv: 1,
         sender,
-        newsItem: { connect: { id: newsItem.id } },
+        ...(newsItem && { newsItem: { connect: { id: newsItem.id } } }),
         file,
         ...extraAttrs,
     }
