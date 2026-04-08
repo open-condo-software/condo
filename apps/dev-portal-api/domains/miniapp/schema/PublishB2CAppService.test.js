@@ -479,6 +479,7 @@ describe('PublishB2CAppService', () => {
                         await publishB2CAppByTestClient(user, app, { info: true }, environment)
                         const apiApp = await B2CApp.getOne(support, { id: app.id })
                         expect(apiApp[fieldName]).toBeDefined()
+                        expect(apiApp[fieldName]).not.toBeNull()
                     })
                 })
             })
