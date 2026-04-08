@@ -17,9 +17,9 @@ const access = require('@condo/domains/subscription/access/RegisterSubscriptionC
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
-const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextService')
+const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const ERRORS = {
     ORGANIZATION_NOT_FOUND: {
@@ -187,7 +187,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
                         const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
+                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
                         const url = new URL(directPaymentUrl)
                         url.searchParams.append('organizationId', organization.id)
                         url.searchParams.append('provider', provider)
@@ -222,7 +222,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
                         const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
+                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
                         const url = new URL(directPaymentUrl)
                         url.searchParams.append('organizationId', organization.id)
                         url.searchParams.append('provider', provider)
@@ -287,7 +287,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 let directPaymentUrl = multiPaymentResult.directPaymentUrl
                 if (directPaymentUrl) {
                     const provider = conf['B2B_PAYMENTS_PROVIDER']
-                    const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription`
+                    const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
                     const url = new URL(directPaymentUrl)
                     url.searchParams.append('organizationId', organization.id)
                     url.searchParams.append('provider', provider)
