@@ -487,8 +487,6 @@
   "api.miniapp.sendVoIPStartMessage.APP_NOT_FOUND": "Не удалось найти приложение по переданному \"id\"",
   "api.miniapp.sendVoIPStartMessage.DV_VERSION_MISMATCH": "Неверное значение версии данных",
   "api.miniapp.sendVoIPStartMessage.WRONG_SENDER_FORMAT": "Неверный формат поля \"sender\"",
-  "api.miniapp.sendVoIPStartMessage.pushData.title": "Звонок домофона",
-  "api.miniapp.sendVoIPStartMessage.pushData.body": "Звонок домофона",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE": "Запрос в миниапп вернул некорректные данные",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED": "Запрос в миниапп завершился с ошибкой",
   "api.news.getNewsSharingRecipients.NOT_NEWS_SHARING_APP": "Этот миниапп не поддерживает функциональность отправки новостей",

@@ -487,8 +487,6 @@
   "api.miniapp.sendVoIPStartMessage.APP_NOT_FOUND": "No se encontró la aplicación para el \"id\" proporcionado",
   "api.miniapp.sendVoIPStartMessage.DV_VERSION_MISMATCH": "Valor de versión de datos no válido",
   "api.miniapp.sendVoIPStartMessage.WRONG_SENDER_FORMAT": "Formato no válido para el campo \"sender\"",
-  "api.miniapp.sendVoIPStartMessage.pushData.title": "Llamada del interfono",
-  "api.miniapp.sendVoIPStartMessage.pushData.body": "Llamada del interfono",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE": "La solicitud a la miniapp ha devuelto datos incorrectos",
   "api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED": "La solicitud a la miniapp se completó con un error.",
   "api.news.getNewsSharingRecipients.NOT_NEWS_SHARING_APP": "Esta miniapp no admite la funcionalidad de envío de noticias",
