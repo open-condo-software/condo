@@ -6,7 +6,7 @@ const { Implementation } = require('@open-keystone/fields')
 const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
 const logger = require('@open-condo/keystone/logging')
 
-const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta } = ExternalContent
+const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta, resolveExternalContentValue } = ExternalContent
 
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
 
@@ -137,9 +137,7 @@ class ExternalContentImplementation extends Implementation {
      * 
      * @returns {Object} Field resolver mapping
      */
-    gqlOutputFieldResolvers () {
-        const { resolveExternalContentValue } = require('@open-condo/keystone/fieldsUtils/ExternalContent/resolveExternalContentValue')
-        
+    gqlOutputFieldResolvers () {        
         return {
             // Virtual field for deserialized content (for API clients)
             [`${this.path}Resolved`]: async (item, args, context) => {
