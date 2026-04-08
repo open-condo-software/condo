@@ -71,7 +71,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
-                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             expect(contexts).toHaveLength(1)
@@ -110,7 +110,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
-                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             expect(contexts.length).toBeGreaterThan(0)
@@ -148,7 +148,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
-                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             expect(contexts.length).toBeGreaterThan(0)
@@ -357,7 +357,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
-                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             expect(contexts.length).toBeGreaterThan(0)
@@ -397,7 +397,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRule: { id: pricingRule.id },
-                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             expect(contexts.length).toBeGreaterThan(0)
