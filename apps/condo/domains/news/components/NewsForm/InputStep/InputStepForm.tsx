@@ -325,6 +325,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                     disabled={isRewriteNewsTextLoading}
                     customLabels={{
                         emojiDropdown: emojiDropdownLabels,
+                        bottomPanelLabels: bottomPanelLabels,
                     }}
                     bottomPanelUtils={bottomPanelUtils}
                 />

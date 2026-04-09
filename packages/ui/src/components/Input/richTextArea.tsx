@@ -192,7 +192,14 @@ export type RichTextAreaCustomLabels = {
 }
 
 type BottomPanelBuiltinKey = 'emoji'
-type BottomPanelUtilsItem = BottomPanelBuiltinKey | React.ReactElement
+type BottomPanelBuiltinUtilConfig =
+    | {
+        key: 'emoji'
+        dropdownProps?: Pick<React.ComponentProps<typeof Dropdown>, 'placement'>
+    }
+
+type BottomPanelReactUtilElement = React.ReactElement<{ disabled?: boolean }>
+type BottomPanelUtilsItem = BottomPanelBuiltinKey | BottomPanelBuiltinUtilConfig | BottomPanelReactUtilElement
 
 type ToolbarButtonKey =
     | 'undo' | 'redo'
@@ -771,7 +778,8 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
 
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
-    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+    const [emojiPickerDropdownOpen, setEmojiPickerDropdownOpen] = useState(false)
+    const [emojiPickerTooltipOpen, setEmojiPickerTooltipOpen] = useState(false)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
 
     const editor = useEditor({
@@ -857,16 +865,23 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         selector: ({ editor: e }) => e?.storage.characterCount?.characters() ?? 0,
     })
 
-    const handleBottomEmojiOpenChange = useCallback((open: boolean) => {
+    const handleEmojiDropdownOpenChange = useCallback((open: boolean) => {
         if (disabled) {
-            setEmojiPickerOpen(false)
+            setEmojiPickerDropdownOpen(false)
+            setEmojiPickerTooltipOpen(false)
             return
         }
-        setEmojiPickerOpen(open)
+        if (open) {
+            setEmojiPickerTooltipOpen(false)
+        }
+        setEmojiPickerDropdownOpen(open)
     }, [disabled])
 
+    const handleEmojiTooltipOpenChange = useCallback((open: boolean) => {
+        setEmojiPickerTooltipOpen(emojiPickerDropdownOpen ? false : open)
+    }, [emojiPickerDropdownOpen])
+
     const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
-        setEmojiPickerOpen(false)
         if (!editor || disabled || !editor.isEditable) return
 
         const nativeEmoji = emoji?.native
@@ -877,53 +892,74 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         }
     }, [disabled, editor])
 
-    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelBuiltinKey, index: number) => {
-        if (util !== 'emoji') return null
+    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelUtilsItem, index: number) => {
+        if (React.isValidElement(util)) {
+            return React.cloneElement(util, {
+                key: util.key ?? index,
+                disabled: util.props?.disabled || disabled,
+            })
+        }
 
-        const isBuiltinDisabled = Boolean(disabled)
-        const emojiDropdownContent = (
-            <div className='condo-input-emoji-dropdown'>
-                <Picker
-                    data={emojiData}
-                    onEmojiSelect={handleBottomEmojiSelect}
-                    previewPosition='none'
-                    skinTonePosition='none'
-                    searchPosition='none'
-                    theme='light'
-                    icons='outline'
-                    i18n={resolvedEmojiDropdownLabels}
-                />
-            </div>
-        )
-
-        return (
-            <Dropdown
-                key={`builtin-${util}-${index}`}
-                trigger={['click']}
-                open={emojiPickerOpen}
-                onOpenChange={handleBottomEmojiOpenChange}
-                overlayClassName='condo-input-emoji-dropdown-overlay'
-                dropdownRender={() => emojiDropdownContent}
-            >
-                <span>
-                    <Tooltip title={resolvedBottomPanelLabels.emoji} mouseLeaveDelay={0}>
-                        <Button
-                            type='secondary'
-                            minimal
-                            compact
-                            size='medium'
-                            disabled={isBuiltinDisabled}
-                            icon={<Smile size='small' />}
-                            onClick={() => null}
-                        />
-                    </Tooltip>
-                </span>
-            </Dropdown>
-        )
+        const normalizedBuiltinUtil = typeof util === 'string'
+            ? { key: util }
+            : util
+        
+        switch (normalizedBuiltinUtil.key) {
+            case 'emoji':
+                return (
+                    <Dropdown
+                        key={`builtin-${normalizedBuiltinUtil.key}-${index}`}
+                        trigger={['click']}
+                        placement='bottomLeft'
+                        open={emojiPickerDropdownOpen}
+                        onOpenChange={handleEmojiDropdownOpenChange}
+                        overlayClassName='condo-input-emoji-dropdown-overlay'
+                        dropdownRender={() => (
+                            <div className='condo-input-emoji-dropdown'>
+                                <Picker
+                                    data={emojiData}
+                                    onEmojiSelect={handleBottomEmojiSelect}
+                                    previewPosition='none'
+                                    skinTonePosition='none'
+                                    searchPosition='none'
+                                    theme='light'
+                                    icons='outline'
+                                    i18n={resolvedEmojiDropdownLabels}
+                                />
+                            </div>
+                        )}
+                        {...normalizedBuiltinUtil.dropdownProps}
+                    >
+                        <span>
+                            <Tooltip 
+                                title={resolvedBottomPanelLabels.emoji}
+                                mouseEnterDelay={0.5}
+                                mouseLeaveDelay={0}
+                                open={emojiPickerTooltipOpen}
+                                onOpenChange={handleEmojiTooltipOpenChange}
+                            >
+                                <Button
+                                    type='secondary'
+                                    minimal
+                                    compact
+                                    size='medium'
+                                    disabled={disabled}
+                                    icon={<Smile size='small' />}
+                                    onClick={() => null}
+                                />
+                            </Tooltip>
+                        </span>
+                    </Dropdown>
+                )
+            default:
+                return null
+        }
     }, [
         disabled,
-        emojiPickerOpen,
-        handleBottomEmojiOpenChange,
+        emojiPickerDropdownOpen,
+        handleEmojiDropdownOpenChange,
+        emojiPickerTooltipOpen,
+        handleEmojiTooltipOpenChange,
         handleBottomEmojiSelect,
         resolvedEmojiDropdownLabels,
         resolvedBottomPanelLabels,
@@ -972,16 +1008,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         <span className='condo-input-bottom-panel'>
                             {hasBottomPanelUtils && (
                                 <span className='condo-input-utils'>
-                                    {bottomPanelUtils.map((util, index) => {
-                                        if (typeof util === 'string') {
-                                            return renderBottomPanelBuiltinUtil(util, index)
-                                        }
-
-                                        return React.cloneElement(util, {
-                                            key: util.key ?? index,
-                                            disabled: util.props.disabled || disabled,
-                                        })
-                                    })}
+                                    {bottomPanelUtils.map((util, index) => renderBottomPanelBuiltinUtil(util, index))}
                                 </span>
                             )}
 
