@@ -99,16 +99,28 @@ function mockGetTokensModule (mockGetTokens) {
     })
 }
 
+function unmockGetTokensModule () {
+    jest.unmock('@condo/domains/notification/utils/serverSchema/push/helpers')
+}
+
 function mockFirebaseAdapterModule (mockFirebaseAdapter) {
     jest.doMock('@condo/domains/notification/adapters/firebaseAdapter', () => ({
         FirebaseAdapter: jest.fn(() => mockFirebaseAdapter),
     }))
 }
 
+function unmockFirebaseAdapterModule () {
+    jest.unmock('@condo/domains/notification/adapters/firebaseAdapter')
+}
+
 function mockAppleAdapterModule (mockAppleAdapter) {
     jest.doMock('@condo/domains/notification/adapters/appleAdapter', () => ({
         AppleAdapter: jest.fn(() => mockAppleAdapter),
     }))
+}
+
+function unmockAppleAdapterModule () {
+    jest.unmock('@condo/domains/notification/adapters/appleAdapter')
 }
 
 function requirePushTransportIsolated () {
@@ -173,6 +185,12 @@ describe('push transport', () => {
                 }
             })
 
+        })
+
+        afterEach(() => {
+            unmockFirebaseAdapterModule()
+            unmockAppleAdapterModule
+            jest.unmock('@open-condo/keystone/schema')
         })
 
         test('sends push only to one token when RemoteClient has multiple isPush tokens (restricted by transportPriorityByAppId)', async () => {
@@ -745,6 +763,11 @@ describe('push transport', () => {
             mockFirebaseAdapterModule(mockFirebaseAdapter)
         })
 
+        afterEach(() => {
+            unmockFirebaseAdapterModule()
+            unmockGetTokensModule()
+        })
+
         test('does not send push for tokens whose appId has overrides but missing translation for message.type', async () => {
             mockGetTokens.mockResolvedValue([{
                 appId: APP_ID_EMPTY_OVERRIDES,
@@ -1178,6 +1201,11 @@ describe('push transport', () => {
             mockGetTokens.mockReset()
             mockFirebaseAdapter.constructor.prepareData.mockClear()
             mockFirebaseAdapter.sendNotification.mockClear()
+        })
+
+        afterAll(() => {
+            unmockGetTokensModule()
+            unmockFirebaseAdapterModule()
         })
 
         it('should encrypt data when sending to encrypted app', async () => {
@@ -1880,9 +1908,13 @@ describe('push transport', () => {
             }
         }
 
+        function getAdapterFileName ({ adapterType, adapterFileName }) {
+            return adapterFileName || (adapterType.name[0].toLowerCase() + adapterType.name.slice(1))
+        }
+
         function mockAdapter ({ adapterType, adapterFileName, error }) {
             const mock = getAdapterMock(adapterType, error)
-            const fileName = adapterFileName || (adapterType.name[0].toLowerCase() + adapterType.name.slice(1))
+            const fileName = getAdapterFileName({ adapterType, adapterFileName })
             jest.doMock(`@condo/domains/notification/adapters/${fileName}`, () => ({
                 [adapterType.name]: jest.fn(() => mock),
             }))
@@ -1937,6 +1969,14 @@ describe('push transport', () => {
                 ],
             },
         ]
+
+        afterAll(() => {
+            jest.unmock('@open-condo/keystone/schema')
+            for (const { adapter, adapterFileName } of TEST_CASES) {
+                const fileName = getAdapterFileName({ adapterType: adapter, adapterFileName })
+                jest.unmock(`@condo/domains/notification/adapters/${fileName}`)
+            }
+        })
         
         describe.each(TEST_CASES)('$adapter.name', ({ adapter, adapterFileName, pushTransportType, expectedErrors }) => {
 
