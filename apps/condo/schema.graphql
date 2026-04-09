@@ -88141,7 +88141,6 @@ type ExecutionAIFlowTaskHistoryRecord {
   """
   _label_: String
   flowType: String
-  flowStage: String
   context: JSON
   cleanContext: JSON
   status: String
@@ -88191,24 +88190,6 @@ input ExecutionAIFlowTaskHistoryRecordWhereInput {
   flowType_not_ends_with_i: String
   flowType_in: [String]
   flowType_not_in: [String]
-  flowStage: String
-  flowStage_not: String
-  flowStage_contains: String
-  flowStage_not_contains: String
-  flowStage_starts_with: String
-  flowStage_not_starts_with: String
-  flowStage_ends_with: String
-  flowStage_not_ends_with: String
-  flowStage_i: String
-  flowStage_not_i: String
-  flowStage_contains_i: String
-  flowStage_not_contains_i: String
-  flowStage_starts_with_i: String
-  flowStage_not_starts_with_i: String
-  flowStage_ends_with_i: String
-  flowStage_not_ends_with_i: String
-  flowStage_in: [String]
-  flowStage_not_in: [String]
   context: JSON
   context_not: JSON
   context_in: [JSON]
@@ -88430,8 +88411,6 @@ input ExecutionAIFlowTaskHistoryRecordWhereUniqueInput {
 enum SortExecutionAIFlowTaskHistoryRecordsBy {
   flowType_ASC
   flowType_DESC
-  flowStage_ASC
-  flowStage_DESC
   status_ASC
   status_DESC
   errorMessage_ASC
@@ -88464,7 +88443,6 @@ enum SortExecutionAIFlowTaskHistoryRecordsBy {
 
 input ExecutionAIFlowTaskHistoryRecordUpdateInput {
   flowType: String
-  flowStage: String
   context: JSON
   cleanContext: JSON
   status: String
@@ -88499,7 +88477,6 @@ input ExecutionAIFlowTaskHistoryRecordsUpdateInput {
 
 input ExecutionAIFlowTaskHistoryRecordCreateInput {
   flowType: String
-  flowStage: String
   context: JSON
   cleanContext: JSON
   status: String
@@ -88562,9 +88539,6 @@ type ExecutionAIFlowTask {
   The value can be one of the list ("ticket_rewrite_comment_flow"."rewrite_text_flow"."news_rewrite_text_flow"."incident_rewrite_text_for_resident_flow"."generate_news_by_incident_flow"."chat-with-condo"), or some allowed custom value. 
   """
   flowType: String
-
-  """ Stage of the flow. Used for multiple stages flow types """
-  flowStage: String
 
   """ Context for executing a request to AI. """
   context: JSON
@@ -88651,24 +88625,6 @@ input ExecutionAIFlowTaskWhereInput {
   flowType_not_ends_with_i: String
   flowType_in: [String]
   flowType_not_in: [String]
-  flowStage: String
-  flowStage_not: String
-  flowStage_contains: String
-  flowStage_not_contains: String
-  flowStage_starts_with: String
-  flowStage_not_starts_with: String
-  flowStage_ends_with: String
-  flowStage_not_ends_with: String
-  flowStage_i: String
-  flowStage_not_i: String
-  flowStage_contains_i: String
-  flowStage_not_contains_i: String
-  flowStage_starts_with_i: String
-  flowStage_not_starts_with_i: String
-  flowStage_ends_with_i: String
-  flowStage_not_ends_with_i: String
-  flowStage_in: [String]
-  flowStage_not_in: [String]
   context: JSON
   context_not: JSON
   context_in: [JSON]
@@ -88838,8 +88794,6 @@ input ExecutionAIFlowTaskWhereUniqueInput {
 enum SortExecutionAIFlowTasksBy {
   flowType_ASC
   flowType_DESC
-  flowStage_ASC
-  flowStage_DESC
   status_ASC
   status_DESC
   errorMessage_ASC
@@ -88876,7 +88830,6 @@ enum SortExecutionAIFlowTasksBy {
 
 input ExecutionAIFlowTaskUpdateInput {
   flowType: String
-  flowStage: String
   context: JSON
   cleanContext: JSON
   status: ExecutionAIFlowTaskStatusType
@@ -88908,7 +88861,6 @@ input ExecutionAIFlowTasksUpdateInput {
 
 input ExecutionAIFlowTaskCreateInput {
   flowType: String
-  flowStage: String
   context: JSON
   cleanContext: JSON
   status: ExecutionAIFlowTaskStatusType
