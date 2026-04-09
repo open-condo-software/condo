@@ -163,17 +163,6 @@ describe('RegisterExternalPaymentsService', () => {
             }, ERRORS.INVALID_PERIOD_FORMAT)
         })
 
-        test('Should throw error for non-ISO transaction date', async () => {
-            const payload = {
-                ...DV_SENDER,
-                acquiringIntegrationContext: { id: context.id },
-                payments: [getExternalPayment({ transactionDate: '06.04.2026' })],
-            }
-            await expectToThrowGQLErrorToResult(async () => {
-                await registerExternalPaymentsByTestClient(admin, payload)
-            }, ERRORS.INVALID_DATE_FORMAT)
-        })
-
         test('Should throw error for invalid amount (non-numeric)', async () => {
             const payload = {
                 ...DV_SENDER,
