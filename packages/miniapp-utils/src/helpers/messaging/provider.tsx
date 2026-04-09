@@ -57,6 +57,13 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessagePr
         }
     }, [controller.eventListener])
 
+    useEffect(() => {
+        window?.navigator?.serviceWorker?.addEventListener('message', controller.eventListener)
+        return () => {
+            window?.navigator?.serviceWorker?.removeEventListener('message', controller.eventListener)
+        }
+    }, [controller.eventListener])
+
     const contextValue: PostMessageContextType = useMemo(() => ({
         ...controllerState,
         addFrame: controller.addFrame,
