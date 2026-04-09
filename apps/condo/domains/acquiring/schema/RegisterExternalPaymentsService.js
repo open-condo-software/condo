@@ -80,7 +80,7 @@ function validateDateFormat (date, transactionId, context) {
 }
 
 function validateDepositedDate (depositedDate, transactionId, context) {
-    if (depositedDate && dayjs(depositedDate).isValid()) {
+    if (depositedDate && !dayjs(depositedDate).isValid()) {
         throw new GQLError(
             { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: depositedDate, transactionId } },
             context

@@ -145,7 +145,7 @@ describe('RegisterExternalPaymentsService', () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
-                payments: Array(PAYMENTS_LIMIT + 1).fill(getExternalPayment()),
+                payments: Array.from({ length: PAYMENTS_LIMIT + 1 }, () => getExternalPayment()),
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
