@@ -280,7 +280,6 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
                     deletedAt: null,
                 })
-                console.log(externalImportIntegration, 'resolvedData', resolvedData)
                 if (externalImportIntegration) {
                     const mismatchedPayments = payments
                         .filter(payment => payment.status !== PAYMENT_DONE_STATUS)

@@ -3,6 +3,7 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
+const customParseFormat = require('dayjs/plugin/customParseFormat')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
@@ -20,36 +21,96 @@ const { ERRORS, PAYMENTS_LIMIT } = require('@condo/domains/acquiring/constants/r
 const { Payment, MultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 
+dayjs.extend(customParseFormat)
+
 function validatePayments (payments, context) {
     for (const payment of payments) {
-        const { transactionId, amount, period, transactionDate, depositedDate, currencyCode, explicitFee, implicitFee } = payment
+        const {
+            transactionId,
+            amount,
+            period,
+            transactionDate,
+            depositedDate,
+            currencyCode,
+            explicitFee,
+            implicitFee,
+        } = payment
 
-        if (!ISO_CODES.includes(currencyCode)) {
-            throw new GQLError({ ...ERRORS.INVALID_CURRENCY_CODE, messageInterpolation: { currencyCode, transactionId } }, context)
-        }
+        validateCurrencyCode(currencyCode, transactionId, context)
+        validatePeriodFormat(period, transactionId, context)
+        validateDateFormat(transactionDate, transactionId, context)
+        validateDepositedDate(depositedDate, transactionId, context)
+        validateNumericValues(amount, explicitFee, implicitFee, transactionId, context)
+        validatePositiveAmount(amount, transactionId, context)
+    }
+}
 
-        if (!dayjs(period, 'YYYY-MM-01', true).isValid()) {
-            throw new GQLError({ ...ERRORS.INVALID_PERIOD_FORMAT, messageInterpolation: { period, transactionId } }, context)
-        }
+function validateCurrencyCode (currencyCode, transactionId, context) {
+    if (!ISO_CODES.includes(currencyCode)) {
+        throw new GQLError(
+            { ...ERRORS.INVALID_CURRENCY_CODE, messageInterpolation: { currencyCode, transactionId } },
+            context
+        )
+    }
+}
 
-        if (dayjs(transactionDate).toISOString() !== transactionDate) {
-            throw new GQLError({ ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: transactionDate, transactionId } }, context)
-        }
-        if (depositedDate && dayjs(depositedDate).toISOString() !== depositedDate) {
-            throw new GQLError({ ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: depositedDate, transactionId } }, context)
-        }
+function validatePeriodFormat (period, transactionId, context) {
+    if (!dayjs(period, 'YYYY-MM-01', true).isValid()) {
+        throw new GQLError(
+            { ...ERRORS.INVALID_PERIOD_FORMAT, messageInterpolation: { period, transactionId } },
+            context
+        )
+    }
+}
 
+function validateDateFormat (date, transactionId, context) {
+    if (typeof date !== 'string') {
+        throw new GQLError(
+            { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date, transactionId } },
+            context
+        )
+    }
+
+    if (!dayjs(date).isValid()) {
+        throw new GQLError(
+            { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date, transactionId } },
+            context
+        )
+    }
+}
+
+function validateDepositedDate (depositedDate, transactionId, context) {
+    if (depositedDate && dayjs(depositedDate).isValid()) {
+        throw new GQLError(
+            { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: depositedDate, transactionId } },
+            context
+        )
+    }
+}
+
+function validateNumericValues (amount, explicitFee, implicitFee, transactionId, context) {
+    const valuesToValidate = [amount]
+    if (explicitFee) valuesToValidate.push(explicitFee)
+    if (implicitFee) valuesToValidate.push(implicitFee)
+
+    for (const value of valuesToValidate) {
         try {
-            Big(amount)
-            if (explicitFee) Big(explicitFee)
-            if (implicitFee) Big(implicitFee)
-        } catch (e) {
-            throw new GQLError({ ...ERRORS.INVALID_PAYMENT_AMOUNT, messageInterpolation: { amount, transactionId } }, context)
+            Big(value)
+        } catch {
+            throw new GQLError(
+                { ...ERRORS.INVALID_PAYMENT_AMOUNT, messageInterpolation: { amount: value, transactionId } },
+                context
+            )
         }
+    }
+}
 
-        if (Big(amount).lte(0)) {
-            throw new GQLError({ ...ERRORS.NEGATIVE_PAYMENT_AMOUNT, messageInterpolation: { amount, transactionId } }, context)
-        }
+function validatePositiveAmount (amount, transactionId, context) {
+    if (Big(amount).lte(0)) {
+        throw new GQLError(
+            { ...ERRORS.NEGATIVE_PAYMENT_AMOUNT, messageInterpolation: { amount, transactionId } },
+            context
+        )
     }
 }
 
@@ -126,8 +187,8 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                         period: input.period,
                         recipientBic: input.routingNumber,
                         recipientBankAccount: input.bankAccount,
-                        advancedAt: input.transactionDate,
-                        depositedDate: input.depositedDate ? input.depositedDate : input.transactionDate,
+                        advancedAt: dayjs(input.transactionDate).toISOString(),
+                        depositedDate: input.depositedDate ? dayjs(input.depositedDate).toISOString() : dayjs(input.transactionDate).toISOString(),
                         rawAddress: input.address,
                         order: input.paymentOrder,
                         organization: { connect: { id: acquiringContext.organization } },
@@ -146,7 +207,7 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                         payments: { connect: [{ id: payment.id }] },
                         serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
                         transactionId: input.transactionId,
-                        withdrawnAt: input.transactionDate,
+                        withdrawnAt: dayjs(input.transactionDate).toISOString(),
                     })
                 }
 

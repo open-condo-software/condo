@@ -87,7 +87,7 @@ describe('RegisterExternalPaymentsService', () => {
             expect(data.status).toBe('ok')
         })
 
-        test('Service User with access rights: can register payments for context linked to his integration', async () => {
+        test('Service User with access rights: can`t register payments for context linked to another integration', async () => {
             const anotherServiceUser = await makeClientWithServiceUser()
             const [anotherOrganization] = await createTestOrganization(admin)
             const [anotherIntegration] = await createTestAcquiringIntegration(admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })

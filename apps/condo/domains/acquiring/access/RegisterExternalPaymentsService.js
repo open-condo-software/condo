@@ -16,7 +16,13 @@ async function canRegisterExternalPayments ({ authentication: { item: user }, ar
     if (user.isAdmin) return true
     if (user.type !== SERVICE) return false
 
-    const context = await getByCondition('AcquiringIntegrationContext', { id: acquiringIntegrationContext.id, deletedAt: null })
+    const contextId = acquiringIntegrationContext?.id
+    if (!contextId) return false
+
+    const context = await getByCondition('AcquiringIntegrationContext', {
+        id: acquiringIntegrationContext.id,
+        deletedAt: null,
+    })
     if (!context?.integration) return false
 
     const integration = await getByCondition('AcquiringIntegration', {

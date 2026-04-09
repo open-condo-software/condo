@@ -357,7 +357,7 @@ describe('MultiPayment', () => {
                 await Payment.update(admin, payments[0].id, {
                     dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS,
                 })
-                const [mp] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: PAYMENT_DONE_STATUS })
+                const [mp] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: MULTIPAYMENT_DONE_STATUS })
                 expect(mp).toBeDefined()
             })
 
