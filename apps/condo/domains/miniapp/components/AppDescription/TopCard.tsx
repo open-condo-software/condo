@@ -17,8 +17,8 @@ import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/setti
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
-import { useFeatureSubscriptionForApp } from '@condo/domains/subscription/hooks/useFeatureSubscriptionForApp'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useFeatureSubscriptionForApp } from '@condo/domains/subscription/hooks/useFeatureSubscriptionForApp'
 
 import { AppLabelTag } from '../AppLabelTag'
 
@@ -109,8 +109,6 @@ const getImageSize = (width: number) => {
         return SMALL_IMAGE_STYLES
     }
 }
-
-const BUTTON_SECTION_SPACING = 16
 
 const TopCard = React.memo<TopCardProps>(({
     id,
@@ -234,72 +232,75 @@ const TopCard = React.memo<TopCardProps>(({
         <Row gutter={ROW_GUTTER} ref={setContentRef} style={rowStyles}>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
                 <Space direction='vertical' size={buttonSpacing}>
-                    <Space direction='vertical' size={TEXT_SPACING}>
-                        <Space direction='horizontal' size={TAG_SPACING}>
-                            <Tag>{CategoryMessage}</Tag>
-                            {Boolean(label) && (
-                                <AppLabelTag type={label}/>
+                    <Space direction='vertical' size={40}>
+                        <Space direction='vertical' size={TEXT_SPACING}>
+                            <Space direction='horizontal' size={TAG_SPACING}>
+                                <Tag>{CategoryMessage}</Tag>
+                                {Boolean(label) && (
+                                    <AppLabelTag type={label}/>
+                                )}
+                            </Space>
+                            <Typography.Title level={1}>
+                                {name}
+                            </Typography.Title>
+                            {Boolean(description) && (
+                                <Typography.Paragraph type='secondary'>
+                                    {description}
+                                </Typography.Paragraph>
+                            )}
+                            {Boolean(price) && (
+                                <Typography.Title level={3}>
+                                    {price}
+                                </Typography.Title>
                             )}
                         </Space>
-                        <Typography.Title level={1}>
-                            {name}
-                        </Typography.Title>
-                        {Boolean(description) && (
-                            <Typography.Paragraph type='secondary'>
-                                {description}
-                            </Typography.Paragraph>
-                        )}
-                        {Boolean(price) && (
-                            <Typography.Title level={3}>
-                                {price}
-                            </Typography.Title>
-                        )}
-                    </Space>
-                    {PaymentModal}
-                    {isSubscriptionsEnabled && !contextStatus && !isAppAvailableInCurrentTariff ? (
-                        <Space direction='vertical' size={BUTTON_SECTION_SPACING}>
-                            {(FeaturePriceMessage || FreeInPlanMessage) && (
-                                <Space direction='vertical' size={4}>
-                                    {FeaturePriceMessage && (
-                                        <Typography.Text type='secondary'>
-                                            {FeaturePriceMessage}
-                                        </Typography.Text>
+                        {isSubscriptionsEnabled && !contextStatus && !isAppAvailableInCurrentTariff ? (
+                            <Space direction='vertical' size={50}>
+                                {(FeaturePriceMessage || FreeInPlanMessage) && (
+                                    <Space direction='vertical' size={16}>
+                                        {FeaturePriceMessage && (
+                                            <Typography.Text type='secondary'>
+                                                {FeaturePriceMessage}
+                                            </Typography.Text>
+                                        )}
+                                        {FreeInPlanMessage && (
+                                            <Typography.Text type='secondary'>
+                                                {FreeInPlanMessage}
+                                            </Typography.Text>
+                                        )}
+                                    </Space>
+                                )}
+                                <Space size={12} direction='horizontal'>
+                                    {hasFeaturePlan ? (
+                                        <Button
+                                            type='primary'
+                                            disabled={hasPendingFeatureRequest || !canManageB2BApps}
+                                            onClick={hasPendingFeatureRequest ? undefined : openPaymentModal}
+                                        >
+                                            {hasPendingFeatureRequest ? AwaitingPaymentMessage : ConnectMessage}
+                                        </Button>
+                                    ) : (
+                                        <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                                            <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
+                                        }>
+                                            <Button {...buttonProps}/>
+                                        </SubscriptionGuardWithTooltip>
                                     )}
-                                    {FreeInPlanMessage && (
-                                        <Typography.Text type='secondary'>
-                                            {FreeInPlanMessage}
-                                        </Typography.Text>
+                                    {AboutPlanMessage && (
+                                        <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
+                                            {AboutPlanMessage}
+                                        </Button>
                                     )}
                                 </Space>
-                            )}
-                            {hasFeaturePlan ? (
-                                <Button
-                                    type='primary'
-                                    disabled={hasPendingFeatureRequest || !canManageB2BApps}
-                                    onClick={hasPendingFeatureRequest ? undefined : openPaymentModal}
-                                >
-                                    {hasPendingFeatureRequest ? AwaitingPaymentMessage : ConnectMessage}
-                                </Button>
-                            ) : (
-                                <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
-                                    <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
-                                }>
-                                    <Button {...buttonProps}/>
-                                </SubscriptionGuardWithTooltip>
-                            )}
-                            {AboutPlanMessage && (
-                                <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
-                                    {AboutPlanMessage}
-                                </Button>
-                            )}
-                        </Space>
-                    ) : (
-                        <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
-                            <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
-                        }>
-                            <Button {...buttonProps}/>
-                        </SubscriptionGuardWithTooltip>
-                    )}
+                            </Space>
+                        ) : (
+                            <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                                <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
+                            }>
+                                <Button {...buttonProps}/>
+                            </SubscriptionGuardWithTooltip>
+                        )}
+                    </Space>
                 </Space>
             </Col>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES} ref={setCarouselColRef}>
@@ -350,6 +351,7 @@ const TopCard = React.memo<TopCardProps>(({
                     </>
                 )}
             </Col>
+            {PaymentModal}
         </Row>
     )
 })
