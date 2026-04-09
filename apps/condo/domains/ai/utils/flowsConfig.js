@@ -7,23 +7,15 @@ const conf = require('@open-condo/config')
  *     default: {
  *         example: {
  *             adapter: 'flowise',
- *             stages: {
- *                 default: {
- *                     predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
- *                     hasStream: true,
- *                 },
- *             },
+ *             predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
+ *             hasStream: false,
  *         },
  *     },
  *     custom: {
  *         my_custom_flow: {
  *             adapter: 'n8n',
- *             stages: {
- *                 default: {
- *                     predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
- *                     hasStream: true,
- *                 },
- *             },
+ *             predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
+ *             hasStream: true,
  *         },
  *     },
  * }
