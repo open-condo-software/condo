@@ -10,6 +10,24 @@ const FLOW_ADAPTERS = {
     N8N: 'n8n',
 }
 
+const EVENT_TYPES = {
+    START: 'start',
+    ITEM: 'item',
+    END: 'end',
+    ERROR: 'error',
+}
+
+const CHUNK_TYPES = {
+    TASK_START: 'task_start',
+    FLOW_START: 'flow_start',
+    FLOW_ITEM: 'flow_item',
+    FLOW_END: 'flow_end',
+    FLOW_ERROR: 'flow_error',
+    TASK_END: 'task_end',
+    TASK_ERROR: 'task_error',
+}
+const CHUNK_TYPES_LIST = Object.values(CHUNK_TYPES)
+
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
 const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
@@ -252,17 +270,15 @@ for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
     }
 }
 
-const FLOW_STAGES = {
-    [FLOW_TYPES.CHAT_WITH_CONDO]: { enum: ['router', 'summary'] },
-}
-
 module.exports = {
     TASK_STATUSES,
+    EVENT_TYPES,
+    CHUNK_TYPES,
+    CHUNK_TYPES_LIST,
     FLOW_TYPES,
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
     CHAT_WITH_CONDO_FLOW_TYPE,
-    FLOW_STAGES,
 }

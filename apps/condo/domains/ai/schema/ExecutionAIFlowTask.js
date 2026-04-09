@@ -18,7 +18,6 @@ const {
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
-    FLOW_STAGES,
 } = require('@condo/domains/ai/constants')
 const { executeAIFlow } = require('@condo/domains/ai/tasks')
 const { CUSTOM_FLOW_TYPES_LIST } = require('@condo/domains/ai/utils/flowsConfig')
@@ -57,14 +56,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'INVALID_FLOW_CONTEXT',
         message: 'Flow context for current flow type has invalid format',
-        messageForUser: 'api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST',
-    },
-    INVALID_FLOW_STAGE: {
-        mutation: 'createExecutionAIFlowTask',
-        variable: ['data', 'flowStage'],
-        code: BAD_USER_INPUT,
-        type: 'INVALID_FLOW_STAGE',
-        message: 'Flow stage for current flow type has invalid format',
         messageForUser: 'api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST',
     },
     STATUS_IS_ALREADY_COMPLETED: {
@@ -110,17 +101,6 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                         throw new GQLError(ERRORS.UNKNOWN_FLOW_TYPE, context)
                     }
                 },
-            },
-        },
-
-        flowStage: {
-            schemaDoc: 'Stage of the flow. Used for multiple stages flow types',
-            type: 'Text',
-            isRequired: false,
-            access: {
-                create: true,
-                read: true,
-                update: false,
             },
         },
 
@@ -332,18 +312,6 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                         path: error.instancePath,
                     }))
                     throw new GQLError({ ...ERRORS.INVALID_FLOW_CONTEXT, errors: flowContextErrors }, context)
-                }
-
-                // flow stage validation
-                const flowStage = newItem.flowStage ?? 'default'
-                const flowStageSchema = FLOW_STAGES[flowType] ?? { type: 'string' }
-                const validateFlowStage = ajv.compile(flowStageSchema)
-                if (!validateFlowStage(flowStage)) {
-                    const flowStageErrors = validateFlowStage.errors.map(error => ({
-                        message: error.message,
-                        path: error.instancePath,
-                    }))
-                    throw new GQLError({ ...ERRORS.INVALID_FLOW_STAGE, errors: flowStageErrors }, context)
                 }
             }
 

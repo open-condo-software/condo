@@ -11,19 +11,17 @@ export type AIChatMessageProps = {
 }
 
 export const AIChatMessage: React.FC<AIChatMessageProps> = ({ message }) => {
-    const messageText = message?.content?.text || ''
-
     return (
         <div className={`${styles.messageWrapper} ${message.role === 'user' ? styles.userMessage : styles.assistantMessage}`}>
             {message.role === 'user' ? (
                 <div className={styles.userMessageContainer}>
                     <div className={styles.userMessageBubble}>
-                        <Typography.Text>{messageText}</Typography.Text>
+                        <Typography.Text>{message.content.text}</Typography.Text>
                     </div>
                 </div>
             ) : (
                 <div className={styles.assistantMessageContainer}>
-                    <Markdown type='inline'>{messageText}</Markdown>
+                    <Markdown type='inline'>{message.content.text}</Markdown>
                 </div>
             )}
         </div>
