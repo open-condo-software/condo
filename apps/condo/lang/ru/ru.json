@@ -1548,6 +1548,7 @@
   "miniapps.addDescription.action.unavailableForTariff": "Недоступно для вашего тарифа",
   "miniapps.addDescription.action.unavailableForTariff.tooltip": "Данное приложение недоступно в вашем текущем тарифном плане. Перейдите в настройки подписки, чтобы выбрать подходящий тариф.",
   "miniapps.addDescription.action.awaitingPayment": "Ожидание оплаты",
+  "miniapps.addDescription.action.awaitingPayment.tooltip": "Наш менеджер свяжется с вами в течение дня, подтвердит детали и завершит оформление",
   "miniapps.addDescription.featurePrice.forPlan": "для тарифа «{planName}»",
   "miniapps.addDescription.freeWithPlan": "Бесплатно с тарифом «{planName}»",
   "miniapps.addDescription.aboutPlan": "О тарифе «{planName}»",
