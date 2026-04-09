@@ -30,6 +30,7 @@ const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
                 <SubscriptionGuardWithTooltip
                     feature='marketplace'
                     placement='bottom'
+                    children={null}
                     fallback={
                         <Alert
                             showIcon
