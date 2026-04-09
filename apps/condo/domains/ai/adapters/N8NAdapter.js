@@ -10,6 +10,9 @@ const { EVENT_TYPES } = require('../constants')
  */
 const AI_ADAPTERS_CONFIG = conf.AI_ADAPTERS_CONFIG ? JSON.parse(conf.AI_ADAPTERS_CONFIG) : null
 
+// n8n adapter works using webhook functionality, it makes request, then waits for response
+// sometimes AI related flows may take long time, thus default timeout should be set to generous amount
+const N8N_DEFAULT_TIMEOUT = 5 * 60 * 1000 // 5min
 class N8NAdapter extends AbstractAdapter {
     #isConfigured = false
 
@@ -25,7 +28,7 @@ class N8NAdapter extends AbstractAdapter {
         return this.#isConfigured
     }
 
-    async execute (flowType, predictUrl, context, onEvent) {
+    async execute (predictUrl, context, flowType, onEvent) {
         if (!this.isConfigured) {
             throw new Error('N8NAdapter not configured!')
         }
@@ -41,7 +44,7 @@ class N8NAdapter extends AbstractAdapter {
                 body: JSON.stringify({ context }),
             }
         )
-        
+
         if (!response.ok || response.status !== 200) {
             let developerErrorMessage = 'Failed to complete prediction'
             let parsedResponse = null
@@ -62,7 +65,7 @@ class N8NAdapter extends AbstractAdapter {
             throw new Error('Failed to read prediction response: empty response body')
         }
 
-        if (onEvent) {
+        if (response.headers.get('transfer-encoding') === 'chunked') {
             const decoder = new TextDecoder('utf-8')
             let answer = ''
             const events = []
