@@ -67,7 +67,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         if (!adapter) throw new Error(`Unexpected AI flow adapter "${adapterName}"!`)
         if (!adapter.isConfigured) throw new Error(`Adapter "${adapterName}" not configured!`)
 
-        const predictionUrl = adapterConfig?.predictionUrl
+        const predictionUrl = adapterConfig.predictionUrl
         if (!predictionUrl) throw new Error(`Unknown prediction url for flow "${task.flowType}"!`)
 
         const topic = buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`)
@@ -82,68 +82,62 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         const fullContext = {
             ...task.cleanContext,
             locale: task.locale,
+            aiSessionId: task.aiSessionId,
         }
 
-        let prediction = null
-        if (adapterConfig?.hasStream) {
-            console.log('executeAIFlow - onEvent')
-            prediction = await adapter.execute(task.flowType, predictionUrl, fullContext, async (event) => {
-                if (!event) return
-    
-                switch (event.type) {
-                    case EVENT_TYPES.START:
-                        await publish({
-                            topic,
-                            data: {
-                                type: CHUNK_TYPES.FLOW_START,
-                            },
-                        })
-                        return
-                    case EVENT_TYPES.ITEM:
-                        await publish({
-                            topic,
-                            data: {
-                                type: CHUNK_TYPES.FLOW_ITEM,
-                                item: event.content,
-                            },
-                        })
-                        return
-                    case EVENT_TYPES.END:
-                        await publish({
-                            topic,
-                            data: {
-                                type: CHUNK_TYPES.FLOW_END,
-                            },
-                        })
-                        return
-                    case EVENT_TYPES.ERROR:
-                        await publish({
-                            topic,
-                            data: {
-                                type: CHUNK_TYPES.FLOW_ERROR,
-                                error: event.error,
-                            },
-                        })
-                        return
-                    default: 
-                        await publish({
-                            topic,
-                            data: {
-                                type: CHUNK_TYPES.FLOW_ERROR,
-                                error: `Unknown event type: ${event.type}`,
-                            },
-                        })
-                }
-            })
-        } else {
-            console.log('executeAIFlow - without onEvent')
-            prediction = await adapter.execute(task.flowType, predictionUrl, fullContext)
-        }
+        const prediction = await adapter.execute(predictionUrl, fullContext, task.flowType, async (event) => {
+            if (!event) return
+
+            switch (event.type) {
+                case EVENT_TYPES.START:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_START,
+                        },
+                    })
+                    return
+                case EVENT_TYPES.ITEM:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_ITEM,
+                            item: event.content,
+                        },
+                    })
+                    return
+                case EVENT_TYPES.END:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_END,
+                        },
+                    })
+                    return
+                case EVENT_TYPES.ERROR:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_ERROR,
+                            error: event.error,
+                        },
+                    })
+                    return
+                default: 
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_ERROR,
+                            error: `Unknown event type: ${event.type}`,
+                        },
+                    })
+            }
+        })
 
         const schema = FLOW_META_SCHEMAS[isCustomFlow ? CUSTOM_FLOW_TYPE : task.flowType]?.output ?? { type: 'object' }
         const validatePrediction = ajv.compile(schema)
 
-        if (!validatePrediction(prediction?.result)) {
+        if (!validatePrediction(prediction.result)) {
             const validationErrors = validatePrediction.errors.map(error => ({
                 message: error.message,
                 path: error.instancePath,
@@ -162,7 +156,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                 error: JSON.stringify({ message: 'The prediction format is not valid!', validationErrors }),
                 errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
                 meta: {
-                    response: prediction?._response,
+                    response: prediction._response,
                 },
                 status: TASK_STATUSES.ERROR,
             })
@@ -180,14 +174,14 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         }
 
         const { replacements } = removeSensitiveDataFromObj(task.context)
-        const resultWithRestoredPII = restoreSensitiveData(prediction?.result, replacements)
+        const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
 
         let updateData = {
             ...BASE_ATTRIBUTES,
             result: resultWithRestoredPII,
             meta: {
-                ...prediction?.result,
-                response: prediction?._response,
+                ...prediction.result,
+                response: prediction._response,
             },
             status: TASK_STATUSES.COMPLETED,
         }
@@ -214,7 +208,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             status: TASK_STATUSES.ERROR,
             error: { ...error },
             meta: {
-                response: error?._response,
+                response: error._response,
             },
             errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
         })
@@ -223,7 +217,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             topic: buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`),
             data: {
                 type: CHUNK_TYPES.TASK_ERROR,
-                error: { ...error },
+                error,
                 errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
             },
         })
