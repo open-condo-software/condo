@@ -2,6 +2,7 @@ const admin = require('firebase-admin')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -224,6 +225,15 @@ class FirebaseAdapter {
         })
 
         return [notifications, fakeNotifications, pushContext]
+    }
+
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://firebase.google.com/docs/cloud-messaging/error-codes
+        return z.object({
+            error: z.object({
+                code: z.literal('messaging/registration-token-not-registered'),
+            }),
+        }).safeParse(response).success
     }
 
     /**

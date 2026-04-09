@@ -3,6 +3,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
 const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -29,6 +30,7 @@ const {
 const {
     DEFAULT_NOTIFICATION_OPTIONS,
     PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE, SUCCESS_CODES,
+    ALL_TOKENS_ARE_INVALID_CODE,
 } = require('./hcm/constants')
 const HCMMessaging = require('./hcm/messaging')
 
@@ -247,6 +249,20 @@ class HCMAdapter {
         return [notifications, fakeNotifications, pushContext]
     }
 
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://developer.huawei.com/consumer/en/doc/quickapp-access-push-kit#h2-1582279813559
+        return z.union([
+            z.object({
+                code: z.literal(ALL_TOKENS_ARE_INVALID_CODE),
+            }),
+            z.object({
+                code: z.literal(PUSH_PARTIAL_SUCCESS_CODE),
+                msg: z.string()
+                    .refine(msg => response.pushToken && JSON.parse(msg).illegal_tokens.includes(response.pushToken)),
+            }),
+        ]).safeParse(response).success
+    }
+
     /**
      * Manages to send notification to all available pushTokens of the user.
      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
@@ -382,4 +398,4 @@ class HCMAdapter {
 
 }
 
-module.exports = HCMAdapter
+module.exports = { HCMAdapter }

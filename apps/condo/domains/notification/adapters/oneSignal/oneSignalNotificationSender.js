@@ -85,16 +85,6 @@ class OneSignalNotificationSender {
             } else {
                 const didSendMessageToSomebody = !!response.id
 
-                // TODO(YEgorLu): DOMA-12941 add token invalidation for provider using that:
-                // if (response.errors) {
-                //     if (response.errors.includes('All included players are not subscribed')) {
-                //         invalidSubscriptionIds = notification.include_subscription_ids
-                //     }
-                //     else if (response.errors.invalid_player_ids) {
-                //         invalidSubscriptionIds = response.errors.invalid_player_ids
-                //     }
-                // }
-
                 if (didSendMessageToSomebody) {
                     const surelyNonSuccessTokens = (response.errors?.invalid_player_ids ?? [])
 

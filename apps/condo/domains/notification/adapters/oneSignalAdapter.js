@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -198,6 +199,20 @@ class OneSignalAdapter {
         })
 
         return [notifications, fakeNotifications, pushContext]
+    }
+
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://documentation.onesignal.com/reference/push-notification
+        return z.object({
+            response: z.object({
+                errors: z.union([
+                    z.array(z.unknown()).refine(arr => arr.includes('All included players are not subscribed')), // does not exist in docs, was found out in the process
+                    z.object({
+                        invalid_player_ids: z.array(z.unknown()).refine(arr => response.pushToken && arr.includes(response.pushToken)),
+                    }),
+                ]),
+            }),
+        }).safeParse(response).success
     }
 
     async sendNotificationsForApp ({ appId, notificationsBatchForApp, pushTypes, appIds, metaByToken, isVoIP }) {
