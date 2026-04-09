@@ -5477,6 +5477,66 @@ export type GetPropertyScopeOrganizationEmployeesQueryHookResult = ReturnType<ty
 export type GetPropertyScopeOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetPropertyScopeOrganizationEmployeesLazyQuery>;
 export type GetPropertyScopeOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetPropertyScopeOrganizationEmployeesSuspenseQuery>;
 export type GetPropertyScopeOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetPropertyScopeOrganizationEmployeesQuery, Types.GetPropertyScopeOrganizationEmployeesQueryVariables>;
+export const GetAvailableFeatureSubscriptionPlansDocument = gql`
+    query getAvailableFeatureSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
+  result: getAvailableSubscriptionPlans(
+    organization: $organization
+    planType: feature
+  ) {
+    plans {
+      plan {
+        id
+        name
+        planType
+        enabledB2BApps
+      }
+      prices {
+        id
+        name
+        period
+        price
+        currencyCode
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAvailableFeatureSubscriptionPlansQuery__
+ *
+ * To run a query within a React component, call `useGetAvailableFeatureSubscriptionPlansQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAvailableFeatureSubscriptionPlansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAvailableFeatureSubscriptionPlansQuery({
+ *   variables: {
+ *      organization: // value for 'organization'
+ *   },
+ * });
+ */
+export function useGetAvailableFeatureSubscriptionPlansQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables> & ({ variables: Types.GetAvailableFeatureSubscriptionPlansQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>(GetAvailableFeatureSubscriptionPlansDocument, options);
+      }
+export function useGetAvailableFeatureSubscriptionPlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>(GetAvailableFeatureSubscriptionPlansDocument, options);
+        }
+// @ts-ignore
+export function useGetAvailableFeatureSubscriptionPlansSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>;
+export function useGetAvailableFeatureSubscriptionPlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAvailableFeatureSubscriptionPlansQuery | undefined, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>;
+export function useGetAvailableFeatureSubscriptionPlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>(GetAvailableFeatureSubscriptionPlansDocument, options);
+        }
+export type GetAvailableFeatureSubscriptionPlansQueryHookResult = ReturnType<typeof useGetAvailableFeatureSubscriptionPlansQuery>;
+export type GetAvailableFeatureSubscriptionPlansLazyQueryHookResult = ReturnType<typeof useGetAvailableFeatureSubscriptionPlansLazyQuery>;
+export type GetAvailableFeatureSubscriptionPlansSuspenseQueryHookResult = ReturnType<typeof useGetAvailableFeatureSubscriptionPlansSuspenseQuery>;
+export type GetAvailableFeatureSubscriptionPlansQueryResult = Apollo.QueryResult<Types.GetAvailableFeatureSubscriptionPlansQuery, Types.GetAvailableFeatureSubscriptionPlansQueryVariables>;
 export const GetAvailableServiceSubscriptionPlansDocument = gql`
     query getAvailableServiceSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
   result: getAvailableSubscriptionPlans(

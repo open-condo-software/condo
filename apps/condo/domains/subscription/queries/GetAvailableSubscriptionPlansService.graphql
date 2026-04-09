@@ -1,3 +1,23 @@
+query getAvailableFeatureSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
+    result: getAvailableSubscriptionPlans(organization: $organization, planType: feature) {
+        plans {
+            plan {
+                id
+                name
+                planType
+                enabledB2BApps
+            }
+            prices {
+                id
+                name
+                period
+                price
+                currencyCode
+            }
+        }
+    }
+}
+
 query getAvailableServiceSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
     result: getAvailableSubscriptionPlans(organization: $organization, planType: service) {
         plans {

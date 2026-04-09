@@ -842,6 +842,13 @@ export type GetPropertyScopeOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetPropertyScopeOrganizationEmployeesQuery = { __typename?: 'Query', propertyScopeOrganizationEmployees?: Array<{ __typename?: 'PropertyScopeOrganizationEmployee', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, employee?: { __typename?: 'OrganizationEmployee', id: string } | null } | null> | null };
 
+export type GetAvailableFeatureSubscriptionPlansQueryVariables = Types.Exact<{
+  organization: Types.OrganizationWhereUniqueInput;
+}>;
+
+
+export type GetAvailableFeatureSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null, enabledB2BApps?: any | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
+
 export type GetAvailableServiceSubscriptionPlansQueryVariables = Types.Exact<{
   organization: Types.OrganizationWhereUniqueInput;
 }>;

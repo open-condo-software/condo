@@ -13,9 +13,11 @@ import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/colors'
 
+import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
+import { useFeatureSubscriptionForApp } from '@condo/domains/subscription/hooks/useFeatureSubscriptionForApp'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import { AppLabelTag } from '../AppLabelTag'
@@ -108,6 +110,8 @@ const getImageSize = (width: number) => {
     }
 }
 
+const BUTTON_SECTION_SPACING = 16
+
 const TopCard = React.memo<TopCardProps>(({
     id,
     name,
@@ -124,12 +128,40 @@ const TopCard = React.memo<TopCardProps>(({
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` as FormatjsIntl.Message['ids'] })
     const UnavailableForTariffMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.unavailableForTariff' })
+    const ConnectMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
+    const AwaitingPaymentMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.awaitingPayment' })
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
     const { isB2BAppEnabled } = useOrganizationSubscription()
     const isAppAvailableForTariff = isB2BAppEnabled(id)
 
+    const {
+        isEnabled: isSubscriptionsEnabled,
+        isAppAvailableInCurrentTariff,
+        hasFeaturePlan,
+        formattedFeaturePrice,
+        promotedServicePlan,
+        currentServicePlanName,
+        hasPendingFeatureRequest,
+        openPaymentModal,
+        PaymentModal,
+    } = useFeatureSubscriptionForApp(id)
+
+    const FeaturePriceMessage = formattedFeaturePrice && currentServicePlanName
+        ? intl.formatMessage({ id: 'miniapps.addDescription.featurePrice' }, { price: formattedFeaturePrice, planName: currentServicePlanName })
+        : formattedFeaturePrice || null
+    const FreeInPlanMessage = promotedServicePlan?.name
+        ? intl.formatMessage({ id: 'miniapps.addDescription.freeInPlan' }, { planName: promotedServicePlan.name })
+        : null
+    const AboutPlanMessage = promotedServicePlan?.name
+        ? intl.formatMessage({ id: 'miniapps.addDescription.aboutPlan' }, { planName: promotedServicePlan.name })
+        : null
+
     const router = useRouter()
+    const handleGoToSubscriptionSettings = useCallback(() => {
+        router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
+    }, [router])
+
     const [{ width: contentWidth }, setContentRef] = useContainerSize()
     const [{ width: carouselColWidth }, setCarouselColRef] = useContainerSize()
 
@@ -223,11 +255,51 @@ const TopCard = React.memo<TopCardProps>(({
                             </Typography.Title>
                         )}
                     </Space>
-                    <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
-                        <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
-                    }>
-                        <Button {...buttonProps}/>
-                    </SubscriptionGuardWithTooltip>
+                    {PaymentModal}
+                    {isSubscriptionsEnabled && !contextStatus && !isAppAvailableInCurrentTariff ? (
+                        <Space direction='vertical' size={BUTTON_SECTION_SPACING}>
+                            {(FeaturePriceMessage || FreeInPlanMessage) && (
+                                <Space direction='vertical' size={4}>
+                                    {FeaturePriceMessage && (
+                                        <Typography.Text type='secondary'>
+                                            {FeaturePriceMessage}
+                                        </Typography.Text>
+                                    )}
+                                    {FreeInPlanMessage && (
+                                        <Typography.Text type='secondary'>
+                                            {FreeInPlanMessage}
+                                        </Typography.Text>
+                                    )}
+                                </Space>
+                            )}
+                            {hasFeaturePlan ? (
+                                <Button
+                                    type='primary'
+                                    disabled={hasPendingFeatureRequest || !canManageB2BApps}
+                                    onClick={hasPendingFeatureRequest ? undefined : openPaymentModal}
+                                >
+                                    {hasPendingFeatureRequest ? AwaitingPaymentMessage : ConnectMessage}
+                                </Button>
+                            ) : (
+                                <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                                    <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
+                                }>
+                                    <Button {...buttonProps}/>
+                                </SubscriptionGuardWithTooltip>
+                            )}
+                            {AboutPlanMessage && (
+                                <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
+                                    {AboutPlanMessage}
+                                </Button>
+                            )}
+                        </Space>
+                    ) : (
+                        <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                            <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
+                        }>
+                            <Button {...buttonProps}/>
+                        </SubscriptionGuardWithTooltip>
+                    )}
                 </Space>
             </Col>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES} ref={setCarouselColRef}>
