@@ -3071,6 +3071,7 @@
   "pages.reports.paymentsAmountPercent": "Payments received",
   "pages.reports.paymentsByProperty": "Payments by property",
   "pages.reports.paymentsTotal": "Payment of receipts (from resident mobile app)",
+  "pages.reports.paymentsTotalMarketplaceHint": "You can earn more by offering paid services to residents if you enable the Marketplace section",
   "pages.reports.residentsTitle": "implementation of the mobile app",
   "pages.reports.residentsWithApp": "Residents in app",
   "pages.reports.summary": "Summary",

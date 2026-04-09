@@ -3071,6 +3071,7 @@
   "pages.reports.paymentsAmountPercent": "Оплат",
   "pages.reports.paymentsByProperty": "Оплаты по домам",
   "pages.reports.paymentsTotal": "Оплата квитанций (из МП жителя)",
+  "pages.reports.paymentsTotalMarketplaceHint": "Вы можете зарабатывать больше, предлагая платные услуги жителям, если подключите раздел «Маркетплейс»",
   "pages.reports.residentsTitle": "Внедрение моб. приложения жителя",
   "pages.reports.residentsWithApp": "Жителей в приложении",
   "pages.reports.summary": "Сводка",
