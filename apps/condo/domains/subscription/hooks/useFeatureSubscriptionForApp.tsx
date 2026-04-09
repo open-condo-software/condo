@@ -77,7 +77,12 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
         const priceInt = Math.floor(Number(featurePlanFirstPrice.price))
         const formatted = priceInt.toLocaleString(intl.locale).replace(/,/g, ' ')
         const symbol = CURRENCY_SYMBOLS[featurePlanFirstPrice.currencyCode as keyof typeof CURRENCY_SYMBOLS]
-        return symbol ? `${formatted} ${symbol}` : `${formatted} ${featurePlanFirstPrice.currencyCode}`
+        const priceStr = symbol ? `${formatted} ${symbol}` : `${formatted} ${featurePlanFirstPrice.currencyCode}`
+        if (featurePlanFirstPrice.period) {
+            const period = intl.formatMessage({ id: `subscription.planCard.planPrice.${featurePlanFirstPrice.period}` as FormatjsIntl.Message['ids'] })
+            return `${priceStr}/${period}`
+        }
+        return priceStr
     }, [featurePlanFirstPrice, intl.locale])
 
     const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
@@ -97,14 +102,25 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
         activateLoading,
     })
 
+    const forPlanLabel = currentServicePlanName
+        ? intl.formatMessage({ id: 'miniapps.addDescription.featurePrice.forPlan' }, { planName: currentServicePlanName })
+        : null
+    const freeWithPlanLabel = promotedServicePlan?.name
+        ? intl.formatMessage({ id: 'miniapps.addDescription.freeWithPlan' }, { planName: promotedServicePlan.name })
+        : null
+    const aboutPlanLabel = promotedServicePlan?.name
+        ? intl.formatMessage({ id: 'miniapps.addDescription.aboutPlan' }, { planName: promotedServicePlan.name })
+        : null
+
     return {
         isEnabled,
         isAppAvailableInCurrentTariff,
         hasFeaturePlan: Boolean(featurePlanInfo),
-        featurePlanInfo,
         formattedFeaturePrice,
+        forPlanLabel,
+        freeWithPlanLabel,
+        aboutPlanLabel,
         promotedServicePlan,
-        currentServicePlanName,
         hasPendingFeatureRequest,
         openPaymentModal,
         PaymentModal,

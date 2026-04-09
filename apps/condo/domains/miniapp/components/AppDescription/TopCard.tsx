@@ -138,22 +138,13 @@ const TopCard = React.memo<TopCardProps>(({
         isAppAvailableInCurrentTariff,
         hasFeaturePlan,
         formattedFeaturePrice,
-        promotedServicePlan,
-        currentServicePlanName,
+        forPlanLabel,
+        freeWithPlanLabel,
+        aboutPlanLabel,
         hasPendingFeatureRequest,
         openPaymentModal,
         PaymentModal,
     } = useFeatureSubscriptionForApp(id)
-
-    const FeaturePriceMessage = formattedFeaturePrice && currentServicePlanName
-        ? intl.formatMessage({ id: 'miniapps.addDescription.featurePrice' }, { price: formattedFeaturePrice, planName: currentServicePlanName })
-        : formattedFeaturePrice || null
-    const FreeInPlanMessage = promotedServicePlan?.name
-        ? intl.formatMessage({ id: 'miniapps.addDescription.freeInPlan' }, { planName: promotedServicePlan.name })
-        : null
-    const AboutPlanMessage = promotedServicePlan?.name
-        ? intl.formatMessage({ id: 'miniapps.addDescription.aboutPlan' }, { planName: promotedServicePlan.name })
-        : null
 
     const router = useRouter()
     const handleGoToSubscriptionSettings = useCallback(() => {
@@ -183,7 +174,7 @@ const TopCard = React.memo<TopCardProps>(({
             }
         } else {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
-            btnProps.icon = <CheckOutlined/>
+            btnProps.icon = <CheckOutlined />
             btnProps.disabled = true
         }
 
@@ -256,17 +247,25 @@ const TopCard = React.memo<TopCardProps>(({
                         </Space>
                         {isSubscriptionsEnabled && !contextStatus && !isAppAvailableInCurrentTariff ? (
                             <Space direction='vertical' size={50}>
-                                {(FeaturePriceMessage || FreeInPlanMessage) && (
+                                {(formattedFeaturePrice || freeWithPlanLabel) && (
                                     <Space direction='vertical' size={16}>
-                                        {FeaturePriceMessage && (
-                                            <Typography.Text type='secondary'>
-                                                {FeaturePriceMessage}
-                                            </Typography.Text>
+                                        {formattedFeaturePrice && (
+                                            <Typography.Title level={3}>
+                                                {formattedFeaturePrice}
+                                                {forPlanLabel && (
+                                                    <Typography.Text type='secondary'>
+                                                        {' '}{forPlanLabel}
+                                                    </Typography.Text>
+                                                )}
+                                            </Typography.Title>
                                         )}
-                                        {FreeInPlanMessage && (
-                                            <Typography.Text type='secondary'>
-                                                {FreeInPlanMessage}
-                                            </Typography.Text>
+                                        {freeWithPlanLabel && (
+                                            <Tag
+                                                bgColor={colors.green['1']}
+                                                textColor={colors.green['7']}
+                                            >
+                                                {freeWithPlanLabel}
+                                            </Tag>
                                         )}
                                     </Space>
                                 )}
@@ -283,21 +282,21 @@ const TopCard = React.memo<TopCardProps>(({
                                         <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
                                             <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
                                         }>
-                                            <Button {...buttonProps}/>
+                                            <Button {...buttonProps} />
                                         </SubscriptionGuardWithTooltip>
                                     )}
-                                    {AboutPlanMessage && (
+                                    {aboutPlanLabel && (
                                         <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
-                                            {AboutPlanMessage}
+                                            {aboutPlanLabel}
                                         </Button>
                                     )}
                                 </Space>
                             </Space>
                         ) : (
                             <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
-                                <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
+                                <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage} /></span>
                             }>
-                                <Button {...buttonProps}/>
+                                <Button {...buttonProps} />
                             </SubscriptionGuardWithTooltip>
                         )}
                     </Space>
@@ -331,8 +330,8 @@ const TopCard = React.memo<TopCardProps>(({
                         <div style={HIDE_GALLERY_STYLES}>
                             <Image.PreviewGroup
                                 icons={{
-                                    right: <Arrow size={isWide ? 'large' : 'medium'} onClick={handleNextPreview}/>,
-                                    left: <Arrow style={ARROW_REVERSE_STYLES} size={isWide ? 'large' : 'medium'} onClick={handlePrevPreview}/>,
+                                    right: <Arrow size={isWide ? 'large' : 'medium'} onClick={handleNextPreview} />,
+                                    left: <Arrow style={ARROW_REVERSE_STYLES} size={isWide ? 'large' : 'medium'} onClick={handlePrevPreview} />,
                                 }}
                                 preview={{
                                     visible: previewVisible,
