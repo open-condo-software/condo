@@ -93170,6 +93170,7 @@ input RegisterSubscriptionContextInput {
   organization: OrganizationWhereUniqueInput!
   subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
+  returnUrl: String
 }
 
 type RegisterSubscriptionContextOutput {

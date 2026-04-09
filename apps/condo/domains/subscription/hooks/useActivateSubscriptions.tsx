@@ -19,6 +19,7 @@ interface ActivatePlanParams {
     trialDays?: number
     isCustomPrice?: boolean
     paymentType?: PaymentType
+    returnUrl?: string
 }
 
 export const useActivateSubscriptions = () => {
@@ -93,7 +94,7 @@ export const useActivateSubscriptions = () => {
         }
     }, [refetchPendingRequests, refetchActivatedSubscriptions, employee?.id, selectEmployee])
 
-    const registerSubscriptionContext = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false, paymentType = 'card' }: ActivatePlanParams) => {
+    const registerSubscriptionContext = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false, paymentType = 'card', returnUrl }: ActivatePlanParams) => {
         if (!organization) return
 
         setActivateLoading(true)
@@ -120,6 +121,7 @@ export const useActivateSubscriptions = () => {
                             organization: { id: organization.id },
                             subscriptionPlanPricingRule: { id: priceId },
                             isTrial,
+                            ...(returnUrl ? { returnUrl } : {}),
                         },
                     },
                 })

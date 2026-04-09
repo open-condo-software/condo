@@ -5,11 +5,13 @@ import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { B2BApp, B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
+import { useFeatureSubscriptionForApp, useSubscriptionPaymentSuccess } from '@condo/domains/subscription/hooks'
 
 import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
@@ -22,12 +24,17 @@ type B2BPageProps = {
 export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const intl = useIntl()
     const { refetch: refetchMenu } = useConnectedAppsWithIconsContext()
+    const { featurePlanId } = useFeatureSubscriptionForApp(id)
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const SuccessPaymentModalTitle = intl.formatMessage({ id: 'miniapps.addDescription.successPayment.modal.title' })
+    const SuccessPaymentModalDescription = intl.formatMessage({ id: 'miniapps.addDescription.successPayment.modal.description' })
+    const CloseMessage = intl.formatMessage({ id: 'Close' })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const employeeRoleId = get(userOrganization, ['link', 'role', 'id'], null)
     const [modalOpen, setModalOpen] = useState(false)
+    const [successModalOpen, setSuccessModalOpen] = useState(false)
 
     const { obj: app, error: appError, loading: appLoading } = B2BApp.useObject({ where: { id } })
     const {
@@ -61,6 +68,20 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const handleCloseModal = useCallback(() => {
         setModalOpen(false)
     }, [])
+
+    const handleCloseSuccessModal = useCallback(() => {
+        setSuccessModalOpen(false)
+    }, [])
+
+    const handleOpenSuccessModal = useCallback(() => {
+        setSuccessModalOpen(true)
+    }, [])
+
+    useSubscriptionPaymentSuccess({
+        planId: featurePlanId,
+        organizationId,
+        onAfterNotification: handleOpenSuccessModal,
+    })
 
     if (appLoading || contextLoading || appRoleLoading || appError || contextError || appRoleError) {
         return (
@@ -107,6 +128,20 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         open={modalOpen}
                         closeModal={handleCloseModal}
                     />
+                    <Modal
+                        title={SuccessPaymentModalTitle}
+                        open={successModalOpen}
+                        onCancel={handleCloseSuccessModal}
+                        footer={(
+                            <Button type='secondary' onClick={handleCloseSuccessModal}>
+                                {CloseMessage}
+                            </Button>
+                        )}
+                    >
+                        <Typography.Paragraph type='secondary'>
+                            {SuccessPaymentModalDescription}
+                        </Typography.Paragraph>
+                    </Modal>
                 </PageContentWrapper>
             </PageWrapper>
         </>

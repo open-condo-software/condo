@@ -191,6 +191,22 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
     }
 }
 
+query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
+    contexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            subscriptionPlan: { id: $planId }
+            status: DONE
+            isTrial: false
+        }
+        sortBy: [endAt_DESC]
+        first: 1
+    ) {
+        id
+        endAt
+    }
+}
+
 query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
     lastFailedContext: allSubscriptionContexts(
         where: {

@@ -70,7 +70,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
     types: [
         {
             access: true,
-            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean }',
+            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, returnUrl: String }',
         },
         {
             access: true,
@@ -88,7 +88,13 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial } = data
+                const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial, returnUrl } = data
+
+                const buildReturnUrl = (path) => {
+                    const returnUrlObj = new URL(path || 'settings?tab=subscription', conf.SERVER_URL)
+                    returnUrlObj.searchParams.set('successPayment', 'true')
+                    return returnUrlObj.toString()
+                }
 
                 logger.info({ msg: 'Starting subscription context registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, isTrial } })
 
@@ -210,11 +216,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
                         const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
                         const url = new URL(directPaymentUrl)
                         url.searchParams.append('organizationId', organization.id)
                         url.searchParams.append('provider', provider)
-                        url.searchParams.append('returnUrl', returnUrl)
+                        url.searchParams.append('returnUrl', buildReturnUrl(returnUrl))
                         directPaymentUrl = url.toString()
                     }
 
@@ -245,11 +250,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     let directPaymentUrl = multiPaymentResult.directPaymentUrl
                     if (directPaymentUrl) {
                         const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
                         const url = new URL(directPaymentUrl)
                         url.searchParams.append('organizationId', organization.id)
                         url.searchParams.append('provider', provider)
-                        url.searchParams.append('returnUrl', returnUrl)
+                        url.searchParams.append('returnUrl', buildReturnUrl(returnUrl))
                         directPaymentUrl = url.toString()
                     }
 
@@ -310,11 +314,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 let directPaymentUrl = multiPaymentResult.directPaymentUrl
                 if (directPaymentUrl) {
                     const provider = conf['B2B_PAYMENTS_PROVIDER']
-                    const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
                     const url = new URL(directPaymentUrl)
                     url.searchParams.append('organizationId', organization.id)
                     url.searchParams.append('provider', provider)
-                    url.searchParams.append('returnUrl', returnUrl)
+                    url.searchParams.append('returnUrl', buildReturnUrl(returnUrl))
                     directPaymentUrl = url.toString()
                 }
 

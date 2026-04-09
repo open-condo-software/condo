@@ -94,6 +94,7 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
             trialDays: 0,
             isCustomPrice: !featurePlanFirstPrice.price,
             paymentType,
+            returnUrl: `miniapps/${appId}/about`,
         })
     }, [featurePlanFirstPrice, featurePlanInfo, registerSubscriptionContext])
 
@@ -116,6 +117,7 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
         isEnabled,
         isAppAvailableInCurrentTariff,
         hasFeaturePlan: Boolean(featurePlanInfo),
+        featurePlanId: featurePlanInfo?.plan?.id || null,
         formattedFeaturePrice,
         forPlanLabel,
         freeWithPlanLabel,

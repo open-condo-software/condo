@@ -6195,6 +6195,55 @@ export type GetOrganizationPaymentHistoryQueryHookResult = ReturnType<typeof use
 export type GetOrganizationPaymentHistoryLazyQueryHookResult = ReturnType<typeof useGetOrganizationPaymentHistoryLazyQuery>;
 export type GetOrganizationPaymentHistorySuspenseQueryHookResult = ReturnType<typeof useGetOrganizationPaymentHistorySuspenseQuery>;
 export type GetOrganizationPaymentHistoryQueryResult = Apollo.QueryResult<Types.GetOrganizationPaymentHistoryQuery, Types.GetOrganizationPaymentHistoryQueryVariables>;
+export const GetLastDoneSubscriptionContextDocument = gql`
+    query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
+  contexts: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $planId}, status: DONE, isTrial: false}
+    sortBy: [endAt_DESC]
+    first: 1
+  ) {
+    id
+    endAt
+  }
+}
+    `;
+
+/**
+ * __useGetLastDoneSubscriptionContextQuery__
+ *
+ * To run a query within a React component, call `useGetLastDoneSubscriptionContextQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastDoneSubscriptionContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLastDoneSubscriptionContextQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function useGetLastDoneSubscriptionContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables> & ({ variables: Types.GetLastDoneSubscriptionContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>(GetLastDoneSubscriptionContextDocument, options);
+      }
+export function useGetLastDoneSubscriptionContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>(GetLastDoneSubscriptionContextDocument, options);
+        }
+// @ts-ignore
+export function useGetLastDoneSubscriptionContextSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>;
+export function useGetLastDoneSubscriptionContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastDoneSubscriptionContextQuery | undefined, Types.GetLastDoneSubscriptionContextQueryVariables>;
+export function useGetLastDoneSubscriptionContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>(GetLastDoneSubscriptionContextDocument, options);
+        }
+export type GetLastDoneSubscriptionContextQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextQuery>;
+export type GetLastDoneSubscriptionContextLazyQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextLazyQuery>;
+export type GetLastDoneSubscriptionContextSuspenseQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextSuspenseQuery>;
+export type GetLastDoneSubscriptionContextQueryResult = Apollo.QueryResult<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>;
 export const GetLastFailedPaymentContextDocument = gql`
     query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
   lastFailedContext: allSubscriptionContexts(

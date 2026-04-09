@@ -923,6 +923,14 @@ export type GetOrganizationPaymentHistoryQueryVariables = Types.Exact<{
 
 export type GetOrganizationPaymentHistoryQuery = { __typename?: 'Query', paymentHistory?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', multiPaymentId?: string | null, paymentMethod?: { __typename?: 'PaymentMethod', paymentSystem: string, cardNumber: string } | null, invoice?: { __typename?: 'FrozenInvoice', toPay?: string | null, currencyCode?: string | null } | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetLastDoneSubscriptionContextQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  planId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetLastDoneSubscriptionContextQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'SubscriptionContext', id: string, endAt?: string | null } | null> | null };
+
 export type GetLastFailedPaymentContextQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
   subscriptionPlanId: Types.Scalars['ID']['input'];

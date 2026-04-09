@@ -3,8 +3,7 @@ import { notification } from 'antd'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
@@ -40,7 +39,7 @@ import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/com
 import { useEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionSettingsContent } from '@condo/domains/subscription/components'
-import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription, useSubscriptionPaymentSuccess } from '@condo/domains/subscription/hooks'
 
 import MarketplaceSettingsPage from './marketplace'
 
@@ -51,7 +50,6 @@ const ALWAYS_AVAILABLE_TABS = []
 
 const SettingsPage: PageComponentType = () => {
     const intl = useIntl()
-    const router = useRouter()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
@@ -60,8 +58,6 @@ const SettingsPage: PageComponentType = () => {
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
     const SubscriptionsTitle = intl.formatMessage({ id: 'Subscriptions' })
-    const SuccessPaymentNotificationTitle = intl.formatMessage({ id: 'subscription.payment.success.notification.title' })
-    const SuccessPaymentNotificationDescription = intl.formatMessage({ id: 'subscription.payment.success.notification.description' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = useMemo(() => userOrganization?.organization?.id || null, [userOrganization])
@@ -71,7 +67,7 @@ const SettingsPage: PageComponentType = () => {
     const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
 
-    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, activeSubscriptionEndAt, daysRemaining } = useOrganizationSubscription()
+    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const isSubscriptionsFlagEnabled = useFlag(SUBSCRIPTIONS)
     const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && enableSubscriptions && isSubscriptionsFlagEnabled
@@ -150,36 +146,10 @@ const SettingsPage: PageComponentType = () => {
         <Typography.Title>{PageTitle}</Typography.Title>
     ), [PageTitle])
 
-    useEffect(() => {
-        if (router.query.successPayment === 'true' && !subscriptionsLoading && daysRemaining > 0 && userOrganizationId) {
-            const storageKey = `subscription_end_date_${userOrganizationId}`
-            const previousEndDate = localStorage.getItem(storageKey)
-            const currentEndDate = activeSubscriptionEndAt ? dayjs(activeSubscriptionEndAt).format('YYYY-MM-DD') : ''
-            
-            if (previousEndDate !== currentEndDate && currentEndDate) {
-                localStorage.setItem(storageKey, currentEndDate)
-                
-                notification.success({
-                    message: <Typography.Text strong size='large'>{SuccessPaymentNotificationTitle}</Typography.Text>,
-                    description: SuccessPaymentNotificationDescription,
-                })
-            }
-
-            const { successPayment, ...restQuery } = router.query
-            router.replace({
-                pathname: router.pathname,
-                query: restQuery,
-            }, undefined, { shallow: true })
-        }
-    }, [router.query.successPayment, router, SuccessPaymentNotificationTitle, SuccessPaymentNotificationDescription, activeSubscriptionEndAt, userOrganizationId, subscriptionsLoading, daysRemaining])
-    
-    useEffect(() => {
-        if (!subscriptionsLoading && activeSubscriptionEndAt && userOrganizationId && !router.query.successPayment) {
-            const storageKey = `subscription_end_date_${userOrganizationId}`
-            const currentEndDate = dayjs(activeSubscriptionEndAt).format('YYYY-MM-DD')
-            localStorage.setItem(storageKey, currentEndDate)
-        }
-    }, [subscriptionsLoading, activeSubscriptionEndAt, userOrganizationId, router.query.successPayment])
+    useSubscriptionPaymentSuccess({
+        planId: subscriptionContext?.subscriptionPlan?.id || null,
+        organizationId: userOrganizationId,
+    })
 
     return (
         <>
