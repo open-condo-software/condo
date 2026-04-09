@@ -20,9 +20,10 @@ export interface NoSubscriptionTooltipProps {
     path?: string
     skipTooltip?: boolean
     b2bAppId?: string
+    tooltipButtonId?: string
 }
 
-export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, skipTooltip, b2bAppId }) => {
+export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, skipTooltip, b2bAppId, tooltipButtonId }) => {
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
@@ -155,6 +156,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
                 type='accent' 
                 size='medium'
                 block
+                id={tooltipButtonId}
                 onClick={buttonAction}
                 loading={isLoading}
                 disabled={isLoading}

@@ -31,6 +31,7 @@ const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
                     feature='marketplace'
                     placement='bottom'
                     children={null}
+                    tooltipButtonId='PaymentTotalChartSubscriprionTooltip'
                     fallback={
                         <Alert
                             showIcon
