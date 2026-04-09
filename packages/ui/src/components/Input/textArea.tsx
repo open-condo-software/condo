@@ -98,7 +98,8 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
     const [internalValue, setInternalValue] = useState('')
     const [isFocused, setIsFocused] = useState(false)
-    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+    const [emojiPickerDropdownOpen, setEmojiPickerDropdownOpen] = useState(false)
+    const [emojiPickerTooltipOpen, setEmojiPickerTooltipOpen] = useState(false)
     const textAreaContainerRef = useRef<HTMLDivElement>(null)
 
     const resolvedBottomPanelLabels = useMemo(() => ({
@@ -179,13 +180,21 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         }
     }, [propsOnChange, propsValue])
 
-    const handleBottomEmojiOpenChange = useCallback((open: boolean) => {
+    const handleEmojiDropdownOpenChange = useCallback((open: boolean) => {
         if (disabled) {
-            setEmojiPickerOpen(false)
+            setEmojiPickerDropdownOpen(false)
+            setEmojiPickerTooltipOpen(false)
             return
         }
-        setEmojiPickerOpen(open)
+        if (open) {
+            setEmojiPickerTooltipOpen(false)
+        }
+        setEmojiPickerDropdownOpen(open)
     }, [disabled])
+
+    const handleEmojiTooltipOpenChange = useCallback((open: boolean) => {
+        setEmojiPickerTooltipOpen(emojiPickerDropdownOpen ? false : open)
+    }, [emojiPickerDropdownOpen])
 
     const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
         if (disabled) return
@@ -225,8 +234,8 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                         key={`builtin-${normalizedBuiltinUtil.key}-${index}`}
                         trigger={['click']}
                         placement='bottomLeft'
-                        open={emojiPickerOpen}
-                        onOpenChange={handleBottomEmojiOpenChange}
+                        open={emojiPickerDropdownOpen}
+                        onOpenChange={handleEmojiDropdownOpenChange}
                         overlayClassName='condo-input-emoji-dropdown-overlay'
                         dropdownRender={() => (
                             <div className='condo-input-emoji-dropdown'>
@@ -245,7 +254,13 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                         {...normalizedBuiltinUtil.dropdownProps}
                     >
                         <span>
-                            <Tooltip title={resolvedBottomPanelLabels.emoji} mouseLeaveDelay={0}>
+                            <Tooltip 
+                                title={resolvedBottomPanelLabels.emoji}
+                                mouseEnterDelay={0.5}
+                                mouseLeaveDelay={0}
+                                open={emojiPickerTooltipOpen}
+                                onOpenChange={handleEmojiTooltipOpenChange}
+                            >
                                 <Button
                                     type='secondary'
                                     minimal
@@ -264,8 +279,10 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         }
     }, [
         disabled,
-        emojiPickerOpen,
-        handleBottomEmojiOpenChange,
+        emojiPickerDropdownOpen,
+        handleEmojiDropdownOpenChange,
+        emojiPickerTooltipOpen,
+        handleEmojiTooltipOpenChange,
         handleBottomEmojiSelect,
         resolvedBottomPanelLabels,
         resolvedEmojiDropdownLabels,

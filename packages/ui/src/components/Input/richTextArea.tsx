@@ -778,7 +778,8 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
 
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
-    const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+    const [emojiPickerDropdownOpen, setEmojiPickerDropdownOpen] = useState(false)
+    const [emojiPickerTooltipOpen, setEmojiPickerTooltipOpen] = useState(false)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
 
     const editor = useEditor({
@@ -864,13 +865,21 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         selector: ({ editor: e }) => e?.storage.characterCount?.characters() ?? 0,
     })
 
-    const handleBottomEmojiOpenChange = useCallback((open: boolean) => {
+    const handleEmojiDropdownOpenChange = useCallback((open: boolean) => {
         if (disabled) {
-            setEmojiPickerOpen(false)
+            setEmojiPickerDropdownOpen(false)
+            setEmojiPickerTooltipOpen(false)
             return
         }
-        setEmojiPickerOpen(open)
+        if (open) {
+            setEmojiPickerTooltipOpen(false)
+        }
+        setEmojiPickerDropdownOpen(open)
     }, [disabled])
+
+    const handleEmojiTooltipOpenChange = useCallback((open: boolean) => {
+        setEmojiPickerTooltipOpen(emojiPickerDropdownOpen ? false : open)
+    }, [emojiPickerDropdownOpen])
 
     const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
         if (!editor || disabled || !editor.isEditable) return
@@ -902,8 +911,8 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         key={`builtin-${normalizedBuiltinUtil.key}-${index}`}
                         trigger={['click']}
                         placement='bottomLeft'
-                        open={emojiPickerOpen}
-                        onOpenChange={handleBottomEmojiOpenChange}
+                        open={emojiPickerDropdownOpen}
+                        onOpenChange={handleEmojiDropdownOpenChange}
                         overlayClassName='condo-input-emoji-dropdown-overlay'
                         dropdownRender={() => (
                             <div className='condo-input-emoji-dropdown'>
@@ -922,7 +931,13 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         {...normalizedBuiltinUtil.dropdownProps}
                     >
                         <span>
-                            <Tooltip title={resolvedBottomPanelLabels.emoji} mouseLeaveDelay={0}>
+                            <Tooltip 
+                                title={resolvedBottomPanelLabels.emoji}
+                                mouseEnterDelay={0.5}
+                                mouseLeaveDelay={0}
+                                open={emojiPickerTooltipOpen}
+                                onOpenChange={handleEmojiTooltipOpenChange}
+                            >
                                 <Button
                                     type='secondary'
                                     minimal
@@ -941,8 +956,10 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         }
     }, [
         disabled,
-        emojiPickerOpen,
-        handleBottomEmojiOpenChange,
+        emojiPickerDropdownOpen,
+        handleEmojiDropdownOpenChange,
+        emojiPickerTooltipOpen,
+        handleEmojiTooltipOpenChange,
         handleBottomEmojiSelect,
         resolvedEmojiDropdownLabels,
         resolvedBottomPanelLabels,
