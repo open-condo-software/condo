@@ -95,7 +95,7 @@ describe('B2CAppAccessRightSet', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
+                expect(obj.v).toEqual(3)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
 
@@ -107,6 +107,14 @@ describe('B2CAppAccessRightSet', () => {
             })
 
             describe('service user', () => {
+                let b2cApp
+                let b2cAccessRightSet
+
+                beforeAll(async () => {
+                    [b2cApp] = await createTestB2CApp(admin);
+                    [b2cAccessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+                })
+
                 test('with access rights can\'t', async () => {
                     const serviceUser = await makeClientWithServiceUser()
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
@@ -160,6 +168,14 @@ describe('B2CAppAccessRightSet', () => {
             })
 
             describe('service user', () => {
+                let b2cApp
+                let b2cAccessRightSet
+
+                beforeAll(async () => {
+                    [b2cApp] = await createTestB2CApp(admin);
+                    [b2cAccessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+                })
+
                 test('with access rights can\'t', async () => {
                     const serviceUser = await makeClientWithServiceUser()
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
@@ -219,6 +235,14 @@ describe('B2CAppAccessRightSet', () => {
             })
 
             describe('service user', () => {
+                let b2cApp
+                let b2cAccessRightSet
+
+                beforeAll(async () => {
+                    [b2cApp] = await createTestB2CApp(admin);
+                    [b2cAccessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+                })
+
                 test('with access rights can', async () => {
                     const serviceUser = await makeClientWithServiceUser()
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
