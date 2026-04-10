@@ -13,6 +13,7 @@ const AI_ADAPTERS_CONFIG = conf.AI_ADAPTERS_CONFIG ? JSON.parse(conf.AI_ADAPTERS
 // n8n adapter works using webhook functionality, it makes request, then waits for response
 // sometimes AI related flows may take long time, thus default timeout should be set to generous amount
 const N8N_DEFAULT_TIMEOUT = 5 * 60 * 1000 // 5min
+
 class N8NAdapter extends AbstractAdapter {
     #isConfigured = false
 
@@ -42,6 +43,7 @@ class N8NAdapter extends AbstractAdapter {
                 },
                 method: 'POST',
                 body: JSON.stringify({ context }),
+                abortRequestTimeout: N8N_DEFAULT_TIMEOUT,
             }
         )
 
@@ -61,116 +63,66 @@ class N8NAdapter extends AbstractAdapter {
             throw error
         }
 
-        if (!response.body) {
-            throw new Error('Failed to read prediction response: empty response body')
-        }
-
         if (response.headers.get('transfer-encoding') === 'chunked') {
             const decoder = new TextDecoder('utf-8')
             let answer = ''
             const events = []
 
-            let buffer = ''
-            for await (const chunk of response.body) {
-                buffer += decoder.decode(chunk, { stream: true })
+            const _pushEvent = async (line) => {
+                let event
                 try {
-                    const lines = buffer.split('\n')
-                    buffer = lines.pop() || ''
-                    for (const line of lines) {
-                        if (!line) continue
-                        const event = JSON.parse(line)
-                        events.push(event)
-                        switch (event.type) {
-                            case 'begin': 
-                                await onEvent({
-                                    type: EVENT_TYPES.START,
-                                    meta: event.metadata,
-                                })
-                                break
-                            case 'item':
-                                await onEvent({
-                                    type: EVENT_TYPES.ITEM,
-                                    content: event.content,
-                                    meta: event.metadata,
-                                })
-                                answer += event.content
-                                break
-                            case 'end':
-                                await onEvent({
-                                    type: EVENT_TYPES.END,
-                                    meta: event.metadata,
-                                })
-                                answer += '\n'
-                                break
-                            default: 
-                                await onEvent({
-                                    type: EVENT_TYPES.ERROR,
-                                    meta: event?.metadata,
-                                    error: `Unknown event type: ${event.type}`,
-                                })
-                                throw new Error('Unknown event type')
-                        }
-                    }
-                    
+                    if (!line) return
+                    event = JSON.parse(line)
+                    events.push(event)
                 } catch (err) {
                     await onEvent({
                         type: EVENT_TYPES.ERROR,
                         error: 'Failed to proccess chunk',
                     })
-                    const error = new Error('Failed to proccess chunk', err)
-                    error.developerErrorMessage = 'Failed to proccess chunk'
-                    error._response = events.join('\n')
-                    throw error
+                }
+                switch (event.type) {
+                    case 'begin': 
+                        await onEvent({
+                            type: EVENT_TYPES.START,
+                            meta: event.metadata,
+                        })
+                        break
+                    case 'item':
+                        await onEvent({
+                            type: EVENT_TYPES.ITEM,
+                            content: event.content,
+                            meta: event.metadata,
+                        })
+                        answer += event.content
+                        break
+                    case 'end':
+                        await onEvent({
+                            type: EVENT_TYPES.END,
+                            meta: event.metadata,
+                        })
+                        break
+                    default: 
+                        await onEvent({
+                            type: EVENT_TYPES.ERROR,
+                            meta: event?.metadata,
+                            error: `Unknown event type: ${event.type}`,
+                        })
+                        throw new Error('Unknown event type')
+                }
+            }
+
+            let buffer = ''
+            for await (const chunk of response.body) {
+                buffer += decoder.decode(chunk, { stream: true })
+                const lines = buffer.split('\n')
+                buffer = lines.pop() || ''
+                for (const line of lines) {
+                    await _pushEvent(line)
                 }
             }
 
             buffer += decoder.decode()
-            if (buffer.trim()) {
-                try {
-                    if (buffer.trim()) {
-                        const event = JSON.parse(buffer.trim())
-                        events.push(event)
-                        switch (event.type) {
-                            case 'begin': 
-                                await onEvent({
-                                    type: EVENT_TYPES.START,
-                                    meta: event.metadata,
-                                })
-                                break
-                            case 'item':
-                                await onEvent({
-                                    type: EVENT_TYPES.ITEM,
-                                    content: event.content,
-                                    meta: event.metadata,
-                                })
-                                answer += event.content
-                                break
-                            case 'end':
-                                await onEvent({
-                                    type: EVENT_TYPES.END,
-                                    meta: event.metadata,
-                                })
-                                break
-                            default: 
-                                await onEvent({
-                                    type: EVENT_TYPES.ERROR,
-                                    meta: event?.metadata,
-                                    error: `Unknown event type: ${event.type}`,
-                                })
-                                throw new Error('Unknown event type')
-                        }
-                    }
-                } catch (err) {
-                    await onEvent({
-                        type: EVENT_TYPES.ERROR,
-                        error: 'Failed to proccess chunk',
-                    })
-                    const error = new Error('Failed to proccess chunk', err)
-                    error.developerErrorMessage = 'Failed to proccess chunk'
-                    error._response = events.join('\n')
-                    throw error
-                }
-            }
+            await _pushEvent(buffer.trim())
 
             const eventsLength = events.length
 
@@ -182,7 +134,7 @@ class N8NAdapter extends AbstractAdapter {
                     stream: true,
                     events,
                     totalevents: eventsLength,
-                    lastEventsType: eventsLength > 1 ? events[eventsLength - 1] : null,
+                    lastEventsType: events[eventsLength - 1],
                 },
             }
         } else {

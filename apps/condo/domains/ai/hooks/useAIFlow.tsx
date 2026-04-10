@@ -16,6 +16,7 @@ import {
     FLOW_TYPES_LIST, 
     TASK_STATUSES,
     CHUNK_TYPES_LIST,
+    CHUNK_TYPES,
 } from '@condo/domains/ai/constants'
 import {
     UI_AI_GENERATE_NEWS_BY_INCIDENT,
@@ -23,15 +24,16 @@ import {
     UI_AI_REWRITE_TEXT,
     UI_AI_REWRITE_TICKET_COMMENT,
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
+    AI_STREAMING,
 } from '@condo/domains/common/constants/featureflags'
 
 
 type ChunkType = typeof CHUNK_TYPES_LIST[number]
-export type StreamMessageType = {
+type StreamMessageType = {
     type: ChunkType
     item?: string
     meta?: object
-    error?: string
+    error?: Error
 }
 
 type FlowType = typeof FLOW_TYPES_LIST[number]
@@ -42,7 +44,6 @@ type UseAIFlowPropsType = {
     defaultContext?: object
     timeout?: number
     aiSessionId?: string // Optional session id to group AI requests in one session
-    onChunk?: (message: StreamMessageType) => void
 }
 
 type UseAIFlowResult<T> = {
@@ -60,6 +61,7 @@ type UseAIFlowResultType<T> = [
     {
         loading: boolean
         data: UseAIFlowResult<T> | null
+        streamDataText: string
         error: Error | null
         currentTaskId: string | null
     },
@@ -76,7 +78,6 @@ export function useAIFlow<T = object> ({
     defaultContext = {},
     timeout = DEFAULT_TIMEOUT_MS,
     aiSessionId,
-    onChunk,
 }: UseAIFlowPropsType): UseAIFlowResultType<T> {
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -88,38 +89,48 @@ export function useAIFlow<T = object> ({
 
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState<UseAIFlowResult<T> | null>(null)
+    const [streamDataText, setSteamDataText] = useState('')
     const [error, setError] = useState<Error | null>(null)
     const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+    const { useFlagValue } = useFeatureFlags()
+    const aiStreamingEnabled = useFlagValue(AI_STREAMING)?.[flowType]
+
     const { connection, isConnected, userId } = useMessagingConnection({
-        enabled: !!onChunk,
+        enabled: !!aiStreamingEnabled,
         autoConnect: true,
         wsUrl: messagingWsUrl,
     })
-    console.log('useMessagingConnection', connection)
 
-    const { channels } = useMessagingChannels({ enabled: !!onChunk }) 
+    const { channels } = useMessagingChannels({ enabled: !!aiStreamingEnabled }) 
 
     const topic = useMemo(() => {
-        if (currentTaskId && user?.id === userId) {
+        if (aiStreamingEnabled && currentTaskId && user?.id === userId) {
             const userChannel = channels.find((channel) => channel.name === 'user')
-            const t = `${userChannel.topicPrefix}.executionAIFlowTask.${currentTaskId}`
-            console.log('topic', t)
-            return t
+            return `${userChannel.topicPrefix}.executionAIFlowTask.${currentTaskId}`
         }
-    }, [currentTaskId, user?.id, userId, channels])
+    }, [aiStreamingEnabled, currentTaskId, user?.id, userId, channels])
 
-    const { isSubscribed, error: ooo } = useMessagingSubscription<StreamMessageType>({
+    const onMessage = useCallback((message: StreamMessageType) => {
+        if (message.type === CHUNK_TYPES.FLOW_ITEM && message?.item) {
+            setSteamDataText(prev => prev += message.item)
+        } else if (message.type === CHUNK_TYPES.TASK_ERROR) {
+            setLoading(false)
+            setError(message.error)
+        } else if (message.type === CHUNK_TYPES.TASK_END) {
+            setLoading(false)
+        }
+    }, [])
+
+    useMessagingSubscription<StreamMessageType>({
         topic,
         connection,
         isConnected,
         userId,
-        enabled: !!onChunk && !!topic,
-        onMessage: onChunk,
+        enabled: !!aiStreamingEnabled,
+        onMessage,
     })
-    console.log('useMessagingSubscription', isSubscribed)
-    console.log('useMessagingSubscription - ooo', ooo)
 
     const stopPollingForResult = useCallback(() => {
         if (intervalRef.current) {
@@ -229,6 +240,7 @@ export function useAIFlow<T = object> ({
         setLoading(true)
         setError(null)
         setData(null)
+        setSteamDataText('')
 
         try {
             const data = {
@@ -253,7 +265,7 @@ export function useAIFlow<T = object> ({
 
             setCurrentTaskId(createdTaskId)
 
-            if (isConnected) {
+            if (aiStreamingEnabled && isConnected) {
                 return { data: null, error: null, localizedErrorText: null }
             } else {
                 return await startPollingForResult(createdTaskId)
@@ -264,7 +276,7 @@ export function useAIFlow<T = object> ({
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            setLoading(false)
+            if (!aiStreamingEnabled && !isConnected) setLoading(false)
         }
     }, [
         flowType,
@@ -276,6 +288,7 @@ export function useAIFlow<T = object> ({
         itemId,
         aiSessionId,
         startPollingForResult,
+        aiStreamingEnabled,
         isConnected,
     ])
 
@@ -283,10 +296,11 @@ export function useAIFlow<T = object> ({
         setLoading(true)
         setError(null)
         setData(null)
+        setSteamDataText('')
 
         try {
             setCurrentTaskId(taskId)
-            if (isConnected) {
+            if (aiStreamingEnabled && isConnected) {
                 return { data: null, error: null, localizedErrorText: null }
             } else {
                 return await startPollingForResult(taskId)
@@ -297,11 +311,11 @@ export function useAIFlow<T = object> ({
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            setLoading(false)
+            if (!aiStreamingEnabled && !isConnected) setLoading(false)
         }
-    }, [startPollingForResult, isConnected])
+    }, [startPollingForResult, aiStreamingEnabled, isConnected])
 
-    return [{ execute, resume }, { loading, data, error, currentTaskId }]
+    return [{ execute, resume }, { loading, data, streamDataText, error, currentTaskId }]
 }
 
 export function useAIConfig () {
