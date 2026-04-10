@@ -132,11 +132,6 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         title={SuccessPaymentModalTitle}
                         open={successModalOpen}
                         onCancel={handleCloseSuccessModal}
-                        footer={(
-                            <Button type='secondary' onClick={handleCloseSuccessModal}>
-                                {CloseMessage}
-                            </Button>
-                        )}
                     >
                         <Typography.Paragraph type='secondary'>
                             {SuccessPaymentModalDescription}

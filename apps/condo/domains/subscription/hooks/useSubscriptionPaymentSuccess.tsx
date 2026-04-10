@@ -28,6 +28,7 @@ export const useSubscriptionPaymentSuccess = ({
     const intl = useIntl()
     const router = useRouter()
     const SuccessNotificationTitle = intl.formatMessage({ id: 'subscription.payment.success.notification.title' })
+    const SuccessNotificationDescription = intl.formatMessage({ id: 'subscription.payment.success.notification.description' })
 
     const { data, loading } = useGetLastDoneSubscriptionContextQuery({
         variables: { organizationId: organizationId as string, planId: planId as string },
@@ -44,10 +45,15 @@ export const useSubscriptionPaymentSuccess = ({
                     {SuccessNotificationTitle}
                 </Typography.Text>
             ),
+            description: (
+                <Typography.Text type='secondary' size='medium'>
+                    {SuccessNotificationDescription}
+                </Typography.Text>
+            ),
             duration: 5,
         })
         onAfterNotification?.()
-    }, [SuccessNotificationTitle, onAfterNotification])
+    }, [SuccessNotificationTitle, SuccessNotificationDescription, onAfterNotification])
 
     useEffect(() => {
         if (!loading && currentEndAt && storageKey && !router.query.successPayment) {
