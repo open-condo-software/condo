@@ -175,7 +175,6 @@ class CustomFile extends FileWithUTF8Name.implementation {
         const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
         if (!hasFileInRequest) return
 
-        // Decode signature to get the original fileClientId
         const signatureData = jwt.decode(context._fileNewFlow[key].signature)
         const fileClientId = signatureData?.fileClientId || this._fileClientId
 
@@ -201,8 +200,6 @@ class CustomFile extends FileWithUTF8Name.implementation {
             }
         }
 
-        console.log('attach request', { url: this._fileServiceUrl, payload, headers: { ...headers, Authorization: headers.Authorization ? 'Bearer ***' : undefined } })
-
         try {
             const res = await fetch(this._fileServiceUrl, {
                 method: 'POST',
@@ -211,8 +208,6 @@ class CustomFile extends FileWithUTF8Name.implementation {
             })
 
             attachResult = await res.json()
-
-            console.log('attach response', { status: res.status, ok: res.ok, result: attachResult })
 
             if (!res.ok) {
                 if (attachResult?.errors && attachResult?.errors?.length > 0) {
@@ -223,7 +218,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     }, context)
                 }
 
-                console.log({ msg: 'fetch error', errors: attachResult.errors, attachResult })
+                logger.error({ msg: 'fetch error', errors: attachResult.errors, attachResult })
                 throw new GQLError(ERRORS.INTERNAL_ERROR, context)
             }
 
@@ -233,7 +228,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             resolvedData[this.path] = omit(data, ['iat', 'exp'])
         } catch (err) {
-            console.log({ msg: 'unexpected file attach error', err })
+            logger.error({ msg: 'unexpected file attach error', err })
             if (err instanceof GQLError) {
                 throw err
             }

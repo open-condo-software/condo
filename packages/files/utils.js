@@ -217,7 +217,6 @@ function parseAndValidateFileMetaSignature (data) {
 // ---------------------- handlers ----------------------
 function authHandler ()  {
     return async function (req, res, next) {
-        console.log('req.user', req.user)
         if (!req.user || req.user.deletedAt !== null) {
 
             const error = new GQLError(ERRORS.AUTHORIZATION_REQUIRED, { req })
@@ -331,7 +330,6 @@ function parserHandler ({ processRequestOptions } = {}) {
 
 function fileStorageHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
-        console.log('start upload')
         const { [fileMetaSymbol]: meta, files, inlineAttach } = req
         const appClient = appClients ? appClients[meta.fileClientId] : undefined
 
@@ -394,7 +392,6 @@ function fileStorageHandler ({ keystone, appClients }) {
                 id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
             })), `id fileMeta { originalFilename meta ${FILE_RECORD_USER_META} }`)
 
-        console.log('fileRecords', fileRecords)
         let result = []
         if (!inlineAttach) {
             // classic behavior
@@ -434,8 +431,6 @@ function fileStorageHandler ({ keystone, appClients }) {
                     attachments: { attachments: resultAttachments },
                 }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
 
-                console.log('uploaded 1', updated)
-
                 return {
                     id: updated.id,
                     signature: jwt.sign(
@@ -452,8 +447,6 @@ function fileStorageHandler ({ keystone, appClients }) {
                 }
             }))
         }
-
-        console.log('uploaded 2', result)
 
         res.json({ data: { files: result } })
     }
