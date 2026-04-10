@@ -212,7 +212,7 @@ async function canManageObjectsAsB2CAppServiceUser (args) {
     const canBeManaged = get(schemaConfig, 'canBeManaged', true)
     if (!canBeManaged) return false
     const refSchemaName = getRefSchemaName(schemaConfig, listKey)
-    return await canManageByServiceUser(args, schemaConfig, refSchemaName) // todo: @toplenboren create a test with offline token for only one organization
+    return await canManageByServiceUser(args, schemaConfig, refSchemaName)
 }
 
 async function canExecuteServiceAsB2CAppServiceUser (args) {

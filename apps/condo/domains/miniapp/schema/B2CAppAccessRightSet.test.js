@@ -8,34 +8,40 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet } = require('@condo/domains/miniapp/utils/testSchema')
+const { B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet, createTestB2CAppProperty, updateTestB2CAppProperty, B2CAppProperty } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestB2CApp, createTestB2CAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('B2CAppAccessRightSet', () => {
+    let admin
+    
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+    })
+    
     describe('CRUD tests', () => {
+        let b2cApp
+        let support
+
+        beforeAll(async () => {
+            [b2cApp] = await createTestB2CApp(admin)
+            support = await makeClientWithSupportUser()
+        })
+
         describe('create', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
                 const [obj] = await createTestB2CAppAccessRightSet(admin, b2cApp)
                 expect(obj).toBeDefined()
             })
 
             test('support can', async () => {
-                const client = await makeClientWithSupportUser()
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [obj] = await createTestB2CAppAccessRightSet(client, b2cApp)
+                const [obj] = await createTestB2CAppAccessRightSet(support, b2cApp)
                 expect(obj).toBeDefined()
             })
 
             test('user can\'t', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser() 
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestB2CAppAccessRightSet(client, b2cApp)
                 })
@@ -43,9 +49,7 @@ describe('B2CAppAccessRightSet', () => {
 
             describe('service user', () => {
                 test('with access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -54,10 +58,7 @@ describe('B2CAppAccessRightSet', () => {
                 })
 
                 test('without access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
-
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestB2CAppAccessRightSet(serviceUser, b2cApp)
                     })
@@ -66,9 +67,6 @@ describe('B2CAppAccessRightSet', () => {
 
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestB2CAppAccessRightSet(client, b2cApp)
                 })
@@ -76,11 +74,14 @@ describe('B2CAppAccessRightSet', () => {
         })
 
         describe('update', () => {
+            let b2cAccessRightSet
+
+            beforeAll(async () => {
+                [b2cAccessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+            })
+
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-                const [obj, attrs] = await updateTestB2CAppAccessRightSet(admin, objCreated.id)
+                const [obj, attrs] = await updateTestB2CAppAccessRightSet(admin, b2cAccessRightSet.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -89,204 +90,148 @@ describe('B2CAppAccessRightSet', () => {
             })
 
             test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
-                const client = await makeClientWithSupportUser()
-                const [obj, attrs] = await updateTestB2CAppAccessRightSet(client, objCreated.id)
+                const [obj, attrs] = await updateTestB2CAppAccessRightSet(support, b2cAccessRightSet.id)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestB2CAppAccessRightSet(client, objCreated.id)
+                    await updateTestB2CAppAccessRightSet(client, b2cAccessRightSet.id)
                 })
             })
 
             describe('service user', () => {
                 test('with access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
-                    const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestB2CAppAccessRightSet(serviceUser, objCreated.id)
+                        await updateTestB2CAppAccessRightSet(serviceUser, b2cAccessRightSet.id)
                     })
                 })
 
                 test('without access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
-                    const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestB2CAppAccessRightSet(serviceUser, objCreated.id)
+                        await updateTestB2CAppAccessRightSet(serviceUser, b2cAccessRightSet.id)
                     })
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestB2CAppAccessRightSet(client, objCreated.id)
+                    await updateTestB2CAppAccessRightSet(client, b2cAccessRightSet.id)
                 })
             })
         })
 
         describe('hard delete', () => {
-            test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+            let b2cAccessRightSet
 
+            beforeAll(async () => {
+                [b2cAccessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+            })
+
+            test('admin can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await B2CAppAccessRightSet.delete(admin, objCreated.id)
+                    await B2CAppAccessRightSet.delete(admin, b2cAccessRightSet.id)
                 })
             })
 
             test('support can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
-                const client = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await B2CAppAccessRightSet.delete(client, objCreated.id)
+                    await B2CAppAccessRightSet.delete(support, b2cAccessRightSet.id)
                 })
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await B2CAppAccessRightSet.delete(client, objCreated.id)
+                    await B2CAppAccessRightSet.delete(client, b2cAccessRightSet.id)
                 })
             })
 
             describe('service user', () => {
                 test('with access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
-                    const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await B2CAppAccessRightSet.delete(serviceUser, objCreated.id)
+                        await B2CAppAccessRightSet.delete(serviceUser, b2cAccessRightSet.id)
                     })
                 })
 
                 test('without access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
-                    const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await B2CAppAccessRightSet.delete(serviceUser, objCreated.id)
+                        await B2CAppAccessRightSet.delete(serviceUser, b2cAccessRightSet.id)
                     })
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [objCreated] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await B2CAppAccessRightSet.delete(client, objCreated.id)
+                    await B2CAppAccessRightSet.delete(client, b2cAccessRightSet.id)
                 })
             })
         })
 
         describe('read', () => {
+            let b2cAccessRightSet
+
+            beforeAll(async () => {
+                [b2cAccessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp)
+            })
+            
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [obj] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
-                const objs = await B2CAppAccessRightSet.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs).toEqual(expect.arrayContaining([
+                const obj = await B2CAppAccessRightSet.getOne(admin, { id: b2cAccessRightSet.id }, { sortBy: ['updatedAt_DESC'] })
+                expect(obj).toEqual(
                     expect.objectContaining({
                         id: obj.id,
                     }),
-                ]))
+                )
             })
 
             test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                const [obj] = await createTestB2CAppAccessRightSet(admin, b2cApp)
-
-                const client = await makeClientWithSupportUser()
-                const objs = await B2CAppAccessRightSet.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs).toEqual(expect.arrayContaining([
+                const obj = await B2CAppAccessRightSet.getOne(support, { id: b2cAccessRightSet.id }, { sortBy: ['updatedAt_DESC'] })
+                expect(obj).toEqual(
                     expect.objectContaining({
                         id: obj.id,
                     }),
-                ]))
+                )
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                await createTestB2CAppAccessRightSet(admin, b2cApp)
-
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await B2CAppAccessRightSet.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await B2CAppAccessRightSet.getAll(client, { id: b2cAccessRightSet.id }, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 
             describe('service user', () => {
                 test('with access rights can', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
-                    const [obj] = await createTestB2CAppAccessRightSet(admin, b2cApp)
                     await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
 
-                    const objs = await B2CAppAccessRightSet.getAll(serviceUser, {}, { sortBy: ['updatedAt_DESC'] })
-
-                    expect(objs.length).toBeGreaterThanOrEqual(1)
-                    expect(objs).toEqual(expect.arrayContaining([
+                    const obj = await B2CAppAccessRightSet.getOne(serviceUser, { id: b2cAccessRightSet.id }, { sortBy: ['updatedAt_DESC'] })
+                    expect(obj).toEqual(
                         expect.objectContaining({
                             id: obj.id,
                         }),
-                    ]))
+                    )
                 })
 
                 test('for other app can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
                     const [b2cApp1] = await createTestB2CApp(admin)
                     const [b2cApp2] = await createTestB2CApp(admin)
@@ -299,24 +244,17 @@ describe('B2CAppAccessRightSet', () => {
                 })
 
                 test('without access rights can\'t', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const serviceUser = await makeClientWithServiceUser()
-                    const [b2cApp] = await createTestB2CApp(admin)
-                    await createTestB2CAppAccessRightSet(admin, b2cApp)
 
-                    const [objs] = await B2CAppAccessRightSet.getAll(serviceUser, {}, { sortBy: ['updatedAt_DESC'] })
+                    const [objs] = await B2CAppAccessRightSet.getAll(serviceUser, { id: b2cAccessRightSet.id }, { sortBy: ['updatedAt_DESC'] })
                     expect(objs).toBeUndefined()
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [b2cApp] = await createTestB2CApp(admin)
-                await createTestB2CAppAccessRightSet(admin, b2cApp)
-
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await B2CAppAccessRightSet.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await B2CAppAccessRightSet.getAll(client, { id: b2cAccessRightSet.id }, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })
@@ -331,9 +269,57 @@ describe('B2CAppAccessRightSet', () => {
             expect(obj).toHaveProperty('dv', 1)
         })
     })
-})
 
-describe.skip('B2CApp permissions for service user', () => {
-    // There will be permissions tests for lists and services in config
+    describe('B2CApp permissions for service user', () => {
+        let support
+        let user
+        let b2cApp
+        let serviceUser
+
+        beforeEach(async () => {
+            support = await makeClientWithSupportUser()
+            user = await makeClientWithNewRegisteredAndLoggedInUser()
+            serviceUser = await makeClientWithServiceUser();
+            [b2cApp] = await createTestB2CApp(admin)
+            await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
+        })
+
+        test('B2CAppAccessRightSet', async () => {
+            // Can't create
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                const created = await createTestB2CAppAccessRightSet(serviceUser, b2cApp)
+                // console.log(JSON.stringify(created, null, 2))
+                // process.exit()
+            })
+
+            const [b2cAppProperty] = await createTestB2CAppProperty(admin, b2cApp)
+
+            // Can't update
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestB2CAppAccessRightSet(serviceUser, b2cAppProperty.id, {})
+            })            
+
+            // Can read
+            const foundB2CAppProperty = await B2CAppProperty.getOne(serviceUser, { id: b2cAppProperty.id })
+            expect(foundB2CAppProperty).toBeDefined()
+            expect(foundB2CAppProperty.id).toEqual(b2cAppProperty.id)
+        })
+
+        test('B2CAppProperty', async () => {
+            
+            // Can create
+            const [createdB2CAppProperty] = await createTestB2CAppProperty(serviceUser, b2cApp)
+            
+            // Can update
+            await updateTestB2CAppProperty(serviceUser, createdB2CAppProperty.id, {})
+
+            // Can read
+            const foundB2CAppProperty = await B2CAppProperty.getOne(serviceUser, { id: createdB2CAppProperty.id })
+            expect(foundB2CAppProperty).toBeDefined()
+            expect(foundB2CAppProperty.id).toEqual(createdB2CAppProperty.id)
+
+        })
+    })
+
 })
 
