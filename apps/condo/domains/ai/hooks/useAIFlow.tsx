@@ -89,7 +89,7 @@ export function useAIFlow<T = object> ({
 
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState<UseAIFlowResult<T> | null>(null)
-    const [streamDataText, setSteamDataText] = useState('')
+    const [streamDataText, setStreamDataText] = useState('')
     const [error, setError] = useState<Error | null>(null)
     const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -114,7 +114,7 @@ export function useAIFlow<T = object> ({
 
     const onMessage = useCallback((message: StreamMessageType) => {
         if (message.type === CHUNK_TYPES.FLOW_ITEM && message?.item) {
-            setSteamDataText(prev => prev += message.item)
+            setStreamDataText(prev => prev + message.item)
         } else if (message.type === CHUNK_TYPES.TASK_ERROR) {
             setLoading(false)
             setError(message.error)
@@ -240,7 +240,7 @@ export function useAIFlow<T = object> ({
         setLoading(true)
         setError(null)
         setData(null)
-        setSteamDataText('')
+        setStreamDataText('')
 
         try {
             const data = {
@@ -276,7 +276,7 @@ export function useAIFlow<T = object> ({
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            if (!aiStreamingEnabled && !isConnected) setLoading(false)
+            if (!(aiStreamingEnabled && isConnected)) setLoading(false)
         }
     }, [
         flowType,
@@ -296,7 +296,7 @@ export function useAIFlow<T = object> ({
         setLoading(true)
         setError(null)
         setData(null)
-        setSteamDataText('')
+        setStreamDataText('')
 
         try {
             setCurrentTaskId(taskId)
@@ -311,7 +311,7 @@ export function useAIFlow<T = object> ({
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            if (!aiStreamingEnabled && !isConnected) setLoading(false)
+            if (!(aiStreamingEnabled && isConnected)) setLoading(false)
         }
     }, [startPollingForResult, aiStreamingEnabled, isConnected])
 

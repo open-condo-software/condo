@@ -34,11 +34,16 @@ class N8NAdapter extends AbstractAdapter {
             throw new Error('N8NAdapter not configured!')
         }
 
+        const apiKey = AI_ADAPTERS_CONFIG?.n8n?.[flowType]?.apiKey
+        if (!apiKey) {
+            throw new Error(`N8NAdapter apiKey is not configured for flow "${flowType}"`)
+        }
+
         const response = await fetch(
             predictUrl,
             {
                 headers: {
-                    Authorization: `Bearer ${AI_ADAPTERS_CONFIG?.n8n?.[flowType]?.apiKey}`,
+                    Authorization: `Bearer ${apiKey}`,
                     'Content-Type': 'application/json',
                 },
                 method: 'POST',
@@ -77,8 +82,9 @@ class N8NAdapter extends AbstractAdapter {
                 } catch (err) {
                     await onEvent({
                         type: EVENT_TYPES.ERROR,
-                        error: 'Failed to proccess chunk',
+                        error: 'Failed to process chunk',
                     })
+                    throw new Error('Failed to parse streamed chunk')
                 }
                 switch (event.type) {
                     case 'begin': 
