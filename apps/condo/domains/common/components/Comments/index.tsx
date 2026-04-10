@@ -20,8 +20,8 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Radio, RadioGroup, Tour, Typography } from '@open-condo/ui'
 
-import { FLOW_TYPES, CHUNK_TYPES } from '@condo/domains/ai/constants.js'
-import { useAIConfig, useAIFlow, StreamMessageType } from '@condo/domains/ai/hooks/useAIFlow'
+import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
+import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
 import { analytics } from '@condo/domains/common/utils/analytics'
@@ -115,16 +115,10 @@ const Comments: React.FC<CommentsPropsType> = ({
     const commentTextAreaRef = useRef(null)
     const commentsContainerRef = useRef(null)
 
-    const onChunk = useCallback((message: StreamMessageType) => {
-        console.log('onChunk', message)
-        if (message.type === CHUNK_TYPES.FLOW_ITEM) {
-            setGenerateCommentAnswer((prev) => prev + message.item)
-        }
-    }, [])
-
     const [ { execute: runGenerateCommentAIFlow }, {
         loading: generateCommentLoading,
         data: generateCommentData,
+        streamDataText: generateCommentDataStreamText,
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT,
         modelName: 'Ticket',
@@ -141,7 +135,6 @@ const Comments: React.FC<CommentsPropsType> = ({
             isExecutorAssigned: ticket.executor ? YesMessage : NoMessage,
             isAssigneeAssigned: ticket.assignee ? YesMessage : NoMessage,
         },
-        onChunk,
     })
 
     const handleGenerateCommentClick = async (comments: Array<CommentWithFiles>, commentForm: FormInstance) => {
@@ -352,8 +345,8 @@ const Comments: React.FC<CommentsPropsType> = ({
     })
 
     useEffect(() => {
-        setGenerateCommentAnswer(generateCommentData?.result?.answer)
-    }, [generateCommentData?.result?.answer])
+        setGenerateCommentAnswer(generateCommentData?.result?.answer || generateCommentDataStreamText)
+    }, [generateCommentData?.result?.answer, generateCommentDataStreamText])
 
     useEffect(() => {
         setRewriteTextAnswer(rewriteTextData?.result?.answer)
