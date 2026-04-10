@@ -2,15 +2,11 @@ const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/error
 
 const {
     MULTIPLE_ACQUIRING_INTEGRATION,
-    RECEIPTS_ARE_DELETED,
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
     RECEIPTS_HAS_MULTIPLE_CURRENCIES,
-    RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
     BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
     ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
-    ACQUIRING_INTEGRATION_IS_DELETED,
     RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
     INVOICES_ARE_NOT_PUBLISHED,
@@ -125,26 +121,12 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: NOT_FOUND,
         message: 'Cannot find specified ServiceConsumers with following ids: {ids}',
     },
-    DELETED_CONSUMERS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore',
-    },
     SERVICE_CONSUMERS_NOT_OWNED_BY_USER: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Found ServiceConsumers not related to the current user',
-    },
-    DELETED_INVOICES: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'invoices'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
     },
     ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING: {
         mutation: 'registerMultiPayment',
@@ -160,13 +142,6 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: MULTIPLE_ACQUIRING_INTEGRATION,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
     },
-    ACQUIRING_INTEGRATION_IS_DELETED: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-        code: BAD_USER_INPUT,
-        type: ACQUIRING_INTEGRATION_IS_DELETED,
-        message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-    },
     RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
@@ -180,13 +155,6 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         code: BAD_USER_INPUT,
         type: CANNOT_FIND_ALL_BILLING_RECEIPTS,
         message: 'Cannot find all specified BillingReceipts with ids {missingReceiptIds}',
-    },
-    RECEIPTS_ARE_DELETED: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: RECEIPTS_ARE_DELETED,
-        message: 'Cannot pay for deleted receipts {ids}',
     },
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE: {
         mutation: 'registerMultiPayment',
@@ -202,26 +170,12 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
         message: 'BillingReceipt with id "{receiptId}" does not have common BillingAccount with specified ServiceConsumer with id "{serviceConsumerId}"',
     },
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
-        message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
-    },
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
         message: 'Some of ServiceConsumer\'s AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegrations: {unsupportedBillingIntegrations}',
-    },
-    RECEIPT_HAS_DELETED_BILLING_INTEGRATION: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
-        message: 'BillingReceipt has deleted BillingIntegration',
     },
     RECEIPTS_HAS_MULTIPLE_CURRENCIES: {
         mutation: 'registerMultiPayment',
@@ -236,13 +190,6 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Cannot find specified RecurrentPaymentContext with following id: {id}',
-    },
-    RECURRENT_PAYMENT_CONTEXT_IS_DELETED: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'recurrentPaymentContext', 'id'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'RecurrentPaymentContext with following id: {id} is deleted',
     },
     RECURRENT_PAYMENT_CONTEXT_FORBIDDEN_FOR_INVOICES: {
         mutation: 'registerMultiPayment',
@@ -282,6 +229,20 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_REQUEST_MODE,
         message: 'Cannot detect receipt or invoice request',
+    },
+    ACQUIRING_INTEGRATION_NOT_FOUND: {
+        mutation: 'registerMultiPayment',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'AcquiringIntegration not found',
+    },
+    CANNOT_FIND_ALL_BILLING_INTEGRATION: {
+        mutation: 'registerMultiPayment',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Cannot find all BillingIntegration for specified receipts',
     },
 }
 

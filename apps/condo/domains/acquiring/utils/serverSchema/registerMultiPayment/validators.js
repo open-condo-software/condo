@@ -1,10 +1,10 @@
 const Big = require('big.js')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
+const { loadRecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/loaders')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 function validateGroupedReceiptsHaveReceipts (groupedReceipts, context) {
@@ -65,13 +65,6 @@ function validateNoDuplicateInvoices (invoices, context) {
     }
 }
 
-function validateEntitiesNotDeleted (entities, errorTemplate, context) {
-    const deletedIds = entities.filter(({ deletedAt }) => deletedAt).map(entity => entity.id)
-    if (deletedIds.length) {
-        throw new GQLError({ ...errorTemplate, messageInterpolation: { ids: deletedIds.join(', ') } }, context)
-    }
-}
-
 function validateSingleAcquiringIntegration (acquiringContexts, context) {
     const acquiringIntegrations = new Set(acquiringContexts.map(({ integration }) => integration))
     if (acquiringIntegrations.size > 1) {
@@ -90,25 +83,9 @@ function validateServiceConsumersBelongToCurrentUser (consumers, residentsById, 
     }
 }
 
-function validateAcquiringIntegrationIsActive (acquiringIntegration, context) {
-    if (acquiringIntegration.deletedAt) {
-        throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
-    }
-}
-
 function validateCanGroupReceiptsIfNeeded (receiptCount, acquiringIntegration, context) {
     if (receiptCount > 1 && !acquiringIntegration.canGroupReceipts) {
         throw new GQLError({ ...ERRORS.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION, messageInterpolation: { id: acquiringIntegration.id } }, context)
-    }
-}
-
-function validateBillingContextsNotDeleted (billingContexts, receipts, context) {
-    const deletedBillingContextsIds = new Set(billingContexts.filter(item => item.deletedAt).map(item => item.id))
-    if (deletedBillingContextsIds.size) {
-        const failedReceipts = receipts
-            .filter(receipt => deletedBillingContextsIds.has(receipt.context))
-            .map(receipt => ({ receiptId: receipt.id, contextId: receipt.context }))
-        throw new GQLError({ ...ERRORS.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } }, context)
     }
 }
 
@@ -116,16 +93,6 @@ function validateBillingIntegrationsSupportedByAcquiring (billingIntegrations, s
     const unsupportedBillings = billingIntegrations.filter(integration => integration.group !== supportedGroup)
     if (unsupportedBillings.length) {
         throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations: unsupportedBillings.map(billing => billing.id).join(', ') } }, context)
-    }
-}
-
-function validateBillingIntegrationsNotDeleted (billingIntegrations, receipts, billingContextsById, context) {
-    const deletedBillingIntegrationsIds = new Set(billingIntegrations.filter(integration => integration.deletedAt).map(integration => integration.id))
-    if (deletedBillingIntegrationsIds.size) {
-        const failedReceipts = receipts
-            .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
-            .map(receipt => ({ receiptId: receipt.id, integrationId: billingContextsById[receipt.context].integration }))
-        throw new GQLError({ ...ERRORS.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } }, context)
     }
 }
 
@@ -224,42 +191,31 @@ function validateTotalAmountWithinAcquiringLimits (amountToPay, acquiringIntegra
     }
 }
 
-async function validateRecurrentPaymentContext (recurrentPaymentContext, context) {
-    if (!recurrentPaymentContext) return null
+function validateAcquiringIntegrationExists (acquiringIntegration, context) {
+    if (!acquiringIntegration) {
+        throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
+    }
+}
 
-    const { id: recurrentPaymentContextId } = recurrentPaymentContext
-    const recurrentContexts = await find('RecurrentPaymentContext', {
-        id: recurrentPaymentContextId,
-    })
+async function validateRecurrentPaymentContext (recurrentPaymentContextId, context) {
+    const recurrentContext = await loadRecurrentPaymentContext(recurrentPaymentContextId)
 
-    if (recurrentContexts.length === 0) {
+    if (!recurrentContext) {
         throw new GQLError({
             ...ERRORS.RECURRENT_PAYMENT_CONTEXT_NOT_FOUND,
             messageInterpolation: { id: recurrentPaymentContextId },
         }, context)
     }
-
-    const [recurrentContext] = recurrentContexts
-
-    if (recurrentContext.deletedAt) {
-        throw new GQLError({
-            ...ERRORS.RECURRENT_PAYMENT_CONTEXT_IS_DELETED,
-            messageInterpolation: { id: recurrentPaymentContextId },
-        }, context)
-    }
-
+    
     return recurrentContext
 }
 
 module.exports = {
-    validateAcquiringIntegrationIsActive,
+    validateAcquiringIntegrationExists,
     validateAllPaymentAmountsPositive,
-    validateBillingContextsNotDeleted,
-    validateBillingIntegrationsNotDeleted,
     validateBillingIntegrationsSupportedByAcquiring,
     validateCanGroupReceiptsIfNeeded,
     validateCurrencyConsistency,
-    validateEntitiesNotDeleted,
     validateGroupedReceiptsHaveReceipts,
     validateInvoiceAcquiringContextsFinished,
     validateInvoicesArePublished,

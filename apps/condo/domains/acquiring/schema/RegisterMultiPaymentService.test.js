@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { pick } = require('lodash')
+const pick = require('lodash/pick')
 
 const {
     makeClient,
@@ -32,6 +32,7 @@ const {
     PAYMENT_PROCESSING_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 const {
     AcquiringIntegration,
     registerMultiPaymentByTestClient,
@@ -1064,16 +1065,7 @@ describe('RegisterMultiPaymentService', () => {
                 })
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, {
-                    mutation: 'registerMultiPayment',
-                    variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'RECEIPTS_ARE_DELETED',
-                    message: 'Cannot pay for deleted receipts {ids}',
-                    messageInterpolation: {
-                        ids: deletedReceiptId,
-                    },
-                })
+                }, ERRORS.CANNOT_FIND_ALL_RECEIPTS)
             })
             test('Should not be able to pay for deleted service consumer', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -1087,16 +1079,7 @@ describe('RegisterMultiPaymentService', () => {
                 })
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, {
-                    mutation: 'registerMultiPayment',
-                    variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'NOT_FOUND',
-                    message: 'Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore',
-                    messageInterpolation: {
-                        ids: deletedConsumerId,
-                    },
-                })
+                }, ERRORS.MISSING_SERVICE_CONSUMERS)
             })
 
             test('Should not be able to pay for deleted invoices', async () => {
@@ -1113,22 +1096,9 @@ describe('RegisterMultiPaymentService', () => {
                     status: INVOICE_STATUS_PUBLISHED,
                 })
 
-                await expectToThrowGQLError(
-                    async () => await registerMultiPaymentByTestClient(
-                        adminClient,
-                        null,
-                        { invoices: [pick(invoice, 'id')] },
-                    ),
-                    {
-                        mutation: 'registerMultiPayment',
-                        variable: ['data', 'invoices'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'NOT_FOUND',
-                        message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
-                        messageInterpolation: { ids: invoice.id },
-                    },
-                    'result',
-                )
+                await expectToThrowGQLErrorToResult(async () => {
+                    await registerMultiPaymentByTestClient(adminClient, null, { invoices: [pick(invoice, 'id')] })
+                }, ERRORS.CANNOT_FIND_ALL_INVOICES)
             })
 
             test('Should not be able to pay for consumer with deleted acquiring context', async () => {
@@ -1164,16 +1134,7 @@ describe('RegisterMultiPaymentService', () => {
                 })
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, {
-                    mutation: 'registerMultiPayment',
-                    variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                    messageInterpolation: {
-                        id: commonData.acquiringIntegration.id,
-                    },
-                })
+                }, ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND)
             })
             test('Should not be able to pay for receipt with deleted BillingIntegrationOrganizationContext', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -1184,28 +1145,10 @@ describe('RegisterMultiPaymentService', () => {
                 await updateTestBillingIntegrationOrganizationContext(commonData.admin, batches[0].billingContext.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
-                await catchErrorFrom(async () => {
+
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED',
-                            message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
-                            data: {
-                                failedReceipts: [{
-                                    receiptId: batches[0].billingReceipts[0].id,
-                                    contextId: batches[0].billingReceipts[0].context.id,
-                                }],
-                            },
-                        },
-                    }])
-                })
+                }, ERRORS.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER)
             })
             test('Should not be able to pay for BillingReceipt with deleted BillingIntegration', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -1216,27 +1159,9 @@ describe('RegisterMultiPaymentService', () => {
                 await updateTestBillingIntegration(commonData.admin, batches[0].billingIntegration.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'BillingReceipt has deleted BillingIntegration',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'RECEIPT_HAS_DELETED_BILLING_INTEGRATION',
-                            message: 'BillingReceipt has deleted BillingIntegration',
-                            data: {
-                                failedReceipts: [{
-                                    receiptId: batches[0].billingReceipts[0].id,
-                                    integrationId: batches[0].billingIntegration.id,
-                                }],
-                            },
-                        },
-                    }])
-                })
+                }, ERRORS.CANNOT_FIND_ALL_BILLING_INTEGRATION)
             })
             test('Should not be able to pay for deleted RecurrentPaymentContext', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -1278,16 +1203,7 @@ describe('RegisterMultiPaymentService', () => {
 
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload, extraArgs)
-                }, {
-                    mutation: 'registerMultiPayment',
-                    variable: ['data', 'recurrentPaymentContext', 'id'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'NOT_FOUND',
-                    message: 'RecurrentPaymentContext with following id: {id} is deleted',
-                    messageInterpolation: {
-                        id: recurrentContext.id,
-                    },
-                })
+                }, ERRORS.RECURRENT_PAYMENT_CONTEXT_NOT_FOUND)
             })
         })
         describe('RegisterMultiPayment check minimum and maximum amount', () => {

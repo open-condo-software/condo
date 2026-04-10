@@ -31,18 +31,15 @@ const {
     loadReceiptsByIds,
     loadResidentsByIds,
     loadServiceConsumersByIds,
-    resolveAcquiringContextsForConsumers,
-    resolveAcquiringContextsForInvoices,
+    loadAcquiringContextsForConsumers,
+    loadAcquiringContextsForInvoices,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/loaders')
 const {
-    validateAcquiringIntegrationIsActive,
+    validateAcquiringIntegrationExists,
     validateAllPaymentAmountsPositive,
-    validateBillingContextsNotDeleted,
-    validateBillingIntegrationsNotDeleted,
     validateBillingIntegrationsSupportedByAcquiring,
     validateCanGroupReceiptsIfNeeded,
     validateCurrencyConsistency,
-    validateEntitiesNotDeleted,
     validateGroupedReceiptsHaveReceipts,
     validateInvoiceAcquiringContextsFinished,
     validateInvoicesArePublished,
@@ -108,7 +105,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
 
                 let consumers, consumersByIds, receipts, receiptsByIds, foundInvoices
-                let billingContexts, billingContextsById, billingIntegrations, billingIntegrationCurrencyCode
+                let billingContexts, billingIntegrations, billingIntegrationCurrencyCode
                 let billingAccountsById, billingContextsByOrganizationId
                 let acquiringContexts, acquiringContextsByConsumerId
                 let residentsById
@@ -130,37 +127,26 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                     const loadedAccounts = await loadBillingAccountsByIds(receipts.map(({ account }) => account))
                     billingAccountsById = loadedAccounts.byId
-
-                    validateEntitiesNotDeleted(consumers, ERRORS.DELETED_CONSUMERS, context)
-                    validateEntitiesNotDeleted(receipts, ERRORS.RECEIPTS_ARE_DELETED, context)
+                    
                     validateReceiptsHavePositiveToPay(receipts, hasDistribution, context)
 
                     const loadedBillingContexts = await loadBillingContextsByIds(receipts.map(({ context }) => context))
                     billingContexts = loadedBillingContexts.list
-                    billingContextsById = loadedBillingContexts.byId
                     billingContextsByOrganizationId = await loadBillingContextsByOrganizationIds(consumers.map(({ organization }) => organization))
 
-                    const loadedBillingIntegrations = await loadBillingIntegrationsByIds(billingContexts.map(({ integration }) => integration))
+                    const loadedBillingIntegrations = await loadBillingIntegrationsByIds(billingContexts.map(({ integration }) => integration), context)
                     billingIntegrations = loadedBillingIntegrations.list
                     billingIntegrationCurrencyCode = billingIntegrations[0]?.currencyCode
 
-                    const resolvedAcquiringContexts = await resolveAcquiringContextsForConsumers(consumers, context)
-                    acquiringContexts = resolvedAcquiringContexts.list
-                    acquiringContextsByConsumerId = resolvedAcquiringContexts.byConsumerId
+                    const acquiringContextsForConsumers = await loadAcquiringContextsForConsumers(consumers, context)
+                    acquiringContexts = acquiringContextsForConsumers.list
+                    acquiringContextsByConsumerId = acquiringContextsForConsumers.byConsumerId
                 } else if (mode === REQUEST_MODE.INVOICES) {
                     const loadedInvoices = await loadInvoicesByIds(invoices.map(({ id }) => id), context)
                     foundInvoices = loadedInvoices.list
 
-                    const deletedInvoicesIds = foundInvoices.filter(({ deletedAt }) => !!deletedAt).map(({ id }) => id)
-                    if (deletedInvoicesIds.length) {
-                        throw new GQLError({
-                            ...ERRORS.DELETED_INVOICES,
-                            messageInterpolation: { ids: deletedInvoicesIds.join(',') },
-                        }, context)
-                    }
-
-                    const resolvedAcquiringContexts = await resolveAcquiringContextsForInvoices(foundInvoices, context)
-                    acquiringContexts = resolvedAcquiringContexts.list
+                    const acquiringContextsForInvoices = await loadAcquiringContextsForInvoices(foundInvoices, context)
+                    acquiringContexts = acquiringContextsForInvoices.list
                 } else {
                     throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
@@ -169,17 +155,15 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const [acquiringIntegrationId] = Array.from(new Set(acquiringContexts.map(item => item.integration)))
                 const acquiringIntegration = await loadAcquiringIntegration(acquiringIntegrationId, context)
+                validateAcquiringIntegrationExists(acquiringIntegration, context)
 
-                validateAcquiringIntegrationIsActive(acquiringIntegration, context)
                 if (mode === REQUEST_MODE.RECEIPTS) {
                     validateServiceConsumersBelongToCurrentUser(consumers, residentsById, context.authedItem.id, context)
                 }
 
                 if (mode === REQUEST_MODE.RECEIPTS) {
                     validateCanGroupReceiptsIfNeeded(receipts.length, acquiringIntegration, context)
-                    validateBillingContextsNotDeleted(billingContexts, receipts, context)
                     validateBillingIntegrationsSupportedByAcquiring(billingIntegrations, acquiringIntegration.supportedBillingIntegrationsGroup, context)
-                    validateBillingIntegrationsNotDeleted(billingIntegrations, receipts, billingContextsById, context)
                     validateCurrencyConsistency(billingIntegrations, context)
                     validateReceiptBelongsToServiceConsumer(
                         groupedReceipts,
@@ -197,7 +181,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
 
-                await validateRecurrentPaymentContext(recurrentPaymentContext, context)
+                if (recurrentPaymentContext){
+                    await validateRecurrentPaymentContext(recurrentPaymentContext.id, context)
+                }
 
                 const paymentCreateInputs = mode === REQUEST_MODE.RECEIPTS
                     ? await buildReceiptPaymentInputs({

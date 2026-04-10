@@ -2,7 +2,6 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { find } = require('@open-condo/keystone/schema')
 
 const {
     FEE_CALCULATION_PATH,
@@ -18,18 +17,9 @@ const {
     compactDistributionSettings,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { buildCommissionFields } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/helpers')
+const { loadBillingCategory } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/loaders')
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
-
-async function loadBillingCategory (billingCategoryId) {
-    if (!billingCategoryId) return null
-
-    const [billingCategory] = await find('BillingCategory', {
-        id: billingCategoryId,
-    })
-
-    return billingCategory
-}
 
 async function resolveReceiptAmount ({
     amountDistributionForReceipt,

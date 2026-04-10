@@ -13,11 +13,34 @@ function groupBy (items, key) {
     }, {})
 }
 
+async function loadRecurrentPaymentContext (contextId) {
+    if (!contextId) return
+
+    const [recurrentContext] = await find('RecurrentPaymentContext', {
+        id: contextId,
+        deletedAt: null,
+    })
+
+    return recurrentContext
+}
+
+async function loadBillingCategory (billingCategoryId) {
+    if (!billingCategoryId) return
+
+    const [billingCategory] = await find('BillingCategory', {
+        id: billingCategoryId,
+        deletedAt: null,
+    })
+
+    return billingCategory
+}
+
 async function loadServiceConsumersByIds (consumerIds, context) {
     const uniqueIds = [...new Set(consumerIds)]
 
     const consumers = await find('ServiceConsumer', {
         id_in: uniqueIds,
+        deletedAt: null,
     })
 
     const byId = {}
@@ -40,6 +63,7 @@ async function loadServiceConsumersByIds (consumerIds, context) {
 async function loadReceiptsByIds (receiptIds, context) {
     const receipts = await find('BillingReceipt', {
         id_in: receiptIds,
+        deletedAt: null,
     })
 
     if (receipts.length !== receiptIds.length) {
@@ -53,7 +77,10 @@ async function loadReceiptsByIds (receiptIds, context) {
 }
 
 async function loadInvoicesByIds (invoiceIds, context) {
-    const invoices = await find('Invoice', { id_in: [...new Set(invoiceIds)] })
+    const invoices = await find('Invoice', { 
+        id_in: [...new Set(invoiceIds)],
+        deletedAt: null,
+    })
 
     if (invoices.length !== invoiceIds.length) {
         const existingInvoicesIds = new Set(invoices.map(({ id }) => id))
@@ -68,6 +95,7 @@ async function loadInvoicesByIds (invoiceIds, context) {
 async function loadResidentsByIds (residentIds) {
     const residents = await find('Resident', {
         id_in: [...new Set(residentIds)],
+        deletedAt: null,
     })
     const byId = Object.assign({}, ...residents.map(obj => ({ [obj.id]: obj })))
     return { byId, list: residents }
@@ -76,6 +104,7 @@ async function loadResidentsByIds (residentIds) {
 async function loadBillingContextsByIds (contextIds) {
     const billingContexts = await find('BillingIntegrationOrganizationContext', {
         id_in: [...new Set(contextIds)],
+        deletedAt: null,
     })
     const byId = Object.assign({}, ...billingContexts.map(obj => ({ [obj.id]: obj })))
     return { byId, list: billingContexts }
@@ -90,10 +119,15 @@ async function loadBillingContextsByOrganizationIds (organizationIds) {
     return groupBy(billingContexts, 'organization')
 }
 
-async function loadBillingIntegrationsByIds (integrationIds) {
+async function loadBillingIntegrationsByIds (integrationIds, context) {
     const billingIntegrations = await find('BillingIntegration', {
         id_in: [...new Set(integrationIds)],
+        deletedAt: null,
     })
+
+    if (integrationIds.length !== billingIntegrations.length) {
+        throw new GQLError(ERRORS.CANNOT_FIND_ALL_BILLING_INTEGRATION, context)
+    }
     
     const byId = {}
     for (const integration of billingIntegrations) {
@@ -106,20 +140,24 @@ async function loadBillingIntegrationsByIds (integrationIds) {
 async function loadBillingAccountsByIds (accountIds) {
     const accounts = await find('BillingAccount', {
         id_in: [...new Set(accountIds)],
+        deletedAt: null,
     })
     const byId = Object.assign({}, ...accounts.map(obj => ({ [obj.id]: obj })))
     return { byId, list: accounts }
 }
 
 async function loadAcquiringIntegration (integrationId) {
+    if (!integrationId) return
+
     const [acquiringIntegration] = await find('AcquiringIntegration', {
         id: integrationId,
+        deletedAt: null,
     })
 
     return acquiringIntegration
 }
 
-function buildResolvedAcquiringContextMaps ({
+function resolveAcquiringContextMaps ({
     acquiringContexts,
     entityIdsByOrganizationId,
     context,
@@ -160,7 +198,7 @@ function buildResolvedAcquiringContextMaps ({
     }
 }
 
-async function resolveAcquiringContextsForConsumers (consumers, context) {
+async function loadAcquiringContextsForConsumers (consumers, context) {
     const entityIdsByOrganizationId = consumers.reduce((acc, consumer) => {
         acc[consumer.organization] = [...(acc[consumer.organization] || []), consumer.id]
         return acc
@@ -170,7 +208,7 @@ async function resolveAcquiringContextsForConsumers (consumers, context) {
         integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE },
         deletedAt: null,
     })
-    const resolvedContexts = buildResolvedAcquiringContextMaps({
+    const resolvedContexts = resolveAcquiringContextMaps({
         acquiringContexts,
         entityIdsByOrganizationId,
         context,
@@ -185,7 +223,7 @@ async function resolveAcquiringContextsForConsumers (consumers, context) {
     }
 }
 
-async function resolveAcquiringContextsForInvoices (foundInvoices, context) {
+async function loadAcquiringContextsForInvoices (foundInvoices, context) {
     const entityIdsByOrganizationId = foundInvoices.reduce((acc, invoice) => {
         acc[invoice.organization] = [...(acc[invoice.organization] || []), invoice.id]
         return acc
@@ -196,7 +234,7 @@ async function resolveAcquiringContextsForInvoices (foundInvoices, context) {
         deletedAt: null,
     })
 
-    return buildResolvedAcquiringContextMaps({
+    return resolveAcquiringContextMaps({
         acquiringContexts,
         entityIdsByOrganizationId,
         context,
@@ -206,13 +244,15 @@ async function resolveAcquiringContextsForInvoices (foundInvoices, context) {
 module.exports = {
     loadAcquiringIntegration,
     loadBillingAccountsByIds,
+    loadBillingCategory,
     loadBillingContextsByIds,
     loadBillingContextsByOrganizationIds,
     loadBillingIntegrationsByIds,
     loadInvoicesByIds,
+    loadRecurrentPaymentContext,
     loadReceiptsByIds,
     loadResidentsByIds,
     loadServiceConsumersByIds,
-    resolveAcquiringContextsForConsumers,
-    resolveAcquiringContextsForInvoices,
+    loadAcquiringContextsForConsumers,
+    loadAcquiringContextsForInvoices,
 }
