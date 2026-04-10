@@ -1010,6 +1010,7 @@ __metadata:
     commander: 14.0.1
     express: ^4.17.1
     graphql: ^16.10.0
+    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
@@ -1017,6 +1018,7 @@ __metadata:
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
+    socks-proxy-agent: ^8.0.3
   languageName: unknown
   linkType: soft
 
@@ -1780,18 +1782,20 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
     "@types/node": ^22
-    axios: ^1.11.0
     commander: 14.0.1
     cross-env: ^7.0.3
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
+    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
+    node-telegram-bot-api: ^0.66.0
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
+    socks-proxy-agent: ^8.0.3
   languageName: unknown
   linkType: soft
 
