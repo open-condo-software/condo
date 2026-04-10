@@ -1782,7 +1782,6 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
     "@types/node": ^22
-    axios: ^1.11.0
     commander: 14.0.1
     cross-env: ^7.0.3
     express: ^4.17.1
