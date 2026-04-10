@@ -7,7 +7,9 @@ const fs = require('fs')
 const dayjs = require('dayjs')
 const got = require('got')
 
+
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { KVLock } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -80,6 +82,12 @@ const ERRORS = {
 }
 
 const logger = getLogger()
+const kvLocker = new KVLock({
+    retryCount: 10,
+    retryDelay: 500,
+    retryJitter: 100,
+    lockDuration: 30_000,
+})
 
 function getExportIdField (environment) {
     return `${environment}ExportId`
@@ -451,6 +459,24 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
     }
 }
 
+function wrapWithLock (originalResolver) {
+    return async function (parent, args, contextValue, info) {
+        const { data: { app: { id }, environment } } = args
+
+        const lockKey = `publishB2CApp:${id}:${environment}`
+        const lock = await kvLocker.acquire(lockKey)
+
+        try {
+            return await originalResolver(parent, args, contextValue, info)
+        } catch (e) {
+            await lock.release()
+            throw e
+        } finally {
+            await lock.release()
+        }
+    }
+}
+
 const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
     types: [
         {
@@ -475,7 +501,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
         {
             access: access.canPublishB2CApp,
             schema: 'publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput',
-            resolver: async (parent, args, context) => {
+            resolver: wrapWithLock(async (parent, args, context) => {
                 const { data: { app: { id }, options, environment, dv, sender } } = args
 
                 const publishingTime = dayjs().toISOString()
@@ -577,7 +603,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                 return {
                     success: true,
                 }
-            },
+            }),
         },
     ],
 })

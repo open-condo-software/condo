@@ -186,7 +186,7 @@ describe('PublishB2CAppService', () => {
             })
             test('Info must be included if app was not published before', async () => {
                 await expectToThrowGQLError(async () => {
-                    await publishB2CAppByTestClient(user, app, {})
+                    await publishB2CAppByTestClient(user, app, {}, PROD_ENVIRONMENT)
                 }, {
                     code: BAD_USER_INPUT,
                     type: FIRST_PUBLISH_WITHOUT_INFO,
@@ -205,7 +205,6 @@ describe('PublishB2CAppService', () => {
                 expect(createdCondoApp).toHaveProperty('importId', apiApp.id)
                 expect(createdCondoApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
                 expect(createdCondoApp).toHaveProperty('deletedAt', null)
-                expect(createdCondoApp).toHaveProperty('v', 1)
 
                 const [secondResult] = await publishB2CAppByTestClient(user, app, { info: true })
                 expect(secondResult).toHaveProperty('success', true)
@@ -215,7 +214,8 @@ describe('PublishB2CAppService', () => {
                 expect(updatedCondoApp).toHaveProperty('importId', apiApp.id)
                 expect(updatedCondoApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
                 expect(updatedCondoApp).toHaveProperty('deletedAt', null)
-                expect(updatedCondoApp).toHaveProperty('v', 2)
+                expect(updatedCondoApp).toHaveProperty('v')
+                expect(updatedCondoApp.v).toBeGreaterThan(createdCondoApp.v)
             })
             test('Condo app must be recreated in case of deletion', async () => {
                 const [firstResult] = await publishB2CAppByTestClient(user, app, { info: true })
@@ -807,7 +807,7 @@ describe('PublishB2CAppService', () => {
                 const [app] = await createTestB2CApp(user)
 
                 // NOTE: app was imported before .accessRight option exists
-                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false } })
+                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false, conflictPolicy: 'delete' } })
 
                 const confirmAction = await verifyEmailByTestClient(user, admin)
                 const [registerResult] = await registerAppUserServiceByTestClient(user, app, confirmAction)

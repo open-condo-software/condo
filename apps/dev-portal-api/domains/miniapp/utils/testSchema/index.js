@@ -7,6 +7,7 @@ const { faker } = require('@faker-js/faker')
 const conf = require('@open-condo/config')
 const path = require('path')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { waitFor } = require('@open-condo/keystone/test.utils')
 const { buildFakeAddressAndMeta } = require('@app/condo/domains/property/utils/testSchema/factories')
 const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/utils/testSchema')
 
@@ -268,6 +269,13 @@ async function createTestB2CApp (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await B2CApp.create(client, attrs)
+
+    await waitFor(async () => {
+        const app = await B2CApp.getOne(client, { id: obj.id })
+        if (!app.developmentPublishedAt) throw new Error('auto-publishing not finished in time')
+    })
+
+
     return [obj, attrs]
 }
 
@@ -451,7 +459,7 @@ async function importB2CAppByTestClient(client, app, condoDevApp = null, condoPr
         sender,
         to: { app: { id: app.id } },
         from,
-        options: { info: true, builds: true, publish: true, accessRight: true },
+        options: { info: true, builds: true, publish: true, accessRight: true, conflictPolicy: 'delete' },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(IMPORT_B2C_APP_MUTATION, { data: attrs })

@@ -16,17 +16,20 @@ const {
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
     UploadingFile,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const { INVALID_MIMETYPE } = require('@dev-portal-api/domains/common/constants/errors')
 const { B2C_APP_CORDOVA_TYPE, B2C_APP_WEB_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
-const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { AVAILABLE_ENVIRONMENTS, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { getEnvironmentalFieldName } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
 const {
     B2CApp,
     createTestB2CApp,
     updateTestB2CApp,
     updateTestB2CApps,
+    createTestB2CAppPublishRequest,
+    updateTestB2CAppPublishRequest,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
@@ -34,8 +37,13 @@ const {
     makeRegisteredAndLoggedInUser,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
+
 const PNG_LOGO_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 const JPG_LOGO_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.jpg')
+
+async function sleep (ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 describe('B2CApp', () => {
     let admin
@@ -298,6 +306,65 @@ describe('B2CApp', () => {
                             await updateTestB2CApp(actor, app.id, { [fieldName]: dayjs().toISOString() })
                         })
                     })
+                })
+            })
+        })
+    })
+    describe('Tasks', () => {
+        describe('publishB2CApp', () => {
+            test('Must automatically sync app data for development environment on save', async () => {
+                const [app] = await createTestB2CApp(user)
+
+                let developmentPublishedAt = null
+
+                await waitFor(async () => {
+                    const updatedApp = await B2CApp.getOne(user, { id: app.id })
+                    developmentPublishedAt = updatedApp.developmentPublishedAt
+                    expect(updatedApp).toHaveProperty('developmentPublishedAt')
+                    expect(updatedApp.developmentPublishedAt).not.toBeNull()
+                })
+
+                await updateTestB2CApp(user, app.id, { name: faker.commerce.product() })
+
+                await waitFor(async () => {
+                    const updatedApp = await B2CApp.getOne(user, { id: app.id })
+                    expect(updatedApp).toHaveProperty('developmentPublishedAt')
+                    expect(updatedApp.developmentPublishedAt).not.toBeNull()
+
+                    const newDevelopmentPublishedAt = updatedApp.developmentPublishedAt
+                    expect(newDevelopmentPublishedAt).not.toEqual(developmentPublishedAt)
+                })
+            })
+            test('Must automatically sync app data for production environment on save if has approved B2CAppPublishRequest', async () => {
+                const [app] = await createTestB2CApp(user)
+
+                const [request] = await createTestB2CAppPublishRequest(support, app, {
+                    isAppTested: true,
+                    isContractSigned: true,
+                    isInfoApproved: true,
+                })
+
+                expect(request).toHaveProperty('status')
+                expect(request.status).not.toEqual(PUBLISH_REQUEST_APPROVED_STATUS)
+
+                await updateTestB2CApp(user, app.id, { name: faker.commerce.product() })
+
+                // NOTE: good way to test this to check for no scheduled tasks, but this way is ok for now
+                await sleep(3_000)
+
+                const updatedApp = await B2CApp.getOne(user, { id: app.id })
+                expect(updatedApp).toHaveProperty('productionPublishedAt')
+                expect(updatedApp.productionPublishedAt).toBeNull()
+
+                const [updatedRequest] = await updateTestB2CAppPublishRequest(support, request.id, { status: PUBLISH_REQUEST_APPROVED_STATUS })
+                expect(updatedRequest).toHaveProperty('status', PUBLISH_REQUEST_APPROVED_STATUS)
+
+                await updateTestB2CApp(user, app.id, { name: faker.commerce.product() })
+
+                await waitFor(async () => {
+                    const updatedApp = await B2CApp.getOne(user, { id: app.id })
+                    expect(updatedApp).toHaveProperty('productionPublishedAt')
+                    expect(updatedApp.productionPublishedAt).not.toBeNull()
                 })
             })
         })

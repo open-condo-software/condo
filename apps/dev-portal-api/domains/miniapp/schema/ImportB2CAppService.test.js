@@ -115,11 +115,13 @@ describe('ImportB2CAppService', () => {
                 expect(updatedProdApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
             })
             test('App info must not be updated if options.info set to false', async () => {
-                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: false, builds: true, publish: true, accessRight: true } })
+                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: false, builds: true, publish: true, accessRight: true, conflictPolicy: 'delete' } })
                 expect(result).toHaveProperty('success', true)
 
                 const updatedApp = await B2CApp.getOne(support, { id: app.id })
-                expect(updatedApp).toHaveProperty('v', 1)
+                expect(updatedApp.name).not.toBeNull()
+                expect(updatedApp.name).not.toEqual(condoDevApp.name)
+                expect(updatedApp.name).not.toEqual(condoProdApp.name)
             })
         })
         describe('App builds', () => {
@@ -209,13 +211,13 @@ describe('ImportB2CAppService', () => {
                 const [condoProdApp] = await createCondoB2CApp(condoAdmin)
                 await createCondoB2CAppBuild(condoAdmin, condoProdApp)
 
-                const [firstResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: false, publish: true, accessRight: true } })
+                const [firstResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: false, publish: true, accessRight: true, conflictPolicy: 'setNull' } })
                 expect(firstResult).toHaveProperty('success', true)
 
                 const allBuilds = await B2CAppBuild.getAll(support, { app: { id: app.id } })
                 expect(allBuilds).toHaveLength(0)
 
-                const [secondResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: true, accessRight: true } })
+                const [secondResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: true, accessRight: true, conflictPolicy: 'delete' } })
                 expect(secondResult).toHaveProperty('success', true)
 
                 const allNewBuilds = await B2CAppBuild.getAll(support, { app: { id: app.id } })
@@ -261,7 +263,7 @@ describe('ImportB2CAppService', () => {
                 const [app] = await createTestB2CApp(user)
                 const [condoDevApp] = await createCondoB2CApp(condoAdmin)
 
-                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: false, accessRight: true } })
+                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: false, accessRight: true, conflictPolicy: 'delete' } })
                 expect(result).toHaveProperty('success', true)
 
                 const request = await B2CAppPublishRequest.getOne(support, { app: { id: app.id } })
