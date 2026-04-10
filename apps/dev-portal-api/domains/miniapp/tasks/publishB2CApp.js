@@ -20,17 +20,13 @@ async function publishB2CApp (appId, environment) {
         }
     }
 
-    try {
-        await publishB2CAppMutation(context, {
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'publish-b2c-app-task' },
-            app: { id: appId },
-            environment,
-            options: { info: true },
-        })
-    } catch (e) {
-        console.error(e)
-    }
+    await publishB2CAppMutation(context, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: 'publish-b2c-app-task' },
+        app: { id: appId },
+        environment,
+        options: { info: true },
+    })
 }
 
 module.exports = {
