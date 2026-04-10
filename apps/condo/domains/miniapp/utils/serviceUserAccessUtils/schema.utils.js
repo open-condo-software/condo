@@ -21,7 +21,7 @@ const READ_ONLY_PERMISSION_FIELD = {
     },
 }
 
-const getReadOnlyPermissionsFieldsNames = (config) => {
+function getReadOnlyPermissionsFieldsNames (config) {
     return Object.entries(config.lists)
         .map(([schemaName, schemaConfig]) => {
             const readOnlyFieldsBySchema = []
@@ -36,8 +36,16 @@ const getReadOnlyPermissionsFieldsNames = (config) => {
         .flat()
 }
 
-const getListsPermissionsFieldsNames = (config) => {
-    return Object.entries(config.lists)
+function getStaticPermissionsFieldsNames (config) {
+    const staticListsConfig = Object.fromEntries(Object.entries(config.lists).filter(([_, schemaConfig]) => schemaConfig.isStatic))
+    const staticServicesConfig = Object.fromEntries(Object.entries(config.services).filter(([_, schemaConfig]) => schemaConfig.isStatic))
+    const staticListPermissions = getListsPermissionsFieldsNames(staticListsConfig)
+    const staticServicesPermissions = getServicesPermissionsFieldsNames(staticServicesConfig)
+    return staticListPermissions.concat(staticServicesPermissions)
+}
+
+function getListsPermissionsFieldsNames (lists) {
+    return Object.entries(lists)
         .map(([schemaName]) => {
             const canReadName = `canRead${pluralize.plural(schemaName)}`
             const canManageName = `canManage${pluralize.plural(schemaName)}`
@@ -46,13 +54,15 @@ const getListsPermissionsFieldsNames = (config) => {
         .flat()
 }
 
-const getServicesPermissionsFieldsNames = (config) => Object.entries(config.services).map(([schemaName]) => `canExecute${upperFirst(schemaName)}`)
+function getServicesPermissionsFieldsNames (services) {
+    return Object.entries(services).map(([schemaName]) => `canExecute${upperFirst(schemaName)}`)
+}
 
 /**
  * @param permissionFieldName {string}
  * @return {string}
  */
-const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
+function getSchemaDocForReadOnlyPermissionField (permissionFieldName) {
     if (!isString(permissionFieldName) || permissionFieldName.trim().length < 1) throw new Error('"permissionFieldName" must be not empty string!')
 
     if (permissionFieldName.startsWith('canRead')) {
@@ -133,16 +143,20 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  * @param {B2bAppServiceUserAccessConfig | B2cAppServiceUserAccessConfig} config  - Determines which models can be accessed by a service user linked to a B2B app
  * @return {Record<string, Object>}
  */
-const generatePermissionFields = ({ config }) => {
+function generatePermissionFields ({ config }) {
     if (!isObject(config)) throw new Error('Config not object!')
 
-    const allListsPermissionsFieldsNames = getListsPermissionsFieldsNames(config)
+    const allListsPermissionsFieldsNames = getListsPermissionsFieldsNames(config.lists)
     const readOnlyListsPermissionsFieldsNames = getReadOnlyPermissionsFieldsNames(config)
-    const allServicesPermissionsFieldsNames = getServicesPermissionsFieldsNames(config)
+    const allServicesPermissionsFieldsNames = getServicesPermissionsFieldsNames(config.services)
+    const allStaticPermissionsFieldsNames = new Set(getStaticPermissionsFieldsNames(config))
 
     const permissionFields = {}
 
     for (const permissionFieldName of allListsPermissionsFieldsNames) {
+        if (allStaticPermissionsFieldsNames.has(permissionFieldName)) {
+            continue
+        }
         if (readOnlyListsPermissionsFieldsNames.includes(permissionFieldName)) {
             permissionFields[permissionFieldName] = {
                 ...READ_ONLY_PERMISSION_FIELD,
@@ -154,6 +168,9 @@ const generatePermissionFields = ({ config }) => {
     }
 
     for (const permissionFieldName of allServicesPermissionsFieldsNames) {
+        if (allStaticPermissionsFieldsNames.has(permissionFieldName)) {
+            continue
+        }
         permissionFields[permissionFieldName] = PERMISSION_FIELD
     }
 

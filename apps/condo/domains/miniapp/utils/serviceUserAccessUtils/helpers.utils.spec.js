@@ -4,6 +4,7 @@ const {
     generateGqlDataPartToField,
     generateGqlQueryToFieldAsString,
     getFilterByFieldPathValues,
+    getFilterByFieldPathValue,
 } = require('./helpers.utils')
 
 
@@ -137,7 +138,7 @@ describe('Helper functions', () => {
         })
     })
 
-    describe('getFilterByOrganizationIds', () => {
+    describe('getFilterByFieldPathValues', () => {
         const organizationIds = [faker.datatype.uuid()]
         const validCases = [
             {
@@ -229,6 +230,51 @@ describe('Helper functions', () => {
 
         test.each(invalidCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationIds }, error }) => {
             expect(() => getFilterByFieldPathValues(pathToOrganizationId, organizationIds)).toThrow(error)
+        })
+    })
+
+    describe('getFilterByFieldPathValue', () => {
+        const testCases = [
+            {
+                input: {
+                    pathToField: ['field1', 'field2', 'field3'],
+                    fieldValue: { app: { accessRights_some: { user: { id: 'asd' }, rightsSet: { canManage: true } } } },
+                },
+                output: {
+                    deletedAt: null,
+                    field1: {
+                        deletedAt: null,
+                        field2: {
+                            deletedAt: null,
+                            field3: {
+                                deletedAt: null,
+                                app: { accessRights_some: { user: { id: 'asd' }, rightsSet: { canManage: true } } },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                input: {
+                    pathToField: ['a', 'b', 'c_in'],
+                    fieldValue: ['1', '2', '3'],
+                },
+                output: {
+                    'a': {
+                        'b': {
+                            'c_in': ['1', '2', '3'],
+                            deletedAt: null,
+                        },
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                },
+            },
+        ]
+
+        test.each(testCases)('getFilter($input)', async ({ input, output: expectedOutput }) => {
+            const output = getFilterByFieldPathValue(input.pathToField, input.fieldValue)
+            expect(output).toEqual(expectedOutput)
         })
     })
 })

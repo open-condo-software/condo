@@ -4,7 +4,7 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canReadObjectsAsB2CAppServiceUserWithoutSpecificRights } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/server.utils')
+const { canReadObjectsAsB2CAppServiceUser } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/server.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -19,7 +19,7 @@ async function canReadB2CAppAccessRightSets (args) {
     if (hasDirectAccess) return true
 
     if (user.type === SERVICE) {
-        return canReadObjectsAsB2CAppServiceUserWithoutSpecificRights(args)
+        return canReadObjectsAsB2CAppServiceUser(args)
     }
     return false
 }

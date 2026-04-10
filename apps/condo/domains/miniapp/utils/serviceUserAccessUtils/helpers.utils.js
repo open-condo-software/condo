@@ -15,7 +15,7 @@ const pluralize = require('pluralize')
  * Input: ['a', 'b', 'c']
  * Output: '{ a { b { c } } }'
  */
-const generateGqlDataPartToField = (pathToField) => {
+function generateGqlDataPartToField (pathToField) {
     if (!pathToField || !isArray(pathToField) || isEmpty(pathToField)) throw new Error('"pathToField" should not be empty array')
     return `{ ${pathToField.join(' { ')}${' }'.repeat(pathToField.length)}`
 }
@@ -34,7 +34,7 @@ const generateGqlDataPartToField = (pathToField) => {
  *         }
  *     `
  */
-const generateGqlQueryToFieldAsString = (listKey, pathToField) => {
+function generateGqlQueryToFieldAsString (listKey, pathToField) {
     if (!isString(listKey) || listKey.trim().length < 1) throw new Error('"listKey" must not be empty string!')
     if (!pathToField || !isArray(pathToField) || isEmpty(pathToField)) throw new Error('"pathToField" should not be empty array')
 
@@ -59,7 +59,7 @@ const generateGqlQueryToFieldAsString = (listKey, pathToField) => {
  *         }
  *     `
  */
-const generateGqlQueryToField = memoize((schemaName, pathToField) => {
+const generateGqlQueryToField = memoize(function (schemaName, pathToField) {
     if (schemaName && (!isString(schemaName) || schemaName.trim().length < 1)) throw new Error(`"schemaName" should be not empty string! But was: "${schemaName}"`)
     if (!pathToField || !isArray(pathToField) || isEmpty(pathToField)) throw new Error('"pathToField" should not be empty array')
     if (pathToField.length < 1) throw new Error(`To generate gql "pathToField" must contain at least one elements! But was ${pathToField}`)
@@ -86,7 +86,7 @@ const generateGqlQueryToField = memoize((schemaName, pathToField) => {
  *     deletedAt, null,
  * }
  */
-const getFilterByFieldPathValues = (pathToField, fieldValues) => {
+function getFilterByFieldPathValues (pathToField, fieldValues) {
     if (!isArray(pathToField) || isEmpty(pathToField)) throw new Error('"pathToField" must be not empty array!')
     if (!isArray(fieldValues)) throw new Error('"fieldValues" must be array!')
 
@@ -103,8 +103,25 @@ const getFilterByFieldPathValues = (pathToField, fieldValues) => {
     }
 }
 
+function getFilterByFieldPathValue (pathToField, fieldValue) {
+    if (!isArray(pathToField) || isEmpty(pathToField)) throw new Error('"pathToField" must be not empty array!')
+
+    if (pathToField.length === 1) {
+        return {
+            [pathToField[0]]: fieldValue,
+            deletedAt: null,
+        }
+    }
+
+    return {
+        [pathToField[0]]: getFilterByFieldPathValue(pathToField.slice(1), fieldValue),
+        deletedAt: null,
+    }
+}
+
 module.exports = {
     getFilterByFieldPathValues,
+    getFilterByFieldPathValue,
     generateGqlQueryToField,
     generateGqlDataPartToField,
     generateGqlQueryToFieldAsString,

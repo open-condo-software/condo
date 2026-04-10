@@ -6,64 +6,53 @@ const isString = require('lodash/isString')
 const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
-const {
-    createInstance: createAddressServiceClientInstance,
-} = require('@open-condo/clients/address-service-client')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getById, getSchemaCtx, getByCondition } = require('@open-condo/keystone/schema')
 
 const { B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/config')
-const { generateGqlQueryToField, getFilterByFieldPathValues } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
+const { generateGqlQueryToField, getFilterByFieldPathValue } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function fetchAddressKey (address) {
-    try {
-        const client = createAddressServiceClientInstance()
-        const result = await client.search(address)
-        return get(result, 'addressKey', null)
-    } catch (error) {
-        return null
+function getB2CAppFilter ({ user, permissionKey, isPermissionStatic }) {
+    return {
+        deletedAt: null,
+        accessRights_some: {
+            user: { id: user.id },
+            deletedAt: null,
+            ...(isPermissionStatic 
+                ? null 
+                : {
+                    accessRightSet: {
+                        [permissionKey]: true,
+                        deletedAt: null,
+                    },
+                }),
+        },
     }
 }
 
 /**
  * @return {Promise<Record<string, any>|false>}
  */
-async function canReadByServiceUser ({ authentication: { item: user }, args, listKey, context }, schemaConfig) {
+async function canReadByServiceUser (args, schemaConfig) {
+    const { authentication: { item: user }, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (!listKey) return false
 
-    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey')
-    if (!pathToAddressKey) return false
+    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey', null)
+    if (pathToAddressKey) {
+        throw new Error('"pathToAddressKey" is not supported for read operations for now')
+    }
+
+    const pathToB2CApp = get(schemaConfig, 'pathToB2CApp', ['app'])
+    if (!pathToB2CApp) return false
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
 
-    const B2CAppProperties = await find('B2CAppProperty', {
-        app: {
-            deletedAt: null,
-            accessRights_some: {
-                user: { id: user.id },
-                deletedAt: null,
-                accessRightSet: {
-                    [permissionKey]: true,
-                    deletedAt: null,
-                },
-            },
-        },
-        deletedAt: null,
-    })
-
-    const b2cAppPropertyAddressKeys = B2CAppProperties
-        // Maybe need to check for property availability (virtual, needs calculations here)
-        //.filter(b2cAppProperty => b2cAppProperty.isAvailable)
-        .map(ctx => ctx.addressKey)
-
-    if (!b2cAppPropertyAddressKeys || isEmpty(b2cAppPropertyAddressKeys)) return false
-
-    return getFilterByFieldPathValues(pathToAddressKey, b2cAppPropertyAddressKeys)
+    return getFilterByFieldPathValue(pathToB2CApp, getB2CAppFilter({ user, isPermissionStatic: schemaConfig.isStatic, permissionKey }))
 }
 
 async function canManageByServiceUser ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) {
@@ -76,28 +65,28 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
     if (isBulkRequest) return false
 
-    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey')
-    const pathToAddress = get(schemaConfig, 'pathToAddress')
+    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey', null)
+    if (pathToAddressKey) {
+        throw new Error('"pathToAddressKey" is not supported for write operations for now')
+    }
 
-    if (!pathToAddressKey) return false
+    const pathToB2CApp = get(schemaConfig, 'pathToB2CApp', ['app'])
+    if (!pathToB2CApp) return false
+    const pathToB2CAppId = [...pathToB2CApp, 'id']
 
-    let addressKey
+    let b2cAppId = null
 
     if (operation === 'create') {
-        // addressKey is present in schema we want to change
-        if (pathToAddressKey.length === 1) {
-            // NOTE(YEgorLu): We don't have "addressKey" here yet
-            if (!pathToAddress) return false
-            const address = get(originalInput, pathToAddress, null)
-            if (!address) return false
-            addressKey = await fetchAddressKey(address)
-        // addressKey is present in already created relationship
-        } else if (pathToAddressKey.length > 1) {
-            const parentObjectId = get(originalInput, [pathToAddressKey[0], 'connect', 'id'], null)
+        if (pathToB2CAppId.length === 1) {
+            b2cAppId = get(originalInput, pathToB2CAppId, null)
+        }  else if (pathToB2CAppId.length === 2) {
+            b2cAppId = get(originalInput, [pathToB2CAppId[0], 'connect', pathToB2CAppId[1]], null)
+        } else if (pathToB2CAppId.length > 2) {
+            const parentObjectId = get(originalInput, [pathToB2CAppId[0], 'connect', 'id'], null)
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQueryToField(parentSchemaName, pathToAddressKey.slice(1)),
+                query: generateGqlQueryToField(parentSchemaName, pathToB2CAppId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -107,7 +96,7 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
             if (!parentObject) return false
 
-            addressKey = get(parentObject, pathToAddressKey.slice(1))
+            b2cAppId = get(parentObject, pathToB2CAppId.slice(1))
         }
     } else if (operation === 'update') {
         if (!itemId) return false // NOTE(YEgorLu): maybe add support for bulk requests later
@@ -115,14 +104,14 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
         const item = await getById(listKey, itemId)
         if (!item) return false
 
-        if (pathToAddressKey.length === 1) {
-            addressKey = get(item, [pathToAddressKey[0]], null)
-        } else if (pathToAddressKey.length > 1) {
-            const parentObjectId = get(item, [pathToAddressKey[0]])
+        if (pathToB2CAppId.length === 1 || pathToB2CAppId.length === 2) {
+            b2cAppId = get(item, [pathToB2CAppId[0]], null)
+        } else if (pathToB2CAppId.length > 2) {
+            const parentObjectId = get(item, [pathToB2CAppId[0]])
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQueryToField(parentSchemaName, pathToAddressKey.slice(1)),
+                query: generateGqlQueryToField(parentSchemaName, pathToB2CAppId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -132,33 +121,21 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
             if (!parentObject) return false
 
-            addressKey = get(parentObject, pathToAddressKey.slice(1))
+            b2cAppId = get(parentObject, pathToB2CAppId.slice(1))
         }
     }
 
-    if (!addressKey) return false
+    if (!b2cAppId) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
 
-    const B2CAppProperties = await find('B2CAppProperty', {
-        addressKey: addressKey,
-        app: {
-            deletedAt: null,
-            accessRights_some: {
-                user: { id: user.id },
-                deletedAt: null,
-                accessRightSet: {
-                    [permissionKey]: true,
-                    deletedAt: null,
-                },
-            },
-        },
+    const b2cApp = await getByCondition('B2CApp', {
+        ...getB2CAppFilter({ user, isPermissionStatic: schemaConfig.isStatic, permissionKey }),
+        id: b2cAppId,
         deletedAt: null,
     })
 
-    // Maybe need to check for property availability (virtual, needs calculations here)
-    //return !isEmpty(B2CAppProperties.filter(b2cAppProperty => b2cAppProperty.isAvailable))
-    return !isEmpty(B2CAppProperties)
+    return !!b2cApp
 }
 
 async function canExecuteByServiceUser (params, serviceConfig) {
@@ -168,33 +145,31 @@ async function canExecuteByServiceUser (params, serviceConfig) {
 
     if (!gqlName) return false
 
-    const pathToAddressKey = get(serviceConfig, 'pathToAddressKey')
+    const pathToAddressKey = get(serviceConfig, 'pathToAddressKey', ['addressKey'])
     if (!pathToAddressKey) return false
 
     const addressKey = get(args, pathToAddressKey, null)
     if (!addressKey) return false
 
+    const pathToB2CApp = get(serviceConfig, 'pathToB2CApp', ['app'])
+    if (!pathToB2CApp) return false
+
+    const b2cAppId = get(args, [...pathToB2CApp, 'id'], null)
+    if (!b2cAppId) return false
+
     const permissionKey = `canExecute${upperFirst(gqlName)}`
 
-    const B2CAppProperties = await find('B2CAppProperty', {
-        addressKey: addressKey,
-        app: {
-            deletedAt: null,
-            accessRights_some: {
-                user: { id: user.id },
-                deletedAt: null,
-                accessRightSet: {
-                    [permissionKey]: true,
-                    deletedAt: null,
-                },
-            },
-        },
+    const b2cAppProperty = await getByCondition('B2CAppProperty', {
         deletedAt: null,
+        addressKey,
+        app: {
+            ...getB2CAppFilter({ user, isPermissionStatic: serviceConfig.isStatic, permissionKey }),
+            id: b2cAppId,
+            deletedAt: null, 
+        },
     })
 
-    // Maybe need to check for property availability (virtual, needs calculations here)
-    // return !isEmpty(B2CAppProperties.filter(b2cAppProperty => b2cAppProperty.isAvailable))
-    return !isEmpty(B2CAppProperties)
+    return !!b2cAppProperty
 }
 
 function isServiceUser ({ authentication: { item: user } }) {
@@ -202,21 +177,21 @@ function isServiceUser ({ authentication: { item: user } }) {
 }
 
 function getRefSchemaName (schemaConfig, listKey) {
-    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey', null)
+    const pathToB2CApp = get(schemaConfig, 'pathToB2CApp', ['app'])
 
-    if (!isArray(pathToAddressKey) || isEmpty(pathToAddressKey)) {
-        throw new Error('"pathToAddressKey" must be not empty array!')
+    if (!isArray(pathToB2CApp) || isEmpty(pathToB2CApp)) {
+        throw new Error('"pathToB2CApp" must be not empty array!')
     }
-    for (const pathPart of pathToAddressKey) {
+    for (const pathPart of pathToB2CApp) {
         if (!isString(pathPart) || pathPart.trim().length < 1) {
-            throw new Error(`"pathToAddressKey" must contain array of string! But was: ${pathToAddressKey}`)
+            throw new Error(`"pathToB2CApp" must contain array of string! But was: ${pathToB2CApp}`)
         }
     }
 
     const schema = getSchemaCtx(listKey)
 
     const schemaFields = get(schema, 'list._fields', {})
-    return get(schemaFields, [pathToAddressKey[0], 'ref'], null)
+    return get(schemaFields, [pathToB2CApp[0], 'ref'], null)
 }
 
 async function canReadObjectsAsB2CAppServiceUser (args) {
@@ -248,31 +223,8 @@ async function canExecuteServiceAsB2CAppServiceUser (args) {
     return await canExecuteByServiceUser(args, serviceConfig)
 }
 
-function canReadObjectsAsB2CAppServiceUserWithoutSpecificRights (args) {
-    const { authentication: { item: user }, listKey } = args
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (!isServiceUser(args)) return false
-    const config = get(B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.noRightSetRequired.lists, listKey)
-    if (!isObject(config)) return false
-
-    return {
-        app: {
-            accessRights_some: {
-                user: {
-                    id: user.id,
-                },
-                deletedAt: null,
-            },
-            deletedAt: null,
-        },
-        deletedAt: null,
-    }
-}
-
 module.exports = {
     canManageObjectsAsB2CAppServiceUser,
     canReadObjectsAsB2CAppServiceUser,
     canExecuteServiceAsB2CAppServiceUser,
-    canReadObjectsAsB2CAppServiceUserWithoutSpecificRights,
 }
