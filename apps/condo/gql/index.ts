@@ -6198,7 +6198,7 @@ export type GetOrganizationPaymentHistoryQueryResult = Apollo.QueryResult<Types.
 export const GetLastDoneSubscriptionContextDocument = gql`
     query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
   contexts: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $planId}, status: DONE, isTrial: false}
+    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $planId}, bindingId_not: null, status: DONE, isTrial: false}
     sortBy: [endAt_DESC]
     first: 1
   ) {
@@ -6247,7 +6247,7 @@ export type GetLastDoneSubscriptionContextQueryResult = Apollo.QueryResult<Types
 export const GetLastFailedPaymentContextDocument = gql`
     query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
   lastFailedContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, PENDING]}
+    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, PENDING], isTrial: false}
     sortBy: [createdAt_DESC]
     first: 1
   ) {

@@ -251,10 +251,10 @@ const TopCard = React.memo<TopCardProps>(({
                                 {(formattedFeaturePrice || freeWithPlanLabel) && (
                                     <Space direction='vertical' size={16}>
                                         {formattedFeaturePrice && (
-                                            <Typography.Title level={3}>
+                                            <Typography.Title level={4}>
                                                 {formattedFeaturePrice}
                                                 {forPlanLabel && (
-                                                    <Typography.Text type='secondary'>
+                                                    <Typography.Text strong size='large' type='secondary'>
                                                         {' '}{forPlanLabel}
                                                     </Typography.Text>
                                                 )}

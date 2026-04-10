@@ -196,6 +196,7 @@ query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
         where: {
             organization: { id: $organizationId }
             subscriptionPlan: { id: $planId }
+            bindingId_not: null
             status: DONE
             isTrial: false
         }
@@ -214,6 +215,7 @@ query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!
             subscriptionPlan: { id: $subscriptionPlanId }
             bindingId_not: null
             status_in: [ERROR, PENDING]
+            isTrial: false
         }
         sortBy: [createdAt_DESC]
         first: 1

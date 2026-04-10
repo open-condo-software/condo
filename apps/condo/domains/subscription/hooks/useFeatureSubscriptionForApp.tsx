@@ -83,7 +83,7 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
             return `${priceStr}/${period}`
         }
         return priceStr
-    }, [featurePlanFirstPrice, intl.locale])
+    }, [featurePlanFirstPrice?.currencyCode, featurePlanFirstPrice?.period, featurePlanFirstPrice?.price, intl])
 
     const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
         if (!featurePlanFirstPrice?.id) return
@@ -96,7 +96,7 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
             paymentType,
             returnUrl: `miniapps/${appId}/about`,
         })
-    }, [featurePlanFirstPrice, featurePlanInfo, registerSubscriptionContext])
+    }, [appId, featurePlanFirstPrice?.id, featurePlanFirstPrice?.price, featurePlanInfo?.plan?.name, registerSubscriptionContext])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,

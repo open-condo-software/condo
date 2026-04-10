@@ -1,8 +1,8 @@
+import { useGetLastDoneSubscriptionContextQuery } from '@app/condo/gql'
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
-import { useGetLastDoneSubscriptionContextQuery } from '@app/condo/gql'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
@@ -49,14 +49,12 @@ export const useSubscriptionPaymentSuccess = ({
         onAfterNotification?.()
     }, [SuccessNotificationTitle, onAfterNotification])
 
-    // Keep localStorage in sync when not in a successPayment flow
     useEffect(() => {
         if (!loading && currentEndAt && storageKey && !router.query.successPayment) {
             localStorage.setItem(storageKey, currentEndAt)
         }
-    }, [loading, currentEndAt, storageKey, router.query.successPayment])
+    }, [loading, currentEndAt, storageKey, router])
 
-    // Detect payment success: fire only when endAt actually changed
     useEffect(() => {
         if (router.query.successPayment !== 'true' || loading || !storageKey) return
 
@@ -69,5 +67,5 @@ export const useSubscriptionPaymentSuccess = ({
 
         const { successPayment, ...restQuery } = router.query
         router.replace({ pathname: router.pathname, query: restQuery }, undefined, { shallow: true })
-    }, [router.query.successPayment, loading, currentEndAt, storageKey, handleSuccess])
+    }, [router, loading, currentEndAt, storageKey, handleSuccess])
 }
