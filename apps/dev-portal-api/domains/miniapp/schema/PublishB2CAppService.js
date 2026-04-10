@@ -468,9 +468,6 @@ function wrapWithLock (originalResolver) {
 
         try {
             return await originalResolver(parent, args, contextValue, info)
-        } catch (e) {
-            await lock.release()
-            throw e
         } finally {
             await lock.release()
         }

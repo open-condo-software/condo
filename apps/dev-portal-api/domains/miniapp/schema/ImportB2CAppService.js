@@ -390,7 +390,7 @@ async function resolveConflicts ({ args, context }) {
         apiUpdateInput.productionExportId = null
     }
 
-    if (Object.keys(apiUpdateInput) > 2) {
+    if (Object.keys(apiUpdateInput).length > 2) {
         await B2CApp.update(context, app.id, apiUpdateInput)
     }
 }
