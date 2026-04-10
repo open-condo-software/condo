@@ -149,7 +149,7 @@ function buildOutputUrls (hostUrl, multiPaymentId, userId) {
         webViewUrl: `${hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPaymentId)}`,
         feeCalculationUrl: `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPaymentId)}`,
         directPaymentUrl: `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPaymentId)}`,
-        getCardTokensUrl: `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', userId)}`,
+        getCardTokensUrl: userId ? `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', userId)}` : '',
     }
 }
 

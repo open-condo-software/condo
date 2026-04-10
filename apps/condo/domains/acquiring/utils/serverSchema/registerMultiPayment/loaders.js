@@ -13,6 +13,16 @@ function groupBy (items, key) {
     }, {})
 }
 
+function mapById (items) {
+    const byId = {}
+
+    for (const item of items) {
+        byId[item.id] = item
+    }
+
+    return byId
+}
+
 async function loadRecurrentPaymentContext (contextId) {
     if (!contextId) return
 
@@ -43,10 +53,7 @@ async function loadServiceConsumersByIds (consumerIds, context) {
         deletedAt: null,
     })
 
-    const byId = {}
-    for (const consumer of consumers) {
-        byId[consumer.id] = consumer
-    }
+    const byId = mapById(consumers)
 
     if (consumers.length !== uniqueIds.length) {
         const missingIds = uniqueIds.filter(id => !byId[id])
@@ -72,7 +79,7 @@ async function loadReceiptsByIds (receiptIds, context) {
         throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_RECEIPTS, messageInterpolation: { missingReceiptIds: missingReceipts.join(', ') } }, context)
     }
 
-    const byId = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
+    const byId = mapById(receipts)
     return { byId, list: receipts }
 }
 
@@ -88,7 +95,7 @@ async function loadInvoicesByIds (invoiceIds, context) {
         throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_INVOICES, messageInterpolation: { missingInvoiceIds: missingInvoices.join(', ') } }, context)
     }
 
-    const byId = Object.assign({}, ...invoices.map(obj => ({ [obj.id]: obj })))
+    const byId = mapById(invoices)
     return { byId, list: invoices }
 }
 
@@ -97,7 +104,7 @@ async function loadResidentsByIds (residentIds) {
         id_in: [...new Set(residentIds)],
         deletedAt: null,
     })
-    const byId = Object.assign({}, ...residents.map(obj => ({ [obj.id]: obj })))
+    const byId = mapById(residents)
     return { byId, list: residents }
 }
 
@@ -106,7 +113,7 @@ async function loadBillingContextsByIds (contextIds) {
         id_in: [...new Set(contextIds)],
         deletedAt: null,
     })
-    const byId = Object.assign({}, ...billingContexts.map(obj => ({ [obj.id]: obj })))
+    const byId = mapById(billingContexts)
     return { byId, list: billingContexts }
 }
 
@@ -142,7 +149,7 @@ async function loadBillingAccountsByIds (accountIds) {
         id_in: [...new Set(accountIds)],
         deletedAt: null,
     })
-    const byId = Object.assign({}, ...accounts.map(obj => ({ [obj.id]: obj })))
+    const byId = mapById(accounts)
     return { byId, list: accounts }
 }
 
@@ -189,7 +196,7 @@ function resolveAcquiringContextMaps ({
     }
 
     const list = Object.values(resolvedByOrganizationId)
-    const byId = Object.assign({}, ...list.map(item => ({ [item.id]: item })))
+    const byId = mapById(list)
 
     return {
         byId,

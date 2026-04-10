@@ -219,12 +219,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}
 
+                const authedItemId = context.authedItem.id
+
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
                     ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
                     currencyCode,
-                    user: { connect: { id: context.authedItem.id } },
+                    ...(authedItemId && { user: { connect: { id: authedItemId } } }),
                     integration: { connect: { id: acquiringIntegration.id } },
                     payments: { connect: paymentIds },
                     serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
