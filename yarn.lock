@@ -895,7 +895,6 @@ __metadata:
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     phone: ^3.1.41
-    redlock: ^5.0.0-beta.2
   languageName: unknown
   linkType: soft
 
