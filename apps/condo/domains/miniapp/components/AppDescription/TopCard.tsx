@@ -182,6 +182,10 @@ const TopCard = React.memo<TopCardProps>(({
         return btnProps
     }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible, isAppAvailableForTariff, UnavailableForTariffMessage])
 
+    const isAppRestrictedBySubscription = isSubscriptionsEnabled && !isAppAvailableInCurrentTariff
+    const hasFeatureOrFreeLabel = hasFeaturePlan || !!freeWithPlanLabel
+    const shouldShowFeatureSubscriptionBlock = isAppRestrictedBySubscription && (!contextStatus || hasFeatureOrFreeLabel)
+
     const images = gallery || []
     const imagesAmount = images.length
     const [currentSlide, setCurrentSlide] = useState(0)
@@ -246,7 +250,7 @@ const TopCard = React.memo<TopCardProps>(({
                                 </Typography.Title>
                             )}
                         </Space>
-                        {isSubscriptionsEnabled && !contextStatus && !isAppAvailableInCurrentTariff ? (
+                        {shouldShowFeatureSubscriptionBlock ? (
                             <Space direction='vertical' size={50}>
                                 {(formattedFeaturePrice || freeWithPlanLabel) && (
                                     <Space direction='vertical' size={16}>
