@@ -25,7 +25,7 @@ const STORAGE_KEY = 'subscription_welcome_modal_shown'
  * Hook that returns modal content based on subscription state
  * Returns null if no modal should be shown
  */
-const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, loading: boolean } => {
+const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, contextCreatedAt: string | null, loading: boolean } => {
     const intl = useIntl()
     const { organization, isLoading: organizationLoading } = useOrganization()
     const { subscriptionContext, loading: subscriptionLoading } = useOrganizationSubscription()
@@ -108,7 +108,9 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
         return null
     }, [organization, subscriptionContext, intl, activeBankingPlanId, defaultTrialPlanId])
 
-    return { content, loading }
+    const contextCreatedAt: string | null = subscriptionContext?.createdAt ?? null
+
+    return { content, contextCreatedAt, loading }
 }
 
 /**
@@ -118,38 +120,37 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
 export const SubscriptionWelcomeModal: React.FC = () => {
     const router = useRouter()
     const { organization } = useOrganization()
-    const { content, loading } = useSubscriptionWelcomeModalContent()
+    const { content, contextCreatedAt, loading } = useSubscriptionWelcomeModalContent()
     const [isVisible, setIsVisible] = useState(false)
 
     const organizationId = organization?.id
 
     const markAsSeen = useCallback(() => {
-        if (!organizationId) return
+        if (!organizationId || !contextCreatedAt) return
 
         const stored = localStorage.getItem(STORAGE_KEY)
         const shownOrgs = stored ? JSON.parse(stored) : {}
-        shownOrgs[organizationId] = true
+        shownOrgs[organizationId] = contextCreatedAt
         localStorage.setItem(STORAGE_KEY, JSON.stringify(shownOrgs))
-    }, [organizationId])
+    }, [organizationId, contextCreatedAt])
 
     useEffect(() => {
         const isWebview = document.querySelector('body.webview')
-        if (isWebview || !organizationId || loading) {
+        if (isWebview || !organizationId || loading || !contextCreatedAt) {
             return
         }
+
+        const isCreatedToday = dayjs(contextCreatedAt).isSame(dayjs(), 'day')
+        if (!isCreatedToday) return
 
         const stored = localStorage.getItem(STORAGE_KEY)
         const shownOrgs = stored ? JSON.parse(stored) : {}
-        const wasShown = shownOrgs[organizationId]
+        const wasShown = shownOrgs[organizationId] === contextCreatedAt
 
-        if (wasShown) {
-            return
-        }
-
-        if (content) {
+        if (!wasShown && content) {
             setIsVisible(true)
         }
-    }, [organizationId, content, loading])
+    }, [organizationId, content, contextCreatedAt, loading])
 
     const handleClose = useCallback(() => {
         markAsSeen()

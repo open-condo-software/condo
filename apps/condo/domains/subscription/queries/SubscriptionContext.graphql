@@ -100,6 +100,7 @@ query getSubscriptionContextById($id: ID!) {
             toPay
         }
         isTrial
+        createdAt
         startAt
         endAt
         daysRemaining
@@ -200,11 +201,11 @@ query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
             status: DONE
             isTrial: false
         }
-        sortBy: [endAt_DESC]
+        sortBy: [createdAt_DESC]
         first: 1
     ) {
         id
-        endAt
+        createdAt
     }
 }
 

@@ -1,4 +1,5 @@
 import { useGetLastExpiredSubscriptionContextQuery, useCreateUserHelpRequestMutation, useGetPendingBankingRequestQuery } from '@app/condo/gql'
+import dayjs from 'dayjs'
 import { OrganizationFeature, UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
@@ -67,7 +68,7 @@ const MODAL_TYPE_TO_STORAGE_KEY: Record<ModalType, string> = {
     subscriptionEnded: SUBSCRIPTION_ENDED_STORAGE_KEY,
 }
 
-const getShownOrgsFromStorage = (storageKey: string): Record<string, boolean> => {
+const getShownOrgsFromStorage = (storageKey: string): Record<string, string> => {
     if (typeof window === 'undefined') {
         return {}
     }
@@ -76,14 +77,14 @@ const getShownOrgsFromStorage = (storageKey: string): Record<string, boolean> =>
     return stored ? JSON.parse(stored) : {}
 }
 
-const isModalShownForOrganization = (storageKey: string, organizationId: string): boolean => {
+const isModalShownForOrganization = (storageKey: string, organizationId: string, dateValue: string): boolean => {
     const shownOrgs = getShownOrgsFromStorage(storageKey)
-    return shownOrgs[organizationId] === true
+    return shownOrgs[organizationId] === dateValue
 }
 
-const markModalAsShownForOrganization = (storageKey: string, organizationId: string): void => {
+const markModalAsShownForOrganization = (storageKey: string, organizationId: string, dateValue: string): void => {
     const shownOrgs = getShownOrgsFromStorage(storageKey)
-    shownOrgs[organizationId] = true
+    shownOrgs[organizationId] = dateValue
     localStorage.setItem(storageKey, JSON.stringify(shownOrgs))
 }
 
@@ -110,7 +111,7 @@ const NON_ACTIVE_BANKING_FREE_FEATURES_SECOND_COLUMN = [
     { featureKey: 'meters', label: 'subscription.features.meters' },
 ]
 
-const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, loading: boolean } => {
+const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, eventDate: string | null, loading: boolean } => {
     const intl = useIntl()
     const { organization } = useOrganization()
     const { subscriptionContext } = useOrganizationSubscription()
@@ -131,20 +132,17 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
 
     return useMemo(() => {
         if (!organization || loading || !enableSubscriptions || !hasSubscriptionsFlag) {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
-
-        const trialEndedShown = isModalShownForOrganization(TRIAL_ENDED_STORAGE_KEY, organizationId)
-        const subscriptionEndedShown = isModalShownForOrganization(SUBSCRIPTION_ENDED_STORAGE_KEY, organizationId)
 
         const lastExpiredContext = expiredData?.lastExpiredContext?.[0]
         if (!lastExpiredContext) {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         const hasPaymentMethod = Boolean(lastExpiredContext?.bindingId)
         if (hasPaymentMethod) {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         const lastExpiredWasTrial = lastExpiredContext.isTrial === true
@@ -161,18 +159,21 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         } else if (!subscriptionContext) {
             variant = 'nonActiveBanking'
         } else {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         const titleKey = lastExpiredWasTrial ? 'subscription.trialEndedModal.trial.title' : 'subscription.trialEndedModal.paid.title'
         const title = intl.formatMessage({ id: titleKey })
         const description = intl.formatMessage({ id: `subscription.trialEndedModal.${variant}.description` })
 
+        const endAt: string = lastExpiredContext.endAt
+        const isEndedToday = dayjs(endAt).isSame(dayjs(), 'day')
         const modalType: ModalType = lastExpiredWasTrial ? 'trialEnded' : 'subscriptionEnded'
-        const modalShown = modalType === 'trialEnded' ? trialEndedShown : subscriptionEndedShown
+        const storageKey = MODAL_TYPE_TO_STORAGE_KEY[modalType]
+        const modalShown = isModalShownForOrganization(storageKey, organizationId, endAt)
 
-        if (modalShown) {
-            return { content: null, type: null, loading }
+        if (modalShown || !isEndedToday) {
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         return {
@@ -182,6 +183,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
                 variant,
             },
             type: modalType,
+            eventDate: endAt,
             loading,
         }
     }, [organization, loading, hasSubscriptionsFlag, organizationId, expiredData?.lastExpiredContext, subscriptionContext, intl, activeBankingPlanId])
@@ -196,7 +198,7 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     const router = useRouter()
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { content, type, loading } = useTrialEndedModalContent()
+    const { content, type, eventDate, loading } = useTrialEndedModalContent()
     const [isVisible, setIsVisible] = useState(false)
     const [bankingLoading, setBankingLoading] = useState(false)
 
@@ -230,15 +232,15 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     }, [organizationId, content, type, loading])
 
     const handleClose = useCallback(() => {
-        if (!organizationId || !type) {
+        if (!organizationId || !type || !eventDate) {
             setIsVisible(false)
             return
         }
 
         const storageKey = MODAL_TYPE_TO_STORAGE_KEY[type]
-        markModalAsShownForOrganization(storageKey, organizationId)
+        markModalAsShownForOrganization(storageKey, organizationId, eventDate)
         setIsVisible(false)
-    }, [organizationId, type])
+    }, [organizationId, type, eventDate])
 
     const handleSubscriptionButtonClick = useCallback(() => {
         handleClose()
