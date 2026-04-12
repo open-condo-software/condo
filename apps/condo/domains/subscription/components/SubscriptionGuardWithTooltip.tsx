@@ -4,7 +4,7 @@ import { NoSubscriptionTooltip, NoSubscriptionTooltipProps } from '@condo/domain
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 interface SubscriptionFeatureGuardProps extends Omit<NoSubscriptionTooltipProps, 'children'> {
-    children: React.ReactElement
+    children: React.ReactElement | null
     feature?: NoSubscriptionTooltipProps['feature']
     fallback: React.ReactElement
 }

@@ -2,9 +2,10 @@ import { Row, Col } from 'antd'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Alert, Typography } from '@open-condo/ui'
 
 import { CustomChartView, CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 
 import { PaymentTotalDataMapper } from './dataMappers'
 
@@ -15,6 +16,7 @@ const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
     const ChartTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
     const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
+    const MarketplaceHint = intl.formatMessage({ id: 'pages.reports.paymentsTotalMarketplaceHint' })
 
     const dataMapper = useMemo(() => PaymentTotalDataMapper(SumTitle, PaymentCountTitle), [SumTitle, PaymentCountTitle])
 
@@ -23,6 +25,23 @@ const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
             <Col span={24}>
                 <Typography.Title level={3}>{ChartTitle}</Typography.Title>
             </Col>
+
+            {data.length > 0 &&
+                <SubscriptionGuardWithTooltip
+                    feature='marketplace'
+                    placement='bottom'
+                    children={null}
+                    tooltipButtonId='PaymentTotalChartSubscriprionTooltip'
+                    fallback={
+                        <Alert
+                            showIcon
+                            type='info'
+                            description={MarketplaceHint}
+                        />
+                    }
+                />
+            }
+
             <Col span={24}>
                 <CustomChartView
                     viewMode='bar'

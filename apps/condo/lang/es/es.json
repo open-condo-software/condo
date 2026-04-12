@@ -3078,6 +3078,7 @@
   "pages.reports.paymentsAmountPercent": "Pagos",
   "pages.reports.paymentsByProperty": "Pagos por comunidad",
   "pages.reports.paymentsTotal": "Recibos de pago (de la aplicación móvil del vecino)",
+  "pages.reports.paymentsTotalMarketplaceHint": "Puede ganar más ofreciendo servicios pagos a los vecinos si activa la sección «Marketplace»",
   "pages.reports.residentsTitle": "Implementación de la aplicación móvil del vecino",
   "pages.reports.residentsWithApp": "Vecinos en aplicación",
   "pages.reports.summary": "Resumen",
