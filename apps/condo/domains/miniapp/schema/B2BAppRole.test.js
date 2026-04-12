@@ -13,6 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
+    isUniqueConstraintViolationMessage,
     waitFor,
 } = require('@open-condo/keystone/test.utils')
 
@@ -302,7 +303,7 @@ describe('B2BAppRole', () => {
             await catchErrorFrom(async () => {
                 await createTestB2BAppRole(admin, connectedApp, employee.role)
             }, (caught) => {
-                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "b2bAppRole_unique_app_role"')
+                expect(isUniqueConstraintViolationMessage(caught.errors[0].message, 'b2bAppRole_unique_app_role')).toBe(true)
             })
 
             await updateTestB2BAppRole(admin, role.id, {

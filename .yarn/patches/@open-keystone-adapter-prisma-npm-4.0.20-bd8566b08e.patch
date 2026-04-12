@@ -1,0 +1,831 @@
+diff --git a/lib/adapter-prisma.js b/lib/adapter-prisma.js
+index 664d1da4cb36cbec24593ee58f1459e76cbe04d6..73beded640913f040607071fa88b7b3c5fe1a1ee 100644
+--- a/lib/adapter-prisma.js
++++ b/lib/adapter-prisma.js
+@@ -2,6 +2,7 @@ const fs = require('fs');
+ const path = require('path');
+ const { execSync } = require('child_process');
+ const cuid = require('cuid');
++const crypto = require('crypto');
+ const {
+   BaseKeystoneAdapter,
+   BaseListAdapter,
+@@ -9,6 +10,47 @@ const {
+ } = require('@open-keystone/keystone');
+ const { defaultObj, mapKeys, identity, flatten } = require('@open-keystone/utils');
+ 
++function cleanUndefinedValues(obj) {
++  if (obj === undefined) return undefined;
++  if (obj === null) return null;
++
++  if (obj instanceof Date) return obj;
++
++  if (Array.isArray(obj)) {
++    const cleaned = obj
++      .map(item => cleanUndefinedValues(item))
++      .filter(item => item !== undefined);
++
++    return cleaned;
++  }
++
++  if (typeof obj === 'object') {
++    const proto = Object.getPrototypeOf(obj);
++    if (proto !== Object.prototype && proto !== null) {
++      return obj;
++    }
++
++    const cleaned = {};
++    for (const [key, value] of Object.entries(obj)) {
++      const cleanedValue = cleanUndefinedValues(value);
++      if (cleanedValue !== undefined) {
++        cleaned[key] = cleanedValue;
++      }
++    }
++
++    return Object.keys(cleaned).length > 0 ? cleaned : undefined;
++  }
++
++  return obj;
++}
++
+ class PrismaAdapter extends BaseKeystoneAdapter {
+   constructor() {
+     super(...arguments);
+@@ -25,26 +67,52 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+ 
+   async _prepareSchema(rels) {
+     const clientDir = 'generated-client';
+-    const prismaSchema = await this._generatePrismaSchema({ rels, clientDir });
+-    // See if there is a prisma client available for this hash
+-    const prismaPath = this.getPrismaPath({ prismaSchema });
++     const prismaPath = this.getPrismaPath({ prismaSchema: '' });
+     this.schemaPath = path.join(prismaPath, 'schema.prisma');
+     this.clientPath = path.resolve(`${prismaPath}/${clientDir}`);
+-    this.dbSchemaName = this.getDbSchemaName({ prismaSchema });
++    const hashPath = path.join(prismaPath, 'schema.sha1');
++    const prismaSchemaRaw = await this._generatePrismaSchema({ rels, clientDir });
++    const newHash = crypto
++      .createHash('sha1')
++      .update(prismaSchemaRaw, 'utf8')
++      .digest('hex');
++
++    if (fs.existsSync(this.schemaPath) && fs.existsSync(hashPath)) {
++      const cachedSchema = fs.readFileSync(this.schemaPath, { encoding: 'utf-8' });
++      const cachedHash = fs.readFileSync(hashPath, { encoding: 'utf-8' });
++      if (newHash === cachedHash) {
++        this.schemaHash = cachedHash;
++        this.dbSchemaName = this.getDbSchemaName({ prismaSchema: cachedSchema });
++        return { prismaSchema: cachedSchema };
++      }
++    }
++
++    this.dbSchemaName = this.getDbSchemaName({ prismaSchema: prismaSchemaRaw });
+ 
+     fs.mkdirSync(path.dirname(this.schemaPath), { recursive: true });
+-    fs.writeFileSync(this.schemaPath, prismaSchema);
++    fs.writeFileSync(this.schemaPath, prismaSchemaRaw);
++
+     this._runPrismaCmd('format');
+     const formattedSchema = fs.readFileSync(this.schemaPath, { encoding: 'utf-8' });
+ 
++    this.schemaHash = crypto
++      .createHash('sha1')
++      .update(formattedSchema, 'utf8')
++      .digest('hex');
++
++    // Save hash for next run
++    fs.writeFileSync(hashPath, this.schemaHash, 'utf8');
++
+     return { prismaSchema: formattedSchema };
+   }
+ 
+   _url() {
+     if (this.provider === 'postgresql') {
+       return this.dbSchemaName ? `${this.url}?schema=${this.dbSchemaName}` : this.url;
+     }
+@@ -58,7 +126,6 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+   }
+ 
+   async deploy(rels) {
+     await this._prepareSchema(rels);
+     this._runPrismaCmd(`migrate deploy --preview-feature`);
+   }
+@@ -75,80 +142,130 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+   }
+ 
+   async _generateClient(rels) {
+     const { prismaSchema } = await this._prepareSchema(rels);
+     await this._writePrismaSchema({ prismaSchema });
+     await this._generatePrismaClient();
+     await this._runMigrations();
+   }
+ 
+   async _runMigrations() {
+     if (this.migrationMode === 'prototype') {
+       this._runPrismaCmd(`db push --accept-data-loss`);
+     } else if (this.migrationMode === 'createOnly') {
+       this._runPrismaCmd(`migrate dev --create-only --name keystone-${cuid()} --preview-feature`);
+     } else if (this.migrationMode === 'dev') {
+       this._runPrismaCmd(`migrate dev --name keystone-${cuid()} --preview-feature`);
+     } else if (this.migrationMode === 'none') {
+       // do nothing
+     } else {
+       throw new Error(`migrationMode must be one of 'dev', 'prototype', 'createOnly', or 'none`);
+     }
+   }
+ 
+   async _writePrismaSchema({ prismaSchema }) {
+     fs.mkdirSync(this.clientPath, { recursive: true });
+     fs.writeSync(fs.openSync(this.schemaPath, 'w'), prismaSchema);
+   }
+ 
+   async _generatePrismaClient() {
++    const prismaDir = path.dirname(this.schemaPath);
++    const hashPath = path.join(prismaDir, 'schema.sha1');
++    const clientIndexJs = path.join(this.clientPath, 'index.js');
++
++    if (
++      this.schemaHash &&
++      fs.existsSync(this.clientPath) &&
++      fs.existsSync(clientIndexJs) &&
++      fs.existsSync(hashPath)
++    ) {
++      const oldHash = fs.readFileSync(hashPath, 'utf8');
++      if (oldHash === this.schemaHash) {
++        return;
++      }
++    }
++
+     this._runPrismaCmd('generate');
++
++    if (this.schemaHash) {
++      fs.writeFileSync(hashPath, this.schemaHash, 'utf8');
++    }
+   }
+ 
+   async _generatePrismaSchema({ rels, clientDir }) {
++    const modelIdTypes = new Map()
++    Object.values(this.listAdapters).forEach(listAdapter => {
++      const idField = listAdapter.fieldAdapters.find(f => f.path === 'id')
++      if (idField) {
++        const idSchema = idField.getPrismaSchema()
++        if (idSchema && idSchema.length > 0) {
++          const typeMatch = idSchema[0].match(/id\s+(\w+)/)
++          if (typeMatch) {
++            modelIdTypes.set(listAdapter.key, typeMatch[1])
++          }
++        }
++      }
++    })
++
+     const models = Object.values(this.listAdapters).map(listAdapter => {
+       const scalarFields = flatten(
+         listAdapter.fieldAdapters.filter(f => !f.field.isRelationship).map(f => f.getPrismaSchema())
+-      );
++      )
++
++      const scalarFieldNames = new Set(
++        scalarFields.map(field => {
++          const match = field.match(/^(\w+)\s/)
++          return match ? match[1] : null
++        }).filter(Boolean)
++      )
++
+       const relFields = [
+         ...flatten(
+           listAdapter.fieldAdapters
+             .map(({ field }) => field)
+             .filter(f => f.isRelationship)
+             .map(f => {
+-              const r = rels.find(r => r.left === f || r.right === f);
+-              const isLeft = r.left === f;
++              const r = rels.find(r => r.left === f || r.right === f)
++              const isLeft = r.left === f
+               if (r.cardinality === 'N:N') {
+-                const relName = r.tableName;
+-                return [`${f.path} ${f.refListKey}[] @relation("${relName}")`];
++                const relName = r.tableName
++                return [`${f.path} ${f.refListKey}[] @relation("${relName}")`]
+               } else {
+-                const relName = `${r.tableName}${r.columnName}`;
++                const relName = `${r.tableName}${r.columnName}`
+                 if (
+                   (r.cardinality === 'N:1' && isLeft) ||
+                   (r.cardinality === '1:N' && !isLeft) ||
+                   (r.cardinality === '1:1' && isLeft)
+                 ) {
+-                  const isOneToOne = r.cardinality === '1:1';
+-                  // We're the owner of the foreign key column
++                  const isOneToOne = r.cardinality === '1:1'
++                  const foreignKeyFieldName = `${f.path}Id`
++                  const refModelIdType = modelIdTypes.get(f.refListKey) || 'String'
++                  if (scalarFieldNames.has(foreignKeyFieldName)) {
++                    const fkFieldName = `${f.path}Fk`
++                    return [
++                      `${f.path} ${f.refListKey}? @relation("${relName}", fields: [${fkFieldName}], references: [id])`,
++                      `${fkFieldName} ${refModelIdType}? @map("${r.columnName}")${isOneToOne ? ' @unique' : ''}`,
++                    ]
++                  }
++
+                   return [
+-                    `${f.path} ${f.refListKey}? @relation("${relName}", fields: [${f.path}Id], references: [id])`,
+-                    `${f.path}Id Int? @map("${r.columnName}")${isOneToOne ? ' @unique' : ''}`,
+-                  ];
++                    `${f.path} ${f.refListKey}? @relation("${relName}", fields: [${foreignKeyFieldName}], references: [id])`,
++                    `${foreignKeyFieldName} ${refModelIdType}? @map("${r.columnName}")${isOneToOne ? ' @unique' : ''}`,
++                  ]
+                 } else if (r.cardinality === '1:1') {
+-                  return [`${f.path} ${f.refListKey}? @relation("${relName}")`];
++                  return [`${f.path} ${f.refListKey}? @relation("${relName}")`]
+                 } else {
+-                  return [`${f.path} ${f.refListKey}[] @relation("${relName}")`];
++                  return [`${f.path} ${f.refListKey}[] @relation("${relName}")`]
+                 }
+               }
+             })
+@@ -171,35 +288,38 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+               `from_${listKey}_${path} ${listKey}[] @relation("${tableName}${columnName}")`,
+             ])
+         ),
+-      ];
++      ]
+ 
+       return `
+         model ${listAdapter.key} {
+           ${[...scalarFields, ...relFields].join('\n  ')}
+-        }`;
+-    });
++        }`
++    })
+ 
+     const enums = flatten(
+       Object.values(this.listAdapters).map(listAdapter =>
+         flatten(
+           listAdapter.fieldAdapters
+             .filter(f => !f.field.isRelationship)
+-            .filter(f => f.path !== 'id')
+             .map(f => f.getPrismaEnums())
+         )
+       )
+-    );
++    )
+ 
+-    const header = `
+-      datasource ${this.provider} {
+-        url      = env("DATABASE_URL")
+-        provider = "${this.provider}"
+-      }
+-      generator client {
+-        provider = "prisma-client-js"
+-        output = "${clientDir}"
+-      }`;
+-    return header + models.join('\n') + '\n' + enums.join('\n');
++    return `generator client {
++                  provider = "prisma-client-js"
++                  output   = "${clientDir}"
++                }
++                
++                datasource ${this.provider} {
++                  provider = "${this.provider}"
++                  url      = env("DATABASE_URL")
++                }
++                
++                ${enums.join('\n\n')}
++                
++                ${models.join('\n\n')}
++                `
+   }
+ 
+   async postConnect({ rels }) {
+@@ -213,13 +333,9 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+     return [];
+   }
+ 
+   async dropDatabase() {
+     if (this.migrationMode === 'prototype') {
+       if (this.provider === 'postgresql') {
+         for (const { tablename } of await this.prisma.$queryRaw`
+           SELECT tablename FROM pg_tables WHERE schemaname = ${this.dbSchemaName}
+         `) {
+@@ -236,7 +352,6 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+           );
+         }
+       } else {
+         this._runPrismaCmd(`migrate reset --force --preview-feature`);
+         this._runPrismaCmd(`db push --force --preview-feature`);
+       }
+@@ -247,16 +362,9 @@ class PrismaAdapter extends BaseKeystoneAdapter {
+ 
+   disconnect() {
+     return this.prisma.$disconnect();
+   }
+ 
+   getDefaultPrimaryKeyConfig() {
+     const { AutoIncrement } = require('@open-keystone/fields-auto-increment');
+     return AutoIncrement.primaryKeyDefaults[this.name].getConfig();
+   }
+@@ -273,9 +381,6 @@ class PrismaListAdapter extends BaseListAdapter {
+   }
+ 
+   _postConnect({ rels, prisma }) {
+     this.model = prisma[this.key.slice(0, 1).toLowerCase() + this.key.slice(1)];
+     this.fieldAdapters.forEach(fieldAdapter => {
+       fieldAdapter.rel = rels.find(
+@@ -285,12 +390,81 @@ class PrismaListAdapter extends BaseListAdapter {
+     });
+   }
+ 
++  _getIdTypeForList(listKey) {
++    const listAdapter = listKey === this.key ? this : this.getListAdapterByKey(listKey);
++    if (!listAdapter) return 'Int';
++
++    if (listAdapter._idType) return listAdapter._idType;
++
++    const idField =
++      listAdapter.fieldAdapters && listAdapter.fieldAdapters.find(f => f.path === 'id');
++    if (idField) {
++      const schema = idField.getPrismaSchema();
++      if (schema && schema.length > 0) {
++        const match = schema[0].match(/id\s+(\w+)/);
++        if (match) {
++          listAdapter._idType = match[1];
++          return listAdapter._idType;
++        }
++      }
++    }
++
++    listAdapter._idType = 'Int';
++    return listAdapter._idType;
++  }
++
++  _coerceId(value, refListKey) {
++    if (value === null || value === undefined) return value;
++
++    const type = this._getIdTypeForList(refListKey);
++    const isString = String(type).toLowerCase() === 'string';
++
++    if (Array.isArray(value)) {
++      return value.map(v => this._coerceId(v, refListKey));
++    }
++
++    if (isString) {
++      return String(value);
++    } else {
++      const n = Number(value);
++      return Number.isNaN(n) ? null : n;
++    }
++  }
++
++  _mapResultItem(item) {
++    if (!item) return item;
++    for (const fa of this.fieldAdapters) {
++      if (!fa.isRelationship) continue;
++      const p = fa.path;
++      const fkPath = p + 'Fk';
++      const idPath = p + 'Id';
++
++      if (item.hasOwnProperty(fkPath)) {
++        item[p] = item[fkPath];
++      } else if (item.hasOwnProperty(idPath) && !item.hasOwnProperty(p)) {
++        item[p] = item[idPath];
++      }
++
++      const val = item[p];
++      if (val !== null && val !== undefined) {
++        if (Array.isArray(val)) {
++          item[p] = val.map(obj => (obj && obj.id) ? obj.id : obj);
++        } else if (typeof val === 'object' && val.id !== undefined) {
++          item[p] = val.id;
++        }
++      }
++    }
++    return item;
++  }
++
+   ////////// Mutations //////////
+   _include() {
+     const include = defaultObj(
+       this.fieldAdapters
+         .filter(({ isRelationship }) => isRelationship)
+@@ -302,83 +476,127 @@ class PrismaListAdapter extends BaseListAdapter {
+   }
+ 
+   async _create(_data) {
+-    return this.model.create({
+-      data: mapKeys(_data, (value, path) =>
+-        this.fieldAdaptersByPath[path] && this.fieldAdaptersByPath[path].isRelationship
+-          ? {
+-              connect: Array.isArray(value)
+-                ? value.map(x => ({ id: Number(x) }))
+-                : { id: Number(value) },
+-            }
+-          : this.fieldAdaptersByPath[path] && this.fieldAdaptersByPath[path].gqlToPrisma
+-          ? this.fieldAdaptersByPath[path].gqlToPrisma(value)
+-          : value
+-      ),
+-      include: this._include(),
++    const include = this._include();
++    const data = mapKeys(_data, (value, path) => {
++      const adapter = this.fieldAdaptersByPath[path];
++
++      if (adapter && adapter.isRelationship) {
++        const refListKey = adapter.refListKey;
++
++        if (value === null || value === undefined) return undefined;
++
++        if (Array.isArray(value)) {
++          const vs = value
++            .map(x => this._coerceId(x, refListKey))
++            .filter(v => v !== null && v !== undefined);
++
++          return vs.length ? { connect: vs.map(id => ({ id })) } : undefined;
++        }
++
++        const id = this._coerceId(value, refListKey);
++        return id === null || id === undefined ? undefined : { connect: { id } };
++      }
++
++      if (adapter && adapter.gqlToPrisma) {
++        return adapter.gqlToPrisma(value);
++      }
++
++      return value;
+     });
++
++    return this.model.create({
++      data,
++      include,
++    }).then(item => this._mapResultItem(item));
+   }
+ 
+   async _update(id, _data) {
+     const include = this._include();
+-    const existingItem = await this.model.findUnique({ where: { id: Number(id) }, include });
++    const whereId = this._coerceId(id, this.key);
++
++    const existingItem = await this.model.findUnique({
++      where: { id: whereId },
++      include,
++    });
++
+     return this.model.update({
+-      where: { id: Number(id) },
++      where: { id: whereId },
+       data: mapKeys(_data, (value, path) => {
+-        if (
+-          this.fieldAdaptersByPath[path] &&
+-          this.fieldAdaptersByPath[path].isRelationship &&
+-          Array.isArray(value)
+-        ) {
+-          const vs = value.map(x => Number(x));
+-          const toDisconnect = existingItem[path].filter(({ id }) => !vs.includes(id));
++        const adapter = this.fieldAdaptersByPath[path];
++
++        if (adapter && adapter.isRelationship && Array.isArray(value)) {
++          const refListKey = adapter.refListKey;
++          const vs = value
++            .map(x => this._coerceId(x, refListKey))
++            .filter(v => v !== null && v !== undefined);
++
++          const existingRaw = existingItem[path] || [];
++          const existingIds = existingRaw.map(({ id }) => id);
++
++          const toDisconnect = existingRaw.filter(({ id }) => !vs.includes(id));
+           const toConnect = vs
+-            .filter(id => !existingItem[path].map(({ id }) => id).includes(id))
++            .filter(id => !existingIds.includes(id))
+             .map(id => ({ id }));
++
+           return {
+             disconnect: toDisconnect.length ? toDisconnect : undefined,
+             connect: toConnect.length ? toConnect : undefined,
+           };
+         }
+-        return this.fieldAdaptersByPath[path] && this.fieldAdaptersByPath[path].isRelationship
+-          ? value === null
+-            ? { disconnect: true }
+-            : { connect: { id: Number(value) } }
+-          : this.fieldAdaptersByPath[path] && this.fieldAdaptersByPath[path].gqlToPrisma
+-          ? this.fieldAdaptersByPath[path].gqlToPrisma(value)
+-          : value;
++
++        if (adapter && adapter.isRelationship) {
++          const refListKey = adapter.refListKey;
++
++          if (value === null) return { disconnect: true };
++          if (value === undefined) return undefined;
++
++          const relId = this._coerceId(value, refListKey);
++          return relId === null || relId === undefined
++            ? undefined
++            : { connect: { id: relId } };
++        }
++
++        if (adapter && adapter.gqlToPrisma) {
++          return adapter.gqlToPrisma(value);
++        }
++
++        return value;
+       }),
+       include,
+-    });
++    }).then(item => this._mapResultItem(item));
+   }
+ 
+   async _delete(id) {
+-    return this.model.delete({ where: { id: Number(id) } });
++    const whereId = this._coerceId(id, this.key);
++    return this.model.delete({ where: { id: whereId } }).then(item => this._mapResultItem(item));
+   }
+ 
+   ////////// Queries //////////
+   async _itemsQuery(args, { meta = false, from = {} } = {}) {
+     const rawFilter = await this.prismaFilter({ args, meta, from });
+
+     const filter = cleanUndefinedValues(rawFilter) || {};
+
+     if (meta) {
+       let count = await this.model.count(filter);
+       const { first, skip } = args;
+
+       if (skip !== undefined) {
+         count -= skip;
+       }
+       if (first !== undefined) {
+         count = Math.min(count, first);
+       }
+       count = Math.max(0, count);
+       return { count };
+     } else {
+       return this.model.findMany(filter).then(items => items.map(item => this._mapResultItem(item)));
+     }
+   }
+ 
+   async prismaFilter({ args: { where = {}, first, skip, sortBy, orderBy, search }, meta, from }) {
+     const ret = {};
+     const allWheres = await this.processWheres(where);
+
+     if (allWheres) {
+       ret.where = allWheres;
+@@ -389,24 +607,23 @@ class PrismaListAdapter extends BaseListAdapter {
+         ret.where = {};
+       }
+       const a = from.fromList.adapter.fieldAdaptersByPath[from.fromField];
++      const coercedFromId = this._coerceId(from.fromId, from.fromList.key);
+       if (a.rel.cardinality === 'N:N') {
+         const path = a.rel.right
+           ? a.field === a.rel.right
+             ? a.rel.left.path
+             : a.rel.right.path
+           : `from_${a.rel.left.listKey}_${a.rel.left.path}`;
+-        ret.where[path] = { some: { id: Number(from.fromId) } };
++          : `from_${a.rel.left.listKey}_${a.rel.left.path}`;
++        ret.where[path] = { some: { id: coercedFromId } };
+       } else {
+-        ret.where[a.rel.columnName] = { id: Number(from.fromId) };
++        ret.where[a.rel.columnName] = { id: coercedFromId };
+       }
+     }
+ 
+     const searchFieldName = this.config.searchField || 'name';
+     const searchField = this.fieldAdaptersByPath[searchFieldName];
+-    if (search !== undefined && search !== '' && searchField) {
++    if (search !== undefined && search !== null && search !== '' && searchField) {
+       if (searchField.fieldName === 'Text') {
+         if (!ret.where) {
+           ret.where = { [searchFieldName]: { contains: search, mode: 'insensitive' } };
+         } else {
+@@ -414,10 +631,7 @@ class PrismaListAdapter extends BaseListAdapter {
+             AND: [ret.where, { [searchFieldName]: { contains: search, mode: 'insensitive' } }],
+           };
+         }
+       } else {
+         if (!ret.where) {
+           ret.where = { AND: [{ [searchFieldName]: null }, { NOT: { [searchFieldName]: null } }] };
+         } else {
+@@ -428,29 +642,24 @@ class PrismaListAdapter extends BaseListAdapter {
+       }
+     }
+ 
+     if (!meta) {
+       if (first !== undefined) {
+         ret.take = first;
+       }
+       if (skip !== undefined) {
+         ret.skip = skip;
+       }
+       if (orderBy !== undefined) {
+         const [orderField, orderDirection] = orderBy.split('_');
+         const sortKey = this.fieldAdaptersByPath[orderField].sortKey || orderField;
+-        ret.orderBy = { [sortKey]: orderDirection.toLowerCase() };
++        ret.orderBy = [{ [sortKey]: orderDirection.toLowerCase() }];
+       }
+       if (sortBy !== undefined) {
+         if (!ret.orderBy) ret.orderBy = [];
+         sortBy.forEach(s => {
+           const [orderField, orderDirection] = s.split('_');
+           const sortKey = this.fieldAdaptersByPath[orderField].sortKey || orderField;
+-          ret.orderBy[sortKey] = orderDirection.toLowerCase();
++          ret.orderBy.push({ [sortKey]: orderDirection.toLowerCase() });
+         });
+       }
+ 
+@@ -464,41 +673,53 @@ class PrismaListAdapter extends BaseListAdapter {
+     return ret;
+   }
+ 
+-  processWheres(where) {
+-    const processRelClause = (fieldPath, clause) =>
+-      this.getListAdapterByKey(this.fieldAdaptersByPath[fieldPath].refListKey).processWheres(
+-        clause
+-      );
+-    const wheres = Object.entries(where).map(([condition, value]) => {
+-      if (condition === 'AND' || condition === 'OR') {
+-        return { [condition]: value.map(w => this.processWheres(w)) };
+-      } else if (
+-        this.fieldAdaptersByPath[condition] &&
+-        this.fieldAdaptersByPath[condition].isRelationship
+-      ) {
+-        // Non-many relationship. Traverse the sub-query, using the referenced list as a root.
+-        return { [condition]: processRelClause(condition, value) };
+-      } else {
+-        // See if any of our fields know what to do with this condition
++  async processWheres(where) {
++    const processRelClause = async (fieldPath, clause) =>
++      this.getListAdapterByKey(this.fieldAdaptersByPath[fieldPath].refListKey).processWheres(clause);
++
++    const wheres = await Promise.all(
++      Object.entries(where).map(async ([condition, value]) => {
++        if (condition === 'AND' || condition === 'OR') {
++          return { [condition]: await Promise.all(value.map(w => this.processWheres(w))) };
++        }
++
++        const fieldAdapter = this.fieldAdaptersByPath[condition];
++        if (fieldAdapter && fieldAdapter.isRelationship) {
++          const refListAdapter = this.getListAdapterByKey(fieldAdapter.refListKey);
++          const processedWhere = await refListAdapter.processWheres(value);
++          const findFilter = processedWhere
++            ? { where: processedWhere, select: { id: true } }
++            : { select: { id: true } };
++          const matchingRecords = await refListAdapter.model.findMany(findFilter);
++          const ids = matchingRecords.map(r => r.id);
++          const fkFieldName = `${condition}Id`;
++
++          if (ids.length === 0) {
++            return { AND: [{ [fkFieldName]: null }, { NOT: { [fkFieldName]: null } }] };
++          }
++          if (ids.length === 1) {
++            return { [fkFieldName]: ids[0] };
++          }
++          return { [fkFieldName]: { in: ids } };
++        }
++
+         let dbPath = condition;
+-        let fieldAdapter = this.fieldAdaptersByPath[dbPath];
+-        while (!fieldAdapter && dbPath.includes('_')) {
++        let resolvedAdapter = this.fieldAdaptersByPath[dbPath];
++        while (!resolvedAdapter && dbPath.includes('_')) {
+           dbPath = dbPath.split('_').slice(0, -1).join('_');
+-          fieldAdapter = this.fieldAdaptersByPath[dbPath];
++          resolvedAdapter = this.fieldAdaptersByPath[dbPath];
+         }
+ 
+-        // FIXME: ask the field adapter if it supports the condition type
+         const supported =
+           resolvedAdapter && resolvedAdapter.getQueryConditions(resolvedAdapter.dbPath)[condition];
+         if (supported) {
+           return supported(value);
+-        } else {
+-          // Many relationship
+-          const [fieldPath, constraintType] = condition.split('_');
+-          return { [fieldPath]: { [constraintType]: processRelClause(fieldPath, value) } };
+         }
+-      }
+-    });
++
++        const [fieldPath, constraintType] = condition.split('_');
++        return { [fieldPath]: { [constraintType]: await processRelClause(fieldPath, value) } };
++      })
++    );
+ 
+     return wheres.length === 0 ? undefined : wheres.length === 1 ? wheres[0] : { AND: wheres };
+   }
+@@ -524,35 +745,17 @@ class PrismaFieldAdapter extends BaseFieldAdapter {
+     return [];
+   }
+ 
+   equalityConditions(dbPath, f = identity) {
+     return {
+       [this.path]: value => ({ [dbPath]: { equals: f(value) } }),
+-      [`${this.path}_not`]: value =>
+-        value === null
+-          ? { NOT: { [dbPath]: { equals: f(value) } } }
+-          : {
+-              OR: [{ NOT: { [dbPath]: { equals: f(value) } } }, { [dbPath]: { equals: null } }],
+-            },
++      [`${this.path}_not`]: value => ({ NOT: { [dbPath]: { equals: f(value) } } }),
+     };
+   }
+ 
+   equalityConditionsInsensitive(dbPath, f = identity) {
+     return {
+       [`${this.path}_i`]: value => ({ [dbPath]: { equals: f(value), mode: 'insensitive' } }),
+-      [`${this.path}_not_i`]: value =>
+-        value === null
+-          ? { NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } }
+-          : {
+-              OR: [
+-                { NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } },
+-                { [dbPath]: null },
+-              ],
+-            },
++      [`${this.path}_not_i`]: value => ({ NOT: { [dbPath]: { equals: f(value), mode: 'insensitive' } } }),
+     };
+   }
+ 
+@@ -565,14 +768,12 @@ class PrismaFieldAdapter extends BaseFieldAdapter {
+       [`${this.path}_not_in`]: value =>
+         value.includes(null)
+           ? {
+-              AND: [
+-                { NOT: { [dbPath]: { in: value.filter(x => x !== null).map(f) } } },
+-                { NOT: { [dbPath]: null } },
+-              ],
+-            }
+-          : {
+-              OR: [{ NOT: { [dbPath]: { in: value.map(f) } } }, { [dbPath]: null }],
+-            },
++            AND: [
++              { NOT: { [dbPath]: { in: value.filter(x => x !== null).map(f) } } },
++              { NOT: { [dbPath]: null } },
++            ],
++          }
++          : { NOT: { [dbPath]: { in: value.map(f) } } },
+     };
+   }
+ 
+@@ -587,49 +788,34 @@ class PrismaFieldAdapter extends BaseFieldAdapter {
+ 
+   stringConditions(dbPath, f = identity) {
+     return {
+-      [`${this.path}_contains`]: value => ({ [dbPath]: { contains: f(value) } }),
+-      [`${this.path}_not_contains`]: value => ({
+-        OR: [{ NOT: { [dbPath]: { contains: f(value) } } }, { [dbPath]: null }],
+-      }),
+-      [`${this.path}_starts_with`]: value => ({ [dbPath]: { startsWith: f(value) } }),
+-      [`${this.path}_not_starts_with`]: value => ({
+-        OR: [{ NOT: { [dbPath]: { startsWith: f(value) } } }, { [dbPath]: null }],
+-      }),
+-      [`${this.path}_ends_with`]: value => ({ [dbPath]: { endsWith: f(value) } }),
+-      [`${this.path}_not_ends_with`]: value => ({
+-        OR: [{ NOT: { [dbPath]: { endsWith: f(value) } } }, { [dbPath]: null }],
+-      }),
++      [`${this.path}_contains`]: value => value == null ? {} : ({ [dbPath]: { contains: f(value) } }),
++      [`${this.path}_not_contains`]: value => value == null ? {} : ({ NOT: { [dbPath]: { contains: f(value) } } }),
++      [`${this.path}_starts_with`]: value => value == null ? {} : ({ [dbPath]: { startsWith: f(value) } }),
++      [`${this.path}_not_starts_with`]: value => value == null ? {} : ({ NOT: { [dbPath]: { startsWith: f(value) } } }),
++      [`${this.path}_ends_with`]: value => value == null ? {} : ({ [dbPath]: { endsWith: f(value) } }),
++      [`${this.path}_not_ends_with`]: value => value == null ? {} : ({ NOT: { [dbPath]: { endsWith: f(value) } } }),
+     };
+   }
+ 
+   stringConditionsInsensitive(dbPath, f = identity) {
+     return {
+-      [`${this.path}_contains_i`]: value => ({
++      [`${this.path}_contains_i`]: value => value == null ? {} : ({
+         [dbPath]: { contains: f(value), mode: 'insensitive' },
+       }),
+-      [`${this.path}_not_contains_i`]: value => ({
+-        OR: [
+-          { NOT: { [dbPath]: { contains: f(value), mode: 'insensitive' } } },
+-          { [dbPath]: null },
+-        ],
++      [`${this.path}_not_contains_i`]: value => value == null ? {} : ({
++        NOT: { [dbPath]: { contains: f(value), mode: 'insensitive' } },
+       }),
+-      [`${this.path}_starts_with_i`]: value => ({
++      [`${this.path}_starts_with_i`]: value => value == null ? {} : ({
+         [dbPath]: { startsWith: f(value), mode: 'insensitive' },
+       }),
+-      [`${this.path}_not_starts_with_i`]: value => ({
+-        OR: [
+-          { NOT: { [dbPath]: { startsWith: f(value), mode: 'insensitive' } } },
+-          { [dbPath]: null },
+-        ],
++      [`${this.path}_not_starts_with_i`]: value => value == null ? {} : ({
++        NOT: { [dbPath]: { startsWith: f(value), mode: 'insensitive' } },
+       }),
+-      [`${this.path}_ends_with_i`]: value => ({
++      [`${this.path}_ends_with_i`]: value => value == null ? {} : ({
+         [dbPath]: { endsWith: f(value), mode: 'insensitive' },
+       }),
+-      [`${this.path}_not_ends_with_i`]: value => ({
+-        OR: [
+-          { NOT: { [dbPath]: { endsWith: f(value), mode: 'insensitive' } } },
+-          { [dbPath]: null },
+-        ],
++      [`${this.path}_not_ends_with_i`]: value => value == null ? {} : ({
++        NOT: { [dbPath]: { endsWith: f(value), mode: 'insensitive' } },
+       }),
+     };
+   }

@@ -180,7 +180,7 @@ describe('MeterReading', () => {
                             value2: faker.random.alphaNumeric(7),
                         })
                     }, ({ errors, data }) => {
-                        expect(errors[0].message).toContain(`invalid input syntax for type numeric: "${stringValue}"`)
+                        expect(errors[0].message).toMatch(new RegExp(`invalid input syntax for type numeric: "${stringValue}"|\\[DecimalError\\] Invalid argument: ${stringValue}`))
                         expect(data).toEqual({ 'obj': null })
                     })
                 })

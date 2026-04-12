@@ -207,9 +207,14 @@ const getPostgresHealthCheck = () => {
         },
         run: async () => {
             try {
-                const { knex } = getDatabaseAdapter(this.keystone)
-                const res = await knex.raw('SELECT 1')
-                return res ? PASS : FAIL
+                const adapter = getDatabaseAdapter(this.keystone)
+                if (adapter.name === 'prisma') {
+                    const res = await adapter.prisma.$queryRaw`SELECT 1`
+                    return res ? PASS : FAIL
+                } else {
+                    const res = await adapter.knex.raw('SELECT 1')
+                    return res ? PASS : FAIL
+                }
             } catch (e) { return FAIL }
         },
     }

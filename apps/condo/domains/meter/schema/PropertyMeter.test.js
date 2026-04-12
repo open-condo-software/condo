@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, catchErrorFrom, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, catchErrorFrom, expectToThrowAccessDeniedErrorToObjects, isUniqueConstraintViolationMessage } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -341,7 +341,10 @@ describe('PropertyMeter', () => {
                     number,
                 })
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('duplicate key value violates unique constraint')
+                expect(
+                    errors[0].message.includes('duplicate key value violates unique constraint')
+                    || errors[0].message.includes('Unique constraint failed on the fields')
+                ).toBe(true)
                 expect(data).toEqual({ 'obj': null })
             })
         })

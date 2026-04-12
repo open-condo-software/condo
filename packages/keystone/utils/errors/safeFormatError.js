@@ -126,11 +126,21 @@ function _updateExtensionsForKnownErrorCases (result, extensions, originalError)
         return
     }
 
-    // NOTE(pahaz): we want to extract internal knex error messages from violates constraint cases
+    // NOTE(pahaz): we want to extract internal DB error messages from violates constraint cases
     // TODO(pahaz): we need to hide sql queries!
-    const hasDBUniqConstrain = originalError && originalError?.message?.includes('duplicate key value violates unique constraint')
-    const hasDBCheckConstrain = originalError && originalError?.message?.includes('violates check constraint')
-    if (hasDBUniqConstrain || hasDBCheckConstrain) {
+    const hasDBUniqConstrain = originalError && (
+        originalError?.message?.includes('duplicate key value violates unique constraint')
+        || originalError?.code === 'P2002'
+    )
+    const hasDBCheckConstrain = originalError && (
+        originalError?.message?.includes('violates check constraint')
+        || originalError?.code === 'P2004'
+    )
+    const hasDBFKConstrain = originalError && (
+        originalError?.code === 'P2003'
+        || originalError?.code === 'P2025'
+    )
+    if (hasDBUniqConstrain || hasDBCheckConstrain || hasDBFKConstrain) {
         _handleKnexErrorCase(result, extensions, originalError)
         return
     }

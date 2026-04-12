@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
+    isUniqueConstraintViolationMessage,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
@@ -409,7 +410,7 @@ describe('B2BAppPermission', () => {
                         key,
                     })
                 }, (caught) => {
-                    expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "b2bAppPermission_unique_key_app"')
+                    expect(isUniqueConstraintViolationMessage(caught.errors[0].message, 'b2bAppPermission_unique_key_app')).toBe(true)
                 })
 
                 const [softDeleted] = await updateTestB2BAppPermission(admin, permission.id, {

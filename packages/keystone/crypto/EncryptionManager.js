@@ -160,7 +160,7 @@ class EncryptionManager {
         }
 
         // Skip .env parsing in build time, when .env is not present
-        if (conf.PHASE === 'build') {
+        if (conf.PHASE === 'build' || process.env.PHASE === 'build') {
             return
         }
 
