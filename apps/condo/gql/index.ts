@@ -5489,6 +5489,16 @@ export const GetAvailableFeatureSubscriptionPlansDocument = gql`
         name
         planType
         enabledB2BApps
+        tickets
+        meters
+        payments
+        news
+        marketplace
+        analytics
+        properties
+        support
+        ai
+        customization
       }
       prices {
         id

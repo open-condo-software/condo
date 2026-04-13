@@ -847,7 +847,7 @@ export type GetAvailableFeatureSubscriptionPlansQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetAvailableFeatureSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null, enabledB2BApps?: any | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
+export type GetAvailableFeatureSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null, enabledB2BApps?: any | null, tickets?: boolean | null, meters?: boolean | null, payments?: boolean | null, news?: boolean | null, marketplace?: boolean | null, analytics?: boolean | null, properties?: boolean | null, support?: boolean | null, ai?: boolean | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
 
 export type GetAvailableServiceSubscriptionPlansQueryVariables = Types.Exact<{
   organization: Types.OrganizationWhereUniqueInput;
