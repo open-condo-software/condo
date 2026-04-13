@@ -576,8 +576,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
 
-        console.log('Handle valid before change', dateString, value)
-
         setSelectedValidBefore(value)
         setSelectedValidBeforeText(dayjs(value).format('HH:mm DD MMMM'))
     }, [])
@@ -632,11 +630,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             console.error('Cannot submit form: not all fields are filled')
             return
         }
-
-        console.log('handleFormSubmit', {
-            values, condoFormValues, selectAppsFormValues,
-            modifiedFiles,
-        })
 
         if (actionName === 'update') {
             await updateNewsItem({ isPublished: false }, currentNewsItem)
@@ -915,10 +908,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             setSelectedTitle(res.title)
             setSelectedBody(res.body)
             setCondoFormValues(res)
-            
-            console.log('handleNextStep', {
-                res,
-            })
         }
 
         if (currentStep === getLastStep()) {
@@ -1188,6 +1177,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         files={files}
                                         setFiles={setFiles}
                                         modifyFiles={modifyFiles}
+                                        newsItemIdForReuploadFiles={currentNewsItem?.id}
                                         templates={templates}
                                         isSharingStep={isSharingAppStep}
                                         autoFocusBody={autoFocusBody}

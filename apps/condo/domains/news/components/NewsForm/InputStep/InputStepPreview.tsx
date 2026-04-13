@@ -2,11 +2,12 @@ import { B2BAppNewsSharingConfig } from '@app/condo/schema'
 import { Col } from 'antd'
 import React, { useMemo } from 'react'
 
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS } from '@condo/domains/miniapp/constants'
 import { MemoizedCondoNewsPreview, MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
+
+import { UploadFileType } from '../../FilesUploadList'
 
 import { SharingAppValuesType } from './index'
 
@@ -22,6 +23,7 @@ interface InputStepPreviewProps {
     iFramePreviewRef: React.RefObject<HTMLIFrameElement>
     selectedBody: string
     selectedTitle: string
+    selectedFiles?: Array<UploadFileType>
     sharingAppId: string
 }
 
@@ -34,16 +36,13 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
     selectedBody,
     selectedTitle,
     sharingAppId,
+    selectedFiles,
 }) => {
     const { type: selectedType, validBefore: selectedValidBeforeText } = newsItemData
 
     const isCustomPreview = !!newsSharingConfig?.previewUrl && isSharingStep
 
-    const { breakpoints } = useLayoutContext()
-
-    const isMediumWindow = !breakpoints.DESKTOP_SMALL
-    const formFieldsColSpan = isMediumWindow ? 24 : 14
-    const formInfoColSpan = 24 - formFieldsColSpan
+    const formInfoColSpan = 24
 
     const previewHasPush = useMemo(() =>
         (newsSharingConfig?.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ENABLED) ||
@@ -80,6 +79,7 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
                                 body={selectedBody}
                                 title={selectedTitle}
                                 validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
+                                files={selectedFiles}
                             />
                         </Col>
                     )}
