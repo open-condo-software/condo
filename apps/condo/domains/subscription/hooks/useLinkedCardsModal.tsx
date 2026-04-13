@@ -61,6 +61,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
     const ErrorNotificationTitle = intl.formatMessage({ id: 'subscription.linkedCards.unbind.error.title' })
     const ErrorNotificationDescription = intl.formatMessage({ id: 'subscription.linkedCards.unbind.error.description' })
     const ForSubscriptionPaymentMessage = intl.formatMessage({ id: 'subscription.linkedCards.forSubscriptionPayment' })
+    const ForAllPaymentsMessage = intl.formatMessage({ id: 'subscription.linkedCards.forAllPayments' })
 
     const getCardTypeTranslation = useCallback((cardType?: string): string => {
         if (!cardType) return ''
@@ -75,14 +76,53 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
         }
     }, [intl])
 
+    const cardPlanMap = useMemo(() => {
+        const map = new Map<string, { planTypes: Set<string>, planNames: Set<string> }>()
+        if (!subscriptionContextsData?.subscriptionContexts) return map
+
+        for (const context of subscriptionContextsData.subscriptionContexts) {
+            const bindingId = context.frozenPaymentInfo?.paymentMethod?.bindingId
+            if (!bindingId) continue
+
+            if (!map.has(bindingId)) {
+                map.set(bindingId, { planTypes: new Set(), planNames: new Set() })
+            }
+
+            const info = map.get(bindingId)!
+            const planType = context.subscriptionPlan?.planType
+            const planName = context.subscriptionPlan?.name
+            if (planType) info.planTypes.add(planType)
+            if (planName) info.planNames.add(planName)
+        }
+
+        return map
+    }, [subscriptionContextsData])
+
+    const getCardLabel = useCallback((bindingId: string): string | null => {
+        const info = cardPlanMap.get(bindingId)
+        if (!info || info.planTypes.size === 0) return null
+
+        const isMultiple = info.planTypes.size > 1 || info.planNames.size > 1
+        if (isMultiple) return ForAllPaymentsMessage
+
+        const planType = Array.from(info.planTypes)[0]
+        if (planType === 'service') return ForSubscriptionPaymentMessage
+        if (planType === 'feature') {
+            const planName = Array.from(info.planNames)[0] || ''
+            return intl.formatMessage({ id: 'subscription.linkedCards.forFeaturePayment' as FormatjsIntl.Message['ids'] }, { planName })
+        }
+
+        return ForSubscriptionPaymentMessage
+    }, [cardPlanMap, ForSubscriptionPaymentMessage, ForAllPaymentsMessage, intl])
+
     const paymentMethods: PaymentMethod[] = useMemo(() => {
         if (!subscriptionContextsData?.subscriptionContexts) return []
 
         const uniquePaymentMethods = new Map<string, PaymentMethod>()
 
-        subscriptionContextsData.subscriptionContexts.forEach(context => {
+        for (const context of subscriptionContextsData.subscriptionContexts) {
             const paymentMethod = context.frozenPaymentInfo?.paymentMethod
-            if (!paymentMethod || !paymentMethod.bindingId) return
+            if (!paymentMethod || !paymentMethod.bindingId) continue
 
             if (!uniquePaymentMethods.has(paymentMethod.bindingId)) {
                 uniquePaymentMethods.set(paymentMethod.bindingId, {
@@ -95,7 +135,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
                     cardIssuerName: paymentMethod.bankName || undefined,
                 })
             }
-        })
+        }
 
         return Array.from(uniquePaymentMethods.values())
     }, [subscriptionContextsData])
@@ -185,7 +225,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
             >
                 <Space size={12} direction='vertical' width='100%'>
                     {paymentMethods.map((paymentMethod) => {
-                        const isActiveCard = paymentMethod.bindingId === activePaymentMethodId
+                        const cardLabel = getCardLabel(paymentMethod.bindingId)
                         return (
                             <Card key={paymentMethod.bindingId} width='100%'>
                                 <Row justify='space-between' align='middle'>
@@ -203,9 +243,9 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
                                                 <Typography.Text>
                                                     {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
                                                 </Typography.Text>
-                                                {isActiveCard && (
+                                                {cardLabel && (
                                                     <Typography.Text type='secondary'>
-                                                        {ForSubscriptionPaymentMessage}
+                                                        {cardLabel}
                                                     </Typography.Text>
                                                 )}
                                             </Space>
@@ -250,7 +290,7 @@ export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: Us
                 </Typography.Paragraph>
             </Modal>
         </>
-    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethods, activePaymentMethodId, imageErrors, getCardTypeTranslation, ForSubscriptionPaymentMessage, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
+    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethods, imageErrors, getCardTypeTranslation, getCardLabel, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
 
     return {
         LinkedCardsModal,

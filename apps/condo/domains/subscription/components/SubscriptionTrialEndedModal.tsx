@@ -294,11 +294,11 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
 
     const renderFeaturesList = () => {
         const isActiveBanking = content.variant === 'activeBanking'
-        const firstColumn = isActiveBanking 
-            ? ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN 
+        const firstColumn = isActiveBanking
+            ? ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN
             : NON_ACTIVE_BANKING_FREE_FEATURES_FIRST_COLUMN
-        const secondColumn = isActiveBanking 
-            ? ACTIVE_BANKING_PAID_FEATURES_SECOND_COLUMN 
+        const secondColumn = isActiveBanking
+            ? ACTIVE_BANKING_PAID_FEATURES_SECOND_COLUMN
             : NON_ACTIVE_BANKING_FREE_FEATURES_SECOND_COLUMN
         const available = !isActiveBanking
 

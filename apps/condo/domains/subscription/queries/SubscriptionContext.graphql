@@ -133,6 +133,7 @@ query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!
         subscriptionPlan {
             id
             name
+            planType
         }
         subscriptionPlanPricingRule {
             id
