@@ -310,6 +310,29 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
         return { NOT: { [path]: { in: ids } } }
     }
 
+    const _uniqueNonNull = values => {
+        const result = []
+        const seen = new Set()
+        for (const value of values) {
+            if (value === null || value === undefined) continue
+            if (seen.has(value)) continue
+            seen.add(value)
+            result.push(value)
+        }
+        return result
+    }
+
+    const _findManyWithChunking = async (model, query) => {
+        const normalizedQuery = {
+            ...query,
+            where: query?.where || {},
+        }
+        const chunkedQueries = _buildChunkedFiltersForLargeIn(normalizedQuery)
+        if (!chunkedQueries) return model.findMany(normalizedQuery)
+        const parts = await Promise.all(chunkedQueries.map(chunkQuery => model.findMany(chunkQuery)))
+        return parts.flat()
+    }
+
     const _isEmptyWhere = value =>
         value === undefined ||
         value === null ||
@@ -320,12 +343,12 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
         if (!rel || !rel.left) return { id: { in: [] } }
 
         const refListAdapter = this.getListAdapterByKey(fieldAdapter.refListKey)
-        const relatedRows = await refListAdapter.model.findMany({
+        const relatedRows = await _findManyWithChunking(refListAdapter.model, {
             where: relWhere || {},
             select: { id: true },
             relationLoadStrategy: 'query',
         })
-        const relatedIds = relatedRows.map(row => row.id).filter(v => v !== null && v !== undefined)
+        const relatedIds = _uniqueNonNull(relatedRows.map(row => row.id))
 
         const isCurrentOnLeft = rel.left && rel.left.listKey === this.key && rel.left.path === fieldAdapter.path
         const isCurrentOnRight = rel.right && rel.right.listKey === this.key && rel.right.path === fieldAdapter.path
@@ -359,14 +382,12 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
             const oppositePath = isCurrentOnLeft ? rel.right?.path : isCurrentOnRight ? rel.left?.path : null
             if (!oppositePath) return { id: { in: [] } }
             const parentFkPath = _resolveRelationshipScalarPath(refListAdapter, oppositePath)
-            const parentIdRows = await refListAdapter.model.findMany({
+            const parentIdRows = await _findManyWithChunking(refListAdapter.model, {
                 where: relWhere || {},
                 select: { [parentFkPath]: true },
                 relationLoadStrategy: 'query',
             })
-            const parentIds = parentIdRows
-                .map(row => row[parentFkPath])
-                .filter(v => v !== null && v !== undefined)
+            const parentIds = _uniqueNonNull(parentIdRows.map(row => row[parentFkPath]))
 
             if (constraintType === 'is' || constraintType === 'some') {
                 return _idsToFilter('id', parentIds)
@@ -376,14 +397,12 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
             }
             if (constraintType === 'every') {
                 // every(X) == not exists related where not X
-                const notRows = await refListAdapter.model.findMany({
+                const notRows = await _findManyWithChunking(refListAdapter.model, {
                     where: { NOT: relWhere || {} },
                     select: { [parentFkPath]: true },
                     relationLoadStrategy: 'query',
                 })
-                const notParentIds = notRows
-                    .map(row => row[parentFkPath])
-                    .filter(v => v !== null && v !== undefined)
+                const notParentIds = _uniqueNonNull(notRows.map(row => row[parentFkPath]))
                 return _idsToFilter('id', notParentIds, { negate: true })
             }
             return _idsToFilter('id', parentIds)
@@ -406,10 +425,18 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
             }
 
             const schemaName = this.parentAdapter.dbSchemaName || 'public'
-            const placeholders = relatedIds.map((_, idx) => `$${idx + 1}`).join(', ')
-            const sql = `SELECT "${currentIdColumn}" AS "id" FROM "${schemaName}"."${rel.tableName}" WHERE "${relatedIdColumn}" IN (${placeholders})`
-            const rows = await this.parentAdapter.prisma.$queryRawUnsafe(sql, ...relatedIds)
-            const currentIds = rows.map(row => row.id).filter(v => v !== null && v !== undefined)
+            const queryLinkRowsByIds = async ids => {
+                const placeholders = ids.map((_, idx) => `$${idx + 1}`).join(', ')
+                const sql = `SELECT "${currentIdColumn}" AS "id" FROM "${schemaName}"."${rel.tableName}" WHERE "${relatedIdColumn}" IN (${placeholders})`
+                return this.parentAdapter.prisma.$queryRawUnsafe(sql, ...ids)
+            }
+            const linkRows = []
+            for (let i = 0; i < relatedIds.length; i += MAX_PRISMA_BIND_VALUES) {
+                const idsChunk = relatedIds.slice(i, i + MAX_PRISMA_BIND_VALUES)
+                const rowsPart = await queryLinkRowsByIds(idsChunk)
+                linkRows.push(...rowsPart)
+            }
+            const currentIds = _uniqueNonNull(linkRows.map(row => row.id))
 
             if (constraintType === 'is' || constraintType === 'some') {
                 return _idsToFilter('id', currentIds)
@@ -418,17 +445,20 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
                 return _idsToFilter('id', currentIds, { negate: true })
             }
             if (constraintType === 'every') {
-                const notRelatedRows = await refListAdapter.model.findMany({
+                const notRelatedRows = await _findManyWithChunking(refListAdapter.model, {
                     where: { NOT: relWhere || {} },
                     select: { id: true },
                     relationLoadStrategy: 'query',
                 })
-                const notRelatedIds = notRelatedRows.map(row => row.id).filter(v => v !== null && v !== undefined)
+                const notRelatedIds = _uniqueNonNull(notRelatedRows.map(row => row.id))
                 if (notRelatedIds.length === 0) return {}
-                const notPlaceholders = notRelatedIds.map((_, idx) => `$${idx + 1}`).join(', ')
-                const notSql = `SELECT "${currentIdColumn}" AS "id" FROM "${schemaName}"."${rel.tableName}" WHERE "${relatedIdColumn}" IN (${notPlaceholders})`
-                const notRows = await this.parentAdapter.prisma.$queryRawUnsafe(notSql, ...notRelatedIds)
-                const disallowedIds = notRows.map(row => row.id).filter(v => v !== null && v !== undefined)
+                const notLinkRows = []
+                for (let i = 0; i < notRelatedIds.length; i += MAX_PRISMA_BIND_VALUES) {
+                    const idsChunk = notRelatedIds.slice(i, i + MAX_PRISMA_BIND_VALUES)
+                    const rowsPart = await queryLinkRowsByIds(idsChunk)
+                    notLinkRows.push(...rowsPart)
+                }
+                const disallowedIds = _uniqueNonNull(notLinkRows.map(row => row.id))
                 return _idsToFilter('id', disallowedIds, { negate: true })
             }
             return _idsToFilter('id', currentIds)
