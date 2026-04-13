@@ -61,7 +61,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         acquiringIntegrationContext: {
-            schemaDoc: 'Acquiring integration context, that this serviceConsumer is connected to',
+            schemaDoc: '[DEPRECATED] Acquiring integration context, that this serviceConsumer is connected to',
             type: 'Relationship',
             ref: 'AcquiringIntegrationContext',
             isRequired: false,

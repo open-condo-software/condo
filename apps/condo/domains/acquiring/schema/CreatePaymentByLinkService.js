@@ -3,12 +3,12 @@
  */
 
 const Big = require('big.js')
-const { get } = require('lodash')
 
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
 const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     registerMultiPaymentForVirtualReceipt,
     MultiPayment,
@@ -86,6 +86,10 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 const [acquiringContext] = await find('AcquiringIntegrationContext', {
                     organization: { id: organizationId, deletedAt: null },
                     status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    integration: {
+                        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                        deletedAt: null,
+                    },
                     deletedAt: null,
                 })
 
@@ -96,7 +100,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 if (paymPeriod && PERIOD_REGEXP.test(paymPeriod)) {
                     period = formatPeriodFromQRCode(paymPeriod)
                 } else {
-                    period = await calculatePaymentPeriod(lastReceiptData, get(billingContext, ['settings', 'receiptUploadDate']))
+                    period = await calculatePaymentPeriod(lastReceiptData, billingContext?.settings?.receiptUploadDate)
                 }
 
                 const categoryId = lastReceiptData.category.id
@@ -132,9 +136,9 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     address: billingProperty.address,
                     addressMeta: {
                         dv: 1,
-                        value: get(billingProperty, ['addressMeta', 'value'], ''),
-                        unrestricted_value: get(billingProperty, ['addressMeta', 'unrestricted_value'], ''),
-                        data: get(billingProperty, ['addressMeta', 'data'], null),
+                        value: billingProperty?.addressMeta?.value ?? '',
+                        unrestricted_value: billingProperty?.addressMeta?.unrestricted_value ?? '',
+                        data: billingProperty?.addressMeta?.data ?? null,
                     },
                     unitType: billingAccount.unitType,
                     unitName: billingAccount.unitName,

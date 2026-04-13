@@ -27,6 +27,7 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const logger = getLogger('Invoice')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
@@ -81,7 +82,6 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { activateSubscriptionForInvoice } = require('@condo/domains/subscription/tasks')
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-
 
 const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context }) => {
     if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
@@ -424,6 +424,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: invoice.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 return get(acquiringContext, 'invoiceRecipient')
             },
@@ -438,6 +439,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: item.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 return get(acquiringContext, 'integration', null)
             },
@@ -453,6 +455,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: item.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 const integrationId = get(acquiringContext, 'integration')
                 if (!integrationId) return null
@@ -471,6 +474,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: item.organization },
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
                 const integrationId = get(acquiringContext, 'integration')
                 if (!integrationId) return null
@@ -557,6 +561,7 @@ const Invoice = new GQLListSchema('Invoice', {
                 organization: { id: get(nextData, 'organization') },
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
                 deletedAt: null,
+                integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
             })
 
             if (!acquiringContext) {

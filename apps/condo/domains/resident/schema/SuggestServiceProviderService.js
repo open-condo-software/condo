@@ -7,6 +7,7 @@ const { pick, uniqBy } = require('lodash')
 const { GQLCustomSchema, itemsQuery, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/resident/access/SuggestServiceProviderService')
 const {
@@ -35,6 +36,7 @@ const filterOrganizationsByAcquiringContextOrMeterResourceOwnership = async (con
         organization: { id_in: organizationIds },
         deletedAt: null,
         status: CONTEXT_FINISHED_STATUS,
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
     })
 
     const meterResourceOwners = await find('MeterResourceOwner', {

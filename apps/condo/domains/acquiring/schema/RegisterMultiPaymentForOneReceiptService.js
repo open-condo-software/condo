@@ -6,7 +6,7 @@ const { get, isNil } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { getByCondition, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForOneReceiptService')
 const {
@@ -20,6 +20,7 @@ const {
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -33,7 +34,7 @@ const {
     getAcquiringIntegrationContextFormula,
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -120,6 +121,13 @@ const ERRORS = {
         type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
         message: 'BillingReceipt has deleted BillingIntegration',
     },
+    ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'acquiringIntegrationContext'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Specified AcquiringIntegrationContext was not found',
+    },
 }
 
 const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMultiPaymentForOneReceiptService', {
@@ -151,7 +159,14 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
-                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+                const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                    id: acquiringIntegrationContext.id,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+                })
+
+                if (!acquiringContext) {
+                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND, context)
+                }
 
                 if (acquiringContext.deletedAt) {
                     throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)

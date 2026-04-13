@@ -1,3 +1,4 @@
+import { AcquiringIntegrationTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
@@ -28,6 +29,7 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     } = AcquiringIntegrationContextApi.useObject({
         where: {
             organization: { id: orgId },
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
     })
 

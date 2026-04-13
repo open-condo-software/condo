@@ -49956,7 +49956,7 @@ type ServiceConsumer {
   """
   billingIntegrationContext: BillingIntegrationOrganizationContext
 
-  """ Acquiring integration context, that this serviceConsumer is connected to 
+  """ [DEPRECATED] Acquiring integration context, that this serviceConsumer is connected to 
   """
   acquiringIntegrationContext: AcquiringIntegrationContext
 

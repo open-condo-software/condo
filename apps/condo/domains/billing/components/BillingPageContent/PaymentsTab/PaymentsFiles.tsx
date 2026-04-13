@@ -16,7 +16,7 @@ const PaymentsFiles = (): JSX.Element => {
     const NoPaymentsFilesTitle = intl.formatMessage({ id:'accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.title' })
     const NoPaymentsFilesMessage = intl.formatMessage({ id:'accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message' })
 
-    const { acquiringContext } = useBillingAndAcquiringContexts()
+    const { acquiringContexts } = useBillingAndAcquiringContexts()
 
     const {
         data: anyPaymentsFiles,
@@ -25,10 +25,10 @@ const PaymentsFiles = (): JSX.Element => {
     } = useCheckPaymentsFilesExistenceQuery({
         variables: {
             where: {
-                context: { id: acquiringContext.id },
+                context: { id_in: acquiringContexts.map(({ id }) => id) },
             },
         },
-        skip: !acquiringContext.id,
+        skip: !acquiringContexts.length,
     })
 
     if (isAnyPaymentsFilesLoading) {

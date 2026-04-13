@@ -10,6 +10,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
@@ -89,6 +90,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     organization: { id: resident.organization },
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                 })
 
                 if (!acquiringContext) {

@@ -12,6 +12,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
@@ -42,7 +43,12 @@ const ERRORS = {
 
 const findAcquiringContext = async (item) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-    const acquiringContexts = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+    const acquiringContexts = await find('AcquiringIntegrationContext', {
+        organization: { id: billingContext.organization },
+        status: CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+    })
     return acquiringContexts[0]
 }
 
@@ -239,6 +245,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
                     organization: { id: get(billingContext, 'organization') },
                     status: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                     deletedAt: null,
                 })
                 if (!activeAcquiringContexts || activeAcquiringContexts.length !== 1) return false

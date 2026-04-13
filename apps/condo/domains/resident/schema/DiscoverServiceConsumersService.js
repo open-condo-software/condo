@@ -4,11 +4,13 @@
 const dayjs = require('dayjs')
 const { filter, flatMap, map, omit, pick, uniq } = require('lodash')
 
+
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
 const { BillingAccount, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
@@ -158,6 +160,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     where: {
                         deletedAt: null,
                         organization: { id_in: map(billingAccountItemsData, 'organizationId') },
+                        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                         status: CONTEXT_FINISHED_STATUS,
                     },
                     fields: 'id organization { id }',

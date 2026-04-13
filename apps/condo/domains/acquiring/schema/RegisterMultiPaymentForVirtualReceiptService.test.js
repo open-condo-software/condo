@@ -17,6 +17,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM } } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -285,13 +286,32 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                     await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
                 }, {
                     mutation: 'registerMultiPaymentForVirtualReceipt',
-                    variable: ['data', 'acquiringIntegrationContext', 'id'],
+                    variable: ['data', 'acquiringIntegrationContext'],
                     code: 'BAD_USER_INPUT',
-                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                    messageInterpolation: {
-                        id: acquiringIntegration.id,
-                    },
+                    type: 'NOT_FOUND',
+                    message: 'Specified AcquiringIntegrationContext was not found',
+                })
+            })
+            test('Should be able to pay using only online processing integration', async () => {
+                const {
+                    admin,
+                    acquiringContext,
+                    acquiringIntegration,
+                    billingAccount,
+                } = await makePayer()
+                const receipt = generateReceipt(billingAccount)
+                const acquiringIntegrationContext = { id: acquiringContext.id }
+                await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                    type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+                })
+                await expectToThrowGQLErrorToResult(async () => {
+                    await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
+                }, {
+                    mutation: 'registerMultiPaymentForVirtualReceipt',
+                    variable: ['data', 'acquiringIntegrationContext'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_FOUND',
+                    message: 'Specified AcquiringIntegrationContext was not found',
                 })
             })
         })

@@ -6,6 +6,7 @@ import {
     UpdateTicketMutation,
 } from '@app/condo/gql'
 import {
+    AcquiringIntegrationTypeType,
     BuildingUnitSubType,
     Organization,
     TicketFile as TicketFileType,
@@ -274,6 +275,7 @@ const TicketFormInvoicesEmptyContent = ({
         where: {
             organization: { id: organizationId },
             invoiceStatus: CONTEXT_FINISHED_STATUS,
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
     })
 

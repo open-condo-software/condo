@@ -1,4 +1,4 @@
-import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy } from '@app/condo/schema'
+import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy, AcquiringIntegrationTypeType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -74,6 +74,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         where: {
             isHidden: false,
             setupUrl_not: null,
+            type: AcquiringIntegrationTypeType.OnlineProcessing,
         },
     })
 
@@ -81,8 +82,8 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
 
     const { objs: acquiringContexts, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringContext.useObjects({
         where: {
-            integration: { id: acquiringId },
             organization: { id: orgId },
+            integration: { id: acquiringId, deletedAt: null },
         },
         sortBy: [
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
@@ -95,6 +96,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         where: {
             organization: { id: orgId },
             status_in: [CONTEXT_VERIFICATION_STATUS],
+            integration: { id: acquiringId, deletedAt: null },
         },
         sortBy: [
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,

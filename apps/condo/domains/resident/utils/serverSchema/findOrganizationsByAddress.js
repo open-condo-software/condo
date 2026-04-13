@@ -1,11 +1,10 @@
-const { get } = require('lodash')
-
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
 
 const {
     CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
 } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
@@ -174,7 +173,7 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
         accountNumber: billingAccountsNumbersIndex[receipt.account],
         routingNumber: receipt.recipient.bic,
         bankAccount: receipt.recipient.bankAccount,
-        address: get(receipt, 'raw.address', null),
+        address: receipt?.raw?.address ?? null,
         contextId: receipt.context,
     }))
 }
@@ -234,6 +233,7 @@ async function getOrganizationIdsWithAcquiring (organizations) {
         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
         organization: { id_in: organizations.map(({ id }) => id) },
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
     })
 
     return new Set(acquiringContexts.map(({ organization }) => organization))
