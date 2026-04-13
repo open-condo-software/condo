@@ -49,7 +49,7 @@ class ExternalContentImplementation extends Implementation {
             graphQLAdminFragment,
             adminConfig,
         } = options
-        
+
         // Compute processor config
         const byFormat = { ...DEFAULT_PROCESSORS, ...processors }
         const cfg = byFormat[format]
@@ -137,7 +137,7 @@ class ExternalContentImplementation extends Implementation {
      * 
      * @returns {Object} Field resolver mapping
      */
-    gqlOutputFieldResolvers () {        
+    gqlOutputFieldResolvers () {
         return {
             // Virtual field for deserialized content (for API clients)
             [`${this.path}Resolved`]: async (item, args, context) => {
@@ -152,7 +152,13 @@ class ExternalContentImplementation extends Implementation {
                     })
                 } catch (err) {
                     const itemId = item?.id || 'unknown'
-                    logger.warn({ msg: 'Error resolving ExternalContent field', field: this.path, itemId, err })
+                    logger.warn({
+                        msg: 'Error resolving ExternalContent field',
+                        entity: this.listKey,
+                        entityId: itemId,
+                        err,
+                        data: { path: this.path },
+                    })
                     throw err
                 }
             },
