@@ -28,7 +28,7 @@ const MY_DATA_FIELD = createExternalDataField({
     adapter: MyFieldFileAdapter,
     format: 'json', // or 'xml', 'text'
     maxSizeBytes: 50 * 1024 * 1024, // 50MB (optional, default: 10MB)
-    isAdminUIReadOnly: true, // (optional, default: true) - if false, allows editing in admin UI
+    adminConfig: { isReadOnly: true }, // (optional, default: true) - set to false to allow editing in admin UI
 })
 
 const MySchema = {
@@ -212,24 +212,21 @@ query {
 
 ### Admin UI Editing
 
-By default, ExternalContent fields are **read-only** in the admin UI. You can enable editing by setting `isAdminUIReadOnly: false`:
+By default, ExternalContent fields are **read-only** in the admin UI. You can enable editing via `adminConfig`:
 
 ```javascript
 const EDITABLE_FIELD = createExternalDataField({
     adapter: myFileAdapter,
     format: 'xml',
-    isAdminUIReadOnly: false, // Allow editing in admin UI
+    adminConfig: { isReadOnly: false }, // Allow editing in admin UI
 })
 ```
 
 **Behavior:**
-- **`isAdminUIReadOnly: true` (default)**: Field displays as clickable download link (for new files) or plain text (for legacy content)
-- **`isAdminUIReadOnly: false`**: Field displays as a textarea input, allowing users to edit the content directly in the admin UI
+- **`isReadOnly: true` (default)**: Field displays as a clickable download link (for new files) or plain text (for legacy content)
+- **`isReadOnly: false`**: Field displays as a textarea input, allowing users to edit the content directly in the admin UI
 
-When a user edits the field with `isAdminUIReadOnly: false`, the content is saved in the new file-based format with proper metadata, `publicUrl`, and format information.
-
-**⚠️ File Management Note:**
-Each time the field is edited and saved, a **new file is created** with a new UUID. The old file is **not automatically deleted** to preserve data integrity and maintain an audit trail. This means files will accumulate in storage over time. You may need to implement a cleanup strategy to remove unreferenced files periodically.
+When a user edits the field, the content is saved in the new file-based format with proper metadata, `publicUrl`, and format information. The old file is deleted automatically after the database write succeeds.
 
 ### Legacy Content Handling
 
