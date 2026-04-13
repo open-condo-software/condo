@@ -40,7 +40,7 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
     }
     
     if (batchDelayMs !== undefined && (typeof batchDelayMs !== 'number' || batchDelayMs < 0)) {
-        throw new Error('createExternalDataField: batchDelay must be a non-negative number')
+        throw new Error('createExternalDataField: batchDelayMs must be a non-negative number')
     }
     
     return {
