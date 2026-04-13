@@ -44,13 +44,7 @@ class ExternalContentController extends FieldController {
         if (typeof value === 'string') {
             try {
                 // Try to parse as JSON (handles legacy JSON string metadata)
-                const parsed = JSON.parse(value)
-                // If it's an object with file metadata properties, return it
-                if (parsed && typeof parsed === 'object') {
-                    return parsed
-                }
-                // Otherwise return the parsed value as-is
-                return parsed
+                return JSON.parse(value)
             } catch (err) {
                 // If parsing fails, it's likely XML or plain text content
                 // Return the string as-is (backward compatibility with legacy inline content)

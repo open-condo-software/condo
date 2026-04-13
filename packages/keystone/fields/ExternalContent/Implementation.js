@@ -44,10 +44,6 @@ class ExternalContentImplementation extends Implementation {
             adapter,
             format = 'json',
             processors = {},
-            maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
-            batchDelayMs,
-            graphQLAdminFragment,
-            adminConfig,
         } = options
 
         // Compute processor config
@@ -66,29 +62,16 @@ class ExternalContentImplementation extends Implementation {
             throw new Error(`ExternalContent: adapter is not properly configured for ${path}. Check FILE_FIELD_ADAPTER and storage configuration.`)
         }
 
-        // Pass resolved values to parent class
-        super(path, {
-            ...options,
-            format,
-            processors,
-            graphQLInputType: cfg.graphQLInputType,
-            graphQLReturnType: cfg.graphQLReturnType,
-            mimetype: cfg.mimetype,
-            fileExt: cfg.fileExt,
-        }, meta)
+        super(path, options, meta)
+
+        this.config.maxSizeBytes ??= DEFAULT_MAX_SIZE_BYTES
 
         this.adapter = adapter
-        this.format = format
-        this.maxSizeBytes = maxSizeBytes
-        this.batchDelayMs = batchDelayMs
         this.graphQLInputType = cfg.graphQLInputType
         this.graphQLReturnType = cfg.graphQLReturnType
         this.mimetype = cfg.mimetype
         this.fileExt = cfg.fileExt
-        // Admin UI should query raw database value (file metadata) not deserialized content
-        this.graphQLAdminFragment = graphQLAdminFragment || ''
         this.formatProcessors = byFormat
-        this.adminConfig = adminConfig || {}
     }
 
     /**
@@ -121,10 +104,10 @@ class ExternalContentImplementation extends Implementation {
     // Admin
     extendAdminMeta (meta) {
         return {
-            graphQLAdminFragment: this.graphQLAdminFragment,
-            format: this.format,
+            graphQLAdminFragment: this.config.graphQLAdminFragment || '',
+            format: this.config.format,
             processors: this.formatProcessors,
-            adminConfig: this.adminConfig,
+            adminConfig: this.config.adminConfig || {},
             ...meta,
         }
     }
@@ -148,7 +131,7 @@ class ExternalContentImplementation extends Implementation {
                         adapter: this.adapter,
                         formatProcessors: this.formatProcessors,
                         context,
-                        batchDelayMs: this.batchDelayMs,
+                        batchDelayMs: this.config.batchDelayMs,
                     })
                 } catch (err) {
                     const itemId = item?.id || 'unknown'
@@ -203,9 +186,9 @@ class ExternalContentImplementation extends Implementation {
      * @throws {Error} If size exceeds maxSizeBytes
      */
     _validatePayloadSize (sizeBytes) {
-        if (sizeBytes > this.maxSizeBytes) {
+        if (sizeBytes > this.config.maxSizeBytes) {
             const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2)
-            const maxMB = (this.maxSizeBytes / 1024 / 1024).toFixed(2)
+            const maxMB = (this.config.maxSizeBytes / 1024 / 1024).toFixed(2)
             throw new Error(`ExternalContent: payload size (${sizeMB}MB) exceeds maximum allowed size (${maxMB}MB) for field ${this.path}`)
         }
     }
@@ -263,7 +246,7 @@ class ExternalContentImplementation extends Implementation {
         // Save first, then delete old file.
         // This prevents losing the previous file if save() fails.
 
-        const processor = this.formatProcessors[this.format]
+        const processor = this.formatProcessors[this.config.format]
         const payload = processor.serialize(nextValue)
         const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
 
@@ -283,7 +266,7 @@ class ExternalContentImplementation extends Implementation {
             mimetype: this.mimetype,
             encoding: 'utf-8',
             id,
-            meta: { format: this.format },
+            meta: { format: this.config.format },
         })
 
         if (prevLooksLikeFile && prevValue) {
@@ -300,7 +283,7 @@ class ExternalContentImplementation extends Implementation {
         const publicUrl = this.adapter.publicUrl(saved, context?.authedItem)
 
         // Add _type marker and ensure meta.format is included for deserialization
-        return { ...saved, publicUrl, meta: { format: this.format }, _type: FILE_META_TYPE }
+        return { ...saved, publicUrl, meta: { format: this.config.format }, _type: FILE_META_TYPE }
     }
 }
 
