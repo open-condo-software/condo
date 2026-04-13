@@ -32,6 +32,21 @@ export const usePaymentHistoryModal = () => {
     const ReceiptColumnTitle = intl.formatMessage({ id: 'subscription.paymentHistory.column.receipt' })
     const DownloadReceiptLabel = intl.formatMessage({ id: 'subscription.paymentHistory.downloadReceipt' })
 
+    const getPlanLabel = useCallback((plan: PaymentHistoryRecord['subscriptionPlan']): string => {
+        if (!plan) return '—'
+        const name = plan.name || ''
+        const planType = plan.planType
+        const hasApps = (plan.enabledB2BApps?.length ?? 0) > 0 || (plan.enabledB2CApps?.length ?? 0) > 0
+
+        if (planType === 'service') {
+            return intl.formatMessage({ id: 'subscription.paymentHistory.servicePlanLabel' as FormatjsIntl.Message['ids'] }, { name })
+        }
+        if (planType === 'feature' && hasApps) {
+            return intl.formatMessage({ id: 'subscription.paymentHistory.miniappPlanLabel' as FormatjsIntl.Message['ids'] }, { name })
+        }
+        return name || '—'
+    }, [intl])
+
     const getCardTypeLabel = useCallback((paymentSystem: string) => {
         const upperCaseSystem = paymentSystem.toUpperCase()
         const translationKey = `subscription.linkedCards.cardType.${upperCaseSystem}` as const
@@ -81,10 +96,11 @@ export const usePaymentHistoryModal = () => {
         },
         {
             header: PlanColumnTitle,
-            dataKey: 'subscriptionPlan.name',
+            dataKey: 'subscriptionPlan',
             id: 'plan',
             initialSize: '25%',
             enableSorting: false,
+            render: (_, record) => getPlanLabel(record.subscriptionPlan),
         },
         {
             header: CardColumnTitle,
@@ -132,7 +148,7 @@ export const usePaymentHistoryModal = () => {
                 )
             },
         },
-    ], [DateColumnTitle, intl, PlanColumnTitle, CardColumnTitle, AmountColumnTitle, ReceiptColumnTitle, getCardTypeLabel, DownloadReceiptLabel])
+    ], [DateColumnTitle, intl, PlanColumnTitle, CardColumnTitle, AmountColumnTitle, ReceiptColumnTitle, getPlanLabel, getCardTypeLabel, DownloadReceiptLabel])
 
     const getRowId = useCallback((row: PaymentHistoryRecord) => row.id, [])
 

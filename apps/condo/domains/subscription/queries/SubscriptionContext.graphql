@@ -169,6 +169,9 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
         subscriptionPlan {
             id
             name
+            planType
+            enabledB2BApps
+            enabledB2CApps
         }
         frozenPaymentInfo {
             paymentMethod {
