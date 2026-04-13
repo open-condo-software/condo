@@ -14,7 +14,7 @@ import type { TypographyTextProps } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 
-import type { DropdownProps } from 'antd'
+import type { DropdownProps, MenuProps } from 'antd'
 
 
 const SIGN_OUT_BROADCAST_CHANNEL = 'signOut'
@@ -28,9 +28,11 @@ const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 180, width: '100%' }
 
 type UserMenuProps = {
     goToAfterLogout?: () => unknown | Promise<unknown>
+    extraMenuItems?: MenuProps['items']
 }
 export const UserMenu: React.FC<UserMenuProps> = ({
     goToAfterLogout,
+    extraMenuItems,
 }) => {
     const { breakpoints } = useLayoutContext()
 
@@ -73,6 +75,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                     ),
                     onClick: handleProfileClick,
                 },
+                ...(extraMenuItems ?? []),
                 {
                     key: 'signOut',
                     label: (
@@ -82,7 +85,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                 },
             ],
         }
-    }, [MyProfileMessage, SignOutMessage, handleProfileClick, handleSignOutClick])
+    }, [MyProfileMessage, SignOutMessage, handleProfileClick, handleSignOutClick, extraMenuItems])
 
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
 

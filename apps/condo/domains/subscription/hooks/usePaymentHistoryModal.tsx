@@ -1,7 +1,7 @@
 import { useGetOrganizationPaymentHistoryLazyQuery, GetOrganizationPaymentHistoryQuery } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
-import { useMemo, useCallback, useState } from 'react'
+import { useMemo, useCallback, useEffect, useState } from 'react'
 
 
 import { useIntl } from '@open-condo/next/intl'
@@ -53,7 +53,14 @@ export const usePaymentHistoryModal = () => {
         return intl.formatMessage({ id: translationKey as any, defaultMessage: upperCaseSystem })
     }, [intl])
 
-    const [fetchPaymentHistory] = useGetOrganizationPaymentHistoryLazyQuery()
+    const [fetchPaymentHistory, { data: lazyData }] = useGetOrganizationPaymentHistoryLazyQuery()
+    const hasPaymentHistory = (lazyData?.meta?.count ?? 0) > 0
+
+    useEffect(() => {
+        if (organization?.id) {
+            fetchPaymentHistory({ variables: { organizationId: organization.id, offset: 0, first: 1 } })
+        }
+    }, [organization?.id, fetchPaymentHistory])
 
     const openModal = useCallback(() => {
         setIsModalOpen(true)
@@ -173,5 +180,6 @@ export const usePaymentHistoryModal = () => {
     return {
         PaymentHistoryModal,
         openModal,
+        hasPaymentHistory,
     }
 }

@@ -304,7 +304,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const contextPaymentMethodId = autoPaymentContext?.bindingId || null
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
-        activePaymentMethodId: contextPaymentMethodId,
         onCardUnbound: refetchActivatedSubscriptions,
     })
 

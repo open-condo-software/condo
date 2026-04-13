@@ -34,11 +34,10 @@ const getCardIssuerImageUrl = (cardIssuerName?: string): string => {
 }
 
 type UseLinkedCardsModalProps = {
-    activePaymentMethodId?: string | null
     onCardUnbound?: () => void | Promise<void>
 }
 
-export const useLinkedCardsModal = ({ activePaymentMethodId, onCardUnbound }: UseLinkedCardsModalProps = {}) => {
+export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps = {}) => {
     const intl = useIntl()
     const { organization, role } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
