@@ -87,6 +87,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, recurrentPaymentContext } = data
                 const groupedReceipts = data?.groupedReceipts || []
                 const invoices = data?.invoices || []
+                const authedItemId = context.authedItem?.id
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
@@ -127,7 +128,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                     const loadedAccounts = await loadBillingAccountsByIds(receipts.map(({ account }) => account))
                     billingAccountsById = loadedAccounts.byId
-                    
+
                     validateReceiptsHavePositiveToPay(receipts, hasDistribution, context)
 
                     const loadedBillingContexts = await loadBillingContextsByIds(receipts.map(({ context }) => context))
@@ -158,7 +159,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 validateAcquiringIntegrationExists(acquiringIntegration, context)
 
                 if (mode === REQUEST_MODE.RECEIPTS) {
-                    validateServiceConsumersBelongToCurrentUser(consumers, residentsById, context.authedItem.id, context)
+                    validateServiceConsumersBelongToCurrentUser(consumers, residentsById, authedItemId, context)
                 }
 
                 if (mode === REQUEST_MODE.RECEIPTS) {
@@ -175,7 +176,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     )
                 } else if (mode === REQUEST_MODE.INVOICES) {
                     validateInvoicesArePublished(foundInvoices, context)
-                    validateInvoicesBelongToCurrentUser(foundInvoices, context.authedItem.id, context)
+                    validateInvoicesBelongToCurrentUser(foundInvoices, authedItemId, context)
                     validateInvoiceAcquiringContextsFinished(acquiringContexts, context)
                 } else {
                     throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
@@ -219,8 +220,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}
 
-                const authedItemId = context.authedItem.id
-
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
@@ -236,7 +235,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 return {
                     dv: 1,
                     multiPaymentId: multiPayment.id,
-                    ...buildOutputUrls(acquiringIntegration.hostUrl, multiPayment.id, context.authedItem.id),
+                    ...buildOutputUrls(acquiringIntegration.hostUrl, multiPayment.id, authedItemId),
                 }
             },
         },
