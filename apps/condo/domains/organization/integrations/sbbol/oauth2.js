@@ -57,7 +57,7 @@ class SbbolOauth2Api {
             try {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (err) {
-                logger.info({ msg: 'JWT validation error', data: { jwt, err } })
+                logger.info({ msg: 'JWT validation error', data: { err } })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
