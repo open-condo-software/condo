@@ -9,6 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
+import type { AvailableFeatureType } from '../constants/features'
 import { useActivateSubscriptions } from './useActivateSubscriptions'
 import { useOrganizationSubscription } from './useOrganizationSubscription'
 import { useSubscriptionPaymentModal } from './useSubscriptionPaymentModal'
@@ -18,12 +19,12 @@ const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 type FeaturePlan = NonNullable<NonNullable<GetAvailableFeatureSubscriptionPlansQuery['result']>['plans'][number]>
 
-export const useFeatureSubscriptionForApp = (appId: string) => {
+export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?: string) => {
     const intl = useIntl()
     const { organization } = useOrganization()
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
-    const { subscriptionContext, isB2BAppEnabled } = useOrganizationSubscription()
+    const { subscriptionContext, isB2BAppEnabled, isFeatureAvailable } = useOrganizationSubscription()
     const { registerSubscriptionContext, activateLoading, pendingRequests } = useActivateSubscriptions()
 
     const isEnabled = Boolean(enableSubscriptions) && hasSubscriptionsFlag
@@ -39,16 +40,21 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
         skip: skipQuery,
     })
 
-    const isAppAvailableInCurrentTariff = isB2BAppEnabled(appId)
+    const isCurrentlyAvailable = feature === 'b2bApp'
+        ? isB2BAppEnabled(b2bAppId || '')
+        : isFeatureAvailable(feature)
 
     const featurePlanInfo = useMemo<FeaturePlan | null>(() => {
         if (!featurePlansData?.result?.plans) return null
         const plans = featurePlansData.result.plans.filter(Boolean) as FeaturePlan[]
         return plans.find(p => {
-            const enabledApps: string[] = Array.isArray(p?.plan?.enabledB2BApps) ? p.plan.enabledB2BApps : []
-            return enabledApps.includes(appId)
+            if (feature === 'b2bApp') {
+                const enabledApps: string[] = Array.isArray(p?.plan?.enabledB2BApps) ? p.plan.enabledB2BApps : []
+                return b2bAppId ? enabledApps.includes(b2bAppId) : false
+            }
+            return Boolean((p?.plan as Record<string, unknown>)?.[feature])
         }) || null
-    }, [featurePlansData, appId])
+    }, [featurePlansData, feature, b2bAppId])
 
     const featurePlanFirstPrice = featurePlanInfo?.prices?.[0] || null
 
@@ -58,10 +64,13 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
         return plans.find(p => {
             const plan = p?.plan
             if (!plan?.canBePromoted) return false
-            const enabledApps: string[] = Array.isArray(plan.enabledB2BApps) ? plan.enabledB2BApps : []
-            return enabledApps.includes(appId)
+            if (feature === 'b2bApp') {
+                const enabledApps: string[] = Array.isArray(plan.enabledB2BApps) ? plan.enabledB2BApps : []
+                return b2bAppId ? enabledApps.includes(b2bAppId) : false
+            }
+            return Boolean((plan as Record<string, unknown>)?.[feature])
         })?.plan || null
-    }, [servicePlansData, appId])
+    }, [servicePlansData, feature, b2bAppId])
 
     const hasPendingFeatureRequest = useMemo(() => {
         if (!featurePlanInfo?.plan?.id) return false
@@ -85,6 +94,8 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
         return priceStr
     }, [featurePlanFirstPrice?.currencyCode, featurePlanFirstPrice?.period, featurePlanFirstPrice?.price, intl])
 
+    const returnUrl = feature === 'b2bApp' && b2bAppId ? `miniapps/${b2bAppId}/about` : undefined
+
     const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
         if (!featurePlanFirstPrice?.id) return
         await registerSubscriptionContext({
@@ -94,9 +105,9 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
             trialDays: 0,
             isCustomPrice: !featurePlanFirstPrice.price,
             paymentType,
-            returnUrl: `miniapps/${appId}/about`,
+            returnUrl,
         })
-    }, [appId, featurePlanFirstPrice?.id, featurePlanFirstPrice?.price, featurePlanInfo?.plan?.name, registerSubscriptionContext])
+    }, [returnUrl, featurePlanFirstPrice?.id, featurePlanFirstPrice?.price, featurePlanInfo?.plan?.name, registerSubscriptionContext])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
@@ -115,7 +126,7 @@ export const useFeatureSubscriptionForApp = (appId: string) => {
 
     return {
         isEnabled,
-        isAppAvailableInCurrentTariff,
+        isCurrentlyAvailable,
         hasFeaturePlan: Boolean(featurePlanInfo),
         featurePlanId: featurePlanInfo?.plan?.id || null,
         formattedFeaturePrice,

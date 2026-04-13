@@ -1,6 +1,6 @@
 export { useOrganizationSubscription } from './useOrganizationSubscription'
 export type { SubscriptionContext } from './useOrganizationSubscription'
 export { useActivateSubscriptions } from './useActivateSubscriptions'
-export { useFeatureSubscriptionForApp } from './useFeatureSubscriptionForApp'
+export { useFeatureSubscription } from './useFeatureSubscription'
 export { useTrialSubscriptions } from './useTrialSubscriptions'
 export { useSubscriptionPaymentSuccess } from './useSubscriptionPaymentSuccess'

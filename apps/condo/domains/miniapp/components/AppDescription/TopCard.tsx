@@ -18,7 +18,7 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
-import { useFeatureSubscriptionForApp } from '@condo/domains/subscription/hooks/useFeatureSubscriptionForApp'
+import { useFeatureSubscription } from '@condo/domains/subscription/hooks/useFeatureSubscription'
 
 import { AppLabelTag } from '../AppLabelTag'
 
@@ -136,7 +136,7 @@ const TopCard = React.memo<TopCardProps>(({
 
     const {
         isEnabled: isSubscriptionsEnabled,
-        isAppAvailableInCurrentTariff,
+        isCurrentlyAvailable,
         hasFeaturePlan,
         formattedFeaturePrice,
         forPlanLabel,
@@ -145,7 +145,7 @@ const TopCard = React.memo<TopCardProps>(({
         hasPendingFeatureRequest,
         openPaymentModal,
         PaymentModal,
-    } = useFeatureSubscriptionForApp(id)
+    } = useFeatureSubscription('b2bApp', id)
 
     const router = useRouter()
     const handleGoToSubscriptionSettings = useCallback(() => {
@@ -182,7 +182,7 @@ const TopCard = React.memo<TopCardProps>(({
         return btnProps
     }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible, isAppAvailableForTariff, UnavailableForTariffMessage])
 
-    const isAppRestrictedBySubscription = isSubscriptionsEnabled && !isAppAvailableInCurrentTariff
+    const isAppRestrictedBySubscription = isSubscriptionsEnabled && !isCurrentlyAvailable
     const hasFeatureOrFreeLabel = hasFeaturePlan || !!freeWithPlanLabel
     const shouldShowFeatureSubscriptionBlock = isAppRestrictedBySubscription && (!contextStatus || hasFeatureOrFreeLabel)
 

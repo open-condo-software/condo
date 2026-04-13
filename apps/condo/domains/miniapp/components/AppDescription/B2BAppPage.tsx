@@ -11,7 +11,7 @@ import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/c
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { B2BApp, B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
-import { useFeatureSubscriptionForApp, useSubscriptionPaymentSuccess } from '@condo/domains/subscription/hooks'
+import { useFeatureSubscription, useSubscriptionPaymentSuccess } from '@condo/domains/subscription/hooks'
 
 import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
@@ -24,7 +24,7 @@ type B2BPageProps = {
 export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const intl = useIntl()
     const { refetch: refetchMenu } = useConnectedAppsWithIconsContext()
-    const { featurePlanId } = useFeatureSubscriptionForApp(id)
+    const { featurePlanId } = useFeatureSubscription('b2bApp', id)
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const SuccessPaymentModalTitle = intl.formatMessage({ id: 'miniapps.addDescription.successPayment.modal.title' })
     const SuccessPaymentModalDescription = intl.formatMessage({ id: 'miniapps.addDescription.successPayment.modal.description' })
