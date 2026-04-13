@@ -295,7 +295,7 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
 
     const _idsToFilter = (path, ids, { negate = false, includeNull = false } = {}) => {
         if (!Array.isArray(ids) || ids.length === 0) {
-            if (negate) return includeNull ? {} : {}
+            if (negate) return {}
             return { id: { in: [] } }
         }
         if (!negate) return { [path]: { in: ids } }
