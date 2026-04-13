@@ -38,10 +38,10 @@ describe('createExternalDataField', () => {
         const adapter = { save: async () => ({}), delete: async () => undefined }
 
         expect(() => createExternalDataField({ adapter, batchDelayMs: -1 }))
-            .toThrow('batchDelay must be a non-negative number')
+            .toThrow('batchDelayMs must be a non-negative number')
 
         expect(() => createExternalDataField({ adapter, batchDelayMs: 'invalid' }))
-            .toThrow('batchDelay must be a non-negative number')
+            .toThrow('batchDelayMs must be a non-negative number')
     })
 
     test('includes maxSizeBytes when provided', () => {
@@ -78,31 +78,24 @@ describe('createExternalDataField', () => {
         expect(field.isRequired).toBe(false)
     })
 
-    test('adminConfig.isReadOnly defaults to true when isAdminUIReadOnly is not provided', () => {
+    test('adminConfig.isReadOnly defaults to true when adminConfig is not provided', () => {
         const adapter = { save: async () => ({}), delete: async () => undefined }
         const field = createExternalDataField({ adapter })
 
         expect(field.adminConfig).toEqual({ isReadOnly: true })
     })
 
-    test('adminConfig.isReadOnly is false when isAdminUIReadOnly is false', () => {
+    test('adminConfig.isReadOnly is false when adminConfig: { isReadOnly: false } is passed', () => {
         const adapter = { save: async () => ({}), delete: async () => undefined }
-        const field = createExternalDataField({ adapter, isAdminUIReadOnly: false })
+        const field = createExternalDataField({ adapter, adminConfig: { isReadOnly: false } })
 
         expect(field.adminConfig).toEqual({ isReadOnly: false })
     })
 
-    test('adminConfig.isReadOnly is true when isAdminUIReadOnly is true', () => {
+    test('adminConfig.isReadOnly is true when adminConfig: { isReadOnly: true } is passed', () => {
         const adapter = { save: async () => ({}), delete: async () => undefined }
-        const field = createExternalDataField({ adapter, isAdminUIReadOnly: true })
+        const field = createExternalDataField({ adapter, adminConfig: { isReadOnly: true } })
 
         expect(field.adminConfig).toEqual({ isReadOnly: true })
-    })
-
-    test('isAdminUIReadOnly is not leaked into the returned field object', () => {
-        const adapter = { save: async () => ({}), delete: async () => undefined }
-        const field = createExternalDataField({ adapter, isAdminUIReadOnly: false })
-
-        expect(field).not.toHaveProperty('isAdminUIReadOnly')
     })
 })
