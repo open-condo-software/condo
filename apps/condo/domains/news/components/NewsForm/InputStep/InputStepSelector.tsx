@@ -1,13 +1,13 @@
-import { GetNewsSharingRecipientsQuery, useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
+import { useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
 import {
     B2BAppNewsSharingConfig,
     Property as IProperty,
     NewsItem as INewsItem,
     B2BAppContext as IB2BAppContext,
 } from '@app/condo/schema'
-import { Col, Form, FormInstance, notification, Row } from 'antd'
+import { Col, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import React, { useCallback, useMemo, useRef, ComponentProps, useState } from 'react'
+import React, { useCallback, useMemo, useRef, ComponentProps } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
@@ -242,7 +242,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     }
 
     return (
-        <Col span={14}>
+        <Col span={24}>
             {viewSelector ? (
                 <Row>
                     {!isCustomSelector ? (

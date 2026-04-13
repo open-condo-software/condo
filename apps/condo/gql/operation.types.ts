@@ -496,7 +496,7 @@ export type CreateNewsItemFileMutationVariables = Types.Exact<{
 }>;
 
 
-export type CreateNewsItemFileMutation = { __typename?: 'Mutation', newsItemFile?: { __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
+export type CreateNewsItemFileMutation = { __typename?: 'Mutation', newsItemFile?: { __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null, mimetype?: string | null } | null } | null };
 
 export type UpdateNewsItemFileMutationVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
@@ -504,7 +504,7 @@ export type UpdateNewsItemFileMutationVariables = Types.Exact<{
 }>;
 
 
-export type UpdateNewsItemFileMutation = { __typename?: 'Mutation', newsItemFile?: { __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
+export type UpdateNewsItemFileMutation = { __typename?: 'Mutation', newsItemFile?: { __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null, mimetype?: string | null } | null } | null };
 
 export type GetNewsItemFilesQueryVariables = Types.Exact<{
   where: Types.NewsItemFileWhereInput;

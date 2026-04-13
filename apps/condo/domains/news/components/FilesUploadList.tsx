@@ -6,22 +6,16 @@ import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import getConfig from 'next/config'
+import { UploadRequestOption } from 'rc-upload/lib/interface'
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { buildMeta, upload as uploadFiles } from '@open-condo/files'
 import { ChevronLeft, ChevronRight, Eye, PlusCircle, Trash } from '@open-condo/icons'
-import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { colors } from '@open-condo/ui/colors'
 
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
-
-import styles from './FilesUploadList.module.css'
 
 
 let ffmpeg: FFmpeg | null = null
@@ -39,8 +33,6 @@ const loadFFmpeg = async () => {
         ffmpegLoaded = true
     }
 }
-
-const { publicRuntimeConfig: { fileClientId } = {} } = getConfig()
 
 const UploadWrapper = styled.div<{ imageSize: number }>`
   display: flex;
@@ -132,23 +124,21 @@ export type UploadFileType = {
     name: string
     status: 'done' | 'uploading'
     url: string
-    response: { id: string, url: string, originalName: string, mimetype: string }
+    response: { id: string, url: string, originalName: string, mimetype: string, thumbnail?: string }
+    thumbUrl?: string
 }
 
 export type DBFile = {
     id: string
     file?: FileSchema
 }
-
-const FILE_UPLOAD_MODEL = 'NewsItemFile'
-
 type ImagesUploadListProps = {
     type: 'view' | 'upload'
     onFilesChange?: (files: UploadFileType[]) => void
     hideArrows?: boolean
     defaultFileList?: UploadFileType[]
     fileList?: UploadFileType[]
-    createAction?: ({ file }: { file: UploadFile }) => Promise<DBFile>
+    createAction?: ({ file }: { file: UploadRequestOption['file'] }) => Promise<DBFile>
     imageSize?: number
     updateFileList: React.Dispatch<Action>
     maxCount?: number
@@ -290,7 +280,7 @@ const createVideoThumbnailFromUrl = (url: string) => {
     })
 }
 
-async function smartTranscode (ffmpeg: FFmpeg, inputName, outputName) {
+async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
     const getCodec = async (type) => {
         const outputName = `${inputName}_ffprobe_output.json`
         await ffmpeg.ffprobe([
@@ -314,9 +304,6 @@ async function smartTranscode (ffmpeg: FFmpeg, inputName, outputName) {
     const isH264 = videoCodec === 'h264'
     const isAAC = audioCodec === 'aac'
     const hasAudio = audioCodec !== null
-
-    console.log('Video codec:', videoCodec)
-    console.log('Audio codec:', audioCodec)
 
     const args = [
         '-i', inputName,
@@ -356,15 +343,11 @@ async function smartTranscode (ffmpeg: FFmpeg, inputName, outputName) {
 
     args.push(outputName)
 
-    console.log('smartTranscode/args >>> ', {
-        args,
-    })
-
     await ffmpeg.exec(args)
 }
 
 let heic2any: any
-const convertFileIfNeeded = async (file: File, onProgress?): Promise<File> => {
+const convertFile = async (file: File, onProgress?): Promise<File> => {
     // 🖼 HEIC → JPEG
     if (file.type === 'image/heic') {
         if (!heic2any) {
@@ -422,7 +405,6 @@ const convertFileIfNeeded = async (file: File, onProgress?): Promise<File> => {
         const outputName = `output_${random}.mp4`
 
         const onProgressHandler = ({ progress }) => {
-            console.log('Progress >>> ', progress, ' --- Percent >>> ', progress * 0.5 * 100)
             if (progress < 1) {
                 onProgress && onProgress({ percent: progress * 0.5 * 100 })
             }
@@ -434,7 +416,7 @@ const convertFileIfNeeded = async (file: File, onProgress?): Promise<File> => {
 
         await ffmpeg.writeFile(inputName, await file.bytes())
 
-        await smartTranscode(ffmpeg, inputName, outputName)
+        await transcodeVideo(ffmpeg, inputName, outputName)
 
         const data = await ffmpeg.readFile(outputName)
 
@@ -478,7 +460,7 @@ type State = {
     deleted: Array<{ id: string }>
 }
 
-type Action =
+export type Action =
     | { type: 'delete', payload: { id: string } }
     | { type: 'add', payload: { id: string } }
     | { type: 'reset', payload?: undefined }
@@ -487,11 +469,6 @@ const reducer = (state: State, action: Action): State => {
     const { type, payload: file } = action
     switch (type) {
         case 'delete': {
-
-            console.log('reducer/delete >>> ', {
-                file,
-            })
-
             if (file.id) {
                 return {
                     ...state,
@@ -543,14 +520,12 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     onFilesChange,
     defaultFileList,
     fileList,
-    // createAction,
+    createAction,
     imageSize = 80,
     updateFileList,
-    maxCount = 5,
+    maxCount = 10,
 }) => {
     const intl = useIntl()
-    const { user } = useAuth()
-    const { organization } = useOrganization()
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
         { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
@@ -560,8 +535,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     useDeepCompareEffect(() => {
         setFiles(fileList)
     }, [fileList])
-
-    const [createNewsItemFile] = useCreateNewsItemFileMutation()
 
     const imagesListWrapperRef = useRef<HTMLDivElement>()
     const imagesListRef = useRef<HTMLDivElement>()
@@ -622,41 +595,21 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                 (fileList || files).map(async (file) => {
                     if (file.thumbUrl) return file
 
-                    console.log('useEffect >>>', {
-                        fileList,
-                        file,
-                        'file.response?.mimetype': file.response?.mimetype,
-                    })
-
                     try {
+                        let thumb = ''
                         if (file.response?.mimetype?.startsWith('image/')) {
-                            const thumb = await getImageThumbnailFromUrl(file.url)
-
-                            console.log('useEffect/image >>>', {
-                                thumb,
-                            })
-
-                            return {
-                                ...file,
-                                thumbUrl: thumb,
-                            }
+                            thumb = await getImageThumbnailFromUrl(file.url)
                         }
-
                         if (file.response?.mimetype?.startsWith('video/')) {
-                            const thumb = await createVideoThumbnailFromUrl(file.url)
-
-
-                            console.log('useEffect/video >>>', {
-                                thumb,
-                            })
-
-                            return {
-                                ...file,
-                                thumbUrl: thumb,
-                            }
+                            thumb = await createVideoThumbnailFromUrl(file.url)
                         }
 
-                        return file
+                        if (!thumb) return file
+
+                        return {
+                            ...file,
+                            thumbUrl: thumb,
+                        }
                     } catch (e) {
                         console.error(e)
                         return file
@@ -674,13 +627,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
             setIsReady(true)
         }
     }, [fileList])
-
-    console.log({
-        defaultFileList,
-        fileList,
-        files,
-        isReady,
-    })
 
     if (!isReady) return null
 
@@ -736,24 +682,23 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     customRequest={async (options) => {
                         const { onSuccess, onError, onProgress } = options
 
+                        if (!isFunction(createAction)) {
+                            console.error('Specify createActionProp to upload files')
+                            return
+                        }
+
                         onProgress({ percent: 0 })
 
                         let file = options.file as File
 
                         try {
-                            file = await convertFileIfNeeded(file, onProgress)
+                            file = await convertFile(file, onProgress)
                         } catch (error) {
                             console.error('Conversion failed', error)
                             throw error
                         }
 
                         onProgress({ percent: 50 })
-
-                        // TODO(DOMA-13015)
-                        // if (!isFunction(createAction)) {
-                        //     console.error('Specify createActionProp to upload files')
-                        //     return
-                        // }
 
                         if (file.size > 512 * 1024 * 1024) {
                             const error = new Error(FileTooBigErrorMessage)
@@ -762,53 +707,27 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                         }
 
                         try {
+                            const dbFile = await createAction({ file })
 
-                            console.log('customRequest >>> ', {
-                                file,
-                                options,
-                            })
-
-
-                            let createInput
-
-                            if (fileClientId && user?.id) {
-                                const senderInfo = getClientSideSenderInfo()
-                                const uploadResult = await uploadFiles({
-                                    files: [file],
-                                    meta: buildMeta({
-                                        userId: user.id,
-                                        fileClientId,
-                                        modelNames: [FILE_UPLOAD_MODEL],
-                                        fingerprint: senderInfo.fingerprint,
-                                        organizationId: organization?.id,
-                                    }),
-                                })
-                                createInput = {
-                                    signature: uploadResult.files?.[0]?.signature,
-                                    originalFilename: file.name,
-                                    mimetype: file.type,
-                                }
-                            } else {
-                                createInput = file
+                            // ADD preview
+                            let thumbnail = ''
+                            if (file.type?.startsWith('image/')) {
+                                thumbnail = await getImageThumbnailFromUrl(dbFile?.file?.publicUrl)
+                            }
+                            if (file.type?.startsWith('video/')) {
+                                thumbnail = await createVideoThumbnailFromUrl(dbFile?.file?.publicUrl)
                             }
 
-                            const sender = getClientSideSenderInfo()
-                            const dvAndSender = { dv: 1, sender }
-
-                            const dbFile = await createNewsItemFile({
-                                variables: {
-                                    data: {
-                                        ...dvAndSender,
-                                        file: createInput,
-                                    },
-                                },
-                            })
-
-                            //TODO(DOMA-13015)
-                            updateFileList({ type: 'add', payload: dbFile?.data?.newsItemFile as any })
+                            updateFileList({ type: 'add', payload: dbFile })
 
                             onProgress({ percent: 100 })
-                            onSuccess({ id: dbFile?.data?.newsItemFile?.id, url: dbFile?.data?.newsItemFile?.file?.publicUrl, originalName: dbFile?.data?.newsItemFile?.file?.originalFilename }, null)
+                            onSuccess({
+                                id: dbFile?.id,
+                                url: dbFile?.file?.publicUrl,
+                                originalName: dbFile?.file?.originalFilename,
+                                mimetype: dbFile?.file?.mimetype,
+                                thumbnail: thumbnail,
+                            }, null)
                         } catch (err) {
                             const error = new Error(UploadFailedErrorMessage)
                             console.error('Upload failed', err)
@@ -817,25 +736,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     }}
                     onPreview={handlePreview}
                     // itemRender={customItemRender}
-                    previewFile={async (file) => {
-                        console.log('previewFile >>> ', {
-                            file,
-                            json: JSON.stringify(file),
-                        })
-                        if (file.type?.startsWith('image/')) {
-                            const url = URL.createObjectURL(file)
-                            const thumbnail = await getImageThumbnailFromUrl(url)
-                            URL.revokeObjectURL(url)
-                            return thumbnail
-                        }
-                        if (file.type?.startsWith('video/')) {
-                            const url = URL.createObjectURL(file)
-                            const thumbnail = await createVideoThumbnailFromUrl(url)
-                            URL.revokeObjectURL(url)
-                            return thumbnail
-                        }
-                        return null
-                    }}
                     iconRender={(file) => {
                         let typeToView = ''
                         if (file.type?.startsWith('video/mp4')) typeToView = 'MP4'

@@ -1,14 +1,14 @@
 mutation createNewsItemFile ($data: NewsItemFileCreateInput!) {
     newsItemFile: createNewsItemFile(data: $data) {
         id
-        file { publicUrl originalFilename }
+        file { publicUrl originalFilename mimetype }
     }
 }
 
 mutation updateNewsItemFile ($id: ID!, $data: NewsItemFileUpdateInput!) {
     newsItemFile: updateNewsItemFile(data: $data, id: $id) {
         id
-        file { publicUrl originalFilename }
+        file { publicUrl originalFilename mimetype }
     }
 }
 

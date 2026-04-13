@@ -3281,6 +3281,7 @@ export const CreateNewsItemFileDocument = gql`
     file {
       publicUrl
       originalFilename
+      mimetype
     }
   }
 }
@@ -3318,6 +3319,7 @@ export const UpdateNewsItemFileDocument = gql`
     file {
       publicUrl
       originalFilename
+      mimetype
     }
   }
 }

@@ -100,15 +100,16 @@ const NewsItemFile = new GQLListSchema('NewsItemFile', {
                         id: resolvedData?.[fieldPath]?.id || null,
                     })
                     const mimetype = fileRecord?.fileMimeType
+                    const [normalizedMimetype] = mimetype.replaceAll(' ', '').split(';')
 
-                    if (!mimetype) {
+                    if (!normalizedMimetype) {
                         throw new GQLError(ERRORS.UNKNOWN_FILE_TYPE, context)
                     }
 
-                    if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
+                    if (!ALLOWED_MIME_TYPES.includes(normalizedMimetype)) {
                         throw new GQLError({
                             ...ERRORS.FORBIDDEN_FILE_TYPE,
-                            message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: ${mimetype}`,
+                            message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: "${mimetype}"`,
                         }, context)
                     }
                 },
