@@ -8,19 +8,19 @@ const pluralize = require('pluralize')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, getSchemaCtx, getByCondition } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx, getByCondition } = require('@open-condo/keystone/schema')
 
 const { B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/config')
 const { generateGqlQueryToField, getFilterByFieldPathValue } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-function getB2CAppFilter ({ user, permissionKey, isPermissionStatic }) {
+function getB2CAppFilter ({ user, permissionKey, requirePermission }) {
     return {
         deletedAt: null,
         accessRights_some: {
             user: { id: user.id },
             deletedAt: null,
-            ...(isPermissionStatic 
+            ...(requirePermission 
                 ? null 
                 : {
                     accessRightSet: {
@@ -52,18 +52,16 @@ async function canReadByServiceUser (args, schemaConfig) {
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
 
-    return getFilterByFieldPathValue(pathToB2CApp, getB2CAppFilter({ user, isPermissionStatic: schemaConfig.isStatic, permissionKey }))
+    return getFilterByFieldPathValue(pathToB2CApp, getB2CAppFilter({ user, requirePermission: !!schemaConfig.rightSetRequired, permissionKey }))
 }
 
-async function canManageByServiceUser ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) {
+async function canManageByServiceUser ({ authentication: { item: user }, listKey, originalInput, itemId, itemIds, operation, context }, schemaConfig, parentSchemaName) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (!listKey) return false
 
     const isBulkRequest = Array.isArray(originalInput)
-
-    if (isBulkRequest) return false
 
     const pathToAddressKey = get(schemaConfig, 'pathToAddressKey', null)
     if (pathToAddressKey) {
@@ -74,13 +72,15 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
     if (!pathToB2CApp) return false
     const pathToB2CAppId = [...pathToB2CApp, 'id']
 
-    let b2cAppId = null
+    if (isBulkRequest && pathToB2CAppId.length > 2) return false
+
+    let b2cAppIds = []
 
     if (operation === 'create') {
         if (pathToB2CAppId.length === 1) {
-            b2cAppId = get(originalInput, pathToB2CAppId, null)
+            b2cAppIds = (isBulkRequest ? originalInput.map(input => input.data) : [originalInput]).map(input => get(input, pathToB2CAppId, null))
         }  else if (pathToB2CAppId.length === 2) {
-            b2cAppId = get(originalInput, [pathToB2CAppId[0], 'connect', pathToB2CAppId[1]], null)
+            b2cAppIds = (isBulkRequest ? originalInput.map(input => input.data) : [originalInput]).map(input => get(input, [pathToB2CAppId[0], 'connect', pathToB2CAppId[1]], null))
         } else if (pathToB2CAppId.length > 2) {
             const parentObjectId = get(originalInput, [pathToB2CAppId[0], 'connect', 'id'], null)
             if (!parentObjectId) return false
@@ -96,18 +96,21 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
             if (!parentObject) return false
 
-            b2cAppId = get(parentObject, pathToB2CAppId.slice(1))
+            b2cAppIds = [get(parentObject, pathToB2CAppId.slice(1))]
         }
     } else if (operation === 'update') {
-        if (!itemId) return false // NOTE(YEgorLu): maybe add support for bulk requests later
+        const ids = itemIds || [itemId]
+        if (!ids.length) return false
 
-        const item = await getById(listKey, itemId)
-        if (!item) return false
+        const items = await find(listKey, {
+            id_in: ids,
+        })
+        if (items.length !== ids.length) return false
 
         if (pathToB2CAppId.length === 1 || pathToB2CAppId.length === 2) {
-            b2cAppId = get(item, [pathToB2CAppId[0]], null)
+            b2cAppIds = items.map(item => get(item, [pathToB2CAppId[0]], null))
         } else if (pathToB2CAppId.length > 2) {
-            const parentObjectId = get(item, [pathToB2CAppId[0]])
+            const parentObjectId = get(items[0], [pathToB2CAppId[0]])
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
@@ -121,21 +124,25 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
             if (!parentObject) return false
 
-            b2cAppId = get(parentObject, pathToB2CAppId.slice(1))
+            b2cAppIds = [get(parentObject, pathToB2CAppId.slice(1))]
         }
     }
 
-    if (!b2cAppId) return false
+    if (!b2cAppIds.length) return false
+    if (b2cAppIds.filter(Boolean).length !== b2cAppIds.length) return false
+    if (isBulkRequest && b2cAppIds.length !== originalInput.length) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
 
-    const b2cApp = await getByCondition('B2CApp', {
-        ...getB2CAppFilter({ user, isPermissionStatic: schemaConfig.isStatic, permissionKey }),
-        id: b2cAppId,
+    const uniqueB2CAppIds = [...new Set(b2cAppIds)]
+    const b2cApps = await find('B2CApp', {
+        ...getB2CAppFilter({ user, requirePermission: !!schemaConfig.rightSetRequired, permissionKey }),
+        id_in: uniqueB2CAppIds,
         deletedAt: null,
     })
 
-    return !!b2cApp
+    if (isBulkRequest) return b2cApps.length === uniqueB2CAppIds.length
+    return !!b2cApps.length
 }
 
 async function canExecuteByServiceUser (params, serviceConfig) {
@@ -163,7 +170,7 @@ async function canExecuteByServiceUser (params, serviceConfig) {
         deletedAt: null,
         addressKey,
         app: {
-            ...getB2CAppFilter({ user, isPermissionStatic: serviceConfig.isStatic, permissionKey }),
+            ...getB2CAppFilter({ user, requirePermission: !!serviceConfig.rightSetRequired, permissionKey }),
             id: b2cAppId,
             deletedAt: null, 
         },

@@ -15,11 +15,11 @@ const B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     // Something that has direct path for service user (caller)
     lists: {
         B2CAppAccessRightSet: {
-            isStatic: true,
-            canManage: false,
+            rightSetRequired: true,
+            canBeManaged: false,
         },
         B2CAppProperty: {
-            isStatic: true,
+            rightSetRequired: true,
         },
     },
     // Something that has B2CApp info and addressKey

@@ -36,12 +36,12 @@ function getReadOnlyPermissionsFieldsNames (config) {
         .flat()
 }
 
-function getStaticPermissionsFieldsNames (config) {
-    const staticListsConfig = Object.fromEntries(Object.entries(config.lists).filter(([_, schemaConfig]) => schemaConfig.isStatic))
-    const staticServicesConfig = Object.fromEntries(Object.entries(config.services).filter(([_, schemaConfig]) => schemaConfig.isStatic))
-    const staticListPermissions = getListsPermissionsFieldsNames(staticListsConfig)
-    const staticServicesPermissions = getServicesPermissionsFieldsNames(staticServicesConfig)
-    return staticListPermissions.concat(staticServicesPermissions)
+function getNonRequiredPermissionsFieldsNames (config) {
+    const nonRequiredListsConfig = Object.fromEntries(Object.entries(config.lists).filter(([_, schemaConfig]) => schemaConfig.rightSetRequired))
+    const nonRequiredServicesConfig = Object.fromEntries(Object.entries(config.services).filter(([_, schemaConfig]) => schemaConfig.rightSetRequired))
+    const nonRequiredListPermissions = getListsPermissionsFieldsNames(nonRequiredListsConfig)
+    const nonRequiredServicesPermissions = getServicesPermissionsFieldsNames(nonRequiredServicesConfig)
+    return nonRequiredListPermissions.concat(nonRequiredServicesPermissions)
 }
 
 function getListsPermissionsFieldsNames (lists) {
@@ -149,12 +149,12 @@ function generatePermissionFields ({ config }) {
     const allListsPermissionsFieldsNames = getListsPermissionsFieldsNames(config.lists)
     const readOnlyListsPermissionsFieldsNames = getReadOnlyPermissionsFieldsNames(config)
     const allServicesPermissionsFieldsNames = getServicesPermissionsFieldsNames(config.services)
-    const allStaticPermissionsFieldsNames = new Set(getStaticPermissionsFieldsNames(config))
+    const allNonRequiredPermissionsFieldsNames = new Set(getNonRequiredPermissionsFieldsNames(config))
 
     const permissionFields = {}
 
     for (const permissionFieldName of allListsPermissionsFieldsNames) {
-        if (allStaticPermissionsFieldsNames.has(permissionFieldName)) {
+        if (allNonRequiredPermissionsFieldsNames.has(permissionFieldName)) {
             continue
         }
         if (readOnlyListsPermissionsFieldsNames.includes(permissionFieldName)) {
@@ -168,7 +168,7 @@ function generatePermissionFields ({ config }) {
     }
 
     for (const permissionFieldName of allServicesPermissionsFieldsNames) {
-        if (allStaticPermissionsFieldsNames.has(permissionFieldName)) {
+        if (allNonRequiredPermissionsFieldsNames.has(permissionFieldName)) {
             continue
         }
         permissionFields[permissionFieldName] = PERMISSION_FIELD
