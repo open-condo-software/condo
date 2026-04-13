@@ -64,6 +64,7 @@ class ExternalContentImplementation extends Implementation {
 
         super(path, options, meta)
 
+        this.config.format ??= 'json'
         this.config.maxSizeBytes ??= DEFAULT_MAX_SIZE_BYTES
 
         this.adapter = adapter
@@ -104,11 +105,11 @@ class ExternalContentImplementation extends Implementation {
     // Admin
     extendAdminMeta (meta) {
         return {
+            ...meta,
             graphQLAdminFragment: this.config.graphQLAdminFragment || '',
             format: this.config.format,
             processors: this.formatProcessors,
-            adminConfig: this.config.adminConfig || {},
-            ...meta,
+            adminConfig: this.adminConfig || {},
         }
     }
 
@@ -197,23 +198,12 @@ class ExternalContentImplementation extends Implementation {
      * Resolves input data before saving to database.
      * 
      * Handles file lifecycle:
-     * 1. If setting to null: deletes old file (if exists)
-     * 2. If setting new value: saves new file, then deletes old file
+     * 1. If setting to null: returns null (old file deleted in afterChange)
+     * 2. If setting new value: saves new file to storage, returns file-meta (old file deleted in afterChange)
      * 
-     * Save-before-delete pattern prevents data loss if save() fails.
-     * 
-     * Known limitation: If database update fails after save() succeeds but before transaction commits,
-     * the new file will be orphaned in storage while the old file reference remains in DB.
-     * This is an acceptable trade-off vs losing the previous file.
-     * 
-     * Potential mitigation strategies for future implementation:
-     * 1. Transaction hooks: Use Keystone afterChange hooks to delete orphaned files on transaction rollback
-     * 2. Background cleanup job: Periodic scan for files not referenced in database
-     * 3. Two-phase commit: Implement compensation logic to rollback file save on DB failure
-     * 4. Reference counting: Track file references and delete when count reaches zero
-     * 
-     * Current impact: Low - orphaned files accumulate slowly and only on transaction failures.
-     * Storage cost is typically negligible compared to preventing data loss.
+     * Known limitation: If adapter.save() succeeds but the DB write fails, the new file will be
+     * orphaned in storage. This is acceptable — old file is never deleted until afterChange confirms
+     * the DB write succeeded.
      * 
      * @param {Object} params
      * @param {Object} params.resolvedData - New field values
@@ -227,38 +217,20 @@ class ExternalContentImplementation extends Implementation {
 
         if (nextValue === undefined) return undefined
 
-        const prevValue = existingItem?.[this.path]
-        const prevLooksLikeFile = isFileMeta(prevValue)
-
         if (nextValue === null) {
-            if (prevLooksLikeFile && prevValue) {
-                try {
-                    await this.adapter.delete(prevValue)
-                } catch (err) {
-                    // Ignore delete errors to prevent blocking the update.
-                    // File will remain orphaned in storage but DB will be updated correctly.
-                    logger.debug({ msg: 'Failed to delete old file', err, data: { filename: prevValue.filename } })
-                }
-            }
             return null
         }
-
-        // Save first, then delete old file.
-        // This prevents losing the previous file if save() fails.
 
         const processor = this.formatProcessors[this.config.format]
         const payload = processor.serialize(nextValue)
         const payloadSizeBytes = Buffer.byteLength(String(payload), 'utf-8')
 
-        // Validate size limit after serialization
         this._validatePayloadSize(payloadSizeBytes)
 
         const stream = Readable.from([Buffer.from(String(payload), 'utf-8')])
 
         const prefix = listKey || 'item'
         const id = randomUUID()
-        // Include record ID in filename for uniqueness and consistency with backfill script.
-        // Note: FileAdapter with saveFileName=false will generate actual unique filename.
         const originalFilename = `${prefix}_${this.path}_${id}.${this.fileExt}`
         const saved = await this.adapter.save({
             stream,
@@ -269,21 +241,38 @@ class ExternalContentImplementation extends Implementation {
             meta: { format: this.config.format },
         })
 
-        if (prevLooksLikeFile && prevValue) {
-            try {
-                await this.adapter.delete(prevValue)
-            } catch (err) {
-                // Ignore delete errors. New file is already saved, so update can proceed.
-                // Old file will remain orphaned in storage.
-                logger.debug({ msg: 'Failed to delete old file after save', err, data: { filename: prevValue.filename } })
-            }
-        }
-
-        // Generate publicUrl using adapter's publicUrl method
         const publicUrl = this.adapter.publicUrl(saved, context?.authedItem)
 
-        // Add _type marker and ensure meta.format is included for deserialization
         return { ...saved, publicUrl, meta: { format: this.config.format }, _type: FILE_META_TYPE }
+    }
+
+    /**
+     * Deletes the old file after DB write succeeds.
+     * 
+     * Called by Keystone after the item is saved to the database.
+     * Deleting here ensures the old file is only removed
+     * once the new value is durably committed — preventing data loss on DB failure.
+     * 
+     * @param {Object} params
+     * @param {Object} params.existingItem - Item state before the update
+     * @param {Object} params.updatedItem - Item state after the update
+     */
+    async afterChange ({ existingItem, updatedItem }) {
+        const prevValue = existingItem?.[this.path]
+        const nextValue = updatedItem?.[this.path]
+
+        if (!isFileMeta(prevValue)) return
+
+        // Old file should be deleted if field was cleared or replaced with a new file
+        const prevFilename = prevValue.filename
+        const nextFilename = isFileMeta(nextValue) ? nextValue.filename : null
+        if (prevFilename === nextFilename) return
+
+        try {
+            await this.adapter.delete(prevValue)
+        } catch (err) {
+            logger.debug({ msg: 'Failed to delete old file after change', err, data: { filename: prevFilename } })
+        }
     }
 }
 

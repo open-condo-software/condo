@@ -43,7 +43,7 @@ const createMeta = () => ({
 
 describe('ExternalContent field type', () => {
     describe('ExternalContentImplementation.resolveInput', () => {
-        test('saves new file before deleting previous one', async () => {
+        test('saves new file without deleting previous one (deletion deferred to afterChange)', async () => {
             const calls = []
             const adapter = {
                 save: async () => {
@@ -64,7 +64,7 @@ describe('ExternalContent field type', () => {
             })
 
             expect(res).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
-            expect(calls).toEqual(['save', 'delete'])
+            expect(calls).toEqual(['save'])
         })
 
         test('does not delete previous file if save fails', async () => {
@@ -124,12 +124,10 @@ describe('ExternalContent field type', () => {
             expect(adapter.delete).not.toHaveBeenCalled()
         })
 
-        test('handles delete errors gracefully when setting to null', async () => {
+        test('does not delete old file when setting to null (deletion deferred to afterChange)', async () => {
             const adapter = {
                 save: jest.fn(),
-                delete: jest.fn(async () => {
-                    throw new Error('delete failed')
-                }),
+                delete: jest.fn(),
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -140,15 +138,13 @@ describe('ExternalContent field type', () => {
             })
 
             expect(result).toBe(null)
-            expect(adapter.delete).toHaveBeenCalled()
+            expect(adapter.delete).not.toHaveBeenCalled()
         })
 
-        test('handles delete errors gracefully after save', async () => {
+        test('does not delete old file after save (deletion deferred to afterChange)', async () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
-                delete: jest.fn(async () => {
-                    throw new Error('delete failed')
-                }),
+                delete: jest.fn(),
                 publicUrl: jest.fn(() => 'https://example.com/new.bin'),
             }
 
@@ -160,7 +156,74 @@ describe('ExternalContent field type', () => {
             })
 
             expect(result).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
-            expect(adapter.delete).toHaveBeenCalled()
+            expect(adapter.delete).not.toHaveBeenCalled()
+        })
+    })
+
+    describe('ExternalContentImplementation.afterChange', () => {
+        test('deletes old file when field is replaced', async () => {
+            const adapter = {
+                delete: jest.fn(),
+            }
+
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            await impl.afterChange({
+                existingItem: { raw: { id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' } },
+                updatedItem: { raw: { id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' } },
+            })
+
+            expect(adapter.delete).toHaveBeenCalledWith(expect.objectContaining({ filename: 'old.bin' }))
+        })
+
+        test('deletes old file when field is set to null', async () => {
+            const adapter = {
+                delete: jest.fn(),
+            }
+
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            await impl.afterChange({
+                existingItem: { raw: { id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' } },
+                updatedItem: { raw: null },
+            })
+
+            expect(adapter.delete).toHaveBeenCalledWith(expect.objectContaining({ filename: 'old.bin' }))
+        })
+
+        test('does not delete if file is unchanged', async () => {
+            const adapter = { delete: jest.fn() }
+
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            await impl.afterChange({
+                existingItem: { raw: { id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' } },
+                updatedItem: { raw: { id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' } },
+            })
+
+            expect(adapter.delete).not.toHaveBeenCalled()
+        })
+
+        test('does not delete if previous value is not file-meta', async () => {
+            const adapter = { delete: jest.fn() }
+
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+            await impl.afterChange({
+                existingItem: { raw: null },
+                updatedItem: { raw: { id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' } },
+            })
+
+            expect(adapter.delete).not.toHaveBeenCalled()
+        })
+
+        test('handles delete errors gracefully', async () => {
+            const adapter = {
+                delete: jest.fn(async () => { throw new Error('delete failed') }),
+            }
+
+            const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
+
+            await expect(impl.afterChange({
+                existingItem: { raw: { id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' } },
+                updatedItem: { raw: null },
+            })).resolves.not.toThrow()
         })
     })
 

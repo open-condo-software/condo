@@ -21,8 +21,7 @@ const ExternalContentField = ({ onChange, field, errors, value = '{}', isDisable
     const { publicUrl, filename, originalFilename, legacyContent } = fileMeta
     const displayName = originalFilename || filename || legacyContent || 'No file'
     
-    // field IS the controller - read isReadOnly directly from it
-    const isReadOnly = field.isReadOnly !== false
+    const isReadOnly = field.config?.adminConfig?.isReadOnly !== false
     
     // For editable mode: use resolved content if available (for file metadata)
     // Otherwise use legacy content or raw value

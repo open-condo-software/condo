@@ -13,7 +13,8 @@
  * @property {string} [schemaDoc] - Field description for schema documentation
  * @property {boolean} [sensitive] - Mark field as sensitive for audit logging
  * @property {boolean} [isRequired] - Whether the field is required
- * @property {boolean} [isAdminUIReadOnly=true] - Whether the field is read-only in admin UI (default: true)
+ * @property {Object} [adminConfig={}] - Admin UI configuration
+ * @property {boolean} [adminConfig.isReadOnly=true] - Whether the field is read-only in admin UI (default: true)
  * 
  * @param {ExternalContentFieldConfig} options - Field configuration options
  * @returns {Object} Field configuration object
@@ -29,7 +30,7 @@
  *   isRequired: false,
  * })
  */
-function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, isAdminUIReadOnly = true, ...otherProps }) {
+function createExternalDataField ({ adapter, format = 'json', processors = {}, maxSizeBytes, batchDelayMs, adminConfig = {}, ...otherProps }) {
     if (!adapter) {
         throw new Error('createExternalDataField: adapter is required')
     }
@@ -52,7 +53,8 @@ function createExternalDataField ({ adapter, format = 'json', processors = {}, m
         maxSizeBytes,
         batchDelayMs,
         adminConfig: {
-            isReadOnly: isAdminUIReadOnly,
+            isReadOnly: true,
+            ...adminConfig,
         },
     }
 }

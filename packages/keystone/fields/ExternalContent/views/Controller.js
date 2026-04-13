@@ -16,10 +16,6 @@ class ExternalContentController extends FieldController {
         
         this.format = config.format
         this.processors = config.processors || {}
-        // Controls whether the field is editable in admin UI (used by Field component)
-        // When false, Field displays a textarea for editing; when true, displays read-only content
-        this.isReadOnly = config.adminConfig?.isReadOnly !== false // Default to true
-        
         this.defaultProcessors = DEFAULT_PROCESSORS
     }
 
@@ -86,7 +82,7 @@ class ExternalContentController extends FieldController {
     getQueryFragment = () => {
         // For editable fields, also query the resolved content
         // For read-only fields, only query the raw metadata
-        if (!this.isReadOnly) {
+        if (this.adminConfig?.isReadOnly === false) {
             return `${this.path}\n${this.path}Resolved`
         }
         // Return empty fragment to query the database column directly
