@@ -88,7 +88,6 @@ const markModalAsShownForOrganization = (storageKey: string, organizationId: str
     localStorage.setItem(storageKey, JSON.stringify(shownOrgs))
 }
 
-const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 const ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN = [
     { featureKey: 'support', label: 'subscription.features.personalManager' },
@@ -114,9 +113,8 @@ const NON_ACTIVE_BANKING_FREE_FEATURES_SECOND_COLUMN = [
 const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, eventDate: string | null, loading: boolean } => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscriptionContext } = useOrganizationSubscription()
-    const { useFlag, useFlagValue } = useFeatureFlags()
-    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
+    const { subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { useFlagValue } = useFeatureFlags()
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
 
     const organizationId = organization?.id
@@ -131,7 +129,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
     })
 
     return useMemo(() => {
-        if (!organization || loading || !enableSubscriptions || !hasSubscriptionsFlag) {
+        if (!organization || loading || !hasSubscriptionsFeature) {
             return { content: null, type: null, eventDate: null, loading }
         }
 
@@ -186,7 +184,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
             eventDate: endAt,
             loading,
         }
-    }, [organization, loading, hasSubscriptionsFlag, organizationId, expiredData?.lastExpiredContext, subscriptionContext, intl, activeBankingPlanId])
+    }, [organization, loading, hasSubscriptionsFeature, organizationId, expiredData?.lastExpiredContext, subscriptionContext, intl, activeBankingPlanId])
 }
 
 /**

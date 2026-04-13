@@ -2,34 +2,27 @@ import { useGetAvailableFeatureSubscriptionPlansQuery, useGetAvailableServiceSub
 import getConfig from 'next/config'
 import { useCallback, useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
-import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
 import { useActivateSubscriptions } from './useActivateSubscriptions'
 import { useOrganizationSubscription } from './useOrganizationSubscription'
-import { useSubscriptionPaymentModal } from './useSubscriptionPaymentModal'
 
 import type { AvailableFeatureType } from '../constants/features'
 
 
-const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 type FeaturePlan = NonNullable<NonNullable<GetAvailableFeatureSubscriptionPlansQuery['result']>['plans'][number]>
 
 export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?: string) => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { useFlag } = useFeatureFlags()
-    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
-    const { subscriptionContext, isB2BAppEnabled, isFeatureAvailable } = useOrganizationSubscription()
-    const { registerSubscriptionContext, activateLoading, pendingRequests } = useActivateSubscriptions()
+    const { subscriptionContext, isB2BAppEnabled, isFeatureAvailable, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { registerSubscriptionContext } = useActivateSubscriptions()
 
-    const isEnabled = Boolean(enableSubscriptions) && hasSubscriptionsFlag
-    const skipQuery = !organization?.id || !isEnabled
+    const skipQuery = !organization?.id || !hasSubscriptionsFeature
 
     const { data: featurePlansData, loading: featurePlansLoading } = useGetAvailableFeatureSubscriptionPlansQuery({
         variables: { organization: { id: organization?.id } },
@@ -73,13 +66,6 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         })?.plan || null
     }, [servicePlansData, feature, b2bAppId])
 
-    const hasPendingFeatureRequest = useMemo(() => {
-        if (!featurePlanInfo?.plan?.id) return false
-        return pendingRequests.some(
-            req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanInfo.plan.id
-        )
-    }, [pendingRequests, featurePlanInfo])
-
     const currentServicePlanName = subscriptionContext?.subscriptionPlan?.name || null
 
     const formattedFeaturePrice = useMemo(() => {
@@ -90,7 +76,7 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         const priceStr = symbol ? `${formatted} ${symbol}` : `${formatted} ${featurePlanFirstPrice.currencyCode}`
 
         if (featurePlanFirstPrice.period) {
-            const period = intl.formatMessage({ id: `subscription.planCard.planPrice.${featurePlanFirstPrice.period}` as FormatjsIntl.Message['ids'] })
+            const period = intl.formatMessage({ id: `subscription.planCard.planPrice.${featurePlanFirstPrice.period}.noun` as FormatjsIntl.Message['ids'] })
             return `${priceStr}/${period}`
         }
         
@@ -112,23 +98,17 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         })
     }, [returnUrl, featurePlanFirstPrice?.id, featurePlanFirstPrice?.price, featurePlanInfo?.plan?.name, registerSubscriptionContext])
 
-    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
-        registerSubscriptionContext: registerFeatureSubscription,
-        activateLoading,
-    })
-
     const forPlanLabel = currentServicePlanName
-        ? intl.formatMessage({ id: 'miniapps.addDescription.featurePrice.forPlan' }, { planName: currentServicePlanName })
+        ? intl.formatMessage({ id: 'subscription.feature.forPlan' }, { planName: currentServicePlanName })
         : null
     const freeWithPlanLabel = promotedServicePlan?.name
-        ? intl.formatMessage({ id: 'miniapps.addDescription.freeWithPlan' }, { planName: promotedServicePlan.name })
+        ? intl.formatMessage({ id: 'subscription.feature.freeWithPlan' }, { planName: promotedServicePlan.name })
         : null
     const aboutPlanLabel = promotedServicePlan?.name
-        ? intl.formatMessage({ id: 'miniapps.addDescription.aboutPlan' }, { planName: promotedServicePlan.name })
+        ? intl.formatMessage({ id: 'subscription.feature.aboutPlan' }, { planName: promotedServicePlan.name })
         : null
 
     return {
-        isEnabled,
         isCurrentlyAvailable,
         hasFeaturePlan: Boolean(featurePlanInfo),
         featurePlanId: featurePlanInfo?.plan?.id || null,
@@ -137,9 +117,7 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         freeWithPlanLabel,
         aboutPlanLabel,
         promotedServicePlan,
-        hasPendingFeatureRequest,
-        openPaymentModal,
-        PaymentModal,
+        registerFeatureSubscription,
         loading: featurePlansLoading || servicePlansLoading,
     }
 }

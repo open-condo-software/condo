@@ -44,7 +44,6 @@ import { useOrganizationSubscription, useSubscriptionPaymentSuccess } from '@con
 import MarketplaceSettingsPage from './marketplace'
 
 
-const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 const ALWAYS_AVAILABLE_TABS = []
 
@@ -67,10 +66,8 @@ const SettingsPage: PageComponentType = () => {
     const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
 
-    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext } = useOrganizationSubscription()
-    const { useFlag } = useFeatureFlags()
-    const isSubscriptionsFlagEnabled = useFlag(SUBSCRIPTIONS)
-    const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && enableSubscriptions && isSubscriptionsFlagEnabled
+    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && hasSubscriptionsFeature
 
     const { objs: [acquiringIntegrationContext], loading: acquiringIntegrationContextLoading } = AcquiringIntegrationContext.useObjects({
         where: {

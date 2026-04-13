@@ -6,7 +6,7 @@ import React, { useMemo, useCallback } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button, Space } from '@open-condo/ui'
+import { Typography, Button, Space, Tooltip } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -18,12 +18,13 @@ import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
 import { requiresSubscriptionAccess, getRequiredFeature, isMiniappPage, getMiniappId } from '../constants/routeFeatureMapping'
-import { useFeatureSubscription, useOrganizationSubscription } from '../hooks'
+import { useFeatureSubscription, useOrganizationSubscription, useActivateSubscriptions } from '../hooks'
+import { useSubscriptionPaymentModal } from '../hooks/useSubscriptionPaymentModal'
 
 import type { AvailableFeatureType } from '../constants/features'
 
 
-const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {}, enableSubscriptions } } = getConfig()
+const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
 
 interface SubscriptionAccessGuardProps {
     children: React.ReactNode
@@ -78,9 +79,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const FeatureGuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.feature.title' })
     const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
     const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
-    const { useFlag } = useFeatureFlags()
-    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
-    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
+    const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
+    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
 
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
@@ -95,14 +95,21 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         formattedFeaturePrice,
         forPlanLabel,
         promotedServicePlan,
-        hasPendingFeatureRequest,
-        openPaymentModal,
-        PaymentModal,
+        featurePlanId,
+        registerFeatureSubscription,
         loading: featureLoading,
     } = useFeatureSubscription(featureName, featureAppId)
+    const { activateLoading, pendingRequests } = useActivateSubscriptions()
+    const hasPendingFeatureRequest = pendingRequests.some(
+        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
+    )
+    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+        registerSubscriptionContext: registerFeatureSubscription,
+        activateLoading,
+    })
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
         variables: { id: miniappId || '' },
-        skip: skipGuard || !miniappId || !enableSubscriptions || !hasSubscriptionsFlag,
+        skip: skipGuard || !miniappId || !hasSubscriptionsFeature,
     })
     const b2bApp = b2bAppData?.b2bApp?.[0]
 
@@ -136,7 +143,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             return false
         }
 
-        if (!enableSubscriptions || !hasSubscriptionsFlag) {
+        if (!hasSubscriptionsFeature) {
             return false
         }
 
@@ -158,7 +165,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFlag])
+    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFeature])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
@@ -230,9 +237,19 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
 
                                 <Space size={16} direction='vertical' align='center'>
                                     {hasFeaturePlan ? (
-                                        <Button type='primary' disabled={hasPendingFeatureRequest} onClick={openPaymentModal}>
-                                            {hasPendingFeatureRequest ? AwaitingPaymentMessage : FeaturePayButton}
-                                        </Button>
+                                        hasPendingFeatureRequest ? (
+                                            <Tooltip title={AwaitingPaymentTooltipMessage}>
+                                                <span>
+                                                    <Button type='primary' disabled>
+                                                        {AwaitingPaymentMessage}
+                                                    </Button>
+                                                </span>
+                                            </Tooltip>
+                                        ) : (
+                                            <Button type='primary' onClick={openPaymentModal}>
+                                                {FeaturePayButton}
+                                            </Button>
+                                        )
                                     ) : (
                                         <Button type='primary' onClick={handleGoToPlans}>
                                             {GoToPlansMessage}

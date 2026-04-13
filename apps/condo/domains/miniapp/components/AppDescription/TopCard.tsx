@@ -17,8 +17,9 @@ import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/setti
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
-import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription, useActivateSubscriptions } from '@condo/domains/subscription/hooks'
 import { useFeatureSubscription } from '@condo/domains/subscription/hooks/useFeatureSubscription'
+import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
 import { AppLabelTag } from '../AppLabelTag'
 
@@ -135,17 +136,23 @@ const TopCard = React.memo<TopCardProps>(({
     const isAppAvailableForTariff = isB2BAppEnabled(id)
 
     const {
-        isEnabled: isSubscriptionsEnabled,
         isCurrentlyAvailable,
         hasFeaturePlan,
         formattedFeaturePrice,
         forPlanLabel,
         freeWithPlanLabel,
         aboutPlanLabel,
-        hasPendingFeatureRequest,
-        openPaymentModal,
-        PaymentModal,
+        featurePlanId,
+        registerFeatureSubscription,
     } = useFeatureSubscription('b2bApp', id)
+    const { activateLoading, pendingRequests } = useActivateSubscriptions()
+    const hasPendingFeatureRequest = pendingRequests.some(
+        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
+    )
+    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+        registerSubscriptionContext: registerFeatureSubscription,
+        activateLoading,
+    })
 
     const router = useRouter()
     const handleGoToSubscriptionSettings = useCallback(() => {

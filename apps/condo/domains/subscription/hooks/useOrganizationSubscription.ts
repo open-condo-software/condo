@@ -14,6 +14,7 @@ import type { AvailableFeatureType } from '@condo/domains/subscription/constants
 
 
 const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
+const hasSubscriptionsFeature = Boolean(enableSubscriptions)
 
 type SubscriptionFeatures = OrganizationSubscriptionFeatures
 
@@ -38,12 +39,13 @@ export const useOrganizationSubscription = () => {
 
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
+    const hasSubscriptionsFeature = Boolean(enableSubscriptions) && hasSubscriptionsFlag
 
     const { data: contextData, loading: contextLoading, refetch: refetchContext } = useGetSubscriptionContextByIdQuery({
         variables: {
             id: subscriptionFeatures?.activeSubscriptionContextId || '',
         },
-        skip: !subscriptionFeatures?.activeSubscriptionContextId || !enableSubscriptions || !hasSubscriptionsFlag,
+        skip: !subscriptionFeatures?.activeSubscriptionContextId || !hasSubscriptionsFeature,
     })
 
     const subscriptionContext = useMemo<SubscriptionContext | null>(() => {
@@ -82,7 +84,7 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionContext?.endAt])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeatureType): boolean => {
-        if (!enableSubscriptions || !hasSubscriptionsFlag) return true
+        if (!hasSubscriptionsFeature) return true
         if (!subscriptionFeatures) return false
         
         const featureKey = `${feature}EndAt` as keyof SubscriptionFeatures
@@ -94,7 +96,7 @@ export const useOrganizationSubscription = () => {
         const now = new Date()
 
         return expirationDate > now
-    }, [subscriptionFeatures, hasSubscriptionsFlag])
+    }, [subscriptionFeatures, hasSubscriptionsFeature])
 
     const allEnabledB2BApps = useMemo(() => {
         const plans = allPlansData?.result?.plans || []
@@ -107,7 +109,7 @@ export const useOrganizationSubscription = () => {
     }, [allPlansData])
 
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
-        if (!enableSubscriptions || !hasSubscriptionsFlag) return true
+        if (!hasSubscriptionsFeature) return true
         if (!subscriptionFeatures) return false
         if (!allEnabledB2BApps.has(appId)) return true
         
@@ -118,10 +120,10 @@ export const useOrganizationSubscription = () => {
         if (!app.endAt) return false
         
         return new Date(app.endAt) > new Date()
-    }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
+    }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFeature])
 
     return {
-        hasSubscriptionsFlag,
+        hasSubscriptionsFeature,
         hasSubscription,
         isFeatureAvailable,
         isB2BAppEnabled,

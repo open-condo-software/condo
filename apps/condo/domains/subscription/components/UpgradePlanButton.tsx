@@ -14,15 +14,12 @@ import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import styles from './UpgradePlanButton.module.css'
 
 
-const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 export const UpgradePlanButton: React.FC = () => {
     const intl = useIntl()
     const router = useRouter()
     const { organization } = useOrganization()
-    const { subscriptionContext } = useOrganizationSubscription()
-    const { useFlag } = useFeatureFlags()
-    const isSubscriptionsFlagEnabled = useFlag(SUBSCRIPTIONS)
+    const { subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
 
     const { data: plansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
@@ -85,9 +82,7 @@ export const UpgradePlanButton: React.FC = () => {
         router.push('/settings?tab=subscription')
     }
 
-    const isSubscriptionsEnabled = enableSubscriptions && isSubscriptionsFlagEnabled
-
-    if (!buttonText || !isSubscriptionsEnabled) return null
+    if (!buttonText || !hasSubscriptionsFeature) return null
     /*TODO DOMA-12785 move to ui kit*/
     return (
         <Button
