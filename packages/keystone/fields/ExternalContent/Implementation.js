@@ -258,8 +258,13 @@ class ExternalContentImplementation extends Implementation {
      * @param {Object} params.updatedItem - Item state after the update
      */
     async afterChange ({ existingItem, updatedItem }) {
-        const prevValue = existingItem?.[this.path]
-        const nextValue = updatedItem?.[this.path]
+        const parseDbValue = (v) => {
+            if (typeof v !== 'string') return v
+            try { return JSON.parse(v) } catch { return null }
+        }
+
+        const prevValue = parseDbValue(existingItem?.[this.path])
+        const nextValue = parseDbValue(updatedItem?.[this.path])
 
         if (!isFileMeta(prevValue)) return
 

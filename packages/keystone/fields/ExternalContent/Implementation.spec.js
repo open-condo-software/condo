@@ -168,8 +168,8 @@ describe('ExternalContent field type', () => {
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
-                existingItem: { raw: { id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' } },
-                updatedItem: { raw: { id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' } },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' }) },
+                updatedItem: { raw: JSON.stringify({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' }) },
             })
 
             expect(adapter.delete).toHaveBeenCalledWith(expect.objectContaining({ filename: 'old.bin' }))
@@ -182,7 +182,7 @@ describe('ExternalContent field type', () => {
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
-                existingItem: { raw: { id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' } },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' }) },
                 updatedItem: { raw: null },
             })
 
@@ -194,8 +194,8 @@ describe('ExternalContent field type', () => {
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
-                existingItem: { raw: { id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' } },
-                updatedItem: { raw: { id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' } },
+                existingItem: { raw: JSON.stringify({ id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' }) },
+                updatedItem: { raw: JSON.stringify({ id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' }) },
             })
 
             expect(adapter.delete).not.toHaveBeenCalled()
@@ -207,7 +207,7 @@ describe('ExternalContent field type', () => {
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
                 existingItem: { raw: null },
-                updatedItem: { raw: { id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' } },
+                updatedItem: { raw: JSON.stringify({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' }) },
             })
 
             expect(adapter.delete).not.toHaveBeenCalled()
@@ -221,7 +221,7 @@ describe('ExternalContent field type', () => {
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
 
             await expect(impl.afterChange({
-                existingItem: { raw: { id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' } },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' }) },
                 updatedItem: { raw: null },
             })).resolves.not.toThrow()
         })
