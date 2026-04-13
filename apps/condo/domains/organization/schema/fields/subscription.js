@@ -5,7 +5,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -309,7 +309,12 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         const now = new Date().toISOString()
         const contextsWithPlans = await enrichContextsWithPlans(allContexts)
         const activeContexts = filterActiveContexts(contextsWithPlans, now)
-        const bestActiveContext = activeContexts.length > 0 ? selectBestSubscriptionContext(activeContexts) : null
+        const activeServiceContexts = activeContexts.filter(ctx =>
+            ctx.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE
+        )
+        const bestActiveServiceContext = activeServiceContexts.length > 0
+            ? selectBestSubscriptionContext(activeServiceContexts)
+            : null
 
         const sortedContexts = [...contextsWithPlans].sort((a, b) => {
             if (!a.startAt || !b.startAt) return 0
@@ -317,7 +322,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         })
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
-        const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveContext, now)
+        const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveServiceContext, now)
         const { b2bApps, b2cApps } = await calculateAppsExpiration(sortedContexts, now, organization.type)
 
         return {
@@ -333,7 +338,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             analyticsEndAt: featureExpirationDates.analytics,
             b2bApps,
             b2cApps,
-            activeSubscriptionContextId: bestActiveContext?.id || null,
+            activeSubscriptionContextId: bestActiveServiceContext?.id || null,
             activeSubscriptionEndAt,
         }
     },

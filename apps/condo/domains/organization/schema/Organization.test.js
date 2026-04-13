@@ -37,7 +37,7 @@ const {
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { createTestSubscriptionPlan, createTestSubscriptionContext, SubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
@@ -1029,6 +1029,52 @@ describe('Organization', () => {
             expect(org.subscription.paymentsEndAt).toBe(doneEndAtWithBuffer)
             expect(org.subscription.ticketsEndAt).toBe(doneEndAtWithBuffer)
             expect(org.subscription.activeSubscriptionContextId).toBeDefined()
+        })
+
+        test('only selects activeSubscriptionContextId from service subscriptions', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const endAtWithBuffer = dayjs().add(30 + SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+
+            const [servicePlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
+                payments: true,
+                priority: 100,
+            })
+
+            const [featurePlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                tickets: true,
+                priority: 200,
+            })
+
+            const [serviceContext] = await createTestSubscriptionContext(admin, organization, servicePlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+            })
+
+            const [featureContext] = await createTestSubscriptionContext(admin, organization, featurePlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            // activeSubscriptionContextId должен быть от service-подписки, несмотря на более низкий приоритет
+            expect(org.subscription.activeSubscriptionContextId).toBe(serviceContext.id)
+            expect(org.subscription.activeSubscriptionContextId).not.toBe(featureContext.id)
+            // activeSubscriptionEndAt должен быть от service-подписки
+            expect(org.subscription.activeSubscriptionEndAt).toBe(endAtWithBuffer)
+            // Фичи работают от обеих подписок
+            expect(org.subscription.paymentsEndAt).toBe(endAtWithBuffer)
+            expect(org.subscription.ticketsEndAt).toBe(endAtWithBuffer)
         })
     })
 })
