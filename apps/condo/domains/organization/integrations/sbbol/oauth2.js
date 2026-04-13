@@ -57,7 +57,7 @@ class SbbolOauth2Api {
             try {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (err) {
-                logger.error({ msg: 'JWT validation error', err, data: { jwt } })
+                logger.info({ msg: 'JWT validation error', data: { jwt, err } })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
@@ -71,10 +71,7 @@ class SbbolOauth2Api {
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
             revocation_endpoint: this.revokeUrl,
-            jwks_uri: this.config.jwks_uri ? this.config.jwks_uri : `${this.protectedUrl}/jwks`,
         })
-        // turn off JWKS storage as it's not workin with sbbol
-        // TODO(zuch): Find a way to turn on jwks
         sbbolIssuer.keystore = async () => null
         sbbolIssuer.queryKeyStore = async () => null
         this.issuer = sbbolIssuer
