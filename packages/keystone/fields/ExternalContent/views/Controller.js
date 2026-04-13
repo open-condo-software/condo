@@ -82,7 +82,7 @@ class ExternalContentController extends FieldController {
     getQueryFragment = () => {
         // For editable fields, also query the resolved content
         // For read-only fields, only query the raw metadata
-        if (this.adminConfig?.isReadOnly === false) {
+        if (this.config?.adminConfig?.isReadOnly === false) {
             return `${this.path}\n${this.path}Resolved`
         }
         // Return empty fragment to query the database column directly
