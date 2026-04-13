@@ -19,9 +19,10 @@ import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
 import { requiresSubscriptionAccess, getRequiredFeature, isMiniappPage, getMiniappId } from '../constants/routeFeatureMapping'
 import { useFeatureSubscription, useOrganizationSubscription } from '../hooks'
+
 import type { AvailableFeatureType } from '../constants/features'
 
-const { Title, Paragraph } = Typography
+
 const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {}, enableSubscriptions } } = getConfig()
 
 interface SubscriptionAccessGuardProps {
@@ -76,6 +77,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const LearnMoreMessage = intl.formatMessage({ id: 'subscription.accessGuard.learnMore' })
     const FeatureGuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.feature.title' })
     const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
+    const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
@@ -156,7 +158,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFlag, featureAppId])
+    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFlag])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
@@ -207,11 +209,11 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                 />
 
                                 <Space size={16} direction='vertical'>
-                                    <Title level={2}>
+                                    <Typography.Title level={3}>
                                         {hasFeaturePlan ? FeatureGuardTitle : GuardTitle}
-                                    </Title>
+                                    </Typography.Title>
 
-                                    <Paragraph>
+                                    <Typography.Paragraph type='secondary'>
                                         {hasFeaturePlan ? (
                                             <>
                                                 {formattedFeaturePrice && `${formattedFeaturePrice}${forPlanLabel ? ` ${forPlanLabel}` : ''}`}
@@ -223,13 +225,13 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                                 )}
                                             </>
                                         ) : GuardDescription}
-                                    </Paragraph>
+                                    </Typography.Paragraph>
                                 </Space>
 
                                 <Space size={16} direction='vertical' align='center'>
                                     {hasFeaturePlan ? (
                                         <Button type='primary' disabled={hasPendingFeatureRequest} onClick={openPaymentModal}>
-                                            {FeaturePayButton}
+                                            {hasPendingFeatureRequest ? AwaitingPaymentMessage : FeaturePayButton}
                                         </Button>
                                     ) : (
                                         <Button type='primary' onClick={handleGoToPlans}>

@@ -63,7 +63,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             access: {
                 read: true,
                 create: true,
-                update: false,
+                update: true,
             },
         },
 

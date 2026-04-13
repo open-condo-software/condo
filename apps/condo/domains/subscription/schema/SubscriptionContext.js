@@ -339,25 +339,18 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             const isBecomingDone = updatedItem.status === SUBSCRIPTION_CONTEXT_STATUS.DONE &&
                 existingItem?.status !== updatedItem.status
 
-            console.log('isBecomingDone', isBecomingDone, existingItem?.status, updatedItem.status)
-
             if (isBecomingDone) {
                 const plan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
-                console.log('plan', plan)
                 if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
                     const enabledApps = Array.isArray(plan.enabledB2BApps) ? plan.enabledB2BApps : []
                     const organizationId = updatedItem.organization
 
-                    console.log('enabledApps', enabledApps, organizationId)
-
                     for (const appId of enabledApps) {
-                        console.log('appId', appId)
                         const [existing] = await find('B2BAppContext', {
                             app: { id: appId },
                             organization: { id: organizationId },
                             deletedAt: null,
                         })
-                        console.log('existing b2bApp', existing)
 
                         if (!existing) {
                             await B2BAppContext.create(context, {

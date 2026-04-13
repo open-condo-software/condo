@@ -26,9 +26,8 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const { refetch: refetchMenu } = useConnectedAppsWithIconsContext()
     const { featurePlanId } = useFeatureSubscription('b2bApp', id)
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const SuccessPaymentModalTitle = intl.formatMessage({ id: 'miniapps.addDescription.successPayment.modal.title' })
-    const SuccessPaymentModalDescription = intl.formatMessage({ id: 'miniapps.addDescription.successPayment.modal.description' })
-    const CloseMessage = intl.formatMessage({ id: 'Close' })
+    const SuccessPaymentModalTitle = intl.formatMessage({ id: 'miniapp.connectModal.Finished.title' })
+    const SuccessPaymentModalDescription = intl.formatMessage({ id: 'miniapp.connectModal.Finished.message' })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)

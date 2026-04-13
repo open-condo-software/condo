@@ -9,10 +9,11 @@ import { useOrganization } from '@open-condo/next/organization'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
-import type { AvailableFeatureType } from '../constants/features'
 import { useActivateSubscriptions } from './useActivateSubscriptions'
 import { useOrganizationSubscription } from './useOrganizationSubscription'
 import { useSubscriptionPaymentModal } from './useSubscriptionPaymentModal'
+
+import type { AvailableFeatureType } from '../constants/features'
 
 
 const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
@@ -85,12 +86,14 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         if (!featurePlanFirstPrice?.price || !featurePlanFirstPrice?.currencyCode) return null
         const priceInt = Math.floor(Number(featurePlanFirstPrice.price))
         const formatted = priceInt.toLocaleString(intl.locale).replace(/,/g, ' ')
-        const symbol = CURRENCY_SYMBOLS[featurePlanFirstPrice.currencyCode as keyof typeof CURRENCY_SYMBOLS]
+        const symbol = CURRENCY_SYMBOLS[featurePlanFirstPrice.currencyCode]
         const priceStr = symbol ? `${formatted} ${symbol}` : `${formatted} ${featurePlanFirstPrice.currencyCode}`
+
         if (featurePlanFirstPrice.period) {
             const period = intl.formatMessage({ id: `subscription.planCard.planPrice.${featurePlanFirstPrice.period}` as FormatjsIntl.Message['ids'] })
             return `${priceStr}/${period}`
         }
+        
         return priceStr
     }, [featurePlanFirstPrice?.currencyCode, featurePlanFirstPrice?.period, featurePlanFirstPrice?.price, intl])
 
