@@ -5988,6 +5988,7 @@ export const GetSubscriptionContextByIdDocument = gql`
       toPay
     }
     isTrial
+    createdAt
     startAt
     endAt
     daysRemaining
@@ -6069,6 +6070,7 @@ export const GetOrganizationSubscriptionContextsWithPaymentMethodsDocument = gql
     subscriptionPlan {
       id
       name
+      planType
     }
     subscriptionPlanPricingRule {
       id
@@ -6137,6 +6139,9 @@ export const GetOrganizationPaymentHistoryDocument = gql`
     subscriptionPlan {
       id
       name
+      planType
+      enabledB2BApps
+      enabledB2CApps
     }
     frozenPaymentInfo {
       paymentMethod {
@@ -6199,11 +6204,11 @@ export const GetLastDoneSubscriptionContextDocument = gql`
     query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
   contexts: allSubscriptionContexts(
     where: {organization: {id: $organizationId}, subscriptionPlan: {id: $planId}, bindingId_not: null, status: DONE, isTrial: false}
-    sortBy: [endAt_DESC]
+    sortBy: [createdAt_DESC]
     first: 1
   ) {
     id
-    endAt
+    createdAt
   }
 }
     `;
