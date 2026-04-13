@@ -26,10 +26,92 @@ function _sanitizeEmptyOrConditions (obj) {
     return result
 }
 
+const MAX_PRISMA_BIND_VALUES = 12000
+
+function _findLargeInPath (node, path = []) {
+    if (Array.isArray(node)) {
+        for (let i = 0; i < node.length; i++) {
+            const found = _findLargeInPath(node[i], [...path, i])
+            if (found) return found
+        }
+        return null
+    }
+    if (!node || typeof node !== 'object') return null
+
+    if (Array.isArray(node.in) && node.in.length > MAX_PRISMA_BIND_VALUES) {
+        return [...path, 'in']
+    }
+
+    for (const [key, value] of Object.entries(node)) {
+        const found = _findLargeInPath(value, [...path, key])
+        if (found) return found
+    }
+    return null
+}
+
+function _findLargeLogicalPath (node, path = []) {
+    if (Array.isArray(node)) {
+        for (let i = 0; i < node.length; i++) {
+            const found = _findLargeLogicalPath(node[i], [...path, i])
+            if (found) return found
+        }
+        return null
+    }
+    if (!node || typeof node !== 'object') return null
+
+    if (Array.isArray(node.OR) && node.OR.length > MAX_PRISMA_BIND_VALUES) {
+        return [...path, 'OR']
+    }
+
+    for (const [key, value] of Object.entries(node)) {
+        const found = _findLargeLogicalPath(value, [...path, key])
+        if (found) return found
+    }
+    return null
+}
+
+function _getByPath (obj, path) {
+    return path.reduce((acc, key) => (acc == null ? acc : acc[key]), obj)
+}
+
+function _setByPath (obj, path, value) {
+    if (!path.length) return
+    const parentPath = path.slice(0, -1)
+    const last = path[path.length - 1]
+    const parent = _getByPath(obj, parentPath)
+    if (parent != null) parent[last] = value
+}
+
+function _buildChunkedFiltersForLargeIn (filter) {
+    if (!filter || !filter.where) return null
+
+    const splitPath = _findLargeInPath(filter.where, ['where']) || _findLargeLogicalPath(filter.where, ['where'])
+    if (!splitPath) return null
+    const splitValues = _getByPath(filter, splitPath)
+    if (!Array.isArray(splitValues) || splitValues.length <= MAX_PRISMA_BIND_VALUES) return null
+
+    const chunked = []
+    for (let i = 0; i < splitValues.length; i += MAX_PRISMA_BIND_VALUES) {
+        const chunk = splitValues.slice(i, i + MAX_PRISMA_BIND_VALUES)
+        const chunkFilter = structuredClone(filter)
+        _setByPath(chunkFilter, splitPath, chunk)
+        chunked.push(chunkFilter)
+    }
+    return chunked
+}
+
 PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, from = {} } = {}) {
     const filter = await this.prismaFilter({ args, meta, from })
+    const chunkedFilters = _buildChunkedFiltersForLargeIn(filter)
+
     if (meta) {
-        let count = await this.model.count(filter)
+        let count
+        if (chunkedFilters) {
+            const counts = await Promise.all(chunkedFilters.map(chunkFilter => this.model.count(chunkFilter)))
+            count = counts.reduce((acc, value) => acc + value, 0)
+        } else {
+            count = await this.model.count(filter)
+        }
         const { first, skip } = args
 
         if (skip !== undefined) {
@@ -42,7 +124,20 @@ PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, 
         return { count }
     }
 
-    const items = await this.model.findMany(filter)
+    let items
+    if (chunkedFilters) {
+        const parts = await Promise.all(chunkedFilters.map(chunkFilter => this.model.findMany(chunkFilter)))
+        const byId = new Map()
+        for (const part of parts) {
+            for (const item of part) {
+                if (item && item.id !== undefined) byId.set(item.id, item)
+            }
+        }
+        items = Array.from(byId.values())
+    } else {
+        items = await this.model.findMany(filter)
+    }
+
     return items.map(item => this._mapResultItem(item))
 }
 
@@ -176,6 +271,172 @@ if (!PrismaListAdapter.prototype._coerceId) {
 }
 
 PrismaListAdapter.prototype.processWheres = async function (where) {
+    const _resolveRelationshipScalarPath = (listAdapter, relationshipPath) => {
+        const collisionFk = `${relationshipPath}Fk`
+        const standardFk = `${relationshipPath}Id`
+        const modelName = listAdapter.key.slice(0, 1).toLowerCase() + listAdapter.key.slice(1)
+        const runtimeModel = this.parentAdapter?.prisma?._runtimeDataModel?.models?.[modelName]
+        const runtimeFieldNames = new Set((runtimeModel?.fields || []).map(field => field.name))
+
+        // Prefer fields that are definitely present in the generated Prisma model.
+        if (runtimeFieldNames.has(collisionFk)) return collisionFk
+        if (runtimeFieldNames.has(standardFk)) return standardFk
+
+        if (listAdapter.fieldAdaptersByPath[collisionFk]) return collisionFk
+        if (listAdapter.fieldAdaptersByPath[standardFk]) return standardFk
+        const relationshipAdapter = listAdapter.fieldAdaptersByPath[relationshipPath]
+        if (relationshipAdapter && relationshipAdapter.dbPath && relationshipAdapter.dbPath !== relationshipPath) {
+            return relationshipAdapter.dbPath
+        }
+        // Use Id fallback for relation scalar filtering to avoid relation operators (`is/some`)
+        // which can produce JOIN-oriented SQL or validation errors for scalar operators.
+        return standardFk
+    }
+
+    const _idsToFilter = (path, ids, { negate = false, includeNull = false } = {}) => {
+        if (!Array.isArray(ids) || ids.length === 0) {
+            if (negate) return includeNull ? {} : {}
+            return { id: { in: [] } }
+        }
+        if (!negate) return { [path]: { in: ids } }
+        if (includeNull) {
+            return {
+                OR: [
+                    { [path]: null },
+                    { NOT: { [path]: { in: ids } } },
+                ],
+            }
+        }
+        return { NOT: { [path]: { in: ids } } }
+    }
+
+    const _isEmptyWhere = value =>
+        value === undefined ||
+        value === null ||
+        (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)
+
+    const _filterByRelatedIdsThroughFk = async (fieldAdapter, relWhere, constraintType = 'is') => {
+        const rel = fieldAdapter.rel
+        if (!rel || !rel.left) return { id: { in: [] } }
+
+        const refListAdapter = this.getListAdapterByKey(fieldAdapter.refListKey)
+        const relatedRows = await refListAdapter.model.findMany({
+            where: relWhere || {},
+            select: { id: true },
+            relationLoadStrategy: 'query',
+        })
+        const relatedIds = relatedRows.map(row => row.id).filter(v => v !== null && v !== undefined)
+
+        const isCurrentOnLeft = rel.left && rel.left.listKey === this.key && rel.left.path === fieldAdapter.path
+        const isCurrentOnRight = rel.right && rel.right.listKey === this.key && rel.right.path === fieldAdapter.path
+
+        const storesForeignKeyOnCurrentRow = fieldAdapter && fieldAdapter.field && !fieldAdapter.field.many
+
+        // Current list stores FK on its own row (to-one relationship field)
+        if (storesForeignKeyOnCurrentRow) {
+            const currentPath = isCurrentOnLeft ? rel.left.path : isCurrentOnRight ? rel.right.path : null
+            if (!currentPath) return { id: { in: [] } }
+            const fkPath = _resolveRelationshipScalarPath(this, currentPath)
+            if (_isEmptyWhere(relWhere)) {
+                if (constraintType === 'is' || constraintType === 'some' || constraintType === 'every') {
+                    return { [fkPath]: { not: null } }
+                }
+                if (constraintType === 'none' || constraintType === 'isNot') {
+                    return { [fkPath]: null }
+                }
+            }
+            if (constraintType === 'is' || constraintType === 'some' || constraintType === 'every') {
+                return _idsToFilter(fkPath, relatedIds)
+            }
+            if (constraintType === 'none' || constraintType === 'isNot') {
+                return _idsToFilter(fkPath, relatedIds, { negate: true, includeNull: true })
+            }
+            return _idsToFilter(fkPath, relatedIds)
+        }
+
+        // Current list is "one" side, related list stores FK to current.id
+        if (rel.cardinality === '1:N' && fieldAdapter && fieldAdapter.field && fieldAdapter.field.many) {
+            const oppositePath = isCurrentOnLeft ? rel.right?.path : isCurrentOnRight ? rel.left?.path : null
+            if (!oppositePath) return { id: { in: [] } }
+            const parentFkPath = _resolveRelationshipScalarPath(refListAdapter, oppositePath)
+            const parentIdRows = await refListAdapter.model.findMany({
+                where: relWhere || {},
+                select: { [parentFkPath]: true },
+                relationLoadStrategy: 'query',
+            })
+            const parentIds = parentIdRows
+                .map(row => row[parentFkPath])
+                .filter(v => v !== null && v !== undefined)
+
+            if (constraintType === 'is' || constraintType === 'some') {
+                return _idsToFilter('id', parentIds)
+            }
+            if (constraintType === 'none' || constraintType === 'isNot') {
+                return _idsToFilter('id', parentIds, { negate: true })
+            }
+            if (constraintType === 'every') {
+                // every(X) == not exists related where not X
+                const notRows = await refListAdapter.model.findMany({
+                    where: { NOT: relWhere || {} },
+                    select: { [parentFkPath]: true },
+                    relationLoadStrategy: 'query',
+                })
+                const notParentIds = notRows
+                    .map(row => row[parentFkPath])
+                    .filter(v => v !== null && v !== undefined)
+                return _idsToFilter('id', notParentIds, { negate: true })
+            }
+            return _idsToFilter('id', parentIds)
+        }
+
+        // N:N through linking table (single-table read, no JOIN)
+        if (rel.cardinality === 'N:N' && rel.tableName && rel.columnNames) {
+            const key = `${rel.left.listKey}.${rel.left.path}`
+            const columns = rel.columnNames[key]
+            if (!columns) return { id: { in: [] } }
+
+            const isLeftSide = rel.left.listKey === this.key && rel.left.path === fieldAdapter.path
+            const currentIdColumn = isLeftSide ? columns.near : columns.far
+            const relatedIdColumn = isLeftSide ? columns.far : columns.near
+            if (!currentIdColumn || !relatedIdColumn) return { id: { in: [] } }
+            if (relatedIds.length === 0) {
+                return (constraintType === 'none' || constraintType === 'isNot' || constraintType === 'every')
+                    ? {}
+                    : { id: { in: [] } }
+            }
+
+            const schemaName = this.parentAdapter.dbSchemaName || 'public'
+            const placeholders = relatedIds.map((_, idx) => `$${idx + 1}`).join(', ')
+            const sql = `SELECT "${currentIdColumn}" AS "id" FROM "${schemaName}"."${rel.tableName}" WHERE "${relatedIdColumn}" IN (${placeholders})`
+            const rows = await this.parentAdapter.prisma.$queryRawUnsafe(sql, ...relatedIds)
+            const currentIds = rows.map(row => row.id).filter(v => v !== null && v !== undefined)
+
+            if (constraintType === 'is' || constraintType === 'some') {
+                return _idsToFilter('id', currentIds)
+            }
+            if (constraintType === 'none' || constraintType === 'isNot') {
+                return _idsToFilter('id', currentIds, { negate: true })
+            }
+            if (constraintType === 'every') {
+                const notRelatedRows = await refListAdapter.model.findMany({
+                    where: { NOT: relWhere || {} },
+                    select: { id: true },
+                    relationLoadStrategy: 'query',
+                })
+                const notRelatedIds = notRelatedRows.map(row => row.id).filter(v => v !== null && v !== undefined)
+                if (notRelatedIds.length === 0) return {}
+                const notPlaceholders = notRelatedIds.map((_, idx) => `$${idx + 1}`).join(', ')
+                const notSql = `SELECT "${currentIdColumn}" AS "id" FROM "${schemaName}"."${rel.tableName}" WHERE "${relatedIdColumn}" IN (${notPlaceholders})`
+                const notRows = await this.parentAdapter.prisma.$queryRawUnsafe(notSql, ...notRelatedIds)
+                const disallowedIds = notRows.map(row => row.id).filter(v => v !== null && v !== undefined)
+                return _idsToFilter('id', disallowedIds, { negate: true })
+            }
+            return _idsToFilter('id', currentIds)
+        }
+
+        return { id: { in: [] } }
+    }
+
     const processRelClause = async (fieldPath, clause) =>
         this.getListAdapterByKey(this.fieldAdaptersByPath[fieldPath].refListKey).processWheres(clause)
 
@@ -188,7 +449,7 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
         ) {
             const refListAdapter = this.getListAdapterByKey(this.fieldAdaptersByPath[condition].refListKey)
             const processedWhere = await refListAdapter.processWheres(value)
-            return processedWhere ? { [condition]: { is: processedWhere } } : { [condition]: { isNot: null } }
+            return _filterByRelatedIdsThroughFk(this.fieldAdaptersByPath[condition], processedWhere, 'is')
         } else {
             let dbPath = condition
             let fieldAdapter = this.fieldAdaptersByPath[dbPath]
@@ -201,13 +462,17 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
             if (supported) {
                 return supported(value)
             } else if (fieldAdapter && condition.match(/_(gt|gte|lt|lte)$/)) {
-                // Handle ordering operators directly
                 const match = condition.match(/_(gt|gte|lt|lte)$/)
                 const op = match[1]
                 const prismaOp = op === 'gt' ? 'gt' : op === 'gte' ? 'gte' : op === 'lt' ? 'lt' : 'lte'
                 return { [dbPath]: { [prismaOp]: value } }
             } else {
                 const [fieldPath, constraintType] = condition.split('_')
+                const relationshipAdapter = this.fieldAdaptersByPath[fieldPath]
+                if (relationshipAdapter && relationshipAdapter.isRelationship) {
+                    const processedWhere = await processRelClause(fieldPath, value)
+                    return _filterByRelatedIdsThroughFk(relationshipAdapter, processedWhere, constraintType)
+                }
                 return { [fieldPath]: { [constraintType]: await processRelClause(fieldPath, value) } }
             }
         }
