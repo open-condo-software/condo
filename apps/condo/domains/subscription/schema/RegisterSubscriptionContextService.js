@@ -3,6 +3,7 @@
  */
 
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -13,6 +14,7 @@ const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverS
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
@@ -130,16 +132,12 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
                     const today = dayjs().format('YYYY-MM-DD')
-                    const hasActiveServiceSubscription = await find('SubscriptionContext', {
-                        organization: { id: organization.id },
-                        subscriptionPlan: { planType: SUBSCRIPTION_PLAN_TYPE_SERVICE },
-                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                        startAt_lte: today,
-                        endAt_gt: today,
-                        deletedAt: null,
-                    })
+                    const organizationData = await Organization.getOne(context, { id: organization.id })
 
-                    if (hasActiveServiceSubscription.length === 0) {
+                    const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
+                    const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(today))
+
+                    if (!hasActiveServiceSubscription) {
                         throw new GQLError(ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, context)
                     }
                 }

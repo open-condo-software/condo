@@ -7,6 +7,7 @@ const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContext, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
@@ -79,19 +80,12 @@ async function processRecurrentSubscriptionPayments () {
             }
 
             if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
-                const hasActiveServiceSubscription = await itemsQuery('SubscriptionContext', {
-                    where: {
-                        organization: { id: organization },
-                        subscriptionPlan: { planType: SUBSCRIPTION_PLAN_TYPE_SERVICE },
-                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                        startAt_lte: today,
-                        endAt_gt: today,
-                        deletedAt: null,
-                    },
-                    first: 1,
-                })
+                const organizationData = await Organization.getOne(context, { id: organization })
 
-                if (hasActiveServiceSubscription.length === 0) {
+                const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
+                const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(today))
+
+                if (!hasActiveServiceSubscription) {
                     logger.info({ 
                         msg: 'no active service subscription found, canceling feature subscription renewal', 
                         data: { subscriptionContextId: id, organizationId: organization, featurePlanId: subscriptionPlan },
