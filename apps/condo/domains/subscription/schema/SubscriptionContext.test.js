@@ -1010,6 +1010,194 @@ describe('SubscriptionContext', () => {
         })
     })
 
+    describe('afterChange: subset plan autopayment removal on superset plan activation', () => {
+        let supersetPlan, subsetPlan, nonSubsetPlan
+        let pricingRuleForSuperset, pricingRuleForSubset, pricingRuleForNonSubset
+
+        beforeAll(async () => {
+            const [sPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: HOLDING_TYPE,
+                news: true,
+                tickets: true,
+            })
+            supersetPlan = sPlan
+            const [sRule] = await createTestSubscriptionPlanPricingRule(admin, supersetPlan)
+            pricingRuleForSuperset = sRule
+
+            const [subPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: HOLDING_TYPE,
+                news: true,
+            })
+            subsetPlan = subPlan
+            const [subRule] = await createTestSubscriptionPlanPricingRule(admin, subsetPlan)
+            pricingRuleForSubset = subRule
+
+            const [nsPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: HOLDING_TYPE,
+                ai: true,
+            })
+            nonSubsetPlan = nsPlan
+            const [nsRule] = await createTestSubscriptionPlanPricingRule(admin, nonSubsetPlan)
+            pricingRuleForNonSubset = nsRule
+        })
+
+        test('disables autopayment for active subset plan context when non-trial superset plan is activated', async () => {
+            const bindingId = faker.datatype.uuid()
+
+            const [subsetContext] = await createTestSubscriptionContext(admin, organization, subsetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSubset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+            })
+
+            const [supersetCtx] = await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSuperset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, supersetCtx.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [updatedSubsetContext] = await SubscriptionContext.getAll(admin, { id: subsetContext.id })
+            expect(updatedSubsetContext.bindingId).toBeNull()
+        })
+
+        test('does not disable autopayment for non-subset plan context when superset plan is activated', async () => {
+            const bindingId = faker.datatype.uuid()
+
+            const [nonSubsetContext] = await createTestSubscriptionContext(admin, organization, nonSubsetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForNonSubset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+            })
+
+            const [supersetCtx] = await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSuperset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, supersetCtx.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [updatedNonSubsetContext] = await SubscriptionContext.getAll(admin, { id: nonSubsetContext.id })
+            expect(updatedNonSubsetContext.bindingId).toBe(bindingId)
+        })
+
+        test('does not disable autopayment when a trial plan context becomes DONE', async () => {
+            const bindingId = faker.datatype.uuid()
+
+            const [subsetContext] = await createTestSubscriptionContext(admin, organization, subsetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSubset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+            })
+
+            const [trialCtx] = await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(2, 'months').format('YYYY-MM-DD'),
+                isTrial: true,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, trialCtx.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [unchangedSubsetContext] = await SubscriptionContext.getAll(admin, { id: subsetContext.id })
+            expect(unchangedSubsetContext.bindingId).toBe(bindingId)
+        })
+        test('disables autopayment for multiple subset plan contexts simultaneously', async () => {
+            const bindingId1 = faker.datatype.uuid()
+            const bindingId2 = faker.datatype.uuid()
+
+            const [subsetContext1] = await createTestSubscriptionContext(admin, organization, subsetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSubset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId: bindingId1,
+            })
+
+            const [subsetContext2] = await createTestSubscriptionContext(admin, organization, subsetPlan, {
+                startAt: dayjs().add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(2, 'months').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSubset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId: bindingId2,
+            })
+
+            const [supersetCtx] = await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(2, 'months').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSuperset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, supersetCtx.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [updated1] = await SubscriptionContext.getAll(admin, { id: subsetContext1.id })
+            const [updated2] = await SubscriptionContext.getAll(admin, { id: subsetContext2.id })
+            expect(updated1.bindingId).toBeNull()
+            expect(updated2.bindingId).toBeNull()
+        })
+
+        test('does not affect subset plan contexts of other organizations', async () => {
+            const bindingId = faker.datatype.uuid()
+
+            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
+
+            const [otherOrgSubsetContext] = await createTestSubscriptionContext(admin, otherOrg, subsetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSubset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+            })
+
+            const [supersetCtx] = await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRuleForSuperset.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await updateTestSubscriptionContext(admin, supersetCtx.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [unchangedOtherOrgContext] = await SubscriptionContext.getAll(admin, { id: otherOrgSubsetContext.id })
+            expect(unchangedOtherOrgContext.bindingId).toBe(bindingId)
+        })
+    })
+
     describe('Status field tests', () => {
         test('status defaults to CREATED when not specified', async () => {
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {

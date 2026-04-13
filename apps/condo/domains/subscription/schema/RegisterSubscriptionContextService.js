@@ -17,6 +17,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
 const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
@@ -65,6 +66,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'NO_ACTIVE_SERVICE_SUBSCRIPTION',
         message: 'Cannot subscribe to a feature plan without an active service subscription',
+    },
+    ACTIVE_SUPERSET_PLAN_EXISTS: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'subscriptionPlanPricingRule'],
+        code: BAD_USER_INPUT,
+        type: 'ACTIVE_SUPERSET_PLAN_EXISTS',
+        message: 'Cannot register a subscription that is already fully covered by an active non-trial plan',
     },
 }
 
@@ -179,6 +187,23 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 const months = PERIOD_TO_MONTHS[pricingRule.period]
                 if (!months) {
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                }
+
+                const activeDoneContexts = await find('SubscriptionContext', {
+                    organization: { id: organization.id },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    isTrial: false,
+                    endAt_gt: dayjs().format('YYYY-MM-DD'),
+                    deletedAt: null,
+                })
+                for (const activeCtx of activeDoneContexts) {
+                    if (activeCtx.subscriptionPlan === plan.id) continue
+                    const activePlan = await getById('SubscriptionPlan', activeCtx.subscriptionPlan)
+                    
+                    if (activePlan && isPlanSubsetOf(plan, activePlan)) {
+                        logger.warn({ msg: 'Active non-trial superset plan exists', data: { organizationId: organization.id, planId: plan.id, supersetPlanId: activePlan.id } })
+                        throw new GQLError(ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, context)
+                    }
                 }
 
                 const existingContexts = await find('SubscriptionContext', {

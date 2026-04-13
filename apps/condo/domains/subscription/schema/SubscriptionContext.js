@@ -17,6 +17,8 @@ const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchem
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
+const { updateSubscriptionContextPaymentMethod } = require('@condo/domains/subscription/utils/serverSchema')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
@@ -315,6 +317,8 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             }
         },
         afterChange: async ({ operation, existingItem, updatedItem, context }) => {
+            const isBecomingDone = updatedItem.status === SUBSCRIPTION_CONTEXT_STATUS.DONE &&
+                existingItem?.status !== updatedItem.status
             // Only delete pending requests when a non-trial subscription context is created
             if (operation === 'create' && !updatedItem.isTrial) {
                 const organizationId = updatedItem.organization
@@ -336,9 +340,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             }
 
             // Create finished B2BAppContext for each app in a feature plan when context becomes DONE
-            const isBecomingDone = updatedItem.status === SUBSCRIPTION_CONTEXT_STATUS.DONE &&
-                existingItem?.status !== updatedItem.status
-
             if (isBecomingDone) {
                 const plan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
                 if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
@@ -361,6 +362,33 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                                 status: CONTEXT_FINISHED_STATUS,
                             })
                         }
+                    }
+                }
+            }
+
+            if (isBecomingDone && !updatedItem.isTrial) {
+                const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
+                if (activatedPlan) {
+                    const activeContextsWithAutopayment = await find('SubscriptionContext', {
+                        organization: { id: updatedItem.organization },
+                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                        bindingId_not: null,
+                        endAt_gt: dayjs().format('YYYY-MM-DD'),
+                        deletedAt: null,
+                        id_not: updatedItem.id,
+                    })
+
+                    for (const otherContext of activeContextsWithAutopayment) {
+                        const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)
+                        if (!otherPlan) continue
+
+                        if (!isPlanSubsetOf(otherPlan, activatedPlan)) continue
+
+                        await updateSubscriptionContextPaymentMethod(context, {
+                            sender: updatedItem.sender,
+                            subscriptionContext: { id: otherContext.id },
+                            bindingId: null,
+                        })
                     }
                 }
             }
