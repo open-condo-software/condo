@@ -21,6 +21,7 @@ const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBil
 const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
 const { SumBillingReceiptsService } = require('./SumBillingReceiptsService')
 const { ValidateQRCodeService } = require('./ValidateQRCodeService')
+const { DebtClaimGenerationTask } = require('./DebtClaimGenerationTask')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -42,5 +43,6 @@ module.exports = {
     RegisterBillingReceiptFileService,
     SumBillingReceiptsService,
     AllResidentBillingVirtualReceiptsService,
+    DebtClaimGenerationTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

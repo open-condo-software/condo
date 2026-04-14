@@ -12,9 +12,10 @@ import type { TabItem } from '@open-condo/ui'
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
+import { DebtClaimsTab } from '@condo/domains/billing/components/BillingPageContent/DebtClaimsTab'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
-import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
+import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY, DEBT_CLAIMS_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
 import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
@@ -87,6 +88,7 @@ export const MainContent: React.FC<MainContentProps> = ({
     const intl = useIntl()
     const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })
     const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
+    const DebtClaimsTabTitle = intl.formatMessage({ id: 'billing.debtClaims.tab.title' })
 
     const userOrganization = useOrganization()
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
@@ -127,7 +129,13 @@ export const MainContent: React.FC<MainContentProps> = ({
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
                 children: <PaymentsTab type={currentType} />,
-            }]
+            },
+            canReadBillingReceipts && {
+                label: DebtClaimsTabTitle,
+                key: DEBT_CLAIMS_TAB_KEY,
+                children: <DebtClaimsTab />,
+            },
+        ]
 
         extensionAppTabs.forEach((extensionAppTab) => {
             const appUrl = get(extensionAppTab, ['integration', 'appUrl'], '') || ''
@@ -144,7 +152,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
+    }, [canReadBillingReceipts, AccrualsTabTitle, DebtClaimsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
 
     return (
         <Tabs
