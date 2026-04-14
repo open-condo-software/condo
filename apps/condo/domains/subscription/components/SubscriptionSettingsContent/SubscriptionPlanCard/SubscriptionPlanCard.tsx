@@ -1,5 +1,5 @@
 import {
-    GetAvailableSubscriptionPlansQueryResult,
+    GetAvailableServiceSubscriptionPlansQueryResult,
     GetPendingSubscriptionRequestsQueryResult,
     GetOrganizationTrialSubscriptionsQuery,
     GetOrganizationActivatedSubscriptionsQuery,
@@ -32,7 +32,7 @@ import styles from './SubscriptionPlanCard.module.css'
 import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 
-type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
+type PlanType = GetAvailableServiceSubscriptionPlansQueryResult['data']['result']['plans'][number]
 
 const { Panel } = Collapse
 
