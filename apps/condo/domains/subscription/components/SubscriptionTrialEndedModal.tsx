@@ -1,7 +1,7 @@
 import { useGetLastExpiredSubscriptionContextQuery, useCreateUserHelpRequestMutation, useGetPendingBankingRequestQuery } from '@app/condo/gql'
-import dayjs from 'dayjs'
 import { OrganizationFeature, UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
+import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -16,7 +16,7 @@ import { Button, Modal, Typography, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
-import { SUBSCRIPTIONS, ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
+import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 
 import styles from './SubscriptionTrialEndedModal.module.css'
 

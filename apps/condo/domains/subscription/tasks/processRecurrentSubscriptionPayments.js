@@ -1,13 +1,11 @@
 const dayjs = require('dayjs')
-const get = require('lodash/get')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 
-const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContext, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
@@ -64,39 +62,6 @@ async function processRecurrentSubscriptionPayments () {
             if (latestContext.id !== id) {
                 logger.info({ msg: 'subscription context is not the latest, skipping', data: { subscriptionContextId: id, latestContextId: latestContext.id } })
                 continue
-            }
-
-            const [plan] = await itemsQuery('SubscriptionPlan', {
-                where: {
-                    id: subscriptionPlan,
-                    deletedAt: null,
-                },
-                first: 1,
-            })
-
-            if (!plan) {
-                logger.warn({ msg: 'subscription plan not found, skipping', data: { subscriptionContextId: id, subscriptionPlanId: subscriptionPlan } })
-                continue
-            }
-
-            if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
-                const organizationData = await Organization.getOne(context, { id: organization })
-
-                const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
-                const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(today))
-
-                if (!hasActiveServiceSubscription) {
-                    logger.info({ 
-                        msg: 'no active service subscription found, canceling feature subscription renewal', 
-                        data: { subscriptionContextId: id, organizationId: organization, featurePlanId: subscriptionPlan },
-                    })
-                    await SubscriptionContext.update(context, id, {
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' },
-                        status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
-                    })
-                    continue
-                }
             }
 
             logger.info({ msg: 'processing subscription context renewal', data: { subscriptionContextId: id, organizationId: organization } })
