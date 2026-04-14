@@ -6,9 +6,11 @@ const { PrismaAdapter: OriginalPrismaAdapter, PrismaListAdapter, PrismaFieldAdap
 const { Decimal, Relationship } = require('@open-keystone/fields')
 const { mapKeys } = require('@open-keystone/utils')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const _PrismaDecimalInterface = Decimal.adapters.prisma
 const _PrismaRelationshipInterface = Relationship.adapters.prisma
-
+const logger = getLogger('PrismaAdapter')
 
 function _sanitizeEmptyOrConditions (obj) {
     if (obj === null || obj === undefined) return obj
@@ -27,87 +29,204 @@ function _sanitizeEmptyOrConditions (obj) {
 }
 
 const MAX_PRISMA_BIND_VALUES = 12000
+const CHUNK_QUERY_CONCURRENCY = Math.max(1, parseInt(process.env.PRISMA_ADAPTER_CHUNK_CONCURRENCY || '6', 10))
+const PERF_LOG_ENABLED = process.env.PRISMA_ADAPTER_PROFILE === '1'
 
-function _findLargeInPath (node, path = []) {
-    if (Array.isArray(node)) {
-        for (let i = 0; i < node.length; i++) {
-            const found = _findLargeInPath(node[i], [...path, i])
-            if (found) return found
-        }
-        return null
-    }
-    if (!node || typeof node !== 'object') return null
-
-    if (Array.isArray(node.in) && node.in.length > MAX_PRISMA_BIND_VALUES) {
-        return [...path, 'in']
-    }
-
-    for (const [key, value] of Object.entries(node)) {
-        const found = _findLargeInPath(value, [...path, key])
-        if (found) return found
-    }
-    return null
+function _isPlainObject (value) {
+    if (!value || typeof value !== 'object') return false
+    const proto = Object.getPrototypeOf(value)
+    return proto === Object.prototype || proto === null
 }
 
-function _findLargeLogicalPath (node, path = []) {
+function _stableStringify (value) {
+    if (Array.isArray(value)) return `[${value.map(_stableStringify).join(',')}]`
+    if (value && typeof value === 'object') {
+        if (value instanceof Date) {
+            return JSON.stringify({ __type: 'Date', v: Number.isNaN(value.getTime()) ? null : value.toISOString() })
+        }
+        if (value instanceof RegExp) {
+            return JSON.stringify({ __type: 'RegExp', v: `${value.source}/${value.flags}` })
+        }
+        if (Buffer.isBuffer(value)) {
+            return JSON.stringify({ __type: 'Buffer', v: value.toString('base64') })
+        }
+        if (value instanceof Map) {
+            const pairs = Array.from(value.entries())
+                .map(([k, v]) => [_stableStringify(k), _stableStringify(v)])
+                .sort(([a], [b]) => a.localeCompare(b))
+            return JSON.stringify({ __type: 'Map', v: pairs })
+        }
+        if (value instanceof Set) {
+            const setValues = Array.from(value.values())
+                .map(_stableStringify)
+                .sort((a, b) => a.localeCompare(b))
+            return JSON.stringify({ __type: 'Set', v: setValues })
+        }
+        if (!_isPlainObject(value)) {
+            return JSON.stringify({ __type: value.constructor ? value.constructor.name : 'Object', v: String(value) })
+        }
+        const entries = Object.entries(value).sort(([a], [b]) => a.localeCompare(b))
+        return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${_stableStringify(v)}`).join(',')}}`
+    }
+    return JSON.stringify(value)
+}
+
+function _cloneWithPathValue (value, path, replacement, depth = 0) {
+    if (depth === path.length) return replacement
+    const key = path[depth]
+    if (Array.isArray(value)) {
+        const cloned = value.slice()
+        cloned[key] = _cloneWithPathValue(value[key], path, replacement, depth + 1)
+        return cloned
+    }
+    const cloned = { ...(value || {}) }
+    cloned[key] = _cloneWithPathValue(value ? value[key] : undefined, path, replacement, depth + 1)
+    return cloned
+}
+
+async function _runWithConcurrency (items, concurrency, worker) {
+    if (!Array.isArray(items) || items.length === 0) return []
+    const limit = Math.max(1, concurrency || 1)
+    const results = new Array(items.length)
+    let nextIndex = 0
+    const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (nextIndex < items.length) {
+            const currentIndex = nextIndex
+            nextIndex += 1
+            results[currentIndex] = await worker(items[currentIndex], currentIndex)
+        }
+    })
+    await Promise.all(runners)
+    return results
+}
+
+function _logAdapterPerf (payload) {
+    if (!PERF_LOG_ENABLED) return
+    logger.info({
+        msg: 'Prisma adapter perf event',
+        data: payload,
+    })
+}
+
+function _estimateBindValues (node) {
+    if (Array.isArray(node)) return node.reduce((acc, value) => acc + _estimateBindValues(value), 0)
+    if (!node || typeof node !== 'object') return 1
+    let count = 0
+    for (const [key, value] of Object.entries(node)) {
+        if (key === 'in' && Array.isArray(value)) {
+            count += value.length
+        } else {
+            count += _estimateBindValues(value)
+        }
+    }
+    return count
+}
+
+function _findBestChunkCandidatePath (node, path = []) {
+    let best = null
+
+    const register = (candidatePath, size) => {
+        if (size <= 1) return
+        if (!best || size > best.size) best = { path: candidatePath, size }
+    }
+
     if (Array.isArray(node)) {
         for (let i = 0; i < node.length; i++) {
-            const found = _findLargeLogicalPath(node[i], [...path, i])
-            if (found) return found
+            const found = _findBestChunkCandidatePath(node[i], [...path, i])
+            if (found && (!best || found.size > best.size)) best = found
         }
-        return null
+        return best
     }
-    if (!node || typeof node !== 'object') return null
+    if (!node || typeof node !== 'object') return best
 
-    if (Array.isArray(node.OR) && node.OR.length > MAX_PRISMA_BIND_VALUES) {
-        return [...path, 'OR']
+    if (Array.isArray(node.in)) {
+        register([...path, 'in'], node.in.length)
+    }
+    if (Array.isArray(node.OR)) {
+        register([...path, 'OR'], node.OR.length)
     }
 
     for (const [key, value] of Object.entries(node)) {
-        const found = _findLargeLogicalPath(value, [...path, key])
-        if (found) return found
+        const found = _findBestChunkCandidatePath(value, [...path, key])
+        if (found && (!best || found.size > best.size)) best = found
     }
-    return null
+    return best
 }
 
 function _getByPath (obj, path) {
     return path.reduce((acc, key) => (acc == null ? acc : acc[key]), obj)
 }
 
-function _setByPath (obj, path, value) {
-    if (!path.length) return
-    const parentPath = path.slice(0, -1)
-    const last = path[path.length - 1]
-    const parent = _getByPath(obj, parentPath)
-    if (parent != null) parent[last] = value
-}
-
 function _buildChunkedFiltersForLargeIn (filter) {
     if (!filter || !filter.where) return null
-
-    const splitPath = _findLargeInPath(filter.where, ['where']) || _findLargeLogicalPath(filter.where, ['where'])
-    if (!splitPath) return null
-    const splitValues = _getByPath(filter, splitPath)
-    if (!Array.isArray(splitValues) || splitValues.length <= MAX_PRISMA_BIND_VALUES) return null
+    const estimatedBindCount = _estimateBindValues(filter.where)
+    if (estimatedBindCount <= MAX_PRISMA_BIND_VALUES) return null
+    const candidate = _findBestChunkCandidatePath(filter.where, ['where'])
+    if (!candidate || !candidate.path) return null
+    const splitValues = _getByPath(filter, candidate.path)
+    if (!Array.isArray(splitValues) || splitValues.length <= 1) return null
+    const neededChunkCount = Math.ceil(estimatedBindCount / MAX_PRISMA_BIND_VALUES)
+    const splitChunkSize = Math.max(1, Math.ceil(splitValues.length / neededChunkCount))
 
     const chunked = []
-    for (let i = 0; i < splitValues.length; i += MAX_PRISMA_BIND_VALUES) {
-        const chunk = splitValues.slice(i, i + MAX_PRISMA_BIND_VALUES)
-        const chunkFilter = structuredClone(filter)
-        _setByPath(chunkFilter, splitPath, chunk)
+    for (let i = 0; i < splitValues.length; i += splitChunkSize) {
+        const chunk = splitValues.slice(i, i + splitChunkSize)
+        const chunkFilter = _cloneWithPathValue(filter, candidate.path, chunk)
         chunked.push(chunkFilter)
     }
     return chunked
 }
 
+function _stripPaginationFromFilter (filter) {
+    if (!filter || typeof filter !== 'object') return filter
+    const normalizedFilter = { ...filter }
+    delete normalizedFilter.skip
+    delete normalizedFilter.take
+    delete normalizedFilter.cursor
+    return normalizedFilter
+}
+
+function _stripOrderAndPaginationFromFilter (filter) {
+    if (!filter || typeof filter !== 'object') return filter
+    const normalizedFilter = _stripPaginationFromFilter(filter)
+    delete normalizedFilter.orderBy
+    delete normalizedFilter.distinct
+    delete normalizedFilter.select
+    delete normalizedFilter.include
+    return normalizedFilter
+}
+
+function _chunkArray (items, size) {
+    const chunks = []
+    for (let i = 0; i < items.length; i += size) {
+        chunks.push(items.slice(i, i + size))
+    }
+    return chunks
+}
+
+function _applyGlobalPaginationToIds (ids, filter) {
+    let normalizedIds = ids
+    const cursorId = filter && filter.cursor && filter.cursor.id
+    if (cursorId !== undefined && cursorId !== null) {
+        const cursorIndex = normalizedIds.indexOf(cursorId)
+        if (cursorIndex >= 0) normalizedIds = normalizedIds.slice(cursorIndex + 1)
+    }
+    const skip = Number.isInteger(filter && filter.skip) ? Math.max(0, filter.skip) : 0
+    const take = Number.isInteger(filter && filter.take) ? Math.max(0, filter.take) : undefined
+    normalizedIds = skip > 0 ? normalizedIds.slice(skip) : normalizedIds
+    if (take !== undefined) normalizedIds = normalizedIds.slice(0, take)
+    return normalizedIds
+}
+
 PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, from = {} } = {}) {
+    const startedAt = Date.now()
     const filter = await this.prismaFilter({ args, meta, from })
     const chunkedFilters = _buildChunkedFiltersForLargeIn(filter)
 
     if (meta) {
         let count
         if (chunkedFilters) {
-            const counts = await Promise.all(chunkedFilters.map(chunkFilter => this.model.count(chunkFilter)))
+            const counts = await _runWithConcurrency(chunkedFilters, CHUNK_QUERY_CONCURRENCY, chunkFilter => this.model.count(chunkFilter))
             count = counts.reduce((acc, value) => acc + value, 0)
         } else {
             count = await this.model.count(filter)
@@ -121,23 +240,69 @@ PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, 
             count = Math.min(count, first)
         }
         count = Math.max(0, count)
+        _logAdapterPerf({
+            list: this.key,
+            phase: 'itemsQueryMeta',
+            elapsedMs: Date.now() - startedAt,
+            chunkCount: chunkedFilters ? chunkedFilters.length : 0,
+        })
         return { count }
     }
 
     let items
     if (chunkedFilters) {
-        const parts = await Promise.all(chunkedFilters.map(chunkFilter => this.model.findMany(chunkFilter)))
-        const byId = new Map()
+        const chunkFiltersForIdScan = chunkedFilters.map(chunkFilter => ({
+            ..._stripOrderAndPaginationFromFilter(chunkFilter),
+            select: { id: true },
+        }))
+        const uniqueIds = []
+        const seenIds = new Set()
+        const parts = await _runWithConcurrency(chunkFiltersForIdScan, CHUNK_QUERY_CONCURRENCY, async chunkFilter => {
+            return this.model.findMany(chunkFilter)
+        })
         for (const part of parts) {
             for (const item of part) {
-                if (item && item.id !== undefined) byId.set(item.id, item)
+                const id = item && item.id
+                if (id === null || id === undefined || seenIds.has(id)) continue
+                seenIds.add(id)
+                uniqueIds.push(id)
             }
         }
-        items = Array.from(byId.values())
+        const pagedIds = _applyGlobalPaginationToIds(uniqueIds, filter)
+        if (pagedIds.length === 0) {
+            items = []
+        } else {
+            const baseFilter = _stripPaginationFromFilter({ ...filter })
+            delete baseFilter.orderBy
+            delete baseFilter.cursor
+            const rowById = new Map()
+            const idChunks = _chunkArray(pagedIds, MAX_PRISMA_BIND_VALUES)
+            const rowParts = await _runWithConcurrency(idChunks, CHUNK_QUERY_CONCURRENCY, async idsChunk => {
+                return this.model.findMany({
+                    ...baseFilter,
+                    where: { id: { in: idsChunk } },
+                })
+            })
+            for (const rowPart of rowParts) {
+                for (const row of rowPart) {
+                    if (row && row.id !== undefined && !rowById.has(row.id)) {
+                        rowById.set(row.id, row)
+                    }
+                }
+            }
+            items = pagedIds.map(id => rowById.get(id)).filter(Boolean)
+        }
     } else {
         items = await this.model.findMany(filter)
     }
 
+    _logAdapterPerf({
+        list: this.key,
+        phase: 'itemsQuery',
+        elapsedMs: Date.now() - startedAt,
+        chunkCount: chunkedFilters ? chunkedFilters.length : 0,
+        resultCount: items.length,
+    })
     return items.map(item => this._mapResultItem(item))
 }
 
@@ -270,7 +435,13 @@ if (!PrismaListAdapter.prototype._coerceId) {
     }
 }
 
-PrismaListAdapter.prototype.processWheres = async function (where) {
+PrismaListAdapter.prototype.processWheres = async function (where, context = null) {
+    const isRootCall = !context
+    const callStartedAt = Date.now()
+    const sharedContext = context || {
+        relationFilterCache: new Map(),
+        findManyCache: new Map(),
+    }
     const _resolveRelationshipScalarPath = (listAdapter, relationshipPath) => {
         const collisionFk = `${relationshipPath}Fk`
         const standardFk = `${relationshipPath}Id`
@@ -311,26 +482,49 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
     }
 
     const _uniqueNonNull = values => {
-        const result = []
         const seen = new Set()
         for (const value of values) {
             if (value === null || value === undefined) continue
-            if (seen.has(value)) continue
             seen.add(value)
-            result.push(value)
         }
-        return result
+        return Array.from(seen.values())
     }
 
-    const _findManyWithChunking = async (model, query) => {
+    const _chunkIds = ids => {
+        const chunks = []
+        for (let i = 0; i < ids.length; i += MAX_PRISMA_BIND_VALUES) {
+            chunks.push(ids.slice(i, i + MAX_PRISMA_BIND_VALUES))
+        }
+        return chunks
+    }
+
+    const _findManyWithChunking = async (listKey, model, query) => {
         const normalizedQuery = {
             ...query,
             where: query?.where || {},
         }
+        const cacheKey = `${listKey}:${_stableStringify(normalizedQuery)}`
+        if (sharedContext.findManyCache.has(cacheKey)) {
+            return sharedContext.findManyCache.get(cacheKey)
+        }
         const chunkedQueries = _buildChunkedFiltersForLargeIn(normalizedQuery)
-        if (!chunkedQueries) return model.findMany(normalizedQuery)
-        const parts = await Promise.all(chunkedQueries.map(chunkQuery => model.findMany(chunkQuery)))
-        return parts.flat()
+        const pending = (async () => {
+            if (!chunkedQueries) return model.findMany(normalizedQuery)
+            const parts = await _runWithConcurrency(chunkedQueries, CHUNK_QUERY_CONCURRENCY, chunkQuery => model.findMany(chunkQuery))
+            const rows = []
+            for (const part of parts) rows.push(...part)
+            return rows
+        })()
+        sharedContext.findManyCache.set(cacheKey, pending)
+        if (chunkedQueries) {
+            _logAdapterPerf({
+                list: this.key,
+                phase: 'relationFindManyChunked',
+                targetList: listKey,
+                chunkCount: chunkedQueries.length,
+            })
+        }
+        return pending
     }
 
     const _isEmptyWhere = value =>
@@ -341,9 +535,17 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
     const _filterByRelatedIdsThroughFk = async (fieldAdapter, relWhere, constraintType = 'is') => {
         const rel = fieldAdapter.rel
         if (!rel || !rel.left) return { id: { in: [] } }
+        const relationCacheKey = `${this.key}:${fieldAdapter.path}:${constraintType}:${_stableStringify(relWhere || {})}`
+        if (sharedContext.relationFilterCache.has(relationCacheKey)) {
+            return sharedContext.relationFilterCache.get(relationCacheKey)
+        }
+        const remember = result => {
+            sharedContext.relationFilterCache.set(relationCacheKey, result)
+            return result
+        }
 
         const refListAdapter = this.getListAdapterByKey(fieldAdapter.refListKey)
-        const relatedRows = await _findManyWithChunking(refListAdapter.model, {
+        const relatedRows = await _findManyWithChunking(refListAdapter.key, refListAdapter.model, {
             where: relWhere || {},
             select: { id: true },
             relationLoadStrategy: 'query',
@@ -358,31 +560,31 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
         // Current list stores FK on its own row (to-one relationship field)
         if (storesForeignKeyOnCurrentRow) {
             const currentPath = isCurrentOnLeft ? rel.left.path : isCurrentOnRight ? rel.right.path : null
-            if (!currentPath) return { id: { in: [] } }
+            if (!currentPath) return remember({ id: { in: [] } })
             const fkPath = _resolveRelationshipScalarPath(this, currentPath)
             if (_isEmptyWhere(relWhere)) {
                 if (constraintType === 'is' || constraintType === 'some' || constraintType === 'every') {
-                    return { [fkPath]: { not: null } }
+                    return remember({ [fkPath]: { not: null } })
                 }
                 if (constraintType === 'none' || constraintType === 'isNot') {
-                    return { [fkPath]: null }
+                    return remember({ [fkPath]: null })
                 }
             }
             if (constraintType === 'is' || constraintType === 'some' || constraintType === 'every') {
-                return _idsToFilter(fkPath, relatedIds)
+                return remember(_idsToFilter(fkPath, relatedIds))
             }
             if (constraintType === 'none' || constraintType === 'isNot') {
-                return _idsToFilter(fkPath, relatedIds, { negate: true, includeNull: true })
+                return remember(_idsToFilter(fkPath, relatedIds, { negate: true, includeNull: true }))
             }
-            return _idsToFilter(fkPath, relatedIds)
+            return remember(_idsToFilter(fkPath, relatedIds))
         }
 
         // Current list is "one" side, related list stores FK to current.id
         if (rel.cardinality === '1:N' && fieldAdapter && fieldAdapter.field && fieldAdapter.field.many) {
             const oppositePath = isCurrentOnLeft ? rel.right?.path : isCurrentOnRight ? rel.left?.path : null
-            if (!oppositePath) return { id: { in: [] } }
+            if (!oppositePath) return remember({ id: { in: [] } })
             const parentFkPath = _resolveRelationshipScalarPath(refListAdapter, oppositePath)
-            const parentIdRows = await _findManyWithChunking(refListAdapter.model, {
+            const parentIdRows = await _findManyWithChunking(refListAdapter.key, refListAdapter.model, {
                 where: relWhere || {},
                 select: { [parentFkPath]: true },
                 relationLoadStrategy: 'query',
@@ -390,38 +592,38 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
             const parentIds = _uniqueNonNull(parentIdRows.map(row => row[parentFkPath]))
 
             if (constraintType === 'is' || constraintType === 'some') {
-                return _idsToFilter('id', parentIds)
+                return remember(_idsToFilter('id', parentIds))
             }
             if (constraintType === 'none' || constraintType === 'isNot') {
-                return _idsToFilter('id', parentIds, { negate: true })
+                return remember(_idsToFilter('id', parentIds, { negate: true }))
             }
             if (constraintType === 'every') {
                 // every(X) == not exists related where not X
-                const notRows = await _findManyWithChunking(refListAdapter.model, {
+                const notRows = await _findManyWithChunking(refListAdapter.key, refListAdapter.model, {
                     where: { NOT: relWhere || {} },
                     select: { [parentFkPath]: true },
                     relationLoadStrategy: 'query',
                 })
                 const notParentIds = _uniqueNonNull(notRows.map(row => row[parentFkPath]))
-                return _idsToFilter('id', notParentIds, { negate: true })
+                return remember(_idsToFilter('id', notParentIds, { negate: true }))
             }
-            return _idsToFilter('id', parentIds)
+            return remember(_idsToFilter('id', parentIds))
         }
 
         // N:N through linking table (single-table read, no JOIN)
         if (rel.cardinality === 'N:N' && rel.tableName && rel.columnNames) {
             const key = `${rel.left.listKey}.${rel.left.path}`
             const columns = rel.columnNames[key]
-            if (!columns) return { id: { in: [] } }
+            if (!columns) return remember({ id: { in: [] } })
 
             const isLeftSide = rel.left.listKey === this.key && rel.left.path === fieldAdapter.path
             const currentIdColumn = isLeftSide ? columns.near : columns.far
             const relatedIdColumn = isLeftSide ? columns.far : columns.near
-            if (!currentIdColumn || !relatedIdColumn) return { id: { in: [] } }
+            if (!currentIdColumn || !relatedIdColumn) return remember({ id: { in: [] } })
             if (relatedIds.length === 0) {
-                return (constraintType === 'none' || constraintType === 'isNot' || constraintType === 'every')
+                return remember((constraintType === 'none' || constraintType === 'isNot' || constraintType === 'every')
                     ? {}
-                    : { id: { in: [] } }
+                    : { id: { in: [] } })
             }
 
             const schemaName = this.parentAdapter.dbSchemaName || 'public'
@@ -430,55 +632,57 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
                 const sql = `SELECT "${currentIdColumn}" AS "id" FROM "${schemaName}"."${rel.tableName}" WHERE "${relatedIdColumn}" IN (${placeholders})`
                 return this.parentAdapter.prisma.$queryRawUnsafe(sql, ...ids)
             }
-            const linkRows = []
-            for (let i = 0; i < relatedIds.length; i += MAX_PRISMA_BIND_VALUES) {
-                const idsChunk = relatedIds.slice(i, i + MAX_PRISMA_BIND_VALUES)
+            const currentIdsSet = new Set()
+            const idChunks = _chunkIds(relatedIds)
+            await _runWithConcurrency(idChunks, CHUNK_QUERY_CONCURRENCY, async idsChunk => {
                 const rowsPart = await queryLinkRowsByIds(idsChunk)
-                linkRows.push(...rowsPart)
-            }
-            const currentIds = _uniqueNonNull(linkRows.map(row => row.id))
+                for (const row of rowsPart) {
+                    if (row && row.id !== null && row.id !== undefined) currentIdsSet.add(row.id)
+                }
+            })
+            const currentIds = Array.from(currentIdsSet.values())
 
             if (constraintType === 'is' || constraintType === 'some') {
-                return _idsToFilter('id', currentIds)
+                return remember(_idsToFilter('id', currentIds))
             }
             if (constraintType === 'none' || constraintType === 'isNot') {
-                return _idsToFilter('id', currentIds, { negate: true })
+                return remember(_idsToFilter('id', currentIds, { negate: true }))
             }
             if (constraintType === 'every') {
-                const notRelatedRows = await _findManyWithChunking(refListAdapter.model, {
+                const notRelatedRows = await _findManyWithChunking(refListAdapter.key, refListAdapter.model, {
                     where: { NOT: relWhere || {} },
                     select: { id: true },
                     relationLoadStrategy: 'query',
                 })
                 const notRelatedIds = _uniqueNonNull(notRelatedRows.map(row => row.id))
-                if (notRelatedIds.length === 0) return {}
-                const notLinkRows = []
-                for (let i = 0; i < notRelatedIds.length; i += MAX_PRISMA_BIND_VALUES) {
-                    const idsChunk = notRelatedIds.slice(i, i + MAX_PRISMA_BIND_VALUES)
+                if (notRelatedIds.length === 0) return remember({})
+                const disallowedIdsSet = new Set()
+                await _runWithConcurrency(_chunkIds(notRelatedIds), CHUNK_QUERY_CONCURRENCY, async idsChunk => {
                     const rowsPart = await queryLinkRowsByIds(idsChunk)
-                    notLinkRows.push(...rowsPart)
-                }
-                const disallowedIds = _uniqueNonNull(notLinkRows.map(row => row.id))
-                return _idsToFilter('id', disallowedIds, { negate: true })
+                    for (const row of rowsPart) {
+                        if (row && row.id !== null && row.id !== undefined) disallowedIdsSet.add(row.id)
+                    }
+                })
+                return remember(_idsToFilter('id', Array.from(disallowedIdsSet.values()), { negate: true }))
             }
-            return _idsToFilter('id', currentIds)
+            return remember(_idsToFilter('id', currentIds))
         }
 
-        return { id: { in: [] } }
+        return remember({ id: { in: [] } })
     }
 
     const processRelClause = async (fieldPath, clause) =>
-        this.getListAdapterByKey(this.fieldAdaptersByPath[fieldPath].refListKey).processWheres(clause)
+        this.getListAdapterByKey(this.fieldAdaptersByPath[fieldPath].refListKey).processWheres(clause, sharedContext)
 
     const wheres = await Promise.all(Object.entries(where).map(async ([condition, value]) => {
         if (condition === 'AND' || condition === 'OR') {
-            return { [condition]: await Promise.all(value.map(w => this.processWheres(w))) }
+            return { [condition]: await Promise.all(value.map(w => this.processWheres(w, sharedContext))) }
         } else if (
             this.fieldAdaptersByPath[condition] &&
             this.fieldAdaptersByPath[condition].isRelationship
         ) {
             const refListAdapter = this.getListAdapterByKey(this.fieldAdaptersByPath[condition].refListKey)
-            const processedWhere = await refListAdapter.processWheres(value)
+            const processedWhere = await refListAdapter.processWheres(value, sharedContext)
             return _filterByRelatedIdsThroughFk(this.fieldAdaptersByPath[condition], processedWhere, 'is')
         } else {
             let dbPath = condition
@@ -509,7 +713,17 @@ PrismaListAdapter.prototype.processWheres = async function (where) {
     }))
 
     const result = wheres.length === 0 ? undefined : wheres.length === 1 ? wheres[0] : { AND: wheres }
-    return _sanitizeEmptyOrConditions(result)
+    const sanitized = _sanitizeEmptyOrConditions(result)
+    if (isRootCall) {
+        _logAdapterPerf({
+            list: this.key,
+            phase: 'processWheres',
+            elapsedMs: Date.now() - callStartedAt,
+            relationFilterCacheSize: sharedContext.relationFilterCache.size,
+            findManyCacheSize: sharedContext.findManyCache.size,
+        })
+    }
+    return sanitized
 }
 
 function _resolveOrderByField (adapter, path) {
@@ -738,16 +952,16 @@ const _patchFieldAdapter = (fieldAdapterClass) => {
 // Patch field adapters synchronously
 try {
     const fields = require('@open-keystone/fields')
-    
+
     // Patch all field types that have Prisma adapters
     const fieldTypes = ['Text', 'DateTimeUtc', 'Integer', 'Decimal', 'Checkbox', 'Float', 'Json', 'Select', 'CalendarDay', 'Password', 'File']
-    
+
     for (const fieldType of fieldTypes) {
         if (fields[fieldType] && fields[fieldType].adapters && fields[fieldType].adapters.prisma) {
             _patchFieldAdapter(fields[fieldType].adapters.prisma)
         }
     }
-    
+
     // Also patch any other exported adapters
     for (const [name, FieldType] of Object.entries(fields)) {
         if (FieldType && FieldType.adapters && FieldType.adapters.prisma && !FieldType.adapters.prisma.prototype._patchedForOrdering) {
@@ -755,7 +969,10 @@ try {
         }
     }
 } catch (e) {
-    console.error('[PrismaAdapter] Failed to patch field adapters:', e)
+    logger.error({
+        msg: 'Failed to patch Prisma field adapters',
+        err: e,
+    })
 }
 
 
@@ -1257,7 +1474,14 @@ class PrismaAdapter extends OriginalPrismaAdapter {
 
         if (this.enableLogging) {
             prisma.$on('query', (e) => {
-                console.log('prisma:query', { query: e.query, params: e.params, duration: `${e.duration}ms` })
+                logger.info({
+                    msg: 'Prisma query executed',
+                    data: {
+                        query: e.query,
+                        params: e.params,
+                        duration: `${e.duration}ms`,
+                    },
+                })
             })
         }
     }
