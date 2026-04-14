@@ -107940,6 +107940,12 @@ type Mutation {
     "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
     "message": "Cannot subscribe to a feature plan without an active service subscription"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
+    "message": "Cannot register a subscription that is already fully covered by an active non-trial plan"
+  }`
   """
   registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput
   updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput
