@@ -13,6 +13,8 @@ const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
+const AUTH_REQUEST_TIMEOUT = 20000
+
 const logger = getLogger('sbbol-oauth2')
 
 class SbbolOauth2Api {
@@ -138,6 +140,7 @@ class SbbolOauth2Api {
      */
     enableDebugMode () {
         custom.setHttpOptionsDefaults({
+            timeout: AUTH_REQUEST_TIMEOUT,
             hooks: {
                 beforeRequest: [
                     (options) => {
