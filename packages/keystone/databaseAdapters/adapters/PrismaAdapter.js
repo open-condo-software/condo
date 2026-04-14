@@ -32,9 +32,39 @@ const MAX_PRISMA_BIND_VALUES = 12000
 const CHUNK_QUERY_CONCURRENCY = Math.max(1, parseInt(process.env.PRISMA_ADAPTER_CHUNK_CONCURRENCY || '6', 10))
 const PERF_LOG_ENABLED = process.env.PRISMA_ADAPTER_PROFILE === '1'
 
+function _isPlainObject (value) {
+    if (!value || typeof value !== 'object') return false
+    const proto = Object.getPrototypeOf(value)
+    return proto === Object.prototype || proto === null
+}
+
 function _stableStringify (value) {
     if (Array.isArray(value)) return `[${value.map(_stableStringify).join(',')}]`
     if (value && typeof value === 'object') {
+        if (value instanceof Date) {
+            return JSON.stringify({ __type: 'Date', v: Number.isNaN(value.getTime()) ? null : value.toISOString() })
+        }
+        if (value instanceof RegExp) {
+            return JSON.stringify({ __type: 'RegExp', v: `${value.source}/${value.flags}` })
+        }
+        if (Buffer.isBuffer(value)) {
+            return JSON.stringify({ __type: 'Buffer', v: value.toString('base64') })
+        }
+        if (value instanceof Map) {
+            const pairs = Array.from(value.entries())
+                .map(([k, v]) => [_stableStringify(k), _stableStringify(v)])
+                .sort(([a], [b]) => a.localeCompare(b))
+            return JSON.stringify({ __type: 'Map', v: pairs })
+        }
+        if (value instanceof Set) {
+            const setValues = Array.from(value.values())
+                .map(_stableStringify)
+                .sort((a, b) => a.localeCompare(b))
+            return JSON.stringify({ __type: 'Set', v: setValues })
+        }
+        if (!_isPlainObject(value)) {
+            return JSON.stringify({ __type: value.constructor ? value.constructor.name : 'Object', v: String(value) })
+        }
         const entries = Object.entries(value).sort(([a], [b]) => a.localeCompare(b))
         return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${_stableStringify(v)}`).join(',')}}`
     }
@@ -129,7 +159,6 @@ function _getByPath (obj, path) {
 
 function _buildChunkedFiltersForLargeIn (filter) {
     if (!filter || !filter.where) return null
-
     const estimatedBindCount = _estimateBindValues(filter.where)
     if (estimatedBindCount <= MAX_PRISMA_BIND_VALUES) return null
     const candidate = _findBestChunkCandidatePath(filter.where, ['where'])
@@ -155,6 +184,38 @@ function _stripPaginationFromFilter (filter) {
     delete normalizedFilter.take
     delete normalizedFilter.cursor
     return normalizedFilter
+}
+
+function _stripOrderAndPaginationFromFilter (filter) {
+    if (!filter || typeof filter !== 'object') return filter
+    const normalizedFilter = _stripPaginationFromFilter(filter)
+    delete normalizedFilter.orderBy
+    delete normalizedFilter.distinct
+    delete normalizedFilter.select
+    delete normalizedFilter.include
+    return normalizedFilter
+}
+
+function _chunkArray (items, size) {
+    const chunks = []
+    for (let i = 0; i < items.length; i += size) {
+        chunks.push(items.slice(i, i + size))
+    }
+    return chunks
+}
+
+function _applyGlobalPaginationToIds (ids, filter) {
+    let normalizedIds = ids
+    const cursorId = filter && filter.cursor && filter.cursor.id
+    if (cursorId !== undefined && cursorId !== null) {
+        const cursorIndex = normalizedIds.indexOf(cursorId)
+        if (cursorIndex >= 0) normalizedIds = normalizedIds.slice(cursorIndex + 1)
+    }
+    const skip = Number.isInteger(filter && filter.skip) ? Math.max(0, filter.skip) : 0
+    const take = Number.isInteger(filter && filter.take) ? Math.max(0, filter.take) : undefined
+    normalizedIds = skip > 0 ? normalizedIds.slice(skip) : normalizedIds
+    if (take !== undefined) normalizedIds = normalizedIds.slice(0, take)
+    return normalizedIds
 }
 
 PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, from = {} } = {}) {
@@ -190,20 +251,47 @@ PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, 
 
     let items
     if (chunkedFilters) {
-        const chunkFiltersWithoutPagination = chunkedFilters.map(_stripPaginationFromFilter)
-        const skip = Number.isInteger(filter.skip) ? Math.max(0, filter.skip) : 0
-        const take = Number.isInteger(filter.take) ? Math.max(0, filter.take) : undefined
-        const byId = new Map()
-        const parts = await _runWithConcurrency(chunkFiltersWithoutPagination, CHUNK_QUERY_CONCURRENCY, async chunkFilter => {
+        const chunkFiltersForIdScan = chunkedFilters.map(chunkFilter => ({
+            ..._stripOrderAndPaginationFromFilter(chunkFilter),
+            select: { id: true },
+        }))
+        const uniqueIds = []
+        const seenIds = new Set()
+        const parts = await _runWithConcurrency(chunkFiltersForIdScan, CHUNK_QUERY_CONCURRENCY, async chunkFilter => {
             return this.model.findMany(chunkFilter)
         })
         for (const part of parts) {
             for (const item of part) {
-                if (item && item.id !== undefined) byId.set(item.id, item)
+                const id = item && item.id
+                if (id === null || id === undefined || seenIds.has(id)) continue
+                seenIds.add(id)
+                uniqueIds.push(id)
             }
         }
-        items = Array.from(byId.values())
-        items = take === undefined ? items.slice(skip) : items.slice(skip, skip + take)
+        const pagedIds = _applyGlobalPaginationToIds(uniqueIds, filter)
+        if (pagedIds.length === 0) {
+            items = []
+        } else {
+            const baseFilter = _stripPaginationFromFilter({ ...filter })
+            delete baseFilter.orderBy
+            delete baseFilter.cursor
+            const rowById = new Map()
+            const idChunks = _chunkArray(pagedIds, MAX_PRISMA_BIND_VALUES)
+            const rowParts = await _runWithConcurrency(idChunks, CHUNK_QUERY_CONCURRENCY, async idsChunk => {
+                return this.model.findMany({
+                    ...baseFilter,
+                    where: { id: { in: idsChunk } },
+                })
+            })
+            for (const rowPart of rowParts) {
+                for (const row of rowPart) {
+                    if (row && row.id !== undefined && !rowById.has(row.id)) {
+                        rowById.set(row.id, row)
+                    }
+                }
+            }
+            items = pagedIds.map(id => rowById.get(id)).filter(Boolean)
+        }
     } else {
         items = await this.model.findMany(filter)
     }
