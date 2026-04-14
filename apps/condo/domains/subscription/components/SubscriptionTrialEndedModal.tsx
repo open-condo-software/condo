@@ -15,6 +15,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Typography, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 
@@ -200,6 +201,9 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false)
     const [bankingLoading, setBankingLoading] = useState(false)
 
+    const { breakpoints } = useLayoutContext()
+    const isLargeScreen = breakpoints.TABLET_LARGE
+
     const organizationId = organization?.id
 
     const {
@@ -310,7 +314,12 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
                 <Typography.Title level={4}>
                     {featuresTitle}
                 </Typography.Title>
-                <Space size={20} direction='horizontal' width='100%' align='start'>
+                <Space 
+                    size={isLargeScreen ? 20 : 8}
+                    direction={isLargeScreen ? 'horizontal' : 'vertical'}
+                    width='100%'
+                    align='start'
+                >
                     <Space size={8} direction='vertical' align='start'>
                         {firstColumn.map((feature) => (
                             <FeatureItem
@@ -355,9 +364,15 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
         }
 
         return [
-            <div key='footer' className={styles.footerButtons}>
-                <LoginWithSBBOLButton checkTlsCert />
+            <Space 
+                width='100%'
+                direction={isLargeScreen ? 'horizontal' : 'vertical'}
+                size={8}
+                key='footer'
+            >
+                <LoginWithSBBOLButton block checkTlsCert />
                 <Button
+                    block
                     type='primary'
                     onClick={handleActivateBankingRequest}
                     loading={bankingLoading}
@@ -365,7 +380,7 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
                 >
                     {hasPendingRequest ? RequestPendingMessage : ActivateButtonLabel}
                 </Button>
-            </div>,
+            </Space>,
         ]
     }
 
