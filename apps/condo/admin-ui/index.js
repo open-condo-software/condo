@@ -13,7 +13,7 @@ const SIGNIN_AS_USER_MUTATION = gql`
         }
 `
 
-const GET_USER_TYPE_QUERY = gql`
+const GET_USER_DATA_QUERY = gql`
         query getUserType ($id: ID!) {
             user: User(where: { id: $id }) { id type isAdmin isSupport }
         }
@@ -33,19 +33,20 @@ function useUserIdFromPath () {
 }
 
 function SignInAsUser () {
-    const location = useLocation()
+    // const location = useLocation()
+    const targetUserId = useUserIdFromPath()
     const [signinAs] = useMutation(SIGNIN_AS_USER_MUTATION, {
         onCompleted: () => window.location.href = '/',
     })
     const onClick = useCallback(() => {
         const sender = getClientSideSenderInfo()
-        const path = location.pathname.split('/').splice(2, 2)
-        const userId = (path[0] === 'users' && path[1]) ? path[1] : null
-        const data = { dv: 1, sender, id: userId }
+        // const path = location.pathname.split('/').splice(2, 2)
+        // const userId = (path[0] === 'users' && path[1]) ? path[1] : null
+        const data = { dv: 1, sender, id: targetUserId }
         signinAs({ variables: { data } }).catch(error => {
             console.log('Failed to signin', error)
         })
-    }, [location, signinAs])
+    }, [targetUserId, signinAs])
 
     return (
         location.pathname.indexOf('users/') !== -1 && <UserSwitchOutlined style={ICON_STYLE} onClick={onClick} />
@@ -53,17 +54,17 @@ function SignInAsUser () {
 }
 
 function SignInAsResident () {
-    const userId = useUserIdFromPath()
-    const { data } = useQuery(GET_USER_TYPE_QUERY, {
-        variables: { id: userId },
-        skip: !userId,
+    const targetUserId = useUserIdFromPath()
+    const { data: targetUserData } = useQuery(GET_USER_DATA_QUERY, {
+        variables: { id: targetUserId },
+        skip: !targetUserId,
     })
 
-    const isResident = data?.user?.type === 'resident'
-    const isAdminOrIsSupport = data?.user?.isAdmin || data?.user?.isSupport
+    const isTargetResident = targetUserData?.user?.type === 'resident'
+    const isTargetAdminOrIsSupport = targetUserData?.user?.isAdmin || targetUserData?.user?.isSupport
 
     const onClick = useCallback(async () => {
-        if (!userId) return
+        if (!targetUserId) return
         try {
             const domainRes = await fetch('/api/resident-app-domain')
             const { residentAppDomain } = await domainRes.json()
@@ -71,13 +72,13 @@ function SignInAsResident () {
                 console.log('RESIDENT_APP_DOMAIN is not configured')
                 return
             }
-            window.open(`${residentAppDomain}/signin-as?userId=${encodeURIComponent(userId)}`, '_blank')
+            window.open(`${residentAppDomain}/signin-as?userId=${encodeURIComponent(targetUserId)}`, '_blank')
         } catch (error) {
             console.log('Failed to open resident app', error)
         }
-    }, [userId])
+    }, [targetUserId])
 
-    if (isAdminOrIsSupport || !isResident) return null
+    if (isTargetAdminOrIsSupport || !isTargetResident) return null
 
     return <MobileOutlined style={ICON_STYLE} onClick={onClick} title='Sign in as Resident' />
 }
