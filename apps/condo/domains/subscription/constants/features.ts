@@ -1,15 +1,5 @@
-export const AVAILABLE_FEATURES = [
-    'payments',
-    'meters',
-    'tickets',
-    'news',
-    'marketplace',
-    'support',
-    'ai',
-    'customization',
-    'properties',
-    'analytics',
-    'b2bApp',
-] as const
+import { SUBSCRIPTION_PLAN_FEATURES } from '@condo/domains/subscription/constants'
 
-export type AvailableFeatureType = typeof AVAILABLE_FEATURES[number]
+export const AVAILABLE_FEATURES = SUBSCRIPTION_PLAN_FEATURES
+
+export type AvailableFeatureType = typeof SUBSCRIPTION_PLAN_FEATURES[number]

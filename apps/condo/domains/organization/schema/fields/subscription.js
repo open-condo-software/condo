@@ -5,7 +5,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_FEATURES } = require('@condo/domains/subscription/constants')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -156,9 +156,7 @@ function findLatestEndAtForFeature (feature, sortedContexts, now) {
 }
 
 function calculateFeatureExpirationDates (sortedContexts, now) {
-    const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization', 'properties', 'analytics']
-    
-    return features.reduce((acc, feature) => {
+    return SUBSCRIPTION_PLAN_FEATURES.reduce((acc, feature) => {
         acc[feature] = findLatestEndAtForFeature(feature, sortedContexts, now)
         return acc
     }, {})
