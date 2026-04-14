@@ -14,10 +14,8 @@ const {
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const {
-    ERRORS,
-    PAYMENTS_LIMIT,
-} = require('@condo/domains/acquiring/constants/registerExternalPayments')
+const { PAYMENTS_LIMIT } = require('@condo/domains/acquiring/constants/registerExternalPayments')
+const { REGISTER_EXTERNAL_PAYMENTS_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerExternalPaymentsErrors')
 const {
     registerExternalPaymentsByTestClient,
     createTestAcquiringIntegrationContext,
@@ -152,6 +150,17 @@ describe('RegisterExternalPaymentsService', () => {
             }, ERRORS.PAYMENTS_LIMIT_EXCEEDED)
         })
 
+        test('Should throw error for empty payments array', async () => {
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [],
+            }
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.EMPTY_PAYMENTS_ARRAY)
+        })
+
         test('Should throw error for invalid period format', async () => {
             const payload = {
                 ...DV_SENDER,
@@ -171,10 +180,10 @@ describe('RegisterExternalPaymentsService', () => {
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
-            }, ERRORS.INVALID_PAYMENT_AMOUNT)
+            }, ERRORS.INVALID_NUMERIC_FIELD)
         })
 
-        test('Should throw error for negative amount', async () => {
+        test('Should throw error for non positive amount', async () => {
             const payload = {
                 ...DV_SENDER,
                 acquiringIntegrationContext: { id: context.id },
@@ -182,7 +191,7 @@ describe('RegisterExternalPaymentsService', () => {
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
-            }, ERRORS.NEGATIVE_PAYMENT_AMOUNT)
+            }, ERRORS.NON_POSITIVE_PAYMENT_AMOUNT)
         })
 
         test('Should throw error for unsupported currency code', async () => {
@@ -213,7 +222,7 @@ describe('RegisterExternalPaymentsService', () => {
             }
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, secondPayload)
-            }, ERRORS.DUPLICATED_PAYMENTS)
+            }, ERRORS.EXISTING_PAYMENTS)
         })
 
         test('Should allow same transactionId for different integrations', async () => {
@@ -240,7 +249,7 @@ describe('RegisterExternalPaymentsService', () => {
             expect(data.status).toBe('ok')
         })
 
-        test('Should allow same transactionId for different contexts', async () => {
+        test('Should allow same transactionId for different contexts in one integration', async () => {
             const transactionId = faker.datatype.uuid()
 
             const [anotherOrganization] = await createTestOrganization(admin)
