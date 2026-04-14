@@ -138,6 +138,7 @@ class SbbolOauth2Api {
      */
     enableDebugMode () {
         custom.setHttpOptionsDefaults({
+            timeout: 20000,
             hooks: {
                 beforeRequest: [
                     (options) => {
