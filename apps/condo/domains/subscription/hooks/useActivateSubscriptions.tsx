@@ -121,13 +121,18 @@ export const useActivateSubscriptions = () => {
                             organization: { id: organization.id },
                             subscriptionPlanPricingRule: { id: priceId },
                             isTrial,
-                            ...(returnUrl ? { returnUrl } : {}),
                         },
                     },
                 })
 
                 if (!isTrial && result.data?.result?.directPaymentUrl) {
-                    window.open(result.data.result.directPaymentUrl, '_self')
+                    let paymentUrl = result.data.result.directPaymentUrl
+                    if (returnUrl) {
+                        const url = new URL(paymentUrl)
+                        url.searchParams.append('returnUrl', returnUrl)
+                        paymentUrl = url.toString()
+                    }
+                    window.open(paymentUrl, '_self')
                     return
                 }
             }

@@ -24,14 +24,13 @@ const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/
 
 const logger = getLogger('RegisterSubscriptionContextService')
 
-const buildReturnUrl = (path) => {
-    const safePath = typeof path === 'string' && path.startsWith('/')
-        ? path
-        : '/settings?tab=subscription'
-    const returnUrlObj = new URL(safePath, conf.SERVER_URL)
-    returnUrlObj.searchParams.set('successPayment', 'true')
-    
-    return returnUrlObj.toString()
+const buildDirectPaymentUrl = (directPaymentUrl, organizationId) => {
+    if (!directPaymentUrl) return null
+    const provider = conf['B2B_PAYMENTS_PROVIDER']
+    const url = new URL(directPaymentUrl)
+    url.searchParams.append('organizationId', organizationId)
+    url.searchParams.append('provider', provider)
+    return url.toString()
 }
 
 const ERRORS = {
@@ -90,7 +89,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
     types: [
         {
             access: true,
-            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, returnUrl: String }',
+            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean }',
         },
         {
             access: true,
@@ -108,7 +107,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial, returnUrl } = data
+                const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial } = data
 
                 logger.info({ msg: 'Starting subscription context registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, isTrial } })
 
@@ -240,15 +239,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     })
                     logger.info({ msg: 'Created new multiPayment for reused context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
 
-                    let directPaymentUrl = multiPaymentResult.directPaymentUrl
-                    if (directPaymentUrl) {
-                        const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const url = new URL(directPaymentUrl)
-                        url.searchParams.append('organizationId', organization.id)
-                        url.searchParams.append('provider', provider)
-                        url.searchParams.append('returnUrl', buildReturnUrl(returnUrl))
-                        directPaymentUrl = url.toString()
-                    }
+                    const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
 
                     const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                     logger.info({ msg: 'Returning reused context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
@@ -274,15 +265,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     })
                     logger.info({ msg: 'Created new multiPayment for retry context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
 
-                    let directPaymentUrl = multiPaymentResult.directPaymentUrl
-                    if (directPaymentUrl) {
-                        const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const url = new URL(directPaymentUrl)
-                        url.searchParams.append('organizationId', organization.id)
-                        url.searchParams.append('provider', provider)
-                        url.searchParams.append('returnUrl', buildReturnUrl(returnUrl))
-                        directPaymentUrl = url.toString()
-                    }
+                    const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
 
                     const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                     logger.info({ msg: 'Returning retry context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
@@ -338,15 +321,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     sender,
                 })
 
-                let directPaymentUrl = multiPaymentResult.directPaymentUrl
-                if (directPaymentUrl) {
-                    const provider = conf['B2B_PAYMENTS_PROVIDER']
-                    const url = new URL(directPaymentUrl)
-                    url.searchParams.append('organizationId', organization.id)
-                    url.searchParams.append('provider', provider)
-                    url.searchParams.append('returnUrl', buildReturnUrl(returnUrl))
-                    directPaymentUrl = url.toString()
-                }
+                const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
 
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
                 const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
