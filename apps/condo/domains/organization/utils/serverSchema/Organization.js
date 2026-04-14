@@ -2,6 +2,7 @@ const { get } = require('lodash')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 

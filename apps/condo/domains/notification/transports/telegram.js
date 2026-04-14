@@ -1,7 +1,7 @@
-const axios = require('axios')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { TELEGRAM_TRANSPORT } = require('@condo/domains/notification/constants/constants')
