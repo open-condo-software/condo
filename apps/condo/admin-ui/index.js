@@ -33,15 +33,12 @@ function useUserIdFromPath () {
 }
 
 function SignInAsUser () {
-    // const location = useLocation()
     const targetUserId = useUserIdFromPath()
     const [signinAs] = useMutation(SIGNIN_AS_USER_MUTATION, {
         onCompleted: () => window.location.href = '/',
     })
     const onClick = useCallback(() => {
         const sender = getClientSideSenderInfo()
-        // const path = location.pathname.split('/').splice(2, 2)
-        // const userId = (path[0] === 'users' && path[1]) ? path[1] : null
         const data = { dv: 1, sender, id: targetUserId }
         signinAs({ variables: { data } }).catch(error => {
             console.log('Failed to signin', error)
