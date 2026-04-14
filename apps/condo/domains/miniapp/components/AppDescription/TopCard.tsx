@@ -132,7 +132,7 @@ const TopCard = React.memo<TopCardProps>(({
     const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
-    const { isB2BAppEnabled } = useOrganizationSubscription()
+    const { isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
     const isAppAvailableForTariff = isB2BAppEnabled(id)
 
     const {
@@ -189,7 +189,7 @@ const TopCard = React.memo<TopCardProps>(({
         return btnProps
     }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible, isAppAvailableForTariff, UnavailableForTariffMessage])
 
-    const isAppRestrictedBySubscription = isSubscriptionsEnabled && !isCurrentlyAvailable
+    const isAppRestrictedBySubscription = hasSubscriptionsFeature && !isCurrentlyAvailable
     const hasFeatureOrFreeLabel = hasFeaturePlan || !!freeWithPlanLabel
     const shouldShowFeatureSubscriptionBlock = isAppRestrictedBySubscription && (!contextStatus || hasFeatureOrFreeLabel)
 

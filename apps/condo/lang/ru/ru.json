@@ -3232,7 +3232,7 @@
   "subscription.paymentModal.proceedToPayment": "Перейти к оплате",
   "subscription.paymentModal.issueInvoice": "Выставить счет",
   "subscription.payment.success.notification.title": "🎉 Поздравляем — оплата прошла",
-  "subscription.payment.success.notification.description": "Как только период действия закончится,  спишем деньги автоматически",
+  "subscription.payment.success.notification.description": "Как только период действия закончится, спишем деньги автоматически",
   "subscription.planCard.tryFree": "Попробовать за {formattedPrice}",
   "subscription.featureProgress.tooltip": "Используемые возможности",
   "subscription.featureProgress.description": "Вы используете {percentage}% возможностей платформы",

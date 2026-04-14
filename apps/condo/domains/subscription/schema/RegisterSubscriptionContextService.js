@@ -16,13 +16,23 @@ const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/m
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
-const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextService')
+
+const buildReturnUrl = (path) => {
+    const safePath = typeof path === 'string' && path.startsWith('/')
+        ? path
+        : '/settings?tab=subscription'
+    const returnUrlObj = new URL(safePath, conf.SERVER_URL)
+    returnUrlObj.searchParams.set('successPayment', 'true')
+    
+    return returnUrlObj.toString()
+}
 
 const ERRORS = {
     ORGANIZATION_NOT_FOUND: {
@@ -99,12 +109,6 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial, returnUrl } = data
-
-                const buildReturnUrl = (path) => {
-                    const returnUrlObj = new URL(path || 'settings?tab=subscription', conf.SERVER_URL)
-                    returnUrlObj.searchParams.set('successPayment', 'true')
-                    return returnUrlObj.toString()
-                }
 
                 logger.info({ msg: 'Starting subscription context registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, isTrial } })
 

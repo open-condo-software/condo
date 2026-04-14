@@ -1541,7 +1541,7 @@
   "miniapp.loadingError.message": "Estamos realizando trabajos técnicos. Por favor, vuelve un poco más tarde",
   "miniapp.loadingError.title": "Mejorando el servivio",
   "miniapp.supportIsNotAllowed": "El acceso a la aplicación está bloqueado para los usuarios de soporte y administración",
-    "miniapps.addDescription.action.connect": "Conectar",
+  "miniapps.addDescription.action.connect": "Conectar",
   "miniapps.addDescription.action.connected": "Conectado",
   "miniapps.addDescription.action.inProgress": "La solicitud se está procesando",
   "miniapps.addDescription.action.open": "Abrir",
