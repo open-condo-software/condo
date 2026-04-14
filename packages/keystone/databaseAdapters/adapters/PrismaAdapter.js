@@ -129,6 +129,7 @@ function _getByPath (obj, path) {
 
 function _buildChunkedFiltersForLargeIn (filter) {
     if (!filter || !filter.where) return null
+
     const estimatedBindCount = _estimateBindValues(filter.where)
     if (estimatedBindCount <= MAX_PRISMA_BIND_VALUES) return null
     const candidate = _findBestChunkCandidatePath(filter.where, ['where'])
@@ -154,38 +155,6 @@ function _stripPaginationFromFilter (filter) {
     delete normalizedFilter.take
     delete normalizedFilter.cursor
     return normalizedFilter
-}
-
-function _stripOrderAndPaginationFromFilter (filter) {
-    if (!filter || typeof filter !== 'object') return filter
-    const normalizedFilter = _stripPaginationFromFilter(filter)
-    delete normalizedFilter.orderBy
-    delete normalizedFilter.distinct
-    delete normalizedFilter.select
-    delete normalizedFilter.include
-    return normalizedFilter
-}
-
-function _chunkArray (items, size) {
-    const chunks = []
-    for (let i = 0; i < items.length; i += size) {
-        chunks.push(items.slice(i, i + size))
-    }
-    return chunks
-}
-
-function _applyGlobalPaginationToIds (ids, filter) {
-    let normalizedIds = ids
-    const cursorId = filter && filter.cursor && filter.cursor.id
-    if (cursorId !== undefined && cursorId !== null) {
-        const cursorIndex = normalizedIds.indexOf(cursorId)
-        if (cursorIndex >= 0) normalizedIds = normalizedIds.slice(cursorIndex + 1)
-    }
-    const skip = Number.isInteger(filter && filter.skip) ? Math.max(0, filter.skip) : 0
-    const take = Number.isInteger(filter && filter.take) ? Math.max(0, filter.take) : undefined
-    normalizedIds = skip > 0 ? normalizedIds.slice(skip) : normalizedIds
-    if (take !== undefined) normalizedIds = normalizedIds.slice(0, take)
-    return normalizedIds
 }
 
 PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, from = {} } = {}) {
@@ -221,17 +190,20 @@ PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, 
 
     let items
     if (chunkedFilters) {
+        const chunkFiltersWithoutPagination = chunkedFilters.map(_stripPaginationFromFilter)
+        const skip = Number.isInteger(filter.skip) ? Math.max(0, filter.skip) : 0
+        const take = Number.isInteger(filter.take) ? Math.max(0, filter.take) : undefined
         const byId = new Map()
-        await _runWithConcurrency(chunkedFilters, CHUNK_QUERY_CONCURRENCY, async chunkFilter => {
-            const part = await this.model.findMany(chunkFilter)
-            for (const item of part) {
-                const id = item && item.id
-                if (id === null || id === undefined || seenIds.has(id)) continue
-                seenIds.add(id)
-                uniqueIds.push(id)
-            }
+        const parts = await _runWithConcurrency(chunkFiltersWithoutPagination, CHUNK_QUERY_CONCURRENCY, async chunkFilter => {
+            return this.model.findMany(chunkFilter)
         })
+        for (const part of parts) {
+            for (const item of part) {
+                if (item && item.id !== undefined) byId.set(item.id, item)
+            }
+        }
         items = Array.from(byId.values())
+        items = take === undefined ? items.slice(skip) : items.slice(skip, skip + take)
     } else {
         items = await this.model.findMany(filter)
     }
