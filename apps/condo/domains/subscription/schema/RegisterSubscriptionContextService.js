@@ -193,11 +193,13 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 
+                const today = dayjs().startOf('day')
+                const bufferDate = today.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
                 const activeDoneContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     isTrial: false,
-                    endAt_gt: dayjs().format('YYYY-MM-DD'),
+                    endAt_gte: bufferDate,
                     deletedAt: null,
                 })
                 for (const activeCtx of activeDoneContexts) {
@@ -219,8 +221,6 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 const startAt = calculateSubscriptionStartDate(existingContexts)
                 const endAt = startAt.add(months, 'month')
-                const today = dayjs().startOf('day')
-                const bufferDate = today.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
 
                 // Reuse existing CREATED context for today only (to avoid duplicates under concurrency)
                 const [existingCreated] = await find('SubscriptionContext', {

@@ -16,7 +16,7 @@ const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/consta
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS, SUBSCRIPTION_PLAN_TYPE_FEATURE, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { updateSubscriptionContextPaymentMethod } = require('@condo/domains/subscription/utils/serverSchema')
 
@@ -369,11 +369,12 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             if (isBecomingDone && !updatedItem.isTrial) {
                 const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
                 if (activatedPlan) {
+                    const bufferDate = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
                     const activeContextsWithAutopayment = await find('SubscriptionContext', {
                         organization: { id: updatedItem.organization },
                         status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                         bindingId_not: null,
-                        endAt_gt: dayjs().format('YYYY-MM-DD'),
+                        endAt_gte: bufferDate,
                         deletedAt: null,
                         id_not: updatedItem.id,
                     })

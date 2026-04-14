@@ -586,5 +586,24 @@ describe('RegisterSubscriptionContextService', () => {
             expect(result.subscriptionContext.isTrial).toBe(true)
             expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
         })
+
+        test('throws ACTIVE_SUPERSET_PLAN_EXISTS when registering subset plan far in future (within buffer window)', async () => {
+            const bufferDays = 5
+
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().add(bufferDays + 10, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(bufferDays + 40, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                    isTrial: false,
+                })
+            }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
+        })
     })
 })
