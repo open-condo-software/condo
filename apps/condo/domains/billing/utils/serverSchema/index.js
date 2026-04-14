@@ -29,6 +29,7 @@ const BillingReceipt = generateServerUtils('BillingReceipt')
 const BillingRecipient = generateServerUtils('BillingRecipient')
 const BillingCategory = generateServerUtils('BillingCategory')
 const BillingReceiptFile = generateServerUtils('BillingReceiptFile')
+const DebtClaimGenerationTask = generateServerUtils('DebtClaimGenerationTask')
 
 async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
@@ -199,5 +200,6 @@ module.exports = {
     sendNewBillingReceiptFilesNotifications,
     sumBillingReceipts,
     registerBillingReceiptFile,
+    DebtClaimGenerationTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,13 +4,13 @@ import { useCallback, useMemo } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 import { PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
-import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY, PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY } from '@condo/domains/billing/constants/constants'
+import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY, DEBT_CLAIMS_TAB_KEY, PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY } from '@condo/domains/billing/constants/constants'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 type ParamUpdateHandler = (key: string) => void
 
-const DEFAULT_TABS = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY]
+const DEFAULT_TABS = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, DEBT_CLAIMS_TAB_KEY]
 const PAYMENTS_TYPES = [PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY]
 
 export function useQueryParams (extensionTabKeys: Array<string> = []): [string, PaymentTypes, ParamUpdateHandler] {

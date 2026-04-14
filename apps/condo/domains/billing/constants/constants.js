@@ -32,6 +32,7 @@ const DEFAULT_BILLING_INTEGRATION_GROUP = 'common'
 const ACCRUALS_TAB_KEY = 'accruals'
 const PAYMENTS_TAB_KEY = 'payments'
 const EXTENSION_TAB_KEY = 'extension'
+const DEBT_CLAIMS_TAB_KEY = 'debtClaims'
 
 const PAYMENTS_TYPE_LIST = 'list'
 const PAYMENTS_TYPE_REGISTRY = 'registry'
@@ -83,6 +84,7 @@ module.exports = {
     ACCRUALS_TAB_KEY,
     PAYMENTS_TAB_KEY,
     EXTENSION_TAB_KEY,
+    DEBT_CLAIMS_TAB_KEY,
     PAYMENTS_TYPE_LIST,
     PAYMENTS_TYPE_REGISTRY,
     BILLING_ACCOUNT_OWNER_TYPE_PERSON,
