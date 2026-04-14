@@ -1,6 +1,6 @@
-const axios = require('axios').default
 const { isNil, get } = require('lodash')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const {
@@ -66,7 +66,15 @@ class PaymentAdapter {
     }
 
     async doCall (url, params = {}) {
-        return await axios.get(url, { params })
+        const urlObject = new URL(url)
+        Object.entries(params).forEach(([key, value]) => {
+            urlObject.searchParams.set(key, value)
+        })
+        const response = await fetch(urlObject.toString(), {
+            method: 'GET',
+        })
+        const data = await response.json()
+        return { status: response.status, data }
     }
 }
 

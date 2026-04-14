@@ -1,4 +1,3 @@
-const axios = require('axios').default
 const { get } = require('lodash')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
@@ -87,7 +86,11 @@ async function pushOrganizationToSalesCRM (organization) {
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         }
-        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
+        await fetch(SALES_CRM_WEBHOOKS_URL.organizations, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        })
         logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
     } catch (err) {
         logger.warn({ msg: 'Request to sales crm failed', err })

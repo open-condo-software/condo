@@ -40,12 +40,19 @@ async function send ({ telegramChatId, text, html, inlineKeyboard } = {}) {
         }
     }
 
-    const result = await axios.post(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
-        chat_id: telegramChatId,
-        ...messageData,
+    const response = await fetch(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            chat_id: telegramChatId,
+            ...messageData,
+        }),
     })
-
-    return [true, result.data]
+    
+    const data = await response.json()
+    return [true, data]
 }
 
 module.exports = {

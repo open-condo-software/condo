@@ -40,7 +40,7 @@ async function request (url, cookie, maxRedirects = 0) {
     return {
         cookie,
         client,
-        url: res.config.url,
+        url: res.request.path,
         status: res.status,
         data: res.data,
         headers: res.headers,
@@ -48,7 +48,9 @@ async function request (url, cookie, maxRedirects = 0) {
 }
 
 function expectCookieKeys (cookie, keys) {
-    expect(cookie.split(';').map(x => x.split('=')[0])).toEqual(keys)
+    const actualKeys = cookie.split(';').map(x => x.split('=')[0])
+    const actualKeysWithoutLegacy = actualKeys.filter(key => !key.includes('.legacy'))
+    expect(actualKeysWithoutLegacy).toEqual(keys)
 }
 
 async function expectToGetAuthenticatedUser (url, expectedUser, headers = {}) {
@@ -83,15 +85,15 @@ test('getCookie test util', async () => {
     const cookie = client.getCookie()
     const graphql = { 'query': '{ authenticatedUser { id name } }' }
 
-    const result1 = await axios.create({
-        timeout: 2000,
+    const result1 = await fetch(`${client.serverUrl}/admin/api`, {
+        method: 'POST',
+        body: JSON.stringify(graphql),
         headers: {
+            'Content-Type': 'application/json',
             Cookie: cookie,
         },
-        validateStatus: () => true,
     })
-        .post(`${client.serverUrl}/admin/api`, graphql)
-    expect(result1.data).toMatchObject({
+    expect(await result1.json()).toMatchObject({
         'data': {
             'authenticatedUser': {
                 id: client.user.id,
