@@ -542,7 +542,7 @@ describe('RegisterSubscriptionContextService', () => {
         test('allows paid registration of subset plan when superset context has expired', async () => {
             await createTestSubscriptionContext(admin, organization, supersetPlan, {
                 startAt: dayjs().subtract(2, 'months').format('YYYY-MM-DD'),
-                endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(10, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
                 status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             })
