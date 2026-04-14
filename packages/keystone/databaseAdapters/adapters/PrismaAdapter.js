@@ -257,16 +257,20 @@ PrismaListAdapter.prototype._itemsQuery = async function (args, { meta = false, 
         }))
         const uniqueIds = []
         const seenIds = new Set()
-        const parts = await _runWithConcurrency(chunkFiltersForIdScan, CHUNK_QUERY_CONCURRENCY, async chunkFilter => {
-            return this.model.findMany(chunkFilter)
-        })
-        for (const part of parts) {
+        const hasTake = Number.isInteger(filter.take) && filter.take >= 0
+        const hasCursor = !!(filter && filter.cursor && filter.cursor.id !== undefined && filter.cursor.id !== null)
+        const skip = Number.isInteger(filter.skip) ? Math.max(0, filter.skip) : 0
+        const idsLimit = hasTake && !hasCursor ? skip + filter.take : null
+        for (const chunkFilter of chunkFiltersForIdScan) {
+            const part = await this.model.findMany(chunkFilter)
             for (const item of part) {
                 const id = item && item.id
                 if (id === null || id === undefined || seenIds.has(id)) continue
                 seenIds.add(id)
                 uniqueIds.push(id)
+                if (idsLimit !== null && uniqueIds.length >= idsLimit) break
             }
+            if (idsLimit !== null && uniqueIds.length >= idsLimit) break
         }
         const pagedIds = _applyGlobalPaginationToIds(uniqueIds, filter)
         if (pagedIds.length === 0) {
