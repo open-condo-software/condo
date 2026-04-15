@@ -6,8 +6,11 @@ const conf = require('@open-condo/config')
 const TELEGRAM_SOCKS_PROXY = conf.TELEGRAM_SOCKS_PROXY
 const TELEGRAM_HTTP_PROXY = conf.TELEGRAM_HTTP_PROXY
 
+let proxyAgent = null
+
 const getProxyAgent = () => {
-    let proxyAgent = null
+    if (proxyAgent) return proxyAgent
+
     if (TELEGRAM_HTTP_PROXY) {
         proxyAgent = new HttpsProxyAgent(TELEGRAM_HTTP_PROXY, {
             keepAlive: true,

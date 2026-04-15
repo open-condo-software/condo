@@ -84,6 +84,11 @@ class SberIdIdentityIntegration {
 
         // extract required params
         const data = await tokenResponse.json()
+
+        if (!data.ok || data.status !== 200) {
+            throw new Error(JSON.stringify(data))
+        }
+
         const {
             access_token: accessToken,
             token_type: tokenType,
@@ -122,6 +127,11 @@ class SberIdIdentityIntegration {
 
         // extract params that going to be cleaned
         const data = await response.json()
+
+        if (!data.ok || data.status !== 200) {
+            throw new Error(JSON.stringify(data))
+        }
+
         const {
             iss,
             sub,
@@ -131,7 +141,7 @@ class SberIdIdentityIntegration {
             given_name: givenName,
         } = data
 
-        if (response.status !== 200 || isNil(sub)) {
+        if (isNil(sub)) {
             throw new Error(JSON.stringify(data))
         }
 

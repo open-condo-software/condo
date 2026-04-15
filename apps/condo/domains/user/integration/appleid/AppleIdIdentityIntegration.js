@@ -93,6 +93,11 @@ class AppleIdIdentityIntegration {
 
         // extract required params
         const data = await tokenResponse.json()
+
+        if (!data.ok || data.status !== 200) {
+            throw new Error(JSON.stringify(data))
+        }
+
         const {
             access_token: accessToken,
             token_type: tokenType,
@@ -100,7 +105,7 @@ class AppleIdIdentityIntegration {
             id_token: idToken,
         } = data
 
-        if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
+        if (isNil(accessToken) || isNil(idToken)) {
             throw new Error(JSON.stringify(data))
         }
 
@@ -151,6 +156,11 @@ class AppleIdIdentityIntegration {
             method: 'GET',
             abortRequestTimeout: REQUEST_TIMEOUT,
         })
+
+        if (!response.ok) {
+            throw new Error(JSON.stringify(await response.json()))
+        }
+
         return await response.json()
     }
 }

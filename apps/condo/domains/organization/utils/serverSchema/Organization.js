@@ -94,7 +94,7 @@ async function pushOrganizationToSalesCRM (organization) {
         })
 
         if (!resp.ok) {
-            logger.warn({ msg: 'Request to sales crm failed', err: resp.error })
+            logger.warn({ msg: 'Request to sales crm failed', err: resp.json() })
         } else {
             logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
         }
