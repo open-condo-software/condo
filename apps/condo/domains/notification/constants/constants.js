@@ -639,6 +639,8 @@ const MESSAGE_META = {
             voipLogin: { required: false },
             voipPassword: { required: false },
             voipDtfmCommand: { required: false },
+            voipPanels: { required: false },
+            stunServers: { required: false },
             stun: { required: false },
             codec: { required: false },
         },

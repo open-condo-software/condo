@@ -93951,6 +93951,11 @@ input SendVoIPStartMessageDataForCallHandlingByNative {
 
   """Preferred codec (usually vp8)"""
   codec: String
+
+  """
+  Type of the native client to handle call. Values defined in mobile app. "0" used as legacy "sip" voipType for backwards compatibility.
+  """
+  voipType: Int
 }
 
 input SendVoIPStartMessageData {
@@ -93968,7 +93973,6 @@ input SendVoIPStartMessageData {
 
   """
   If you want mobile app to handle call (without your B2CApp), provide this argument. If "b2cAppCallData" and "nativeCallData" are provided together, native call is prioritized. 
-  If data is incorrect, mobile app will fallback to b2c app call handling with "b2cAppCallData" 
   """
   nativeCallData: SendVoIPStartMessageDataForCallHandlingByNative
 }

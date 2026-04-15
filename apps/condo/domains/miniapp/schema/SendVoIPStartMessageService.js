@@ -6,7 +6,6 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { getLogger } = require('@open-condo/keystone/logging')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, find, getByCondition } = require('@open-condo/keystone/schema')
-const { i18n } = require('@open-condo/locales/loader')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendVoIPStartMessageService')
@@ -16,6 +15,7 @@ const {
     DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     CALL_DATA_NOT_PROVIDED_ERROR,
+    MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY, DEFAULT_VOIP_TYPE,
 } = require('@condo/domains/miniapp/constants')
 const { B2CAppProperty } = require('@condo/domains/miniapp/utils/serverSchema')
 const { setCallStatus, CALL_STATUS_START_SENT } = require('@condo/domains/miniapp/utils/voip')
@@ -41,6 +41,7 @@ const DEBUG_APP_ID = conf.MINIAPP_PUSH_MESSAGE_DEBUG_APP_ID
 const DEBUG_APP_ENABLED = !!DEBUG_APP_ID
 const DEBUG_APP_SETTINGS = DEBUG_APP_ENABLED ? Object.freeze(JSON.parse(conf.MINIAPP_PUSH_MESSAGE_DEBUG_APP_SETTINGS)) : {}
 const ALLOWED_UNIT_TYPES = [FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE]
+const VOIP_TYPE_CUSTOM_FIELD_ID = conf.VOIP_TYPE_CUSTOM_FIELD_ID
 
 const redisGuard = new RedisGuard()
 
@@ -81,15 +82,9 @@ const ERRORS = {
     },
 }
 
-/*
-    """
-    If "sip" was passed, mobile device will try to start native call. Info about other values will be added later
-    """
-    voipType: VoIPType,
-*/
-const MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY = 'sip' // without this constant mobile app will not try to make native call
+const B2CAPP_VOIP_TYPE = 'b2cApp'
 
-const logInfo = ({ b2cAppId, callId, stats, errors }) => {
+function logInfo ({ b2cAppId, callId, stats, errors }) {
     logger.info({ msg: `${SERVICE_NAME} stats`, entityName: 'B2CApp', entityId: b2cAppId, data: { callId, stats }, err: errors })
 }
 
@@ -144,6 +139,10 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 Preferred codec (usually vp8)
                 """
                 codec: String
+                """
+                Type of the native client to handle call. Values defined in mobile app. "0" used as legacy "${MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY}" voipType for backwards compatibility.
+                """
+                voipType: Int = ${DEFAULT_VOIP_TYPE}
             }`,
         },
         {
@@ -161,7 +160,6 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 b2cAppCallData: SendVoIPStartMessageDataForCallHandlingByB2CApp,
                 """
                 If you want mobile app to handle call (without your B2CApp), provide this argument. If "b2cAppCallData" and "nativeCallData" are provided together, native call is prioritized. 
-                If data is incorrect, mobile app will fallback to b2c app call handling with "b2cAppCallData" 
                 """
                 nativeCallData: SendVoIPStartMessageDataForCallHandlingByNative
             }`,
@@ -229,20 +227,24 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                const logInfoStats = {
-                    step: 'init',
-                    addressKey,
-                    unitName,
-                    unitType,
-                    verifiedContactsCount: 0,
-                    residentsCount: 0,
-                    verifiedResidentsCount: 0,
-                    createdMessagesCount: 0,
-                    erroredMessagesCount: 0,
-                    createMessageErrors: [],
-                    isStatusCached: false,
-                    isPropertyFound: false,
-                    isAppFound: false,
+                const logContext = {
+                    logInfoStats: {
+                        step: 'init',
+                        addressKey,
+                        unitName,
+                        unitType,
+                        verifiedContactsCount: 0,
+                        residentsCount: 0,
+                        verifiedResidentsCount: 0,
+                        createdMessagesCount: 0,
+                        erroredMessagesCount: 0,
+                        createMessageErrors: [],
+                        isStatusCached: false,
+                        isPropertyFound: false,
+                        isAppFound: false,
+                    },
+                    b2cAppId: app.id,
+                    callId: callData.callId,
                 }
 
                 // 1) Check B2CApp and B2CAppProperty
@@ -255,18 +257,20 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 }, 'id app { id name }', { first: 1 })
 
                 if (!b2cAppProperty) {
-                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
+                    logInfo(logContext)
                     throw new GQLError(ERRORS.PROPERTY_NOT_FOUND, context)
                 }
-                logInfoStats.isPropertyFound = true
+                logContext.logInfoStats.isPropertyFound = true
                 
                 if (!b2cAppProperty.app) {
-                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
+                    logInfo(logContext)
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
-                logInfoStats.isAppFound = true
+                logContext.logInfoStats.isAppFound = true
                 
                 const b2cAppName = b2cAppProperty.app.name
+
+                let actors = []
                 
                 // 2) Find Users
                 const verifiedContactsOnUnit = await find('Contact', {
@@ -276,11 +280,18 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                     isVerified: true,
                     deletedAt: null,
                 })
-                logInfoStats.step = 'find verified contacts'
-                logInfoStats.verifiedContactsCount = verifiedContactsOnUnit.length
+                for (const contact of verifiedContactsOnUnit) {
+                    actors.push({ contact })
+                }
+                const actorByPhone = actors.reduce((byPhone, actor) => {
+                    byPhone[actor.contact.phone] = actor
+                    return byPhone
+                }, {})
+                logContext.logInfoStats.step = 'find verified contacts'
+                logContext.logInfoStats.verifiedContactsCount = verifiedContactsOnUnit.length
 
                 if (!verifiedContactsOnUnit?.length) {
-                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
+                    logInfo(logContext)
                     return {
                         verifiedContactsCount: 0,
                         createdMessagesCount: 0,
@@ -292,26 +303,13 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                     unitName_i: unitName,
                     unitType: unitType,
                     deletedAt: null,
-                    property: { id_in: [...new Set(verifiedContactsOnUnit.map(contact => contact.property))] },
+                    property: { id_in: [...new Set(actors.map(actor => actor.contact.property))] },
                 })
-                logInfoStats.step = 'find residents'
-                logInfoStats.residentsCount = residentsOnUnit.length
+                logContext.logInfoStats.step = 'find residents'
+                logContext.logInfoStats.residentsCount = residentsOnUnit.length
 
-                // NOTE(YEgorLu): doing same as Resident.isVerifiedByManagingCompany virtual field
-                const usersOfContacts = await find('User', {
-                    phone_in: [...new Set(verifiedContactsOnUnit.map(contact => contact.phone))],
-                    deletedAt: null,
-                    type: RESIDENT,
-                    isPhoneVerified: true,
-                })
-
-                const uniqueUserIdsOfContacts = new Set(usersOfContacts.map(user => user.id))
-                const residentsWithVerifiedContactOnAddress = residentsOnUnit.filter(resident => uniqueUserIdsOfContacts.has(resident.user))
-                logInfoStats.step = 'verify residents'
-                logInfoStats.verifiedResidentsCount = residentsWithVerifiedContactOnAddress.length
-
-                if (!residentsWithVerifiedContactOnAddress?.length) {
-                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
+                if (!residentsOnUnit.length) {
+                    logInfo(logContext)
                     return {
                         verifiedContactsCount: verifiedContactsOnUnit.length,
                         createdMessagesCount: 0,
@@ -319,15 +317,44 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                     }
                 }
 
-                const userIdToLocale = {}
-                usersOfContacts.forEach(user => userIdToLocale[user.id] = user.locale)
+                // NOTE(YEgorLu): doing same as Resident.isVerifiedByManagingCompany virtual field
+                const usersOfContacts = await find('User', {
+                    phone_in: [...new Set(actors.map(actor => actor.contact.phone))],
+                    deletedAt: null,
+                    type: RESIDENT,
+                    isPhoneVerified: true,
+                })
+                for (const user of usersOfContacts) {
+                    const actor = actorByPhone[user.phone]
+                    if (actor) {
+                        actor.user = user
+                    }
+                }
+                actors = actors.filter(actor => !!actor.user)
 
-                // NOTE(YEgorLu): there should be maximum 1 Resident for user + address + unitName + unitType, but just in case lets deduplicate
-                const residentsGroupedByUser = residentsWithVerifiedContactOnAddress.reduce((groupedByUser, resident) => {
-                    groupedByUser[resident.user] = resident
-                    return groupedByUser
+                const actorsByUserIds = actors.reduce((byId, actor) => {
+                    byId[actor.user.id] = actor
+                    return byId
                 }, {})
-                const verifiedResidentsWithUniqueUsers = Object.values(residentsGroupedByUser)
+
+                for (const resident of residentsOnUnit) {
+                    const actor = actorsByUserIds[resident.user]
+                    if (actor) {
+                        actor.resident = resident
+                    }
+                }
+                actors = actors.filter(actor => !!actor.resident)
+                logContext.logInfoStats.step = 'verify residents'
+                logContext.logInfoStats.verifiedResidentsCount = actors.length
+
+                if (!actors?.length) {
+                    logInfo(logContext)
+                    return {
+                        verifiedContactsCount: verifiedContactsOnUnit.length,
+                        createdMessagesCount: 0,
+                        erroredMessagesCount: 0,
+                    }
+                }
 
                 let appSettings
 
@@ -354,16 +381,35 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                         context,
                     )
                 } catch (err) {
-                    logInfoStats.step = 'check limits'
-                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats, errors: err })
+                    logContext.logInfoStats.step = 'check limits'
+                    logInfo({ ...logContext, errors: err })
                     throw err
                 }
 
-                const startingMessagesIdsByUserIds = {}
+                let voipTypeCustomValuesByContacts = {}
+                if (VOIP_TYPE_CUSTOM_FIELD_ID) {
+                    const voipTypeCustomValues = await find('CustomValue', {
+                        customField: { id: VOIP_TYPE_CUSTOM_FIELD_ID },
+                        itemId_in: actors.map(actor => actor.contact.id),
+                        deletedAt: null,
+                    })
+                    voipTypeCustomValuesByContacts = voipTypeCustomValues
+                        .filter(customValue => typeof customValue.data === 'string')
+                        .reduce((acc, customValue) => {
+                            const isDataInProperFormat = /^\d+$/.test(customValue.data)
+                            // if something is wrong put B2CAPP_VOIP_TYPE to force b2cAppCallData
+                            acc[customValue.itemId] = isDataInProperFormat ? customValue.data : B2CAPP_VOIP_TYPE
+                            return acc
+                        }, {})
+                }
 
+                const startingMessagesIdsByUserIds = {}
                 /** @type {Array<Promise<{status, id, isDuplicateMessage}>>} */
-                const sendMessagePromises = verifiedResidentsWithUniqueUsers
-                    .map(async (resident) => {
+                const sendMessagePromises = actors
+                    .filter(actor => !!actor.resident && !!actor.contact && !!actor.user)
+                    .map(async ({ contact, resident, user }) => {
+                        const customVoIPType = voipTypeCustomValuesByContacts[contact.id]
+
                         // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
                         let preparedDataArgs = {
                             B2CAppId: b2cAppId,
@@ -372,17 +418,18 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                             callId: callData.callId,
                         }
 
-                        if (callData.b2cAppCallData) {
-                            preparedDataArgs = {
-                                ...preparedDataArgs,
-                                B2CAppContext: callData.b2cAppCallData.B2CAppContext,
-                            }
-                        }
+                        const needToPasteB2CAppCallData = !callData.nativeCallData || (callData.b2cAppCallData && customVoIPType === B2CAPP_VOIP_TYPE) 
 
-                        if (callData.nativeCallData) {
+                        if (!needToPasteB2CAppCallData) {
+                            let voipType = customVoIPType || callData.nativeCallData.voipType || DEFAULT_VOIP_TYPE
+                            // CustomValue says to use B2CAPP_VOIP_TYPE, but we have no b2cAppCallData
+                            if (voipType === B2CAPP_VOIP_TYPE) {
+                                voipType = callData.nativeCallData.voipType || DEFAULT_VOIP_TYPE
+                            }
+
                             preparedDataArgs = {
                                 ...preparedDataArgs,
-                                voipType: MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY,
+                                voipType: String(String(voipType) === String(DEFAULT_VOIP_TYPE) ? MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY : voipType),
                                 voipAddress: callData.nativeCallData.voipAddress,
                                 voipLogin: callData.nativeCallData.voipLogin,
                                 voipPassword: callData.nativeCallData.voipPassword,
@@ -391,6 +438,11 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                                 stunServers: callData.nativeCallData.stunServers,
                                 stun: callData.nativeCallData.stunServers?.[0],
                                 codec: callData.nativeCallData.codec,
+                            }
+                        } else {
+                            preparedDataArgs = {
+                                ...preparedDataArgs,
+                                B2CAppContext: callData.b2cAppCallData.B2CAppContext,
                             }
                         }
 
@@ -402,56 +454,58 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                         const messageAttrs = {
                             sender,
                             type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
-                            to: { user: { id: resident.user } },
+                            to: { user: { id: user.id } },
                             meta: {
                                 dv,
+                                title: '', // NOTE(YEgorLu): title and body are rewritten by translations for push type
+                                body: '',
                                 data: metaData,
                             },
                         }
 
                         const res = await sendMessage(context, messageAttrs)
                         if (res?.id) {
-                            startingMessagesIdsByUserIds[resident.user] = res.id
+                            startingMessagesIdsByUserIds[user.id] = res.id
                         }
                         return { resident, result: res }
                     })
                 
                 // 4) Set status in redis
 
-                logInfoStats.step = 'send messages'
+                logContext.logInfoStats.step = 'send messages'
                 const sendMessageResults = await Promise.allSettled(sendMessagePromises)
                 const sendMessageStats = sendMessageResults.map(promiseResult => {
                     if (promiseResult.status === 'rejected') {
-                        logInfoStats.erroredMessagesCount++
-                        logInfoStats.createMessageErrors.push(promiseResult.reason)
+                        logContext.logInfoStats.erroredMessagesCount++
+                        logContext.logInfoStats.createMessageErrors.push(promiseResult.reason)
                         return { error: promiseResult.reason }
                     } 
                     const { resident, result } = promiseResult.value
                     if (result.isDuplicateMessage) {
-                        logInfoStats.erroredMessagesCount++
-                        logInfoStats.createMessageErrors.push(`${resident.id} duplicate message`)
+                        logContext.logInfoStats.erroredMessagesCount++
+                        logContext.logInfoStats.createMessageErrors.push(`${resident.id} duplicate message`)
                         return { error: `${resident.id} duplicate message` }
                     }
                     if (result.status !== MESSAGE_SENDING_STATUS) {
-                        logInfoStats.erroredMessagesCount++
-                        logInfoStats.createMessageErrors.push(`${resident.id} invalid status for some reason`)
+                        logContext.logInfoStats.erroredMessagesCount++
+                        logContext.logInfoStats.createMessageErrors.push(`${resident.id} invalid status for some reason`)
                         return { error: `${resident.id} invalid status for some reason` }
                     }
-                    logInfoStats.createdMessagesCount++
+                    logContext.logInfoStats.createdMessagesCount++
                     return result
                 })
                 
                 for (const messageStat of sendMessageStats) {
                     if (messageStat.error) {
-                        logInfoStats.erroredMessagesCount++
-                        logInfoStats.createMessageErrors.push(messageStat.error)
+                        logContext.logInfoStats.erroredMessagesCount++
+                        logContext.logInfoStats.createMessageErrors.push(messageStat.error)
                         continue
                     }
-                    logInfoStats.createdMessagesCount++
+                    logContext.logInfoStats.createdMessagesCount++
                 }
 
                 if (sendMessageStats.some(stat => !stat.error)) {
-                    logInfoStats.isStatusCached = await setCallStatus({
+                    logContext.logInfoStats.isStatusCached = await setCallStatus({
                         b2cAppId,
                         callId: callData.callId,
                         status: CALL_STATUS_START_SENT,
@@ -462,8 +516,8 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                     })
                 }
 
-                logInfoStats.step = 'result'
-                logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
+                logContext.logInfoStats.step = 'result'
+                logInfo(logContext)
 
                 return {
                     verifiedContactsCount: verifiedContactsOnUnit.length,
