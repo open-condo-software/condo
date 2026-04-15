@@ -215,11 +215,7 @@ class ExternalContentImplementation extends Implementation {
     async resolveInput ({ resolvedData, existingItem, listKey, context }) {
         const nextValue = resolvedData[this.path]
 
-        if (nextValue === undefined) return undefined
-
-        if (nextValue === null) {
-            return null
-        }
+        if (nextValue === undefined || nextValue === null) return nextValue
 
         const processor = this.formatProcessors[this.config.format]
         const payload = processor.serialize(nextValue)
@@ -276,7 +272,7 @@ class ExternalContentImplementation extends Implementation {
         try {
             await this.adapter.delete(prevValue)
         } catch (err) {
-            logger.debug({ msg: 'Failed to delete old file after change', err, data: { filename: prevFilename } })
+            logger.warn({ msg: 'Failed to delete old file after change', err, data: { prevValue } })
         }
     }
 }
