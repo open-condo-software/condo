@@ -33,6 +33,34 @@ function getB2CAppFilter ({ user, permissionKey, requirePermission }) {
     }
 }
 
+function isPathLeadsToB2CAppModel ({ pathToB2CAppId, listKey }) {
+    if (!isString(listKey) || listKey.trim().length < 1) return false
+    if (!isArray(pathToB2CAppId) || isEmpty(pathToB2CAppId)) return false
+
+    const lastPathPart = pathToB2CAppId[pathToB2CAppId.length - 1]
+    if (lastPathPart !== 'id') return false
+
+    const pathToB2CApp = pathToB2CAppId.slice(0, -1)
+    if (isEmpty(pathToB2CApp)) return listKey === 'B2CApp'
+
+    let currentListKey = listKey
+    for (const pathPart of pathToB2CApp) {
+        if (!isString(pathPart) || pathPart.trim().length < 1) return false
+
+        const schema = getSchemaCtx(currentListKey)
+        const schemaFields = get(schema, 'list._fields', {})
+        const ref = get(schemaFields, [pathPart, 'ref'], null)
+        if (!isString(ref) || ref.trim().length < 1) return false
+
+        const refListKey = ref.split('.')[0]
+        if (!isString(refListKey) || refListKey.trim().length < 1) return false
+
+        currentListKey = refListKey
+    }
+
+    return currentListKey === 'B2CApp'
+}
+
 /**
  * @return {Promise<Record<string, any>|false>}
  */
@@ -49,17 +77,9 @@ async function canReadByServiceUser (args, schemaConfig) {
     }
 
     const pathToB2CAppId = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
-    if (!pathToB2CAppId) return false
+    if (!Array.isArray(pathToB2CAppId)) return false
 
-    if (pathToB2CAppId[pathToB2CAppId.length - 1] !== 'id') return false // can't build filter condition
-    if (pathToB2CAppId.length === 1 && listKey !== 'B2CApp') return false
-    if (pathToB2CAppId.length > 1) {
-        const schema = getSchemaCtx(listKey)
-        const schemaFields = get(schema, 'list._fields', {})
-        const indexOfB2CApp = pathToB2CAppId.length === 2 ? 0 : 1 // ['app', 'id'] or ['someModel', 'app', 'id']
-        const relationSchemaName = get(schemaFields, [pathToB2CAppId[indexOfB2CApp], 'ref'], null)
-        if (relationSchemaName !== 'B2CApp') return false
-    }
+    if (!isPathLeadsToB2CAppModel({ pathToB2CAppId, listKey })) return false
 
     const pathToB2CApp = pathToB2CAppId.slice(0, pathToB2CAppId.length - 1)
     if (!pathToB2CApp) return false
@@ -83,7 +103,9 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
     }
 
     const pathToB2CAppId = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
-    if (!pathToB2CAppId) return false
+    if (!Array.isArray(pathToB2CAppId)) return false
+
+    if (!isPathLeadsToB2CAppModel({ pathToB2CAppId, listKey })) return false
 
     let b2cAppIds = []
 
@@ -111,15 +133,7 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
             if (parentObjects.length !== uniqueParentObjectIds.length) return false
 
-            const parentObjectsById = parentObjects.reduce((byId, parentObject) => {
-                byId[parentObject.id] = parentObject
-                return byId
-            }, {})
-
-            // build b2cAppIds with duplicates as in the originalInput for checks
-            b2cAppIds = parentObjectIds
-                .map(parentObjectId => parentObjectsById[parentObjectId])
-                .map(parentObject => get(parentObject, pathToB2CAppId.slice(1)))
+            b2cAppIds = parentObjects.map(parentObject => get(parentObject, pathToB2CAppId.slice(1), null))
         }
     } else if (operation === 'update') {
         const ids = itemIds || [itemId]
@@ -151,21 +165,12 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
             if (parentObjects.length !== uniqueParentObjectIds.length) return false
 
-            const parentObjectsById = parentObjects.reduce((byId, parentObject) => {
-                byId[parentObject.id] = parentObject
-                return byId
-            }, {})
-
-            // build b2cAppIds with duplicates as in the originalInput for checks
-            b2cAppIds = parentObjectIds
-                .map(parentObjectId => parentObjectsById[parentObjectId])
-                .map(parentObject => get(parentObject, pathToB2CAppId.slice(1)))
+            b2cAppIds = parentObjects.map(parentObject => get(parentObject, pathToB2CAppId.slice(1), null))
         }
     }
 
     if (!b2cAppIds.length) return false
     if (b2cAppIds.filter(nonNull).length !== b2cAppIds.length) return false
-    if (b2cAppIds.length !== originalInputs.length) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
 
@@ -186,14 +191,14 @@ async function canExecuteByServiceUser (params, serviceConfig) {
 
     if (!gqlName) return false
 
-    const pathToAddressKey = get(serviceConfig, 'pathToAddressKey', ['addressKey'])
-    if (!pathToAddressKey) return false
+    const pathToAddressKey = get(serviceConfig, 'pathToAddressKey', ['data', 'addressKey'])
+    if (!Array.isArray(pathToAddressKey)) return false
 
     const addressKey = get(args, pathToAddressKey, null)
     if (!addressKey) return false
 
-    const pathToB2CAppId = get(serviceConfig, 'pathToB2CApp', ['app', 'id'])
-    if (!pathToB2CAppId) return false
+    const pathToB2CAppId = get(serviceConfig, 'pathToB2CApp', ['data', 'app', 'id'])
+    if (!Array.isArray(pathToB2CAppId)) return false
 
     const b2cAppId = get(args, pathToB2CAppId, null)
     if (!b2cAppId) return false
