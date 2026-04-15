@@ -87,12 +87,17 @@ async function pushOrganizationToSalesCRM (organization) {
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         }
-        await fetch(SALES_CRM_WEBHOOKS_URL.organizations, {
+        const resp = await fetch(SALES_CRM_WEBHOOKS_URL.organizations, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         })
-        logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
+
+        if (!resp.ok) {
+            logger.warn({ msg: 'Request to sales crm failed', err: resp.error })
+        } else {
+            logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
+        }
     } catch (err) {
         logger.warn({ msg: 'Request to sales crm failed', err })
     }
