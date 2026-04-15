@@ -9,6 +9,7 @@ const pluralize = require('pluralize')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getSchemaCtx, getByCondition } = require('@open-condo/keystone/schema')
+const { nonNull } = require('@open-condo/miniapp-utils')
 
 const { B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/config')
 const { generateGqlQueryToField, getFilterByFieldPathValue } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
@@ -21,13 +22,13 @@ function getB2CAppFilter ({ user, permissionKey, requirePermission }) {
             user: { id: user.id },
             deletedAt: null,
             ...(requirePermission 
-                ? null 
-                : {
+                ? {
                     accessRightSet: {
                         [permissionKey]: true,
                         deletedAt: null,
                     },
-                }),
+                } 
+                : null),
         },
     }
 }
@@ -47,7 +48,20 @@ async function canReadByServiceUser (args, schemaConfig) {
         throw new Error('"pathToAddressKey" is not supported for read operations for now')
     }
 
-    const pathToB2CApp = get(schemaConfig, 'pathToB2CApp', ['app'])
+    const pathToB2CAppId = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
+    if (!pathToB2CAppId) return false
+
+    if (pathToB2CAppId[pathToB2CAppId.length - 1] !== 'id') return false // can't build filter condition
+    if (pathToB2CAppId.length === 1 && listKey !== 'B2CApp') return false
+    if (pathToB2CAppId.length > 1) {
+        const schema = getSchemaCtx(listKey)
+        const schemaFields = get(schema, 'list._fields', {})
+        const indexOfB2CApp = pathToB2CAppId.length === 2 ? 0 : 1 // ['app', 'id'] or ['someModel', 'app', 'id']
+        const relationSchemaName = get(schemaFields, [pathToB2CAppId[indexOfB2CApp], 'ref'], null)
+        if (relationSchemaName !== 'B2CApp') return false
+    }
+
+    const pathToB2CApp = pathToB2CAppId.slice(0, pathToB2CAppId.length - 1)
     if (!pathToB2CApp) return false
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
@@ -61,42 +75,51 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
     if (!listKey) return false
 
-    const isBulkRequest = Array.isArray(originalInput)
+    const originalInputs = Array.isArray(originalInput) ? originalInput.map(input => input.data) : [originalInput]
 
     const pathToAddressKey = get(schemaConfig, 'pathToAddressKey', null)
     if (pathToAddressKey) {
         throw new Error('"pathToAddressKey" is not supported for write operations for now')
     }
 
-    const pathToB2CApp = get(schemaConfig, 'pathToB2CApp', ['app'])
-    if (!pathToB2CApp) return false
-    const pathToB2CAppId = [...pathToB2CApp, 'id']
-
-    if (isBulkRequest && pathToB2CAppId.length > 2) return false
+    const pathToB2CAppId = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
+    if (!pathToB2CAppId) return false
 
     let b2cAppIds = []
 
     if (operation === 'create') {
         if (pathToB2CAppId.length === 1) {
-            b2cAppIds = (isBulkRequest ? originalInput.map(input => input.data) : [originalInput]).map(input => get(input, pathToB2CAppId, null))
+            b2cAppIds = originalInputs.map(input => get(input, pathToB2CAppId, null))
         }  else if (pathToB2CAppId.length === 2) {
-            b2cAppIds = (isBulkRequest ? originalInput.map(input => input.data) : [originalInput]).map(input => get(input, [pathToB2CAppId[0], 'connect', pathToB2CAppId[1]], null))
+            b2cAppIds = originalInputs.map(input => get(input, [pathToB2CAppId[0], 'connect', pathToB2CAppId[1]], null))
         } else if (pathToB2CAppId.length > 2) {
-            const parentObjectId = get(originalInput, [pathToB2CAppId[0], 'connect', 'id'], null)
-            if (!parentObjectId) return false
+            const parentObjectIds = originalInputs
+                .map(originalInput => get(originalInput, [pathToB2CAppId[0], 'connect', 'id'], null))
+                .filter(nonNull)
+            if (parentObjectIds.length !== originalInputs.length) return false
 
-            const [parentObject] = await execGqlWithoutAccess(context, {
+            const uniqueParentObjectIds = [...new Set(parentObjectIds)]
+
+            const parentObjects = await execGqlWithoutAccess(context, {
                 query: generateGqlQueryToField(parentSchemaName, pathToB2CAppId.slice(1)),
                 variables: {
-                    where: { id: parentObjectId },
-                    first: 1,
+                    where: { id_in: uniqueParentObjectIds },
+                    first: uniqueParentObjectIds.length,
                 },
                 dataPath: 'objs',
             })
 
-            if (!parentObject) return false
+            if (parentObjects.length !== uniqueParentObjectIds.length) return false
 
-            b2cAppIds = [get(parentObject, pathToB2CAppId.slice(1))]
+            const parentObjectsById = parentObjects.reduce((byId, parentObject) => {
+                byId[parentObject.id] = parentObject
+                return byId
+            }, {})
+
+            // build b2cAppIds with duplicates as in the originalInput for checks
+            b2cAppIds = parentObjectIds
+                .map(parentObjectId => parentObjectsById[parentObjectId])
+                .map(parentObject => get(parentObject, pathToB2CAppId.slice(1)))
         }
     } else if (operation === 'update') {
         const ids = itemIds || [itemId]
@@ -110,27 +133,39 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
         if (pathToB2CAppId.length === 1 || pathToB2CAppId.length === 2) {
             b2cAppIds = items.map(item => get(item, [pathToB2CAppId[0]], null))
         } else if (pathToB2CAppId.length > 2) {
-            const parentObjectId = get(items[0], [pathToB2CAppId[0]])
-            if (!parentObjectId) return false
+            const parentObjectIds = items
+                .map(item => get(item, [pathToB2CAppId[0]]))
+                .filter(nonNull)
 
-            const [parentObject] = await execGqlWithoutAccess(context, {
+            if (parentObjectIds.length !== items.length) return false
+
+            const uniqueParentObjectIds = [...new Set(parentObjectIds)]
+            const parentObjects = await execGqlWithoutAccess(context, {
                 query: generateGqlQueryToField(parentSchemaName, pathToB2CAppId.slice(1)),
                 variables: {
-                    where: { id: parentObjectId },
-                    first: 1,
+                    where: { id_in: uniqueParentObjectIds },
+                    first: uniqueParentObjectIds.length,
                 },
                 dataPath: 'objs',
             })
 
-            if (!parentObject) return false
+            if (parentObjects.length !== uniqueParentObjectIds.length) return false
 
-            b2cAppIds = [get(parentObject, pathToB2CAppId.slice(1))]
+            const parentObjectsById = parentObjects.reduce((byId, parentObject) => {
+                byId[parentObject.id] = parentObject
+                return byId
+            }, {})
+
+            // build b2cAppIds with duplicates as in the originalInput for checks
+            b2cAppIds = parentObjectIds
+                .map(parentObjectId => parentObjectsById[parentObjectId])
+                .map(parentObject => get(parentObject, pathToB2CAppId.slice(1)))
         }
     }
 
     if (!b2cAppIds.length) return false
-    if (b2cAppIds.filter(Boolean).length !== b2cAppIds.length) return false
-    if (isBulkRequest && b2cAppIds.length !== originalInput.length) return false
+    if (b2cAppIds.filter(nonNull).length !== b2cAppIds.length) return false
+    if (b2cAppIds.length !== originalInputs.length) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
 
@@ -141,8 +176,7 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
         deletedAt: null,
     })
 
-    if (isBulkRequest) return b2cApps.length === uniqueB2CAppIds.length
-    return !!b2cApps.length
+    return b2cApps.length === uniqueB2CAppIds.length
 }
 
 async function canExecuteByServiceUser (params, serviceConfig) {
@@ -158,10 +192,10 @@ async function canExecuteByServiceUser (params, serviceConfig) {
     const addressKey = get(args, pathToAddressKey, null)
     if (!addressKey) return false
 
-    const pathToB2CApp = get(serviceConfig, 'pathToB2CApp', ['app'])
-    if (!pathToB2CApp) return false
+    const pathToB2CAppId = get(serviceConfig, 'pathToB2CApp', ['app', 'id'])
+    if (!pathToB2CAppId) return false
 
-    const b2cAppId = get(args, [...pathToB2CApp, 'id'], null)
+    const b2cAppId = get(args, pathToB2CAppId, null)
     if (!b2cAppId) return false
 
     const permissionKey = `canExecute${upperFirst(gqlName)}`
@@ -184,14 +218,14 @@ function isServiceUser ({ authentication: { item: user } }) {
 }
 
 function getRefSchemaName (schemaConfig, listKey) {
-    const pathToB2CApp = get(schemaConfig, 'pathToB2CApp', ['app'])
+    const pathToB2CApp = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
 
     if (!isArray(pathToB2CApp) || isEmpty(pathToB2CApp)) {
-        throw new Error('"pathToB2CApp" must be not empty array!')
+        throw new Error('"pathToB2CAppId" must be not empty array!')
     }
     for (const pathPart of pathToB2CApp) {
         if (!isString(pathPart) || pathPart.trim().length < 1) {
-            throw new Error(`"pathToB2CApp" must contain array of string! But was: ${pathToB2CApp}`)
+            throw new Error(`"pathToB2CAppId" must contain array of string! But was: ${pathToB2CApp}`)
         }
     }
 

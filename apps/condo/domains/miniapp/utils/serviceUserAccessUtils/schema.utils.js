@@ -37,8 +37,8 @@ function getReadOnlyPermissionsFieldsNames (config) {
 }
 
 function getNonRequiredPermissionsFieldsNames (config) {
-    const nonRequiredListsConfig = Object.fromEntries(Object.entries(config.lists).filter(([_, schemaConfig]) => schemaConfig.rightSetRequired))
-    const nonRequiredServicesConfig = Object.fromEntries(Object.entries(config.services).filter(([_, schemaConfig]) => schemaConfig.rightSetRequired))
+    const nonRequiredListsConfig = Object.fromEntries(Object.entries(config.lists).filter(([_, schemaConfig]) => schemaConfig.rightSetRequired === false))
+    const nonRequiredServicesConfig = Object.fromEntries(Object.entries(config.services).filter(([_, schemaConfig]) => schemaConfig.rightSetRequired === false))
     const nonRequiredListPermissions = getListsPermissionsFieldsNames(nonRequiredListsConfig)
     const nonRequiredServicesPermissions = getServicesPermissionsFieldsNames(nonRequiredServicesConfig)
     return nonRequiredListPermissions.concat(nonRequiredServicesPermissions)
