@@ -27,7 +27,7 @@ const {
     useSoftDelete,
 } = generateReactHooks<TicketFile, TicketFileCreateInput, TicketFileUpdateInput, QueryAllTicketFilesArgs>(TicketFileGQL)
 
-const { publicRuntimeConfig: { fileClientId } = {} } = getConfig()
+const { publicRuntimeConfig: { fileClientId, fileServerUrl } = {} } = getConfig()
 
 type FileInputType = File | UploadFile | { signature: string, originalFilename: string, mimetype: string }
 type CreatedTicketFile = NonNullable<CreateTicketFileMutation['ticketFile']>
@@ -46,6 +46,7 @@ const useCreate = (attrs?: Partial<TicketFileCreateInput>, onComplete?: (result?
                 const maybeFile = (fileField as UploadFile)?.originFileObj || fileField
                 if (maybeFile && 'name' in maybeFile && 'type' in maybeFile) {
                     const uploadResult = await uploadFiles({
+                        ...(fileServerUrl ? { serverUrl: fileServerUrl } : {}),
                         files: [maybeFile as File],
                         meta: buildMeta({
                             userId: user.id,

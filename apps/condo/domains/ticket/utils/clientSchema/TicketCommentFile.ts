@@ -27,7 +27,7 @@ const {
     useSoftDelete,
 } = generateReactHooks<TicketCommentFile, TicketCommentFileCreateInput, TicketCommentFileUpdateInput, QueryAllTicketCommentFilesArgs>(TicketCommentFileGQL)
 
-const { publicRuntimeConfig: { fileClientId, condoDomain } = {} } = getConfig()
+const { publicRuntimeConfig: { fileClientId, fileServerUrl } = {} } = getConfig()
 
 type FileInputType = File | UploadFile | { signature: string, originalFilename: string, mimetype: string }
 type CreatedTicketCommentFile = NonNullable<CreateTicketCommentFileMutation['ticketCommentFile']>
@@ -45,7 +45,7 @@ const useCreate = (attrs?: Partial<TicketCommentFileCreateInput>, onComplete?: (
                 const maybeFile = (fileField as UploadFile)?.originFileObj || fileField
                 if (maybeFile && 'name' in maybeFile && 'type' in maybeFile) {
                     const uploadResult = await uploadFiles({
-                        serverUrl: condoDomain,
+                        ...(fileServerUrl ? { serverUrl: fileServerUrl } : {}),
                         files: [maybeFile as File],
                         meta: buildMeta({
                             userId: user.id,

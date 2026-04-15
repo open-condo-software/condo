@@ -175,7 +175,13 @@ class CustomFile extends FileWithUTF8Name.implementation {
         const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
         if (!hasFileInRequest) return
 
-        const signatureData = jwt.decode(context._fileNewFlow[key].signature)
+        // Verify and decode signature to get the original fileClientId
+        let signatureData
+        try {
+            signatureData = jwt.verify(context._fileNewFlow[key].signature, this._fileSecret)
+        } catch (e) {
+            throw new GQLError(ERRORS.WRONG_SIGNATURE)
+        }
         const fileClientId = signatureData?.fileClientId || this._fileClientId
 
         const payload = {
