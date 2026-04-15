@@ -79,7 +79,7 @@ async function canReadByServiceUser (args, schemaConfig) {
     const pathToB2CAppId = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
     if (!Array.isArray(pathToB2CAppId)) return false
 
-    if (!isPathLeadsToB2CAppModel({ pathToB2CAppId, listKey })) return false
+    if (!isPathLeadsToB2CAppModel({ pathToB2CAppId, listKey, operation: 'read' })) return false
 
     const pathToB2CApp = pathToB2CAppId.slice(0, pathToB2CAppId.length - 1)
     if (!pathToB2CApp) return false
@@ -104,8 +104,6 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
     const pathToB2CAppId = get(schemaConfig, 'pathToB2CAppId', ['app', 'id'])
     if (!Array.isArray(pathToB2CAppId)) return false
-
-    if (!isPathLeadsToB2CAppModel({ pathToB2CAppId, listKey })) return false
 
     let b2cAppIds = []
 
