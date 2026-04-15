@@ -1685,7 +1685,6 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     jsonwebtoken: ^9.0.0
@@ -1703,7 +1702,6 @@ __metadata:
     react-intl: ^7.1.11
     react-number-format: ^5.4.4
     serwist: ^9.0.0
-    socks-proxy-agent: ^8.0.3
     swr: ^2.3.6
     telegraf: ^4.16.3
     telegraf-i18n: ^6.6.0
