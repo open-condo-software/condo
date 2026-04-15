@@ -93,7 +93,7 @@ function validateNumericValues (amount, explicitFee, implicitFee, transactionId,
     ]
 
     for (const { name, value } of fieldsToValidate) {
-        if (isNaN(value)) {
+        if (Number.isNaN(value)) {
             throw new GQLError(
                 {
                     ...ERRORS.INVALID_NUMERIC_FIELD,

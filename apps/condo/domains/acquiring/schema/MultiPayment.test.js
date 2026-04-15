@@ -363,16 +363,27 @@ describe('MultiPayment', () => {
 
             test('Should throw if payments not done', async () => {
                 const { admin, payments, acquiringIntegration, client } = await setup()
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                }, MULTIPAYMENT_NON_DONE_PAYMENTS)
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    , {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_NON_DONE_PAYMENTS',
+                        message: 'MultiPayment cannot be created if any of payments has status not equal to "DONE" for acquiring integration with type "EXTERNAL_IMPORT"',
+                    })
             })
 
             test('Should throw if multipayment has several payments', async () => {
                 const { admin, payments, acquiringIntegration, client } = await setup(2)
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                }, MULTIPAYMENT_SEVERAL_PAYMENTS)
+                const updatePayload = [
+                    { id: payments[0].id, data: { dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS } },
+                    { id: payments[1].id, data: { dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS } },
+                ]
+                await Payment.updateMany(admin, updatePayload)
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    , {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_SEVERAL_PAYMENTS',
+                        message: 'MultiPayment cannot be created with several payments for acquiring integration with type "EXTERNAL_IMPORT"',
+                    })
             })
 
             test('Should throw if multipayment not done', async () => {
@@ -380,9 +391,12 @@ describe('MultiPayment', () => {
                 await Payment.update(admin, payments[0].id, {
                     dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS,
                 })
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: MULTIPAYMENT_INIT_STATUS })
-                }, MULTIPAYMENT_NOT_ALLOWED_TRANSITION)
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: MULTIPAYMENT_INIT_STATUS })
+                    , {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_INVALID_STATUS',
+                        message: 'MultiPayment cannot be created with status different from "DONE" for acquiring integration with type "EXTERNAL_IMPORT"',
+                    })
             })
         })
         describe('Fields validation', () => {

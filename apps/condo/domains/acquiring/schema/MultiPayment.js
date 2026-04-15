@@ -78,7 +78,7 @@ const ERRORS = {
     MULTIPAYMENT_NON_DONE_PAYMENTS: {
         code: BAD_USER_INPUT,
         type: MULTIPAYMENT_NON_DONE_PAYMENTS,
-        message: `MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_DONE_STATUS} for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}`,
+        message: `MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_DONE_STATUS}" for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
     },
 
     MULTIPAYMENT_SEVERAL_PAYMENTS: {
@@ -290,6 +290,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {
                     id_in: paymentsIds,
+                    deletedAt: null,
                 })
 
                 const externalImportIntegration = await getByCondition('AcquiringIntegration', {
@@ -311,7 +312,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     }
 
                     if (resolvedData?.status !== MULTIPAYMENT_DONE_STATUS) {
-                        throw new GQLError(ERRORS.MULTIPAYMENT_SEVERAL_PAYMENTS, context)
+                        throw new GQLError(ERRORS.MULTIPAYMENT_INVALID_STATUS, context)
                     }
                 } else {
                     const noInitPayments = payments
