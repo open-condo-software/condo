@@ -99,7 +99,7 @@ const REGISTER_EXTERNAL_PAYMENTS_ERRORS = {
         variable: ['data', 'payments'],
         code: BAD_USER_INPUT,
         type: 'INVALID_VALUE',
-        message: 'Payment amount cannot be negative. Found: {amount} for payment: {transactionId}',
+        message: 'Payment amount cannot be non positive. Found: {amount} for payment: {transactionId}',
     },
     TRANSACTION_ID_REQUIRED: {
         mutation: 'registerExternalPayments',
