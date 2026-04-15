@@ -5,6 +5,7 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterExternalPaymentsService')
+const { STATUS_OK_RESPONSE } = require('@condo/domains/acquiring/constants/registerExternalPayments')
 const { REGISTER_EXTERNAL_PAYMENTS_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerExternalPaymentsErrors')
 const { Payment, MultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
@@ -69,7 +70,7 @@ const RegisterExternalPaymentsService = new GQLCustomSchema('RegisterExternalPay
                     await MultiPayment.create(context, buildMultiPaymentCreateInput(input, payment, acquiringIntegration, sender))
                 }
 
-                return { status: 'ok' }
+                return { status: STATUS_OK_RESPONSE }
             },
         },
     ],

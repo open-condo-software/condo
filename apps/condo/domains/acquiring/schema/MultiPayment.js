@@ -39,6 +39,7 @@ const {
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
     MULTIPAYMENT_NON_DONE_PAYMENTS,
     MULTIPAYMENT_SEVERAL_PAYMENTS,
+    MULTIPAYMENT_INVALID_STATUS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
@@ -73,6 +74,22 @@ const ERRORS = {
         type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
         message: 'Receipts and invoices are forbidden to be together',
         messageForUser: 'api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN',
+    },
+    MULTIPAYMENT_NON_DONE_PAYMENTS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_NON_DONE_PAYMENTS,
+        message: `MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_DONE_STATUS} for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}`,
+    },
+
+    MULTIPAYMENT_SEVERAL_PAYMENTS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_SEVERAL_PAYMENTS,
+        message: `MultiPayment cannot be created with several payments for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
+    },
+    MULTIPAYMENT_INVALID_STATUS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_INVALID_STATUS,
+        message: `MultiPayment cannot be created with status different from "${MULTIPAYMENT_DONE_STATUS}" for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
     },
 }
 
@@ -286,15 +303,15 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                         .map(payment => payment.id)
 
                     if (mismatchedPayments.length) {
-                        addValidationError(`${MULTIPAYMENT_NON_DONE_PAYMENTS} Failed ids: ${mismatchedPayments.join(', ')}`)
+                        throw new GQLError(ERRORS.MULTIPAYMENT_NON_DONE_PAYMENTS, context)
                     }
 
                     if (payments.length !== 1) {
-                        addValidationError(MULTIPAYMENT_SEVERAL_PAYMENTS)
+                        throw new GQLError(ERRORS.MULTIPAYMENT_SEVERAL_PAYMENTS, context)
                     }
 
                     if (resolvedData?.status !== MULTIPAYMENT_DONE_STATUS) {
-                        addValidationError(MULTIPAYMENT_NOT_ALLOWED_TRANSITION)
+                        throw new GQLError(ERRORS.MULTIPAYMENT_SEVERAL_PAYMENTS, context)
                     }
                 } else {
                     const noInitPayments = payments

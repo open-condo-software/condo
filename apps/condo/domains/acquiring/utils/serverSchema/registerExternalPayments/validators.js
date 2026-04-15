@@ -23,12 +23,19 @@ function validatePayments (payments, context) {
             implicitFee,
         } = payment
 
+        validateTransactionId(transactionId, context)
         validateCurrencyCode(currencyCode, transactionId, context)
         validatePeriodFormat(period, transactionId, context)
         validateDateFormat(transactionDate, transactionId, context)
         validateDepositedDate(depositedDate, transactionId, context)
         validateNumericValues(amount, explicitFee, implicitFee, transactionId, context)
         validatePositiveAmount(amount, transactionId, context)
+    }
+}
+
+function validateTransactionId (transactionId, context) {
+    if (!transactionId) {
+        throw new GQLError(ERRORS.TRANSACTION_ID_REQUIRED, context)
     }
 }
 
@@ -58,7 +65,10 @@ function validateDateFormat (date, transactionId, context) {
         )
     }
 
-    if (!dayjs(date).isValid()) {
+    const parsed = dayjs(date)
+    const isIsoString = parsed.toISOString() === date
+
+    if (!parsed.isValid() || !isIsoString) {
         throw new GQLError(
             { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date, transactionId } },
             context
@@ -83,9 +93,7 @@ function validateNumericValues (amount, explicitFee, implicitFee, transactionId,
     ]
 
     for (const { name, value } of fieldsToValidate) {
-        try {
-            Big(value)
-        } catch {
+        if (isNaN(value)) {
             throw new GQLError(
                 {
                     ...ERRORS.INVALID_NUMERIC_FIELD,

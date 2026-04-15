@@ -270,6 +270,20 @@ describe('RegisterExternalPaymentsService', () => {
             const [data] = await registerExternalPaymentsByTestClient(admin, secondPayload)
             expect(data.status).toBe('ok')
         })
+
+        test('Should not allow empty transactionId', async () => {
+            const transactionId = ''
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ transactionId })],
+            }
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.TRANSACTION_ID_REQUIRED)
+        })
     })
 
     describe('Logic', () => {

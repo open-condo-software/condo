@@ -37,7 +37,7 @@ async function loadExistingMultiPayments (acquiringIntegrationId, acquiringConte
     return await find('MultiPayment', {
         integration: { id: acquiringIntegrationId },
         transactionId_in: transactionIds,
-        payments_some: { context: { id: acquiringContextId } },
+        payments_some: { context: { id: acquiringContextId, deletedAt: null } },
         deletedAt: null,
     })
 }
