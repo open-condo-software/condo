@@ -69,7 +69,7 @@ function SignInAsResident () {
                 console.log('RESIDENT_APP_DOMAIN is not configured')
                 return
             }
-            window.open(`${residentAppDomain}/signin-as?userId=${encodeURIComponent(targetUserId)}`, '_blank')
+            window.open(`${residentAppDomain}/sign-in-as?userId=${encodeURIComponent(targetUserId)}`, '_blank')
         } catch (error) {
             console.log('Failed to open resident app', error)
         }
