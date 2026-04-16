@@ -41,6 +41,23 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this._fileClientId = conf['FILE_CLIENT_ID']
         this._fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/attach'
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
+        try {
+            const uploadConfig = conf['FILE_UPLOAD_CONFIG']
+            const parsed = typeof uploadConfig === 'string' ? JSON.parse(uploadConfig) : (uploadConfig || {})
+            this._appClients = parsed.clients || {}
+        } catch {
+            this._appClients = {}
+        }
+    }
+
+    _getSecretForSignature (signature) {
+        try {
+            const decoded = jwt.decode(signature)
+            const clientSecret = decoded?.fileClientId && this._appClients[decoded.fileClientId]?.secret
+            return clientSecret || this._fileSecret
+        } catch {
+            return this._fileSecret
+        }
     }
 
     getFileUploadType () {
@@ -93,7 +110,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         if (fileData && fileData['signature']) {
             let fileMeta
             try {
-                fileMeta = jwt.verify(fileData['signature'], this._fileSecret, { algorithms: ['HS256'] })
+                fileMeta = jwt.verify(fileData['signature'], this._getSecretForSignature(fileData['signature']), { algorithms: ['HS256'] })
             } catch (err) {
                 throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
@@ -129,7 +146,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
             let fileMeta
 
             try {
-                fileMeta = jwt.verify(input.signature, this._fileSecret, { algorithms: ['HS256'] })
+                fileMeta = jwt.verify(input.signature, this._getSecretForSignature(input.signature), { algorithms: ['HS256'] })
             } catch (err) {
                 throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
@@ -178,7 +195,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         // Verify and decode signature to get the original fileClientId
         let signatureData
         try {
-            signatureData = jwt.verify(context._fileNewFlow[key].signature, this._fileSecret)
+            signatureData = jwt.verify(context._fileNewFlow[key].signature, this._getSecretForSignature(context._fileNewFlow[key].signature))
         } catch (e) {
             throw new GQLError(ERRORS.WRONG_SIGNATURE)
         }
@@ -230,7 +247,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             attachResult = attachResult.data.file.signature
 
-            const data = jwt.verify(attachResult, this._fileSecret, { algorithms: ['HS256'] })
+            const data = jwt.verify(attachResult, this._getSecretForSignature(attachResult), { algorithms: ['HS256'] })
 
             resolvedData[this.path] = omit(data, ['iat', 'exp'])
         } catch (err) {
