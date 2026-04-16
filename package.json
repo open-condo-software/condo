@@ -114,6 +114,7 @@
     "tsup/rollup": ">=4.59.0",
     "node-forge": "^1.3.2",
     "defu": "^6.1.6",
-    "@open-keystone/adapter-prisma@4.0.20": "patch:@open-keystone/adapter-prisma@npm:4.0.20#.yarn/patches/@open-keystone-adapter-prisma-npm-4.0.20-bd8566b08e.patch"
+    "@open-keystone/adapter-prisma@4.0.20": "patch:@open-keystone/adapter-prisma@npm:4.0.20#.yarn/patches/@open-keystone-adapter-prisma-npm-4.0.20-bd8566b08e.patch",
+    "figma-js/axios": "^1.15.0"
   }
 }
