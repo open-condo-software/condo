@@ -14,11 +14,11 @@ const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/miniapp/access/CustomValue')
+const { generateGqlQueryToOrganizationId } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const { ALLOWED_TYPES, ALLOWED_SCHEMAS } = require('./CustomField')
 
-const { ORGANIZATION_OWNED_FIELD } = require('../../organization/schema/fields')
-const { generateGqlQueryToOrganizationId } = require('../utils/b2bAppServiceUserAccess/helpers.utils')
 
 
 const ajv = new Ajv()

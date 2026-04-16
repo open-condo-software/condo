@@ -1,0 +1,279 @@
+const { faker } = require('@faker-js/faker')
+
+const {
+    generateGqlDataPartToField,
+    generateGqlQueryToFieldAsString,
+    getFilterByFieldPathValues,
+    getFilterByFieldPathValue,
+} = require('./helpers.utils')
+
+
+describe('Helper functions', () => {
+    describe('generateGqlDataPartToOrganizationId', () => {
+        const validCases = [
+            {
+                input: ['a'],
+                output: '{ a }',
+            },
+            {
+                input: ['a', 'b', 'c'],
+                output: '{ a { b { c } } }',
+            },
+            {
+                input: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+                output: '{ a { b { c { d { e { f { g { h { i { j } } } } } } } } } }',
+            },
+        ]
+        const invalidCases = [
+            {
+                input: [],
+                error: '"pathToField" should not be empty array',
+            },
+            {
+                input: null,
+                error: '"pathToField" should not be empty array',
+            },
+            {
+                input: 'a b c d',
+                error: '"pathToField" should not be empty array',
+            },
+        ]
+
+        test.each(validCases)('generateGqlDataPart($input) - returned "$output"', async ({ input, output }) => {
+            expect(generateGqlDataPartToField(input)).toEqual(output)
+        })
+
+        test.each(invalidCases)('generateGqlDataPart($input) - throw error "$error"', async ({ input, error }) => {
+            expect(() => generateGqlDataPartToField(input)).toThrow(error)
+        })
+    })
+
+    describe('generateGqlQueryToOrganizationIdAsString', () => {
+        const validCases = [
+            {
+                input: {
+                    listKey: 'Organization',
+                    pathToOrganizationId: ['id'],
+                },
+                output: `
+        query getAllOrganizations ($where: OrganizationWhereInput, $first: Int = 1) {
+            objs: allOrganizations(where: $where, first: $first) { id }
+        }
+    `,
+            },
+            {
+                input: {
+                    listKey: 'Property',
+                    pathToOrganizationId: ['organization', 'id'],
+                },
+                output: `
+        query getAllProperties ($where: PropertyWhereInput, $first: Int = 1) {
+            objs: allProperties(where: $where, first: $first) { organization { id } }
+        }
+    `,
+            },
+            {
+                input: {
+                    listKey: 'TicketChange',
+                    pathToOrganizationId: ['ticket', 'organization', 'id'],
+                },
+                output: `
+        query getAllTicketChanges ($where: TicketChangeWhereInput, $first: Int = 1) {
+            objs: allTicketChanges(where: $where, first: $first) { ticket { organization { id } } }
+        }
+    `,
+            },
+        ]
+        const invalidCases = [
+            {
+                input: {
+                    listKey: 'Organization',
+                    pathToOrganizationId: 'id',
+                },
+                error: '"pathToField" should not be empty array',
+            },
+            {
+                input: {
+                    listKey: 'Organization',
+                    pathToOrganizationId: [],
+                },
+                error: '"pathToField" should not be empty array',
+            },
+            {
+                input: {
+                    listKey: 'Organization',
+                    pathToOrganizationId: null,
+                },
+                error: '"pathToField" should not be empty array',
+            },
+            {
+                input: {
+                    listKey: ['Property'],
+                    pathToOrganizationId: ['organization', 'id'],
+                },
+                error: '"listKey" must not be empty string!',
+            },
+            {
+                input: {
+                    listKey: '      ',
+                    pathToOrganizationId: ['organization', 'id'],
+                },
+                error: '"listKey" must not be empty string!',
+            },
+            {
+                input: {
+                    listKey: null,
+                    pathToOrganizationId: null,
+                },
+                error: '"listKey" must not be empty string!',
+            },
+        ]
+
+        test.each(validCases)('generateGqlQueryAsString($input.listKey, $input.pathToOrganizationId) - returned valid value (%#)', async ({ input: { listKey, pathToOrganizationId }, output }) => {
+            expect(generateGqlQueryToFieldAsString(listKey, pathToOrganizationId)).toEqual(output)
+        })
+
+        test.each(invalidCases)('generateGqlQueryAsString($input.listKey, $input.pathToOrganizationId) - throw error "$error"', async ({ input: { listKey, pathToOrganizationId }, error }) => {
+            expect(() => generateGqlQueryToFieldAsString(listKey, pathToOrganizationId)).toThrow(error)
+        })
+    })
+
+    describe('getFilterByFieldPathValues', () => {
+        const organizationIds = [faker.datatype.uuid()]
+        const validCases = [
+            {
+                input: {
+                    pathToOrganizationId: ['a'],
+                    organizationIds: [],
+                },
+                output: {
+                    'a_in': [],
+                    deletedAt: null,
+                },
+            },
+            {
+                input: {
+                    pathToOrganizationId: ['a'],
+                    organizationIds,
+                },
+                output: {
+                    'a_in': organizationIds,
+                    deletedAt: null,
+                },
+            },
+            {
+                input: {
+                    pathToOrganizationId: ['a', 'b', 'c'],
+                    organizationIds,
+                },
+                output: {
+                    'a': {
+                        'b': {
+                            'c_in': organizationIds,
+                            deletedAt: null,
+                        },
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                },
+            },
+            {
+                input: {
+                    pathToOrganizationId: ['a', 'b', 'c', 'd', 'e'],
+                    organizationIds,
+                },
+                output: {
+                    'a': {
+                        'b': {
+                            'c': {
+                                'd': {
+                                    'e_in': organizationIds,
+                                    deletedAt: null,
+                                },
+                                deletedAt: null,
+                            },
+                            deletedAt: null,
+                        },
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                },
+            },
+        ]
+        const invalidCases = [
+            {
+                input: {
+                    pathToOrganizationId: [],
+                    organizationIds,
+                },
+                error: '"pathToField" must be not empty array!',
+            },
+            {
+                input: {
+                    pathToOrganizationId: null,
+                    organizationIds,
+                },
+                error: '"pathToField" must be not empty array!',
+            },
+            {
+                input: {
+                    pathToOrganizationId: ['a', 'b', 'c', 'd', 'e'],
+                    organizationIds: null,
+                },
+                error: '"fieldValues" must be array!',
+            },
+        ]
+
+        test.each(validCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - returned valid value (%#)', async ({ input: { pathToOrganizationId, organizationIds }, output }) => {
+            expect(getFilterByFieldPathValues(pathToOrganizationId, organizationIds)).toEqual(output)
+        })
+
+        test.each(invalidCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationIds }, error }) => {
+            expect(() => getFilterByFieldPathValues(pathToOrganizationId, organizationIds)).toThrow(error)
+        })
+    })
+
+    describe('getFilterByFieldPathValue', () => {
+        const testCases = [
+            {
+                input: {
+                    pathToField: ['field1', 'field2', 'field3'],
+                    fieldValue: { app: { accessRights_some: { user: { id: 'asd' }, rightsSet: { canManage: true } } } },
+                },
+                output: {
+                    field1: {
+                        field2: {
+                            field3: {
+                                app: { accessRights_some: { user: { id: 'asd' }, rightsSet: { canManage: true } } },
+                            },
+                            deletedAt: null,
+                        },
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                },
+            },
+            {
+                input: {
+                    pathToField: ['a', 'b', 'c_in'],
+                    fieldValue: ['1', '2', '3'],
+                },
+                output: {
+                    'a': {
+                        'b': {
+                            'c_in': ['1', '2', '3'],
+                            deletedAt: null,
+                        },
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                },
+            },
+        ]
+
+        test.each(testCases)('getFilter($input.pathToField, $input.fieldValue)', async ({ input, output: expectedOutput }) => {
+            const output = getFilterByFieldPathValue(input.pathToField, input.fieldValue)
+            expect(output).toEqual(expectedOutput)
+        })
+    })
+})
