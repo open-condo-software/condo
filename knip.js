@@ -118,7 +118,6 @@ async function config () {
         ignore: ['**/node_modules/**'],
         absolute: true,
     })
-    console.log('qweewqewqeqweqweqw')
 
     /** @type import('knip').KnipConfig['workspaces'] */
     const staticWorkspaces = {
@@ -130,7 +129,7 @@ async function config () {
             ignoreDependencies: ['@graphql-codegen/typescript'],
         },
         'apps/resident-app': {
-            entry: ['domains/common/utils/sw.ts', 'bot.js' ],
+            entry: ['domains/common/utils/sw.ts', 'domains/telegram-bot/utils/bot.js' ],
         },
         'packages/icons': {
             ignoreDependencies: ['@svgr/plugin-svgo', '@svgr/plugin-prettier', '@svgr/plugin-jsx'],
