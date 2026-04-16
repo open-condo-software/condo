@@ -18,6 +18,7 @@ const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
+
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
@@ -27,7 +28,7 @@ const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const urlParse = urlLib.parse
 const axios = axiosLib.default
-const axiosCookieJarSupport = axiosCookieJarSupportLib.default
+const axiosCookieJarSupport = axiosCookieJarSupportLib.wrapper
 
 const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
@@ -255,9 +256,9 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
                 }
             } catch (error) {
                 throw new Error(
-                    `Failed to generate SSL certificates. OpenSSL is required.\n` +
+                    'Failed to generate SSL certificates. OpenSSL is required.\n' +
                     `Error: ${error.message}\n\n` +
-                    `Install OpenSSL or use protocol='http' for tests that don't require HTTPS`
+                    'Install OpenSSL or use protocol=\'http\' for tests that don\'t require HTTPS'
                 )
             }
 
@@ -548,14 +549,12 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
     if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
-    const client = axios.create({
+    const client = axiosCookieJarSupport(axios.create({
         withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
+        jar: cookieJar,
         validateStatus: (status) => status >= 200 && status < 500,
         ...options,
-    })
-    axiosCookieJarSupport(client)
-    client.defaults.jar = cookieJar
+    }))
     client.getCookie = () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';')
     return client
 }
