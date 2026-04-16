@@ -41,13 +41,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this._fileClientId = conf['FILE_CLIENT_ID']
         this._fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/attach'
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
-        try {
-            const uploadConfig = conf['FILE_UPLOAD_CONFIG']
-            const parsed = typeof uploadConfig === 'string' ? JSON.parse(uploadConfig) : (uploadConfig || {})
-            this._appClients = parsed.clients || {}
-        } catch {
-            this._appClients = {}
-        }
+        this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
     _getSecretForSignature (signature) {
