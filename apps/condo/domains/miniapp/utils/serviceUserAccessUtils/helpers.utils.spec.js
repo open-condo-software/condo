@@ -241,17 +241,16 @@ describe('Helper functions', () => {
                     fieldValue: { app: { accessRights_some: { user: { id: 'asd' }, rightsSet: { canManage: true } } } },
                 },
                 output: {
-                    deletedAt: null,
                     field1: {
-                        deletedAt: null,
                         field2: {
-                            deletedAt: null,
                             field3: {
-                                deletedAt: null,
                                 app: { accessRights_some: { user: { id: 'asd' }, rightsSet: { canManage: true } } },
                             },
+                            deletedAt: null,
                         },
+                        deletedAt: null,
                     },
+                    deletedAt: null,
                 },
             },
             {
@@ -272,7 +271,7 @@ describe('Helper functions', () => {
             },
         ]
 
-        test.each(testCases)('getFilter($input)', async ({ input, output: expectedOutput }) => {
+        test.each(testCases)('getFilter($input.pathToField, $input.fieldValue)', async ({ input, output: expectedOutput }) => {
             const output = getFilterByFieldPathValue(input.pathToField, input.fieldValue)
             expect(output).toEqual(expectedOutput)
         })
