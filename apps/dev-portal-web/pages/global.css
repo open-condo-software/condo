@@ -3,6 +3,10 @@ body {
   height: auto;
 }
 
+.ant-form-item:last-of-type {
+  margin-bottom: 0;
+}
+
 .ant-anchor-link-title-active > .condo-typography {
   color: var(--condo-global-color-black);
   transition: color 0.3s ease-in-out;

@@ -39,7 +39,7 @@ import {
 } from '@/gql'
 
 
-const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
+const ROW_BUTTON_GUTTER: RowProps['gutter'] = [40, 40]
 const ROW_BUILDS_GUTTER: RowProps['gutter'] = [40, 40]
 const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
 const FULL_COL_SPAN = 24

@@ -6,9 +6,11 @@ import { Input, Alert } from '@open-condo/ui'
 
 import { useValidations } from '@/domains/common/hooks/useValidations'
 
+import type { RowProps } from 'antd'
 import type { FormInstance } from 'antd'
 
 const FULL_SPAN_COL = 24
+const ALERT_GUTTER: RowProps['gutter'] = [24, 24]
 
 export type EmailInputStepProps = {
     form: FormInstance
@@ -38,7 +40,7 @@ export const EmailInputStep: React.FC<EmailInputStepProps> = ({ form, onFinish, 
             form={form}
             onFinish={onFinish}
         >
-            <Row>
+            <Row gutter={ALERT_GUTTER}>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='email' label={EmailLabel} rules={[requiredFieldValidator, emailValidator]} required>
                         <Input placeholder={EmailPlaceholder} name='email' inputMode='email'/>

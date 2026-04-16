@@ -301,7 +301,7 @@
   "pages.apps.b2c.id.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
   "pages.apps.b2c.id.sections.publishing.publishForm.items.components.label": "Выберите, какие изменения хотите опубликовать",
   "pages.apps.b2c.id.sections.publishing.publishForm.items.info.label": "Информация о приложении",
-  "pages.apps.b2c.id.sections.publishing.publishForm.items.build.label": "Сборка приложения",
+  "pages.apps.b2c.id.sections.publishing.publishForm.items.build.label": "Выберите сборку для публикации",
   "pages.apps.b2c.id.sections.publishing.publishForm.items.build.select.placeholder": "Выберите сборку",
   "pages.apps.b2c.id.sections.publishing.publishForm.actions.publish": "Опубликовать"
 }

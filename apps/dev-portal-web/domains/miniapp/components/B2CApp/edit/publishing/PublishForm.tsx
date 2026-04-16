@@ -1,5 +1,5 @@
 import { Form } from 'antd'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
@@ -20,7 +20,7 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
     const SelectBuildPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.build.select.placeholder' })
     const PublishButtonLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.actions.publish' })
 
-    const [buildChecked, setBuildChecked] = useState(false)
+    const [initialBuildsFetched, setInitialBuildsFetched] = useState(false)
 
     const { requiredFieldValidator } = useValidations()
 
@@ -35,8 +35,8 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
         },
     })
 
-    const handleBuildCheck = useCallback<Required<CheckboxProps>['onChange']>((evt) => {
-        if (evt.target.checked) {
+    useEffect(() => {
+        if (!initialBuildsFetched) {
             fetchBuilds({
                 variables: {
                     where: {
@@ -47,9 +47,9 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
                     skip: 0,
                 },
             })
+            setInitialBuildsFetched(true)
         }
-        setBuildChecked(evt.target.checked)
-    }, [fetchBuilds, id])
+    }, [fetchBuilds, id, initialBuildsFetched])
 
     const handleSearchChange = useCallback((newSearch: string) => {
         fetchBuilds({
@@ -74,23 +74,15 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
 
     return (
         <>
-            <Form.Item name='info' valuePropName='checked' label={ChooseComponentsLabel} className={styles.checkboxItem}>
-                <Checkbox label={InfoLabel}/>
+            <Form.Item name='buildId' rules={[requiredFieldValidator]} label={BuildLabel}>
+                <Select
+                    onSearch={handleSearchChange}
+                    optionFilterProp='key'
+                    options={buildOptions}
+                    placeholder={SelectBuildPlaceholder}
+                    showSearch
+                />
             </Form.Item>
-            <Form.Item name='build' valuePropName='checked' className={styles.checkboxItem}>
-                <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
-            </Form.Item>
-            {buildChecked && (
-                <Form.Item name='buildId' rules={[requiredFieldValidator]}>
-                    <Select
-                        onSearch={handleSearchChange}
-                        optionFilterProp='key'
-                        options={buildOptions}
-                        placeholder={SelectBuildPlaceholder}
-                        showSearch
-                    />
-                </Form.Item>
-            )}
             <Button
                 type='primary'
                 htmlType='submit'

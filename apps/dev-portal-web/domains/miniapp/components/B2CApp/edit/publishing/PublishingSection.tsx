@@ -95,6 +95,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                     form={form}
                     onFinish={handlePublish}
                     initialValues={{ environment: DEFAULT_STAND }}
+                    requiredMark={false}
                 >
                     <Form.Item name='environment' label={SelectStandLabel}>
                         <Select

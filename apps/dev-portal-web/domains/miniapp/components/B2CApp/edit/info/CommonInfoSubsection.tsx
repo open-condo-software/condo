@@ -14,7 +14,7 @@ import type { RowProps } from 'antd'
 
 import { useUpdateB2CAppMutation, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
 
-const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
+const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
 
 type CommonInfoFormValues = {
