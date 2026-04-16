@@ -807,7 +807,6 @@ __metadata:
     analytics: ^0.8.16
     antd: ^4.24.12
     aws-sdk: ^2.1692.0
-    axios: ^0.26.0
     bad-words-next: ^1.6.7
     big.js: ^6.2.2
     carbone: 3.2.3
@@ -832,6 +831,7 @@ __metadata:
     graphql-upload: ^15.0.2
     html2canvas: ^1.0.0-rc.7
     http-proxy: ^1.18.1
+    https-proxy-agent: ^7.0.1
     iconv-lite: ^0.6.3
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
@@ -883,6 +883,7 @@ __metadata:
     recheck: ^4.4.5
     redlock: ^5.0.0-beta.2
     slugify: ^1.6.6
+    socks-proxy-agent: ^8.0.3
     supertest: ^7.1.3
     swr: ^1.3.0
     ts-jest: ^29.4.0
@@ -1006,7 +1007,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/node": ^22
-    axios: ^1.11.0
+    axios: ^1.15.0
     commander: 14.0.1
     express: ^4.17.1
     graphql: ^16.10.0
@@ -1533,7 +1534,7 @@ __metadata:
     "@types/react": ^18.3.1
     ajv: 8.11.0
     antd: ^4.24.12
-    axios: ^0.26.0
+    axios: ^1.15.0
     big.js: ^6.2.2
     body-parser: ^1.20.3
     body-parser-xml: ^2.0.3
@@ -12038,7 +12039,7 @@ __metadata:
     "@svgr/plugin-svgo": ^6.5.1
     "@types/fs-extra": ^9.0.13
     "@types/node": ^22
-    axios: ^1.13.2
+    axios: ^1.15.0
     babel: ^6.23.0
     babel-loader: ^9.1.0
     chalk: 4.1.2
@@ -12104,8 +12105,8 @@ __metadata:
     apollo-server-errors: ^3.1.0
     apollo-upload-client: ^17.0.0
     aws-sdk: ^2.1692.0
-    axios: ^0.21.2
-    axios-cookiejar-support: ^1.0.1
+    axios: ^1.15.0
+    axios-cookiejar-support: ^2.0.4
     babel-jest: ^29.7.0
     big.js: ^6.2.2
     body-parser: ^1.20.3
@@ -19193,50 +19194,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios-cookiejar-support@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "axios-cookiejar-support@npm:1.0.1"
+"axios-cookiejar-support@npm:^2.0.4":
+  version: 2.0.5
+  resolution: "axios-cookiejar-support@npm:2.0.5"
   dependencies:
-    is-redirect: ^1.0.0
-    pify: ^5.0.0
+    http-cookie-agent: ^1.0.6
   peerDependencies:
-    "@types/tough-cookie": ">=2.3.3"
-    axios: ">=0.16.2"
-    tough-cookie: ">=2.3.3"
-  checksum: 5479790240d108fc3ff1e393dc57ec51524f080ae3492f9d0aece876dab68513d79e99db72b642c72d6bc82d82dd64f26bd32eddc783739b0ab13ac9d5179dba
+    axios: ">=0.20.0"
+    tough-cookie: ">=4.0.0"
+  checksum: d08f252b325ed6221e7daca9c1009100ac14eefa3681674c7bad43fae4f74f146236a704c8bef3d49c461f03586f82aef461746a5beb9d70db1b4b9126a85378
   languageName: node
   linkType: hard
 
-"axios@npm:^0.21.2":
-  version: 0.21.4
-  resolution: "axios@npm:0.21.4"
-  dependencies:
-    follow-redirects: ^1.14.0
-  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
-  languageName: node
-  linkType: hard
-
-"axios@npm:^0.26.0":
-  version: 0.26.1
-  resolution: "axios@npm:0.26.1"
-  dependencies:
-    follow-redirects: ^1.14.8
-  checksum: d9eb58ff4bc0b36a04783fc9ff760e9245c829a5a1052ee7ca6013410d427036b1d10d04e7380c02f3508c5eaf3485b1ae67bd2adbfec3683704745c8d7a6e1a
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.11.0":
-  version: 1.14.0
-  resolution: "axios@npm:1.14.0"
+"axios@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "axios@npm:1.15.0"
   dependencies:
     follow-redirects: ^1.15.11
     form-data: ^4.0.5
     proxy-from-env: ^2.1.0
-  checksum: 505d21ea777e7613ec61dc2ca92647a55878b6c86ae268e791747fb199913e68b1a9bdb9faa5a72eb59dcefc5e93c2579636504b84dbfed59aa9a680ade749e6
+  checksum: 95a8455554867a083ab3772fcadba42a22ec4bb546dccc66011556d837a07e544ae006675a30a5c43453f3e37e7c0982e934cec482c06b75abead2a2c157448a
   languageName: node
   linkType: hard
 
-"axios@npm:^1.13.2, axios@npm:^1.6.0":
+"axios@npm:^1.6.0":
   version: 1.13.2
   resolution: "axios@npm:1.13.2"
   dependencies:
@@ -26693,23 +26674,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.8, follow-redirects@npm:^1.15.6":
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.15.6":
   version: 1.15.9
   resolution: "follow-redirects@npm:1.15.9"
   peerDependenciesMeta:
     debug:
       optional: true
   checksum: 859e2bacc7a54506f2bf9aacb10d165df78c8c1b0ceb8023f966621b233717dab56e8d08baadc3ad3b9db58af290413d585c999694b7c146aaf2616340c3d2a6
-  languageName: node
-  linkType: hard
-
-"follow-redirects@npm:^1.14.0":
-  version: 1.15.1
-  resolution: "follow-redirects@npm:1.15.1"
-  peerDependenciesMeta:
-    debug:
-      optional: true
-  checksum: 6aa4e3e3cdfa3b9314801a1cd192ba756a53479d9d8cca65bf4db3a3e8834e62139245cd2f9566147c8dfe2efff1700d3e6aefd103de4004a7b99985e71dd533
   languageName: node
   linkType: hard
 
@@ -28790,6 +28761,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"http-cookie-agent@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "http-cookie-agent@npm:1.0.6"
+  dependencies:
+    agent-base: ^6.0.2
+  peerDependencies:
+    tough-cookie: ^4.0.0
+  checksum: a180edea182b3f75f987f09e82edeb4162c02674112892c88520df98f7b0f8d0ef03bae98a858d39ffe1cb6f4cd0cbebe2ec5ff558fd7a8ba5504b3408f040ff
+  languageName: node
+  linkType: hard
+
 "http-errors@npm:1.8.0":
   version: 1.8.0
   resolution: "http-errors@npm:1.8.0"
@@ -30079,13 +30061,6 @@ __metadata:
   version: 5.0.0
   resolution: "is-plain-object@npm:5.0.0"
   checksum: e32d27061eef62c0847d303125440a38660517e586f2f3db7c9d179ae5b6674ab0f469d519b2e25c147a1a3bc87156d0d5f4d8821e0ce4a9ee7fe1fcf11ce45c
-  languageName: node
-  linkType: hard
-
-"is-redirect@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "is-redirect@npm:1.0.0"
-  checksum: 25dd3d9943f57ef0f29d28e2d9deda8288e0c7098ddc65abec3364ced9a6491ea06cfaf5110c61fc40ec1fde706b73cee5d171f85278edbf4e409b85725bfea7
   languageName: node
   linkType: hard
 
@@ -37822,13 +37797,6 @@ __metadata:
   version: 4.0.1
   resolution: "pify@npm:4.0.1"
   checksum: 9c4e34278cb09987685fa5ef81499c82546c033713518f6441778fbec623fc708777fe8ac633097c72d88470d5963094076c7305cafc7ad340aae27cfacd856b
-  languageName: node
-  linkType: hard
-
-"pify@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "pify@npm:5.0.0"
-  checksum: 443e3e198ad6bfa8c0c533764cf75c9d5bc976387a163792fb553ffe6ce923887cf14eebf5aea9b7caa8eab930da8c33612990ae85bd8c2bc18bedb9eae94ecb
   languageName: node
   linkType: hard
 
