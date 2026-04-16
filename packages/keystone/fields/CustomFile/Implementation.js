@@ -52,8 +52,14 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
     _getSecretForSignature (signature) {
         try {
+            // Upload signature payload: { id, fileClientId, ... } (flattened from fileMeta.meta)
+            // Attach result signature payload: { id, recordId, ..., meta: { fileClientId, ... } } (full fileMeta)
+            // We decode without verify only to determine which client secret to use for the real verification below.
+            // An attacker claiming a wrong fileClientId would fail jwt.verify anyway with the mismatched secret.
+            // nosemgrep: javascript.jsonwebtoken.security.audit.jwt-decode-without-verify.jwt-decode-without-verify
             const decoded = jwt.decode(signature)
-            const clientSecret = decoded?.fileClientId && this._appClients[decoded.fileClientId]?.secret
+            const fileClientId = decoded?.fileClientId || decoded?.meta?.fileClientId
+            const clientSecret = fileClientId && this._appClients[fileClientId]?.secret
             return clientSecret || this._fileSecret
         } catch {
             return this._fileSecret
