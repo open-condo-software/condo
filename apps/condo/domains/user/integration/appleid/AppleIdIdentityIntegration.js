@@ -91,12 +91,12 @@ class AppleIdIdentityIntegration {
             abortRequestTimeout: REQUEST_TIMEOUT,
         })
 
+        if (!tokenResponse.ok) {
+            throw new Error(JSON.stringify(tokenResponse))
+        }
+
         // extract required params
         const data = await tokenResponse.json()
-
-        if (!data.ok || data.status !== 200) {
-            throw new Error(JSON.stringify(data))
-        }
 
         const {
             access_token: accessToken,
