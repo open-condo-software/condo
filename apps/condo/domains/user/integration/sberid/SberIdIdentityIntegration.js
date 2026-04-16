@@ -83,7 +83,7 @@ class SberIdIdentityIntegration {
         })
 
         if (!tokenResponse.ok) {
-            throw new Error(JSON.stringify(tokenResponse))
+            throw new Error('Failed to issue external identity token')
         }
 
         // extract required params
@@ -97,8 +97,8 @@ class SberIdIdentityIntegration {
             id_token: idToken,
         } = data
 
-        if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
-            throw new Error(JSON.stringify(data))
+        if (isNil(accessToken) || isNil(idToken)) {
+            throw new Error('Failed to issue external identity token')
         }
 
         return {
@@ -126,7 +126,7 @@ class SberIdIdentityIntegration {
         })
 
         if (!response.ok) {
-            throw new Error(JSON.stringify(response))
+            throw new Error('Failed to get user info')
         }
 
         // extract params that going to be cleaned
@@ -142,7 +142,7 @@ class SberIdIdentityIntegration {
         } = data
 
         if (isNil(sub)) {
-            throw new Error(JSON.stringify(data))
+            throw new Error('Failed to get user info')
         }
 
         return {

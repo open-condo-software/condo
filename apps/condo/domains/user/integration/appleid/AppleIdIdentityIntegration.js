@@ -92,7 +92,7 @@ class AppleIdIdentityIntegration {
         })
 
         if (!tokenResponse.ok) {
-            throw new Error(JSON.stringify(tokenResponse))
+            throw new Error('Failed to issue external identity token')
         }
 
         // extract required params
@@ -106,7 +106,7 @@ class AppleIdIdentityIntegration {
         } = data
 
         if (isNil(accessToken) || isNil(idToken)) {
-            throw new Error(JSON.stringify(data))
+            throw new Error('Failed to issue external identity token')
         }
 
         return {
@@ -158,7 +158,7 @@ class AppleIdIdentityIntegration {
         })
 
         if (!response.ok) {
-            throw new Error(JSON.stringify(await response.json()))
+            throw new Error('Failed to get apple id keys')
         }
 
         return await response.json()
