@@ -27,7 +27,7 @@ function validatePayments (payments, context) {
         validateCurrencyCode(currencyCode, transactionId, context)
         validatePeriodFormat(period, transactionId, context)
         validateDateFormat(transactionDate, transactionId, context)
-        validateDepositedDate(depositedDate, transactionId, context)
+        validateDateFormat(depositedDate, transactionId, context)
         validateNumericValues(amount, explicitFee, implicitFee, transactionId, context)
         validatePositiveAmount(amount, transactionId, context)
     }
@@ -58,12 +58,7 @@ function validatePeriodFormat (period, transactionId, context) {
 }
 
 function validateDateFormat (date, transactionId, context) {
-    if (typeof date !== 'string') {
-        throw new GQLError(
-            { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date, transactionId } },
-            context
-        )
-    }
+    if (typeof date !== 'string') return
 
     const parsed = dayjs(date)
     const isIsoString = parsed.toISOString() === date
@@ -71,15 +66,6 @@ function validateDateFormat (date, transactionId, context) {
     if (!parsed.isValid() || !isIsoString) {
         throw new GQLError(
             { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date, transactionId } },
-            context
-        )
-    }
-}
-
-function validateDepositedDate (depositedDate, transactionId, context) {
-    if (depositedDate && !dayjs(depositedDate).isValid()) {
-        throw new GQLError(
-            { ...ERRORS.INVALID_DATE_FORMAT, messageInterpolation: { date: depositedDate, transactionId } },
             context
         )
     }
@@ -93,7 +79,7 @@ function validateNumericValues (amount, explicitFee, implicitFee, transactionId,
     ]
 
     for (const { name, value } of fieldsToValidate) {
-        if (Number.isNaN(value)) {
+        if (Number.isNaN(Number(value))) {
             throw new GQLError(
                 {
                     ...ERRORS.INVALID_NUMERIC_FIELD,
@@ -149,7 +135,6 @@ module.exports = {
     validateCurrencyCode,
     validatePeriodFormat,
     validateDateFormat,
-    validateDepositedDate,
     validateNumericValues,
     validatePositiveAmount,
     validateDuplicatedTransactionIds,

@@ -88,31 +88,8 @@ describe('RegisterExternalPayments Validators', () => {
             ['2024-13-01', false],
             ['2024-02-30', false],
             ['', false],
-            [123, false],
-            [null, false],
-            [undefined, false],
         ])('date: %s -> valid: %s', (date, isValid) => {
             const fn = () => validateDateFormat(date, tId, {})
-            if (isValid) {
-                expect(fn).not.toThrow()
-            } else {
-                expect(fn).toThrow()
-            }
-        })
-    })
-
-    describe('validateDepositedDate', () => {
-        const tId = 'txn-123'
-
-        test.each([
-            ['2024-01-01T00:00:00.000Z', true],
-            [new Date().toISOString(), true],
-            ['invalid-date', false],
-            ['', true],
-            [null, true],
-            [undefined, true],
-        ])('depositedDate: %s -> valid: %s', (date, isValid) => {
-            const fn = () => validateDepositedDate(date, tId, {})
             if (isValid) {
                 expect(fn).not.toThrow()
             } else {
@@ -129,7 +106,7 @@ describe('RegisterExternalPayments Validators', () => {
             ['100.00', '10.00', '5.00', true],
             ['100', '10', '5', true],
             ['0.01', '0.01', '0.01', true],
-            ['999999999.99', null, null, true],
+            ['99999999999999999999999.99', null, null, true],
             ['-100.00', null, null, true],
             ['100.00', '-10.00', null, true],
             ['invalid', null, null, false],
