@@ -22,15 +22,6 @@ import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientS
 import { useAcquiringContext } from './ContextProvider'
 
 
-const StyledPageWrapper = styled(PageWrapper)`
-  & .condo-promo-block:not(.condo-promo-block-no-image) {
-    & .condo-promo-block-image-container {
-      width: auto;
-      margin: auto;
-    }
-  }
-`
-
 export const MarketplacePageContent = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
@@ -87,7 +78,7 @@ export const MarketplacePageContent = () => {
     }, [BillsTab, PaymentsTab, ServicesTab, canReadInvoices, canReadMarketItems, canReadPayments])
 
     return (
-        <StyledPageWrapper>
+        <PageWrapper>
             {GlobalHints}
             <PageHeader tags={RenderNotSetupTag} title={<Typography.Title>{PageTitle}</Typography.Title>} />
             <PageContent>
@@ -111,6 +102,6 @@ export const MarketplacePageContent = () => {
                     />
                 )}
             </PageContent>
-        </StyledPageWrapper>
+        </PageWrapper>
     )
 }
