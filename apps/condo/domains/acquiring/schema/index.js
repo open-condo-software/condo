@@ -17,6 +17,7 @@ const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { PaymentStatusChangeWebhookUrl } = require('./PaymentStatusChangeWebhookUrl')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
+const { RegisterExternalPaymentsService } = require('./RegisterExternalPaymentsService')
 const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPaymentForInvoicesService')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
@@ -46,5 +47,6 @@ module.exports = {
     CalculateFeeForReceiptService,
     PaymentsFile,
     SetPaymentPosReceiptUrlService,
+    RegisterExternalPaymentsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

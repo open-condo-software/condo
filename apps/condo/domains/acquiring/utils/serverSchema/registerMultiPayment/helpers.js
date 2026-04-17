@@ -2,7 +2,7 @@ const Big = require('big.js')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 
-const { REQUEST_MODE } = require('@condo/domains/acquiring/constants/registerMultiPaymentDomain')
+const { REQUEST_MODE } = require('@condo/domains/acquiring/constants/registerMultiPayment')
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 
 function calculateTotals (paymentCreateInputs) {

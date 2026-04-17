@@ -93,8 +93,8 @@ const MULTIPAYMENT_TRANSITIONS = {
 const MULTIPAYMENT_REQUIRED_FIELDS = {
     [MULTIPAYMENT_INIT_STATUS]: [],
     [MULTIPAYMENT_PROCESSING_STATUS]: ['explicitFee', 'explicitServiceCharge'],
-    [MULTIPAYMENT_WITHDRAWN_STATUS]: ['explicitFee', 'explicitServiceCharge', 'withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId'],
-    [MULTIPAYMENT_DONE_STATUS]: ['explicitFee', 'explicitServiceCharge', 'withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId'],
+    [MULTIPAYMENT_WITHDRAWN_STATUS]: ['explicitFee', 'explicitServiceCharge', 'withdrawnAt', 'transactionId'],
+    [MULTIPAYMENT_DONE_STATUS]: ['explicitFee', 'explicitServiceCharge', 'withdrawnAt', 'transactionId'],
     [MULTIPAYMENT_ERROR_STATUS]: [],
 }
 

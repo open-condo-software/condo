@@ -37,7 +37,11 @@ const {
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
     MULTIPAYMENT_NOT_UNIQUE_INVOICES,
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
+    MULTIPAYMENT_NON_DONE_PAYMENTS,
+    MULTIPAYMENT_SEVERAL_PAYMENTS,
+    MULTIPAYMENT_INVALID_STATUS,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
@@ -70,6 +74,22 @@ const ERRORS = {
         type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
         message: 'Receipts and invoices are forbidden to be together',
         messageForUser: 'api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN',
+    },
+    MULTIPAYMENT_NON_DONE_PAYMENTS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_NON_DONE_PAYMENTS,
+        message: `MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_DONE_STATUS}" for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
+    },
+
+    MULTIPAYMENT_SEVERAL_PAYMENTS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_SEVERAL_PAYMENTS,
+        message: `MultiPayment cannot be created with several payments for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
+    },
+    MULTIPAYMENT_INVALID_STATUS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_INVALID_STATUS,
+        message: `MultiPayment cannot be created with status different from "${MULTIPAYMENT_DONE_STATUS}" for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
     },
 }
 
@@ -270,13 +290,39 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {
                     id_in: paymentsIds,
+                    deletedAt: null,
                 })
-                const noInitPayments = payments
-                    .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
-                    .map(payment => payment.id)
-                if (noInitPayments.length) {
-                    addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+
+                const externalImportIntegration = await getByCondition('AcquiringIntegration', {
+                    id: resolvedData?.integration,
+                    type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+                    deletedAt: null,
+                })
+                if (externalImportIntegration) {
+                    const mismatchedPayments = payments
+                        .filter(payment => payment.status !== PAYMENT_DONE_STATUS)
+                        .map(payment => payment.id)
+
+                    if (mismatchedPayments.length) {
+                        throw new GQLError(ERRORS.MULTIPAYMENT_NON_DONE_PAYMENTS, context)
+                    }
+
+                    if (payments.length !== 1) {
+                        throw new GQLError(ERRORS.MULTIPAYMENT_SEVERAL_PAYMENTS, context)
+                    }
+
+                    if (resolvedData?.status !== MULTIPAYMENT_DONE_STATUS) {
+                        throw new GQLError(ERRORS.MULTIPAYMENT_INVALID_STATUS, context)
+                    }
+                } else {
+                    const noInitPayments = payments
+                        .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
+                        .map(payment => payment.id)
+                    if (noInitPayments.length) {
+                        addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+                    }
                 }
+
                 const alreadyWithMPPayments = payments
                     .filter(payment => payment.multiPayment)
                     .map(payment => payment.id)

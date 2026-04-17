@@ -93326,6 +93326,34 @@ type SetPaymentPosReceiptUrlOutput {
   success: Boolean!
 }
 
+input ExternalPaymentsInput {
+  accountNumber: String!
+  tin: String!
+  bankAccount: String!
+  routingNumber: String!
+  address: String!
+  period: String!
+  depositedDate: String
+  transactionDate: String!
+  transactionId: String!
+  amount: String!
+  explicitFee: String
+  implicitFee: String
+  paymentOrder: String!
+  currencyCode: String!
+}
+
+input RegisterExternalPaymentsInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!
+  payments: [ExternalPaymentsInput!]!
+}
+
+type RegisterExternalPaymentsOutput {
+  status: String!
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -107869,6 +107897,9 @@ type Mutation {
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
   setPaymentPosReceiptUrl(data: SetPaymentPosReceiptUrlInput!): SetPaymentPosReceiptUrlOutput
+
+  """Registers external payments"""
+  registerExternalPayments(data: RegisterExternalPaymentsInput!): RegisterExternalPaymentsOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """

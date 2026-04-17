@@ -75,6 +75,8 @@ const {
     createTestWebhookPayload,
     updateTestWebhookPayload,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
+
+const { REGISTER_EXTERNAL_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -649,6 +651,20 @@ async function updateTestPaymentStatusChangeWebhookUrl (client, id, extraAttrs =
     const obj = await PaymentStatusChangeWebhookUrl.update(client, id, attrs)
     return [obj, attrs]
 }
+
+async function registerExternalPaymentsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_EXTERNAL_PAYMENTS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -951,5 +967,6 @@ module.exports = {
     setPaymentPosReceiptUrlByTestClient,
     WebhookPayload, createTestWebhookPayload, updateTestWebhookPayload,
     PaymentStatusChangeWebhookUrl, createTestPaymentStatusChangeWebhookUrl, updateTestPaymentStatusChangeWebhookUrl,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    registerExternalPaymentsByTestClient,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
