@@ -620,33 +620,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/b2b-payments-gateway@workspace:apps/b2b-payments-gateway":
-  version: 0.0.0-use.local
-  resolution: "@app/b2b-payments-gateway@workspace:apps/b2b-payments-gateway"
-  dependencies:
-    "@b2b-payments-gateway/domains": "link:./domains"
-    "@faker-js/faker": ^7.6.0
-    "@graphql-tools/graphql-file-loader": ^7.5.17
-    "@graphql-tools/load": ^8.1.0
-    "@open-condo/apollo-server-client": "workspace:^"
-    "@open-condo/cli": "workspace:^"
-    "@open-condo/config": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
-    "@types/react": ^18.3.1
-    cross-env: ^7.0.3
-    express: ^4.17.1
-    graphql: ^16.10.0
-    graphql-tag: ^2.12.6
-    jest: ^29.7.0
-    lodash: ^4.17.21
-    mkdirp: ^3.0.1
-    openid-client: 5.7.1
-    pluralize: ^8.0.0
-    react: ^18.3.1
-    zod: ^4.0.8
-  languageName: unknown
-  linkType: soft
-
 "@app/billing-connector@workspace:apps/billing-connector":
   version: 0.0.0-use.local
   resolution: "@app/billing-connector@workspace:apps/billing-connector"
@@ -1007,11 +980,10 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/node": ^22
-    axios: ^1.15.0
+    axios: ^1.11.0
     commander: 14.0.1
     express: ^4.17.1
     graphql: ^16.10.0
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
@@ -1019,7 +991,6 @@ __metadata:
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
-    socks-proxy-agent: ^8.0.3
   languageName: unknown
   linkType: soft
 
@@ -1685,7 +1656,6 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     jsonwebtoken: ^9.0.0
@@ -1703,7 +1673,6 @@ __metadata:
     react-intl: ^7.1.11
     react-number-format: ^5.4.4
     serwist: ^9.0.0
-    socks-proxy-agent: ^8.0.3
     swr: ^2.3.6
     telegraf: ^4.16.3
     telegraf-i18n: ^6.6.0
@@ -1785,20 +1754,18 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
     "@types/node": ^22
+    axios: ^1.11.0
     commander: 14.0.1
     cross-env: ^7.0.3
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
-    node-telegram-bot-api: ^0.66.0
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
-    socks-proxy-agent: ^8.0.3
   languageName: unknown
   linkType: soft
 
@@ -1823,12 +1790,6 @@ __metadata:
   checksum: af39bdfb4c2b35bd2c6acc540a5e302730dae17e73d3a18cd1a4aa50c1c741cb1869dffdef1379c491da5ad2e3cfa2bf3a8064e6046c12b46c6a97f54f100a8d
   languageName: node
   linkType: hard
-
-"@b2b-payments-gateway/domains@link:./domains::locator=%40app%2Fb2b-payments-gateway%40workspace%3Aapps%2Fb2b-payments-gateway":
-  version: 0.0.0-use.local
-  resolution: "@b2b-payments-gateway/domains@link:./domains::locator=%40app%2Fb2b-payments-gateway%40workspace%3Aapps%2Fb2b-payments-gateway"
-  languageName: node
-  linkType: soft
 
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.18.6":
   version: 7.18.6
@@ -19206,7 +19167,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.15.0":
+"axios@npm:^1.11.0, axios@npm:^1.15.0":
   version: 1.15.0
   resolution: "axios@npm:1.15.0"
   dependencies:
@@ -39562,9 +39523,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^7.0.0, protobufjs@npm:^7.2.3":
-  version: 7.2.6
-  resolution: "protobufjs@npm:7.2.6"
+"protobufjs@npm:7.5.5":
+  version: 7.5.5
+  resolution: "protobufjs@npm:7.5.5"
   dependencies:
     "@protobufjs/aspromise": ^1.1.2
     "@protobufjs/base64": ^1.1.2
@@ -39578,67 +39539,7 @@ __metadata:
     "@protobufjs/utf8": ^1.1.0
     "@types/node": ">=13.7.0"
     long: ^5.0.0
-  checksum: 3c62e48f7d50017ac3b0dcd2a58e617cf858f9fba56a488bd48b9aa3482893a75540052dbcb3c12dfbaab42b1d04964611175faf06bdadcd33a4ebac982a511e
-  languageName: node
-  linkType: hard
-
-"protobufjs@npm:^7.2.4, protobufjs@npm:^7.2.5":
-  version: 7.4.0
-  resolution: "protobufjs@npm:7.4.0"
-  dependencies:
-    "@protobufjs/aspromise": ^1.1.2
-    "@protobufjs/base64": ^1.1.2
-    "@protobufjs/codegen": ^2.0.4
-    "@protobufjs/eventemitter": ^1.1.0
-    "@protobufjs/fetch": ^1.1.0
-    "@protobufjs/float": ^1.0.2
-    "@protobufjs/inquire": ^1.1.0
-    "@protobufjs/path": ^1.1.2
-    "@protobufjs/pool": ^1.1.0
-    "@protobufjs/utf8": ^1.1.0
-    "@types/node": ">=13.7.0"
-    long: ^5.0.0
-  checksum: ba0e6b60541bbf818bb148e90f5eb68bd99004e29a6034ad9895a381cbd352be8dce5376e47ae21b2e05559f2505b4a5f4a3c8fa62402822c6ab4dcdfb89ffb3
-  languageName: node
-  linkType: hard
-
-"protobufjs@npm:^7.2.6, protobufjs@npm:^7.3.2":
-  version: 7.5.3
-  resolution: "protobufjs@npm:7.5.3"
-  dependencies:
-    "@protobufjs/aspromise": ^1.1.2
-    "@protobufjs/base64": ^1.1.2
-    "@protobufjs/codegen": ^2.0.4
-    "@protobufjs/eventemitter": ^1.1.0
-    "@protobufjs/fetch": ^1.1.0
-    "@protobufjs/float": ^1.0.2
-    "@protobufjs/inquire": ^1.1.0
-    "@protobufjs/path": ^1.1.2
-    "@protobufjs/pool": ^1.1.0
-    "@protobufjs/utf8": ^1.1.0
-    "@types/node": ">=13.7.0"
-    long: ^5.0.0
-  checksum: 8a8842338c9bf586f11e1c179fc01f0b65adc22114bb2626daf62d66439c7b4227c182ef375184d24d2a16378716bab8dc5000940287610c8b8742972e4b0a2f
-  languageName: node
-  linkType: hard
-
-"protobufjs@npm:^7.3.0, protobufjs@npm:^7.5.3":
-  version: 7.5.4
-  resolution: "protobufjs@npm:7.5.4"
-  dependencies:
-    "@protobufjs/aspromise": ^1.1.2
-    "@protobufjs/base64": ^1.1.2
-    "@protobufjs/codegen": ^2.0.4
-    "@protobufjs/eventemitter": ^1.1.0
-    "@protobufjs/fetch": ^1.1.0
-    "@protobufjs/float": ^1.0.2
-    "@protobufjs/inquire": ^1.1.0
-    "@protobufjs/path": ^1.1.2
-    "@protobufjs/pool": ^1.1.0
-    "@protobufjs/utf8": ^1.1.0
-    "@types/node": ">=13.7.0"
-    long: ^5.0.0
-  checksum: 53bf83b9a726b05d43da35bb990dba7536759787dccea9a67b8f31be9df470ba17f1f1b982ca19956cfc7726f3ec7e0e883ca4ad93b5ec753cc025a637fc704f
+  checksum: e316eb0df33a64398ce32056de37435d8ea7ef3e06dff32cda2a7156431c029fe2c120e390b7ff066de7632e996d6d5d0540fb606fef223a8480dff25bee6123
   languageName: node
   linkType: hard
 
