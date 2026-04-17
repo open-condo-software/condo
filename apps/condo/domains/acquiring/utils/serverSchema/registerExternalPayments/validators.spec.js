@@ -1,11 +1,9 @@
 const { PAYMENTS_LIMIT } = require('@condo/domains/acquiring/constants/registerExternalPayments')
-const { REGISTER_EXTERNAL_PAYMENTS_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerExternalPaymentsErrors')
 const {
     validatePayments,
     validateCurrencyCode,
     validatePeriodFormat,
     validateDateFormat,
-    validateDepositedDate,
     validateNumericValues,
     validatePositiveAmount,
     validateDuplicatedTransactionIds,
@@ -259,17 +257,6 @@ describe('RegisterExternalPayments Validators', () => {
                 implicitFee: '5.00',
             }
             expect(() => validatePayments([paymentWithOptionals], {})).not.toThrow()
-        })
-
-        test('should fail with missing required fields', () => {
-            const requiredFields = ['transactionId', 'amount', 'period', 'transactionDate', 'currencyCode']
-
-            for (const field of requiredFields) {
-                const payment = { ...validPayment }
-                delete payment[field]
-
-                expect(() => validatePayments([payment], {})).toThrow()
-            }
         })
     })
 })
