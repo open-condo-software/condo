@@ -19,3 +19,16 @@ query getTicketFiles($ticketId: ID!) {
         }
     }
 }
+
+mutation createTicketFile($data: TicketFileCreateInput!) {
+    ticketFile: createTicketFile(data: $data) {
+        id
+        ticket { id }
+        file {
+            id
+            originalFilename
+            publicUrl
+            mimetype
+        }
+    }
+}

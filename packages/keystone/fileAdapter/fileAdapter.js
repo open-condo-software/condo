@@ -37,6 +37,7 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
     constructor ({ src, path, getFilename, mediaPath }) {
         super({ src, path, getFilename })
         this.mediaPath = mediaPath
+        this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
     publicUrl ({ filename, ...props }, user) {
@@ -51,7 +52,7 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
                 }
                 sign = jwt.sign(
                     { id: props.id, user, fileClientId },
-                    conf['FILE_SECRET'],
+                    this._appClients[fileClientId]?.secret || conf['FILE_SECRET'],
                     { expiresIn: '1h' }
                 )
             }
@@ -154,10 +155,11 @@ class FileAdapter {
         if (!this.isConfigValid(conf, ['MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL'])) {
             return null
         }
+        const baseUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL']
         const config = {
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
-            path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
-            mediaPath: `${conf.SERVER_URL}${conf.MEDIA_URL}`,
+            path: `${baseUrl}${conf.MEDIA_URL}/${this.folder}`,
+            mediaPath: `${baseUrl}${conf.MEDIA_URL}`,
         }
 
         if (this.saveFileName) {

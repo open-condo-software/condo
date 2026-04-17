@@ -95,6 +95,7 @@ class SberCloudFileAdapter {
         this.shouldResolveDirectUrl = config.isPublic
         this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
+        this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
     errorFromCommonMsg ({ CommonMsg: { Status, Message } }) {
@@ -213,7 +214,7 @@ class SberCloudFileAdapter {
                 throw new Error('FILE_SECRET is not configured')
             }
 
-            sign = jwt.sign({ id: props.id, filename, fileClientId: folder, user }, conf['FILE_SECRET'], { expiresIn: '1h', algorithm: 'HS256' })
+            sign = jwt.sign({ id: props.id, filename, fileClientId: folder, user }, this._appClients[folder]?.secret || conf['FILE_SECRET'], { expiresIn: '1h', algorithm: 'HS256' })
         }
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({

@@ -183,6 +183,7 @@ export async function upload ({ serverUrl, files, meta, attach }: UploadOptions)
     const res = await fetch(`${baseUrl}/api/files/upload`, {
         method: 'POST',
         body: form,
+        credentials: 'include',
     })
 
     const json = await res.json()
@@ -201,6 +202,7 @@ export async function share ({ serverUrl, payload }: ShareOptions): Promise<Shar
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        credentials: 'include',
     })
 
     const json = await res.json()
@@ -219,6 +221,7 @@ export async function attach ({ serverUrl, payload }: AttachOptions): Promise<At
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        credentials: 'include',
     })
 
     const json = await res.json()

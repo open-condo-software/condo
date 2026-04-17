@@ -41,6 +41,23 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this._fileClientId = conf['FILE_CLIENT_ID']
         this._fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/attach'
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
+        this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
+    }
+
+    _getSecretForSignature (signature) {
+        try {
+            // Upload signature payload: { id, fileClientId, ... } (flattened from fileMeta.meta)
+            // Attach result signature payload: { id, recordId, ..., meta: { fileClientId, ... } } (full fileMeta)
+            // We decode without verify only to determine which client secret to use for the real verification below.
+            // An attacker claiming a wrong fileClientId would fail jwt.verify anyway with the mismatched secret.
+            // nosemgrep: javascript.jsonwebtoken.security.audit.jwt-decode-without-verify.jwt-decode-without-verify
+            const decoded = jwt.decode(signature)
+            const fileClientId = decoded?.fileClientId || decoded?.meta?.fileClientId
+            const clientSecret = fileClientId && this._appClients[fileClientId]?.secret
+            return clientSecret || this._fileSecret
+        } catch {
+            return this._fileSecret
+        }
     }
 
     getFileUploadType () {
@@ -93,7 +110,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         if (fileData && fileData['signature']) {
             let fileMeta
             try {
-                fileMeta = jwt.verify(fileData['signature'], this._fileSecret, { algorithms: ['HS256'] })
+                fileMeta = jwt.verify(fileData['signature'], this._getSecretForSignature(fileData['signature']), { algorithms: ['HS256'] })
             } catch (err) {
                 throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
@@ -129,7 +146,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
             let fileMeta
 
             try {
-                fileMeta = jwt.verify(input.signature, this._fileSecret, { algorithms: ['HS256'] })
+                fileMeta = jwt.verify(input.signature, this._getSecretForSignature(input.signature), { algorithms: ['HS256'] })
             } catch (err) {
                 throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
@@ -175,24 +192,35 @@ class CustomFile extends FileWithUTF8Name.implementation {
         const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
         if (!hasFileInRequest) return
 
+        // Verify and decode signature to get the original fileClientId
+        let signatureData
+        try {
+            signatureData = jwt.verify(context._fileNewFlow[key].signature, this._getSecretForSignature(context._fileNewFlow[key].signature))
+        } catch (e) {
+            throw new GQLError(ERRORS.WRONG_SIGNATURE)
+        }
+        const fileClientId = signatureData?.fileClientId || this._fileClientId
+
         const payload = {
             itemId: resolvedData.id,
             modelName: listKey,
             signature: context._fileNewFlow[key].signature,
-            fileClientId: this._fileClientId,
+            fileClientId: fileClientId,
             dv: 1, sender: resolvedData.sender,
         }
 
         let attachResult
 
         const headers = { 'Content-Type': 'application/json' }
-        const raw = context?.req?.headers?.cookie || ''
-        const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
-
-        if (cookieMatch) {
-            headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
-        } else if (context?.req?.headers?.authorization) {
+        
+        if (context?.req?.headers?.authorization) {
             headers['Authorization'] = context?.req?.headers?.authorization
+        } else {
+            const raw = context?.req?.headers?.cookie || ''
+            const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
+            if (cookieMatch) {
+                headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
+            }
         }
 
         try {
@@ -219,7 +247,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             attachResult = attachResult.data.file.signature
 
-            const data = jwt.verify(attachResult, this._fileSecret, { algorithms: ['HS256'] })
+            const data = jwt.verify(attachResult, this._getSecretForSignature(attachResult), { algorithms: ['HS256'] })
 
             resolvedData[this.path] = omit(data, ['iat', 'exp'])
         } catch (err) {
