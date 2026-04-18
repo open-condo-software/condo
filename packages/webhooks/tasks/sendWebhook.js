@@ -1,24 +1,24 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
-const { default: RedLock } = require('redlock')
 
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
-const conf = require('@open-condo/config')
-const { getKVClient } = require('@open-condo/keystone/kv')
+const { KVLocker } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
 
-const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const LOCK_DURATION = 30 * 1000 // 30 sec
 const OK_STATUS = 'OK'
 const BAD_RESPONSE_STATUS = 'BAD_RESPONSE'
 const NO_RESPONSE_STATUS = 'NO_RESPONSE'
 const NO_SUBSCRIPTION_STATUS = 'NO_SUBSCRIPTION'
 
-const rLock = (IS_BUILD) ? undefined : new RedLock([getKVClient('worker')])
+
+const locker = new KVLocker({
+    lockDuration: LOCK_DURATION,
+})
 const logger = getLogger()
 
 /**
@@ -30,7 +30,7 @@ async function sendWebhook (subscriptionId) {
     const { keystone } = getSchemaCtx('WebhookSubscription')
 
     const lockKey = `sendWebhook:${subscriptionId}`
-    const lock = await rLock.acquire([lockKey], LOCK_DURATION)
+    const lock = await locker.acquire(lockKey)
 
     try {
         const subscription = await WebhookSubscription.getOne(

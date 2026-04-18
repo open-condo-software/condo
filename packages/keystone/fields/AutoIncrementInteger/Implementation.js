@@ -1,9 +1,9 @@
 const { Integer } = require('@open-keystone/fields')
 const get = require('lodash/get')
-const { default: Redlock } = require('redlock')
 
 const { castUuidParams } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { KVLocker } = require('@open-condo/keystone/locks')
 
 class AutoIncrementInteger extends Integer.implementation {
 
@@ -68,7 +68,12 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         // NOTE(pahaz): it's really hack! please don't copy this staff in a future! I'll find a better solution for that!
         //  I didn't found a way to use knex subquery for that. Probably, we need to create some DB procedure or use another table with
         //  sequence column. At the moment this code just help us to avoid `duplicate key value violates unique constraint`
-        const rlock = new Redlock([this.redis])
+        const locker = new KVLocker({
+            retryDelay: 1000,
+            retryCount: 30,
+            retryJitter: 1000,
+            lockDuration: 500,  // 0.5 sec
+        })
 
         const scopeParts = Object.keys(scopeWhere).reduce((result, fieldName) => [...result, fieldName, get(scopeWhere, fieldName)], [])
 
@@ -78,12 +83,7 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         const redisLockKey = redisLockKeyParts.filter(Boolean).join(':')
         const redisMaxValueKey = redisMaxValueKeyParts.filter(Boolean).join(':')
 
-        let lock = await rlock.acquire([redisLockKey], 500, {
-            retryDelay: 1000,
-            retryCount: 30,
-            automaticExtensionThreshold: 100,
-            retryJitter: 1000,
-        }) // 0.5 sec
+        let lock = await locker.acquire(redisLockKey)
         try {
             let currentMaxNumber = await this.redis.get(redisMaxValueKey)
             if (!currentMaxNumber) {
@@ -122,7 +122,12 @@ class AutoIncrementIntegerPrismaFieldAdapter extends Integer.adapters.prisma {
         const tableName = this.listAdapter.key
         const fieldName = this.dbPath
         const prisma = this.listAdapter.parentAdapter.prisma
-        const rlock = new Redlock([this.redis])
+        const locker = new KVLocker({
+            retryDelay: 1000,
+            retryCount: 30,
+            retryJitter: 1000,
+            lockDuration: 500,  // 0.5 sec
+        })
 
         const scopeParts = Object.keys(scopeWhere).reduce((result, fieldName) => [...result, fieldName, get(scopeWhere, fieldName)], [])
 
@@ -132,12 +137,7 @@ class AutoIncrementIntegerPrismaFieldAdapter extends Integer.adapters.prisma {
         const redisLockKey = redisLockKeyParts.filter(Boolean).join(':')
         const redisMaxValueKey = redisMaxValueKeyParts.filter(Boolean).join(':')
 
-        let lock = await rlock.acquire([redisLockKey], 500, {
-            retryDelay: 1000,
-            retryCount: 30,
-            automaticExtensionThreshold: 100,
-            retryJitter: 1000,
-        })
+        let lock = await locker.acquire(redisLockKey)
         try {
             let currentMaxNumber = await this.redis.get(redisMaxValueKey)
 
