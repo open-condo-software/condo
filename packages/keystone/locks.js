@@ -96,4 +96,5 @@ class KVLocker {
 
 module.exports = {
     KVLocker,
+    LockAcquisitionError,
 }

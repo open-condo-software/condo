@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
-const { KVLocker } = require('@open-condo/keystone/locks')
+const { KVLocker, LockAcquisitionError } = require('@open-condo/keystone/locks')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
@@ -192,7 +192,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                         status: 'ok',
                     }
                 } catch (error) {
-                    if (String(get(error, 'message', '')).includes('The operation was unable to achieve a quorum during its retry window')) {
+                    if (error instanceof LockAcquisitionError) {
                         throw new GQLError(ERRORS.ROLES_ARE_BEING_PROCESSED, context)
                     }
 
