@@ -3,11 +3,9 @@
  */
 
 const get = require('lodash/get')
-const { default: RedLock } = require('redlock')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
-const { getKVClient } = require('@open-condo/keystone/kv')
+const { KVLocker, LockAcquisitionError } = require('@open-condo/keystone/locks')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
@@ -18,10 +16,12 @@ const access = require('@condo/domains/organization/access/ReplaceOrganizationEm
 const { OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/utils/serverSchema')
 
 
-const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
-const LOCK_DURATION_IN_SEC = 60 * 1000 // 60 sec
+const LOCK_DURATION_IN_MS = 60 * 1000 // 60 sec
 
-const rLock = (IS_BUILD) ? undefined : new RedLock([getKVClient()])
+const locker = new KVLocker({
+    lockDuration: LOCK_DURATION_IN_MS,
+    retryCount: 0,
+})
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -142,14 +142,14 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
 
                 if (oldRoleId === newRoleId) throw new GQLError(ERRORS.ROLES_MUST_BE_DIFFERENT, context)
 
-                let lock
+                let oldRoleLock
+                let newRoleLock
 
                 try {
                     const oldRoleLockKey = `{replaceOrganizationEmployeeRole}:${oldRoleId}`
                     const newRoleLockKey = `{replaceOrganizationEmployeeRole}:${newRoleId}`
-                    lock = await rLock.acquire([oldRoleLockKey, newRoleLockKey], LOCK_DURATION_IN_SEC, {
-                        retryCount: 0,
-                    })
+                    oldRoleLock = await locker.acquire(oldRoleLockKey)
+                    newRoleLock = await locker.acquire(newRoleLockKey)
 
                     const employees = await find('OrganizationEmployee', {
                         organization: { id: organizationId, deletedAt: null },
@@ -192,15 +192,13 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                         status: 'ok',
                     }
                 } catch (error) {
-                    if (String(get(error, 'message', '')).includes('The operation was unable to achieve a quorum during its retry window')) {
+                    if (error instanceof LockAcquisitionError) {
                         throw new GQLError(ERRORS.ROLES_ARE_BEING_PROCESSED, context)
                     }
 
                     throw error
                 } finally {
-                    if (lock) {
-                        await lock.release()
-                    }
+                    await Promise.allSettled([oldRoleLock?.release(), newRoleLock?.release()])
                 }
             },
         },

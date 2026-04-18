@@ -8,6 +8,7 @@ const dayjs = require('dayjs')
 const got = require('got')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { KVLocker } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -80,6 +81,27 @@ const ERRORS = {
 }
 
 const logger = getLogger()
+const locker = new KVLocker({
+    retryCount: 10,
+    retryDelay: 500,
+    retryJitter: 100,
+    lockDuration: 60_000,
+})
+
+function wrapResolverWithLock (originalResolver) {
+    return async function (parent, args, contextValue, info) {
+        const { data: { app: { id }, environment } } = args
+
+        const lockKey = `publishB2CApp:${id}:${environment}`
+        const lock = await locker.acquire(lockKey)
+
+        try {
+            return await originalResolver(parent, args, contextValue, info)
+        } finally {
+            await lock.release()
+        }
+    }
+}
 
 function getExportIdField (environment) {
     return `${environment}ExportId`
@@ -475,7 +497,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
         {
             access: access.canPublishB2CApp,
             schema: 'publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput',
-            resolver: async (parent, args, context) => {
+            resolver: wrapResolverWithLock(async (parent, args, context) => {
                 const { data: { app: { id }, options, environment, dv, sender } } = args
 
                 const publishingTime = dayjs().toISOString()
@@ -577,7 +599,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                 return {
                     success: true,
                 }
-            },
+            }),
         },
     ],
 })
