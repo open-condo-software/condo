@@ -70,7 +70,7 @@ class KVLocker {
     }
 
     async acquire (key) {
-        const maxAttempts = this._settings.retryCount === -1 ? Infinity : this._settings.retryCount + 1
+        const maxAttempts = this._settings.retryCount < 0 ? Infinity : this._settings.retryCount + 1
         const value = generateUUIDv4()
 
         let attempts = 0
@@ -91,6 +91,8 @@ class KVLocker {
             const delay = Math.max(0, this._settings.retryDelay + jitter)
             await new Promise(resolve => setTimeout(resolve, delay))
         }
+
+        throw new LockAcquisitionError('Failed to acquire lock after maximum attempts')
     }
 }
 
