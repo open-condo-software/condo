@@ -807,7 +807,7 @@ describe('PublishB2CAppService', () => {
                 const [app] = await createTestB2CApp(user)
 
                 // NOTE: app was imported before .accessRight option exists
-                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false } })
+                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false, conflictPolicy: 'delete' } })
 
                 const confirmAction = await verifyEmailByTestClient(user, admin)
                 const [registerResult] = await registerAppUserServiceByTestClient(user, app, confirmAction)
