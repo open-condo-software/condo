@@ -451,7 +451,7 @@ async function importB2CAppByTestClient(client, app, condoDevApp = null, condoPr
         sender,
         to: { app: { id: app.id } },
         from,
-        options: { info: true, builds: true, publish: true, accessRight: true },
+        options: { info: true, builds: true, publish: true, accessRight: true, conflictPolicy: 'delete' },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(IMPORT_B2C_APP_MUTATION, { data: attrs })
