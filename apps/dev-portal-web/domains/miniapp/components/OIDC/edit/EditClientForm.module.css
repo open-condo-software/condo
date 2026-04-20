@@ -1,9 +1,9 @@
 .password-item {
-  margin-bottom: 8px;
+  margin-bottom: 8px !important;
 }
 
 .last-form-item {
-  margin-bottom: 40px;
+  margin-bottom: 40px !important;
 }
 
 .not-enabled-client-alert-container {

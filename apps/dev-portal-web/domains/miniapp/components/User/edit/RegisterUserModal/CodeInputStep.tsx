@@ -127,7 +127,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                         />
                     </Form.Item>
                 </Col>
-                <Col span={FULL_SPAN_COL}>
+                <Col span={FULL_SPAN_COL} className={styles.resendCodeCol}>
                     {actionTTL > 0 ? (
                         <Typography.Text size='medium'>
                             <FormattedMessage

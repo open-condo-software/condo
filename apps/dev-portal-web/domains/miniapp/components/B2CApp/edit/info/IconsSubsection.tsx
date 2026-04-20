@@ -29,8 +29,8 @@ import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 import { GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
 
 const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
-const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [0, 0]
-const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [60, 60]
+const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [24, 24]
+const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [48, 48]
 const FULL_COL_SPAN = 24
 const ICONS_STYLE_GUIDE_LINK = 'https://www.figma.com/file/kcIVFtPIEZCADGkqHGPoiW/B2C-mini-apps-%E2%80%94-guide-for-partners?type=design&node-id=980%3A410&mode=design&t=KufWfS9FTHDDl0xH-1'
 
@@ -123,6 +123,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     return (
         <Form
+            name='update-b2c-app-icons-form'
             form={form}
             onFinish={handleIconSave}
         >

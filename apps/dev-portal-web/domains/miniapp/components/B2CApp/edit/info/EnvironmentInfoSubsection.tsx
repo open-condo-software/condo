@@ -68,7 +68,7 @@ export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     return (
         <Form
-            name='environment-app-info'
+            name='update-b2c-app-environment-info-form'
             layout='vertical'
             initialValues={{ environment: DEFAULT_STAND, appId }}
             form={form}

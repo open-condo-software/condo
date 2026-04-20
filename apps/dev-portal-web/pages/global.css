@@ -92,3 +92,7 @@ body {
 .ant-pagination {
   margin: 24px 0 0 !important;
 }
+
+.ant-form-item:last-of-type {
+  margin-bottom: 0;
+}

@@ -14,7 +14,7 @@ import type { RowProps } from 'antd'
 
 import { useUpdateB2CAppMutation, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
 
-const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
+const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [48, 48]
 const FULL_COL_SPAN = 24
 
 type CommonInfoFormValues = {
@@ -68,7 +68,7 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     return (
         <Form
-            name='common-app-info'
+            name='update-b2c-app-common-info-form'
             layout='vertical'
             form={form}
             onFinish={handleSubmit}

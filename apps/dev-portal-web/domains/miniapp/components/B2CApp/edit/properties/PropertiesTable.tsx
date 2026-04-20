@@ -36,8 +36,8 @@ type B2CAppProperty = {
     address: string
 }
 
-const BUTTON_GUTTER: RowProps['gutter'] = [40, 40]
-const SEARCH_GUTTER: RowProps['gutter'] = [20, 20]
+const BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
+const SEARCH_GUTTER: RowProps['gutter'] = [24, 24]
 const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
 

@@ -147,7 +147,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     
     return (
         <Form
-            name='register-code'
+            name='complete-confirm-phone-action-form'
             layout='vertical'
             requiredMark={false}
             form={form}
@@ -182,7 +182,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                         />
                     </Form.Item>
                 </Col>
-                <Col span={FULL_SPAN_COL}>
+                <Col span={FULL_SPAN_COL} className={styles.resendCodeCol}>
                     {actionTTL > 0 ? (
                         <Typography.Text size='medium'>
                             <FormattedMessage
