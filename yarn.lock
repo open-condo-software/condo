@@ -901,6 +901,44 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/debt-management@workspace:apps/debt-management":
+  version: 0.0.0-use.local
+  resolution: "@app/debt-management@workspace:apps/debt-management"
+  dependencies:
+    "@debt-management/domains": "link:./domains"
+    "@faker-js/faker": ^7.6.0
+    "@graphql-tools/graphql-file-loader": ^7.5.17
+    "@graphql-tools/load": ^8.1.0
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@open-keystone/app-next": ^9.0.1
+    "@types/react": ^18.3.1
+    antd: ^4.24.12
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    graphql: ^16.10.0
+    graphql-tag: ^2.12.6
+    jest: ^29.7.0
+    lodash: ^4.17.21
+    mkdirp: ^3.0.1
+    next: ^15.5.7
+    openid-client: 5.7.1
+    pluralize: ^8.0.0
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    typescript: ^5.8.3
+    zod: ^4.0.8
+  languageName: unknown
+  linkType: soft
+
 "@app/dev-portal-api@workspace:^, @app/dev-portal-api@workspace:apps/dev-portal-api":
   version: 0.0.0-use.local
   resolution: "@app/dev-portal-api@workspace:apps/dev-portal-api"
@@ -5981,6 +6019,12 @@ __metadata:
   checksum: 795170bb227af48fb54490fb5c252ae7a40aa088dc2cb7cf87c86fadc616b41fd3e35fd7e8418983396d72a9da6bf6259137e2a33c3d97e534eeb300185fd0c2
   languageName: node
   linkType: hard
+
+"@debt-management/domains@link:./domains::locator=%40app%2Fdebt-management%40workspace%3Aapps%2Fdebt-management":
+  version: 0.0.0-use.local
+  resolution: "@debt-management/domains@link:./domains::locator=%40app%2Fdebt-management%40workspace%3Aapps%2Fdebt-management"
+  languageName: node
+  linkType: soft
 
 "@dev-portal-api/domains@link:./domains::locator=%40app%2Fdev-portal-api%40workspace%3Aapps%2Fdev-portal-api":
   version: 0.0.0-use.local
