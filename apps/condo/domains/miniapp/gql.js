@@ -106,6 +106,9 @@ const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
 const B2C_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
 const B2CAppAccessRightSet = generateGqlQueries('B2CAppAccessRightSet', B2C_APP_ACCESS_RIGHT_SET_FIELDS)
 
+const B2_BAPP_BILLING_EMBED_CONFIG_FIELDS = `{ tabUrl ${COMMON_FIELDS} }`
+const B2BAppBillingEmbedConfig = generateGqlQueries('B2BAppBillingEmbedConfig', B2_BAPP_BILLING_EMBED_CONFIG_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -135,5 +138,6 @@ module.exports = {
     B2BAppRoleWithoutEmployeeRole,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
+    B2BAppBillingEmbedConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

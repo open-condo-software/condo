@@ -122,6 +122,14 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+
+        billingEmbedConfig: {
+            schemaDoc: 'Configuration for Billing page embedding. If specified, then this B2BApp will be available as an iframe tab on the /billing page',
+            type: 'Relationship',
+            ref: 'B2BAppBillingEmbedConfig',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {

@@ -52,6 +52,7 @@ const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const cookiesUrl = conf['LEGAL_COOKIES_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
+const debtManagementAppUrl = conf['DEBT_MANAGEMENT_APP_URL'] || ''
 const proxyName = conf['API_PROXY_NAME'] || 'Next'
 const posthogApiHost = conf['POSTHOG_API_HOST']
 const posthogApiKey = conf['POSTHOG_API_KEY']
@@ -134,6 +135,7 @@ const nextConfig: NextConfig = {
         cookiesUrl,
         dataProcessingConsentUrl,
         isSnowfallDisabled,
+        debtManagementAppUrl,
         posthogApiHost,
         posthogApiKey,
         residentAppInfo,
