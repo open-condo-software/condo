@@ -8,7 +8,7 @@ import {
     useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
     SendOrganizationEmployeeRequestMutationResult,
     GetActualOrganizationEmployeesDocument,
-    useGetAvailableSubscriptionPlansLazyQuery,
+    useGetAvailableServiceSubscriptionPlansLazyQuery,
     useRegisterSubscriptionContextMutation,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
@@ -216,7 +216,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const [registerSubscriptionContext] = useRegisterSubscriptionContextMutation({
         onError,
     })
-    const [getAvailableSubscriptionPlans] = useGetAvailableSubscriptionPlansLazyQuery({
+    const [getAvailableSubscriptionPlans] = useGetAvailableServiceSubscriptionPlansLazyQuery({
         onError,
     })
 

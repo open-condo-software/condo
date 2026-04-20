@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery, GetAvailableServiceSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
 import React, { useState, useMemo, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -14,7 +14,7 @@ import styles from './SubscriptionSettingsContent.module.css'
 
 
 type PlanPeriod = 'month' | 'year'
-type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
+type PlanType = GetAvailableServiceSubscriptionPlansQueryResult['data']['result']['plans'][number]
 
 const PLAN_CARD_EMOJIS = ['🏠', '🚀', '👑']
 
@@ -27,7 +27,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
-    const { data: plansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
+    const { data: plansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
         },

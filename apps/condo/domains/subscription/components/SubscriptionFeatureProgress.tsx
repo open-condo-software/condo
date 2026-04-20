@@ -1,5 +1,6 @@
-import { useGetAvailableSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
 import Progress from 'antd/lib/progress'
+import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 
@@ -26,6 +27,9 @@ const isFeatureExcludedFromCalculation = (feature: AvailableFeatureType): boolea
     return EXCLUDED_FROM_CALCULATION_FEATURES.includes(feature)
 }
 
+const { publicRuntimeConfig } = getConfig()
+const subscriptionModalConfig = publicRuntimeConfig?.subscriptionProgressModalConfig
+
 export const SubscriptionFeatureProgress: React.FC = () => {
     const intl = useIntl()
     const TooltipTitle = intl.formatMessage({ id: 'subscription.featureProgress.tooltip' })
@@ -37,23 +41,21 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const isMountedRef = useRef(false)
 
-    const { publicRuntimeConfig } = getConfig()
-    const subscriptionModalConfig = publicRuntimeConfig?.subscriptionProgressModalConfig
-
     const activeSubscriptionContextId = organization?.subscription?.activeSubscriptionContextId
+    const hasSubscriptionModalConfig = useMemo(() => !isEmpty(subscriptionModalConfig), [])
 
     const { data: contextData } = useGetSubscriptionContextByIdQuery({
         variables: {
             id: activeSubscriptionContextId || '',
         },
-        skip: !activeSubscriptionContextId,
+        skip: !activeSubscriptionContextId || !hasSubscriptionModalConfig,
     })
 
-    const { data: plansData } = useGetAvailableSubscriptionPlansQuery({
+    const { data: plansData } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
         },
-        skip: !organization?.id,
+        skip: !organization?.id || !hasSubscriptionModalConfig,
     })
 
     const bestPlan = useMemo(() => {
@@ -157,7 +159,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         openModal()
     }
 
-    if (!bestPlan || !bestPlan?.prices?.[0]) {
+    if (!bestPlan || !bestPlan?.prices?.[0] || !hasSubscriptionModalConfig) {
         return null
     }
 

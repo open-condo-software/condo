@@ -58497,6 +58497,7 @@ type SubscriptionPlanHistoryRecord {
   name: String
   description: String
   organizationType: String
+  planType: String
   isHidden: Boolean
   trialDays: Int
   priority: Int
@@ -58585,6 +58586,24 @@ input SubscriptionPlanHistoryRecordWhereInput {
   organizationType_not_ends_with_i: String
   organizationType_in: [String]
   organizationType_not_in: [String]
+  planType: String
+  planType_not: String
+  planType_contains: String
+  planType_not_contains: String
+  planType_starts_with: String
+  planType_not_starts_with: String
+  planType_ends_with: String
+  planType_not_ends_with: String
+  planType_i: String
+  planType_not_i: String
+  planType_contains_i: String
+  planType_not_contains_i: String
+  planType_starts_with_i: String
+  planType_not_starts_with_i: String
+  planType_ends_with_i: String
+  planType_not_ends_with_i: String
+  planType_in: [String]
+  planType_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
   trialDays: Int
@@ -58722,6 +58741,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   description_DESC
   organizationType_ASC
   organizationType_DESC
+  planType_ASC
+  planType_DESC
   isHidden_ASC
   isHidden_DESC
   trialDays_ASC
@@ -58772,6 +58793,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   name: String
   description: String
   organizationType: String
+  planType: String
   isHidden: Boolean
   trialDays: Int
   priority: Int
@@ -58811,6 +58833,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   name: String
   description: String
   organizationType: String
+  planType: String
   isHidden: Boolean
   trialDays: Int
   priority: Int
@@ -58851,6 +58874,11 @@ enum SubscriptionPlanOrganizationTypeType {
   SERVICE_PROVIDER
 }
 
+enum SubscriptionPlanPlanTypeType {
+  service
+  feature
+}
+
 """ Subscription plan that defines a product with features. Prices are defined via SubscriptionPlanPricingRule 
 """
 type SubscriptionPlan {
@@ -58871,6 +58899,10 @@ type SubscriptionPlan {
 
   """ Type of organization this plan is available for """
   organizationType: SubscriptionPlanOrganizationTypeType
+
+  """ Type of subscription plan: service (base tariff) or feature (individual feature like News, AI). Feature plans require an active service subscription. 
+  """
+  planType: SubscriptionPlanPlanTypeType
 
   """ Whether this plan is hidden and not available for purchase """
   isHidden: Boolean
@@ -58904,7 +58936,7 @@ type SubscriptionPlan {
   """ Whether support feature is included in this plan """
   support: Boolean
 
-  """ Whether AI feature is included in this plan """
+  """ Whether ai feature is included in this plan """
   ai: Boolean
 
   """ Whether customization feature is included in this plan """
@@ -58989,6 +59021,10 @@ input SubscriptionPlanWhereInput {
   organizationType_not: SubscriptionPlanOrganizationTypeType
   organizationType_in: [SubscriptionPlanOrganizationTypeType]
   organizationType_not_in: [SubscriptionPlanOrganizationTypeType]
+  planType: SubscriptionPlanPlanTypeType
+  planType_not: SubscriptionPlanPlanTypeType
+  planType_in: [SubscriptionPlanPlanTypeType]
+  planType_not_in: [SubscriptionPlanPlanTypeType]
   isHidden: Boolean
   isHidden_not: Boolean
   trialDays: Int
@@ -59106,6 +59142,8 @@ enum SortSubscriptionPlansBy {
   description_DESC
   organizationType_ASC
   organizationType_DESC
+  planType_ASC
+  planType_DESC
   isHidden_ASC
   isHidden_DESC
   trialDays_ASC
@@ -59156,6 +59194,7 @@ input SubscriptionPlanUpdateInput {
   name: String
   description: String
   organizationType: SubscriptionPlanOrganizationTypeType
+  planType: SubscriptionPlanPlanTypeType
   isHidden: Boolean
   trialDays: Int
   priority: Int
@@ -59192,6 +59231,7 @@ input SubscriptionPlanCreateInput {
   name: String
   description: String
   organizationType: SubscriptionPlanOrganizationTypeType
+  planType: SubscriptionPlanPlanTypeType
   isHidden: Boolean
   trialDays: Int
   priority: Int
@@ -93092,6 +93132,11 @@ type RegisterPropertyMetersReadingsOutput {
   meter: RegisterPropertyMetersReadingsMeterOutput!
 }
 
+enum SubscriptionPlanType {
+  service
+  feature
+}
+
 type SubscriptionPlanPrice {
   id: ID!
   name: String!
@@ -98367,7 +98412,7 @@ type Query {
     "message": "Organization not found"
   }`
   """
-  getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!): GetAvailableSubscriptionPlansOutput
+  getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!, planType: SubscriptionPlanType): GetAvailableSubscriptionPlansOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
 
@@ -107862,31 +107907,50 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Organization not found"
+    "message": "Organization not found",
+    "messageForUser": "Organization not found"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Subscription plan pricing rule not found or is hidden"
+    "message": "Subscription plan pricing rule not found or is hidden",
+    "messageForUser": "Subscription plan pricing rule not found or is hidden"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Organization type does not match subscription plan organization type"
+    "message": "Organization type does not match subscription plan organization type",
+    "messageForUser": "Organization type does not match subscription plan organization type"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Trial subscription is not available for this plan"
+    "message": "Trial subscription is not available for this plan",
+    "messageForUser": "Trial subscription is not available for this plan"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Trial subscription for this plan was already activated"
+    "message": "Trial subscription for this plan was already activated",
+    "messageForUser": "Trial subscription for this plan was already activated"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
+    "message": "Cannot subscribe to a feature plan without an active service subscription",
+    "messageForUser": "Cannot subscribe to a feature plan without an active service subscription"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
+    "message": "Cannot register a subscription that is already fully covered by an active non-trial plan",
+    "messageForUser": "Cannot register a subscription that is already fully covered by an active non-trial plan"
   }`
   """
   registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput

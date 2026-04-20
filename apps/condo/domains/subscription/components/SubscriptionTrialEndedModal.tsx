@@ -1,6 +1,7 @@
 import { useGetLastExpiredSubscriptionContextQuery, useCreateUserHelpRequestMutation, useGetPendingBankingRequestQuery } from '@app/condo/gql'
 import { OrganizationFeature, UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
+import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -14,8 +15,9 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Typography, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
-import { SUBSCRIPTIONS, ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
+import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 
 import styles from './SubscriptionTrialEndedModal.module.css'
 
@@ -67,7 +69,7 @@ const MODAL_TYPE_TO_STORAGE_KEY: Record<ModalType, string> = {
     subscriptionEnded: SUBSCRIPTION_ENDED_STORAGE_KEY,
 }
 
-const getShownOrgsFromStorage = (storageKey: string): Record<string, boolean> => {
+const getShownOrgsFromStorage = (storageKey: string): Record<string, string> => {
     if (typeof window === 'undefined') {
         return {}
     }
@@ -76,18 +78,17 @@ const getShownOrgsFromStorage = (storageKey: string): Record<string, boolean> =>
     return stored ? JSON.parse(stored) : {}
 }
 
-const isModalShownForOrganization = (storageKey: string, organizationId: string): boolean => {
+const isModalShownForOrganization = (storageKey: string, organizationId: string, dateValue: string): boolean => {
     const shownOrgs = getShownOrgsFromStorage(storageKey)
-    return shownOrgs[organizationId] === true
+    return shownOrgs[organizationId] === dateValue
 }
 
-const markModalAsShownForOrganization = (storageKey: string, organizationId: string): void => {
+const markModalAsShownForOrganization = (storageKey: string, organizationId: string, dateValue: string): void => {
     const shownOrgs = getShownOrgsFromStorage(storageKey)
-    shownOrgs[organizationId] = true
+    shownOrgs[organizationId] = dateValue
     localStorage.setItem(storageKey, JSON.stringify(shownOrgs))
 }
 
-const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 const ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN = [
     { featureKey: 'support', label: 'subscription.features.personalManager' },
@@ -110,12 +111,11 @@ const NON_ACTIVE_BANKING_FREE_FEATURES_SECOND_COLUMN = [
     { featureKey: 'meters', label: 'subscription.features.meters' },
 ]
 
-const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, loading: boolean } => {
+const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, eventDate: string | null, loading: boolean } => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscriptionContext } = useOrganizationSubscription()
-    const { useFlag, useFlagValue } = useFeatureFlags()
-    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
+    const { subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { useFlagValue } = useFeatureFlags()
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
 
     const organizationId = organization?.id
@@ -130,21 +130,18 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
     })
 
     return useMemo(() => {
-        if (!organization || loading || !enableSubscriptions || !hasSubscriptionsFlag) {
-            return { content: null, type: null, loading }
+        if (!organization || loading || !hasSubscriptionsFeature) {
+            return { content: null, type: null, eventDate: null, loading }
         }
-
-        const trialEndedShown = isModalShownForOrganization(TRIAL_ENDED_STORAGE_KEY, organizationId)
-        const subscriptionEndedShown = isModalShownForOrganization(SUBSCRIPTION_ENDED_STORAGE_KEY, organizationId)
 
         const lastExpiredContext = expiredData?.lastExpiredContext?.[0]
         if (!lastExpiredContext) {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         const hasPaymentMethod = Boolean(lastExpiredContext?.bindingId)
         if (hasPaymentMethod) {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         const lastExpiredWasTrial = lastExpiredContext.isTrial === true
@@ -161,18 +158,21 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         } else if (!subscriptionContext) {
             variant = 'nonActiveBanking'
         } else {
-            return { content: null, type: null, loading }
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         const titleKey = lastExpiredWasTrial ? 'subscription.trialEndedModal.trial.title' : 'subscription.trialEndedModal.paid.title'
         const title = intl.formatMessage({ id: titleKey })
         const description = intl.formatMessage({ id: `subscription.trialEndedModal.${variant}.description` })
 
+        const endAt: string = lastExpiredContext.endAt
+        const isEndedToday = dayjs(endAt).isSame(dayjs(), 'day')
         const modalType: ModalType = lastExpiredWasTrial ? 'trialEnded' : 'subscriptionEnded'
-        const modalShown = modalType === 'trialEnded' ? trialEndedShown : subscriptionEndedShown
+        const storageKey = MODAL_TYPE_TO_STORAGE_KEY[modalType]
+        const modalShown = isModalShownForOrganization(storageKey, organizationId, endAt)
 
-        if (modalShown) {
-            return { content: null, type: null, loading }
+        if (modalShown || !isEndedToday) {
+            return { content: null, type: null, eventDate: null, loading }
         }
 
         return {
@@ -182,9 +182,10 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
                 variant,
             },
             type: modalType,
+            eventDate: endAt,
             loading,
         }
-    }, [organization, loading, hasSubscriptionsFlag, organizationId, expiredData?.lastExpiredContext, subscriptionContext, intl, activeBankingPlanId])
+    }, [organization, loading, hasSubscriptionsFeature, organizationId, expiredData?.lastExpiredContext, subscriptionContext, intl, activeBankingPlanId])
 }
 
 /**
@@ -196,9 +197,12 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     const router = useRouter()
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { content, type, loading } = useTrialEndedModalContent()
+    const { content, type, eventDate, loading } = useTrialEndedModalContent()
     const [isVisible, setIsVisible] = useState(false)
     const [bankingLoading, setBankingLoading] = useState(false)
+
+    const { breakpoints } = useLayoutContext()
+    const isLargeScreen = breakpoints.TABLET_LARGE
 
     const organizationId = organization?.id
 
@@ -230,15 +234,15 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     }, [organizationId, content, type, loading])
 
     const handleClose = useCallback(() => {
-        if (!organizationId || !type) {
+        if (!organizationId || !type || !eventDate) {
             setIsVisible(false)
             return
         }
 
         const storageKey = MODAL_TYPE_TO_STORAGE_KEY[type]
-        markModalAsShownForOrganization(storageKey, organizationId)
+        markModalAsShownForOrganization(storageKey, organizationId, eventDate)
         setIsVisible(false)
-    }, [organizationId, type])
+    }, [organizationId, type, eventDate])
 
     const handleSubscriptionButtonClick = useCallback(() => {
         handleClose()
@@ -292,11 +296,11 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
 
     const renderFeaturesList = () => {
         const isActiveBanking = content.variant === 'activeBanking'
-        const firstColumn = isActiveBanking 
-            ? ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN 
+        const firstColumn = isActiveBanking
+            ? ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN
             : NON_ACTIVE_BANKING_FREE_FEATURES_FIRST_COLUMN
-        const secondColumn = isActiveBanking 
-            ? ACTIVE_BANKING_PAID_FEATURES_SECOND_COLUMN 
+        const secondColumn = isActiveBanking
+            ? ACTIVE_BANKING_PAID_FEATURES_SECOND_COLUMN
             : NON_ACTIVE_BANKING_FREE_FEATURES_SECOND_COLUMN
         const available = !isActiveBanking
 
@@ -310,7 +314,12 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
                 <Typography.Title level={4}>
                     {featuresTitle}
                 </Typography.Title>
-                <Space size={20} direction='horizontal' width='100%' align='start'>
+                <Space 
+                    size={isLargeScreen ? 20 : 8}
+                    direction={isLargeScreen ? 'horizontal' : 'vertical'}
+                    width='100%'
+                    align='start'
+                >
                     <Space size={8} direction='vertical' align='start'>
                         {firstColumn.map((feature) => (
                             <FeatureItem
@@ -355,9 +364,15 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
         }
 
         return [
-            <div key='footer' className={styles.footerButtons}>
-                <LoginWithSBBOLButton checkTlsCert />
+            <Space 
+                width='100%'
+                direction={isLargeScreen ? 'horizontal' : 'vertical'}
+                size={8}
+                key='footer'
+            >
+                <LoginWithSBBOLButton block checkTlsCert />
                 <Button
+                    block
                     type='primary'
                     onClick={handleActivateBankingRequest}
                     loading={bankingLoading}
@@ -365,7 +380,7 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
                 >
                     {hasPendingRequest ? RequestPendingMessage : ActivateButtonLabel}
                 </Button>
-            </div>,
+            </Space>,
         ]
     }
 

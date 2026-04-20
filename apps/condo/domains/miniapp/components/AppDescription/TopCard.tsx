@@ -8,15 +8,18 @@ import React, { HtmlHTMLAttributes, CSSProperties, useCallback, useMemo, useRef,
 import { ChevronRight } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Tag, Carousel, Button } from '@open-condo/ui'
+import { Typography, Tag, Carousel, Button, Tooltip } from '@open-condo/ui'
 import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/colors'
 
+import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
-import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription, useActivateSubscriptions } from '@condo/domains/subscription/hooks'
+import { useFeatureSubscription } from '@condo/domains/subscription/hooks/useFeatureSubscription'
+import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
 import { AppLabelTag } from '../AppLabelTag'
 
@@ -124,12 +127,38 @@ const TopCard = React.memo<TopCardProps>(({
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` as FormatjsIntl.Message['ids'] })
     const UnavailableForTariffMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.unavailableForTariff' })
+    const ConnectMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
+    const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
+    const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
-    const { isB2BAppEnabled } = useOrganizationSubscription()
+    const { isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
     const isAppAvailableForTariff = isB2BAppEnabled(id)
 
+    const {
+        isCurrentlyAvailable,
+        hasFeaturePlan,
+        formattedFeaturePrice,
+        forPlanLabel,
+        freeWithPlanLabel,
+        aboutPlanLabel,
+        featurePlanId,
+        registerFeatureSubscription,
+    } = useFeatureSubscription('b2bApp', id)
+    const { activateLoading, pendingRequests } = useActivateSubscriptions()
+    const hasPendingFeatureRequest = pendingRequests.some(
+        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
+    )
+    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+        registerSubscriptionContext: registerFeatureSubscription,
+        activateLoading,
+    })
+
     const router = useRouter()
+    const handleGoToSubscriptionSettings = useCallback(() => {
+        router.push(`/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`)
+    }, [router])
+
     const [{ width: contentWidth }, setContentRef] = useContainerSize()
     const [{ width: carouselColWidth }, setCarouselColRef] = useContainerSize()
 
@@ -153,12 +182,16 @@ const TopCard = React.memo<TopCardProps>(({
             }
         } else {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
-            btnProps.icon = <CheckOutlined/>
+            btnProps.icon = <CheckOutlined />
             btnProps.disabled = true
         }
 
         return btnProps
     }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible, isAppAvailableForTariff, UnavailableForTariffMessage])
+
+    const isAppRestrictedBySubscription = hasSubscriptionsFeature && !isCurrentlyAvailable
+    const hasFeatureOrFreeLabel = hasFeaturePlan || !!freeWithPlanLabel
+    const shouldShowFeatureSubscriptionBlock = isAppRestrictedBySubscription && (!contextStatus || hasFeatureOrFreeLabel)
 
     const images = gallery || []
     const imagesAmount = images.length
@@ -202,32 +235,93 @@ const TopCard = React.memo<TopCardProps>(({
         <Row gutter={ROW_GUTTER} ref={setContentRef} style={rowStyles}>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
                 <Space direction='vertical' size={buttonSpacing}>
-                    <Space direction='vertical' size={TEXT_SPACING}>
-                        <Space direction='horizontal' size={TAG_SPACING}>
-                            <Tag>{CategoryMessage}</Tag>
-                            {Boolean(label) && (
-                                <AppLabelTag type={label}/>
+                    <Space direction='vertical' size={40}>
+                        <Space direction='vertical' size={TEXT_SPACING}>
+                            <Space direction='horizontal' size={TAG_SPACING}>
+                                <Tag>{CategoryMessage}</Tag>
+                                {Boolean(label) && (
+                                    <AppLabelTag type={label}/>
+                                )}
+                            </Space>
+                            <Typography.Title level={1}>
+                                {name}
+                            </Typography.Title>
+                            {Boolean(description) && (
+                                <Typography.Paragraph type='secondary'>
+                                    {description}
+                                </Typography.Paragraph>
+                            )}
+                            {Boolean(price) && (
+                                <Typography.Title level={3}>
+                                    {price}
+                                </Typography.Title>
                             )}
                         </Space>
-                        <Typography.Title level={1}>
-                            {name}
-                        </Typography.Title>
-                        {Boolean(description) && (
-                            <Typography.Paragraph type='secondary'>
-                                {description}
-                            </Typography.Paragraph>
-                        )}
-                        {Boolean(price) && (
-                            <Typography.Title level={3}>
-                                {price}
-                            </Typography.Title>
+                        {shouldShowFeatureSubscriptionBlock ? (
+                            <Space direction='vertical' size={50}>
+                                {(formattedFeaturePrice || freeWithPlanLabel) && (
+                                    <Space direction='vertical' size={16}>
+                                        {formattedFeaturePrice && (
+                                            <Typography.Title level={4}>
+                                                {formattedFeaturePrice}
+                                                {forPlanLabel && (
+                                                    <Typography.Text strong size='large' type='secondary'>
+                                                        {' '}{forPlanLabel}
+                                                    </Typography.Text>
+                                                )}
+                                            </Typography.Title>
+                                        )}
+                                        {freeWithPlanLabel && (
+                                            <Tag
+                                                bgColor={colors.green['1']}
+                                                textColor={colors.green['7']}
+                                            >
+                                                {freeWithPlanLabel}
+                                            </Tag>
+                                        )}
+                                    </Space>
+                                )}
+                                {hasPendingFeatureRequest ? (
+                                    <Tooltip title={AwaitingPaymentTooltipMessage}>
+                                        <span style={{ display: 'block', width: '100%' }}>
+                                            <Button type='primary' disabled block>
+                                                {AwaitingPaymentMessage}
+                                            </Button>
+                                        </span>
+                                    </Tooltip>
+                                ) : (
+                                    <Space size={12} direction='horizontal'>
+                                        {hasFeaturePlan ? (
+                                            <Button
+                                                type='primary'
+                                                disabled={!canManageB2BApps}
+                                                onClick={openPaymentModal}
+                                            >
+                                                {ConnectMessage}
+                                            </Button>
+                                        ) : (
+                                            <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                                                <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
+                                            }>
+                                                <Button {...buttonProps} />
+                                            </SubscriptionGuardWithTooltip>
+                                        )}
+                                        {aboutPlanLabel && (
+                                            <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
+                                                {aboutPlanLabel}
+                                            </Button>
+                                        )}
+                                    </Space>
+                                )}
+                            </Space>
+                        ) : (
+                            <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                                <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage} /></span>
+                            }>
+                                <Button {...buttonProps} />
+                            </SubscriptionGuardWithTooltip>
                         )}
                     </Space>
-                    <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
-                        <span><Button {...buttonProps} disabled children={UnavailableForTariffMessage}/></span>
-                    }>
-                        <Button {...buttonProps}/>
-                    </SubscriptionGuardWithTooltip>
                 </Space>
             </Col>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES} ref={setCarouselColRef}>
@@ -258,8 +352,8 @@ const TopCard = React.memo<TopCardProps>(({
                         <div style={HIDE_GALLERY_STYLES}>
                             <Image.PreviewGroup
                                 icons={{
-                                    right: <Arrow size={isWide ? 'large' : 'medium'} onClick={handleNextPreview}/>,
-                                    left: <Arrow style={ARROW_REVERSE_STYLES} size={isWide ? 'large' : 'medium'} onClick={handlePrevPreview}/>,
+                                    right: <Arrow size={isWide ? 'large' : 'medium'} onClick={handleNextPreview} />,
+                                    left: <Arrow style={ARROW_REVERSE_STYLES} size={isWide ? 'large' : 'medium'} onClick={handlePrevPreview} />,
                                 }}
                                 preview={{
                                     visible: previewVisible,
@@ -278,6 +372,7 @@ const TopCard = React.memo<TopCardProps>(({
                     </>
                 )}
             </Col>
+            {PaymentModal}
         </Row>
     )
 })

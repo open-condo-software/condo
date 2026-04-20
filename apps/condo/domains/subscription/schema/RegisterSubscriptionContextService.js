@@ -3,6 +3,7 @@
  */
 
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -13,13 +14,24 @@ const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverS
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
-const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextService')
+
+const buildDirectPaymentUrl = (directPaymentUrl, organizationId) => {
+    if (!directPaymentUrl) return null
+    const provider = conf['B2B_PAYMENTS_PROVIDER']
+    const url = new URL(directPaymentUrl)
+    url.searchParams.append('organizationId', organizationId)
+    url.searchParams.append('provider', provider)
+    return url.toString()
+}
 
 const ERRORS = {
     ORGANIZATION_NOT_FOUND: {
@@ -28,6 +40,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Organization not found',
+        messageForUser: 'api.subscription.registerSubscriptionContext.ORGANIZATION_NOT_FOUND',
     },
     PRICING_RULE_NOT_FOUND: {
         mutation: 'registerSubscriptionContext',
@@ -35,6 +48,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Subscription plan pricing rule not found or is hidden',
+        messageForUser: 'api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND',
     },
     INVALID_ORGANIZATION_TYPE: {
         mutation: 'registerSubscriptionContext',
@@ -42,6 +56,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Organization type does not match subscription plan organization type',
+        messageForUser: 'api.subscription.registerSubscriptionContext.INVALID_ORGANIZATION_TYPE',
     },
     TRIAL_NOT_AVAILABLE: {
         mutation: 'registerSubscriptionContext',
@@ -49,6 +64,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription is not available for this plan',
+        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_NOT_AVAILABLE',
     },
     TRIAL_ALREADY_USED: {
         mutation: 'registerSubscriptionContext',
@@ -56,6 +72,23 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription for this plan was already activated',
+        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_ALREADY_USED',
+    },
+    NO_ACTIVE_SERVICE_SUBSCRIPTION: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'organization'],
+        code: BAD_USER_INPUT,
+        type: 'NO_ACTIVE_SERVICE_SUBSCRIPTION',
+        message: 'Cannot subscribe to a feature plan without an active service subscription',
+        messageForUser: 'api.subscription.registerSubscriptionContext.NO_ACTIVE_SERVICE_SUBSCRIPTION',
+    },
+    ACTIVE_SUPERSET_PLAN_EXISTS: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'subscriptionPlanPricingRule'],
+        code: BAD_USER_INPUT,
+        type: 'ACTIVE_SUPERSET_PLAN_EXISTS',
+        message: 'Cannot register a subscription that is already fully covered by an active non-trial plan',
+        messageForUser: 'api.subscription.registerSubscriptionContext.ACTIVE_SUPERSET_PLAN_EXISTS',
     },
 }
 
@@ -115,6 +148,18 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
                 }
 
+                if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
+                    const today = dayjs().format('YYYY-MM-DD')
+                    const organizationData = await Organization.getOne(context, { id: organization.id })
+
+                    const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
+                    const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(today))
+
+                    if (!hasActiveServiceSubscription) {
+                        throw new GQLError(ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, context)
+                    }
+                }
+
                 // Trial subscription logic
                 if (isTrial) {
                     if (plan.trialDays <= 0) {
@@ -154,6 +199,25 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 
+                const today = dayjs().startOf('day')
+                const bufferDate = today.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+                const activeDoneContexts = await find('SubscriptionContext', {
+                    organization: { id: organization.id },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    isTrial: false,
+                    endAt_gte: bufferDate,
+                    deletedAt: null,
+                })
+                for (const activeCtx of activeDoneContexts) {
+                    if (activeCtx.subscriptionPlan === plan.id) continue
+                    const activePlan = await getById('SubscriptionPlan', activeCtx.subscriptionPlan)
+                    
+                    if (activePlan && isPlanSubsetOf(plan, activePlan)) {
+                        logger.warn({ msg: 'Active non-trial superset plan exists', data: { organizationId: organization.id, planId: plan.id, supersetPlanId: activePlan.id } })
+                        throw new GQLError(ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, context)
+                    }
+                }
+
                 const existingContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     subscriptionPlan: { id: plan.id },
@@ -163,8 +227,6 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 const startAt = calculateSubscriptionStartDate(existingContexts)
                 const endAt = startAt.add(months, 'month')
-                const today = dayjs().startOf('day')
-                const bufferDate = today.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
 
                 // Reuse existing CREATED context for today only (to avoid duplicates under concurrency)
                 const [existingCreated] = await find('SubscriptionContext', {
@@ -184,16 +246,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     })
                     logger.info({ msg: 'Created new multiPayment for reused context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
 
-                    let directPaymentUrl = multiPaymentResult.directPaymentUrl
-                    if (directPaymentUrl) {
-                        const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
-                        const url = new URL(directPaymentUrl)
-                        url.searchParams.append('organizationId', organization.id)
-                        url.searchParams.append('provider', provider)
-                        url.searchParams.append('returnUrl', returnUrl)
-                        directPaymentUrl = url.toString()
-                    }
+                    const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
 
                     const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                     logger.info({ msg: 'Returning reused context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
@@ -219,16 +272,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     })
                     logger.info({ msg: 'Created new multiPayment for retry context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
 
-                    let directPaymentUrl = multiPaymentResult.directPaymentUrl
-                    if (directPaymentUrl) {
-                        const provider = conf['B2B_PAYMENTS_PROVIDER']
-                        const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
-                        const url = new URL(directPaymentUrl)
-                        url.searchParams.append('organizationId', organization.id)
-                        url.searchParams.append('provider', provider)
-                        url.searchParams.append('returnUrl', returnUrl)
-                        directPaymentUrl = url.toString()
-                    }
+                    const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
 
                     const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                     logger.info({ msg: 'Returning retry context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
@@ -284,16 +328,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     sender,
                 })
 
-                let directPaymentUrl = multiPaymentResult.directPaymentUrl
-                if (directPaymentUrl) {
-                    const provider = conf['B2B_PAYMENTS_PROVIDER']
-                    const returnUrl = `${conf.SERVER_URL}/settings?tab=subscription&successPayment=true`
-                    const url = new URL(directPaymentUrl)
-                    url.searchParams.append('organizationId', organization.id)
-                    url.searchParams.append('provider', provider)
-                    url.searchParams.append('returnUrl', returnUrl)
-                    directPaymentUrl = url.toString()
-                }
+                const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
 
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
                 const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)

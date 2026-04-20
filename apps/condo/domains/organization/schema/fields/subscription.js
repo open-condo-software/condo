@@ -5,7 +5,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_FEATURES } = require('@condo/domains/subscription/constants')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -156,9 +156,7 @@ function findLatestEndAtForFeature (feature, sortedContexts, now) {
 }
 
 function calculateFeatureExpirationDates (sortedContexts, now) {
-    const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization', 'properties', 'analytics']
-    
-    return features.reduce((acc, feature) => {
+    return SUBSCRIPTION_PLAN_FEATURES.reduce((acc, feature) => {
         acc[feature] = findLatestEndAtForFeature(feature, sortedContexts, now)
         return acc
     }, {})
@@ -272,6 +270,17 @@ function findLatestEndAtForApp (appId, appField, sortedContexts, now) {
     })
 }
 
+function findLastServiceContext (sortedContexts) {
+    const serviceContexts = sortedContexts.filter(ctx =>
+        ctx.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE
+    )
+    if (serviceContexts.length === 0) return null
+    return serviceContexts.reduce((latest, ctx) => {
+        if (!latest) return ctx
+        return dayjs(ctx.endAt).isAfter(dayjs(latest.endAt)) ? ctx : latest
+    }, null)
+}
+
 
 const ORGANIZATION_SUBSCRIPTION_FIELD = {
     schemaDoc: 'Subscription information for this organization. Returns feature expiration dates (ISO strings or null), ' +
@@ -309,7 +318,12 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         const now = new Date().toISOString()
         const contextsWithPlans = await enrichContextsWithPlans(allContexts)
         const activeContexts = filterActiveContexts(contextsWithPlans, now)
-        const bestActiveContext = activeContexts.length > 0 ? selectBestSubscriptionContext(activeContexts) : null
+        const activeServiceContexts = activeContexts.filter(ctx =>
+            ctx.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE
+        )
+        const bestActiveServiceContext = activeServiceContexts.length > 0
+            ? selectBestSubscriptionContext(activeServiceContexts)
+            : null
 
         const sortedContexts = [...contextsWithPlans].sort((a, b) => {
             if (!a.startAt || !b.startAt) return 0
@@ -317,8 +331,19 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         })
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
-        const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveContext, now)
+        const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveServiceContext, now)
         const { b2bApps, b2cApps } = await calculateAppsExpiration(sortedContexts, now, organization.type)
+
+        let activeSubscriptionContextId = bestActiveServiceContext?.id || null
+        let finalActiveSubscriptionEndAt = activeSubscriptionEndAt
+
+        if (!bestActiveServiceContext) {
+            const lastServiceCtx = findLastServiceContext(sortedContexts)
+            if (lastServiceCtx) {
+                activeSubscriptionContextId = lastServiceCtx.id
+                finalActiveSubscriptionEndAt = addBufferDaysToDate(lastServiceCtx.endAt, lastServiceCtx.isTrial)
+            }
+        }
 
         return {
             paymentsEndAt: featureExpirationDates.payments,
@@ -333,8 +358,8 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             analyticsEndAt: featureExpirationDates.analytics,
             b2bApps,
             b2cApps,
-            activeSubscriptionContextId: bestActiveContext?.id || null,
-            activeSubscriptionEndAt,
+            activeSubscriptionContextId,
+            activeSubscriptionEndAt: finalActiveSubscriptionEndAt,
         }
     },
 }

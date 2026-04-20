@@ -1,5 +1,35 @@
-query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
-    result: getAvailableSubscriptionPlans(organization: $organization) {
+query getAvailableFeatureSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
+    result: getAvailableSubscriptionPlans(organization: $organization, planType: feature) {
+        plans {
+            plan {
+                id
+                name
+                planType
+                enabledB2BApps
+                tickets
+                meters
+                payments
+                news
+                marketplace
+                analytics
+                properties
+                support
+                ai
+                customization
+            }
+            prices {
+                id
+                name
+                period
+                price
+                currencyCode
+            }
+        }
+    }
+}
+
+query getAvailableServiceSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
+    result: getAvailableSubscriptionPlans(organization: $organization, planType: service) {
         plans {
             plan {
                 id
@@ -7,6 +37,7 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 name
                 description
                 organizationType
+                planType
                 isHidden
                 trialDays
                 canBePromoted

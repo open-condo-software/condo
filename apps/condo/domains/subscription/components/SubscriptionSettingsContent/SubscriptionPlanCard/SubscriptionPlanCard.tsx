@@ -1,5 +1,5 @@
 import {
-    GetAvailableSubscriptionPlansQueryResult,
+    GetAvailableServiceSubscriptionPlansQueryResult,
     GetPendingSubscriptionRequestsQueryResult,
     GetOrganizationTrialSubscriptionsQuery,
     GetOrganizationActivatedSubscriptionsQuery,
@@ -32,7 +32,7 @@ import styles from './SubscriptionPlanCard.module.css'
 import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 
 
-type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
+type PlanType = GetAvailableServiceSubscriptionPlansQueryResult['data']['result']['plans'][number]
 
 const { Panel } = Collapse
 
@@ -304,7 +304,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const contextPaymentMethodId = autoPaymentContext?.bindingId || null
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
-        activePaymentMethodId: contextPaymentMethodId,
         onCardUnbound: refetchActivatedSubscriptions,
     })
 

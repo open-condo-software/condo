@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
+import { useGetAvailableServiceSubscriptionPlansQuery } from '@app/condo/gql'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -49,7 +49,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         id: 'subscription.warns.activateSubscriptionButton',
     })
 
-    const { data: plansData } = useGetAvailableSubscriptionPlansQuery({
+    const { data: plansData } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
         },

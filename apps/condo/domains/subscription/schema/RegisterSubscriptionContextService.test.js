@@ -419,4 +419,191 @@ describe('RegisterSubscriptionContextService', () => {
             expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
     })
+
+    describe('Superset Plan Guard', () => {
+        let supersetPlan, supersetPricingRule
+        let subsetPlan, subsetPricingRule
+        let nonSubsetPlan, nonSubsetPricingRule
+
+        beforeAll(async () => {
+            const [sPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                news: true,
+                tickets: true,
+            })
+            supersetPlan = sPlan
+            const [sRule] = await createTestSubscriptionPlanPricingRule(admin, supersetPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '2000.00',
+                currencyCode: 'RUB',
+            })
+            supersetPricingRule = sRule
+
+            const [subPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                news: true,
+            })
+            subsetPlan = subPlan
+            const [subRule] = await createTestSubscriptionPlanPricingRule(admin, subsetPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1000.00',
+                currencyCode: 'RUB',
+            })
+            subsetPricingRule = subRule
+
+            const [nsPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                ai: true,
+            })
+            nonSubsetPlan = nsPlan
+            const [nsRule] = await createTestSubscriptionPlanPricingRule(admin, nonSubsetPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1500.00',
+                currencyCode: 'RUB',
+            })
+            nonSubsetPricingRule = nsRule
+        })
+
+        test('throws ACTIVE_SUPERSET_PLAN_EXISTS when registering a paid subset plan while a non-trial superset is active', async () => {
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                    isTrial: false,
+                })
+            }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
+        })
+
+        test('allows paid registration of subset plan when active superset is trial', async () => {
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: true,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('allows paid registration of non-subset plan when non-trial superset is active', async () => {
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: nonSubsetPricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('allows paid renewal of the same plan (same plan is excluded from superset check)', async () => {
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: supersetPricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContext.subscriptionPlan.id).toBe(supersetPlan.id)
+        })
+
+        test('allows paid registration of subset plan when superset context has expired', async () => {
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().subtract(2, 'months').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(10, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('trial registration of subset plan is not blocked by active non-trial superset', async () => {
+            const [trialSubsetPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                trialDays: 14,
+                news: true,
+            })
+            const [trialSubsetRule] = await createTestSubscriptionPlanPricingRule(admin, trialSubsetPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1000.00',
+                currencyCode: 'RUB',
+            })
+
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: trialSubsetRule.id },
+                isTrial: true,
+            })
+
+            expect(result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+        })
+
+        test('throws ACTIVE_SUPERSET_PLAN_EXISTS when registering subset plan far in future (within buffer window)', async () => {
+            const bufferDays = 5
+
+            await createTestSubscriptionContext(admin, organization, supersetPlan, {
+                startAt: dayjs().add(bufferDays + 10, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(bufferDays + 40, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                    isTrial: false,
+                })
+            }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
+        })
+    })
 })

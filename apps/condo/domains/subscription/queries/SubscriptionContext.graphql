@@ -100,6 +100,7 @@ query getSubscriptionContextById($id: ID!) {
             toPay
         }
         isTrial
+        createdAt
         startAt
         endAt
         daysRemaining
@@ -132,6 +133,7 @@ query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!
         subscriptionPlan {
             id
             name
+            planType
         }
         subscriptionPlanPricingRule {
             id
@@ -167,6 +169,9 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
         subscriptionPlan {
             id
             name
+            planType
+            enabledB2BApps
+            enabledB2CApps
         }
         frozenPaymentInfo {
             paymentMethod {
@@ -191,6 +196,23 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
     }
 }
 
+query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
+    contexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            subscriptionPlan: { id: $planId }
+            bindingId_not: null
+            status: DONE
+            isTrial: false
+        }
+        sortBy: [createdAt_DESC]
+        first: 1
+    ) {
+        id
+        createdAt
+    }
+}
+
 query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
     lastFailedContext: allSubscriptionContexts(
         where: {
@@ -198,6 +220,7 @@ query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!
             subscriptionPlan: { id: $subscriptionPlanId }
             bindingId_not: null
             status_in: [ERROR, PENDING]
+            isTrial: false
         }
         sortBy: [createdAt_DESC]
         first: 1

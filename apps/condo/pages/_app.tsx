@@ -170,7 +170,7 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { hasSubscription, isB2BAppEnabled, hasSubscriptionsFlag } = useOrganizationSubscription()
+    const { hasSubscription, isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
     const disabled = !employee || !hasSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
@@ -376,7 +376,7 @@ const MenuItems: React.FC = () => {
 
     return (
         <div>
-            {hasSubscription && hasSubscriptionsFlag && <SubscriptionFeatureProgress />}
+            {hasSubscription && hasSubscriptionsFeature && <SubscriptionFeatureProgress />}
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
                     {category.items.map((item) => {

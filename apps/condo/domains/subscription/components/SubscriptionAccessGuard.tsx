@@ -6,21 +6,25 @@ import React, { useMemo, useCallback } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button, Space } from '@open-condo/ui'
+import { Typography, Button, Space, Tooltip } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
+import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 
 import styles from './SubscriptionAccessGuard.module.css'
 import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
 import { requiresSubscriptionAccess, getRequiredFeature, isMiniappPage, getMiniappId } from '../constants/routeFeatureMapping'
-import { useOrganizationSubscription } from '../hooks'
+import { useFeatureSubscription, useOrganizationSubscription, useActivateSubscriptions } from '../hooks'
+import { useSubscriptionPaymentModal } from '../hooks/useSubscriptionPaymentModal'
 
-const { Title, Paragraph } = Typography
-const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {}, enableSubscriptions } } = getConfig()
+import type { AvailableFeatureType } from '../constants/features'
+
+
+const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
 
 interface SubscriptionAccessGuardProps {
     children: React.ReactNode
@@ -68,15 +72,44 @@ const getPageTitle = (pathname: string, intl: any): string => {
 export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children, skipGuard = false }) => {
     const router = useRouter()
     const intl = useIntl()
-    const { useFlag } = useFeatureFlags()
-    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
-    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
+    const GuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.title' })
+    const GuardDescription = intl.formatMessage({ id: 'subscription.accessGuard.description' })
+    const GoToPlansMessage = intl.formatMessage({ id: 'subscription.accessGuard.goToPlans' })
+    const LearnMoreMessage = intl.formatMessage({ id: 'subscription.accessGuard.learnMore' })
+    const FeatureGuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.feature.title' })
+    const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
+    const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
+    const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
+    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
 
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
+
+    const featureName: AvailableFeatureType = isMiniapp
+        ? 'b2bApp'
+        : (getRequiredFeature(router.pathname) ?? 'b2bApp')
+    const featureAppId = isMiniapp ? (miniappId ?? undefined) : undefined
+
+    const {
+        hasFeaturePlan,
+        formattedFeaturePrice,
+        forPlanLabel,
+        promotedServicePlan,
+        featurePlanId,
+        registerFeatureSubscription,
+        loading: featureLoading,
+    } = useFeatureSubscription(featureName, featureAppId)
+    const { activateLoading, pendingRequests } = useActivateSubscriptions()
+    const hasPendingFeatureRequest = pendingRequests.some(
+        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
+    )
+    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+        registerSubscriptionContext: registerFeatureSubscription,
+        activateLoading,
+    })
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
         variables: { id: miniappId || '' },
-        skip: skipGuard || !miniappId || !enableSubscriptions || !hasSubscriptionsFlag,
+        skip: skipGuard || !miniappId || !hasSubscriptionsFeature,
     })
     const b2bApp = b2bAppData?.b2bApp?.[0]
 
@@ -110,7 +143,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             return false
         }
 
-        if (!enableSubscriptions || !hasSubscriptionsFlag) {
+        if (!hasSubscriptionsFeature) {
             return false
         }
 
@@ -118,13 +151,12 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             return true
         }
 
-        if (isMiniapp && miniappId) {
-            if (b2bAppLoading) {
-                return true
-            }
-            if (!isB2BAppEnabled(miniappId)) {
-                return true
-            }
+        if (featureLoading || (isMiniapp && b2bAppLoading)) {
+            return true
+        }
+
+        if (isMiniapp && miniappId && !isB2BAppEnabled(miniappId)) {
+            return true
         }
 
         const requiredFeature = getRequiredFeature(currentPath)
@@ -133,7 +165,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, isB2BAppEnabled, hasSubscriptionsFlag])
+    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFeature])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
@@ -145,7 +177,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
     }, [helpLink])
 
-    if (!skipGuard && (loading || (isMiniapp && b2bAppLoading))) {
+    if (!skipGuard && (loading || (isMiniapp && b2bAppLoading) || featureLoading)) {
         return <Loader />
     }
 
@@ -153,9 +185,18 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         return <>{children}</>
     }
 
+    const settingsUrl = `/settings?tab=${SETTINGS_TAB_SUBSCRIPTION}`
+    const FreeWithPlanNode = promotedServicePlan
+        ? intl.formatMessage(
+            { id: 'subscription.accessGuard.feature.freeWithPlan' },
+            { planName: <Typography.Link href={settingsUrl}>{promotedServicePlan.name}</Typography.Link> }
+        )
+        : null
+
     if (isBlocked) {
         return (
             <>
+                {PaymentModal}
                 <SubscriptionTrialEndedModal />
                 <Head>
                     <title>{pageTitle}</title>
@@ -175,34 +216,50 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                 />
 
                                 <Space size={16} direction='vertical'>
-                                    <Title level={2}>
-                                        {intl.formatMessage({
-                                            id: 'subscription.accessGuard.title',
-                                        })}
-                                    </Title>
+                                    <Typography.Title level={3}>
+                                        {hasFeaturePlan ? FeatureGuardTitle : GuardTitle}
+                                    </Typography.Title>
 
-                                    <Paragraph>
-                                        {intl.formatMessage({
-                                            id: 'subscription.accessGuard.description',
-                                        })}
-                                    </Paragraph>
+                                    <Typography.Paragraph type='secondary'>
+                                        {hasFeaturePlan ? (
+                                            <>
+                                                {formattedFeaturePrice && `${formattedFeaturePrice}${forPlanLabel ? ` ${forPlanLabel}` : ''}`}
+                                                {FreeWithPlanNode && (
+                                                    <>
+                                                        {formattedFeaturePrice && ', '}
+                                                        {FreeWithPlanNode}
+                                                    </>
+                                                )}
+                                            </>
+                                        ) : GuardDescription}
+                                    </Typography.Paragraph>
                                 </Space>
 
                                 <Space size={16} direction='vertical' align='center'>
-                                    <Button type='primary' onClick={handleGoToPlans}>
-                                        {intl.formatMessage({
-                                            id: 'subscription.accessGuard.goToPlans',
-                                        })}
-                                    </Button>
-                                    {
-                                        helpLink && (
-                                            <Button type='secondary' onClick={handleLearnMore}>
-                                                {intl.formatMessage({
-                                                    id: 'subscription.accessGuard.learnMore',
-                                                })}
+                                    {hasFeaturePlan ? (
+                                        hasPendingFeatureRequest ? (
+                                            <Tooltip title={AwaitingPaymentTooltipMessage}>
+                                                <span>
+                                                    <Button type='primary' disabled>
+                                                        {AwaitingPaymentMessage}
+                                                    </Button>
+                                                </span>
+                                            </Tooltip>
+                                        ) : (
+                                            <Button type='primary' onClick={openPaymentModal}>
+                                                {FeaturePayButton}
                                             </Button>
                                         )
-                                    }
+                                    ) : (
+                                        <Button type='primary' onClick={handleGoToPlans}>
+                                            {GoToPlansMessage}
+                                        </Button>
+                                    )}
+                                    {helpLink && (
+                                        <Button type='secondary' onClick={handleLearnMore}>
+                                            {LearnMoreMessage}
+                                        </Button>
+                                    )}
                                 </Space>
                             </Space>
                         </div>
