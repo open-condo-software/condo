@@ -40,6 +40,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Organization not found',
+        messageForUser: 'api.subscription.registerSubscriptionContext.ORGANIZATION_NOT_FOUND',
     },
     PRICING_RULE_NOT_FOUND: {
         mutation: 'registerSubscriptionContext',
@@ -47,6 +48,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Subscription plan pricing rule not found or is hidden',
+        messageForUser: 'api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND',
     },
     INVALID_ORGANIZATION_TYPE: {
         mutation: 'registerSubscriptionContext',
@@ -54,6 +56,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Organization type does not match subscription plan organization type',
+        messageForUser: 'api.subscription.registerSubscriptionContext.INVALID_ORGANIZATION_TYPE',
     },
     TRIAL_NOT_AVAILABLE: {
         mutation: 'registerSubscriptionContext',
@@ -61,6 +64,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription is not available for this plan',
+        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_NOT_AVAILABLE',
     },
     TRIAL_ALREADY_USED: {
         mutation: 'registerSubscriptionContext',
@@ -68,6 +72,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Trial subscription for this plan was already activated',
+        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_ALREADY_USED',
     },
     NO_ACTIVE_SERVICE_SUBSCRIPTION: {
         mutation: 'registerSubscriptionContext',
@@ -75,6 +80,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'NO_ACTIVE_SERVICE_SUBSCRIPTION',
         message: 'Cannot subscribe to a feature plan without an active service subscription',
+        messageForUser: 'api.subscription.registerSubscriptionContext.NO_ACTIVE_SERVICE_SUBSCRIPTION',
     },
     ACTIVE_SUPERSET_PLAN_EXISTS: {
         mutation: 'registerSubscriptionContext',
@@ -82,6 +88,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'ACTIVE_SUPERSET_PLAN_EXISTS',
         message: 'Cannot register a subscription that is already fully covered by an active non-trial plan',
+        messageForUser: 'api.subscription.registerSubscriptionContext.ACTIVE_SUPERSET_PLAN_EXISTS',
     },
 }
 

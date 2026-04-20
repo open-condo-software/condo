@@ -270,6 +270,17 @@ function findLatestEndAtForApp (appId, appField, sortedContexts, now) {
     })
 }
 
+function findLastServiceContext (sortedContexts) {
+    const serviceContexts = sortedContexts.filter(ctx =>
+        ctx.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE
+    )
+    if (serviceContexts.length === 0) return null
+    return serviceContexts.reduce((latest, ctx) => {
+        if (!latest) return ctx
+        return dayjs(ctx.endAt).isAfter(dayjs(latest.endAt)) ? ctx : latest
+    }, null)
+}
+
 
 const ORGANIZATION_SUBSCRIPTION_FIELD = {
     schemaDoc: 'Subscription information for this organization. Returns feature expiration dates (ISO strings or null), ' +
@@ -323,6 +334,17 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveServiceContext, now)
         const { b2bApps, b2cApps } = await calculateAppsExpiration(sortedContexts, now, organization.type)
 
+        let activeSubscriptionContextId = bestActiveServiceContext?.id || null
+        let finalActiveSubscriptionEndAt = activeSubscriptionEndAt
+
+        if (!bestActiveServiceContext) {
+            const lastServiceCtx = findLastServiceContext(sortedContexts)
+            if (lastServiceCtx) {
+                activeSubscriptionContextId = lastServiceCtx.id
+                finalActiveSubscriptionEndAt = addBufferDaysToDate(lastServiceCtx.endAt, lastServiceCtx.isTrial)
+            }
+        }
+
         return {
             paymentsEndAt: featureExpirationDates.payments,
             metersEndAt: featureExpirationDates.meters,
@@ -336,8 +358,8 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             analyticsEndAt: featureExpirationDates.analytics,
             b2bApps,
             b2cApps,
-            activeSubscriptionContextId: bestActiveServiceContext?.id || null,
-            activeSubscriptionEndAt,
+            activeSubscriptionContextId,
+            activeSubscriptionEndAt: finalActiveSubscriptionEndAt,
         }
     },
 }

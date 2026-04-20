@@ -817,7 +817,7 @@ describe('Organization', () => {
                 payments: true,
             })
             const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
-            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
                 endAt,
                 isTrial: true,
@@ -827,7 +827,8 @@ describe('Organization', () => {
 
             expect(org.subscription).not.toBeNull()
             expect(org.subscription.paymentsEndAt).toBe(endAt)
-            expect(org.subscription.activeSubscriptionContextId).toBeNull()
+            expect(org.subscription.activeSubscriptionContextId).toBe(context.id)
+            expect(org.subscription.activeSubscriptionEndAt).toBe(endAt)
         })
 
         test('ignores historical gap and uses current active subscription', async () => {
@@ -882,7 +883,7 @@ describe('Organization', () => {
             expect(org.subscription.activeSubscriptionContextId).toBeDefined()
         })
 
-        test('returns null activeSubscriptionEndAt when no active subscription', async () => {
+        test('returns last expired subscription when no active subscription', async () => {
             const [organization] = await createTestOrganization(admin)
             const [plan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
@@ -890,17 +891,19 @@ describe('Organization', () => {
                 payments: true,
             })
 
-            await createTestSubscriptionContext(admin, organization, plan, {
+            const expiredEndAt = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD')
+            const expiredEndAtWithBuffer = dayjs(expiredEndAt).add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+            const [context] = await createTestSubscriptionContext(admin, organization, plan, {
                 startAt: dayjs().subtract(60, 'days').format('YYYY-MM-DD'),
-                endAt: dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS + 1, 'days').format('YYYY-MM-DD'),
+                endAt: expiredEndAt,
                 isTrial: false,
             })
 
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.activeSubscriptionEndAt).toBeNull()
-            expect(org.subscription.activeSubscriptionContextId).toBeNull()
+            expect(org.subscription.activeSubscriptionContextId).toBe(context.id)
+            expect(org.subscription.activeSubscriptionEndAt).toBe(expiredEndAtWithBuffer)
         })
 
         test('returns far future end date for apps from plans of different organization type', async () => {

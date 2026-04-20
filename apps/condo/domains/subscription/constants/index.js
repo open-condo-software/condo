@@ -35,67 +35,24 @@ const SUBSCRIPTION_PLAN_TYPE_SERVICE = 'service'
 const SUBSCRIPTION_PLAN_TYPE_FEATURE = 'feature'
 const SUBSCRIPTION_PLAN_TYPES = [SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE]
 
+const planFeatureField = (name) => ({
+    schemaDoc: `Whether ${name} feature is included in this plan`,
+    type: 'Checkbox',
+    defaultValue: false,
+    isRequired: true,
+})
+
 const SUBSCRIPTION_PLAN_FEATURE_FIELDS = {
-    payments: {
-        schemaDoc: 'Whether payments feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    meters: {
-        schemaDoc: 'Whether meters feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    tickets: {
-        schemaDoc: 'Whether tickets feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    news: {
-        schemaDoc: 'Whether news feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    marketplace: {
-        schemaDoc: 'Whether marketplace feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    support: {
-        schemaDoc: 'Whether support feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    ai: {
-        schemaDoc: 'Whether AI feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    customization: {
-        schemaDoc: 'Whether customization feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    properties: {
-        schemaDoc: 'Whether properties feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
-    analytics: {
-        schemaDoc: 'Whether analytics feature is included in this plan',
-        type: 'Checkbox',
-        defaultValue: false,
-        isRequired: true,
-    },
+    payments: planFeatureField('payments'),
+    meters: planFeatureField('meters'),
+    tickets: planFeatureField('tickets'),
+    news: planFeatureField('news'),
+    marketplace: planFeatureField('marketplace'),
+    support: planFeatureField('support'),
+    ai: planFeatureField('ai'),
+    customization: planFeatureField('customization'),
+    properties: planFeatureField('properties'),
+    analytics: planFeatureField('analytics'),
 }
 
 const SUBSCRIPTION_PLAN_FEATURES = Object.keys(SUBSCRIPTION_PLAN_FEATURE_FIELDS)
