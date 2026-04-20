@@ -1067,12 +1067,9 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            // activeSubscriptionContextId должен быть от service-подписки, несмотря на более низкий приоритет
             expect(org.subscription.activeSubscriptionContextId).toBe(serviceContext.id)
             expect(org.subscription.activeSubscriptionContextId).not.toBe(featureContext.id)
-            // activeSubscriptionEndAt должен быть от service-подписки
             expect(org.subscription.activeSubscriptionEndAt).toBe(endAtWithBuffer)
-            // Фичи работают от обеих подписок
             expect(org.subscription.paymentsEndAt).toBe(endAtWithBuffer)
             expect(org.subscription.ticketsEndAt).toBe(endAtWithBuffer)
         })

@@ -39,10 +39,10 @@ export const usePaymentHistoryModal = () => {
         const hasApps = (plan.enabledB2BApps?.length ?? 0) > 0 || (plan.enabledB2CApps?.length ?? 0) > 0
 
         if (planType === 'service') {
-            return intl.formatMessage({ id: 'subscription.paymentHistory.servicePlanLabel' as FormatjsIntl.Message['ids'] }, { name })
+            return intl.formatMessage({ id: 'subscription.paymentHistory.servicePlanLabel' }, { name })
         }
         if (planType === 'feature' && hasApps) {
-            return intl.formatMessage({ id: 'subscription.paymentHistory.miniappPlanLabel' as FormatjsIntl.Message['ids'] }, { name })
+            return intl.formatMessage({ id: 'subscription.paymentHistory.miniappPlanLabel' }, { name })
         }
         return name || '—'
     }, [intl])

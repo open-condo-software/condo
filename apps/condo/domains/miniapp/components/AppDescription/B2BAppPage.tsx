@@ -5,7 +5,7 @@ import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Modal, Typography } from '@open-condo/ui'
+import { Modal, Typography } from '@open-condo/ui'
 
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'

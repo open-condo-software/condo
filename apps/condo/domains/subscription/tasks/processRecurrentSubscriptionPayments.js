@@ -5,7 +5,6 @@ const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
-const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { registerSubscriptionContext, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
