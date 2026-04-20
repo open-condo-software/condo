@@ -58936,7 +58936,7 @@ type SubscriptionPlan {
   """ Whether support feature is included in this plan """
   support: Boolean
 
-  """ Whether AI feature is included in this plan """
+  """ Whether ai feature is included in this plan """
   ai: Boolean
 
   """ Whether customization feature is included in this plan """
@@ -107907,43 +107907,50 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Organization not found"
+    "message": "Organization not found",
+    "messageForUser": "Organization not found"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Subscription plan pricing rule not found or is hidden"
+    "message": "Subscription plan pricing rule not found or is hidden",
+    "messageForUser": "Subscription plan pricing rule not found or is hidden"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Organization type does not match subscription plan organization type"
+    "message": "Organization type does not match subscription plan organization type",
+    "messageForUser": "Organization type does not match subscription plan organization type"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Trial subscription is not available for this plan"
+    "message": "Trial subscription is not available for this plan",
+    "messageForUser": "Trial subscription is not available for this plan"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Trial subscription for this plan was already activated"
+    "message": "Trial subscription for this plan was already activated",
+    "messageForUser": "Trial subscription for this plan was already activated"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
-    "message": "Cannot subscribe to a feature plan without an active service subscription"
+    "message": "Cannot subscribe to a feature plan without an active service subscription",
+    "messageForUser": "Cannot subscribe to a feature plan without an active service subscription"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
-    "message": "Cannot register a subscription that is already fully covered by an active non-trial plan"
+    "message": "Cannot register a subscription that is already fully covered by an active non-trial plan",
+    "messageForUser": "Cannot register a subscription that is already fully covered by an active non-trial plan"
   }`
   """
   registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput
