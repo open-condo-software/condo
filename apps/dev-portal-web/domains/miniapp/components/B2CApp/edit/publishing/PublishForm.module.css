@@ -1,7 +1,15 @@
-.checkbox-item {
+.checkbox-item:not(:last-of-type) {
   margin-bottom: 8px !important;
 }
 
+.checkbox-item-last {
+  margin-bottom: 0 !important;
+}
+
+.build-selector {
+  margin-top: 8px !important;
+}
+
 .submit-button {
-  margin-top: 40px;
+  margin-top: 48px;
 }

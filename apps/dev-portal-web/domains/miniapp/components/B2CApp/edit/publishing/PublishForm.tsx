@@ -77,11 +77,11 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
             <Form.Item name='info' valuePropName='checked' label={ChooseComponentsLabel} className={styles.checkboxItem}>
                 <Checkbox label={InfoLabel}/>
             </Form.Item>
-            <Form.Item name='build' valuePropName='checked' className={styles.checkboxItem}>
+            <Form.Item name='build' valuePropName='checked' className={styles.checkboxItemLast}>
                 <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
             </Form.Item>
             {buildChecked && (
-                <Form.Item name='buildId' rules={[requiredFieldValidator]}>
+                <Form.Item name='buildId' rules={[requiredFieldValidator]} className={styles.buildSelector}>
                     <Select
                         onSearch={handleSearchChange}
                         optionFilterProp='key'

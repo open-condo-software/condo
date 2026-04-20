@@ -39,9 +39,9 @@ import {
 } from '@/gql'
 
 
-const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
+const ROW_BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
 const ROW_BUILDS_GUTTER: RowProps['gutter'] = [40, 40]
-const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
+const ROW_FORM_GUTTER: RowProps['gutter'] = [24, 24]
 const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
 const BUILD_FORM_ERROR_TO_FIELD_MAPPING = {
@@ -229,7 +229,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                         footer={<Button type='primary' disabled={isUploading} loading={isUploading} onClick={form.submit}>{UploadActionLabel}</Button>}
                     >
                         <Form
-                            name='create-app-build'
+                            name='create-b2c-app-build-form'
                             layout='vertical'
                             form={form}
                             onFinish={handleUploadBuild}

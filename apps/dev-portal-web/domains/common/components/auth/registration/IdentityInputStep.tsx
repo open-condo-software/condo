@@ -12,6 +12,7 @@ import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-portal-api/domain
 
 import styles from './IdentityInputStep.module.css'
 
+import type { RowProps } from 'antd'
 import type { FormRule } from 'antd'
 
 import { useRegisterNewUserMutation, useSignInMutation } from '@/gql'
@@ -19,6 +20,8 @@ import { useRegisterNewUserMutation, useSignInMutation } from '@/gql'
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 const FULL_SPAN_COL = 24
+const FORM_GUTTER: RowProps['gutter'] = [24, 24]
+
 const IDENTITY_FORM_ERRORS_TO_FIELDS_MAP = {
     [USER_ALREADY_EXISTS]: 'phone',
     [PASSWORD_TOO_SIMPLE]: 'password',
@@ -78,14 +81,14 @@ export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, act
 
     return (
         <Form
-            name='register-identity'
+            name='register-new-user-form'
             layout='vertical'
             requiredMark={false}
             form={form}
             initialValues={{ phone }}
             onFinish={registerAndLogin}
         >
-            <Row>
+            <Row gutter={FORM_GUTTER}>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='name' label={NameFieldLabel} required rules={[trimValidator]}>
                         <Input placeholder={NameFieldPlaceholder} autoComplete='off'/>

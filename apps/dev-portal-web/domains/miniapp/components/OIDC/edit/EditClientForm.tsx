@@ -142,7 +142,7 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
     return (
         <>
             <Form
-                name='edit-oidc-client'
+                name='update-oidc-client-form'
                 layout='vertical'
                 form={form}
                 initialValues={{

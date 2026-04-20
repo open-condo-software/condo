@@ -13,9 +13,12 @@ import { INVALID_PHONE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './PhoneInputStep.module.css'
 
+import type { RowProps } from 'antd'
+
 import { useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/gql'
 
 const FULL_SPAN_COL = 24
+const FORM_GUTTER: RowProps['gutter'] = [24, 24]
 const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {
     [INVALID_PHONE]: 'phone',
 }
@@ -76,13 +79,13 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
 
     return (
         <Form
-            name='register-phone'
+            name='start-confirm-phone-action-form'
             layout='vertical'
             requiredMark={false}
             form={form}
             onFinish={startConfirmPhoneAction}
         >
-            <Row>
+            <Row gutter={FORM_GUTTER}>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]} required>
                         <Input.Phone country={defaultLocale} onChange={onPhoneInputChange}/>

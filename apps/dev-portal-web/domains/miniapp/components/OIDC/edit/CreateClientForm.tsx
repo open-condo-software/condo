@@ -126,7 +126,7 @@ export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environm
                     }
                 >
                     <Form
-                        name='create-oidc-client'
+                        name='create-oidc-client-form'
                         layout='vertical'
                         requiredMark={false}
                         form={form}

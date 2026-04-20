@@ -13,6 +13,8 @@ import { INCORRECT_PHONE_OR_PASSWORD } from '@app/dev-portal-api/domains/user/co
 
 import styles from './LoginForm.module.css'
 
+import type { RowProps } from 'antd'
+
 import { useSignInMutation } from '@/gql'
 
 const { publicRuntimeConfig: { authMethods } } = getConfig()
@@ -22,6 +24,7 @@ const LOGIN_FORM_ERRORS_TO_FIELDS_MAP = {
 }
 
 const FULL_SPAN_COL = 24
+const FORM_GUTTER: RowProps['gutter'] = [24, 24]
 
 type LoginFormValues = {
     phone: string
@@ -95,13 +98,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
             )}
             {authMethods.includes(PASSWORD_AUTH_METHOD) && (
                 <Form
-                    name='login'
+                    name='sign-in-form'
                     requiredMark={false}
                     layout='vertical'
                     onFinish={onSubmit}
                     form={form}
                 >
-                    <Row>
+                    <Row gutter={FORM_GUTTER}>
                         <Col span={FULL_SPAN_COL}>
                             <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]}>
                                 <Input.Phone/>

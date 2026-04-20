@@ -36,7 +36,7 @@ type PropertyFormValues = {
 }
 
 const DEBOUNCE_TIMEOUT = 500
-const ROW_FORM_GUTTER: RowProps['gutter'] = [12, 12]
+const ROW_FORM_GUTTER: RowProps['gutter'] = [24, 24]
 const FULL_COL_SPAN = 24
 const ALLOWED_TYPES = ['building']
 const ADDRESS_FORM_ERRORS_TO_FIELDS_MAP = {
@@ -148,7 +148,7 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, 
             scrollX={false}
         >
             <Form
-                name='create-b2c-app-property'
+                name='create-b2c-app-property-form'
                 layout='vertical'
                 form={form}
                 onFinish={handleFormSubmit}
