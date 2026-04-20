@@ -383,10 +383,10 @@ async function resolveConflicts ({ args, context }) {
         sender,
     }
 
-    if (app.developmentExportId && app.developmentExportId !== developmentAppId) {
+    if (app.developmentExportId && developmentAppId && app.developmentExportId !== developmentAppId) {
         apiUpdateInput.developmentExportId = null
     }
-    if (app.productionExportId && app.productionExportId !== productionAppId) {
+    if (app.productionExportId && productionAppId && app.productionExportId !== productionAppId) {
         apiUpdateInput.productionExportId = null
     }
 
