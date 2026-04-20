@@ -71,6 +71,12 @@
   },
   "packageManager": "yarn@3.2.2",
   "resolutions": {
+    "minimatch@^5.0.1": "5.1.9",
+    "minimatch@^5.1.0": "5.1.9",
+    "minimatch@4.2.1": "4.2.5",
+    "minimatch@9.0.1": "9.0.9",
+    "minimatch@^9.0.1": "9.0.9",
+    "minimatch@^9.0.4": "9.0.9",
     "@babel/runtime": "^7.28.2",
     "graphql-upload": "^15.0.2",
     "react-intl/@types/react": "^18.3.1",
