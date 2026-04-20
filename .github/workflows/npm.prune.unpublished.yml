@@ -1,0 +1,37 @@
+name: Prune npm unpublished packages
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Do not delete anything from npm registry
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  prune:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Prepare Node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Prune unpublished package versions
+        run: node bin/npm-prune-unpublished.js
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          NPM_PUBLIC_REGISTRY: https://registry.npmjs.org
+          NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_SERVER }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
