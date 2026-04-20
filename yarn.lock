@@ -10550,6 +10550,53 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@langfuse/client@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@langfuse/client@npm:5.1.0"
+  dependencies:
+    "@langfuse/core": ^5.1.0
+    "@langfuse/tracing": ^5.1.0
+    mustache: ^4.2.0
+  peerDependencies:
+    "@opentelemetry/api": ^1.9.0
+  checksum: 6b7ca01d22b2b03f11bbe5e56d761a869680e2a2482b1ed65a7d505dd577a30f14e64bfab580cf3c03cd1dcda3e8bac2d83d23673e41405a8cbcac6966b173ec
+  languageName: node
+  linkType: hard
+
+"@langfuse/core@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@langfuse/core@npm:5.1.0"
+  peerDependencies:
+    "@opentelemetry/api": ^1.9.0
+  checksum: 8da99e7af41d8b9706db025593b6d53116b9d3594328411dbfb8f11c745ffa210e1e0eb0878bcfbe4e3c919b511cfad3ff3eb7ae7040bd92b1debc86af9dfdf5
+  languageName: node
+  linkType: hard
+
+"@langfuse/otel@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@langfuse/otel@npm:5.1.0"
+  dependencies:
+    "@langfuse/core": ^5.1.0
+  peerDependencies:
+    "@opentelemetry/api": ^1.9.0
+    "@opentelemetry/core": ^2.0.1
+    "@opentelemetry/exporter-trace-otlp-http": ">=0.202.0 <1.0.0"
+    "@opentelemetry/sdk-trace-base": ^2.0.1
+  checksum: 1e4013dc7bb3cb32923b1790368f292c14d8dfc04d49bec00fe9562c323a4cfed4d6f5fc286b82aa012b53e7a97cddb8fca50236be2d551f351a366b571621d3
+  languageName: node
+  linkType: hard
+
+"@langfuse/tracing@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@langfuse/tracing@npm:5.1.0"
+  dependencies:
+    "@langfuse/core": ^5.1.0
+  peerDependencies:
+    "@opentelemetry/api": ^1.9.0
+  checksum: 44e2fc5de73b7f3c202cceea5de5209134bc1d8b791bfa6b6f7b127447eaad70f32582fc3649703785bd61dc8fb157d502862df005bc62d85a5655d53720d958
+  languageName: node
+  linkType: hard
+
 "@mark.probst/unicode-properties@npm:~1.1.0":
   version: 1.1.0
   resolution: "@mark.probst/unicode-properties@npm:1.1.0"
@@ -12919,6 +12966,13 @@ __metadata:
   version: 1.9.0
   resolution: "@opentelemetry/api@npm:1.9.0"
   checksum: 9e88e59d53ced668f3daaecfd721071c5b85a67dd386f1c6f051d1be54375d850016c881f656ffbe9a03bedae85f7e89c2f2b635313f9c9b195ad033cdc31020
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/api@npm:^1.9.1":
+  version: 1.9.1
+  resolution: "@opentelemetry/api@npm:1.9.1"
+  checksum: 2b16f28c422619263b126c3601e954c3b16013d13b2ea747d4e2f84199e1f7a5bf8372cb03c17fbff881fff5511fa107297afbb47f43e171170a2924d0103b4f
   languageName: node
   linkType: hard
 
@@ -17920,6 +17974,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv@npm:^8.17.1":
+  version: 8.18.0
+  resolution: "ajv@npm:8.18.0"
+  dependencies:
+    fast-deep-equal: ^3.1.3
+    fast-uri: ^3.0.1
+    json-schema-traverse: ^1.0.0
+    require-from-string: ^2.0.2
+  checksum: bcdf6c7b040ca488108e2b4e219b31cf9ed478331007d4dd1ed8acc3946dd6b84295817c0f4724207b8dd8589c9966168b2fd4c7f32109d4b8526cdd3743e936
+  languageName: node
+  linkType: hard
+
 "ajv@npm:^8.9.0":
   version: 8.17.1
   resolution: "ajv@npm:8.17.1"
@@ -19038,6 +19104,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"autoevals@npm:^0.0.132":
+  version: 0.0.132
+  resolution: "autoevals@npm:0.0.132"
+  dependencies:
+    ajv: ^8.17.1
+    compute-cosine-similarity: ^1.1.0
+    js-levenshtein: ^1.1.6
+    js-yaml: ^4.1.0
+    linear-sum-assignment: ^1.0.7
+    mustache: ^4.2.0
+    openai: ^6.3.0
+    zod: ^3.25.76
+    zod-to-json-schema: ^3.24.6
+  checksum: d46e73b53a79199092d1aa1d714fe039bfb10f2637631e521b966442f030cdfaa7262f4d30f16724f635dd117a23690ed58efc46b75aa9961c2d09fa8dc99624
+  languageName: node
+  linkType: hard
+
 "autoprefixer@npm:^10.4.8":
   version: 10.4.8
   resolution: "autoprefixer@npm:10.4.8"
@@ -19733,6 +19816,13 @@ __metadata:
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
   checksum: ccd267956c58d2315f5d3ea6757cf09863c5fc703e50fbeb13a7dc849b812ef76e3cf9ca8f35a0c48498776a7478d7b4a0418e1e2b8cb9cb9731f2922aaad7f8
+  languageName: node
+  linkType: hard
+
+"binary-search@npm:^1.3.6":
+  version: 1.3.6
+  resolution: "binary-search@npm:1.3.6"
+  checksum: 2e6b3459a9c1ba1bd674a6a855a5ef7505f70707422244430e3510e989c0df6074a49fe60784a98b93b51545c9bcace1db1defee06ff861b124c036a2f2836bf
   languageName: node
   linkType: hard
 
@@ -21012,6 +21102,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cheminfo-types@npm:^1.15.0, cheminfo-types@npm:^1.8.1":
+  version: 1.15.0
+  resolution: "cheminfo-types@npm:1.15.0"
+  checksum: e0b362173d101696f384ebd1a10550f7b9156c3fc431bef0afb31b5b310c4b6d987b86cf6d2a67a4bfc5121a08251ee775e022b3dfc8dcd2e960e701f159b996
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:^3.0.0, chokidar@npm:^3.5.1, chokidar@npm:^3.5.3":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
@@ -21772,6 +21869,38 @@ __metadata:
     safe-buffer: 5.1.2
     vary: ~1.1.2
   checksum: 35c0f2eb1f28418978615dc1bc02075b34b1568f7f56c62d60f4214d4b7cc00d0f6d282b5f8a954f59872396bd770b6b15ffd8aa94c67d4bce9b8887b906999b
+  languageName: node
+  linkType: hard
+
+"compute-cosine-similarity@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "compute-cosine-similarity@npm:1.1.0"
+  dependencies:
+    compute-dot: ^1.1.0
+    compute-l2norm: ^1.1.0
+    validate.io-array: ^1.0.5
+    validate.io-function: ^1.0.2
+  checksum: c81a29dead0b30ef199d5d2d75e200b7d47599fa3d79dc13834c401eaebb8932be491ba0d5b50897e9cfb6a8909acbce6a8b7c0eae50b380cd6167a55ba5feff
+  languageName: node
+  linkType: hard
+
+"compute-dot@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "compute-dot@npm:1.1.0"
+  dependencies:
+    validate.io-array: ^1.0.3
+    validate.io-function: ^1.0.2
+  checksum: 390ccbc64ae8204c147613b4ac11f0407cd05ab430b7cf11a92c80ab6f8bcd100fc7fb7a4d3fc83e4513a33e036f7e8ef71cf932420772b1256019771f2933e1
+  languageName: node
+  linkType: hard
+
+"compute-l2norm@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "compute-l2norm@npm:1.1.0"
+  dependencies:
+    validate.io-array: ^1.0.3
+    validate.io-function: ^1.0.2
+  checksum: 58da02a6965787f5aacf50fda78f3bb69ff1fbf453fa32500aacb078e20eeb87dbe0c32bcc276c4e307c0b76b6e518509a762aca9520dd67179773903c7567cc
   languageName: node
   linkType: hard
 
@@ -26173,6 +26302,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fft.js@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "fft.js@npm:4.0.4"
+  checksum: 55e4f5ee0afc9ba9b3759c6fe303e0a2f2c1ebb9bc525914de9699b76f55e01da97d61ec30dedde0dfb0a8be3c0711d47af7aca53a1425f9875468254b704c7f
+  languageName: node
+  linkType: hard
+
 "figma-js@npm:^1.16.1-0":
   version: 1.16.1-0
   resolution: "figma-js@npm:1.16.1-0"
@@ -29450,6 +29586,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-any-array@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "is-any-array@npm:3.0.0"
+  checksum: 65ca37329ef9b0aa58bde2e5ec8992fdabe91c5ef5fa93125905b627fe7fda6b9d197e74fd3bd5cb330f7b9c927c675878dc2d2bdf62b9d37e4d451ab7d443ca
+  languageName: node
+  linkType: hard
+
 "is-arguments@npm:^1.0.4":
   version: 1.1.1
   resolution: "is-arguments@npm:1.1.1"
@@ -31213,6 +31356,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-levenshtein@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "js-levenshtein@npm:1.1.6"
+  checksum: 409f052a7f1141be4058d97da7860e08efd97fc588b7a4c5cfa0548bc04f6d576644dae65ab630266dff685d56fb90d494e03d4d79cb484c287746b4f1bf0694
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -32117,6 +32267,17 @@ __metadata:
   version: 1.1.5
   resolution: "limiter@npm:1.1.5"
   checksum: 2d51d3a8bef131aada820b76530f8223380a0079aa0fffdfd3ec47ac2f65763225cb4c62a2f22347f4898c5eeb248edfec991c4a4f5b608dfca0aaa37ac48071
+  languageName: node
+  linkType: hard
+
+"linear-sum-assignment@npm:^1.0.7":
+  version: 1.0.9
+  resolution: "linear-sum-assignment@npm:1.0.9"
+  dependencies:
+    cheminfo-types: ^1.8.1
+    ml-matrix: ^6.12.1
+    ml-spectra-processing: ^14.18.0
+  checksum: 3ca565d1894e9cde732cc0e1d484411dca240d9620c0d9fd60b23104c15ba637c3c8a5d446c4c6dd3445a4eecf0c332e98c5922e9b5eb14bbde1d1ae31e16872
   languageName: node
   linkType: hard
 
@@ -35001,6 +35162,66 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ml-array-max@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ml-array-max@npm:2.0.0"
+  dependencies:
+    is-any-array: ^3.0.0
+  checksum: 4e7c1c90311960cc9cec6f8ac3e5e92a3bf1f7e04f2c6c46d3db8cebabbb91c2044270cf91d0e045e6b2f416d617becfa020f337d575117001c177f3d3f947e6
+  languageName: node
+  linkType: hard
+
+"ml-array-min@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ml-array-min@npm:2.0.0"
+  dependencies:
+    is-any-array: ^3.0.0
+  checksum: 0c3bb058cf07f4328eaadc5d61447c30a4c091a981a56710ba7b0675b9a7df82ed480f66d82a8799fcc504f31218218ddc566f8baec85e025fdda91ed5f33aca
+  languageName: node
+  linkType: hard
+
+"ml-array-rescale@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ml-array-rescale@npm:2.0.0"
+  dependencies:
+    is-any-array: ^3.0.0
+    ml-array-max: ^2.0.0
+    ml-array-min: ^2.0.0
+  checksum: 5a0910e3e5d03cd83a615d87f5850264b169f3f1744d563d8c81cc798bf46f5a1a4579d9dc984e28d2148a96a98e9f2993e7880092f2294ba1389eb8cded167b
+  languageName: node
+  linkType: hard
+
+"ml-matrix@npm:^6.12.1, ml-matrix@npm:^6.12.2":
+  version: 6.12.2
+  resolution: "ml-matrix@npm:6.12.2"
+  dependencies:
+    is-any-array: ^3.0.0
+    ml-array-rescale: ^2.0.0
+  checksum: c1f733092f0d3213ddc829130871394f7449d6f8d4993a9c2bd1a8863d1fc2c792600fd209a8ba4546c22cc1a57e155de655f342f044b26c7c069e25b1add5e8
+  languageName: node
+  linkType: hard
+
+"ml-spectra-processing@npm:^14.18.0":
+  version: 14.28.1
+  resolution: "ml-spectra-processing@npm:14.28.1"
+  dependencies:
+    binary-search: ^1.3.6
+    cheminfo-types: ^1.15.0
+    fft.js: ^4.0.4
+    is-any-array: ^3.0.0
+    ml-matrix: ^6.12.2
+    ml-xsadd: ^3.0.1
+  checksum: f48fb2b8a20340ce34ed680ea263e0fb664a66b4494848afc51e47ebbeccae69ffc950bfea49f22f6c679af6ab521caccb34406e79a18b1dfb908021b80e1f03
+  languageName: node
+  linkType: hard
+
+"ml-xsadd@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "ml-xsadd@npm:3.0.1"
+  checksum: 03fc487e1391f8f4085acf17131e4698b299188ba04130a29d161cb19feb3bdb0ccca317da04202ef74a17c0030a07f1e2943cb5eaf692297029b064ec11b789
+  languageName: node
+  linkType: hard
+
 "mlly@npm:^1.7.1":
   version: 1.7.1
   resolution: "mlly@npm:1.7.1"
@@ -35215,6 +35436,15 @@ __metadata:
     duplexer2: ^0.1.2
     object-assign: ^4.1.0
   checksum: 99cf8934714da7f9ce03e1f0a99621a41443217d80849c62e22b31b6ac356b9acd22f41e555fd7a759f1c7c9d3273e7abff2fb82dff8285f00a6a1022727e4ab
+  languageName: node
+  linkType: hard
+
+"mustache@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "mustache@npm:4.2.0"
+  bin:
+    mustache: bin/mustache
+  checksum: 928fcb63e3aa44a562bfe9b59ba202cccbe40a46da50be6f0dd831b495be1dd7e38ca4657f0ecab2c1a89dc7bccba0885eab7ee7c1b215830da765758c7e0506
   languageName: node
   linkType: hard
 
@@ -36002,6 +36232,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"npm@workspace:apps/ai-playground":
+  version: 0.0.0-use.local
+  resolution: "npm@workspace:apps/ai-playground"
+  dependencies:
+    "@langfuse/client": ^5.1.0
+    "@langfuse/otel": ^5.1.0
+    "@langfuse/tracing": ^5.1.0
+    "@opentelemetry/api": ^1.9.1
+    autoevals: ^0.0.132
+    openai: ^6.34.0
+  languageName: unknown
+  linkType: soft
+
 "npmlog@npm:^6.0.0":
   version: 6.0.2
   resolution: "npmlog@npm:6.0.2"
@@ -36490,6 +36733,23 @@ __metadata:
     is-docker: ^2.1.1
     is-wsl: ^2.2.0
   checksum: 6388bfff21b40cb9bd8f913f9130d107f2ed4724ea81a8fd29798ee322b361ca31fa2cdfb491a5c31e43a3996cfe9566741238c7a741ada8d7af1cb78d85cf26
+  languageName: node
+  linkType: hard
+
+"openai@npm:^6.3.0, openai@npm:^6.34.0":
+  version: 6.34.0
+  resolution: "openai@npm:6.34.0"
+  peerDependencies:
+    ws: ^8.18.0
+    zod: ^3.25 || ^4.0
+  peerDependenciesMeta:
+    ws:
+      optional: true
+    zod:
+      optional: true
+  bin:
+    openai: bin/cli
+  checksum: bd30ce4e96e00d65cf42dbdac9533d76fa186d5120039fad74a6fcd236422ee8cce951931ae8a8445741083a7ed23d1b676c4b9f84c962af0417f659c50e7b2b
   languageName: node
   linkType: hard
 
@@ -48511,6 +48771,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"validate.io-array@npm:^1.0.3, validate.io-array@npm:^1.0.5":
+  version: 1.0.6
+  resolution: "validate.io-array@npm:1.0.6"
+  checksum: 54eca83ebc702e3e46499f9d9e77287a95ae25c4e727cd2fafee29c7333b3a36cca0c5d8f090b9406262786de80750fba85e7e7ef41e20bf8cc67d5570de449b
+  languageName: node
+  linkType: hard
+
+"validate.io-function@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "validate.io-function@npm:1.0.2"
+  checksum: e4cce2479a20cb7c42e8630c777fb107059c27bc32925f769e3a73ca5fd62b4892d897b3c80227e14d5fcd1c5b7d05544e0579d63e59f14034c0052cda7f7c44
+  languageName: node
+  linkType: hard
+
 "validate.js@npm:^0.13.1":
   version: 0.13.1
   resolution: "validate.js@npm:0.13.1"
@@ -49921,6 +50195,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zod-to-json-schema@npm:^3.24.6":
+  version: 3.25.2
+  resolution: "zod-to-json-schema@npm:3.25.2"
+  peerDependencies:
+    zod: ^3.25.28 || ^4
+  checksum: 8b728476374a38711e0ca5c066be16ed8facf5a5eb5a76f371b0062e5b6b11f906f446c616d6879b9a4d373738c74cd26e4dfe1d460e7fb9a155a3fe9d04b690
+  languageName: node
+  linkType: hard
+
 "zod-validation-error@npm:3.0.0":
   version: 3.0.0
   resolution: "zod-validation-error@npm:3.0.0"
@@ -49941,6 +50224,13 @@ __metadata:
   version: 4.3.6
   resolution: "zod@npm:4.3.6"
   checksum: 19cec761b46bae4b6e7e861ea740f3f248e50a6671825afc8a5758e27b35d6f20ccde9942422fd5cf6f8b697f18bd05ef8bb33f5f2db112ab25cc628de2fae47
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.76":
+  version: 3.25.76
+  resolution: "zod@npm:3.25.76"
+  checksum: c9a403a62b329188a5f6bd24d5d935d2bba345f7ab8151d1baa1505b5da9f227fb139354b043711490c798e91f3df75991395e40142e6510a4b16409f302b849
   languageName: node
   linkType: hard
 
