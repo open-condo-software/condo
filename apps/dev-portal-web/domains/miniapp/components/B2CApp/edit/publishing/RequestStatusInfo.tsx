@@ -1,3 +1,4 @@
+import { Col, Row } from 'antd'
 import React, { useCallback } from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
@@ -10,6 +11,7 @@ import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationError
 import styles from './RequestStatusInfo.module.css'
 
 import type { AllB2CAppPublishRequestsQuery } from '@/gql'
+import type { RowProps } from 'antd'
 
 import { useCreateB2CAppPublishRequestMutation, AllB2CAppPublishRequestsDocument } from '@/gql'
 
@@ -25,6 +27,9 @@ const fieldsToCheck = [
     'isInfoApproved',
     'isContractSigned',
 ] as const
+
+const REQUEST_BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
+const FULL_COL_SPAN = 24
 
 export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, request, loading }) => {
     const intl = useIntl()
@@ -68,24 +73,28 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
 
     if (!request) {
         return (
-            <Space direction='vertical' size={40}>
-                <Alert
-                    type='warning'
-                    message={VerificationRequiredTitle}
-                    description={(
-                        <Space direction='vertical' size={16}>
-                            <Typography.Paragraph size='medium'>
-                                {VerificationRequiredDetailsAboutText}
-                            </Typography.Paragraph>
-                            <Typography.Paragraph size='medium'>
-                                {VerificationRequiredDetailsNextStepsText}
-                            </Typography.Paragraph>
-                        </Space>
-                    )}
-                    showIcon
-                />
-                <Button type='primary' onClick={handleRequestVerification}>{RequestVerificationLabel}</Button>
-            </Space>
+            <Row gutter={REQUEST_BUTTON_GUTTER}>
+                <Col span={FULL_COL_SPAN}>
+                    <Alert
+                        type='warning'
+                        message={VerificationRequiredTitle}
+                        description={(
+                            <Space direction='vertical' size={16}>
+                                <Typography.Paragraph size='medium'>
+                                    {VerificationRequiredDetailsAboutText}
+                                </Typography.Paragraph>
+                                <Typography.Paragraph size='medium'>
+                                    {VerificationRequiredDetailsNextStepsText}
+                                </Typography.Paragraph>
+                            </Space>
+                        )}
+                        showIcon
+                    />
+                </Col>
+                <Col span={FULL_COL_SPAN}>
+                    <Button type='primary' onClick={handleRequestVerification}>{RequestVerificationLabel}</Button>
+                </Col>
+            </Row>
         )
     }
 
