@@ -1,5 +1,6 @@
 import { Image } from 'antd'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 'react'
 
@@ -12,7 +13,6 @@ import type { TabItem } from '@open-condo/ui'
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
-import { DebtClaimsTab } from '@condo/domains/billing/components/BillingPageContent/DebtClaimsTab'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY, DEBT_CLAIMS_TAB_KEY } from '@condo/domains/billing/constants/constants'
@@ -90,6 +90,9 @@ export const MainContent: React.FC<MainContentProps> = ({
     const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
     const DebtClaimsTabTitle = intl.formatMessage({ id: 'billing.debtClaims.tab.title' })
 
+    const { publicRuntimeConfig } = getConfig()
+    const debtManagementAppUrl: string | null = publicRuntimeConfig.debtManagementAppUrl || null
+
     const userOrganization = useOrganization()
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
@@ -130,10 +133,10 @@ export const MainContent: React.FC<MainContentProps> = ({
                 key: PAYMENTS_TAB_KEY,
                 children: <PaymentsTab type={currentType} />,
             },
-            canReadBillingReceipts && {
+            canReadBillingReceipts && debtManagementAppUrl && {
                 label: DebtClaimsTabTitle,
                 key: DEBT_CLAIMS_TAB_KEY,
-                children: <DebtClaimsTab />,
+                children: <IFrame src={debtManagementAppUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={500}/>,
             },
         ]
 

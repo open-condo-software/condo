@@ -108,44 +108,6 @@ const SUM_BILLING_RECEIPTS_QUERY = gql`
     }
 `
 
-const DEBT_CLAIM_GENERATION_TASK_FIELDS = `{ id status progress meta debtorsFile { publicUrl originalFilename } resultFile { publicUrl originalFilename } errorFile { publicUrl originalFilename } organization { id } user { id } createdAt ${COMMON_FIELDS} }`
-const DebtClaimGenerationTask = generateGqlQueries('DebtClaimGenerationTask', DEBT_CLAIM_GENERATION_TASK_FIELDS)
-
-const GET_DEBT_CLAIM_GENERATION_TASKS_QUERY = gql`
-    query getDebtClaimGenerationTasks ($where: DebtClaimGenerationTaskWhereInput!, $sortBy: [SortDebtClaimGenerationTasksBy!], $first: Int) {
-        tasks: allDebtClaimGenerationTasks(where: $where, sortBy: $sortBy, first: $first) {
-            id
-            status
-            progress
-            meta
-            debtorsFile { publicUrl originalFilename }
-            resultFile { publicUrl originalFilename }
-            errorFile { publicUrl originalFilename }
-            createdAt
-        }
-    }
-`
-
-const CREATE_DEBT_CLAIM_GENERATION_TASK_MUTATION = gql`
-    mutation createDebtClaimGenerationTask ($data: DebtClaimGenerationTaskCreateInput!) {
-        task: createDebtClaimGenerationTask(data: $data) {
-            id
-            status
-            progress
-        }
-    }
-`
-
-const UPDATE_DEBT_CLAIM_GENERATION_TASK_MUTATION = gql`
-    mutation updateDebtClaimGenerationTask ($id: ID!, $data: DebtClaimGenerationTaskUpdateInput!) {
-        task: updateDebtClaimGenerationTask(id: $id, data: $data) {
-            id
-            status
-            progress
-        }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -173,10 +135,5 @@ module.exports = {
     REGISTER_BILLING_RECEIPT_FILE_MUTATION,
     BILLING_RECEIPT_COMMON_FIELDS,
     AMOUNT_DISTRIBUTION_SUBFIELDS,
-    DebtClaimGenerationTask,
-    DEBT_CLAIM_GENERATION_TASK_FIELDS,
-    GET_DEBT_CLAIM_GENERATION_TASKS_QUERY,
-    CREATE_DEBT_CLAIM_GENERATION_TASK_MUTATION,
-    UPDATE_DEBT_CLAIM_GENERATION_TASK_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
