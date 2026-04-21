@@ -29,15 +29,17 @@ const fieldsToCheck = [
 export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, request, loading }) => {
     const intl = useIntl()
     const VerificationRequiredTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title' })
-    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' })
     const RequestVerificationLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.actions.requestVerification' })
     const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps' }, {
         action: RequestVerificationLabel,
     })
     const VerificationStatusTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.title' })
-    const StandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const EnvironmentLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
     const VerificationDetailsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.details.text' }, {
-        stand: StandLabel.toLowerCase(),
+        environment: EnvironmentLabel.toLowerCase(),
+    })
+    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' }, {
+        environment: EnvironmentLabel.toLowerCase(),
     })
 
     const onError = useMutationErrorHandler()

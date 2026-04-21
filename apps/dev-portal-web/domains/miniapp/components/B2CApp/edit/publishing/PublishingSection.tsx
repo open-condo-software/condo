@@ -1,117 +1,66 @@
-import { Form, notification } from 'antd'
-import get from 'lodash/get'
+import { Col, Row } from 'antd'
+import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Select } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
 
-import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { getEnvironment } from '@/domains/miniapp/utils/query'
 import {
     DEV_ENVIRONMENT,
     PROD_ENVIRONMENT,
-    PUBLISH_REQUEST_APPROVED_STATUS,
 } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
-import { PublishForm } from './PublishForm'
-import { RequestStatusInfo } from './RequestStatusInfo'
+import { PublishingSettingsForm } from './PublishingSettingsForm'
+import { PublishingSubsection } from './PublishingSubsection'
 
 import type { AppEnvironment } from '@/gql'
+import type { RowProps } from 'antd'
 
-import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CAppDocument } from '@/gql'
 
-
-const DEFAULT_STAND = DEV_ENVIRONMENT
-
-type PublishFormValues = {
-    environment: AppEnvironment
-    info?: boolean
-    buildId?: string
-}
+const SELECT_GUTTER: RowProps['gutter'] = [40, 40]
+const FULL_COL_SPAN = 24
 
 export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const PublishingTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.title' })
-    const SelectStandLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.stand.label' })
     const DevStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
-    const ChangesPublishedTitle = intl.formatMessage({ id: 'pages.apps.any.id.notifications.successPublish.title' })
 
-    const [form] = Form.useForm()
-    const [isPublishing, setIsPublishing] = useState(false)
-    const [environment, setEnvironment] = useState(DEFAULT_STAND)
+    const router = useRouter()
+    const { env } = router.query
+    const queryEnvironment = getEnvironment(env)
 
-    const onError = useMutationErrorHandler()
-    const onCompleted = useCallback(() => {
-        notification.success( { message: ChangesPublishedTitle })
-    }, [ChangesPublishedTitle])
-    const [publishMutation] = usePublishB2CAppMutation({
-        onError,
-        onCompleted,
-        refetchQueries: [{ query: GetB2CAppDocument, variables: { id } }],
-    })
+    const [selectedEnvironment, setSelectedEnvironment] = useState<AppEnvironment>(queryEnvironment)
 
-    const handlePublish = useCallback((values: PublishFormValues) => {
-        const data = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-            app: { id },
-            environment: values.environment,
-            options: {
-                info: values.info,
-                build: values.buildId ? { id: values.buildId } : undefined,
-            },
-        }
-        setIsPublishing(true)
-        publishMutation({
-            variables: {
-                data,
-            },
-        }).finally(() => { setIsPublishing(false) })
-    }, [id, publishMutation])
-
-    const [fetchPublishRequests, { data: requestsData, loading: requestsLoading }] = useAllB2CAppPublishRequestsLazyQuery({
-        variables: { appId: id },
-    })
-
-    const publishRequest = get(requestsData, ['requests', '0'], null)
-    const publishRequestStatus = get(publishRequest, 'status')
-
-    const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((value) => {
-        setEnvironment(value as string)
-        if (value === PROD_ENVIRONMENT) {
-            fetchPublishRequests()
-        }
-    }, [fetchPublishRequests])
+    const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((newEnv) => {
+        router.replace({ query: { ...router.query, env: newEnv as AppEnvironment } })
+        setSelectedEnvironment(newEnv as AppEnvironment)
+    }, [router])
 
     return (
         <Section>
             <SubSection title={PublishingTitle}>
-                <Form
-                    name='publish-b2c-app-form'
-                    layout='vertical'
-                    form={form}
-                    onFinish={handlePublish}
-                    initialValues={{ environment: DEFAULT_STAND }}
-                >
-                    <Form.Item name='environment' label={SelectStandLabel}>
+                <Row gutter={SELECT_GUTTER}>
+                    <Col span={FULL_COL_SPAN}>
                         <Select
                             options={[
                                 { label: DevStandLabel, value: DEV_ENVIRONMENT, key: DEV_ENVIRONMENT },
                                 { label: ProdStandLabel, value: PROD_ENVIRONMENT, key: PROD_ENVIRONMENT },
                             ]}
+                            value={selectedEnvironment}
                             onChange={handleEnvironmentChange}
                         />
-                    </Form.Item>
-                    {(environment !== PROD_ENVIRONMENT || publishRequestStatus === PUBLISH_REQUEST_APPROVED_STATUS)
-                        ? (
-                            <PublishForm id={id} isPublishing={isPublishing}/>
-                        ) : (
-                            <RequestStatusInfo request={publishRequest} appId={id} loading={requestsLoading}/>
-                        )}
-                </Form>
+                    </Col>
+                    <Col span={FULL_COL_SPAN}>
+                        <PublishingSettingsForm id={id} environment={selectedEnvironment}/>
+                    </Col>
+                    <Col span={FULL_COL_SPAN}>
+                        <PublishingSubsection id={id} environment={selectedEnvironment}/>
+                    </Col>
+                </Row>
             </SubSection>
         </Section>
     )
