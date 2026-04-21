@@ -36,7 +36,9 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const LinkedCardsLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal } = useLinkedCardsModal()
-    const { PaymentHistoryModal, openModal: openPaymentHistoryModal, hasPaymentHistory } = usePaymentHistoryModal()
+    const { PaymentHistoryModal, openModal: openPaymentHistoryModal, hasPaymentHistory } = usePaymentHistoryModal({
+        tableIdPostfix: 'user-menu',
+    })
 
     const subscriptionMenuItems = useMemo(() => {
         if (!hasPaymentHistory) return []

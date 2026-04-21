@@ -131,8 +131,10 @@ export const useActivateSubscriptions = () => {
                 if (!isTrial && result.data?.result?.directPaymentUrl) {
                     let paymentUrl = result.data.result.directPaymentUrl
                     const finalReturnUrl = returnUrl || `${serverUrl}/settings?tab=subscription`
+                    const returnUrlWithParams = new URL(finalReturnUrl)
+                    returnUrlWithParams.searchParams.append('successPayment', 'true')
                     const url = new URL(paymentUrl)
-                    url.searchParams.append('returnUrl', finalReturnUrl)
+                    url.searchParams.append('returnUrl', returnUrlWithParams.toString())
                     paymentUrl = url.toString()
                     window.open(paymentUrl, '_self')
                     return

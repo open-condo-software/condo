@@ -19,7 +19,7 @@ const PAGE_SIZE = 12
 
 type PaymentHistoryRecord = GetOrganizationPaymentHistoryQuery['paymentHistory'][number]
 
-export const usePaymentHistoryModal = () => {
+export const usePaymentHistoryModal = ({ tableIdPostfix }) => {
     const intl = useIntl()
     const { organization } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -168,14 +168,14 @@ export const usePaymentHistoryModal = () => {
             width='big'
         >
             <Table<PaymentHistoryRecord>
-                id='payment-history-table'
+                id={`payment-history-table_${tableIdPostfix}`}
                 dataSource={dataSource}
                 columns={columns}
                 pageSize={PAGE_SIZE}
                 getRowId={getRowId}
             />
         </Modal>
-    ), [isModalOpen, closeModal, PaymentHistoryTitle, dataSource, columns, getRowId])
+    ), [isModalOpen, closeModal, PaymentHistoryTitle, tableIdPostfix, dataSource, columns, getRowId])
 
     return {
         PaymentHistoryModal,

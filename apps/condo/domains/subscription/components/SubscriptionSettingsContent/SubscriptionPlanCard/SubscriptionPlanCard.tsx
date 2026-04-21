@@ -307,7 +307,9 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         onCardUnbound: refetchActivatedSubscriptions,
     })
 
-    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal()
+    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal({
+        tableIdPostfix: 'settings-page',
+    })
 
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
