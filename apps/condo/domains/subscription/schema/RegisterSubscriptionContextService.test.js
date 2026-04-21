@@ -10,7 +10,7 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_FEATURE, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
 const {
     registerSubscriptionContextByTestClient,
     createTestSubscriptionPlan,
@@ -604,6 +604,88 @@ describe('RegisterSubscriptionContextService', () => {
                     isTrial: false,
                 })
             }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
+        })
+    })
+
+    describe('Feature Plan Validation', () => {
+        let featurePlan, featurePricingRule
+        let servicePlan
+
+        beforeAll(async () => {
+            const [fPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                trialDays: 14,
+                news: true,
+            })
+            featurePlan = fPlan
+
+            const [fRule] = await createTestSubscriptionPlanPricingRule(admin, featurePlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '500.00',
+                currencyCode: 'RUB',
+            })
+            featurePricingRule = fRule
+
+            const [sPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
+                trialDays: 14,
+                payments: true,
+            })
+            servicePlan = sPlan
+        })
+
+        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION when registering feature plan without any service subscription', async () => {
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: featurePricingRule.id },
+                    isTrial: false,
+                })
+            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
+        })
+
+        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION when service subscription is expired', async () => {
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+            await createTestSubscriptionContext(admin, org, servicePlan, {
+                startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                isTrial: true,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: org.id },
+                    subscriptionPlanPricingRule: { id: featurePricingRule.id },
+                    isTrial: false,
+                })
+            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
+        })
+
+        test('allows feature plan registration when active service subscription exists', async () => {
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+            await createTestSubscriptionContext(admin, org, servicePlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRule: { id: featurePricingRule.id },
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.subscriptionPlan.id).toBe(featurePlan.id)
+            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
     })
 })

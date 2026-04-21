@@ -150,7 +150,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
                     const today = dayjs().format('YYYY-MM-DD')
-                    const organizationData = await Organization.getOne(context, { id: organization.id })
+                    const organizationData = await Organization.getOne(context, { id: organization.id }, 'id subscription { activeSubscriptionEndAt }')
 
                     const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
                     const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(today))
