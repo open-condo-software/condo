@@ -26,7 +26,7 @@ class ExternalContentController extends FieldController {
 
     deserialize = data => {
         const { path } = this
-        if (!data?.[path]) {
+        if (data == null || data[path] === undefined) {
             return null
         }
 
@@ -59,7 +59,7 @@ class ExternalContentController extends FieldController {
 
     serialize = data => {
         const { path } = this
-        if (!data?.[path]) {
+        if (data == null || data[path] === undefined) {
             return null
         }
 
