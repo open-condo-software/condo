@@ -101,7 +101,6 @@ const rawValue = await resolveExternalContentValue(receipt.raw, {
 If you prefer to configure the field directly without the helper function:
 
 ```javascript
-const { ExternalContent } = require('@open-condo/keystone/fields')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
 const MyFieldFileAdapter = new FileAdapter('MyFieldFolder') // The folder where files will be stored
