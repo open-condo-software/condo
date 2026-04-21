@@ -188,8 +188,6 @@ class FileContentLoader {
                     reject(new Error(`Batch execution failed: ${err.message}`))
                 })
                 throw err
-            } finally {
-                // Batch processing complete
             }
         })()
         
