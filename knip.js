@@ -125,6 +125,9 @@ async function config () {
             entry: ['bin/**/*.js'],
             ignoreDependencies: [/commitlint/],
         },
+        'apps/asterisk-bot': {
+            entry: ['index.ts'],
+        },
         'apps/insurance': {
             ignoreDependencies: ['@graphql-codegen/typescript'],
         },
