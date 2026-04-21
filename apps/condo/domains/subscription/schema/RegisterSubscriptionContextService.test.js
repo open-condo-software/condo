@@ -5,9 +5,10 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_FEATURE, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
@@ -612,6 +613,8 @@ describe('RegisterSubscriptionContextService', () => {
         let servicePlan
 
         beforeAll(async () => {
+            setFeatureFlag(SUBSCRIPTIONS, true)
+
             const [fPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
@@ -638,6 +641,10 @@ describe('RegisterSubscriptionContextService', () => {
                 payments: true,
             })
             servicePlan = sPlan
+        })
+
+        afterAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, false)
         })
 
         test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION when registering feature plan without any service subscription', async () => {
