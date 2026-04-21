@@ -9,6 +9,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { Button, Input, Space, Typography, Modal, Alert } from '@open-condo/ui'
 
 import { CopyableInput } from '@/domains/common/components/CopyableInput'
+import { SubDivider } from '@/domains/common/components/SubDivider'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { useSecretContext } from '@/domains/miniapp/components/OIDC/edit/SecretProvider'
@@ -152,11 +153,7 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                 onFinish={updateClientUrl}
                 requiredMark={false}
             >
-                <Divider orientation='left' orientationMargin={0} style={CREDENTIALS_DIVIDER_STYLES}>
-                    <Typography.Title level={4}>
-                        {CredentialsLabel}
-                    </Typography.Title>
-                </Divider>
+                <SubDivider title={CredentialsLabel}/>
                 <Form.Item
                     name='clientId'
                     label={ClientIDLabel}
@@ -192,11 +189,7 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                         />
                     </div>
                 )}
-                <Divider orientation='left' orientationMargin={0} style={SETTINGS_DIVIDER_STYLES}>
-                    <Typography.Title level={4}>
-                        {SettingsLabel}
-                    </Typography.Title>
-                </Divider>
+                <SubDivider title={SettingsLabel}/>
                 <Form.Item
                     name='redirectUri'
                     label={RedirectURILabel}

@@ -1,16 +1,15 @@
-import { Col, Row } from 'antd'
+import { Col, Row, Skeleton } from 'antd'
 import React, { useCallback } from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Alert, Space, Typography, Button, Checkbox } from '@open-condo/ui'
 
-import { Spin } from '@/domains/common/components/Spin'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 
 import styles from './RequestStatusInfo.module.css'
 
-import type { AllB2CAppPublishRequestsQuery } from '@/gql'
+import type { AllB2CAppPublishRequestsQuery, AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
 
 import { useCreateB2CAppPublishRequestMutation, AllB2CAppPublishRequestsDocument } from '@/gql'
@@ -34,16 +33,19 @@ const FULL_COL_SPAN = 24
 export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, request, loading }) => {
     const intl = useIntl()
     const VerificationRequiredTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title' })
-    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' })
     const RequestVerificationLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.actions.requestVerification' })
     const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps' }, {
         action: RequestVerificationLabel,
     })
     const VerificationStatusTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.title' })
-    const StandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const EnvironmentLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
     const VerificationDetailsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.details.text' }, {
-        stand: StandLabel.toLowerCase(),
+        environment: EnvironmentLabel.toLowerCase(),
     })
+    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' }, {
+        environment: EnvironmentLabel.toLowerCase(),
+    })
+
 
     const onError = useMutationErrorHandler()
     const [createRequestMutation] = useCreateB2CAppPublishRequestMutation({
@@ -67,7 +69,7 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
 
     if (loading) {
         return (
-            <Spin size='large'/>
+            <Skeleton active/>
         )
     }
 
