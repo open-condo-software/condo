@@ -174,13 +174,12 @@ class FileContentLoader {
             }
             
             try {
-                // Determine adapter type
-                const isLocalAdapter = typeof this.adapter?.src === 'string'
+                const isCloudAdapter = typeof this.adapter?.acl?.generateUrl === 'function'
                 
-                if (isLocalAdapter) {
-                    await this._executeBatchLocal(batch)
-                } else {
+                if (isCloudAdapter) {
                     await this._executeBatchCloud(batch)
+                } else {
+                    await this._executeBatchLocal(batch)
                 }
             } catch (err) {
                 // Reject all pending promises on batch failure
