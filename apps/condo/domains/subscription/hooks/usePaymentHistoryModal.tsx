@@ -167,13 +167,17 @@ export const usePaymentHistoryModal = ({ tableIdPostfix }) => {
             footer={null}
             width='big'
         >
-            <Table<PaymentHistoryRecord>
-                id={`payment-history-table_${tableIdPostfix}`}
-                dataSource={dataSource}
-                columns={columns}
-                pageSize={PAGE_SIZE}
-                getRowId={getRowId}
-            />
+            {
+                isModalOpen && (
+                    <Table<PaymentHistoryRecord>
+                        id={`payment-history-table_${tableIdPostfix}`}
+                        dataSource={dataSource}
+                        columns={columns}
+                        pageSize={PAGE_SIZE}
+                        getRowId={getRowId}
+                    />
+                )
+            }
         </Modal>
     ), [isModalOpen, closeModal, PaymentHistoryTitle, tableIdPostfix, dataSource, columns, getRowId])
 
