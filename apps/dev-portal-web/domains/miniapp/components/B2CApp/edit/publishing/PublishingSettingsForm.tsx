@@ -22,7 +22,7 @@ type PublishingSettingsFormProps = {
 }
 
 type SettingsFormValues = {
-    [key in AppEnvironment]?: boolean
+    [key in `${AppEnvironment}WebTransformEnabled`]?: boolean
 }
 
 export const PublishingSettingsForm: React.FC<PublishingSettingsFormProps> = ({ id, environment }) => {
