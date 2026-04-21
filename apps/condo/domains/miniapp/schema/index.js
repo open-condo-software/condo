@@ -25,7 +25,7 @@ const { CustomValue } = require('./CustomValue')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
 const { SendB2BAppPushMessageService } = require('./SendB2BAppPushMessageService')
 const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
-const { SendVoIPStartMessageService } = require('./SendVoIPStartMessageService')
+const { SendVoIPCallStartMessageService } = require('./SendVoIPCallStartMessageService')
 
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -52,6 +52,6 @@ module.exports = {
     CustomValue,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
-    SendVoIPStartMessageService,
+    SendVoIPCallStartMessageService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

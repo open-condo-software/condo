@@ -83487,6 +83487,7 @@ type B2CAppAccessRightSetHistoryRecord {
   """
   _label_: String
   app: String
+  canExecuteSendVoIPStartMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -83509,6 +83510,8 @@ input B2CAppAccessRightSetHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  canExecuteSendVoIPStartMessage: Boolean
+  canExecuteSendVoIPStartMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83592,6 +83595,8 @@ input B2CAppAccessRightSetHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2CAppAccessRightSetHistoryRecordsBy {
+  canExecuteSendVoIPStartMessage_ASC
+  canExecuteSendVoIPStartMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83612,6 +83617,7 @@ enum SortB2CAppAccessRightSetHistoryRecordsBy {
 
 input B2CAppAccessRightSetHistoryRecordUpdateInput {
   app: String
+  canExecuteSendVoIPStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83633,6 +83639,7 @@ input B2CAppAccessRightSetHistoryRecordsUpdateInput {
 
 input B2CAppAccessRightSetHistoryRecordCreateInput {
   app: String
+  canExecuteSendVoIPStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83667,6 +83674,7 @@ type B2CAppAccessRightSet {
 
   """ Link to B2CApp """
   app: B2CApp
+  canExecuteSendVoIPStartMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -83695,6 +83703,8 @@ input B2CAppAccessRightSetWhereInput {
   OR: [B2CAppAccessRightSetWhereInput]
   app: B2CAppWhereInput
   app_is_null: Boolean
+  canExecuteSendVoIPStartMessage: Boolean
+  canExecuteSendVoIPStartMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83760,6 +83770,8 @@ input B2CAppAccessRightSetWhereUniqueInput {
 enum SortB2CAppAccessRightSetsBy {
   app_ASC
   app_DESC
+  canExecuteSendVoIPStartMessage_ASC
+  canExecuteSendVoIPStartMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83780,6 +83792,7 @@ enum SortB2CAppAccessRightSetsBy {
 
 input B2CAppAccessRightSetUpdateInput {
   app: B2CAppRelateToOneInput
+  canExecuteSendVoIPStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83798,6 +83811,7 @@ input B2CAppAccessRightSetsUpdateInput {
 
 input B2CAppAccessRightSetCreateInput {
   app: B2CAppRelateToOneInput
+  canExecuteSendVoIPStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -93955,7 +93969,7 @@ input SendVoIPStartMessageDataForCallHandlingByNative {
   """
   Type of the native client to handle call. Values defined in mobile app. "0" used as legacy "sip" voipType for backwards compatibility.
   """
-  voipType: Int
+  voipType: Int = 0
 }
 
 input SendVoIPStartMessageData {
@@ -106925,6 +106939,12 @@ type Mutation {
   				"required": false
   			},
   			"voipDtfmCommand": {
+  				"required": false
+  			},
+  			"voipPanels": {
+  				"required": false
+  			},
+  			"stunServers": {
   				"required": false
   			},
   			"stun": {

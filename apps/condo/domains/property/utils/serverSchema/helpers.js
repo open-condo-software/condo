@@ -2,6 +2,10 @@ const { get, omitBy, isNull, isArray } = require('lodash')
 
 const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 
+const { itemsQuery } = require('@open-condo/keystone/schema')
+
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+
 /**
  * Sometimes address can contain flat with prefix, for example, in case of scanning receipt with QR-code.
  * Input data is out of control ;)
@@ -102,10 +106,24 @@ const getUnitsFromSections = (sections = []) => {
     ).flat(2)
 }
 
+async function getOldestNonDeletedProperty ({ addressKey }) {
+    const [oldestProperty] = await itemsQuery('Property', {
+        where: {
+            addressKey: addressKey,
+            deletedAt: null,
+            organization: { type: MANAGING_COMPANY_TYPE },
+        },
+        first: 1,
+        sortBy: ['isApproved_DESC', 'createdAt_ASC'], // sorting order is essential here
+    })
+    return oldestProperty
+}
+
 module.exports = {
     FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
     getAddressUpToBuildingFrom,
     normalizePropertyMap,
     getAddressDetails,
     getUnitsFromSections,
+    getOldestNonDeletedProperty,
 }
