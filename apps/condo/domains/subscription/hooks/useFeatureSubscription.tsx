@@ -1,3 +1,5 @@
+import getConfig from 'next/config'
+
 import { useGetAvailableFeatureSubscriptionPlansQuery, useGetAvailableServiceSubscriptionPlansQuery, type GetAvailableFeatureSubscriptionPlansQuery } from '@app/condo/gql'
 import { useCallback, useMemo } from 'react'
 
@@ -12,6 +14,7 @@ import { useOrganizationSubscription } from './useOrganizationSubscription'
 import type { AvailableFeatureType } from '../constants/features'
 
 
+const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 type FeaturePlan = NonNullable<NonNullable<GetAvailableFeatureSubscriptionPlansQuery['result']>['plans'][number]>
 
@@ -82,7 +85,9 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         return priceStr
     }, [featurePlanFirstPrice?.currencyCode, featurePlanFirstPrice?.period, featurePlanFirstPrice?.price, intl])
 
-    const returnUrl = feature === 'b2bApp' && b2bAppId ? `miniapps/${b2bAppId}/about` : undefined
+    const returnUrl = feature === 'b2bApp' && b2bAppId
+        ? `${serverUrl}/miniapps/${b2bAppId}/about`
+        : undefined
 
     const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
         if (!featurePlanFirstPrice?.id) return

@@ -1,3 +1,5 @@
+import getConfig from 'next/config'
+
 import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
 import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
@@ -11,6 +13,8 @@ import { Typography } from '@open-condo/ui'
 
 import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
+
+const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 interface ActivatePlanParams {
     priceId: string
@@ -127,11 +131,10 @@ export const useActivateSubscriptions = () => {
 
                 if (!isTrial && result.data?.result?.directPaymentUrl) {
                     let paymentUrl = result.data.result.directPaymentUrl
-                    if (returnUrl) {
-                        const url = new URL(paymentUrl)
-                        url.searchParams.append('returnUrl', returnUrl)
-                        paymentUrl = url.toString()
-                    }
+                    const finalReturnUrl = returnUrl || `${serverUrl}/settings?tab=subscription`
+                    const url = new URL(paymentUrl)
+                    url.searchParams.append('returnUrl', finalReturnUrl)
+                    paymentUrl = url.toString()
                     window.open(paymentUrl, '_self')
                     return
                 }
