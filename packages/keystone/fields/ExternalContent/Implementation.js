@@ -4,7 +4,9 @@ const { Readable } = require('node:stream')
 const { Implementation } = require('@open-keystone/fields')
 
 const { ExternalContent } = require('@open-condo/keystone/fieldsUtils')
-const logger = require('@open-condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+const logger = getLogger()
 
 const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta, resolveExternalContentValue } = ExternalContent
 
