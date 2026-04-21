@@ -173,6 +173,8 @@ const MINIAPP_DEVICE_PERMISSIONS = [
 ]
 const MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY = 'sip' // without this constant mobile app will not try to make native call
 const DEFAULT_VOIP_TYPE = 0
+const NATIVE_VOIP_TYPE = 'sip'
+const B2C_APP_VOIP_TYPE = 'b2cApp'
 
 module.exports = {
     ALL_APPS_CATEGORY,
@@ -254,6 +256,6 @@ module.exports = {
 
     CALL_DATA_NOT_PROVIDED_ERROR,
 
-    MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY,
-    DEFAULT_VOIP_TYPE,
+    NATIVE_VOIP_TYPE,
+    B2C_APP_VOIP_TYPE,
 }

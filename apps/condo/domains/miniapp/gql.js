@@ -29,9 +29,9 @@ const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
     }
 `
 
-const SEND_VOIP_START_MESSAGE_MUTATION = gql`
-    mutation sendVoIPStartMessage ($data: SendVoIPStartMessageInput!) {
-        result: sendVoIPStartMessage(data: $data) { verifiedContactsCount createdMessagesCount erroredMessagesCount }
+const SEND_VOIP_CALL_START_MESSAGE_MUTATION = gql`
+    mutation sendVoIPCallStartMessage ($data: SendVoIPCallStartMessageInput!) {
+        result: sendVoIPCallStartMessage(data: $data) { verifiedContactsCount createdMessagesCount erroredMessagesCount }
     }
 `
 
@@ -141,6 +141,6 @@ module.exports = {
     B2BAppRoleWithoutEmployeeRole,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
-    SEND_VOIP_START_MESSAGE_MUTATION,
+    SEND_VOIP_CALL_START_MESSAGE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
