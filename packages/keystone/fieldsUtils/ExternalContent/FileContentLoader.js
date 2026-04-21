@@ -217,7 +217,7 @@ class FileContentLoader {
             } catch (err) {
                 // Handle missing files gracefully - resolve with null instead of rejecting
                 if (err.code === 'ENOENT') {
-                    logger.warn({ msg: 'File not found in FileContentLoader', filename: fileMeta.filename })
+                    logger.warn({ msg: 'File not found in FileContentLoader', data: { filename: fileMeta.filename } })
                     resolve(null)
                 } else {
                     const error = err instanceof Error ? err : new Error(String(err))
@@ -258,7 +258,7 @@ class FileContentLoader {
                 if (!res.ok) {
                     // Handle 404 like local adapter - resolve with null instead of rejecting
                     if (res.status === 404) {
-                        logger.warn({ msg: 'File not found in cloud storage', filename: fileMeta.filename })
+                        logger.warn({ msg: 'File not found in cloud storage', data: { filename: fileMeta.filename } })
                         resolve(null)
                         return
                     }
