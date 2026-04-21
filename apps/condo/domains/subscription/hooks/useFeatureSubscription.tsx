@@ -1,6 +1,5 @@
-import getConfig from 'next/config'
-
 import { useGetAvailableFeatureSubscriptionPlansQuery, useGetAvailableServiceSubscriptionPlansQuery, type GetAvailableFeatureSubscriptionPlansQuery } from '@app/condo/gql'
+import getConfig from 'next/config'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
