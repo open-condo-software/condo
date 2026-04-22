@@ -307,9 +307,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         onCardUnbound: refetchActivatedSubscriptions,
     })
 
-    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal({
-        tableIdPostfix: 'settings-page',
-    })
+    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal()
 
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
@@ -360,7 +358,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         (contextPaymentMethodId || activeSubscriptionContext?.bindingId)
     )
 
-    const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId && !activeSubscriptionContext?.bindingId
+    const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId
 
     const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0
         ? dayjs().add(daysRemaining, 'day')
