@@ -49960,11 +49960,11 @@ type ServiceConsumer {
   """
   acquiringIntegrationContext: AcquiringIntegrationContext
 
-  """ AcquiringIntegration, that is returned for current serviceConsumer in mobile client 
+  """ [DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client 
   """
   residentAcquiringIntegrationContext: ResidentAcquiringIntegrationContext
 
-  """ Account number taken from resident. This is what resident think his account number is 
+  """ Account number taken from resident. This is what resident think his account number is for billing 
   """
   accountNumber: String
 
