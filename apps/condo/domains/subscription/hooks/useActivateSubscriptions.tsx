@@ -1,6 +1,7 @@
 import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
 import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
+import getConfig from 'next/config'
 import { useCallback, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -11,6 +12,8 @@ import { Typography } from '@open-condo/ui'
 
 import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
+
+const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 interface ActivatePlanParams {
     priceId: string
@@ -127,11 +130,12 @@ export const useActivateSubscriptions = () => {
 
                 if (!isTrial && result.data?.result?.directPaymentUrl) {
                     let paymentUrl = result.data.result.directPaymentUrl
-                    if (returnUrl) {
-                        const url = new URL(paymentUrl)
-                        url.searchParams.append('returnUrl', returnUrl)
-                        paymentUrl = url.toString()
-                    }
+                    const finalReturnUrl = returnUrl || `${serverUrl}/settings?tab=subscription`
+                    const returnUrlWithParams = new URL(finalReturnUrl)
+                    returnUrlWithParams.searchParams.append('successPayment', 'true')
+                    const url = new URL(paymentUrl)
+                    url.searchParams.append('returnUrl', returnUrlWithParams.toString())
+                    paymentUrl = url.toString()
                     window.open(paymentUrl, '_self')
                     return
                 }

@@ -1,16 +1,18 @@
-import { useGetOrganizationPaymentHistoryLazyQuery, GetOrganizationPaymentHistoryQuery } from '@app/condo/gql'
-import dayjs from 'dayjs'
+import { useGetOrganizationPaymentHistoryQuery, GetOrganizationPaymentHistoryQuery } from '@app/condo/gql'
+import { ColumnsType } from 'antd/es/table/interface'
 import getConfig from 'next/config'
-import { useMemo, useCallback, useEffect, useState } from 'react'
-
+import { useRouter } from 'next/router'
+import { useMemo, useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Table, TableColumn, GetTableData, Typography } from '@open-condo/ui'
+import { Modal, Typography } from '@open-condo/ui'
 
+import { Table } from '@condo/domains/common/components/Table/Index'
 import {
     getDateRender,
 } from '@condo/domains/common/components/Table/Renders'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 const { publicRuntimeConfig } = getConfig()
 const CONDO_RB_DOMAIN = publicRuntimeConfig?.condoRBDomain || ''
@@ -21,8 +23,12 @@ type PaymentHistoryRecord = GetOrganizationPaymentHistoryQuery['paymentHistory']
 
 export const usePaymentHistoryModal = () => {
     const intl = useIntl()
+    const router = useRouter()
     const { organization } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
+    const currentPageIndex = getPageIndexFromOffset(offset, PAGE_SIZE)
 
     const PaymentHistoryTitle = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
     const DateColumnTitle = intl.formatMessage({ id: 'subscription.paymentHistory.column.date' })
@@ -53,14 +59,18 @@ export const usePaymentHistoryModal = () => {
         return intl.formatMessage({ id: translationKey as any, defaultMessage: upperCaseSystem })
     }, [intl])
 
-    const [fetchPaymentHistory, { data: lazyData }] = useGetOrganizationPaymentHistoryLazyQuery()
-    const hasPaymentHistory = (lazyData?.meta?.count ?? 0) > 0
+    const { data, loading } = useGetOrganizationPaymentHistoryQuery({
+        variables: {
+            organizationId: organization?.id || '',
+            offset: (currentPageIndex - 1) * PAGE_SIZE,
+            first: PAGE_SIZE,
+        },
+        skip: !organization?.id,
+    })
 
-    useEffect(() => {
-        if (organization?.id) {
-            fetchPaymentHistory({ variables: { organizationId: organization.id, offset: 0, first: 1 } })
-        }
-    }, [organization?.id, fetchPaymentHistory])
+    const paymentHistory = useMemo(() => data?.paymentHistory?.filter(Boolean) ?? [], [data?.paymentHistory])
+    const totalCount = data?.meta?.count ?? 0
+    const hasPaymentHistory = totalCount > 0
 
     const openModal = useCallback(() => {
         setIsModalOpen(true)
@@ -70,51 +80,26 @@ export const usePaymentHistoryModal = () => {
         setIsModalOpen(false)
     }, [])
 
-    const dataSource: GetTableData<PaymentHistoryRecord> = useCallback(async ({ startRow, endRow }) => {
-        if (!organization?.id) {
-            return { rowData: [], rowCount: 0 }
-        }
-
-        const skip = startRow
-        const first = endRow - startRow
-
-        const { data } = await fetchPaymentHistory({
-            variables: {
-                organizationId: organization.id,
-                offset: skip,
-                first,
-            },
-            fetchPolicy: 'network-only',
-        })
-
-        return {
-            rowData: data?.paymentHistory?.filter(Boolean) ?? [],
-            rowCount: data?.meta?.count ?? 0,
-        }
-    }, [organization?.id, fetchPaymentHistory])
-
-    const columns: TableColumn<PaymentHistoryRecord>[] = useMemo(() => [
+    const columns: ColumnsType<PaymentHistoryRecord> = useMemo(() => [
         {
-            header: DateColumnTitle,
-            dataKey: 'createdAt',
-            id: 'createdAt',
-            initialSize: '20%',
+            title: DateColumnTitle,
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            width: '20%',
             render: getDateRender(intl, null, ''),
         },
         {
-            header: PlanColumnTitle,
-            dataKey: 'subscriptionPlan',
-            id: 'plan',
-            initialSize: '25%',
-            enableSorting: false,
+            title: PlanColumnTitle,
+            dataIndex: 'subscriptionPlan',
+            key: 'plan',
+            width: '25%',
             render: (_, record) => getPlanLabel(record.subscriptionPlan),
         },
         {
-            header: CardColumnTitle,
-            dataKey: 'frozenPaymentInfo',
-            id: 'card',
-            initialSize: '20%',
-            enableSorting: false,
+            title: CardColumnTitle,
+            dataIndex: 'frozenPaymentInfo',
+            key: 'card',
+            width: '20%',
             render: (_, record) => {
                 const paymentMethod = record.frozenPaymentInfo?.paymentMethod
                 if (!paymentMethod) return '—'
@@ -124,11 +109,10 @@ export const usePaymentHistoryModal = () => {
             },
         },
         {
-            header: AmountColumnTitle,
-            dataKey: 'frozenPaymentInfo.invoice',
-            id: 'amount',
-            initialSize: '15%',
-            enableSorting: false,
+            title: AmountColumnTitle,
+            dataIndex: 'frozenPaymentInfo.invoice',
+            key: 'amount',
+            width: '15%',
             render: (_, record) => {
                 const invoice = record.frozenPaymentInfo?.invoice
                 if (!invoice?.toPay) return '—'
@@ -138,11 +122,10 @@ export const usePaymentHistoryModal = () => {
             },
         },
         {
-            header: ReceiptColumnTitle,
-            dataKey: 'frozenPaymentInfo.multiPaymentId',
-            id: 'receipt',
-            initialSize: '20%',
-            enableSorting: false,
+            title: ReceiptColumnTitle,
+            dataIndex: 'frozenPaymentInfo.multiPaymentId',
+            key: 'receipt',
+            width: '20%',
             render: (_, record) => {
                 const multiPaymentId = record.frozenPaymentInfo?.multiPaymentId
                 if (!multiPaymentId) return '—'
@@ -167,15 +150,16 @@ export const usePaymentHistoryModal = () => {
             footer={null}
             width='big'
         >
-            <Table<PaymentHistoryRecord>
-                id='payment-history-table'
-                dataSource={dataSource}
+            <Table
+                loading={loading}
+                dataSource={paymentHistory}
                 columns={columns}
+                totalRows={totalCount}
                 pageSize={PAGE_SIZE}
-                getRowId={getRowId}
-            />
+                rowKey={getRowId}
+            />  
         </Modal>
-    ), [isModalOpen, closeModal, PaymentHistoryTitle, dataSource, columns, getRowId])
+    ), [isModalOpen, closeModal, PaymentHistoryTitle, loading, paymentHistory, columns, totalCount, getRowId])
 
     return {
         PaymentHistoryModal,
