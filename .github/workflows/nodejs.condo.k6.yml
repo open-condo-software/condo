@@ -17,9 +17,6 @@ on:
       - completed
 
 env:
-  NPM_ALWAYS_AUTH: false
-  NPM_CONFIG_REGISTRY: ${{ secrets.NPM_REGISTRY_SERVER }}
-  NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_SERVER }}
   SERVER_URL: ${{ inputs.server_url || 'https://review-main-condo.r.doma.ai' }}
 
 jobs:

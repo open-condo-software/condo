@@ -23,8 +23,6 @@ env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   CONDO_TEST_SHARD_TOTAL: 20
-  NPM_ALWAYS_AUTH: false
-  NPM_CONFIG_REGISTRY: ${{ secrets.NPM_REGISTRY_SERVER }}
   NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_SERVER }}
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
@@ -96,12 +94,13 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE_FULL }}
           build-args: |
             REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
-            NPM_ALWAYS_AUTH=${{ env.NPM_ALWAYS_AUTH }}
             NPM_REGISTRY_SERVER=${{ env.NPM_REGISTRY_SERVER }}
             TURBO_TEAM=condo-ci
             TURBO_REMOTE_ONLY=true
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
             TURBO_API=${{ secrets.TURBO_API }}
+          secrets: |
+            npm_registry_auth_token=${{ secrets.NPM_REGISTRY_AUTH_TOKEN }}
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}

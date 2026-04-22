@@ -9,10 +9,6 @@ jobs:
   chromatic:
     if: ${{ github.event.label.name == '👨🏻‍🎨 Request UI-kit review' }}
     runs-on: ubuntu-22.04
-    env:
-      NPM_ALWAYS_AUTH: false
-      NPM_CONFIG_REGISTRY: ${{ secrets.NPM_REGISTRY_SERVER }}
-      NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_SERVER }}
 
     steps:
       - name: Checkout code with submodules
