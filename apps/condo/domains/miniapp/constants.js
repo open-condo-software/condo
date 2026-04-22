@@ -132,6 +132,45 @@ const ACCESS_TOKEN_SESSION_ID_PREFIX = `${Buffer.from('b2bAccessToken').toString
 
 const ACCESS_TOKEN_UPDATE_MANY_CHUNK_SIZE = 500
 
+const FULLSCREEN_DEVICE_PERMISSION = 'fullscreen'
+const MICROPHONE_DEVICE_PERMISSION = 'microphone'
+const CAMERA_DEVICE_PERMISSION = 'camera'
+const SPEAKER_SELECTION_DEVICE_PERMISSION = 'speakerSelection'
+const BLE_BEACON_BG_DEVICE_PERMISSION = 'bleBeaconBg'
+const BLE_CENTRAL_BG_DEVICE_PERMISSION = 'bleCentralBg'
+const BLE_PERIPHERAL_BG_DEVICE_PERMISSION = 'blePeripheralBg'
+// NOTE: cannot be linked to B2CAppAccessRightSet.canExecuteSendB2CAppPushMessage, since push can be sent from resident auth
+const PUSH_NOTIFICATIONS_DEVICE_PERMISSION = 'pushNotifications'
+// NOTE: cannot be linked to B2CAppAccessRightSet.canExecuteSendB2CAppPushMessage, since push can be sent from resident auth
+const VOIP_NOTIFICATIONS_DEVICE_PERMISSION = 'voipNotifications'
+
+// NOTE: possible future expansions (web) (1 line = 1 checkbox)
+// autoplay,
+// picture-in-picture,
+// display-capture,
+// web-share
+// encrypted-media (DRM),
+// gamepad / midi / usb / hid
+// nfc
+// geolocation
+// accelerometer / gyroscope / magnetometer / ambient-light-sensor
+// bluetooth
+// payment,
+// otp-credentials,
+// clipboard-read / clipboard-write
+
+const MINIAPP_DEVICE_PERMISSIONS = [
+    FULLSCREEN_DEVICE_PERMISSION,
+    MICROPHONE_DEVICE_PERMISSION,
+    CAMERA_DEVICE_PERMISSION,
+    SPEAKER_SELECTION_DEVICE_PERMISSION,
+    BLE_BEACON_BG_DEVICE_PERMISSION,
+    BLE_CENTRAL_BG_DEVICE_PERMISSION,
+    BLE_PERIPHERAL_BG_DEVICE_PERMISSION,
+    PUSH_NOTIFICATIONS_DEVICE_PERMISSION,
+    VOIP_NOTIFICATIONS_DEVICE_PERMISSION,
+]
+
 module.exports = {
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
@@ -207,4 +246,6 @@ module.exports = {
 
     DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
+
+    MINIAPP_DEVICE_PERMISSIONS,
 }

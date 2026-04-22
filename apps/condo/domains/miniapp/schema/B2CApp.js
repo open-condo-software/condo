@@ -10,6 +10,7 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const access = require('@condo/domains/miniapp/access/B2CApp')
 const { RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
 const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
+const { getDevicePermissionsFields } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
@@ -78,6 +79,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             many: true,
             access: { create: false, update: false },
         },
+        ...getDevicePermissionsFields(),
     },
     hooks: {
         afterChange: logoMetaAfterChange,

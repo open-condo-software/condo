@@ -74698,6 +74698,15 @@ type B2CAppHistoryRecord {
   additionalDomains: JSON
   oidcClient: String
   currentBuild: String
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -74812,6 +74821,24 @@ input B2CAppHistoryRecordWhereInput {
   currentBuild_not: String
   currentBuild_in: [String]
   currentBuild_not_in: [String]
+  isFullscreenAllowed: Boolean
+  isFullscreenAllowed_not: Boolean
+  isMicrophoneAllowed: Boolean
+  isMicrophoneAllowed_not: Boolean
+  isCameraAllowed: Boolean
+  isCameraAllowed_not: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isSpeakerSelectionAllowed_not: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleBeaconBgAllowed_not: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBleCentralBgAllowed_not: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isBlePeripheralBgAllowed_not: Boolean
+  isPushNotificationsAllowed: Boolean
+  isPushNotificationsAllowed_not: Boolean
+  isVoipNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -74941,6 +74968,24 @@ enum SortB2CAppHistoryRecordsBy {
   isHidden_DESC
   appUrl_ASC
   appUrl_DESC
+  isFullscreenAllowed_ASC
+  isFullscreenAllowed_DESC
+  isMicrophoneAllowed_ASC
+  isMicrophoneAllowed_DESC
+  isCameraAllowed_ASC
+  isCameraAllowed_DESC
+  isSpeakerSelectionAllowed_ASC
+  isSpeakerSelectionAllowed_DESC
+  isBleBeaconBgAllowed_ASC
+  isBleBeaconBgAllowed_DESC
+  isBleCentralBgAllowed_ASC
+  isBleCentralBgAllowed_DESC
+  isBlePeripheralBgAllowed_ASC
+  isBlePeripheralBgAllowed_DESC
+  isPushNotificationsAllowed_ASC
+  isPushNotificationsAllowed_DESC
+  isVoipNotificationsAllowed_ASC
+  isVoipNotificationsAllowed_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -74974,6 +75019,15 @@ input B2CAppHistoryRecordUpdateInput {
   additionalDomains: JSON
   oidcClient: String
   currentBuild: String
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75006,6 +75060,15 @@ input B2CAppHistoryRecordCreateInput {
   additionalDomains: JSON
   oidcClient: String
   currentBuild: String
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75108,6 +75171,39 @@ type B2CApp {
   """
   accessRights(where: B2CAppAccessRightWhereInput, search: String, sortBy: [SortB2CAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2CAppAccessRight!]!
   _accessRightsMeta(where: B2CAppAccessRightWhereInput, search: String, sortBy: [SortB2CAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Controls whether the mini-app can use “fullscreen” device permission """
+  isFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permission """
+  isMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permission """
+  isCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permission 
+  """
+  isSpeakerSelectionAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble beacon bg” device permission 
+  """
+  isBleBeaconBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble central bg” device permission 
+  """
+  isBleCentralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble peripheral bg” device permission 
+  """
+  isBlePeripheralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “push notifications” device permission 
+  """
+  isPushNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “voip notifications” device permission 
+  """
+  isVoipNotificationsAllowed: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -75239,6 +75335,24 @@ input B2CAppWhereInput {
 
   """ condition must be false for all nodes """
   accessRights_none: B2CAppAccessRightWhereInput
+  isFullscreenAllowed: Boolean
+  isFullscreenAllowed_not: Boolean
+  isMicrophoneAllowed: Boolean
+  isMicrophoneAllowed_not: Boolean
+  isCameraAllowed: Boolean
+  isCameraAllowed_not: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isSpeakerSelectionAllowed_not: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleBeaconBgAllowed_not: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBleCentralBgAllowed_not: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isBlePeripheralBgAllowed_not: Boolean
+  isPushNotificationsAllowed: Boolean
+  isPushNotificationsAllowed_not: Boolean
+  isVoipNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75354,6 +75468,24 @@ enum SortB2CAppsBy {
   currentBuild_DESC
   accessRights_ASC
   accessRights_DESC
+  isFullscreenAllowed_ASC
+  isFullscreenAllowed_DESC
+  isMicrophoneAllowed_ASC
+  isMicrophoneAllowed_DESC
+  isCameraAllowed_ASC
+  isCameraAllowed_DESC
+  isSpeakerSelectionAllowed_ASC
+  isSpeakerSelectionAllowed_DESC
+  isBleBeaconBgAllowed_ASC
+  isBleBeaconBgAllowed_DESC
+  isBleCentralBgAllowed_ASC
+  isBleCentralBgAllowed_DESC
+  isBlePeripheralBgAllowed_ASC
+  isBlePeripheralBgAllowed_DESC
+  isPushNotificationsAllowed_ASC
+  isPushNotificationsAllowed_DESC
+  isVoipNotificationsAllowed_ASC
+  isVoipNotificationsAllowed_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75388,6 +75520,15 @@ input B2CAppUpdateInput {
   oidcClient: OidcClientRelateToOneInput
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75418,6 +75559,15 @@ input B2CAppCreateInput {
   oidcClient: OidcClientRelateToOneInput
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isBleBeaconBgAllowed: Boolean
+  isBleCentralBgAllowed: Boolean
+  isBlePeripheralBgAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
