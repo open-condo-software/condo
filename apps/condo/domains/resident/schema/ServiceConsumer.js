@@ -81,19 +81,20 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: AcquiringIntegration }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
             resolver: async (item) => {
-                const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
+                const [activeAcquiringContext] = await find('AcquiringIntegrationContext', {
                     organization: { id: item.organization },
                     status: CONTEXT_FINISHED_STATUS,
                     integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                     deletedAt: null,
                 })
-                if (!activeAcquiringContexts) {
+                if (!activeAcquiringContext || !activeAcquiringContext.integration) {
                     return null
                 }
-                const acquiringIntegration = await getById('AcquiringIntegration', get(activeAcquiringContexts, 'integration'))
-                const result = pick(activeAcquiringContexts, ['id', 'integration'])
-                result.integration = acquiringIntegration
-                return result
+                const acquiringIntegration = await getById('AcquiringIntegration', activeAcquiringContext.integration)
+                return {
+                    id: activeAcquiringContext.id,
+                    integration: acquiringIntegration,
+                }
             },
             access: true,
         },
