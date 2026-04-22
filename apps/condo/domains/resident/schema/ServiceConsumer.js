@@ -5,7 +5,7 @@ const get = require('lodash/get')
 const pick = require('lodash/pick')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
 
 const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
@@ -15,6 +15,9 @@ const access = require('@condo/domains/resident/access/ServiceConsumer')
 const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
+
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
+const { CONTEXT_FINISHED_STATUS } = require('../../billing/constants/constants')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
@@ -78,20 +81,25 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: AcquiringIntegration }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
             resolver: async (item) => {
-                if (!item.acquiringIntegrationContext) { return null }
-                const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
-                const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringIntegrationContext, 'integration'))
-
-                const result = pick(acquiringIntegrationContext, ['id', 'integration'])
+                const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
+                    organization: { id: item.organization },
+                    status: CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+                    deletedAt: null,
+                })
+                if (!activeAcquiringContexts) {
+                    return null
+                }
+                const acquiringIntegration = await getById('AcquiringIntegration', get(activeAcquiringContexts, 'integration'))
+                const result = pick(activeAcquiringContexts, ['id', 'integration'])
                 result.integration = acquiringIntegration
-
                 return result
             },
             access: true,
         },
 
         accountNumber: {
-            schemaDoc: 'Account number taken from resident. This is what resident think his account number is for billing',
+            schemaDoc: 'The account number the resident uses for billing purposes',
             type: 'Text',
             isRequired: false,
         },

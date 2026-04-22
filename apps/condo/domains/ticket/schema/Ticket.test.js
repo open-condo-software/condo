@@ -250,7 +250,7 @@ describe('Ticket', () => {
             const [organization2] = await createTestOrganization(admin, { type: SERVICE_PROVIDER_TYPE })
             const [property2] = await createTestProperty(admin, organization2, { address: propertyAttrs.address })
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestTicket(userClient, organization2, property2)
+                await createTestTicket(userClient, organization2, property2, { unitName })
             })
             await createTestServiceConsumer(admin, resident, organization2, { accountNumber: null })
             const [ticket] = await createTestTicket(userClient, organization2, property2, { unitName })

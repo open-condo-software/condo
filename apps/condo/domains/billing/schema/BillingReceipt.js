@@ -12,6 +12,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
@@ -20,7 +21,7 @@ const {
     isWebhookUrlInWhitelist,
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
@@ -45,7 +46,7 @@ const findAcquiringContext = async (item) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         organization: { id: billingContext.organization },
-        status: CONTEXT_FINISHED_STATUS,
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
         integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
     })
@@ -244,7 +245,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
                 const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
                     organization: { id: get(billingContext, 'organization') },
-                    status: CONTEXT_FINISHED_STATUS,
+                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
                     integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                     deletedAt: null,
                 })

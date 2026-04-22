@@ -49964,8 +49964,7 @@ type ServiceConsumer {
   """
   residentAcquiringIntegrationContext: ResidentAcquiringIntegrationContext
 
-  """ Account number taken from resident. This is what resident think his account number is for billing 
-  """
+  """ The account number the resident uses for billing purposes """
   accountNumber: String
 
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
@@ -107564,6 +107563,12 @@ type Mutation {
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
     "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Argument \"accountNumber\" is null or empty"
+  }`
   """
   registerResidentServiceConsumers(data: RegisterResidentServiceConsumersInput!): [ServiceConsumer!]
 
@@ -107606,6 +107611,12 @@ type Mutation {
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
     "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Argument \"accountNumber\" is null or empty"
   }`
   """
   registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer

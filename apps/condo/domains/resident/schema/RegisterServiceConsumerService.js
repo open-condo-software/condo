@@ -66,6 +66,13 @@ const ERRORS = {
         message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
         messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND',
     },
+    ACCOUNT_NUMBER_IS_NOT_SPECIFIED: {
+        mutation: 'registerServiceConsumer',
+        variable: ['data', 'accountNumber'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Argument "accountNumber" is null or empty',
+    },
 }
 
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {
@@ -226,8 +233,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
                 const existingConsumerQuery = {
-                    resident: { id: residentId },
-                    organization: { id: organizationId },
+                    resident: { id: residentId, deletedAt: null },
+                    organization: { id: organizationId, deletedAt: null },
                     deletedAt: null,
                 }
                 if (accountNumber && accountNumber.length > 0) {
