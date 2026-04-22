@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const path = require('path')
+const path = require('node:path')
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
@@ -197,7 +197,6 @@ async function createTestAcquiringIntegrationContext (client, organization, inte
         organization: { connect: { id: organization.id } },
         settings,
         state,
-        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         ...extraAttrs,
     }
     const obj = await AcquiringIntegrationContext.create(client, attrs)
@@ -683,7 +682,9 @@ async function makePayer (receiptsAmount = 1) {
     }, new Big(0)).toFixed(8)
 
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+    })
 
     const [resident] = await createTestResident(admin, client.user, property, {
         unitName: billingAccount.unitName,
