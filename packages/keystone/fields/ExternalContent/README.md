@@ -153,7 +153,7 @@ const LARGE_DATA_FIELD = createExternalDataField({
    - Size is validated against `maxSizeBytes`
    - Content is saved to a file via FileAdapter
    - FileAdapter generates `publicUrl` based on storage configuration (local, S3, Sbercloud, etc.)
-   - Database stores file metadata as JSON string: `{ "id": "...", "filename": "...", "publicUrl": "...", "_type": "ExternalContent.file-meta", "meta": { "format": "xml" } }`
+   - Database stores file metadata as JSON string: `{ "id": "...", "filename": "...", "publicUrl": "...", "_externalContentFieldTypeMeta": { "format": "xml" } }`
 
 2. When you read a record via GraphQL:
    - **`fieldName`** - Returns raw file metadata (JSON string) for admin UI
@@ -183,7 +183,7 @@ Example: `BillingReceipt_raw_550e8400-e29b-41d4-a716-446655440000.json`
 query {
   XmlLog(where: { id: "..." }) {
     id
-    log  # Returns: '{"filename":"...","publicUrl":"https://...","_type":"ExternalContent.file-meta",...}'
+    log  # Returns: '{"filename":"...","publicUrl":"https://...","_externalContentFieldTypeMeta":{"format":"xml"},...}'
   }
 }
 ```
@@ -243,7 +243,7 @@ The field maintains backward compatibility with data stored before the ExternalC
 - **Admin UI (`log` field)**: Displays clickable download link with filename
 - **API Client (`logResolved` field)**: Loads file from storage and returns deserialized content
 
-The field automatically detects the data format using the `_type` marker and handles each case appropriately.
+The field automatically detects the data format using the `_externalContentFieldTypeMeta` field and handles each case appropriately.
 
 ### Performance Optimization
 

@@ -28,20 +28,12 @@ describe('isFileMeta', () => {
         expect(isFileMeta(true)).toBe(false)
     })
 
-    test('accepts objects with _type marker', () => {
+    test('accepts objects with _externalContentFieldTypeMeta marker', () => {
         expect(isFileMeta({
-            _type: 'ExternalContent.file-meta',
+            _externalContentFieldTypeMeta: { format: 'json' },
             id: '1',
             filename: 'file.json',
         })).toBe(true)
-    })
-
-    test('rejects objects with wrong _type', () => {
-        expect(isFileMeta({
-            _type: 'WrongType',
-            id: '1',
-            filename: 'file.json',
-        })).toBe(false)
     })
 
     test('accepts optional properties', () => {
@@ -51,7 +43,7 @@ describe('isFileMeta', () => {
             mimetype: 'application/json',
             originalFilename: 'original.json',
             encoding: 'utf-8',
-            meta: { custom: 'value' },
+            _externalContentFieldTypeMeta: { format: 'json' },
         })).toBe(true)
     })
 

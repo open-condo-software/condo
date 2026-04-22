@@ -53,7 +53,7 @@ describe('ExternalContent field type', () => {
                 delete: async () => {
                     calls.push('delete')
                 },
-                publicUrl: () => 'https://example.com/new.bin',
+                acl: { generateUrl: () => 'https://example.com/new.bin' },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -63,7 +63,7 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(res).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
+            expect(res).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', _externalContentFieldTypeMeta: { format: 'json' } })
             expect(calls).toEqual(['save'])
         })
 
@@ -73,7 +73,7 @@ describe('ExternalContent field type', () => {
                     throw new Error('save failed')
                 },
                 delete: jest.fn(),
-                publicUrl: jest.fn(),
+                acl: { generateUrl: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -91,7 +91,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
-                publicUrl: jest.fn(() => 'https://example.com/new.bin'),
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin') },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -111,7 +111,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
-                publicUrl: jest.fn(() => 'https://example.com/new.bin'),
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin') },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -145,7 +145,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
-                publicUrl: jest.fn(() => 'https://example.com/new.bin'),
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin') },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -155,7 +155,7 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(result).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
+            expect(result).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', _externalContentFieldTypeMeta: { format: 'json' } })
             expect(adapter.delete).not.toHaveBeenCalled()
         })
     })
@@ -168,8 +168,8 @@ describe('ExternalContent field type', () => {
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
-                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' }) },
-                updatedItem: { raw: JSON.stringify({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' }) },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
+                updatedItem: { raw: JSON.stringify({ id: 'new', filename: 'new.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
             })
 
             expect(adapter.delete).toHaveBeenCalledWith(expect.objectContaining({ filename: 'old.bin' }))
@@ -182,7 +182,7 @@ describe('ExternalContent field type', () => {
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
-                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' }) },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
                 updatedItem: { raw: null },
             })
 
@@ -194,8 +194,8 @@ describe('ExternalContent field type', () => {
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
-                existingItem: { raw: JSON.stringify({ id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' }) },
-                updatedItem: { raw: JSON.stringify({ id: 'same', filename: 'same.bin', _type: 'ExternalContent.file-meta' }) },
+                existingItem: { raw: JSON.stringify({ id: 'same', filename: 'same.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
+                updatedItem: { raw: JSON.stringify({ id: 'same', filename: 'same.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
             })
 
             expect(adapter.delete).not.toHaveBeenCalled()
@@ -207,7 +207,7 @@ describe('ExternalContent field type', () => {
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             await impl.afterChange({
                 existingItem: { raw: null },
-                updatedItem: { raw: JSON.stringify({ id: 'new', filename: 'new.bin', _type: 'ExternalContent.file-meta' }) },
+                updatedItem: { raw: JSON.stringify({ id: 'new', filename: 'new.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
             })
 
             expect(adapter.delete).not.toHaveBeenCalled()
@@ -221,7 +221,7 @@ describe('ExternalContent field type', () => {
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
 
             await expect(impl.afterChange({
-                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _type: 'ExternalContent.file-meta' }) },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
                 updatedItem: { raw: null },
             })).resolves.not.toThrow()
         })
@@ -266,7 +266,7 @@ describe('ExternalContent field type', () => {
             const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: '../../../etc/passwd', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: '../../../etc/passwd', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})).rejects.toThrow('path traversal detected')
         })
 
@@ -281,7 +281,7 @@ describe('ExternalContent field type', () => {
             const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const result = await resolver({
-                raw: { id: 'test-id', filename: 'valid-file.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'valid-file.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})
             
             expect(result).toEqual({ test: 'data' })
@@ -305,7 +305,7 @@ describe('ExternalContent field type', () => {
             
             await expect(resolver({
                 id: 'item-123',
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})).rejects.toThrow('Failed to deserialize ExternalContent value')
         })
 
@@ -320,7 +320,7 @@ describe('ExternalContent field type', () => {
             const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})).rejects.toThrow('Failed to deserialize ExternalContent value')
         })
     })
@@ -363,7 +363,7 @@ describe('ExternalContent field type', () => {
                     filename: 'test.json',
                     mimetype: 'application/json',
                     originalFilename: 'original.json',
-                    meta: { format: 'json' },
+                    _externalContentFieldTypeMeta: { format: 'json' },
                 },
             }, {}, {})
 
@@ -387,7 +387,7 @@ describe('ExternalContent field type', () => {
             const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})).rejects.toThrow('Invalid URL generated for file: test.json')
         })
 
@@ -408,7 +408,7 @@ describe('ExternalContent field type', () => {
             const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             const result = await resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})
             expect(result).toBeNull()
         })
@@ -428,7 +428,7 @@ describe('ExternalContent field type', () => {
             const resolver = impl.gqlOutputFieldResolvers().rawResolved
             
             await expect(resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, {})).rejects.toThrow('ExternalContent: failed to read file test.json: Network error')
         })
     })
@@ -452,7 +452,7 @@ describe('ExternalContent field type', () => {
             
             // First call should create loader
             const result1 = await resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             expect(result1).toEqual({ test: 'data' })
@@ -461,7 +461,7 @@ describe('ExternalContent field type', () => {
             
             // Second call should reuse loader (cached)
             const result2 = await resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             expect(result2).toEqual({ test: 'data' })
@@ -480,7 +480,7 @@ describe('ExternalContent field type', () => {
             
             const context = {}
             const result = await resolver({
-                raw: { id: 'test-id', filename: 'test.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             expect(result).toEqual({ test: 'data' })
@@ -508,11 +508,11 @@ describe('ExternalContent field type', () => {
             const context = {}
             
             await resolver1({
-                raw: { id: 'test-id', filename: 'test1.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test1.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             await resolver2({
-                raw: { id: 'test-id', filename: 'test2.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test2.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             // Should have two separate loaders
@@ -541,11 +541,11 @@ describe('ExternalContent field type', () => {
             const context = {}
             
             await resolver1({
-                raw: { id: 'test-id', filename: 'test1.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test1.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             await resolver2({
-                raw: { id: 'test-id', filename: 'test2.json', meta: { format: 'json' } },
+                raw: { id: 'test-id', filename: 'test2.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             // Should have two separate loaders even though they have the same folder
@@ -570,13 +570,13 @@ describe('ExternalContent field type', () => {
             
             // Simulate list query - multiple items resolved in parallel
             const promise1 = resolver({
-                raw: { id: 'id1', filename: 'file1.json', meta: { format: 'json' } },
+                raw: { id: 'id1', filename: 'file1.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             const promise2 = resolver({
-                raw: { id: 'id2', filename: 'file2.json', meta: { format: 'json' } },
+                raw: { id: 'id2', filename: 'file2.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             const promise3 = resolver({
-                raw: { id: 'id3', filename: 'file3.json', meta: { format: 'json' } },
+                raw: { id: 'id3', filename: 'file3.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
@@ -601,13 +601,13 @@ describe('ExternalContent field type', () => {
             
             // Multiple items with same file
             const promise1 = resolver({
-                raw: { id: 'id1', filename: 'shared.json', meta: { format: 'json' } },
+                raw: { id: 'id1', filename: 'shared.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             const promise2 = resolver({
-                raw: { id: 'id2', filename: 'shared.json', meta: { format: 'json' } },
+                raw: { id: 'id2', filename: 'shared.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             const promise3 = resolver({
-                raw: { id: 'id3', filename: 'shared.json', meta: { format: 'json' } },
+                raw: { id: 'id3', filename: 'shared.json', _externalContentFieldTypeMeta: { format: 'json' } },
             }, {}, context)
             
             const [result1, result2, result3] = await Promise.all([promise1, promise2, promise3])
@@ -643,7 +643,7 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.json' })),
                 delete: jest.fn(),
-                publicUrl: jest.fn(() => 'https://example.com/new.json'),
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.json') },
             }
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -657,18 +657,18 @@ describe('ExternalContent field type', () => {
                 listKey: 'TestList',
             })
             
-            expect(result).toEqual({ id: 'new', filename: 'new.json', publicUrl: 'https://example.com/new.json', meta: { format: 'json' }, _type: 'ExternalContent.file-meta' })
+            expect(result).toEqual({ id: 'new', filename: 'new.json', publicUrl: 'https://example.com/new.json', _externalContentFieldTypeMeta: { format: 'json' } })
             expect(adapter.save).toHaveBeenCalled()
         })
     })
 
     describe('File-meta type marker', () => {
         describe('Type identification', () => {
-            test('should add _type marker to saved file-meta objects', async () => {
+            test('should add _externalContentFieldTypeMeta marker to saved file-meta objects', async () => {
                 const adapter = {
                     save: jest.fn(async () => ({ id: 'test-id', filename: 'test.json' })),
                     delete: jest.fn(),
-                    publicUrl: jest.fn(() => 'https://example.com/test.json'),
+                    acl: { generateUrl: jest.fn(() => 'https://example.com/test.json') },
                 }
 
                 const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -678,18 +678,17 @@ describe('ExternalContent field type', () => {
                     listKey: 'TestList',
                 })
 
-                // Verify _type marker is added
-                expect(result).toHaveProperty('_type', 'ExternalContent.file-meta')
+                // Verify _externalContentFieldTypeMeta marker is added
+                expect(result).toHaveProperty('_externalContentFieldTypeMeta.format', 'json')
                 expect(result).toMatchObject({
                     id: 'test-id',
                     filename: 'test.json',
                     publicUrl: 'https://example.com/test.json',
-                    meta: { format: 'json' },
-                    _type: 'ExternalContent.file-meta',
+                    _externalContentFieldTypeMeta: { format: 'json' },
                 })
             })
 
-            test('should preserve other properties when adding _type marker', async () => {
+            test('should preserve other properties when adding _externalContentFieldTypeMeta marker', async () => {
                 const adapter = {
                     save: jest.fn(async () => ({
                         id: 'test-id',
@@ -699,7 +698,7 @@ describe('ExternalContent field type', () => {
                         size: 1234,
                     })),
                     delete: jest.fn(),
-                    publicUrl: jest.fn(() => 'https://example.com/test.json'),
+                    acl: { generateUrl: jest.fn(() => 'https://example.com/test.json') },
                 }
 
                 const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -709,7 +708,7 @@ describe('ExternalContent field type', () => {
                     listKey: 'TestList',
                 })
 
-                // Verify all properties are preserved and _type is added
+                // Verify all properties are preserved and _externalContentFieldTypeMeta is added
                 expect(result).toMatchObject({
                     id: 'test-id',
                     filename: 'test.json',
@@ -717,8 +716,7 @@ describe('ExternalContent field type', () => {
                     originalFilename: 'original.json',
                     size: 1234,
                     publicUrl: 'https://example.com/test.json',
-                    meta: { format: 'json' },
-                    _type: 'ExternalContent.file-meta',
+                    _externalContentFieldTypeMeta: { format: 'json' },
                 })
             })
         })

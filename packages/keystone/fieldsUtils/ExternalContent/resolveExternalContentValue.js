@@ -8,7 +8,8 @@ const { isFileMeta } = require('./isFileMeta')
  * Resolves ExternalContent field value by reading file content from storage if needed.
  * 
  * For backward compatibility, returns inline JSON objects directly if they don't have file-meta structure.
- * For file-meta objects, fetches the file content and deserializes it using the format stored in meta.
+ * For file-meta objects (identified by `_externalContentFieldTypeMeta`), fetches the file content
+ * and deserializes it using the format stored in `_externalContentFieldTypeMeta.format`.
  * 
  * This utility is designed for use in:
  * 1. Field type resolvers (gqlOutputFieldResolvers)
@@ -86,9 +87,9 @@ async function resolveExternalContentValue (value, {
     try {
         const raw = buf.toString('utf-8')
         
-        // Get format from file metadata
-        const format = parsedValue?.meta?.format
-        
+        // Get format from file metadata (stored in _externalContent.format by ExternalContent field)
+        const format = parsedValue?._externalContentFieldTypeMeta?.format
+
         // If format is missing, return raw content as-is (legacy files without format metadata)
         if (!format) {
             return raw

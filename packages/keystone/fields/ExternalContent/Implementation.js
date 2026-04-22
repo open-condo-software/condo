@@ -8,7 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger()
 
-const { FILE_META_TYPE, DEFAULT_PROCESSORS, isFileMeta, resolveExternalContentValue } = ExternalContent
+const { EXTERNAL_CONTENT_FIELD_TYPE_META, DEFAULT_PROCESSORS, isFileMeta, resolveExternalContentValue } = ExternalContent
 
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024 // Default max size: 10MB
 
@@ -239,9 +239,17 @@ class ExternalContentImplementation extends Implementation {
             meta: { format: this.config.format },
         })
 
-        const publicUrl = this.adapter.publicUrl(saved, context?.authedItem)
+        // Generate publicUrl based on adapter type
+        // For local adapters: use adapter.path (e.g., https://host/api/files/folder/filename)
+        // For cloud adapters: use direct signed URL via acl.generateUrl() to bypass middleware
+        const publicUrl = this.adapter.acl?.generateUrl
+            ? this.adapter.acl.generateUrl({
+                filename: `${this.adapter.folder}/${originalFilename}`,
+                originalFilename,
+            })
+            : `${this.adapter.path}/${originalFilename}`
 
-        return { ...saved, publicUrl, meta: { format: this.config.format }, _type: FILE_META_TYPE }
+        return { ...saved, publicUrl, [EXTERNAL_CONTENT_FIELD_TYPE_META]: { format: this.config.format } }
     }
 
     /**

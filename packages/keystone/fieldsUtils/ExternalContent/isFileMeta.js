@@ -1,4 +1,4 @@
-const { FILE_META_TYPE } = require('./constants')
+const { EXTERNAL_CONTENT_FIELD_TYPE_META } = require('./constants')
 
 function isPlainObject (value) {
     if (value === null || typeof value !== 'object') return false
@@ -7,16 +7,13 @@ function isPlainObject (value) {
 }
 
 /**
- * Checks if a value looks like a keystone file-meta object produced by file adapters.
+ * Checks if a value is an ExternalContent file-meta object.
  *
  * This helper is intended for scripts/tooling (e.g. backfills) and field implementations
  * that need to distinguish between inline JSON values and file-meta references.
  *
- * File-meta objects always have `id` and `filename` properties.
- *
- * We accept both shapes:
- * - `{ _type: FILE_META_TYPE, id, filename, ... }` (preferred)
- * - `{ id, filename, ... }` (also accepted for compatibility)
+ * ExternalContent file-meta objects are identified by the presence of `_externalContentFieldTypeMeta`
+ * which contains application-level metadata like the format ('json', 'xml', 'text').
  *
  * @param {unknown} value
  * @param {{ requireNonEmpty?: boolean }} [opts]
@@ -27,8 +24,8 @@ function isFileMeta (value, opts = {}) {
 
     const { requireNonEmpty = true } = opts
 
-    // If _type is present it must match
-    if (value._type !== undefined && value._type !== FILE_META_TYPE) return false
+    // Presence of _externalContentFieldTypeMeta indicates this is ExternalContent file metadata
+    if (value[EXTERNAL_CONTENT_FIELD_TYPE_META] !== undefined) return true
 
     const hasValidString = (v) => typeof v === 'string' && (!requireNonEmpty || v.length > 0)
 
@@ -38,13 +35,13 @@ function isFileMeta (value, opts = {}) {
     // Guard against accidentally treating arbitrary JSON as file-meta:
     // require the object to contain only known file-meta keys.
     const allowedKeys = new Set([
-        '_type',
         'id',
         'filename',
         'mimetype',
         'originalFilename',
         'encoding',
-        'meta',
+        EXTERNAL_CONTENT_FIELD_TYPE_META, // Application-level metadata: format ('json'/'xml'/'text')
+        '_meta',            // Provider-specific metadata (e.g., SberCloud response headers, ETags, request IDs)
         'publicUrl',
     ])
     return Object.keys(value).every((key) => allowedKeys.has(key))
