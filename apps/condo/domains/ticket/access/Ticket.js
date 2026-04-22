@@ -88,7 +88,7 @@ async function canManageTickets (args) {
             const propertyId = get(originalInput, ['property', 'connect', 'id'])
             if (!unitName || !propertyId) return false
             const property = await getById('Property', propertyId)
-            if (!property || !property.organization || property.deletedAt) {
+            if (!property?.organization || property.deletedAt) {
                 return false
             }
             const residentsCount = await Resident.count(context, {

@@ -86,7 +86,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
                     integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                     deletedAt: null,
                 })
-                if (!activeAcquiringContext || !activeAcquiringContext.integration) {
+                if (!activeAcquiringContext?.integration) {
                     return null
                 }
                 const acquiringIntegration = await getById('AcquiringIntegration', activeAcquiringContext.integration)
