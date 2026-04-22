@@ -65,7 +65,7 @@ export const usePaymentHistoryModal = () => {
             offset: (currentPageIndex - 1) * PAGE_SIZE,
             first: PAGE_SIZE,
         },
-        skip: !organization?.id || !isModalOpen,
+        skip: !organization?.id,
     })
 
     const paymentHistory = useMemo(() => data?.paymentHistory?.filter(Boolean) ?? [], [data?.paymentHistory])
