@@ -748,7 +748,9 @@ async function makePayerWithMultipleConsumers (consumersAmount = 1, receiptsAmou
         const property = result[i].property
         const billingAccount = result[i].billingAccount
         const billingContext = result[i].billingContext
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+        })
         const [resident] = await createTestResident(admin, client.user, property, {
             unitName: billingAccount.unitName,
             unitType: billingAccount.unitType,
