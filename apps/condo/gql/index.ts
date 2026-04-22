@@ -2995,6 +2995,52 @@ export type GetPublicB2BAppsByIdsQueryHookResult = ReturnType<typeof useGetPubli
 export type GetPublicB2BAppsByIdsLazyQueryHookResult = ReturnType<typeof useGetPublicB2BAppsByIdsLazyQuery>;
 export type GetPublicB2BAppsByIdsSuspenseQueryHookResult = ReturnType<typeof useGetPublicB2BAppsByIdsSuspenseQuery>;
 export type GetPublicB2BAppsByIdsQueryResult = Apollo.QueryResult<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>;
+export const GetB2BAppsWithBillingTabEmbeddingConfigDocument = gql`
+    query getB2BAppsWithBillingTabEmbeddingConfig {
+  b2bApps: allB2BApps(where: {billingEmbedConfig: {tabUrl_not: null}}, first: 100) {
+    id
+    name
+    billingEmbedConfig {
+      tabUrl
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppsWithBillingTabEmbeddingConfigQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppsWithBillingTabEmbeddingConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppsWithBillingTabEmbeddingConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppsWithBillingTabEmbeddingConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetB2BAppsWithBillingTabEmbeddingConfigQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>(GetB2BAppsWithBillingTabEmbeddingConfigDocument, options);
+      }
+export function useGetB2BAppsWithBillingTabEmbeddingConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>(GetB2BAppsWithBillingTabEmbeddingConfigDocument, options);
+        }
+// @ts-ignore
+export function useGetB2BAppsWithBillingTabEmbeddingConfigSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>;
+export function useGetB2BAppsWithBillingTabEmbeddingConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery | undefined, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>;
+export function useGetB2BAppsWithBillingTabEmbeddingConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>(GetB2BAppsWithBillingTabEmbeddingConfigDocument, options);
+        }
+export type GetB2BAppsWithBillingTabEmbeddingConfigQueryHookResult = ReturnType<typeof useGetB2BAppsWithBillingTabEmbeddingConfigQuery>;
+export type GetB2BAppsWithBillingTabEmbeddingConfigLazyQueryHookResult = ReturnType<typeof useGetB2BAppsWithBillingTabEmbeddingConfigLazyQuery>;
+export type GetB2BAppsWithBillingTabEmbeddingConfigSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppsWithBillingTabEmbeddingConfigSuspenseQuery>;
+export type GetB2BAppsWithBillingTabEmbeddingConfigQueryResult = Apollo.QueryResult<Types.GetB2BAppsWithBillingTabEmbeddingConfigQuery, Types.GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables>;
 export const GetEmployeeB2BAppRolesForSpecificAppsDocument = gql`
     query getEmployeeB2BAppRolesForSpecificApps($employeeRoleId: ID, $b2bAppIds: [ID]) {
   b2bRoles: allB2BAppRoles(
