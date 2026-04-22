@@ -5,9 +5,11 @@ const get = require('lodash/get')
 const pick = require('lodash/pick')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
@@ -73,27 +75,33 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         // The reason for this field is to avoid adding check for resident user into global AcquiringIntegrationContext read access.
         // This field have specific use case for mobile client.
         residentAcquiringIntegrationContext: {
-            schemaDoc: 'AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
+            schemaDoc: '[DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
             type: 'Virtual',
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: AcquiringIntegration }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
             resolver: async (item) => {
-                if (!item.acquiringIntegrationContext) { return null }
-                const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
-                const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringIntegrationContext, 'integration'))
-
-                const result = pick(acquiringIntegrationContext, ['id', 'integration'])
-                result.integration = acquiringIntegration
-
-                return result
+                const [activeAcquiringContext] = await find('AcquiringIntegrationContext', {
+                    organization: { id: item.organization },
+                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+                    deletedAt: null,
+                })
+                if (!activeAcquiringContext?.integration) {
+                    return null
+                }
+                const acquiringIntegration = await getById('AcquiringIntegration', activeAcquiringContext.integration)
+                return {
+                    id: activeAcquiringContext.id,
+                    integration: acquiringIntegration,
+                }
             },
             access: true,
         },
 
         accountNumber: {
-            schemaDoc: 'Account number taken from resident. This is what resident think his account number is',
+            schemaDoc: 'The account number the resident uses for billing purposes',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
         },
 
         organization: ORGANIZATION_OWNED_FIELD,

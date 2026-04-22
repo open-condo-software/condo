@@ -49960,12 +49960,11 @@ type ServiceConsumer {
   """
   acquiringIntegrationContext: AcquiringIntegrationContext
 
-  """ AcquiringIntegration, that is returned for current serviceConsumer in mobile client 
+  """ [DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client 
   """
   residentAcquiringIntegrationContext: ResidentAcquiringIntegrationContext
 
-  """ Account number taken from resident. This is what resident think his account number is 
-  """
+  """ The account number the resident uses for billing purposes """
   accountNumber: String
 
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
@@ -92808,7 +92807,7 @@ input RegisterServiceConsumerInput {
   dv: Int!
   sender: SenderFieldInput!
   residentId: ID!
-  accountNumber: String!
+  accountNumber: String
   organizationId: ID!
   extra: RegisterServiceConsumerInputExtra
 }
@@ -107576,7 +107575,7 @@ type Mutation {
   """
   Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
   
-  To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+  To be successfully created with accountNumber the organization should at least have billingAccount with same data or Meter with same data
   
   **Errors**
   

@@ -266,6 +266,7 @@ async function isLimitExceedForBillingReceipts (context, recurrentPaymentContext
 
     // get fee distribution formula
     const serviceConsumer = await getServiceConsumer(context, recurrentPaymentContext.serviceConsumer.id)
+
     const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.residentAcquiringIntegrationContext.id)
 
     // calc final amount for each billing receipt and accumulate it to total
