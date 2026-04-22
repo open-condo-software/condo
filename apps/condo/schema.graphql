@@ -75181,27 +75181,27 @@ type B2CApp {
   """ Controls whether the mini-app can use “camera” device permission """
   isCameraAllowed: Boolean
 
-  """ Controls whether the mini-app can use “speaker Selection” device permission 
+  """ Controls whether the mini-app can use “speaker selection” device permission 
   """
   isSpeakerSelectionAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble Beacon Bg” device permission 
+  """ Controls whether the mini-app can use “ble beacon bg” device permission 
   """
   isBleBeaconBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble Central Bg” device permission 
+  """ Controls whether the mini-app can use “ble central bg” device permission 
   """
   isBleCentralBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble Peripheral Bg” device permission 
+  """ Controls whether the mini-app can use “ble peripheral bg” device permission 
   """
   isBlePeripheralBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “push Notifications” device permission 
+  """ Controls whether the mini-app can use “push notifications” device permission 
   """
   isPushNotificationsAllowed: Boolean
 
-  """ Controls whether the mini-app can use “voip Notifications” device permission 
+  """ Controls whether the mini-app can use “voip notifications” device permission 
   """
   isVoipNotificationsAllowed: Boolean
   id: ID!

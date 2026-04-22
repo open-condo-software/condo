@@ -5,6 +5,7 @@ const BASE_FIELD = {
     type: 'Checkbox',
     defaultValue: false,
     isRequired: true,
+    sensitive: false,
 }
 
 function _camelSplit (str) {
