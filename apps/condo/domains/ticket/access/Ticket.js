@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT, SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+const {getServiceConsumers} = require("@app/resident-app/domains/telegram-bot/scenes/receipt/queries");
 
 async function canReadTickets (args) {
     const { authentication: { item: user }, listKey, context } = args
@@ -83,17 +84,23 @@ async function canManageTickets (args) {
         if (operation === 'create') {
             const unitName = get(originalInput, 'unitName', null)
             const propertyId = get(originalInput, ['property', 'connect', 'id'])
-
             if (!unitName || !propertyId) return false
-
             const residentsCount = await Resident.count(context, {
                 user: { id: user.id },
                 property: { id: propertyId, deletedAt: null },
                 unitName,
                 deletedAt: null,
             })
-
-            return residentsCount > 0
+            if (residentsCount > 0) {
+                return true
+            }
+            const property = await getById('Property', propertyId)
+            const consumers = await find('ServiceConsumer', {
+                resident: { user: { id: user.id }, deletedAt: null },
+                organization: { id: property.organization },
+                deletedAt: null,
+            })
+            return consumers.length > 0
         } else if (operation === 'update') {
             if (!itemId) return false
 

@@ -92808,7 +92808,7 @@ input RegisterServiceConsumerInput {
   dv: Int!
   sender: SenderFieldInput!
   residentId: ID!
-  accountNumber: String!
+  accountNumber: String
   organizationId: ID!
   extra: RegisterServiceConsumerInputExtra
 }
@@ -107564,19 +107564,13 @@ type Mutation {
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
     "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
   }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "WRONG_FORMAT",
-    "message": "Argument \"accountNumber\" is null or empty"
-  }`
   """
   registerResidentServiceConsumers(data: RegisterResidentServiceConsumersInput!): [ServiceConsumer!]
 
   """
   Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
   
-  To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+  To be successfully created with accountNumber the organization should at least have billingAccount with same data or Meter with same data
   
   **Errors**
   
@@ -107612,12 +107606,6 @@ type Mutation {
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
     "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "WRONG_FORMAT",
-    "message": "Argument \"accountNumber\" is null or empty"
   }`
   """
   registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer

@@ -395,7 +395,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 update: true,
             },
         },
-        // TODO(zuch): make it required
         categoryClassifier: {
             schemaDoc: '@deprecated',
             type: 'Relationship',
@@ -857,11 +856,9 @@ const Ticket = new GQLListSchema('Ticket', {
             if (hasUpdatedFeedbackFields) {
                 resolvedData.feedbackUpdatedAt = dayjs().toISOString()
             }
-
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation, originalInput }) => {
-            // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
 
             const user = get(context, ['req', 'user'])

@@ -73,7 +73,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         // The reason for this field is to avoid adding check for resident user into global AcquiringIntegrationContext read access.
         // This field have specific use case for mobile client.
         residentAcquiringIntegrationContext: {
-            schemaDoc: 'AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
+            schemaDoc: '[DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
             type: 'Virtual',
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: AcquiringIntegration }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
@@ -91,9 +91,9 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         accountNumber: {
-            schemaDoc: 'Account number taken from resident. This is what resident think his account number is',
+            schemaDoc: 'Account number taken from resident. This is what resident think his account number is for billing',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
         },
 
         organization: ORGANIZATION_OWNED_FIELD,

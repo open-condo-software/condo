@@ -53,6 +53,7 @@ const {
     ASSIGNED_TICKET_VISIBILITY,
     ORGANIZATION_TICKET_VISIBILITY,
 } = require('@condo/domains/organization/constants/common')
+const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -69,7 +70,7 @@ const {
     updateTestProperty,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     createTestPropertyScope,
     createTestPropertyScopeOrganizationEmployee,
@@ -235,6 +236,25 @@ describe('Ticket', () => {
             expect(obj.clientName).toEqual(name)
             expect(obj.clientPhone).toEqual(phone)
             expect(obj.clientEmail).toEqual(email)
+        })
+
+        test('resident: can create Ticket if has serviceConsumer for the Organization', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [organization1] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property1, propertyAttrs] = await createTestProperty(admin, organization1)
+            const [resident] = await createTestResident(admin, userClient.user, property1, {
+                unitName,
+            })
+            const [organization2] = await createTestOrganization(admin, { type: SERVICE_PROVIDER_TYPE })
+            const [property2] = await createTestProperty(admin, organization2, { address: propertyAttrs.address })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicket(userClient, organization2, property2)
+            })
+            await createTestServiceConsumer(admin, resident, organization2, { accountNumber: null })
+            const [ticket] = await createTestTicket(userClient, organization2, property2, { unitName })
+            expect(ticket.id).toMatch(UUID_RE)
         })
 
         test('user with 2 residents: can create Ticket for each resident', async () => {
