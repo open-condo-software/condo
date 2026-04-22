@@ -1,3 +1,4 @@
+import { useGetB2BAppsWithBillingTabEmbeddingConfigQuery } from '@app/condo/gql'
 import { Image } from 'antd'
 import get from 'lodash/get'
 import getConfig from 'next/config'
@@ -82,23 +83,55 @@ type MainContentProps = {
     uploadComponent?: React.ReactElement
 }
 
+type ExtensionTabType = {
+    id: string
+    appUrl: string
+    label: string
+    iconUrl?: string
+}
+
 export const MainContent: React.FC<MainContentProps> = ({
     uploadComponent,
 }) => {
     const intl = useIntl()
     const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })
     const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
-    const DebtClaimsTabTitle = intl.formatMessage({ id: 'billing.debtClaims.tab.title' })
-
-    const { publicRuntimeConfig } = getConfig()
-    const debtManagementAppUrl: string | null = publicRuntimeConfig.debtManagementAppUrl || null
 
     const userOrganization = useOrganization()
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
     const { billingContexts } = useBillingAndAcquiringContexts()
-    const extensionAppTabs = useMemo(() => billingContexts.filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage), [billingContexts])
+    const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
+        return billingContexts
+            .filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage)
+            .map(context => {
+                return {
+                    id: context.id,
+                    label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
+                    appUrl: get(context, ['integration', 'appUrl'], '') || '',
+                    iconUrl: get(context, ['integration', 'billingPageIcon', 'publicUrl'], null),
+                }
+            })
+    }, [billingContexts])
+
+    const { data } = useGetB2BAppsWithBillingTabEmbeddingConfigQuery()
+    const b2bAppsExtensionTabs: ExtensionTabType[] = useMemo(() => {
+        if (!data?.b2bApps) return []
+
+        return data?.b2bApps?.map((b2bApp) => {
+            return {
+                id: b2bApp.id,
+                label: b2bApp.name,
+                appUrl: b2bApp?.billingEmbedConfig?.tabUrl,
+            }
+        })
+    }, [data?.b2bApps])
+
+    const extensionAppTabs: ExtensionTabType[] = useMemo(() => [
+        ...billingIntegrationsExtensionTabs,
+        ...b2bAppsExtensionTabs,
+    ], [b2bAppsExtensionTabs, billingIntegrationsExtensionTabs])
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
     const hasLastReport = billingContexts.find(({ lastReport }) => !!lastReport)
 
@@ -133,21 +166,15 @@ export const MainContent: React.FC<MainContentProps> = ({
                 key: PAYMENTS_TAB_KEY,
                 children: <PaymentsTab type={currentType} />,
             },
-            canReadBillingReceipts && debtManagementAppUrl && {
-                label: DebtClaimsTabTitle,
-                key: DEBT_CLAIMS_TAB_KEY,
-                children: <IFrame src={debtManagementAppUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={500}/>,
-            },
         ]
 
         extensionAppTabs.forEach((extensionAppTab) => {
-            const appUrl = get(extensionAppTab, ['integration', 'appUrl'], '') || ''
+            const { appUrl, id, label, iconUrl } = extensionAppTab
             if (!appUrl) return
 
-            const iconUrl = get(extensionAppTab, ['integration', 'billingPageIcon', 'publicUrl'], null)
-            const tabKey = `${EXTENSION_TAB_KEY}-${extensionAppTab.id}`
+            const tabKey = `${EXTENSION_TAB_KEY}-${id}`
             result.push({
-                label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
+                label,
                 key: tabKey,
                 children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>,
                 icon: renderTabIcon(iconUrl),
@@ -155,7 +182,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, DebtClaimsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
 
     return (
         <Tabs

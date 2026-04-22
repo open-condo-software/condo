@@ -905,10 +905,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/debt-management@workspace:apps/debt-management"
   dependencies:
+    "@apollo/client": ^3.11.8
     "@debt-management/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
+    "@graphql-codegen/cli": ^6.2.0
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
+    "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -17690,7 +17693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmldom/xmldom@npm:^0.8.12":
+"@xmldom/xmldom@npm:^0.8.12, @xmldom/xmldom@npm:^0.8.6":
   version: 0.8.13
   resolution: "@xmldom/xmldom@npm:0.8.13"
   checksum: b5568a3dee6306c4c6256c94f27d74f904d7cc923607f0dcaa37998e370361ce37a6e99aa55e8e725f07079e619a6f8b3a7de218e76b522ba2b1aca3ada5265c
