@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
@@ -16,7 +17,6 @@ const { resetUserResidentCache } = require('@condo/domains/resident/utils/access
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 
-const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { CONTEXT_FINISHED_STATUS } = require('../../billing/constants/constants')
 
 
