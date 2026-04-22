@@ -124,6 +124,7 @@
     "@open-keystone/adapter-prisma@4.0.20": "patch:@open-keystone/adapter-prisma@npm:4.0.20#.yarn/patches/@open-keystone-adapter-prisma-npm-4.0.20-bd8566b08e.patch",
     "figma-js/axios": "^1.15.0",
     "protobufjs": "7.5.5",
-    "next": "^15.5.15"
+    "next": "^15.5.15",
+    "@xmldom/xmldom": "^0.8.12"
   }
 }
