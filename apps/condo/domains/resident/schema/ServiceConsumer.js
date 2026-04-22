@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require(
@@ -16,8 +17,6 @@ const access = require('@condo/domains/resident/access/ServiceConsumer')
 const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
-
-const { CONTEXT_FINISHED_STATUS } = require('../../billing/constants/constants')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
@@ -83,7 +82,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             resolver: async (item) => {
                 const [activeAcquiringContext] = await find('AcquiringIntegrationContext', {
                     organization: { id: item.organization },
-                    status: CONTEXT_FINISHED_STATUS,
+                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
                     integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
                     deletedAt: null,
                 })

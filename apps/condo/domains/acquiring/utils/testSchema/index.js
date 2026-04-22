@@ -3,37 +3,27 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const path = require('path')
+
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
+const dayjs = require('dayjs')
 const get = require('lodash/get')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const {
-    createTestBillingIntegration,
-    createTestBillingIntegrationOrganizationContext,
-    createTestBillingAccount,
-    createTestBillingProperty,
-    createTestBillingReceipt,
-} = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const {
+    WebhookPayload,
+    createTestWebhookPayload,
+    updateTestWebhookPayload,
+} = require('@open-condo/webhooks/schema/utils/testSchema')
 
-const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
-const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
-const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
-const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
-const { MultiPaymentWithPayerInfo: MultiPaymentWithPayerInfoGQL } = require('@condo/domains/acquiring/gql')
-const { MultiPaymentAdmin: MultiPaymentAdminGQL } = require('@condo/domains/acquiring/gql')
-const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
-
-const dayjs = require('dayjs')
-const Big = require('big.js')
+const { PAYMENTS_FILE_NEW_STATUS } = require('@condo/domains/acquiring/constants/constants')
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     MULTIPAYMENT_DONE_STATUS,
     PAYMENT_DONE_STATUS,
@@ -42,7 +32,14 @@ const {
     PAYMENT_WITHDRAWN_STATUS,
     MULTIPAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
-
+const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
+const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
+const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
+const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { MultiPaymentWithPayerInfo: MultiPaymentWithPayerInfoGQL } = require('@condo/domains/acquiring/gql')
+const { MultiPaymentAdmin: MultiPaymentAdminGQL } = require('@condo/domains/acquiring/gql')
+const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 const {
     REGISTER_MULTI_PAYMENT_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
@@ -55,28 +52,32 @@ const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquir
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
-const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
-const {
-    createValidRuRoutingNumber,
-    createValidRuNumber,
-    createValidRuTin10
-} = require("@condo/domains/banking/utils/testSchema/bankAccount");
 const { PaymentsFile: PaymentsFileGQL } = require('@condo/domains/acquiring/gql')
-const path = require("path");
-const conf = require("@open-condo/config");
-const { PAYMENTS_FILE_NEW_STATUS } = require("@condo/domains/acquiring/constants/constants");
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
 const {
     PaymentStatusChangeWebhookUrl: PaymentStatusChangeWebhookUrlGQL,
 } = require('@condo/domains/acquiring/gql')
-const {
-    WebhookPayload,
-    createTestWebhookPayload,
-    updateTestWebhookPayload,
-} = require('@open-condo/webhooks/schema/utils/testSchema')
-
 const { REGISTER_EXTERNAL_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
+const {
+    createValidRuRoutingNumber,
+    createValidRuNumber,
+    createValidRuTin10,
+} = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const {
+    createTestBillingIntegration,
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingAccount,
+    createTestBillingProperty,
+    createTestBillingReceipt,
+} = require('@condo/domains/billing/utils/testSchema')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -129,8 +130,9 @@ async function createTestAcquiringIntegration (client, extraAttrs = {}) {
         name,
         hostUrl,
         isHidden: true,
+        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
-        ...extraAttrs
+        ...extraAttrs,
     }
     const obj = await AcquiringIntegration.create(client, attrs)
     return [obj, attrs]
@@ -195,6 +197,7 @@ async function createTestAcquiringIntegrationContext (client, organization, inte
         organization: { connect: { id: organization.id } },
         settings,
         state,
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         ...extraAttrs,
     }
     const obj = await AcquiringIntegrationContext.create(client, attrs)
@@ -236,7 +239,7 @@ async function makeAcquiringContextAndIntegrationManager () {
 
     return {
         context,
-        client
+        client,
     }
 }
 
@@ -251,21 +254,10 @@ async function addAcquiringIntegrationAndContext (client, organization, integrat
     return {
         acquiringIntegration,
         acquiringIntegrationContext,
-        client
+        client,
     }
 }
 
-async function makeAcquiringContextAndIntegrationAccount () {
-    const admin = await makeLoggedInAdminClient()
-    const [integration] = await createTestAcquiringIntegration(admin)
-    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
-    const client = await makeClientWithNewRegisteredAndLoggedInUser()
-    await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
-    return {
-        context,
-        client
-    }
-}
 
 async function createTestMultiPayment (client, payments, user, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -652,7 +644,7 @@ async function updateTestPaymentStatusChangeWebhookUrl (client, id, extraAttrs =
     return [obj, attrs]
 }
 
-async function registerExternalPaymentsByTestClient(client, extraAttrs = {}) {
+async function registerExternalPaymentsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -700,7 +692,7 @@ async function makePayer (receiptsAmount = 1) {
     const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
         accountNumber: billingAccount.number,
         acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
-        billingIntegrationContext: { connect: { id: billingContext.id } }
+        billingIntegrationContext: { connect: { id: billingContext.id } },
     })
 
     return {
@@ -717,7 +709,7 @@ async function makePayer (receiptsAmount = 1) {
         billingReceipts,
         resident,
         serviceConsumer,
-        toPaySum
+        toPaySum,
     }
 }
 
@@ -744,11 +736,11 @@ async function makePayerWithMultipleConsumers (consumersAmount = 1, receiptsAmou
             billingContext,
             billingProperty,
             billingAccount,
-            billingReceipts
+            billingReceipts,
         })
     }
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin, {
-        canGroupReceipts: true
+        canGroupReceipts: true,
     })
     for (let i = 0; i < consumersAmount; i++) {
         const organization = result[i].organization
@@ -776,7 +768,7 @@ async function makePayerWithMultipleConsumers (consumersAmount = 1, receiptsAmou
     }
     return {
         commonData,
-        batches: result
+        batches: result,
     }
 }
 
@@ -791,7 +783,7 @@ async function makePayerAndPayments (receiptsAmount = 1) {
 
     return {
         ...data,
-        payments
+        payments,
     }
 }
 
@@ -800,7 +792,7 @@ async function makePayerAndPayments (receiptsAmount = 1) {
  * As a resident pay for single billing receipt with specified <amount>,
  * As an integrationClient complete payment
  *
- * Currently fees are not implemented
+ * Currently, fees are not implemented
  *
  * @param {Object} residentClient
  * @param {Object} integrationClient
@@ -810,7 +802,7 @@ async function makePayerAndPayments (receiptsAmount = 1) {
  * @param {string} targetStatus "DONE" or "WITHDRAWN" - a status, which should be set on completed payment
  * @return {Promise<{doneMultiPayment: ({data: *, errors: *}|*)}>}
  */
-async function completeTestPayment (residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}, targetStatus = "DONE") {
+async function completeTestPayment (residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}, targetStatus = 'DONE') {
     const registerMultiPaymentPayload = {
         serviceConsumer: { id: serviceConsumerId },
         receipts: [{ id: receiptId }],
@@ -937,7 +929,6 @@ module.exports = {
     AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
     MultiPayment, MultiPaymentWithPayerInfo, MultiPaymentAdmin, createTestMultiPayment, updateTestMultiPayment, addAcquiringIntegrationAndContext,
     makeAcquiringContext,
-    makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
     createPaymentsAndGetSum, createPaymentsFilesAndGetSum,
     Payment, createTestPayment, updateTestPayment,
