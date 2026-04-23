@@ -87,6 +87,8 @@ const ExternalContentField = ({ onChange, field, errors, value = '{}', isDisable
         )
     } else if (isFileMetadata && publicUrl) {
         // Read-only mode with file metadata - show download link
+        // publicUrl points to /api/files/{folder}/{filename} which uses OBSFilesMiddleware
+        // The middleware generates fresh signed URLs on each request (avoids expired TTL issues)
         fieldContent = (
             <a
                 href={publicUrl}

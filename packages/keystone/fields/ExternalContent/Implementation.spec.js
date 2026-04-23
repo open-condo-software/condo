@@ -53,7 +53,9 @@ describe('ExternalContent field type', () => {
                 delete: async () => {
                     calls.push('delete')
                 },
-                acl: { generateUrl: () => 'https://example.com/new.bin' },
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: () => 'https://example.com/new.bin', setMeta: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -63,7 +65,8 @@ describe('ExternalContent field type', () => {
                 listKey: 'BillingReceipt',
             })
 
-            expect(res).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', _externalContentFieldTypeMeta: { format: 'json' } })
+            expect(res).toMatchObject({ id: 'new', filename: 'new.bin', _externalContentFieldTypeMeta: { format: 'json' } })
+            expect(res.publicUrl).toContain('/api/files/test-folder/')
             expect(calls).toEqual(['save'])
         })
 
@@ -73,7 +76,9 @@ describe('ExternalContent field type', () => {
                     throw new Error('save failed')
                 },
                 delete: jest.fn(),
-                acl: { generateUrl: jest.fn() },
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: jest.fn(), setMeta: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -91,7 +96,9 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
-                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin') },
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin'), setMeta: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -111,7 +118,9 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
-                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin') },
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin'), setMeta: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -128,6 +137,9 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(),
                 delete: jest.fn(),
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: jest.fn(), setMeta: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -145,17 +157,20 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.bin' })),
                 delete: jest.fn(),
-                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin') },
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.bin'), setMeta: jest.fn() },
             }
 
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
             const result = await impl.resolveInput({
-                resolvedData: { raw: { a: 1 } },
-                existingItem: { raw: { id: 'old', filename: 'old.bin' } },
-                listKey: 'BillingReceipt',
+                resolvedData: { raw: { data: 'test' } },
+                existingItem: { raw: JSON.stringify({ id: 'old', filename: 'old.bin', _externalContentFieldTypeMeta: { format: 'json' } }) },
+                listKey: 'TestList',
             })
 
-            expect(result).toEqual({ id: 'new', filename: 'new.bin', publicUrl: 'https://example.com/new.bin', _externalContentFieldTypeMeta: { format: 'json' } })
+            expect(result).toMatchObject({ id: 'new', filename: 'new.bin', _externalContentFieldTypeMeta: { format: 'json' } })
+            expect(result.publicUrl).toContain('/api/files/test-folder/')
             expect(adapter.delete).not.toHaveBeenCalled()
         })
     })
@@ -624,6 +639,8 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(),
                 delete: jest.fn(),
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
             }
             
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -643,21 +660,24 @@ describe('ExternalContent field type', () => {
             const adapter = {
                 save: jest.fn(async () => ({ id: 'new', filename: 'new.json' })),
                 delete: jest.fn(),
-                acl: { generateUrl: jest.fn(() => 'https://example.com/new.json') },
+                folder: 'test-folder',
+                publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                acl: { generateUrl: jest.fn(() => 'https://example.com/new.json'), setMeta: jest.fn() },
             }
-            
+
             const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
-            
+
             // Small data that should pass
             const smallData = { data: 'small' }
-            
+
             const result = await impl.resolveInput({
                 resolvedData: { raw: smallData },
                 existingItem: null,
                 listKey: 'TestList',
             })
-            
-            expect(result).toEqual({ id: 'new', filename: 'new.json', publicUrl: 'https://example.com/new.json', _externalContentFieldTypeMeta: { format: 'json' } })
+
+            expect(result).toMatchObject({ id: 'new', filename: 'new.json', _externalContentFieldTypeMeta: { format: 'json' } })
+            expect(result.publicUrl).toContain('/api/files/test-folder/')
             expect(adapter.save).toHaveBeenCalled()
         })
     })
@@ -668,7 +688,9 @@ describe('ExternalContent field type', () => {
                 const adapter = {
                     save: jest.fn(async () => ({ id: 'test-id', filename: 'test.json' })),
                     delete: jest.fn(),
-                    acl: { generateUrl: jest.fn(() => 'https://example.com/test.json') },
+                    folder: 'test-folder',
+                    publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                    acl: { generateUrl: jest.fn(() => 'https://example.com/test.json'), setMeta: jest.fn() },
                 }
 
                 const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -683,9 +705,9 @@ describe('ExternalContent field type', () => {
                 expect(result).toMatchObject({
                     id: 'test-id',
                     filename: 'test.json',
-                    publicUrl: 'https://example.com/test.json',
                     _externalContentFieldTypeMeta: { format: 'json' },
                 })
+                expect(result.publicUrl).toContain('/api/files/test-folder/')
             })
 
             test('should preserve other properties when adding _externalContentFieldTypeMeta marker', async () => {
@@ -698,7 +720,9 @@ describe('ExternalContent field type', () => {
                         size: 1234,
                     })),
                     delete: jest.fn(),
-                    acl: { generateUrl: jest.fn(() => 'https://example.com/test.json') },
+                    folder: 'test-folder',
+                    publicUrl: ({ filename }) => `https://example.com/api/files/test-folder/${filename}`,
+                    acl: { generateUrl: jest.fn(() => 'https://example.com/test.json'), setMeta: jest.fn() },
                 }
 
                 const impl = new ExternalContentImplementation('raw', { adapter, format: 'json' }, createMeta())
@@ -715,9 +739,9 @@ describe('ExternalContent field type', () => {
                     mimetype: 'application/json',
                     originalFilename: 'original.json',
                     size: 1234,
-                    publicUrl: 'https://example.com/test.json',
                     _externalContentFieldTypeMeta: { format: 'json' },
                 })
+                expect(result.publicUrl).toContain('/api/files/test-folder/')
             })
         })
     })
