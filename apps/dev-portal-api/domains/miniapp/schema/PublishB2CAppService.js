@@ -42,10 +42,11 @@ const {
     B2CAppAccessRight,
 } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/index')
 
+const { getEnvironmentalPermissionsFieldsSelection, extractDevicePermissionsForCondo } = require('./fields/devicePermissions')
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
-const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
+const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalPermissionsFieldsSelection()} ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {
@@ -134,6 +135,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
 
     // Step 1. Prepare payload
     const appPayload = {
+        ...extractDevicePermissionsForCondo(app, environment),
         dv,
         sender,
         name: app.name,

@@ -2814,6 +2814,24 @@ type B2CAppHistoryRecord {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
   developmentPublishedAt: String
   productionPublishedAt: String
   id: ID!
@@ -2898,6 +2916,42 @@ input B2CAppHistoryRecordWhereInput {
   developmentWebTransformEnabled_not: Boolean
   productionWebTransformEnabled: Boolean
   productionWebTransformEnabled_not: Boolean
+  developmentFullscreenAllowed: Boolean
+  developmentFullscreenAllowed_not: Boolean
+  productionFullscreenAllowed: Boolean
+  productionFullscreenAllowed_not: Boolean
+  developmentMicrophoneAllowed: Boolean
+  developmentMicrophoneAllowed_not: Boolean
+  productionMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed_not: Boolean
+  developmentCameraAllowed: Boolean
+  developmentCameraAllowed_not: Boolean
+  productionCameraAllowed: Boolean
+  productionCameraAllowed_not: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  developmentSpeakerSelectionAllowed_not: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed_not: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  developmentBleBeaconBgAllowed_not: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed_not: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  developmentBleCentralBgAllowed_not: Boolean
+  productionBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed_not: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed_not: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed_not: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  developmentPushNotificationsAllowed_not: Boolean
+  productionPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed_not: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed_not: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed_not: Boolean
   developmentPublishedAt: String
   developmentPublishedAt_not: String
   developmentPublishedAt_lt: String
@@ -3043,6 +3097,42 @@ enum SortB2CAppHistoryRecordsBy {
   developmentWebTransformEnabled_DESC
   productionWebTransformEnabled_ASC
   productionWebTransformEnabled_DESC
+  developmentFullscreenAllowed_ASC
+  developmentFullscreenAllowed_DESC
+  productionFullscreenAllowed_ASC
+  productionFullscreenAllowed_DESC
+  developmentMicrophoneAllowed_ASC
+  developmentMicrophoneAllowed_DESC
+  productionMicrophoneAllowed_ASC
+  productionMicrophoneAllowed_DESC
+  developmentCameraAllowed_ASC
+  developmentCameraAllowed_DESC
+  productionCameraAllowed_ASC
+  productionCameraAllowed_DESC
+  developmentSpeakerSelectionAllowed_ASC
+  developmentSpeakerSelectionAllowed_DESC
+  productionSpeakerSelectionAllowed_ASC
+  productionSpeakerSelectionAllowed_DESC
+  developmentBleBeaconBgAllowed_ASC
+  developmentBleBeaconBgAllowed_DESC
+  productionBleBeaconBgAllowed_ASC
+  productionBleBeaconBgAllowed_DESC
+  developmentBleCentralBgAllowed_ASC
+  developmentBleCentralBgAllowed_DESC
+  productionBleCentralBgAllowed_ASC
+  productionBleCentralBgAllowed_DESC
+  developmentBlePeripheralBgAllowed_ASC
+  developmentBlePeripheralBgAllowed_DESC
+  productionBlePeripheralBgAllowed_ASC
+  productionBlePeripheralBgAllowed_DESC
+  developmentPushNotificationsAllowed_ASC
+  developmentPushNotificationsAllowed_DESC
+  productionPushNotificationsAllowed_ASC
+  productionPushNotificationsAllowed_DESC
+  developmentVoipNotificationsAllowed_ASC
+  developmentVoipNotificationsAllowed_DESC
+  productionVoipNotificationsAllowed_ASC
+  productionVoipNotificationsAllowed_DESC
   developmentPublishedAt_ASC
   developmentPublishedAt_DESC
   productionPublishedAt_ASC
@@ -3076,6 +3166,24 @@ input B2CAppHistoryRecordUpdateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -3106,6 +3214,24 @@ input B2CAppHistoryRecordCreateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -3164,6 +3290,78 @@ type B2CApp {
   """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for production environment 
   """
   productionWebTransformEnabled: Boolean
+
+  """ Controls whether the mini-app can use “fullscreen” device permissionon development environment 
+  """
+  developmentFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “fullscreen” device permissionon production environment 
+  """
+  productionFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permissionon development environment 
+  """
+  developmentMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permissionon production environment 
+  """
+  productionMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permissionon development environment 
+  """
+  developmentCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permissionon production environment 
+  """
+  productionCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permissionon development environment 
+  """
+  developmentSpeakerSelectionAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permissionon production environment 
+  """
+  productionSpeakerSelectionAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble beacon bg” device permissionon development environment 
+  """
+  developmentBleBeaconBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble beacon bg” device permissionon production environment 
+  """
+  productionBleBeaconBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble central bg” device permissionon development environment 
+  """
+  developmentBleCentralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble central bg” device permissionon production environment 
+  """
+  productionBleCentralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble peripheral bg” device permissionon development environment 
+  """
+  developmentBlePeripheralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble peripheral bg” device permissionon production environment 
+  """
+  productionBlePeripheralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “push notifications” device permissionon development environment 
+  """
+  developmentPushNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “push notifications” device permissionon production environment 
+  """
+  productionPushNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “voip notifications” device permissionon development environment 
+  """
+  developmentVoipNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “voip notifications” device permissionon production environment 
+  """
+  productionVoipNotificationsAllowed: Boolean
 
   """ The last time a mini-app was published on the development environment 
   """
@@ -3253,6 +3451,42 @@ input B2CAppWhereInput {
   developmentWebTransformEnabled_not: Boolean
   productionWebTransformEnabled: Boolean
   productionWebTransformEnabled_not: Boolean
+  developmentFullscreenAllowed: Boolean
+  developmentFullscreenAllowed_not: Boolean
+  productionFullscreenAllowed: Boolean
+  productionFullscreenAllowed_not: Boolean
+  developmentMicrophoneAllowed: Boolean
+  developmentMicrophoneAllowed_not: Boolean
+  productionMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed_not: Boolean
+  developmentCameraAllowed: Boolean
+  developmentCameraAllowed_not: Boolean
+  productionCameraAllowed: Boolean
+  productionCameraAllowed_not: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  developmentSpeakerSelectionAllowed_not: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed_not: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  developmentBleBeaconBgAllowed_not: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed_not: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  developmentBleCentralBgAllowed_not: Boolean
+  productionBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed_not: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed_not: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed_not: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  developmentPushNotificationsAllowed_not: Boolean
+  productionPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed_not: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed_not: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed_not: Boolean
   developmentPublishedAt: String
   developmentPublishedAt_not: String
   developmentPublishedAt_lt: String
@@ -3378,6 +3612,42 @@ enum SortB2CAppsBy {
   developmentWebTransformEnabled_DESC
   productionWebTransformEnabled_ASC
   productionWebTransformEnabled_DESC
+  developmentFullscreenAllowed_ASC
+  developmentFullscreenAllowed_DESC
+  productionFullscreenAllowed_ASC
+  productionFullscreenAllowed_DESC
+  developmentMicrophoneAllowed_ASC
+  developmentMicrophoneAllowed_DESC
+  productionMicrophoneAllowed_ASC
+  productionMicrophoneAllowed_DESC
+  developmentCameraAllowed_ASC
+  developmentCameraAllowed_DESC
+  productionCameraAllowed_ASC
+  productionCameraAllowed_DESC
+  developmentSpeakerSelectionAllowed_ASC
+  developmentSpeakerSelectionAllowed_DESC
+  productionSpeakerSelectionAllowed_ASC
+  productionSpeakerSelectionAllowed_DESC
+  developmentBleBeaconBgAllowed_ASC
+  developmentBleBeaconBgAllowed_DESC
+  productionBleBeaconBgAllowed_ASC
+  productionBleBeaconBgAllowed_DESC
+  developmentBleCentralBgAllowed_ASC
+  developmentBleCentralBgAllowed_DESC
+  productionBleCentralBgAllowed_ASC
+  productionBleCentralBgAllowed_DESC
+  developmentBlePeripheralBgAllowed_ASC
+  developmentBlePeripheralBgAllowed_DESC
+  productionBlePeripheralBgAllowed_ASC
+  productionBlePeripheralBgAllowed_DESC
+  developmentPushNotificationsAllowed_ASC
+  developmentPushNotificationsAllowed_DESC
+  productionPushNotificationsAllowed_ASC
+  productionPushNotificationsAllowed_DESC
+  developmentVoipNotificationsAllowed_ASC
+  developmentVoipNotificationsAllowed_DESC
+  productionVoipNotificationsAllowed_ASC
+  productionVoipNotificationsAllowed_DESC
   developmentPublishedAt_ASC
   developmentPublishedAt_DESC
   productionPublishedAt_ASC
@@ -3411,6 +3681,24 @@ input B2CAppUpdateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -3438,6 +3726,24 @@ input B2CAppCreateInput {
   developer: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -6791,11 +7097,18 @@ input ImportB2CAppToInput {
   app: B2CAppWhereUniqueInput!
 }
 
+enum ImportAppConflictPolicy {
+  panic
+  setNull
+  delete
+}
+
 input ImportB2CAppOptionsInput {
   info: Boolean!
   builds: Boolean!
   publish: Boolean!
   accessRight: Boolean!
+  conflictPolicy: ImportAppConflictPolicy!
 }
 
 input ImportB2CAppInput {
