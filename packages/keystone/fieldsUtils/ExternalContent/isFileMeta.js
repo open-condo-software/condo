@@ -41,7 +41,7 @@ function isFileMeta (value, opts = {}) {
         'originalFilename',
         'encoding',
         EXTERNAL_CONTENT_FIELD_TYPE_META, // Application-level metadata: format ('json'/'xml'/'text')
-        '_meta',            // Provider-specific metadata (e.g., SberCloud response headers, ETags, request IDs)
+        '_meta',            // Provider-specific metadata (e.g., cloud storage response headers, ETags, request IDs)
         'publicUrl',
     ])
     return Object.keys(value).every((key) => allowedKeys.has(key))

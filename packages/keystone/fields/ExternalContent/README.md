@@ -152,8 +152,9 @@ const LARGE_DATA_FIELD = createExternalDataField({
    - Data is serialized using the format-specific processor (e.g., JSON.stringify for json format)
    - Size is validated against `maxSizeBytes`
    - Content is saved to a file via FileAdapter
-   - FileAdapter generates `publicUrl` based on storage configuration (local, S3, Sbercloud, etc.)
+   - FileAdapter generates `publicUrl` - for cloud storage this returns a middleware URL (e.g., `/api/files/folder/filename`) that provides fresh signed URLs on each request
    - Database stores file metadata as JSON string: `{ "id": "...", "filename": "...", "publicUrl": "...", "_externalContentFieldTypeMeta": { "format": "xml" } }`
+   - For cloud storage, file headers store metadata for access control: `listkey`, `id`, `mimetype`
 
 2. When you read a record via GraphQL:
    - **`fieldName`** - Returns raw file metadata (JSON string) for admin UI
@@ -340,7 +341,10 @@ The field includes built-in protection against path traversal attacks:
 
 ### Access Control
 
-File access is controlled at the field level using Keystone's access control:
+File access is controlled at two levels:
+
+**1. Field Level (GraphQL)**
+Keystone's access control determines who can query the field:
 
 ```javascript
 const MySchema = {
@@ -355,6 +359,15 @@ const MySchema = {
     },
 }
 ```
+
+**2. File Download Level (OBSFilesMiddleware)**
+For cloud storage, the `OBSFilesMiddleware` handles file downloads at `/api/files/{folder}/{filename}`:
+- Reads file headers to get `listkey`, `id`, `mimetype`
+- Queries the database to verify the requesting user has access to that item
+- Generates a fresh signed URL if access is granted
+- Returns 403 if access is denied
+
+This ensures download links don't expire (no pre-signed URLs in database) and access control is enforced at download time.
 
 ## Troubleshooting
 
