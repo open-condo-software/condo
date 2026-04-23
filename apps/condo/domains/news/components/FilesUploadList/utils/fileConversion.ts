@@ -1,9 +1,15 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg'
-import heic2any from 'heic2any'
 
 
+let heic2any = null
 let ffmpeg: FFmpeg | null = null
 let ffmpegLoaded = false
+
+async function loadHeic2any () {
+    if (!heic2any) {
+        heic2any = (await import('heic2any')).default
+    }
+}
 
 // TODO(Doma-13015): add query
 const loadFFmpeg = async () => {
@@ -88,6 +94,7 @@ async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
 export const convertFile = async (file: File, onProgress?): Promise<File> => {
     // 🖼 HEIC → JPEG
     if (file.type === 'image/heic') {
+        await loadHeic2any()
         const blob = await heic2any({
             blob: file,
             toType: 'image/jpeg',
