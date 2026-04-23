@@ -33,6 +33,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
         let actors
 
         const timeoutPath = '/timeout'
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const timeoutApp = express()
         timeoutApp.post(timeoutPath, (req, res) => {
             const timer = setTimeout(() => res.status(200).json({}), WEBHOOK_PAYLOAD_TIMEOUT_IN_MS + 5000)
