@@ -3291,75 +3291,75 @@ type B2CApp {
   """
   productionWebTransformEnabled: Boolean
 
-  """ Controls whether the mini-app can use “fullscreen” device permissionon development environment 
+  """ Controls whether the mini-app can use “fullscreen” device permission on development environment 
   """
   developmentFullscreenAllowed: Boolean
 
-  """ Controls whether the mini-app can use “fullscreen” device permissionon production environment 
+  """ Controls whether the mini-app can use “fullscreen” device permission on production environment 
   """
   productionFullscreenAllowed: Boolean
 
-  """ Controls whether the mini-app can use “microphone” device permissionon development environment 
+  """ Controls whether the mini-app can use “microphone” device permission on development environment 
   """
   developmentMicrophoneAllowed: Boolean
 
-  """ Controls whether the mini-app can use “microphone” device permissionon production environment 
+  """ Controls whether the mini-app can use “microphone” device permission on production environment 
   """
   productionMicrophoneAllowed: Boolean
 
-  """ Controls whether the mini-app can use “camera” device permissionon development environment 
+  """ Controls whether the mini-app can use “camera” device permission on development environment 
   """
   developmentCameraAllowed: Boolean
 
-  """ Controls whether the mini-app can use “camera” device permissionon production environment 
+  """ Controls whether the mini-app can use “camera” device permission on production environment 
   """
   productionCameraAllowed: Boolean
 
-  """ Controls whether the mini-app can use “speaker selection” device permissionon development environment 
+  """ Controls whether the mini-app can use “speaker selection” device permission on development environment 
   """
   developmentSpeakerSelectionAllowed: Boolean
 
-  """ Controls whether the mini-app can use “speaker selection” device permissionon production environment 
+  """ Controls whether the mini-app can use “speaker selection” device permission on production environment 
   """
   productionSpeakerSelectionAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble beacon bg” device permissionon development environment 
+  """ Controls whether the mini-app can use “ble beacon bg” device permission on development environment 
   """
   developmentBleBeaconBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble beacon bg” device permissionon production environment 
+  """ Controls whether the mini-app can use “ble beacon bg” device permission on production environment 
   """
   productionBleBeaconBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble central bg” device permissionon development environment 
+  """ Controls whether the mini-app can use “ble central bg” device permission on development environment 
   """
   developmentBleCentralBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble central bg” device permissionon production environment 
+  """ Controls whether the mini-app can use “ble central bg” device permission on production environment 
   """
   productionBleCentralBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble peripheral bg” device permissionon development environment 
+  """ Controls whether the mini-app can use “ble peripheral bg” device permission on development environment 
   """
   developmentBlePeripheralBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “ble peripheral bg” device permissionon production environment 
+  """ Controls whether the mini-app can use “ble peripheral bg” device permission on production environment 
   """
   productionBlePeripheralBgAllowed: Boolean
 
-  """ Controls whether the mini-app can use “push notifications” device permissionon development environment 
+  """ Controls whether the mini-app can use “push notifications” device permission on development environment 
   """
   developmentPushNotificationsAllowed: Boolean
 
-  """ Controls whether the mini-app can use “push notifications” device permissionon production environment 
+  """ Controls whether the mini-app can use “push notifications” device permission on production environment 
   """
   productionPushNotificationsAllowed: Boolean
 
-  """ Controls whether the mini-app can use “voip notifications” device permissionon development environment 
+  """ Controls whether the mini-app can use “voip notifications” device permission on development environment 
   """
   developmentVoipNotificationsAllowed: Boolean
 
-  """ Controls whether the mini-app can use “voip notifications” device permissionon production environment 
+  """ Controls whether the mini-app can use “voip notifications” device permission on production environment 
   """
   productionVoipNotificationsAllowed: Boolean
 

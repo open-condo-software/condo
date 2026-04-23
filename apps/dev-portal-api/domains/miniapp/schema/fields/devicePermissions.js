@@ -30,7 +30,7 @@ function getEnvironmentalPermissionsFields () {
 
         return getEnvironmentalFields(fieldName, {
             ...field,
-            schemaDoc: field.schemaDoc + 'on {environment} environment',
+            schemaDoc: field.schemaDoc + ' on {environment} environment',
         })
     }))
 }

@@ -521,10 +521,10 @@ describe('PublishB2CAppService', () => {
                         expect(condoApp).toEqual(expect.objectContaining(expectedCondoTruePayload))
 
                         const falsePayload = Object.fromEntries(
-                            condoPermissions.map((permission) => [condoPermissionToPortal(permission, environment), true])
+                            condoPermissions.map((permission) => [condoPermissionToPortal(permission, environment), false])
                         )
                         const expectedCondoFalsePayload = Object.fromEntries(
-                            condoPermissions.map((permission) => [permission, true])
+                            condoPermissions.map((permission) => [permission, false])
                         )
 
                         await updateTestB2CApp(user, app.id, falsePayload)
