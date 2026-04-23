@@ -227,7 +227,7 @@ const CondoAppPreview: React.FC<NewsItemData> = ({ title, body, validBefore, fil
 
     const filesByGroups = useMemo(() => {
         const isImageOrVideo = (file) => ['image/', 'video/'].some((mimetype) => file?.response?.mimetype?.startsWith(mimetype) || file?.type?.startsWith(mimetype))
-        return files.reduce((acc, file) => {
+        return (files || []).reduce((acc, file) => {
             if (isImageOrVideo(file)) {
                 acc.imagesAndVideos.push(file)
             } else {

@@ -1,0 +1,22 @@
+.scroll-button {
+  position: absolute;
+  top: 27px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px;
+  background: var(--condo-global-color-white);
+  border-radius: 100px;
+  box-shadow: var(--condo-global-box-shadow-default);
+  cursor: pointer;
+}
+
+.scroll-button.scroll-button-left {
+  left: 0;
+}
+
+.scroll-button.scroll-button-right {
+  right: 0;
+}

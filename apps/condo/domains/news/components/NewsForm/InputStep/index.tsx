@@ -14,6 +14,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { Action, convertFilesToUploadType, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import {
     getTypeAndNameByKey,
     getUnitNamesAndUnitTypes,
@@ -21,15 +23,14 @@ import {
     ScopeType, TemplatesType,
 } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
+import { useReuploadNewsItemFiles } from '@condo/domains/news/hooks/useReuploadNewsItemFiles'
 import { searchOrganizationProperty } from '@condo/domains/scope/utils/clientSchema/search'
 
-import { InputStepFilesSelector, useReuploadNewsItemFiles } from './InputStepFilesSelector'
+import { InputStepFilesSelector } from './InputStepFilesSelector'
 import { InputStepForm } from './InputStepForm'
 import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
 import { InputStepSelector, Properties } from './InputStepSelector'
-
-import { Action, convertFilesToUploadType, UploadFileType } from '../../FilesUploadList'
 
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
@@ -326,7 +327,6 @@ export const InputStep: React.FC<InputStepProps> = ({
             const converted = convertFilesToUploadType(reuploadedNewsItemFiles)
 
             setFiles(converted)
-            form.setFieldsValue({ 'files': setFiles })
             reuploadedNewsItemFiles.forEach((newsItemFile) => {
                 modifyFiles({ type: 'add', payload: newsItemFile })
             })
@@ -362,13 +362,12 @@ export const InputStep: React.FC<InputStepProps> = ({
                         (!newsItemIdForReuploadFiles || (newsItemIdForReuploadFiles && !isLoading)) ? (
                             <InputStepFilesSelector
                                 onChange={(fileList) => {
-                                    form.setFieldsValue({ 'files': fileList })
                                     setFiles(fileList)
                                 }}
                                 files={files}
                                 modifyFiles={modifyFiles}
                             />
-                        ) : <span>LOADING!!!</span>
+                        ) : <Loader />
                     }
 
                     <InputStepSelector

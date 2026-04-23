@@ -99,7 +99,7 @@ const NewsItemFile = new GQLListSchema('NewsItemFile', {
                     const fileRecord = await getByCondition('FileRecord', {
                         id: resolvedData?.[fieldPath]?.id || null,
                     })
-                    const mimetype = fileRecord?.fileMimeType
+                    const mimetype = fileRecord?.fileMimeType || ''
                     const [normalizedMimetype] = mimetype.replaceAll(' ', '').split(';')
 
                     if (!normalizedMimetype) {

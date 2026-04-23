@@ -2,41 +2,10 @@ import React, { useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
-const getImagePreviewFromUrl = (url: string) => {
-    return new Promise<string>((resolve, reject) => {
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
+import styles from './ImageOrVideoPreview.module.css'
 
-        img.onload = () => {
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
+import { UploadFileType } from '../FilesUploadList'
 
-            const WIDTH = 1280
-            const HEIGHT = 720
-
-            canvas.width = WIDTH
-            canvas.height = HEIGHT
-
-            const iw = img.width
-            const ih = img.height
-
-            const scale = Math.max(WIDTH / iw, HEIGHT / ih)
-
-            const drawWidth = iw * scale
-            const drawHeight = ih * scale
-
-            const offsetX = (WIDTH - drawWidth) / 2
-            const offsetY = (HEIGHT - drawHeight) / 2
-
-            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
-
-            resolve(canvas.toDataURL('image/jpeg', 0.85))
-        }
-
-        img.onerror = reject
-        img.src = url
-    })
-}
 
 const createVideoPreviewFromUrl = (url: string) => {
     return new Promise<string>((resolve, reject) => {
@@ -82,7 +51,9 @@ const createVideoPreviewFromUrl = (url: string) => {
 }
 
 
-export const ImageOrVideoPreview = ({ file }) => {
+type ImageOrVideoPreviewProps = { file: UploadFileType }
+
+export const ImageOrVideoPreview: React.FC<ImageOrVideoPreviewProps> = ({ file }) => {
     const [preview, setPreview] = useState<string>(null)
 
     useDeepCompareEffect(() => {
@@ -91,7 +62,7 @@ export const ImageOrVideoPreview = ({ file }) => {
 
             let thumb = ''
             if (file.response?.mimetype?.startsWith('image/')) {
-                thumb = await getImagePreviewFromUrl(url)
+                thumb = url
             }
             if (file.response?.mimetype?.startsWith('video/')) {
                 thumb = await createVideoPreviewFromUrl(url)
@@ -104,6 +75,6 @@ export const ImageOrVideoPreview = ({ file }) => {
     }, [file])
 
     return (
-        <img src={preview} style={{ borderRadius: 12, border: '1px solid #E6E8F1', width: '100%' }} />
+        <img src={preview} className={styles.imageOrVideoPreview} />
     )
 }
