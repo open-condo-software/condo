@@ -77,24 +77,6 @@ class ExternalContentImplementation extends Implementation {
         this.formatProcessors = byFormat
     }
 
-    /**
-     * Defines GraphQL auxiliary types for the field.
-     * For admin interface, returns a File-like type with metadata fields.
-     * 
-     * @returns {Array<string>} GraphQL type definitions
-     */
-    getGqlAuxTypes () {
-        return [`
-      type ExternalContentFile {
-        id: ID
-        filename: String
-        originalFilename: String
-        mimetype: String
-        publicUrl: String
-      }
-    `]
-    }
-
     // GQL Output
     gqlOutputFields () {
         // Return both raw metadata field and virtual deserialized content field
