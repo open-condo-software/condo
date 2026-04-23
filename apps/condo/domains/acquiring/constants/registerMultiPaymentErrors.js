@@ -2,6 +2,7 @@ const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/error
 
 const {
     MULTIPLE_ACQUIRING_INTEGRATION,
+    MULTIPLE_ACTIVE_ACQUIRING_INTEGRATION_CONTEXTS,
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
     RECEIPTS_HAS_MULTIPLE_CURRENCIES,
@@ -141,6 +142,13 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         code: BAD_USER_INPUT,
         type: MULTIPLE_ACQUIRING_INTEGRATION,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
+    },
+    MULTIPLE_ACTIVE_ACQUIRING_INTEGRATION_CONTEXTS: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
+        code: BAD_USER_INPUT,
+        type: MULTIPLE_ACTIVE_ACQUIRING_INTEGRATION_CONTEXTS,
+        message: 'Listed serviceConsumers are linked to organization with multiple active acquiring cotexts',
     },
     RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION: {
         mutation: 'registerMultiPayment',
