@@ -335,6 +335,7 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
                     ref={el => iFrameRef.current = el}
                     src={`${iFrameUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
                     reloadScope='organization'
+                    initialHeight={660}
                 />
                 <SharingAppOverflowContainer/>
             </SharingAppPreviewContainer>
