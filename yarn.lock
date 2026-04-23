@@ -765,7 +765,6 @@ __metadata:
     "@emotion/styled": ^11.11.0
     "@faker-js/faker": ^7.6.0
     "@ffmpeg/ffmpeg": ^0.12.15
-    "@ffmpeg/util": ^0.12.2
     "@graphql-codegen/cli": ^6.2.0
     "@graphql-codegen/import-types-preset": ^4.0.0
     "@graphql-codegen/typescript": ^5.0.9
@@ -7317,13 +7316,6 @@ __metadata:
   version: 0.12.4
   resolution: "@ffmpeg/types@npm:0.12.4"
   checksum: 8b898163e79945d2eba26f2a46f35a22d00296cb53424f16118060f28c36f694d74d48c49f6570f2974320dc089b7aa9f64c3a0fde45109ba125aa9e3c0926db
-  languageName: node
-  linkType: hard
-
-"@ffmpeg/util@npm:^0.12.2":
-  version: 0.12.2
-  resolution: "@ffmpeg/util@npm:0.12.2"
-  checksum: 95440dab00f373df1ad421583a1acdbb79b06ad544f5a4e26c2406858b9d0b0068dff6109ca0134d60ce21fa2883d6497fbd6e47f66bd92b4d7da2468c9391d3
   languageName: node
   linkType: hard
 
