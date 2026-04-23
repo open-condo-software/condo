@@ -1,13 +1,16 @@
 const crypto = require('node:crypto')
 
 const dayjs = require('dayjs')
+const express = require('express')
 const nock = require('nock')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
     WEBHOOK_PAYLOAD_STATUS_SENT,
     WEBHOOK_PAYLOAD_STATUS_ERROR,
+    WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
 } = require('@open-condo/webhooks/constants')
 const {
     WebhookPayload,
@@ -28,6 +31,14 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
     describe(`sendWebhookPayload task basic tests for ${appName} app`, () => {
         let sendWebhookPayload
         let actors
+
+        const timeoutPath = '/timeout'
+        const timeoutApp = express()
+        timeoutApp.post(timeoutPath, (req, res) => {
+            const timer = setTimeout(() => res.status(200).json({}), WEBHOOK_PAYLOAD_TIMEOUT_IN_MS + 5000)
+            req.on('close', () => clearTimeout(timer))
+        })
+        initTestExpressApp(`${appName}TimeoutServer`, timeoutApp, 'http')
 
         beforeAll(async () => {
             actors = await actorsInitializer()
@@ -318,15 +329,11 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
         })
 
-        // NOTE: This test may take up to ~10 seconds (WEBHOOK_PAYLOAD_TIMEOUT_IN_MS) if the OS
-        // routes the packet to a gateway that silently drops it. On some Docker/Linux setups
-        // the kernel returns ENETUNREACH immediately instead — both outcomes are valid: the
-        // payload must be retried with a non-null error message and no HTTP status code.
         it('Must handle timeout errors correctly', async () => {
-            // Use a non-routable IP address (RFC 5737 TEST-NET-1) to trigger real network timeout
+            const timeoutServer = getTestExpressApp(`${appName}TimeoutServer`)
             const expiresAt = dayjs().add(7, 'day').toISOString()
             const [payload] = await createTestWebhookPayload(actors.admin, {
-                url: 'http://192.0.2.1:9999/webhook',
+                url: `${timeoutServer.baseUrl}${timeoutPath}`,
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
                 expiresAt,
                 attempt: 0,
@@ -338,7 +345,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             expect(updated).toHaveProperty('status', WEBHOOK_PAYLOAD_STATUS_PENDING)
             expect(updated).toHaveProperty('attempt', 1)
             expect(updated).toHaveProperty('lastErrorMessage')
-            expect(updated.lastErrorMessage).toMatch(/timeout|ENETUNREACH/i)
+            expect(updated.lastErrorMessage).toContain('timeout')
             expect(updated).toHaveProperty('nextRetryAt')
             expect(updated).toHaveProperty('lastHttpStatusCode', null)
 
