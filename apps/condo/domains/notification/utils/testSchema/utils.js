@@ -30,7 +30,14 @@ const getRandomTokenData = (extraAttrs = {}) => {
 }
 
 const getRandomPushTokenData = (extraAttrs = {}) => {
-    const isVoIP = extraAttrs.isVoIP || !extraAttrs.isPush ||  faker.datatype.boolean()
+    let isVoIP
+    if ('isVoIP' in extraAttrs) {
+        isVoIP = extraAttrs.isVoIP
+    } else if ('isPush' in extraAttrs) {
+        isVoIP = !extraAttrs.isPush
+    } else {
+        isVoIP = faker.datatype.boolean()
+    }
     return {
         token: faker.datatype.uuid(),
         transport: get(extraAttrs, 'pushTransport') || sample(PUSH_TRANSPORT_TYPES),

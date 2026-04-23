@@ -59,7 +59,10 @@ describe('RemoteClientPushToken', () => {
         describe('create', () => {
 
             test('admin can', async () => {
-                const [obj, attrs] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient)
+                const [obj, attrs] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient, {
+                    isVoIP: !globalAdminRemoteClientPushToken.isVoIP,
+                    isPush: globalAdminRemoteClientPushToken.isVoIP,
+                })
                 expectValuesOfCommonFields(obj, attrs, admin)
             })
 
