@@ -15,6 +15,10 @@ const {
     expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
+const {
+    PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_APPLE,
+} = require('@condo/domains/notification/constants/constants')
 const { RemoteClientPushToken, createTestRemoteClientPushToken, updateTestRemoteClientPushToken, createTestRemoteClient,
     updateTestRemoteClient,
 } = require('@condo/domains/notification/utils/testSchema')
@@ -48,7 +52,7 @@ describe('RemoteClientPushToken', () => {
         [globalUserRemoteClient] = await createTestRemoteClient(admin, { owner: { connect: { id: user.user.id } } });
         [globalAnonymousRemoteClient] = await createTestRemoteClient(admin, { owner: null });
 
-        [globalAdminRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient);
+        [globalAdminRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient, { provider: PUSH_TRANSPORT_FIREBASE });
         [globalSupportRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalSupportRemoteClient);
         [globalUserRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalUserRemoteClient);
         [globalAnonymousRemoteClientPushToken] = await createTestRemoteClientPushToken(admin, globalAnonymousRemoteClient)
@@ -59,10 +63,7 @@ describe('RemoteClientPushToken', () => {
         describe('create', () => {
 
             test('admin can', async () => {
-                const [obj, attrs] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient, {
-                    isVoIP: !globalAdminRemoteClientPushToken.isVoIP,
-                    isPush: globalAdminRemoteClientPushToken.isVoIP,
-                })
+                const [obj, attrs] = await createTestRemoteClientPushToken(admin, globalAdminRemoteClient, { provider: PUSH_TRANSPORT_APPLE })
                 expectValuesOfCommonFields(obj, attrs, admin)
             })
 
