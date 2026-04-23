@@ -33,8 +33,6 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const SubscribersLabel = intl.formatMessage({ id: 'pages.condo.news.steps.subscribers' })
     const ChannelsLabel = intl.formatMessage({ id: 'pages.condo.news.steps.channels' })
 
-    const formInfoColSpan = 24
-
     const parsedNewsSharingScope = useMemo(() => newsSharingScope?.map(scope =>
         typeof scope === 'string' ? JSON.parse(scope)?.value : scope) || [],
     [newsSharingScope]
@@ -83,7 +81,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     )
 
     return (
-        <Col span={formInfoColSpan} className={styles.recipientCounter}>
+        <Col span={24} className={styles.recipientCounter}>
             {
                 isSharingStep
                     ? newsSharingRecipientCounter

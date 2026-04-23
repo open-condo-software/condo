@@ -33,9 +33,9 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { PageComponentType } from '@condo/domains/common/types'
 import {
     convertFilesToUploadType,
-    useFilesUploadListHook,
+    useModifiedFiles,
+    FilesUploadList,
 } from '@condo/domains/news/components/FilesUploadList'
-import { FilesUploadList } from '@condo/domains/news/components/FilesUploadList'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
@@ -88,6 +88,7 @@ const NewsItemCard: React.FC = () => {
     const ValidBeforeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.validBefore' })
     const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
     const BodyLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.body' })
+    const FilesLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.files' })
     const EditTitle = intl.formatMessage({ id: 'Edit' })
     const ResendTitle = intl.formatMessage({ id: 'pages.news.newsItemCard.resendButton' })
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
@@ -235,7 +236,7 @@ const NewsItemCard: React.FC = () => {
         // This might result in an error when validBefore is less than sentAt
         const deprecateDatetime = newsItem.sentAt || dayjs().toISOString()
         await updateNewsAction({ validBefore: deprecateDatetime }, newsItem)
-    }, [ updateNewsAction, newsItem ])
+    }, [updateNewsAction, newsItem])
 
     const CreatedByLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' }, {
         createdBy: get(employee, 'name'),
@@ -303,7 +304,7 @@ const NewsItemCard: React.FC = () => {
         return <>{value}</>
     }, [])
 
-    const { modifyFiles } = useFilesUploadListHook()
+    const { modifyFiles } = useModifiedFiles()
 
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading || newsItemSharingsLoading || newsItemFilesLoading
     const hasError = employeeError || newsItemError || newsItemScopesError || newsItemSharingsError
@@ -360,17 +361,15 @@ const NewsItemCard: React.FC = () => {
                                         renderFieldValue={renderBodyFieldValue}
                                     />
                                     <FieldPairRow
-                                        fieldTitle='Медиафайлы'
+                                        fieldTitle={FilesLabel}
                                         fieldValue={files}
                                         renderFieldValue={(files) => {
                                             return (
-                                                <>
-                                                    <FilesUploadList
-                                                        type='view'
-                                                        fileList={convertFilesToUploadType(files)}
-                                                        updateFileList={modifyFiles}
-                                                    />
-                                                </>
+                                                <FilesUploadList
+                                                    type='view'
+                                                    fileList={convertFilesToUploadType(files)}
+                                                    updateFileList={modifyFiles}
+                                                />
                                             )
                                         }}
                                     />

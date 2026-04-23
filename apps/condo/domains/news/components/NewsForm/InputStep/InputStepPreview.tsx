@@ -3,11 +3,9 @@ import { Col } from 'antd'
 import React, { useMemo } from 'react'
 
 import { NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS } from '@condo/domains/miniapp/constants'
+import { UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import { MemoizedCondoNewsPreview, MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
-
-
-import { UploadFileType } from '../../FilesUploadList'
 
 import { SharingAppValuesType } from './index'
 
@@ -42,8 +40,6 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
 
     const isCustomPreview = !!newsSharingConfig?.previewUrl && isSharingStep
 
-    const formInfoColSpan = 24
-
     const previewHasPush = useMemo(() =>
         (newsSharingConfig?.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ENABLED) ||
             (newsSharingConfig?.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ONLY_EMERGENCY && newsItemData.type === NEWS_TYPE_EMERGENCY),
@@ -56,7 +52,7 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
     return (
         <>
             {isCustomPreview ? (
-                <Col span={formInfoColSpan}>
+                <Col span={24}>
                     {(!!sharingAppFormValues?.preview?.renderedTitle || !!sharingAppFormValues?.preview?.renderedBody || !!selectedBody || !!selectedTitle) && (
                         <MemoizedSharingNewsPreview
                             hasPush={previewHasPush}
@@ -73,8 +69,8 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
                     )}
                 </Col>) : (
                 <>
-                    { !!formInfoColSpan && (!!selectedBody || !!selectedTitle) && (
-                        <Col span={formInfoColSpan}>
+                    {(!!selectedBody || !!selectedTitle) && (
+                        <Col span={24}>
                             <MemoizedCondoNewsPreview
                                 body={selectedBody}
                                 title={selectedTitle}

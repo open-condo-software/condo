@@ -67,7 +67,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { InputStep, SharingAppValuesType } from './InputStep'
 
-import { UploadFileType, useFilesUploadListHook } from '../FilesUploadList'
+import { UploadFileType, useModifiedFiles } from '../FilesUploadList'
 
 import type { NewsItemScopeNoInstanceType } from '../types'
 import type { FormRule as Rule } from 'antd'
@@ -622,7 +622,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [initialValues])
 
-    const { modifiedFiles, modifyFiles } = useFilesUploadListHook()
+    const { modifiedFiles, modifyFiles } = useModifiedFiles()
     const client = useApolloClient()
 
     const handleFormSubmit = useCallback(async (values) => {
@@ -672,9 +672,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const { added, deleted } = modifiedFiles
 
         for (const file of added) {
-
             const newsItemFileId = file.id
-
             await updateNewsItemFile({
                 variables: {
                     id: newsItemFileId,
@@ -687,9 +685,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         for (const file of deleted) {
-
             const newsItemFileId = file.id
-
             await updateNewsItemFile({
                 variables: {
                     id: newsItemFileId,
@@ -902,7 +898,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         if (currentStep === 1) {
-            fieldsToValidate = ['templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds', 'files']
+            fieldsToValidate = ['templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds']
             const res = form.getFieldsValue(true)
 
             setSelectedTitle(res.title)

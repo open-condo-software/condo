@@ -1,3 +1,4 @@
+import { useGetNewsItemFilesQuery } from '@app/condo/gql'
 import { B2BAppContextStatusType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -12,13 +13,13 @@ import { ActionBar, Button } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
+import { convertFilesToUploadType } from '@condo/domains/news/components/FilesUploadList'
 import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { SendPeriodType, BaseNewsFormProps, BaseNewsForm } from './BaseNewsForm'
 
-import { useGetNewsItemFilesQuery } from '../../../../gql'
-import { convertFilesToUploadType } from '../FilesUploadList'
+
 export interface IUpdateNewsForm {
     id: string
 }
