@@ -32,25 +32,6 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 
 
-// Mock fetch to allow self-signed certificates for HTTPS in tests
-jest.mock('@open-condo/keystone/fetch', () => {
-    const originalModule = jest.requireActual('@open-condo/keystone/fetch')
-    const https = require('https')
-
-    return {
-        ...originalModule,
-        fetch: jest.fn((url, options = {}) => {
-            // For HTTPS URLs, add agent with rejectUnauthorized: false
-            if (url.startsWith('https://')) {
-                //nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
-                const agent = new https.Agent({ rejectUnauthorized: false })
-                return originalModule.fetch(url, { ...options, agent })
-            }
-
-            return originalModule.fetch(url, options)
-        }),
-    }
-})
 
 const { keystone } = index
 
@@ -95,7 +76,7 @@ describe('Invoice', () => {
                 })
                 res.status(200).json({ received: true })
             })
-            initTestExpressApp('InvoiceWebhookServer', webhookApp, 'https')
+            initTestExpressApp('InvoiceWebhookServer', webhookApp, 'http')
 
             test('webhook signature can be verified after invoice payment using real HTTP server', async () => {
                 // Clear previous webhook requests
