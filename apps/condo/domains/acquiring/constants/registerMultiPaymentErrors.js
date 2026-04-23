@@ -148,7 +148,7 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
         type: MULTIPLE_ACTIVE_ACQUIRING_INTEGRATION_CONTEXTS,
-        message: 'Listed serviceConsumers are linked to organization with multiple active acquiring cotexts',
+        message: 'Listed serviceConsumers are linked to organization with multiple active acquiring contexts',
     },
     RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION: {
         mutation: 'registerMultiPayment',
