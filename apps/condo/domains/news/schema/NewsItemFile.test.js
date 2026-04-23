@@ -49,8 +49,6 @@ const {
     makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { updateTestAppMessageSetting } = require('../../miniapp/utils/testSchema')
-
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 const UNSUPPORTED_TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/coin.webp')
@@ -408,7 +406,7 @@ describe('NewsItemFile', () => {
                 })
             })
 
-            it('staff with canManageNewsItems can not', async () => {
+            it('staff with canManageNewsItems can', async () => {
                 const [item] = await createTestNewsItemFile(staffWithPermissions, null, organization)
                 expect(item.newsItem).toBeNull()
                 const [updatedItem] = await updateTestNewsItemFile(staffWithPermissions, item.id, { newsItem: { connect: { id: newsItem.id } } })
@@ -566,7 +564,7 @@ describe('NewsItemFile', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBIDDEN_FILE_TYPE',
-                message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: image/webp`,
+                message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: "image/webp"`,
             })
         })
 
