@@ -29,6 +29,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { ERRORS: {
     BILLING_ACCOUNT_NOT_FOUND,
+    ACCOUNT_NUMBER_IS_NOT_SPECIFIED,
 } } = require('@condo/domains/resident/schema/RegisterServiceConsumerService')
 const {
     registerServiceConsumerByTestClient,
@@ -140,6 +141,39 @@ describe('RegisterServiceConsumer', () => {
             expect(consumer2).toHaveProperty('id')
             expect(consumer1.id).not.toEqual(consumer2.id)
         })
+
+        test('Throw error if accountNumber passed is empty', async () => {
+            const resident = await utils.createResident()
+            await expectToThrowGQLError(async () => {
+                await registerServiceConsumerByTestClient(utils.clients.resident, {
+                    residentId: resident.id,
+                    organizationId: utils.organization.id,
+                    accountNumber: '',
+                })
+            }, ACCOUNT_NUMBER_IS_NOT_SPECIFIED)
+        })
+
+        test('Do not throw error if accountNumber is not passed', async () => {
+            const resident = await utils.createResident()
+            const [consumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                organizationId: utils.organization.id,
+            })
+            expect(consumer).toHaveProperty('id')
+            expect(consumer.accountNumber).toBeNull()
+        })
+
+        test('Do not throw error if accountNumber passed is null', async () => {
+            const resident = await utils.createResident()
+            const [consumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                organizationId: utils.organization.id,
+                accountNumber: null,
+            })
+            expect(consumer).toHaveProperty('id')
+            expect(consumer.accountNumber).toBeNull()
+        })
+
 
     })
 
