@@ -16,6 +16,7 @@ const { B2C_APP_TYPES, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
+const { getEnvironmentalPermissionsFields } = require('./fields/devicePermissions')
 const { getEnvironmentalFields } = require('./fields/environmental')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos', true)
@@ -64,6 +65,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             isRequired: true,
             defaultValue: false,
         }),
+        ...getEnvironmentalPermissionsFields(),
         ...getEnvironmentalFields('publishedAt', {
             schemaDoc: 'The last time a mini-app was published on the {environment} environment',
             type: 'DateTimeUtc',

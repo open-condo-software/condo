@@ -53,7 +53,7 @@ const {
     verifyEmailByTestClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
-const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer appUrl logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id importId importRemoteSystem } }'))
+const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer appUrl logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id importId importRemoteSystem } isFullscreenAllowed isMicrophoneAllowed isCameraAllowed isSpeakerSelectionAllowed isBleBeaconBgAllowed isBleCentralBgAllowed isBlePeripheralBgAllowed isPushNotificationsAllowed isVoipNotificationsAllowed }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version app { id } importId importRemoteSystem deletedAt }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
 const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem v deletedAt }'))
@@ -480,6 +480,58 @@ describe('PublishB2CAppService', () => {
                         const apiApp = await B2CApp.getOne(support, { id: app.id })
                         expect(apiApp[fieldName]).toBeDefined()
                         expect(apiApp[fieldName]).not.toBeNull()
+                    })
+                })
+            })
+            describe('Device permissions', () => {
+                describe('Device permissions field must be transferred properly', () => {
+                    function condoPermissionToPortal (condoPermission, environment) {
+                        return environment + condoPermission.slice(2)
+                    }
+                    test.each(AVAILABLE_ENVIRONMENTS)('on %p environment', async (environment) => {
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+
+                        const condoPermissions = [
+                            'isFullscreenAllowed',
+                            'isMicrophoneAllowed',
+                            'isCameraAllowed',
+                            'isSpeakerSelectionAllowed',
+                            'isBleBeaconBgAllowed',
+                            'isBleCentralBgAllowed',
+                            'isPushNotificationsAllowed',
+                            'isVoipNotificationsAllowed',
+                        ]
+
+                        const truePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [condoPermissionToPortal(permission, environment), true])
+                        )
+                        const expectedCondoTruePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [permission, true])
+                        )
+
+                        const [app] = await createTestB2CApp(user, truePayload)
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, app)
+                        }
+
+                        await publishB2CAppByTestClient(user, app, { info: true }, environment)
+
+                        const apiApp = await B2CApp.getOne(support, { id: app.id })
+                        const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expect(condoApp).toEqual(expect.objectContaining(expectedCondoTruePayload))
+
+                        const falsePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [condoPermissionToPortal(permission, environment), false])
+                        )
+                        const expectedCondoFalsePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [permission, false])
+                        )
+
+                        await updateTestB2CApp(user, app.id, falsePayload)
+                        await publishB2CAppByTestClient(user, app, { info: true }, environment)
+
+                        const updatedCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expect(updatedCondoApp).toEqual(expect.objectContaining(expectedCondoFalsePayload))
                     })
                 })
             })

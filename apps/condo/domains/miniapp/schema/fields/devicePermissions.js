@@ -16,9 +16,13 @@ function _capitalize (str) {
     return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
 }
 
+function getDevicePermissionFieldName (permission) {
+    return `is${_capitalize(permission)}Allowed`
+}
+
 function getDevicePermissionsFields () {
     return Object.fromEntries(MINIAPP_DEVICE_PERMISSIONS.map(permission => {
-        const fieldName = `is${_capitalize(permission)}Allowed`
+        const fieldName = getDevicePermissionFieldName(permission)
         const humanReadableName = _camelSplit(permission).join(' ').toLowerCase()
         return [fieldName, {
             ...BASE_FIELD,
@@ -28,5 +32,6 @@ function getDevicePermissionsFields () {
 }
 
 module.exports = {
+    getDevicePermissionFieldName,
     getDevicePermissionsFields,
 }
