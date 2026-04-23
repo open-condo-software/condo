@@ -14,11 +14,11 @@ const {
 
 const { B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet, createTestB2CAppProperty, updateTestB2CAppProperty, B2CAppProperty, sendVoIPStartMessageByTestClient, updateTestB2CAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestB2CApp, createTestB2CAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { FLAT_UNIT_TYPE } = require('../../property/constants/common')
 
 describe('B2CAppAccessRightSet', () => {
     let admin
