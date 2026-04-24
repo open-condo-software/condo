@@ -8,9 +8,12 @@ import {
     InvoiceUpdateInput,
     QueryAllInvoicesArgs,
 } from '@app/condo/schema'
-import { get, isNull, isUndefined, pickBy } from 'lodash'
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isNull from 'lodash/isNull'
+import isUndefined from 'lodash/isUndefined'
 import omit from 'lodash/omit'
+import pickBy from 'lodash/pickBy'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 

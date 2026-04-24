@@ -9,12 +9,18 @@ import type {
     ErrorResponseData,
 } from './types/bridge'
 
-const NO_RESPONSE_TIMEOUT_MS = 1000 // 1 sec
-const NO_RESPONSE_ERROR: ErrorResponseData = {
-    errorType: 'client',
-    errorCode: 5,
-    errorReason: 'TIMEOUT_REACHED',
-    errorMessage: `Request was failed. Response was not received in ${NO_RESPONSE_TIMEOUT_MS} ms timeout.`,
+const DEFAULT_METHOD_TIMEOUTS: Partial<Record<AnyRequestMethodName, number>> = {
+    CondoWebAppRequestAuth: 10_000, // 10 sec
+}
+const DEFAULT_TIMEOUT_MS = 1_000 // 1 sec
+
+function getNoResponseError (timeout: number): ErrorResponseData {
+    return {
+        errorType: 'client',
+        errorCode: 5,
+        errorReason: 'TIMEOUT_REACHED',
+        errorMessage: `Request was failed. Response was not received in ${timeout} ms timeout.`,
+    }
 }
 
 type PromiseController = {
@@ -78,8 +84,11 @@ export function promisifySend (
 
     return function promisifiedSend<Method extends AnyRequestMethodName> (
         method: Method,
-        params: RequestParams<Method> & RequestId = {} as RequestParams<Method> & RequestId
+        params: RequestParams<Method> & RequestId = {} as RequestParams<Method> & RequestId,
+        timeout?: number
     ): Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void> {
+        const timeoutInMs = timeout || DEFAULT_METHOD_TIMEOUTS[method] || DEFAULT_TIMEOUT_MS
+
         return Promise.race([
             new Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>((resolve, reject) => {
                 const requestId = requestResolver.add({ resolve, reject }, params.requestId)
@@ -89,8 +98,8 @@ export function promisifySend (
                     requestId,
                 })
             }),
-            new Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>((resolve, reject) => {
-                setTimeout(() => reject(NO_RESPONSE_ERROR), NO_RESPONSE_TIMEOUT_MS)
+            new Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>((_, reject) => {
+                setTimeout(() => reject(getNoResponseError(timeoutInMs)), timeoutInMs)
             }),
         ])
     }

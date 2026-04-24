@@ -285,6 +285,7 @@ export function split (paymentAmount: string, distribution: DistributionItem[], 
             // So we decrease origin sum and distribute without fee
             // Than add extracted fee to separated split without recipient
             // Search "NO-FEE-PAYERS" in this file above
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { feeAmount: _, ...optionsWithoutFeeAmount } = options
             const splitsWithoutFee = split(Big(paymentAmount).minus(feeAmount).toString(), distribution, optionsWithoutFeeAmount)
             splitsWithoutFee.push({

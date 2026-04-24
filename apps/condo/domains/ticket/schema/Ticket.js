@@ -3,16 +3,23 @@
  */
 
 const dayjs = require('dayjs')
-const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
+const compact = require('lodash/compact')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isString = require('lodash/isString')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
+const { organizationMessaged } = require('@open-condo/messaging/plugins')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const {
@@ -71,6 +78,7 @@ const {
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
+const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -108,6 +116,7 @@ const ERRORS = {
         message: 'You already sent this ticket! You can not create more tickets!',
         messageForUser: 'api.ticket.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
     },
+
 }
 
 /**
@@ -115,7 +124,7 @@ const ERRORS = {
  * User should not be able to create more than $DAILY_TICKET_LIMIT tickets to 1 organization.
  * User should not be able to create more than $DAILY_SAME_TICKET_LIMIT tickets to 1 organization.
  * Pushes for bulk operations are disabled in this scheme.
- * 
+ *
  * $USERS_WITHOUT_TICKET_LIMITS phones are excluded from this rule.
  *
  * @param {string} phone
@@ -362,18 +371,30 @@ const Ticket = new GQLListSchema('Ticket', {
         // who accept
 
         assignee: {
-            schemaDoc: 'Assignee/responsible employee/user who must ensure that the issue is fulfilled',
+            schemaDoc: 'Assignee/responsible is an employee user who must ensure that the issue is fulfilled',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         executor: {
-            schemaDoc: 'Executor employee/user who perform the issue',
+            schemaDoc: 'Executor is an employee user who perform the issue',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
-        // TODO(zuch): make it required
+        observers: {
+            schemaDoc: 'Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
+            type: 'Relationship',
+            ref: 'TicketObserver.ticket',
+            many: true,
+            // NOTE: We need to allow create and update observers from ticket, because we need to create TicketChange
+            // NOTE: We don't need to read observers from ticket, because we can read them from allTicketObserver
+            access: {
+                read: ({ authentication: { item: user } }) => (user.isSupport || user.isAdmin),
+                create: true,
+                update: true,
+            },
+        },
         categoryClassifier: {
             schemaDoc: '@deprecated',
             type: 'Relationship',
@@ -420,11 +441,13 @@ const Ticket = new GQLListSchema('Ticket', {
         title: {
             schemaDoc: 'Very short description of the issue. Will be filled via LLM in the future',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
         },
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
@@ -489,6 +512,7 @@ const Ticket = new GQLListSchema('Ticket', {
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
@@ -611,6 +635,7 @@ const Ticket = new GQLListSchema('Ticket', {
         sourceMeta: {
             schemaDoc: 'In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...',
             type: 'Json',
+            sensitive: true,
         },
         deferredUntil: {
             schemaDoc: 'Date until which the ticket is deferred',
@@ -639,8 +664,20 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { default: false },
             access: readOnlyFieldAccess,
         },
+        sentToAuthoritiesAt: {
+            schemaDoc: 'Date and time when the ticket was sent to the authorities',
+            type: 'DateTimeUtc',
+            access: {
+                read: true,
+                create: false,
+                update: async (args) => {
+                    const { authentication: { item: user }, operation, originalInput, listKey } = args
+                    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+                },
+            },
+        },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
@@ -794,9 +831,11 @@ const Ticket = new GQLListSchema('Ticket', {
             if (resolvedData.contact) {
                 const contact = await Contact.getOne(context, { id: resolvedData.contact }, 'name email phone')
 
-                if (!resolvedData.clientName) resolvedData.clientName = contact.name
-                if (!resolvedData.clientEmail) resolvedData.clientEmail = contact.email
-                if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
+                if (contact) {
+                    if (!('clientName' in resolvedData)) resolvedData.clientName = contact.name
+                    if (!('clientEmail' in resolvedData)) resolvedData.clientEmail = contact.email
+                    if (!('clientPhone' in resolvedData)) resolvedData.clientPhone = contact.phone
+                }
             }
             if (resolvedData.classifier) {
                 const classifier = await getById('TicketClassifier', resolvedData.classifier)
@@ -817,11 +856,9 @@ const Ticket = new GQLListSchema('Ticket', {
             if (hasUpdatedFeedbackFields) {
                 resolvedData.feedbackUpdatedAt = dayjs().toISOString()
             }
-
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation, originalInput }) => {
-            // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
 
             const user = get(context, ['req', 'user'])
@@ -982,7 +1019,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 fields: ['organization', 'status'],
                 name: 'ticket_organization_status',
             },
-            // NOTE: default CRM sorting on /ticket page 
+            // NOTE: default CRM sorting on /ticket page
             {
                 type: 'BTreeIndex',
                 fields: ['order', '-createdAt'],

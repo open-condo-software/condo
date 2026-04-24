@@ -112,6 +112,71 @@ describe('RegisterServiceConsumer', () => {
         })
     })
 
+    describe('Empty accountNumber cases', () => {
+
+        test('Allow to have serviceConsumer without accountNumber to Organization', async () => {
+            const resident = await utils.createResident()
+            const [consumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                organizationId: utils.organization.id,
+            })
+            expect(consumer).toHaveProperty('id')
+            expect(consumer.accountNumber).toBeNull()
+        })
+
+        test('Allow to have serviceConsumer with accountNumber and at the same time without accountNumber to the same Organization', async () => {
+            const resident = await utils.createResident()
+            const accountNumber = faker.random.alphaNumeric(16)
+            await utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
+            const [consumer1] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                accountNumber,
+                organizationId: utils.organization.id,
+            })
+            const [consumer2] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                organizationId: utils.organization.id,
+            })
+            expect(consumer1).toHaveProperty('id')
+            expect(consumer2).toHaveProperty('id')
+            expect(consumer1.id).not.toEqual(consumer2.id)
+        })
+
+        test('Throw error if accountNumber passed is empty', async () => {
+            const resident = await utils.createResident()
+            await expectToThrowGQLError(async () => {
+                await registerServiceConsumerByTestClient(utils.clients.resident, {
+                    residentId: resident.id,
+                    organizationId: utils.organization.id,
+                    accountNumber: '',
+                })
+            }, ACCOUNT_NUMBER_IS_NOT_SPECIFIED)
+        })
+
+        test('Do not throw error if accountNumber is not passed', async () => {
+            const resident = await utils.createResident()
+            const [consumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                organizationId: utils.organization.id,
+            })
+            expect(consumer).toHaveProperty('id')
+            expect(consumer.accountNumber).toBeNull()
+        })
+
+        test('Do not throw error if accountNumber passed is null', async () => {
+            const resident = await utils.createResident()
+            const [consumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                organizationId: utils.organization.id,
+                accountNumber: null,
+            })
+            expect(consumer).toHaveProperty('id')
+            expect(consumer.accountNumber).toBeNull()
+        })
+
+
+    })
+
     describe('Common cases', () => {
 
         test('allows to create service consumers with same resident and accountNumber for multiple organizations', async () => {
@@ -193,17 +258,6 @@ describe('RegisterServiceConsumer', () => {
             })
         })
 
-        test('fails with error when creating serviceConsumer for empty accountNumber', async () => {
-            const resident = await utils.createResident()
-            const accountNumber = ' '
-            await expectToThrowGQLError(async () => {
-                await registerServiceConsumerByTestClient(utils.clients.resident, {
-                    residentId: resident.id,
-                    accountNumber,
-                    organizationId: utils.organization.id,
-                })
-            }, ACCOUNT_NUMBER_IS_NOT_SPECIFIED)
-        })
 
         test('fails with error when billingAccount not found, and Meters are not found', async () => {
             const resident = await utils.createResident()

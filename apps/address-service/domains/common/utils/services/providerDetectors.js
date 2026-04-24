@@ -27,7 +27,7 @@ const logger = getLogger()
  * @returns {AbstractSearchProvider|undefined}
  */
 function getSearchProvider (args) {
-    const provider = get(args, ['req', 'query', 'provider'], get(conf, 'PROVIDER'))
+    const provider = args?.req?.query?.provider || args?.req?.body?.provider || get(conf, 'PROVIDER')
 
     /** @type {AbstractSearchProvider|undefined} */
     let searchProvider
@@ -40,8 +40,6 @@ function getSearchProvider (args) {
             searchProvider = new GoogleSearchProvider(args)
             break
         case PULLENTI_PROVIDER:
-            // TODO (DOMA-11991): Remove this warning
-            logger.warn({ msg: '⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.' })
             searchProvider = new PullentiSearchProvider(args)
             break
     }
@@ -54,7 +52,7 @@ function getSearchProvider (args) {
  * @returns {AbstractSuggestionProvider|undefined}
  */
 function getSuggestionsProvider (args) {
-    const provider = get(args, ['req', 'query', 'provider'], get(conf, 'PROVIDER'))
+    const provider = args?.req?.query?.provider || args?.req?.body?.provider || get(conf, 'PROVIDER')
 
     /** @type {AbstractSuggestionProvider|undefined} */
     let suggestionProvider
@@ -67,8 +65,6 @@ function getSuggestionsProvider (args) {
             suggestionProvider = new DadataSuggestionProvider(args)
             break
         case PULLENTI_PROVIDER:
-            // TODO (DOMA-11991): Remove this warning
-            logger.warn({ msg: '⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.' })
             suggestionProvider = new PullentiSuggestionProvider(args)
             break
     }

@@ -1,0 +1,7 @@
+.sub-divider {
+  margin-bottom: 24px !important;
+}
+
+.sub-divider:not(:first-child) {
+  margin-top: 24px !important;
+}

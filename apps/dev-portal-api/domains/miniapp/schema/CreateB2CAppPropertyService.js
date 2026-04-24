@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CondoB2CAppPropertyGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/CreateB2CAppPropertyService')
-const { findCondoApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
+const { findCondoB2CApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
 
 const CreateB2CAppPropertyService = new GQLCustomSchema('CreateB2CAppPropertyService', {
     types: [
@@ -27,7 +27,7 @@ const CreateB2CAppPropertyService = new GQLCustomSchema('CreateB2CAppPropertySer
             resolver: async (parent, args, context) => {
                 const { data: { dv, sender, address } } = args
 
-                const { condoApp, serverClient } = await findCondoApp({ args, context })
+                const { condoApp, serverClient } = await findCondoB2CApp({ args, context })
 
                 return await serverClient.createModel({
                     modelGql: CondoB2CAppPropertyGql,

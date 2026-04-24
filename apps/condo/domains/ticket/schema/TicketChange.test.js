@@ -26,7 +26,16 @@ const {
     createTestOrganizationLink,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
+const {
+    TicketChange,
+    TicketStatus,
+    TicketSource,
+    TicketObserver,
+    createTestTicketChange,
+    updateTestTicketChange,
+    createTestTicketObserver,
+    updateTestTicketObserver,
+} = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
@@ -602,6 +611,167 @@ describe('TicketChange', () => {
                 expect(date1.getTime()).toEqual(statusUpdatedAtDate.getTime())
                 expect(date2.getTime()).toBeGreaterThan(statusUpdatedAtDate.getTime())
             })
+        })
+
+        describe('observers', () => {
+            const sort = (arr) => (arr || []).slice().sort()
+
+            it('creates TicketChange only when updating Ticket.observers (not on direct TicketObserver mutations)', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(admin, client.organization, client.property)
+
+                const initialChanges = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
+                expect(initialChanges).toHaveLength(0)
+
+                const [directObserver] = await createTestTicketObserver(admin, ticket, client.user)
+
+                const afterDirectCreateChanges = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
+                expect(afterDirectCreateChanges).toHaveLength(0)
+
+                await updateTestTicketObserver(admin, directObserver.id, { ticket: { disconnect: { id: ticket.id } } })
+
+                const afterDirectUpdateChanges = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
+                expect(afterDirectUpdateChanges).toHaveLength(0)
+
+                const observerClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const observerUser = observerClient.user
+
+                await updateTestTicket(admin, ticket.id, {
+                    observers: {
+                        create: [{
+                            user: { connect: { id: observerUser.id } },
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        }],
+                    },
+                })
+
+                const afterTicketObserversUpdateChanges = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
+                expect(afterTicketObserversUpdateChanges).toHaveLength(1)
+            })
+
+            it('creates TicketChange with observersIds/DisplayNames From/To for add, replace (add+remove), and remove', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(admin, client.organization, client.property)
+
+                const clientA = await makeClientWithNewRegisteredAndLoggedInUser()
+                const clientB = await makeClientWithNewRegisteredAndLoggedInUser()
+                const userA = clientA.user
+                const userB = clientB.user
+
+                // 1) add observer A
+                await updateTestTicket(admin, ticket.id, {
+                    observers: {
+                        create: [{
+                            user: { connect: { id: userA.id } },
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        }],
+                    },
+                })
+
+                const observersAfterAdd = await TicketObserver.getAll(admin, { ticket: { id: ticket.id } })
+                expect(observersAfterAdd).toHaveLength(1)
+                const observerAId = observersAfterAdd[0].id
+
+                let changes = await TicketChange.getAll(
+                    admin,
+                    { ticket: { id: ticket.id } },
+                    { sortBy: 'actualCreationDate_ASC' }
+                )
+                expect(changes).toHaveLength(1)
+                expect(sort(changes[0].observersIdsFrom)).toEqual([])
+                expect(sort(changes[0].observersIdsTo)).toEqual(sort([observerAId]))
+                expect(sort(changes[0].observersDisplayNamesFrom)).toEqual([])
+                expect(sort(changes[0].observersDisplayNamesTo)).toEqual(sort([userA.name]))
+
+                // 2) replace A -> B in one update (disconnect old + create new)
+                await updateTestTicket(admin, ticket.id, {
+                    observers: {
+                        disconnect: [{ id: observerAId }],
+                        create: [{
+                            user: { connect: { id: userB.id } },
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        }],
+                    },
+                })
+
+                const observersAfterReplace = await TicketObserver.getAll(admin, { ticket: { id: ticket.id } })
+                expect(observersAfterReplace).toHaveLength(1)
+                expect(observersAfterReplace[0].user.id).toEqual(userB.id)
+                const observerBId = observersAfterReplace[0].id
+
+                changes = await TicketChange.getAll(
+                    admin,
+                    { ticket: { id: ticket.id } },
+                    { sortBy: 'actualCreationDate_ASC' }
+                )
+                expect(changes).toHaveLength(2)
+                expect(sort(changes[1].observersIdsFrom)).toEqual(sort([observerAId]))
+                expect(sort(changes[1].observersIdsTo)).toEqual(sort([observerBId]))
+                expect(sort(changes[1].observersDisplayNamesFrom)).toEqual(sort([userA.name]))
+                expect(sort(changes[1].observersDisplayNamesTo)).toEqual(sort([userB.name]))
+
+                // 3) remove observer B
+                await updateTestTicket(admin, ticket.id, {
+                    observers: {
+                        disconnect: [{ id: observerBId }],
+                    },
+                })
+
+                const observersAfterRemove = await TicketObserver.getAll(admin, { ticket: { id: ticket.id } })
+                expect(observersAfterRemove).toHaveLength(0)
+
+                changes = await TicketChange.getAll(
+                    admin,
+                    { ticket: { id: ticket.id } },
+                    { sortBy: 'actualCreationDate_ASC' }
+                )
+                expect(changes).toHaveLength(3)
+                expect(sort(changes[2].observersIdsFrom)).toEqual(sort([observerBId]))
+                expect(sort(changes[2].observersIdsTo)).toEqual([])
+                expect(sort(changes[2].observersDisplayNamesFrom)).toEqual(sort([userB.name]))
+                expect(sort(changes[2].observersDisplayNamesTo)).toEqual([])
+            })
+
+            it('creates TicketChange with correct changes for observers and another Ticket field in same update', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(admin, client.organization, client.property)
+
+                const observerClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const observerUser = observerClient.user
+
+                const newDetails = faker.lorem.sentence()
+
+                await updateTestTicket(admin, ticket.id, {
+                    details: newDetails,
+                    observers: {
+                        create: [{
+                            user: { connect: { id: observerUser.id } },
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        }],
+                    },
+                })
+
+                const observers = await TicketObserver.getAll(admin, { ticket: { id: ticket.id } })
+                expect(observers).toHaveLength(1)
+                const observerId = observers[0].id
+
+                const [change] = await TicketChange.getAll(
+                    admin,
+                    { ticket: { id: ticket.id } },
+                    { sortBy: 'actualCreationDate_ASC' }
+                )
+                expect(change).toBeDefined()
+                expect(change.detailsFrom).toEqual(ticket.details)
+                expect(change.detailsTo).toEqual(newDetails)
+                expect(sort(change.observersIdsFrom)).toEqual([])
+                expect(sort(change.observersIdsTo)).toEqual(sort([observerId]))
+                expect(sort(change.observersDisplayNamesFrom)).toEqual([])
+                expect(sort(change.observersDisplayNamesTo)).toEqual(sort([observerUser.name]))
+            })  
         })
     })
 })

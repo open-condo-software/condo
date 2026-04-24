@@ -76,7 +76,15 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
                 if (user.isSupport) {
                     throw new GQLError(ERRORS.DENIED_FOR_SUPPORT, context)
                 }
-                const sessionToken = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
+                const sessionToken = await context.startAuthedSession({
+                    item: user,
+                    list: keystone.lists['User'],
+                    meta: {
+                        source: 'gql',
+                        provider: 'signinAsUser',
+                        createdBy: context.authedItem.id,
+                    },
+                })
 
                 return {
                     user,

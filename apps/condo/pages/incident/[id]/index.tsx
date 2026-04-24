@@ -1,16 +1,16 @@
 import {
+    GetFullIncidentPropertiesByIncidentIdQuery,
+    GetIncidentByIdQuery,
+    GetIncidentChangesByIncidentIdQuery,
+    GetIncidentClassifierIncidentByIncidentIdQuery,
+    useGetFullIncidentPropertiesByIncidentIdQuery,
     useGetIncidentByIdQuery,
     useGetIncidentChangesByIncidentIdQuery,
     useGetIncidentClassifierIncidentByIncidentIdQuery,
-    useGetFullIncidentPropertiesByIncidentIdQuery,
-    GetIncidentByIdQuery,
-    GetIncidentChangesByIncidentIdQuery,
 } from '@app/condo/gql'
-import {
-    IncidentStatusType,
-} from '@app/condo/schema'
-import { Col, Row, RowProps } from 'antd'
-import dayjs  from 'dayjs'
+import { IncidentStatusType, IncidentWorkTypeType } from '@app/condo/schema'
+import { Col, notification, Row, RowProps } from 'antd'
+import dayjs from 'dayjs'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -21,13 +21,18 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
+import { FLOW_TYPES } from '@condo/domains/ai/constants'
+import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
-import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { PageComponentType } from '@condo/domains/common/types'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
@@ -35,7 +40,10 @@ import {
     INCIDENT_WORK_TYPE_SCHEDULED,
 } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
-import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
+import {
+    useIncidentUpdateStatusModal,
+    UseIncidentUpdateStatusModalType,
+} from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
@@ -50,6 +58,7 @@ type IncidentIdPageContentProps = {
     refetchIncident
     incidentLoading: boolean
     withOrganization?: boolean
+    withNewsGeneration?: boolean
 }
 
 type IncidentFieldProps = {
@@ -359,6 +368,7 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { padding: '0 0 20px 0 !important' }
+const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
 export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const intl = useIntl()
@@ -371,14 +381,54 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const ChangeToActualLabel = intl.formatMessage({ id: 'incident.id.makeActual.label' })
     const ChangeToNotActualLabel = intl.formatMessage({ id: 'incident.id.makeNotActual.label' })
     const ChangeHistoryTitle = intl.formatMessage({ id: 'incident.id.changeHistory.title' })
+    const GenerateNewsLabel = intl.formatMessage({ id: 'incident.id.generateNews.button.label' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+    const GoToNewsMessage = intl.formatMessage({ id: 'incident.notification.button.goToNews' })
+    const ReadyMessage = intl.formatMessage({ id: 'Ready' })
+    const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
+    const AlsoCreateNewsMessage = intl.formatMessage({ id: 'incident.notification.description.alsoCreateNews' })
+    const CreateNewsMessage = intl.formatMessage({ id: 'incident.notification.description.createNews' })
 
-    const { incident, refetchIncident, incidentLoading, withOrganization } = props
+    const { incident, refetchIncident, incidentLoading, withOrganization, withNewsGeneration } = props
 
     const router = useRouter()
     const { employee } = useOrganization()
     const { persistor } = useCachePersistor()
     const isActual = incident.status === IncidentStatusType.Actual
     const canManageIncidents = useMemo(() => employee?.role?.canManageIncidents || false, [employee])
+    const canManageNewsItems = useMemo(() => employee?.role?.canManageNewsItems || false, [employee])
+
+    const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
+
+    const [ { execute: runGenerateNewsAIFlow }, {
+        loading: generateNewsLoading,
+    }] = useAIFlow<{ title: string, body: string }>({
+        flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
+        modelName: 'Incident',
+        itemId: incident?.id || null,
+    })
+
+    const {
+        data: incidentClassifierIncidentsData,
+        loading: incidentClassifierIncidentLoading,
+    } = useGetIncidentClassifierIncidentByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
+        },
+        skip: !incident.id || !persistor,
+    })
+    const incidentClassifiers = useMemo(() => incidentClassifierIncidentsData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifierIncidentsData?.incidentClassifierIncident])
+
+    const {
+        data: incidentPropertiesData,
+        loading: incidentPropertiesLoading,
+    } = useGetFullIncidentPropertiesByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
+        },
+        skip: !incident.id || !persistor,
+    })
+    const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const {
         data: incidentChangesData,
@@ -392,12 +442,109 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     })
     const incidentChanges = useMemo(() => incidentChangesData?.incidentChanges?.filter(Boolean) || [], [incidentChangesData?.incidentChanges])
 
-    const afterStatusUpdate = useCallback(async () => {
-        await refetchIncident()
-        await refetchIncidentChanges()
-    }, [refetchIncident, refetchIncidentChanges])
+    const getSuccessMessage = useCallback((description, newsInitialValue, source) => {
+        return {
+            message: (
+                <Typography.Text strong>{ReadyMessage}</Typography.Text>
+            ),
+            description: (
+                <Row gutter={[0, 16]}>
+                    <Col span={24}>
+                        <Typography.Text size='medium' type='secondary'>{description}</Typography.Text>
+                    </Col>
+                    {
+                        newsInitialValue && (
+                            <Col span={24}>
+                                <Button
+                                    type='primary'
+                                    onClick={() => {
+                                        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(newsInitialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}&source=${source}`, '_blank')
+                                        notification.destroy()
+                                    }}>
+                                    {GoToNewsMessage}
+                                </Button>
+                            </Col>
+                        )
+                    }
+                </Row>
+            ),
+            duration: 10,
+        }
+    }, [GoToNewsMessage, ReadyMessage])
 
-    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
+    const generateNewsItem = useCallback(async (
+        incident: GetIncidentByIdQuery['incident'],
+        incidentClassifiers: GetIncidentClassifierIncidentByIncidentIdQuery['incidentClassifierIncident'],
+        incidentProperties: GetFullIncidentPropertiesByIncidentIdQuery['incidentProperties'],
+        source: AnalyticalNewsSources,
+    ) => {
+        const context = {
+            selectedClassifiers: incidentClassifiers.map(incidentClassifier => ({
+                problem: incidentClassifier?.classifier?.problem?.name,
+                category: incidentClassifier?.classifier?.category?.name,
+            })),
+            details: incident.details,
+            textForResident: incident.textForResident || '',
+            workFinish: incident.workFinish ? dayjs(incident.workFinish).format(DATE_FORMAT) : '',
+            workStart: incident.workStart ? dayjs(incident.workStart).format(DATE_FORMAT) : dayjs().format(DATE_FORMAT),
+            workType: incident.workType || INCIDENT_WORK_TYPE_SCHEDULED,
+            isFinished: incident.status === IncidentStatusType.NotActual,
+        }
+
+        const result = await runGenerateNewsAIFlow({ context })
+
+        if (result.error) {
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+            return
+        }
+
+        let validBefore: string | undefined
+        if (incident.workFinish) {
+            validBefore = dayjs(incident.workFinish).toISOString()
+        } else if (incident.workType === IncidentWorkTypeType.Emergency) {
+            validBefore = dayjs().add(7, 'days').toISOString()
+        }
+
+        const initialValue = {
+            title: result?.data?.result?.title,
+            body: result?.data?.result?.body,
+            propertyIds: incidentProperties
+                .map(incidentProperty => incidentProperty.property.id)
+                .filter((id) => Boolean(id)),
+            hasAllProperties: incident.hasAllProperties,
+            type: incident.workType === IncidentWorkTypeType.Emergency ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
+            ...(validBefore ? { validBefore } : undefined),
+        }
+
+        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}&source=${source}`, '_blank')
+
+        return initialValue
+    }, [GenericErrorMessage, runGenerateNewsAIFlow])
+
+    const afterStatusUpdate: Parameters<UseIncidentUpdateStatusModalType>[0]['afterUpdate'] = useCallback(async (incident, generateNews) => {
+        let initialNewsItemValue
+        if (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && generateNews) {
+            initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties, AnalyticalNewsSources.INCIDENT_STATUS_AUTO)
+        }
+
+        let notificationDescription = ChangesSavedMessage
+        if (initialNewsItemValue) {
+            notificationDescription += ` ${AlsoCreateNewsMessage}`
+        }
+        notification.success(getSuccessMessage(notificationDescription, initialNewsItemValue, AnalyticalNewsSources.INCIDENT_STATUS_NOTIFY))
+
+        refetchIncident()
+        refetchIncidentChanges()
+    }, [withNewsGeneration, getSuccessMessage, ChangesSavedMessage, AlsoCreateNewsMessage, generateNewsItem, refetchIncident, refetchIncidentChanges, incidentClassifiers, incidentProperties, aiEnabled, generateNewsByIncidentEnabled])
+
+    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate, withNewsGeneration })
+
+    const handleGenerateNews = useCallback(async () => {
+        const initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties, AnalyticalNewsSources.INCIDENT_CARD_AUTO)
+        if (initialNewsItemValue) {
+            notification.success(getSuccessMessage(CreateNewsMessage, initialNewsItemValue, AnalyticalNewsSources.INCIDENT_CARD_NOTIFY))
+        }
+    }, [getSuccessMessage, CreateNewsMessage, generateNewsItem, incident, incidentClassifiers, incidentProperties])
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -464,7 +611,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                     canManageIncidents && (
                                         <Button
                                             key='changeStatus'
-                                            disabled={incidentLoading}
+                                            disabled={incidentLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
                                             type='primary'
                                             children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
                                             onClick={handleOpen}
@@ -480,6 +627,31 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                             onClick={handleEditIncident}
                                             id='editIncident'
                                         />
+                                    ),
+                                    (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems) && (
+                                        <SubscriptionGuardWithTooltip
+                                            key='generateNews'
+                                            feature={['ai', 'news']}
+                                            fallback={
+                                                <div>
+                                                    <Button
+                                                        disabled
+                                                        type='secondary'
+                                                        children={GenerateNewsLabel}
+                                                        id='generateNews'
+                                                    />
+                                                </div>
+                                            }
+                                        >
+                                            <Button
+                                                disabled={generateNewsLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
+                                                loading={generateNewsLoading}
+                                                type='secondary'
+                                                children={GenerateNewsLabel}
+                                                onClick={handleGenerateNews}
+                                                id='generateNews'
+                                            />
+                                        </SubscriptionGuardWithTooltip>
                                     ),
                                 ]}
                             />
@@ -501,7 +673,7 @@ const IncidentIdPage: PageComponentType = () => {
 
     const incidentId = typeof query?.id === 'string' ? query?.id : null
 
-    const { 
+    const {
         data: incidentData,
         loading: incidentLoading,
         error: incidentError,
@@ -529,6 +701,7 @@ const IncidentIdPage: PageComponentType = () => {
             incident={incident}
             refetchIncident={fetchIncidents}
             incidentLoading={incidentLoading}
+            withNewsGeneration
         />
     )
 }

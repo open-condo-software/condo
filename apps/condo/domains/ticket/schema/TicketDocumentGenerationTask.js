@@ -5,7 +5,7 @@
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT  } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -134,6 +134,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: 'File',
+            sensitive: true,
             adapter: TicketDocumentGenerationTaskFileAdapter,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
@@ -157,6 +158,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         meta: {
             schemaDoc: 'Structured untyped metadata, can be used to store errors or anything else',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: true,
@@ -187,7 +189,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadTicketDocumentGenerationTasks,
         create: access.canManageTicketDocumentGenerationTasks,

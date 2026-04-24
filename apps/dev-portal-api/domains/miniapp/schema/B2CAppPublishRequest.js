@@ -4,7 +4,7 @@
 
 const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -111,15 +111,16 @@ const B2CAppPublishRequest = new GQLListSchema('B2CAppPublishRequest', {
     },
     hooks: {
         validateInput ({ resolvedData, existingItem, context }) {
-            if (resolvedData['status'] === PUBLISH_REQUEST_APPROVED_STATUS) {
-                const newItem = { ...existingItem, ...resolvedData }
+            const newItem = { ...existingItem, ...resolvedData }
+
+            if (newItem['status'] === PUBLISH_REQUEST_APPROVED_STATUS) {
                 if (!newItem['isAppTested'] || !newItem['isContractSigned'] || !newItem['isInfoApproved']) {
                     throw new GQLError(ERRORS.APPROVE_NOT_ALLOWED, context)
                 }
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadB2CAppPublishRequests,
         create: access.canManageB2CAppPublishRequests,

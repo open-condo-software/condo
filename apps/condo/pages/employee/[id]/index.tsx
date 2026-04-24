@@ -1,8 +1,8 @@
 import { useGetOrganizationEmployeeTicketsCountForReassignmentQuery } from '@app/condo/gql'
 import { OrganizationEmployee as OrganizationEmployeeType, OrganizationEmployeeUpdateInput } from '@app/condo/schema'
 import { Col, Row, Space, Switch } from 'antd'
-import { map } from 'lodash'
 import get from 'lodash/get'
+import map from 'lodash/map'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -33,6 +33,8 @@ import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
+import styles from './index.module.css'
+
 type EmployeePageContent = {
     employee: OrganizationEmployeeType
     isEmployeeEditable: boolean
@@ -58,10 +60,10 @@ const ReInviteActionAlert = ({ employee }) => {
 
     return (
         <Alert showIcon type='warning' message={
-            <>
+            <div className={styles.employeeInviteRetryButtonContainer}>
                 {EmployeeDidntEnteredMessage}&nbsp;
                 <EmployeeInviteRetryButton employee={employee}/>
-            </>
+            </div>
         } />
     )
 }
@@ -262,6 +264,7 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                         <Link key='update' href={`/employee/${get(employee, 'id')}/update`}>
                                                             <Button
                                                                 type='primary'
+                                                                block
                                                             >
                                                                 {UpdateMessage}
                                                             </Button>

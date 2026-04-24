@@ -1,4 +1,4 @@
-import { AppEnvironment } from '@/lib/gql'
+import { AppEnvironment } from '@/gql'
 
 export function getCurrentPage (queryPage?: string | Array<string>): number {
     if (!queryPage || Array.isArray(queryPage)) {

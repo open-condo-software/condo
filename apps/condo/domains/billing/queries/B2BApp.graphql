@@ -1,0 +1,12 @@
+query getB2BAppById ($id: ID!) {
+    b2bApp: B2BApp (
+        where: {
+            id: $id,
+        },
+    ) {
+        id
+        name
+        detailedDescription
+        shortDescription
+    }
+}

@@ -452,6 +452,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const showTemplateNameError = useCallback((fieldName: string) => {
         form.setFields([{ name: fieldName, errors: [FieldRequiredMessage] }])
+        // @ts-ignore
         form.scrollToField(fieldName, SCROLL_TO_FIRST_ERROR_CONFIG)
     }, [FieldRequiredMessage, form])
 

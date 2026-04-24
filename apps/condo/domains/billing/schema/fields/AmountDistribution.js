@@ -163,6 +163,7 @@ const AMOUNT_DISTRIBUTION_FIELD = ({ toPayFieldName = 'toPay',
 } = {}) => ({
     schemaDoc: 'This optional field stores how to distribute amount between several receivers.',
     type: 'Json',
+    sensitive: true,
     isRequired: false,
     extendGraphQLTypes: [AMOUNT_DISTRIBUTION_GRAPHQL_TYPES],
     graphQLInputType: AMOUNT_DISTRIBUTION_SCHEMA_INPUT,

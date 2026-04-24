@@ -9,7 +9,7 @@ import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import React, { useCallback, useMemo, useRef, ComponentProps, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
 
@@ -265,7 +265,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                 <HiddenBlock hide={newsItemForOneProperty}>
                                     <GraphQlSearchInputWithCheckAll
                                         checkAllFieldName='hasAllProperties'
-                                        checkAllInitialValue={!!initialValues?.hasAllProperties}
+                                        checkAllInitialValue={!!initialFormValues?.hasAllProperties}
                                         selectFormItemProps={propertySelectFormItemProps}
                                         selectProps={propertySelectProps(form)}
                                         onCheckBoxChange={propertyCheckboxChange(form)}

@@ -8,7 +8,7 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { useCallback, useEffect, useState, useMemo } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 

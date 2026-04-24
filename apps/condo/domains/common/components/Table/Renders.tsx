@@ -22,7 +22,7 @@ import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/T
 import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 
@@ -223,7 +223,7 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary' }
 const NEW_LINE_POSTFIX_STYLE: TextProps = { style: { whiteSpace: 'pre-line' } }
 const ONE_LINE_POSTFIX_STYLE: TextProps =  { style: { whiteSpace: 'nowrap' } }
 
-export const getAddressRender = (property: Pick<Property, 'addressMeta' | 'address' | 'deletedAt'>, DeletedMessage?: string, search?: FilterValue | string, oneLinePostfix?: boolean) => {
+export const getAddressRender = (property: ObjectWithAddressInfo, DeletedMessage?: string, search?: FilterValue | string, oneLinePostfix?: boolean) => {
 
     if (!property) {
         return getTableCellRenderer({
@@ -263,6 +263,12 @@ export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text:
     const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
 
     return getTableCellRenderer({ search, extraTitle })(unitName)
+}
+
+export const getUnitTypeRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
+    const unitType = get(record, 'unitType', BuildingUnitSubType.Flat)
+    const renderUnitType = unitType ? intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` }) : null
+    return getTableCellRenderer({ search, extraTitle: renderUnitType })(renderUnitType)
 }
 
 export const getDateRender = (intl, search?: FilterValue | string, prefix = '\n') => {

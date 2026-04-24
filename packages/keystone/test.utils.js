@@ -1,7 +1,10 @@
+const { spawnSync } = require('child_process')
 const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const os = require('os')
+const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
@@ -16,6 +19,7 @@ const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pic
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
+const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
@@ -24,7 +28,7 @@ const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const urlParse = urlLib.parse
 const axios = axiosLib.default
-const axiosCookieJarSupport = axiosCookieJarSupportLib.default
+const axiosCookieJarSupport = axiosCookieJarSupportLib.wrapper
 
 const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
@@ -54,6 +58,7 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
  * Should be used to pass file uploading to variables of Keystone mutations
  * Pay attention to close stream in case when instance of this class is used more than one time in tests,
  * that examining a function (without mutation call).
+ * @deprecated - use await getUploadingFile instead
  */
 class UploadingFile {
     constructor (filePath) {
@@ -64,6 +69,37 @@ class UploadingFile {
     createReadStream () {
         return this.stream
     }
+}
+
+/**
+ * Returns correct file format based on environment
+ * @param {string} filePath - absolute path to the upload file on the local disk
+ * @param {Object} fileMeta - file meta, that should be attached to FileRecord
+ * @param {Object} user - result of 'createTestUser'
+ * @returns {Promise<UploadingFile>}
+ */
+async function getUploadingFile (filePath, fileMeta, user) {
+    const fileSecret = conf['FILE_SECRET']
+    const fileClient = conf['FILE_CLIENT_ID']
+    const fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/upload'
+
+    // NOTE: Old way to upload file. Keep that for backward compatibility
+    if (!fileSecret || !fileClient) {
+        return new UploadingFile(filePath)
+    }
+
+    const form = new FormData()
+    form.append('file', fs.readFileSync(filePath), path.basename(filePath))
+    form.append('meta', JSON.stringify(fileMeta))
+
+    const response = await fetch(fileServiceUrl, {
+        method: 'POST',
+        body: form,
+        headers: { Cookie: user.getCookie() },
+    })
+    const json = await response.json()
+
+    return json.data.files[0]
 }
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
@@ -187,9 +223,70 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             baseUrl: null,
         }
 
-        // Used only inside of jest files
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        const server = http.createServer(app)
+        // Create server with self-signed certificate for HTTPS in tests
+        let server
+        if (protocol === 'https') {
+            // Generate self-signed certificates on the fly using OpenSSL
+            // This avoids external Node.js dependencies while creating proper X.509 certs
+
+            // Create temporary files for key and cert
+            const tmpDir = os.tmpdir()
+            const randomSuffix = crypto.randomBytes(8).toString('hex')
+            const keyPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.key`)
+            const certPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.pem`)
+
+            try {
+                // Generate self-signed certificate using OpenSSL (available on most systems)
+                // Using spawnSync instead of execSync to avoid spawning a shell (more secure)
+                // OpenSSL is a system utility with a stable location across environments
+                // nosemgrep: javascript.lang.security.audit.dangerous-spawn.dangerous-spawn, javascript.lang.security.audit.child-process-shell.child-process-shell
+                const result = spawnSync('openssl', [ // NOSONAR this is a test utility
+                    'req',
+                    '-x509',
+                    '-newkey', 'rsa:2048',
+                    '-nodes',
+                    '-keyout', keyPath,
+                    '-out', certPath,
+                    '-days', '1',
+                    '-subj', '/CN=localhost',
+                ], { stdio: 'pipe' })
+
+                if (result.error || result.status !== 0) {
+                    throw new Error(result.error?.message || result.stderr?.toString() || 'OpenSSL command failed')
+                }
+            } catch (error) {
+                throw new Error(
+                    'Failed to generate SSL certificates. OpenSSL is required.\n' +
+                    `Error: ${error.message}\n\n` +
+                    'Install OpenSSL or use protocol=\'http\' for tests that don\'t require HTTPS'
+                )
+            }
+
+            // For test purposes, we use self-signed certs generated on the fly
+            // This is safe because it's only used in test environments with localhost servers
+            // In production, proper certificates should be used
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.disallow-old-tls-versions2.disallow-old-tls-versions2
+            const httpsOptions = {
+                key: fs.readFileSync(keyPath),
+                cert: fs.readFileSync(certPath),
+            }
+
+            // Clean up temporary certificate files after reading them
+            try {
+                fs.unlinkSync(keyPath)
+                fs.unlinkSync(certPath)
+            } catch (err) {
+                // Ignore cleanup errors
+            }
+
+            // Used only inside of jest files
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+            server = https.createServer(httpsOptions, app)
+        } else {
+            // Used only inside of jest files
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+            server = http.createServer(app)
+        }
 
         try {
             await new Promise((resolve, reject) => {
@@ -452,14 +549,12 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
     if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
-    const client = axios.create({
+    const client = axiosCookieJarSupport(axios.create({
         withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
+        jar: cookieJar,
         validateStatus: (status) => status >= 200 && status < 500,
         ...options,
-    })
-    axiosCookieJarSupport(client)
-    client.defaults.jar = cookieJar
+    }))
     client.getCookie = () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';')
     return client
 }
@@ -513,6 +608,186 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
 
 const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
+}
+
+/**
+ * Class for OIDC auth client
+ * Helps to perform OIDC auth flow
+ */
+class OIDCAuthClient {
+
+    constructor (authToken) {
+        this.authToken = authToken
+        this.cookieJar = new Map()
+    }
+
+    async oidcRequest (url) {
+        const response = await fetch(url, {
+            headers: {
+                ...this.authToken ? { authorization: `Bearer ${this.authToken}` } : {},
+                cookie: [...this.cookieJar.entries()].map(([name, value]) => `${name}=${value}`).join('; '),
+            },
+            redirect: 'manual',
+            credentials: 'same-origin',
+        })
+
+        if (response.status >= 400) {
+            throw new Error(`OIDC request failed: ${response.status} ${response.statusText} (URL: ${url})`)
+        }
+
+        const newCookies = response.headers.raw()['set-cookie']
+
+        if (newCookies) {
+            newCookies.forEach(cookie => {
+                const cookieValue = cookie.split(';')[0]
+                const separatorIndex = cookieValue.indexOf('=')
+                if (separatorIndex !== -1) {
+                    const name = cookieValue.substring(0, separatorIndex)
+                    const value = cookieValue.substring(separatorIndex + 1)
+                    this.cookieJar.set(name, value)
+                }
+            })
+        }
+
+        return {
+            location: response.headers.get('location'),
+            debug: await response.text(),
+        }
+    }
+}
+
+/**
+ * Creates the client for mini app with all OIDC flow completed
+ * This means that all OIDC endpoints of miniapp were called and session contains all needed fields
+ * @note This function not working in TESTS_FAKE_CLIENT_MODE=true because callback url already contains miniapp url (see OidcClient model created during preparing)
+ * @param {Object} loggedInCondoClient The logged in condo client
+ * @param {object} options The options object
+ * @param {string} options.condoOrganizationId Required if user in your tests has 2+ organizations
+ * @param {string} options.condoUserId Required if you create this client not from the miniapp you testing
+ * @param {string} options.miniAppServerUrl Required if you create this client not from the miniapp you testing
+ * @param {string} options.miniappInitPath Optional initialization path to call after OIDC flow. Defaults to '/launch'.
+ * @returns {Promise<Object>} Mini app client with all OIDC flow completed.
+ * The returned client also contains oidcSessionCookie and oidcSessionCookieHeader fields
+ * to simplify session-dependent HTTP endpoint tests.
+ */
+const makeLoggedInMiniAppClient = async (
+    loggedInCondoClient,
+    { condoOrganizationId = null, condoUserId = null, miniAppServerUrl = null, miniappInitPath = '/launch' } = {},
+) => {
+    const authCookie = loggedInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
+    if (!authCookie) {
+        throw new Error('keystone.sid cookie not found')
+    }
+    const miniAppAuth = new OIDCAuthClient()
+    const condoAuth = new OIDCAuthClient(decodeURIComponent(authCookie.split('=')[1]).split(':')[1])
+
+    const miniAppClient = await makeClient({ serverUrl: miniAppServerUrl })
+
+    const whoAmIQuery = gql`query auth { authenticatedUser { id name } }`
+
+    //
+    // Try to detect oidc parameters (condoOrganizationId and condoUserId).
+    // If these parameters not passed in forcedOidcAuthParams, try to get them from condo logged in user
+    //
+    if (!condoUserId) {
+        const { data: condoUserData, errors: condoUserErrors } = await loggedInCondoClient.query(whoAmIQuery)
+        throwIfError(condoUserData, condoUserErrors, { query: whoAmIQuery })
+        condoUserId = condoUserData.authenticatedUser.id
+    }
+
+    if (!condoOrganizationId) {
+        // Get all available organizations for logged in user
+        const myOrganizationQuery = gql`query allOrganizations { allOrganizations { id name } }`
+        const { data: condoOrganizationsData, errors: condoOrganizationsErrors } = await loggedInCondoClient.query(myOrganizationQuery)
+        throwIfError(condoOrganizationsData, condoOrganizationsErrors, { query: myOrganizationQuery })
+        const organizations = condoOrganizationsData.allOrganizations
+
+        if (organizations.length === 0) throw new Error('No organizations found for logged in user!')
+        if (organizations.length > 1) throw new Error('More than one organization found for logged in user! Please use forcedOidcAuthParams to specify organization id')
+
+        condoOrganizationId = organizations[0].id
+    }
+
+    //
+    // Set parameters for OIDC auth
+    //
+    const oidcAuthRequestParams = { condoUserId, condoOrganizationId }
+
+    //
+    // Build OIDC auth url
+    //
+    const miniAppUrl = miniAppClient.serverUrl
+    const { origin: miniAppUrlOrigin } = new URL(miniAppUrl)
+    const oidcAuthUrl = new URL(`${miniAppUrlOrigin}/oidc/auth`)
+    Object.keys(oidcAuthRequestParams).forEach((k) => oidcAuthUrl.searchParams.set(k, oidcAuthRequestParams[k]))
+
+    //
+    // 3... 2... 1... AUTH!
+    //
+    // Start auth
+    const { location: startAuthUrl } = await miniAppAuth.oidcRequest(oidcAuthUrl.toString())
+    // Condo redirects
+    const { location: interactUrl } = await condoAuth.oidcRequest(startAuthUrl)
+    const { location: interactCompleteUrl } = await condoAuth.oidcRequest(interactUrl)
+    const { location: completeAuthUrl } = await condoAuth.oidcRequest(interactCompleteUrl)
+    // Complete auth
+    await miniAppAuth.oidcRequest(completeAuthUrl)
+
+    //
+    // Get auth token from cookie
+    //
+    const oidcSessionCookie = miniAppAuth.cookieJar.get('keystone.sid')
+    if (!oidcSessionCookie) {
+        throw new Error('OIDC flow did not set keystone.sid cookie - authentication failed')
+    }
+    const decodedCookie = decodeURIComponent(oidcSessionCookie)
+
+    const [, token] = decodedCookie.split(':')
+    if (!token) {
+        throw new Error('Can not extract token from keystone.sid cookie - authentication failed (should be in format "s:<token>")')
+    }
+    const oidcSessionCookieHeader = `keystone.sid=${oidcSessionCookie}`
+
+    //
+    // Set auth token to client
+    //
+    miniAppClient.setHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Cookie': oidcSessionCookieHeader,
+    })
+    miniAppClient.oidcSessionCookie = oidcSessionCookie
+    miniAppClient.oidcSessionCookieHeader = oidcSessionCookieHeader
+
+    //
+    // Inject user data to client
+    //
+    const { data: miniAppUserData, errors: miniAppUserErrors } = await miniAppClient.query(whoAmIQuery)
+    throwIfError(miniAppUserData, miniAppUserErrors, { query: whoAmIQuery })
+    miniAppClient.user = miniAppUserData.authenticatedUser
+
+    //
+    // Call miniapp init path to complete the flow
+    //
+    if (miniappInitPath) {
+        const initUrl = new URL(miniappInitPath, miniAppUrlOrigin)
+        initUrl.searchParams.set('condoUserId', condoUserId)
+        initUrl.searchParams.set('condoOrganizationId', condoOrganizationId)
+
+        const initResponse = await fetch(initUrl.toString(), {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Cookie': oidcSessionCookieHeader,
+            },
+            redirect: 'follow',
+        })
+
+        if (!initResponse.ok) {
+            const body = await initResponse.text().catch(() => '<unable to read body>')
+            throw new Error(`miniapp init request to ${miniappInitPath} failed with status ${initResponse.status}: ${body}`)
+        }
+    }
+
+    return miniAppClient
 }
 
 /**
@@ -1050,6 +1325,43 @@ const actualDatabaseEntityName = (name) => {
 }
 
 /**
+ * Extracts the most relevant error message from a GraphQL error object.
+ * Handles both GQLError (extensions.message) and plain errors.
+ * @param error
+ * @returns {string}
+ */
+const _getConstraintErrorMessage = (error) => {
+    let msg = ''
+    if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+        msg = error.extensions.message || ''
+    } else {
+        msg = error.message || ''
+    }
+    // NOTE: Prisma wraps PG errors in ConnectorError which escapes quotes (\")
+    // Normalize so constraint name checks work for both Knex and Prisma formats
+    return msg.replace(/\\"/g, '"')
+}
+
+/**
+ * Checks if an error message represents a unique constraint violation.
+ * Supports both PostgreSQL (Knex) and Prisma (P2002) error formats.
+ * @param {string} message
+ * @param {string} constraintName - full name of constraint as presented in Keystone schema
+ * @returns {boolean}
+ */
+const isUniqueConstraintViolationMessage = (message, constraintName) => {
+    // PostgreSQL / Knex format: 'duplicate key value violates unique constraint "constraint_name"'
+    if (message.includes(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)) {
+        return true
+    }
+    // Prisma P2002 format: 'Unique constraint failed on the fields: (`field1`,`field2`)'
+    if (message.includes('Unique constraint failed on the fields')) {
+        return true
+    }
+    return false
+}
+
+/**
  * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
  * @param testFunc
  * @param constraintName - full name of constraint as presented in Keystone schema
@@ -1062,11 +1374,8 @@ const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintN
         // TODO(pahaz): DOMA-10368 we need to use strict checks!
         // expect(errors).toHaveLength(1)
         const error = errors[0]
-        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            expect(error.extensions.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
-        } else {
-            expect(error.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
-        }
+        const msg = _getConstraintErrorMessage(error)
+        expect(isUniqueConstraintViolationMessage(msg, constraintName)).toBe(true)
     })
 }
 
@@ -1083,11 +1392,10 @@ const expectToThrowCheckConstraintViolationError = async (testFunc, constraintNa
         // TODO(pahaz): DOMA-10368 we need to use strict checks!
         // expect(errors).toHaveLength(1)
         const error = errors[0]
-        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            expect(error.extensions.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
-        } else {
-            expect(error.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
-        }
+        const msg = _getConstraintErrorMessage(error)
+        const dbEntityName = actualDatabaseEntityName(constraintName)
+        const pgPattern = `violates check constraint "${dbEntityName}"`
+        expect(msg.includes(pgPattern) || msg.includes('A constraint failed on the database')).toBe(true)
     })
 }
 
@@ -1103,11 +1411,14 @@ const expectToThrowForeignKeyConstraintViolationError = async (testFunc, tableNa
     }, ({ errors }) => {
         expect(errors).toHaveLength(1)
         const error = errors[0]
-        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
-            expect(error.extensions.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
-        } else {
-            expect(error.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
-        }
+        const msg = _getConstraintErrorMessage(error)
+        // PostgreSQL / Knex format
+        const pgMatch = msg.includes(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
+        // Prisma P2003 format: 'Foreign key constraint failed on the field: `fieldName`'
+        const prismaP2003Match = msg.includes('Foreign key constraint failed on the field')
+        // Prisma P2025 format: 'records that were required but not found' (nested connect validation)
+        const prismaP2025Match = msg.includes('records that were required but not found')
+        expect(pgMatch || prismaP2003Match || prismaP2025Match).toBe(true)
     })
 }
 
@@ -1120,6 +1431,8 @@ module.exports = {
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,
+    OIDCAuthClient,
+    makeLoggedInMiniAppClient,
     gql,
     DEFAULT_TEST_ADMIN_IDENTITY,
     DEFAULT_TEST_ADMIN_SECRET,
@@ -1130,6 +1443,7 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
+    getUploadingFile,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
@@ -1151,6 +1465,7 @@ module.exports = {
     expectToThrowGraphQLRequestError,
     expectToThrowGraphQLRequestErrors,
     expectValuesOfCommonFields,
+    isUniqueConstraintViolationMessage,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowCheckConstraintViolationError,
     expectToThrowForeignKeyConstraintViolationError,

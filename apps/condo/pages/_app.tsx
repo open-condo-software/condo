@@ -2,7 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import {
     AuthenticatedUserDocument,
     GetActiveOrganizationEmployeeDocument,
-    useGetBillingIntegrationOrganizationContextsQuery,
+    useGetBillingIntegrationOrganizationContextsWithLastReportQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
 import createCache from '@emotion/cache'
@@ -32,6 +32,8 @@ import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
+import { AIProvider, useAIContext } from '@condo/domains/ai/components/AIContext'
+import { AIOverlay } from '@condo/domains/ai/components/AIOverlay'
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
@@ -39,6 +41,7 @@ import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/c
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleTagManager from '@condo/domains/common/components/containers/GoogleTagManager'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
+import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
@@ -49,7 +52,7 @@ import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -92,13 +95,8 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import {
-    SubscriptionProvider,
-    useServiceSubscriptionContext,
-} from '@condo/domains/subscription/components/SubscriptionContext'
-import {
-    useEndTrialSubscriptionReminderPopup,
-} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { SubscriptionAccessGuard, NoSubscriptionTooltip, SubscriptionFeatureProgress } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
@@ -107,6 +105,7 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
+import { SudoTokenProvider } from '@condo/domains/user/components/SudoTokenProvider'
 import { WAS_AUTHENTICATED_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 
 import Error404Page from './404'
@@ -121,8 +120,20 @@ import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 import '@open-condo/next/logging/patchConsoleLogMethods'
 
+const AIOverlayWrapper = () => {
+    const { isAIOverlayOpen, closeAIOverlay } = useAIContext()
+    
+    return <AIOverlay open={isAIOverlayOpen} onClose={closeAIOverlay} />
+}
 
-const { canEnableSubscriptions, publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
+const UseDeskWidgetWrapper = () => {
+    const { isAIOverlayOpen } = useAIContext()
+    
+    return <UseDeskWidget hide={isAIOverlayOpen} />
+}
+
+
+const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
 const emotionCache = createCache({ key: 'css', prepend: true })
 
@@ -159,23 +170,22 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { isExpired } = useServiceSubscriptionContext()
-    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
-    const disabled = !employee || (hasSubscriptionFeature && isExpired)
+    const { hasSubscription, isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const disabled = !employee || !hasSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+
     const role = employee?.role || null
     const orgId = organization?.id || null
     const orgFeatures = organization?.features || []
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const {
         data,
-    } = useGetBillingIntegrationOrganizationContextsQuery({
+    } = useGetBillingIntegrationOrganizationContextsWithLastReportQuery({
         variables: {
-            integration: { id: sppBillingId },
             organization: { id: orgId },
         },
-        skip: !isAuthenticated || isLoading || !orgId || !sppBillingId || !persistor,
+        skip: !isAuthenticated || isLoading || !orgId || !persistor,
     })
     const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
     const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)
@@ -362,29 +372,51 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings, hasAccessToTour, isNoServiceProviderOrganization])
 
     return (
         <div>
+            {hasSubscription && hasSubscriptionsFeature && <SubscriptionFeatureProgress />}
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
-                    {category.items.map((item) => (
-                        <MenuItem
-                            id={item.id}
-                            key={`menu-item-${item.path}`}
-                            path={`/${item.path}`}
-                            icon={item.icon}
-                            label={item.label}
-                            disabled={disabled}
-                            isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                            excludePaths={item.excludePaths}
-                        />
-                    ))}
+                    {category.items.map((item) => {
+                        const isSubscriptionPage = item.path === 'settings'
+                        const isDisabled = isSubscriptionPage ? !employee : disabled
+                        const featureTooltip = ({ element, placement }) => (
+                            <NoSubscriptionTooltip path={`/${item.path}`} children={element} placement={placement} />
+                        )
+
+                        return (
+                            <MenuItem
+                                id={item.id}
+                                key={`menu-item-${item.path}`}
+                                path={`/${item.path}`}
+                                icon={item.icon}
+                                label={item.label}
+                                disabled={isDisabled}
+                                isCollapsed={isCollapsed}
+                                excludePaths={item.excludePaths}
+                                toolTipDecorator={featureTooltip}
+                            />
+                        )
+                    })}
                     {(appsByCategories?.[category.key] || []).map((app) => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
+                        const isAppAvailable = isB2BAppEnabled(app.id)
+
+                        const miniappTooltip = ({ element, placement }) => (
+                            <NoSubscriptionTooltip b2bAppId={app.id} children={element} placement={placement} />
+                        )
+                        
+                        let tooltipDecorator = null
+                        if (disabled) {
+                            tooltipDecorator = wrapElementIntoNoOrganizationToolTip
+                        } else if (!isAppAvailable) {
+                            tooltipDecorator = miniappTooltip
+                        }
+
                         return <MenuItem
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
@@ -394,7 +426,7 @@ const MenuItems: React.FC = () => {
                             labelRaw
                             disabled={disabled}
                             isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                            toolTipDecorator={tooltipDecorator}
                             excludePaths={[miniAppsPattern]}
                         />
                     })}
@@ -405,7 +437,8 @@ const MenuItems: React.FC = () => {
 }
 
 const TasksProvider = ({ children }) => {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading: userLoading, isAuthenticated } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
     const { persistor } = useCachePersistor()
 
     // Use UI interfaces for all tasks, that are supposed to be tracked
@@ -424,11 +457,12 @@ const TasksProvider = ({ children }) => {
     // Load all tasks with 'processing' status
     const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
         variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
-        skip: !user?.id || isLoading || !persistor,
+        skip: !isAuthenticated || userLoading || organizationIsLoading || !organization || !persistor,
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing', today: true }, user
+        { status: 'processing', today: true }, 
+        userLoading ? null : user,
     )
     // ... another task records should be loaded here
 
@@ -484,6 +518,10 @@ const MyApp = ({ Component, pageProps }) => {
     const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, googleTagManagerId } } = getConfig()
 
+    const { isMobileUserAgent, isSidebarCollapsed: isCollapsedCookie } = useSSRCookiesContext()
+    const detectedMobileUserAgentInSSR = isMobileUserAgent === 'true'
+    const initialIsCollapsed = isCollapsedCookie === 'true' ? true : isCollapsedCookie === 'false' ? false : undefined
+
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
@@ -492,11 +530,6 @@ const MyApp = ({ Component, pageProps }) => {
     if (Component.requiredAccess) {
         RequiredAccess = Component.requiredAccess
     }
-
-    const {
-        EndTrialSubscriptionReminderPopup,
-        isEndTrialSubscriptionReminderPopupVisible,
-    } = useEndTrialSubscriptionReminderPopup()
 
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth(\/.*)?/)
 
@@ -522,44 +555,50 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={emotionCache}>
                     <GlobalStyle/>
-                    <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
-                        {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <TasksProvider>
-                            <PostMessageProvider>
-                                <TourProvider>
-                                    <SubscriptionProvider>
-                                        <GlobalAppsFeaturesProvider>
-                                            <GlobalAppsContainer/>
-                                            <TicketVisibilityContextProvider>
-                                                <ActiveCallContextProvider>
-                                                    <ConnectedAppsWithIconsContextProvider>
-                                                        <CondoAppEventsHandler/>
-                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                            <RequiredAccess>
-                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                    <Component {...pageProps} />
-                                                                    {
-                                                                        isEndTrialSubscriptionReminderPopupVisible && (
-                                                                            <EndTrialSubscriptionReminderPopup/>
-                                                                        )
-                                                                    }
-                                                                </FeaturesReady>
-                                                            </RequiredAccess>
-                                                        </LayoutComponent>
-                                                    </ConnectedAppsWithIconsContextProvider>
-                                                </ActiveCallContextProvider>
-                                            </TicketVisibilityContextProvider>
-                                        </GlobalAppsFeaturesProvider>
-                                    </SubscriptionProvider>
-                                </TourProvider>
-                            </PostMessageProvider>
-                        </TasksProvider>
-                        {!isSnowfallDisabled && <Snowfall />}
-                    </LayoutContextProvider>
+                    <AIProvider>
+                        <LayoutContextProvider
+                            serviceProblemsAlert={<ServiceProblemsAlert />}
+                            detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
+                            initialIsCollapsed={initialIsCollapsed}
+                        >
+                            {shouldDisplayCookieAgreement && <CookieAgreement/>}
+                            <HCaptchaProvider>
+                                <SudoTokenProvider>
+                                    <TasksProvider>
+                                        <PostMessageProvider>
+                                            <TourProvider>
+                                                <GlobalAppsFeaturesProvider>
+                                                    <GlobalAppsContainer/>
+                                                    <TicketVisibilityContextProvider>
+                                                        <ActiveCallContextProvider>
+                                                            <ConnectedAppsWithIconsContextProvider>
+                                                                <CondoAppEventsHandler/>
+                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                    <RequiredAccess>
+                                                                        <SubscriptionAccessGuard skipGuard={Component.isError}>
+                                                                            <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                                <Component {...pageProps} />
+                                                                            </FeaturesReady>
+                                                                        </SubscriptionAccessGuard>
+                                                                    </RequiredAccess>
+                                                                </LayoutComponent>
+                                                            </ConnectedAppsWithIconsContextProvider>
+                                                        </ActiveCallContextProvider>
+                                                    </TicketVisibilityContextProvider>
+                                                </GlobalAppsFeaturesProvider>
+                                            </TourProvider>
+                                        </PostMessageProvider>
+                                    </TasksProvider>
+                                </SudoTokenProvider>
+                            </HCaptchaProvider>
+                            {!isSnowfallDisabled && <Snowfall />}
+                        </LayoutContextProvider>
+                        <AIOverlayWrapper />
+                        {UseDeskWidgetId && <UseDeskWidgetWrapper />}
+                    </AIProvider>
                     {yandexMetrikaID && <YandexMetrika />}
                     {googleTagManagerId && <GoogleTagManager />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
-                    {UseDeskWidgetId && <UseDeskWidget/>}
                 </CacheProvider>
             </ConfigProvider>
         </>
@@ -574,7 +613,6 @@ type NextAppContext = (AppContext & NextPageContext) & {
 if (!isDisabledSsr || !isSSR()) {
     MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
         try {
-
             const pageContext = appContext?.ctx
             const apolloClient = appContext.apolloClient
 
@@ -653,8 +691,11 @@ if (!isDisabledSsr || !isSSR()) {
             let pageProps: Record<string, any> = {
                 ...initialProps,
                 ...prefetchedData,
-            };
+            }
 
+            const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(pageContext?.req?.headers?.['user-agent'] || '')
+            setCookie('isMobileUserAgent', isMobileUserAgent, { req: pageContext?.req, res: pageContext?.res });
+                
             ({ props: pageProps } = extractVitalCookies(pageContext.req, pageContext.res, {
                 props: pageProps,
             }))

@@ -3,16 +3,13 @@ import {
     useGetIncidentClassifierIncidentByIncidentIdQuery,
     useGetIncidentPropertiesByIncidentIdQuery,
     useUpdateIncidentMutation,
-    GetIncidentByIdDocument,
-    GetIncidentPropertiesByIncidentIdDocument,
-    GetIncidentChangesByIncidentIdDocument,
 } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
@@ -109,14 +106,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const incidentClassifiers = useMemo(() => incidentClassifiersData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifiersData?.incidentClassifierIncident])
 
-    const [updateIncident] = useUpdateIncidentMutation({
-        onCompleted: async () => await push(`/incident/${[incidentId]}`),
-        refetchQueries: [
-            { query: GetIncidentByIdDocument, variables: { incidentId } },
-            { query: GetIncidentPropertiesByIncidentIdDocument, variables: { incidentId } },
-            { query: GetIncidentChangesByIncidentIdDocument, variables: { incidentId } },
-        ],
-    })
+    const [updateIncident] = useUpdateIncidentMutation()
     const action: BaseIncidentFormProps['action'] = useCallback(
         async (values) => await updateIncident({
             variables: {
@@ -165,10 +155,14 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         <BaseIncidentForm
             organizationId={organizationId}
             action={action}
+            afterAction={async () => {
+                await push(`/incident/${incidentId}`)
+            }}
             ActionBar={UpdateIncidentActionBar}
             initialValues={initialValues}
             loading={loading}
             showOrganization={showOrganization}
+            formType='update'
         />
     )
 }

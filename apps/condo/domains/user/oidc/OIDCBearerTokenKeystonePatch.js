@@ -57,6 +57,7 @@ function OIDCBearerTokenKeystonePatch (app, context) {
             }
 
             const account = get(token, 'accountId')
+            const clientID = get(token, 'clientId')
 
             if (token && account) {
                 // NOTE: we found OIDC Token but this req.user and req.session is not for that user! We need to fix it
@@ -69,7 +70,15 @@ function OIDCBearerTokenKeystonePatch (app, context) {
                     // NOTE: create new req.session with authenticated token!
                     // NOTE: probably, we also destroy the current req.session... but it's ok
                     const { keystone } = await getSchemaCtx('User')
-                    await keystone._sessionManager.startAuthedSession(req, { item: { id: account }, list: keystone.lists['User'] })
+                    await keystone._sessionManager.startAuthedSession(req, {
+                        item: { id: account },
+                        list: keystone.lists['User'],
+                        meta: {
+                            source: 'oidc',
+                            provider: 'condo',
+                            clientID,
+                        },
+                    })
 
                     // It's a copy/past from `@open-keystone/session/src/session.ts:getSessionMiddleware`
                     // Wee need to update req.user and req.authedListKey because the keystone need to use it for authentication.

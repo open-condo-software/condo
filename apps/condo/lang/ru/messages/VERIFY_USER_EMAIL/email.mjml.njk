@@ -1,0 +1,198 @@
+<mjml>
+
+  <mj-head>
+    <mj-attributes>
+      <mj-all padding="0" />
+      <mj-all font-family="Open Sans" />
+      <mj-wrapper padding-left="25px" padding-right="25px" />
+      <mj-text color="#696969" />
+
+      <mj-class name="link" color="#39CE66" />
+      <mj-class name="black" color="#000000" />
+      <mj-class name="bold" font-weight="700" />
+
+      <mj-class name="small-text" font-size="10px" line-height="14px" />
+      <mj-class name="paragraph" font-size="16px" line-height="25px" />
+      <mj-class name="title" font-size="20px" line-height="140%" font-weight="700" />
+
+      <mj-class name="bg-white" background-color="#ffffff" />
+    </mj-attributes>
+
+    <mj-style inline="inline">
+      .link {
+      color: #39CE66;
+      }
+
+      .black {
+      color: #000;
+      }
+
+      .grey {
+      color: #696969;
+      }
+
+      .header-btn a {
+      padding: 8px 16px !important;
+      }
+    </mj-style>
+
+    <mj-style>
+      @media screen and (max-width: 479px) {
+      .header-logo td {
+      width: 90px !important;
+      }
+
+      .header-btn a {
+      font-size: 14px !important;
+      }
+
+      .title {
+      padding-top: 16px !important;
+      }
+
+      .title div {
+      font-size: 20px !important;
+      line-height: 28px !important;
+      }
+
+      .paragraph {
+      padding-top: 16px !important;
+      }
+
+      .paragraph div {
+      font-size: 14px !important;
+      line-height: 22px !important;
+      }
+
+      .small-text {
+      padding-top: 0px !important;
+      }
+
+      .small-text div {
+      font-size: 10px !important;
+      line-height: 14px !important;
+      }
+
+      .paragraph.company-name {
+      padding-top: 0px !important;
+      }
+
+      .letter-btn {
+      padding-bottom: 8px !important;
+      }
+
+      .footer div {
+      font-size: 11px !important;
+      line-height: 18px !important;
+      }
+      }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#fafafa">
+
+    <mj-wrapper background-color="transparent" padding="8px"></mj-wrapper>
+
+    <mj-wrapper mj-class="bg-white" padding-top="20px" border-radius="32px">
+
+      <mj-raw>
+        <!-- Header -->
+      </mj-raw>
+      <mj-section>
+        <mj-group>
+          <mj-column vertical-align="middle">
+            <mj-image width="140px" align="center" src="{{ env.serverUrl }}/messages/companyLogo-ru.png" href="{{ env.serverUrl }}" alt="Logo" css-class="header-logo"></mj-image>
+          </mj-column>
+        </mj-group>
+      </mj-section>
+
+
+      <mj-raw>
+        <!-- Letter -->
+      </mj-raw>
+      <mj-section padding-top="5px">
+        <mj-column>
+          <mj-text align="center" mj-class="title black" font-size="20px" css-class="title" padding-top="20px">Благодарим за регистрацию<br /> на платформе Doma.ai!</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph grey" padding-top="20px" align="center">Чтобы завершить процесс, пожалуйста, подтвердите ваш email-адрес {{ message.meta.userEmail }}. Это позволит нам быть на связи и держать вас в курсе последних обновлений.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-button background-color="#39CE66" border-radius="8px" font-size="16px" font-weight="700" line-height="22px" href="{{ message.meta.link }}" padding-top="32px" padding-bottom="0px" css-class="letter-btn">
+            Подтвердить email
+          </mj-button>
+          {% if message.meta.withMarketingConsent %}
+          <mj-text mj-class="small-text" css-class="small-text grey" padding-top="8px" align="center" font-weight="300" font-size="12px">Нажимая на кнопку, вы подтверждаете согласие на получение рекламной рассылки от Домов.</mj-text>
+          {% endif %}
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph grey" padding-top="20px" align="center">Если вы не регистрировались и получили это письмо по ошибке, просто проигнорируйте его.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">С заботой о вашем бизнесе, </mj-text>
+          {% if env.landingUrl.ru %}
+          <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="{{ env.landingUrl.ru }}" class="link">Домá</a></mj-text>
+          {% else %}
+          <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px">Домá</mj-text>
+          {% endif %}
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding="8px"></mj-section>
+    </mj-wrapper>
+
+
+    <mj-raw>
+      <!-- Footer -->
+    </mj-raw>
+    <mj-wrapper background-color="transparent" css-class="footer" padding-top="20px">
+
+      {% if env.socialMediaLinks.ru %}
+      <mj-section>
+        <mj-column>
+          <mj-social align="center" mode="horizontal" padding-top="8px">
+            {% for name, link in env.socialMediaLinks.ru %}
+            <mj-social-element href="{{ link }}" src="{{ env.serverUrl }}/socials/{{ name }}.png" icon-size="32px" padding="4px" alt="{{ name }}">
+            </mj-social-element>
+            {% endfor %}
+          </mj-social>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" font-weight="300" line-height="19px" padding-top="16px">Также следите за обновлениями в наших социальных сетях!</mj-text>
+        </mj-column>
+      </mj-section>
+      {% endif %}
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" font-weight="300" padding-top="4px" line-height="19px" font-size="12px">Остались вопросы? Задайте их нашей команде поддержки на <a href="mailto:{{ env.supportEmail }}" class="link">{{ env.supportEmail }}</a>.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" font-weight="300" padding-top="20px" line-height="19px" font-size="12px">© Дома 2025</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding="8px"></mj-section>
+    </mj-wrapper>
+
+  </mj-body>
+
+</mjml>

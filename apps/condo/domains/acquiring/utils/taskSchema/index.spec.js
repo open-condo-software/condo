@@ -1235,11 +1235,13 @@ describe('task schema queries', () => {
         let admin,
             getContextRequest,
             getPaymentRequest,
+            residentClient,
             serviceConsumerBatch,
             recurrentPaymentContext
 
         beforeEach( async () => {
-            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+            residentClient = commonData.client
             serviceConsumerBatch = batches[0]
             recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
         })
@@ -1327,7 +1329,7 @@ describe('task schema queries', () => {
             )
 
             // register multi payment
-            const [result] = await registerMultiPaymentByTestClient(admin, [{
+            const [result] = await registerMultiPaymentByTestClient(residentClient, [{
                 serviceConsumer: { id: serviceConsumer.id },
                 receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
             }])

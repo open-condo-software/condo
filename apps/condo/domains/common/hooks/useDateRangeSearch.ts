@@ -1,5 +1,7 @@
 import dayjs from 'dayjs'
-import { get, debounce, isArray } from 'lodash'
+import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import isArray from 'lodash/isArray'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 

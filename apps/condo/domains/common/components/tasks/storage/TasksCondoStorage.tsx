@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import isFunction from 'lodash/isFunction'
 import { useCallback } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useMutation } from '@open-condo/next/apollo'
 
 import { TASK_POLL_INTERVAL } from '@condo/domains/common/constants/tasks'

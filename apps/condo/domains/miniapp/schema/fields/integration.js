@@ -1,5 +1,6 @@
 const AllIcons = require('@open-condo/icons')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { find } = require('@open-condo/keystone/schema')
 
 const { DEFAULT_MENU_CATEGORY, ALL_MENU_CATEGORIES } = require('@condo/domains/common/constants/menuCategories')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
@@ -37,7 +38,7 @@ const MENU_CATEGORY_FIELD = {
     options: ALL_MENU_CATEGORIES,
 }
 
-const PARTNER_URL_FIELD = {
+const DEVELOPER_URL_FIELD = {
     schemaDoc: 'Link to the website of the developer company, where the user can find out detailed information about the partner',
     type: 'Text',
     isRequired: false,
@@ -108,10 +109,34 @@ const PRICE_FIELD = {
     isRequired: false,
 }
 
+function createSubscriptionPlansField (appFieldName) {
+    return {
+        schemaDoc: 'Virtual field that returns all active SubscriptionPlans that include this miniapp. ' +
+            `Returns array of SubscriptionPlan objects where this app is in ${appFieldName}. ` +
+            'Empty array means the app is available to all organizations without subscription.',
+        type: 'Virtual',
+        graphQLReturnType: '[SubscriptionPlan]',
+        graphQLReturnFragment: '{ id name }',
+        resolver: async (item) => {
+            const plans = await find('SubscriptionPlan', {
+                deletedAt: null,
+                isHidden: false,
+            })
+
+            return plans.filter(plan => 
+                plan[appFieldName] && Array.isArray(plan[appFieldName]) && plan[appFieldName].includes(item.id)
+            )
+        },
+    }
+}
+
+const SUBSCRIPTION_PLANS_FIELD_B2B = createSubscriptionPlansField('enabledB2BApps')
+const SUBSCRIPTION_PLANS_FIELD_B2C = createSubscriptionPlansField('enabledB2CApps')
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
-    PARTNER_URL_FIELD,
+    DEVELOPER_URL_FIELD,
     APP_IMAGE_FIELD,
     SHORT_DESCRIPTION_FIELD,
     APP_DETAILS_FIELD,
@@ -124,5 +149,7 @@ module.exports = {
     PRICE_FIELD,
     ICON_FIELD,
     MENU_CATEGORY_FIELD,
+    SUBSCRIPTION_PLANS_FIELD_B2B,
+    SUBSCRIPTION_PLANS_FIELD_B2C,
 }
 

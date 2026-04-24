@@ -6,10 +6,17 @@ const { isEmpty } = require('lodash')
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { checkUserEmploymentOrRelationToOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+
+const AVAILABLE_FIELDS_FOR_UPDATE_BY_RESIDENT = ['dv', 'sender', 'readResidentCommentAt']
+const AVAILABLE_FIELDS_FOR_CREATE_BY_RESIDENT = ['user', 'ticket', ...AVAILABLE_FIELDS_FOR_UPDATE_BY_RESIDENT]
+
+function validateAllowedFields (inputFields, allowedFields) {
+    return isEmpty(Object.keys(inputFields).filter(field => !allowedFields.includes(field)))
+}
 
 async function canReadUserTicketCommentReadTimes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -27,7 +34,7 @@ async function canManageUserTicketCommentReadTimes ({ authentication: { item: us
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    if (user.type !== RESIDENT) {
+    if (user.type === STAFF) {
         if (operation === 'create') {
             const ticket = await getById('Ticket', get(originalInput, ['ticket', 'connect', 'id']))
             if (!ticket) return false
@@ -44,6 +51,25 @@ async function canManageUserTicketCommentReadTimes ({ authentication: { item: us
             const userTicketCommentReadTime = await getById('UserTicketCommentReadTime', itemId)
 
             if (userTicketCommentReadTime.user === user.id) return true
+        }
+    }
+
+    if (user.type === RESIDENT) {
+        if (operation === 'create') {
+            if (!validateAllowedFields(originalInput, AVAILABLE_FIELDS_FOR_CREATE_BY_RESIDENT)) return false
+
+            const userId = get(originalInput, ['user', 'connect', 'id'])
+            if (userId !== user.id) return false
+
+            const ticket = await getById('Ticket', get(originalInput, ['ticket', 'connect', 'id']))
+            return ticket && ticket.client === user.id
+        }
+
+        if (operation === 'update' && itemId) {
+            if (!validateAllowedFields(originalInput, AVAILABLE_FIELDS_FOR_UPDATE_BY_RESIDENT)) return false
+
+            const record = await getById('UserTicketCommentReadTime', itemId)
+            return record && record.user === user.id
         }
     }
 

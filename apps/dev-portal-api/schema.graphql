@@ -1,5 +1,3 @@
-directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
-
 enum ConfirmEmailActionHistoryRecordHistoryActionType {
   c
   u
@@ -1540,6 +1538,1260 @@ input UsersCreateInput {
   data: UserCreateInput
 }
 
+enum B2BAppHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  developer: String
+  developerUrl: String
+  logo: JSON
+  shortDescription: String
+  detailedDescription: JSON
+  category: String
+  developmentAppUrl: String
+  productionAppUrl: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppHistoryRecordWhereInput {
+  AND: [B2BAppHistoryRecordWhereInput]
+  OR: [B2BAppHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  developer: String
+  developer_not: String
+  developer_contains: String
+  developer_not_contains: String
+  developer_starts_with: String
+  developer_not_starts_with: String
+  developer_ends_with: String
+  developer_not_ends_with: String
+  developer_i: String
+  developer_not_i: String
+  developer_contains_i: String
+  developer_not_contains_i: String
+  developer_starts_with_i: String
+  developer_not_starts_with_i: String
+  developer_ends_with_i: String
+  developer_not_ends_with_i: String
+  developer_in: [String]
+  developer_not_in: [String]
+  developerUrl: String
+  developerUrl_not: String
+  developerUrl_contains: String
+  developerUrl_not_contains: String
+  developerUrl_starts_with: String
+  developerUrl_not_starts_with: String
+  developerUrl_ends_with: String
+  developerUrl_not_ends_with: String
+  developerUrl_i: String
+  developerUrl_not_i: String
+  developerUrl_contains_i: String
+  developerUrl_not_contains_i: String
+  developerUrl_starts_with_i: String
+  developerUrl_not_starts_with_i: String
+  developerUrl_ends_with_i: String
+  developerUrl_not_ends_with_i: String
+  developerUrl_in: [String]
+  developerUrl_not_in: [String]
+  logo: JSON
+  logo_not: JSON
+  logo_in: [JSON]
+  logo_not_in: [JSON]
+  shortDescription: String
+  shortDescription_not: String
+  shortDescription_contains: String
+  shortDescription_not_contains: String
+  shortDescription_starts_with: String
+  shortDescription_not_starts_with: String
+  shortDescription_ends_with: String
+  shortDescription_not_ends_with: String
+  shortDescription_i: String
+  shortDescription_not_i: String
+  shortDescription_contains_i: String
+  shortDescription_not_contains_i: String
+  shortDescription_starts_with_i: String
+  shortDescription_not_starts_with_i: String
+  shortDescription_ends_with_i: String
+  shortDescription_not_ends_with_i: String
+  shortDescription_in: [String]
+  shortDescription_not_in: [String]
+  detailedDescription: JSON
+  detailedDescription_not: JSON
+  detailedDescription_in: [JSON]
+  detailedDescription_not_in: [JSON]
+  category: String
+  category_not: String
+  category_contains: String
+  category_not_contains: String
+  category_starts_with: String
+  category_not_starts_with: String
+  category_ends_with: String
+  category_not_ends_with: String
+  category_i: String
+  category_not_i: String
+  category_contains_i: String
+  category_not_contains_i: String
+  category_starts_with_i: String
+  category_not_starts_with_i: String
+  category_ends_with_i: String
+  category_not_ends_with_i: String
+  category_in: [String]
+  category_not_in: [String]
+  developmentAppUrl: String
+  developmentAppUrl_not: String
+  developmentAppUrl_contains: String
+  developmentAppUrl_not_contains: String
+  developmentAppUrl_starts_with: String
+  developmentAppUrl_not_starts_with: String
+  developmentAppUrl_ends_with: String
+  developmentAppUrl_not_ends_with: String
+  developmentAppUrl_i: String
+  developmentAppUrl_not_i: String
+  developmentAppUrl_contains_i: String
+  developmentAppUrl_not_contains_i: String
+  developmentAppUrl_starts_with_i: String
+  developmentAppUrl_not_starts_with_i: String
+  developmentAppUrl_ends_with_i: String
+  developmentAppUrl_not_ends_with_i: String
+  developmentAppUrl_in: [String]
+  developmentAppUrl_not_in: [String]
+  productionAppUrl: String
+  productionAppUrl_not: String
+  productionAppUrl_contains: String
+  productionAppUrl_not_contains: String
+  productionAppUrl_starts_with: String
+  productionAppUrl_not_starts_with: String
+  productionAppUrl_ends_with: String
+  productionAppUrl_not_ends_with: String
+  productionAppUrl_i: String
+  productionAppUrl_not_i: String
+  productionAppUrl_contains_i: String
+  productionAppUrl_not_contains_i: String
+  productionAppUrl_starts_with_i: String
+  productionAppUrl_not_starts_with_i: String
+  productionAppUrl_ends_with_i: String
+  productionAppUrl_not_ends_with_i: String
+  productionAppUrl_in: [String]
+  productionAppUrl_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppHistoryRecordHistoryActionType
+  history_action_not: B2BAppHistoryRecordHistoryActionType
+  history_action_in: [B2BAppHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  developer_ASC
+  developer_DESC
+  developerUrl_ASC
+  developerUrl_DESC
+  shortDescription_ASC
+  shortDescription_DESC
+  category_ASC
+  category_DESC
+  developmentAppUrl_ASC
+  developmentAppUrl_DESC
+  productionAppUrl_ASC
+  productionAppUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppHistoryRecordUpdateInput {
+  name: String
+  developer: String
+  developerUrl: String
+  logo: JSON
+  shortDescription: String
+  detailedDescription: JSON
+  category: String
+  developmentAppUrl: String
+  productionAppUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppHistoryRecordUpdateInput
+}
+
+input B2BAppHistoryRecordCreateInput {
+  name: String
+  developer: String
+  developerUrl: String
+  logo: JSON
+  shortDescription: String
+  detailedDescription: JSON
+  category: String
+  developmentAppUrl: String
+  productionAppUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppHistoryRecordsCreateInput {
+  data: B2BAppHistoryRecordCreateInput
+}
+
+type File {
+  id: ID
+  path: String
+  filename: String
+  originalFilename: String
+  mimetype: String
+  encoding: String
+  publicUrl: String
+  meta: JSON
+}
+
+enum B2BAppCategoryType {
+  DISPATCHING
+  GIS
+  SMART_HOME
+  BUSINESS_DEVELOPMENT
+  FINANCE
+  OTHER
+}
+
+""" B2B application """
+type B2BApp {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BApp List config, or
+   2. As an alias to the field set on 'labelField' in the B2BApp List config, or
+   3. As an alias to a 'name' field on the B2BApp List (if one exists), or
+   4. As an alias to the 'id' field on the B2BApp List.
+  """
+  _label_: String
+
+  """ Name of application """
+  name: String
+
+  """ Developer company name which will be exported. If not specified, creator name will be taken 
+  """
+  developer: String
+
+  """ Developer company URL which will be shown on app page """
+  developerUrl: String
+
+  """ Icon of application. Accepted mime types: ["image/png", "image/jpeg", "image/webp"] 
+  """
+  logo: File
+  shortDescription: String
+
+  """ Detailed markdown description of application shown on its page. Used to describe apps functionality, pricing, etc 
+  """
+  detailedDescription: String
+
+  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER" 
+  """
+  category: B2BAppCategoryType
+
+  """ Web app entrypoint URL for development environment, which is used to open app in WebView or IFrame 
+  """
+  developmentAppUrl: String
+
+  """ Web app entrypoint URL for production environment, which is used to open app in WebView or IFrame 
+  """
+  productionAppUrl: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+
+  """ ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  developmentExportId: String
+
+  """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  productionExportId: String
+}
+
+input B2BAppWhereInput {
+  AND: [B2BAppWhereInput]
+  OR: [B2BAppWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  developer: String
+  developer_not: String
+  developer_contains: String
+  developer_not_contains: String
+  developer_starts_with: String
+  developer_not_starts_with: String
+  developer_ends_with: String
+  developer_not_ends_with: String
+  developer_i: String
+  developer_not_i: String
+  developer_contains_i: String
+  developer_not_contains_i: String
+  developer_starts_with_i: String
+  developer_not_starts_with_i: String
+  developer_ends_with_i: String
+  developer_not_ends_with_i: String
+  developer_in: [String]
+  developer_not_in: [String]
+  developerUrl: String
+  developerUrl_not: String
+  developerUrl_contains: String
+  developerUrl_not_contains: String
+  developerUrl_starts_with: String
+  developerUrl_not_starts_with: String
+  developerUrl_ends_with: String
+  developerUrl_not_ends_with: String
+  developerUrl_i: String
+  developerUrl_not_i: String
+  developerUrl_contains_i: String
+  developerUrl_not_contains_i: String
+  developerUrl_starts_with_i: String
+  developerUrl_not_starts_with_i: String
+  developerUrl_ends_with_i: String
+  developerUrl_not_ends_with_i: String
+  developerUrl_in: [String]
+  developerUrl_not_in: [String]
+  logo: String
+  logo_not: String
+  logo_in: [String]
+  logo_not_in: [String]
+  shortDescription: String
+  shortDescription_not: String
+  shortDescription_contains: String
+  shortDescription_not_contains: String
+  shortDescription_starts_with: String
+  shortDescription_not_starts_with: String
+  shortDescription_ends_with: String
+  shortDescription_not_ends_with: String
+  shortDescription_i: String
+  shortDescription_not_i: String
+  shortDescription_contains_i: String
+  shortDescription_not_contains_i: String
+  shortDescription_starts_with_i: String
+  shortDescription_not_starts_with_i: String
+  shortDescription_ends_with_i: String
+  shortDescription_not_ends_with_i: String
+  shortDescription_in: [String]
+  shortDescription_not_in: [String]
+  detailedDescription: String
+  detailedDescription_not: String
+  detailedDescription_contains: String
+  detailedDescription_not_contains: String
+  detailedDescription_starts_with: String
+  detailedDescription_not_starts_with: String
+  detailedDescription_ends_with: String
+  detailedDescription_not_ends_with: String
+  detailedDescription_i: String
+  detailedDescription_not_i: String
+  detailedDescription_contains_i: String
+  detailedDescription_not_contains_i: String
+  detailedDescription_starts_with_i: String
+  detailedDescription_not_starts_with_i: String
+  detailedDescription_ends_with_i: String
+  detailedDescription_not_ends_with_i: String
+  detailedDescription_in: [String]
+  detailedDescription_not_in: [String]
+  category: B2BAppCategoryType
+  category_not: B2BAppCategoryType
+  category_in: [B2BAppCategoryType]
+  category_not_in: [B2BAppCategoryType]
+  developmentAppUrl: String
+  developmentAppUrl_not: String
+  developmentAppUrl_contains: String
+  developmentAppUrl_not_contains: String
+  developmentAppUrl_starts_with: String
+  developmentAppUrl_not_starts_with: String
+  developmentAppUrl_ends_with: String
+  developmentAppUrl_not_ends_with: String
+  developmentAppUrl_i: String
+  developmentAppUrl_not_i: String
+  developmentAppUrl_contains_i: String
+  developmentAppUrl_not_contains_i: String
+  developmentAppUrl_starts_with_i: String
+  developmentAppUrl_not_starts_with_i: String
+  developmentAppUrl_ends_with_i: String
+  developmentAppUrl_not_ends_with_i: String
+  developmentAppUrl_in: [String]
+  developmentAppUrl_not_in: [String]
+  productionAppUrl: String
+  productionAppUrl_not: String
+  productionAppUrl_contains: String
+  productionAppUrl_not_contains: String
+  productionAppUrl_starts_with: String
+  productionAppUrl_not_starts_with: String
+  productionAppUrl_ends_with: String
+  productionAppUrl_not_ends_with: String
+  productionAppUrl_i: String
+  productionAppUrl_not_i: String
+  productionAppUrl_contains_i: String
+  productionAppUrl_not_contains_i: String
+  productionAppUrl_starts_with_i: String
+  productionAppUrl_not_starts_with_i: String
+  productionAppUrl_ends_with_i: String
+  productionAppUrl_not_ends_with_i: String
+  productionAppUrl_in: [String]
+  productionAppUrl_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+}
+
+input B2BAppWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppsBy {
+  name_ASC
+  name_DESC
+  developer_ASC
+  developer_DESC
+  developerUrl_ASC
+  developerUrl_DESC
+  shortDescription_ASC
+  shortDescription_DESC
+  detailedDescription_ASC
+  detailedDescription_DESC
+  category_ASC
+  category_DESC
+  developmentAppUrl_ASC
+  developmentAppUrl_DESC
+  productionAppUrl_ASC
+  productionAppUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+}
+
+input B2BAppUpdateInput {
+  name: String
+  developer: String
+  developerUrl: String
+  logo: FileMeta
+  shortDescription: String
+  detailedDescription: String
+  category: B2BAppCategoryType
+  developmentAppUrl: String
+  productionAppUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input B2BAppsUpdateInput {
+  id: ID!
+  data: B2BAppUpdateInput
+}
+
+input B2BAppCreateInput {
+  name: String
+  developer: String
+  developerUrl: String
+  logo: FileMeta
+  shortDescription: String
+  detailedDescription: String
+  category: B2BAppCategoryType
+  developmentAppUrl: String
+  productionAppUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input B2BAppsCreateInput {
+  data: B2BAppCreateInput
+}
+
+enum B2BAppPublishRequestHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppPublishRequestHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppPublishRequestHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppPublishRequestHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppPublishRequestHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppPublishRequestHistoryRecord List.
+  """
+  _label_: String
+  app: String
+  status: String
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPublishRequestHistoryRecordWhereInput {
+  AND: [B2BAppPublishRequestHistoryRecordWhereInput]
+  OR: [B2BAppPublishRequestHistoryRecordWhereInput]
+  app: String
+  app_not: String
+  app_in: [String]
+  app_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  isAppTested: Boolean
+  isAppTested_not: Boolean
+  isContractSigned: Boolean
+  isContractSigned_not: Boolean
+  isInfoApproved: Boolean
+  isInfoApproved_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_action_not: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_action_in: [B2BAppPublishRequestHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppPublishRequestHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppPublishRequestHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppPublishRequestHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  isAppTested_ASC
+  isAppTested_DESC
+  isContractSigned_ASC
+  isContractSigned_DESC
+  isInfoApproved_ASC
+  isInfoApproved_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppPublishRequestHistoryRecordUpdateInput {
+  app: String
+  status: String
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPublishRequestHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppPublishRequestHistoryRecordUpdateInput
+}
+
+input B2BAppPublishRequestHistoryRecordCreateInput {
+  app: String
+  status: String
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPublishRequestHistoryRecordsCreateInput {
+  data: B2BAppPublishRequestHistoryRecordCreateInput
+}
+
+input B2BAppRelateToOneInput {
+  create: B2BAppCreateInput
+  connect: B2BAppWhereUniqueInput
+  disconnect: B2BAppWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum B2BAppPublishRequestStatusType {
+  pending
+  approved
+}
+
+""" A model that determines the ability to publish a mini-application to the production stand, as well as the status of passing the pre-release checkout 
+"""
+type B2BAppPublishRequest {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppPublishRequest List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppPublishRequest List config, or
+   3. As an alias to a 'name' field on the B2BAppPublishRequest List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppPublishRequest List.
+  """
+  _label_: String
+
+  """ Reference to the application to which this request applies """
+  app: B2BApp
+
+  """ Status of consideration of the current request """
+  status: B2BAppPublishRequestStatusType
+
+  """ Whether the application has been tested before release. Required prerequisite for obtaining permission to publish 
+  """
+  isAppTested: Boolean
+
+  """ A partnership agreement must be concluded before publication. This checkbox is responsible for the existence of such a contract. Required prerequisite for obtaining permission to publish 
+  """
+  isContractSigned: Boolean
+
+  """ Before publishing for the first time, it is necessary to ensure that all information about the application is valid and understandable for the user. Required prerequisite for obtaining permission to publish 
+  """
+  isInfoApproved: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2BAppPublishRequestWhereInput {
+  AND: [B2BAppPublishRequestWhereInput]
+  OR: [B2BAppPublishRequestWhereInput]
+  app: B2BAppWhereInput
+  app_is_null: Boolean
+  status: B2BAppPublishRequestStatusType
+  status_not: B2BAppPublishRequestStatusType
+  status_in: [B2BAppPublishRequestStatusType]
+  status_not_in: [B2BAppPublishRequestStatusType]
+  isAppTested: Boolean
+  isAppTested_not: Boolean
+  isContractSigned: Boolean
+  isContractSigned_not: Boolean
+  isInfoApproved: Boolean
+  isInfoApproved_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2BAppPublishRequestWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppPublishRequestsBy {
+  app_ASC
+  app_DESC
+  status_ASC
+  status_DESC
+  isAppTested_ASC
+  isAppTested_DESC
+  isContractSigned_ASC
+  isContractSigned_DESC
+  isInfoApproved_ASC
+  isInfoApproved_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2BAppPublishRequestUpdateInput {
+  app: B2BAppRelateToOneInput
+  status: B2BAppPublishRequestStatusType
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppPublishRequestsUpdateInput {
+  id: ID!
+  data: B2BAppPublishRequestUpdateInput
+}
+
+input B2BAppPublishRequestCreateInput {
+  app: B2BAppRelateToOneInput
+  status: B2BAppPublishRequestStatusType
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppPublishRequestsCreateInput {
+  data: B2BAppPublishRequestCreateInput
+}
+
 enum B2CAppHistoryRecordHistoryActionType {
   c
   u
@@ -1557,8 +2809,31 @@ type B2CAppHistoryRecord {
   """
   _label_: String
   name: String
+  type: String
   logo: JSON
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -1597,6 +2872,24 @@ input B2CAppHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   logo: JSON
   logo_not: JSON
   logo_in: [JSON]
@@ -1619,6 +2912,62 @@ input B2CAppHistoryRecordWhereInput {
   developer_not_ends_with_i: String
   developer_in: [String]
   developer_not_in: [String]
+  developmentWebTransformEnabled: Boolean
+  developmentWebTransformEnabled_not: Boolean
+  productionWebTransformEnabled: Boolean
+  productionWebTransformEnabled_not: Boolean
+  developmentFullscreenAllowed: Boolean
+  developmentFullscreenAllowed_not: Boolean
+  productionFullscreenAllowed: Boolean
+  productionFullscreenAllowed_not: Boolean
+  developmentMicrophoneAllowed: Boolean
+  developmentMicrophoneAllowed_not: Boolean
+  productionMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed_not: Boolean
+  developmentCameraAllowed: Boolean
+  developmentCameraAllowed_not: Boolean
+  productionCameraAllowed: Boolean
+  productionCameraAllowed_not: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  developmentSpeakerSelectionAllowed_not: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed_not: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  developmentBleBeaconBgAllowed_not: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed_not: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  developmentBleCentralBgAllowed_not: Boolean
+  productionBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed_not: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed_not: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed_not: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  developmentPushNotificationsAllowed_not: Boolean
+  productionPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed_not: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed_not: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed_not: Boolean
+  developmentPublishedAt: String
+  developmentPublishedAt_not: String
+  developmentPublishedAt_lt: String
+  developmentPublishedAt_lte: String
+  developmentPublishedAt_gt: String
+  developmentPublishedAt_gte: String
+  developmentPublishedAt_in: [String]
+  developmentPublishedAt_not_in: [String]
+  productionPublishedAt: String
+  productionPublishedAt_not: String
+  productionPublishedAt_lt: String
+  productionPublishedAt_lte: String
+  productionPublishedAt_gt: String
+  productionPublishedAt_gte: String
+  productionPublishedAt_in: [String]
+  productionPublishedAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -1740,8 +3089,54 @@ input B2CAppHistoryRecordWhereUniqueInput {
 enum SortB2CAppHistoryRecordsBy {
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   developer_ASC
   developer_DESC
+  developmentWebTransformEnabled_ASC
+  developmentWebTransformEnabled_DESC
+  productionWebTransformEnabled_ASC
+  productionWebTransformEnabled_DESC
+  developmentFullscreenAllowed_ASC
+  developmentFullscreenAllowed_DESC
+  productionFullscreenAllowed_ASC
+  productionFullscreenAllowed_DESC
+  developmentMicrophoneAllowed_ASC
+  developmentMicrophoneAllowed_DESC
+  productionMicrophoneAllowed_ASC
+  productionMicrophoneAllowed_DESC
+  developmentCameraAllowed_ASC
+  developmentCameraAllowed_DESC
+  productionCameraAllowed_ASC
+  productionCameraAllowed_DESC
+  developmentSpeakerSelectionAllowed_ASC
+  developmentSpeakerSelectionAllowed_DESC
+  productionSpeakerSelectionAllowed_ASC
+  productionSpeakerSelectionAllowed_DESC
+  developmentBleBeaconBgAllowed_ASC
+  developmentBleBeaconBgAllowed_DESC
+  productionBleBeaconBgAllowed_ASC
+  productionBleBeaconBgAllowed_DESC
+  developmentBleCentralBgAllowed_ASC
+  developmentBleCentralBgAllowed_DESC
+  productionBleCentralBgAllowed_ASC
+  productionBleCentralBgAllowed_DESC
+  developmentBlePeripheralBgAllowed_ASC
+  developmentBlePeripheralBgAllowed_DESC
+  productionBlePeripheralBgAllowed_ASC
+  productionBlePeripheralBgAllowed_DESC
+  developmentPushNotificationsAllowed_ASC
+  developmentPushNotificationsAllowed_DESC
+  productionPushNotificationsAllowed_ASC
+  productionPushNotificationsAllowed_DESC
+  developmentVoipNotificationsAllowed_ASC
+  developmentVoipNotificationsAllowed_DESC
+  productionVoipNotificationsAllowed_ASC
+  productionVoipNotificationsAllowed_DESC
+  developmentPublishedAt_ASC
+  developmentPublishedAt_DESC
+  productionPublishedAt_ASC
+  productionPublishedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -1766,8 +3161,31 @@ enum SortB2CAppHistoryRecordsBy {
 
 input B2CAppHistoryRecordUpdateInput {
   name: String
+  type: String
   logo: JSON
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -1791,8 +3209,31 @@ input B2CAppHistoryRecordsUpdateInput {
 
 input B2CAppHistoryRecordCreateInput {
   name: String
+  type: String
   logo: JSON
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -1813,14 +3254,9 @@ input B2CAppHistoryRecordsCreateInput {
   data: B2CAppHistoryRecordCreateInput
 }
 
-type File {
-  id: ID
-  path: String
-  filename: String
-  originalFilename: String
-  mimetype: String
-  encoding: String
-  publicUrl: String
+enum B2CAppTypeType {
+  cordova
+  web
 }
 
 """ B2C application """
@@ -1837,12 +3273,102 @@ type B2CApp {
   """ Name of application """
   name: String
 
+  """ Type of application """
+  type: B2CAppTypeType
+
   """ Icon of application """
   logo: File
 
   """ Developer company name which will be exported. If not specified, creator name will be taken 
   """
   developer: String
+
+  """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for development environment 
+  """
+  developmentWebTransformEnabled: Boolean
+
+  """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for production environment 
+  """
+  productionWebTransformEnabled: Boolean
+
+  """ Controls whether the mini-app can use “fullscreen” device permission on development environment 
+  """
+  developmentFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “fullscreen” device permission on production environment 
+  """
+  productionFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permission on development environment 
+  """
+  developmentMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permission on production environment 
+  """
+  productionMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permission on development environment 
+  """
+  developmentCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permission on production environment 
+  """
+  productionCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permission on development environment 
+  """
+  developmentSpeakerSelectionAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permission on production environment 
+  """
+  productionSpeakerSelectionAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble beacon bg” device permission on development environment 
+  """
+  developmentBleBeaconBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble beacon bg” device permission on production environment 
+  """
+  productionBleBeaconBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble central bg” device permission on development environment 
+  """
+  developmentBleCentralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble central bg” device permission on production environment 
+  """
+  productionBleCentralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble peripheral bg” device permission on development environment 
+  """
+  developmentBlePeripheralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “ble peripheral bg” device permission on production environment 
+  """
+  productionBlePeripheralBgAllowed: Boolean
+
+  """ Controls whether the mini-app can use “push notifications” device permission on development environment 
+  """
+  developmentPushNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “push notifications” device permission on production environment 
+  """
+  productionPushNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “voip notifications” device permission on development environment 
+  """
+  developmentVoipNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “voip notifications” device permission on production environment 
+  """
+  productionVoipNotificationsAllowed: Boolean
+
+  """ The last time a mini-app was published on the development environment 
+  """
+  developmentPublishedAt: String
+
+  """ The last time a mini-app was published on the production environment """
+  productionPublishedAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -1895,6 +3421,10 @@ input B2CAppWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: B2CAppTypeType
+  type_not: B2CAppTypeType
+  type_in: [B2CAppTypeType]
+  type_not_in: [B2CAppTypeType]
   logo: String
   logo_not: String
   logo_in: [String]
@@ -1917,6 +3447,62 @@ input B2CAppWhereInput {
   developer_not_ends_with_i: String
   developer_in: [String]
   developer_not_in: [String]
+  developmentWebTransformEnabled: Boolean
+  developmentWebTransformEnabled_not: Boolean
+  productionWebTransformEnabled: Boolean
+  productionWebTransformEnabled_not: Boolean
+  developmentFullscreenAllowed: Boolean
+  developmentFullscreenAllowed_not: Boolean
+  productionFullscreenAllowed: Boolean
+  productionFullscreenAllowed_not: Boolean
+  developmentMicrophoneAllowed: Boolean
+  developmentMicrophoneAllowed_not: Boolean
+  productionMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed_not: Boolean
+  developmentCameraAllowed: Boolean
+  developmentCameraAllowed_not: Boolean
+  productionCameraAllowed: Boolean
+  productionCameraAllowed_not: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  developmentSpeakerSelectionAllowed_not: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed_not: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  developmentBleBeaconBgAllowed_not: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed_not: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  developmentBleCentralBgAllowed_not: Boolean
+  productionBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed_not: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed_not: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed_not: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  developmentPushNotificationsAllowed_not: Boolean
+  productionPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed_not: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed_not: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed_not: Boolean
+  developmentPublishedAt: String
+  developmentPublishedAt_not: String
+  developmentPublishedAt_lt: String
+  developmentPublishedAt_lte: String
+  developmentPublishedAt_gt: String
+  developmentPublishedAt_gte: String
+  developmentPublishedAt_in: [String]
+  developmentPublishedAt_not_in: [String]
+  productionPublishedAt: String
+  productionPublishedAt_not: String
+  productionPublishedAt_lt: String
+  productionPublishedAt_lte: String
+  productionPublishedAt_gt: String
+  productionPublishedAt_gte: String
+  productionPublishedAt_in: [String]
+  productionPublishedAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2018,8 +3604,54 @@ input B2CAppWhereUniqueInput {
 enum SortB2CAppsBy {
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   developer_ASC
   developer_DESC
+  developmentWebTransformEnabled_ASC
+  developmentWebTransformEnabled_DESC
+  productionWebTransformEnabled_ASC
+  productionWebTransformEnabled_DESC
+  developmentFullscreenAllowed_ASC
+  developmentFullscreenAllowed_DESC
+  productionFullscreenAllowed_ASC
+  productionFullscreenAllowed_DESC
+  developmentMicrophoneAllowed_ASC
+  developmentMicrophoneAllowed_DESC
+  productionMicrophoneAllowed_ASC
+  productionMicrophoneAllowed_DESC
+  developmentCameraAllowed_ASC
+  developmentCameraAllowed_DESC
+  productionCameraAllowed_ASC
+  productionCameraAllowed_DESC
+  developmentSpeakerSelectionAllowed_ASC
+  developmentSpeakerSelectionAllowed_DESC
+  productionSpeakerSelectionAllowed_ASC
+  productionSpeakerSelectionAllowed_DESC
+  developmentBleBeaconBgAllowed_ASC
+  developmentBleBeaconBgAllowed_DESC
+  productionBleBeaconBgAllowed_ASC
+  productionBleBeaconBgAllowed_DESC
+  developmentBleCentralBgAllowed_ASC
+  developmentBleCentralBgAllowed_DESC
+  productionBleCentralBgAllowed_ASC
+  productionBleCentralBgAllowed_DESC
+  developmentBlePeripheralBgAllowed_ASC
+  developmentBlePeripheralBgAllowed_DESC
+  productionBlePeripheralBgAllowed_ASC
+  productionBlePeripheralBgAllowed_DESC
+  developmentPushNotificationsAllowed_ASC
+  developmentPushNotificationsAllowed_DESC
+  productionPushNotificationsAllowed_ASC
+  productionPushNotificationsAllowed_DESC
+  developmentVoipNotificationsAllowed_ASC
+  developmentVoipNotificationsAllowed_DESC
+  productionVoipNotificationsAllowed_ASC
+  productionVoipNotificationsAllowed_DESC
+  developmentPublishedAt_ASC
+  developmentPublishedAt_DESC
+  productionPublishedAt_ASC
+  productionPublishedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -2044,8 +3676,31 @@ enum SortB2CAppsBy {
 
 input B2CAppUpdateInput {
   name: String
-  logo: Upload
+  type: B2CAppTypeType
+  logo: FileMeta
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -2066,8 +3721,31 @@ input B2CAppsUpdateInput {
 
 input B2CAppCreateInput {
   name: String
-  logo: Upload
+  type: B2CAppTypeType
+  logo: FileMeta
   developer: String
+  developmentWebTransformEnabled: Boolean
+  productionWebTransformEnabled: Boolean
+  developmentFullscreenAllowed: Boolean
+  productionFullscreenAllowed: Boolean
+  developmentMicrophoneAllowed: Boolean
+  productionMicrophoneAllowed: Boolean
+  developmentCameraAllowed: Boolean
+  productionCameraAllowed: Boolean
+  developmentSpeakerSelectionAllowed: Boolean
+  productionSpeakerSelectionAllowed: Boolean
+  developmentBleBeaconBgAllowed: Boolean
+  productionBleBeaconBgAllowed: Boolean
+  developmentBleCentralBgAllowed: Boolean
+  productionBleCentralBgAllowed: Boolean
+  developmentBlePeripheralBgAllowed: Boolean
+  productionBlePeripheralBgAllowed: Boolean
+  developmentPushNotificationsAllowed: Boolean
+  productionPushNotificationsAllowed: Boolean
+  developmentVoipNotificationsAllowed: Boolean
+  productionVoipNotificationsAllowed: Boolean
+  developmentPublishedAt: String
+  productionPublishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -2859,7 +4537,7 @@ type B2CAppBuild {
   """ Link to B2C application """
   app: B2CApp
 
-  """ Version of build which used to control builds inside B2CApp model. Must follow sem-ver notation format: <MAJOR>.<MINOR>.<PATCH> (E.g. 1.0.27, 3.6.0) 
+  """ Version of build which used to control builds inside B2CApp model. Must follow semantic versioning (semver) format: <MAJOR>.<MINOR>.<PATCH> with optional pre-release and build metadata (E.g. 1.0.27, 3.6.0, 1.2.3-alpha.1, 1.0.0+20130313144700) 
   """
   version: String
 
@@ -3051,7 +4729,7 @@ enum SortB2CAppBuildsBy {
 input B2CAppBuildUpdateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -3073,7 +4751,7 @@ input B2CAppBuildsUpdateInput {
 input B2CAppBuildCreateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -4030,10 +5708,10 @@ type WebhookSubscriptionHistoryRecord {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: String
   id: ID!
   v: Int
   createdAt: String
@@ -4098,24 +5776,6 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: String
-  model_not: String
-  model_contains: String
-  model_not_contains: String
-  model_starts_with: String
-  model_not_starts_with: String
-  model_ends_with: String
-  model_not_ends_with: String
-  model_i: String
-  model_not_i: String
-  model_contains_i: String
-  model_not_contains_i: String
-  model_starts_with_i: String
-  model_not_starts_with_i: String
-  model_ends_with_i: String
-  model_not_ends_with_i: String
-  model_in: [String]
-  model_not_in: [String]
   fields: String
   fields_not: String
   fields_contains: String
@@ -4146,6 +5806,24 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
+  model: String
+  model_not: String
+  model_contains: String
+  model_not_contains: String
+  model_starts_with: String
+  model_not_starts_with: String
+  model_ends_with: String
+  model_not_ends_with: String
+  model_i: String
+  model_not_i: String
+  model_contains_i: String
+  model_not_contains_i: String
+  model_starts_with_i: String
+  model_not_starts_with_i: String
+  model_ends_with_i: String
+  model_not_ends_with_i: String
+  model_in: [String]
+  model_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4237,12 +5915,12 @@ enum SortWebhookSubscriptionHistoryRecordsBy {
   syncedAmount_DESC
   failuresCount_ASC
   failuresCount_DESC
-  model_ASC
-  model_DESC
   fields_ASC
   fields_DESC
   maxPackSize_ASC
   maxPackSize_DESC
+  model_ASC
+  model_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4267,10 +5945,10 @@ input WebhookSubscriptionHistoryRecordUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -4296,10 +5974,10 @@ input WebhookSubscriptionHistoryRecordCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -4326,6 +6004,7 @@ input WebhookRelateToOneInput {
 }
 
 enum WebhookSubscriptionModelType {
+  B2BAppPublishRequest
   B2CAppPublishRequest
 }
 
@@ -4360,9 +6039,6 @@ type WebhookSubscription {
   """
   failuresCount: Int
 
-  """ The data model (schema) that the webhook is subscribed to """
-  model: WebhookSubscriptionModelType
-
   """ String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }" 
   """
   fields: String
@@ -4374,6 +6050,9 @@ type WebhookSubscription {
   """ The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks. 
   """
   maxPackSize: Int
+
+  """ The data model (schema) that the webhook is subscribed to """
+  model: WebhookSubscriptionModelType
   id: ID!
   v: Int
   createdAt: String
@@ -4444,10 +6123,6 @@ input WebhookSubscriptionWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: WebhookSubscriptionModelType
-  model_not: WebhookSubscriptionModelType
-  model_in: [WebhookSubscriptionModelType]
-  model_not_in: [WebhookSubscriptionModelType]
   fields: String
   fields_not: String
   fields_contains: String
@@ -4478,6 +6153,10 @@ input WebhookSubscriptionWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
+  model: WebhookSubscriptionModelType
+  model_not: WebhookSubscriptionModelType
+  model_in: [WebhookSubscriptionModelType]
+  model_not_in: [WebhookSubscriptionModelType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4551,12 +6230,12 @@ enum SortWebhookSubscriptionsBy {
   syncedAmount_DESC
   failuresCount_ASC
   failuresCount_DESC
-  model_ASC
-  model_DESC
   fields_ASC
   fields_DESC
   maxPackSize_ASC
   maxPackSize_DESC
+  model_ASC
+  model_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4581,10 +6260,10 @@ input WebhookSubscriptionUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: WebhookSubscriptionModelType
   v: Int
   createdAt: String
   updatedAt: String
@@ -4607,10 +6286,10 @@ input WebhookSubscriptionCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
+  model: WebhookSubscriptionModelType
   v: Int
   createdAt: String
   updatedAt: String
@@ -4626,10 +6305,458 @@ input WebhookSubscriptionsCreateInput {
   data: WebhookSubscriptionCreateInput
 }
 
+input WebhookSubscriptionRelateToOneInput {
+  create: WebhookSubscriptionCreateInput
+  connect: WebhookSubscriptionWhereUniqueInput
+  disconnect: WebhookSubscriptionWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum WebhookPayloadStatusType {
+  pending
+  sent
+  error
+}
+
+""" Stores webhook payloads for sending. Contains ready-to-send payload, URL, and secret. Tracks sending status, retries, and responses from external servers. 
+"""
+type WebhookPayload {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookPayload List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookPayload List config, or
+   3. As an alias to a 'name' field on the WebhookPayload List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookPayload List.
+  """
+  _label_: String
+
+  """ Where to send the webhook """
+  url: String
+
+  """ JSON data to send. Stored encrypted in database. """
+  payload: String
+
+  """ Secret key for signing requests (HMAC). Stored encrypted in database. 
+  """
+  secret: String
+
+  """ Type of event that triggered this webhook.  Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated). 
+  """
+  eventType: String
+
+  """ Name of the model that triggered this webhook (e.g., "Payment") """
+  modelName: String
+
+  """ ID of the record that triggered this webhook """
+  itemId: ID
+
+  """ Optional reference to WebhookSubscription that triggered this webhook (for debugging) 
+  """
+  webhookSubscription: WebhookSubscription
+
+  """ Sending status. Possible values: pending, sent, error """
+  status: WebhookPayloadStatusType
+
+  """ Number of send attempts made (starts at 0) """
+  attempt: Int
+
+  """ HTTP status code from the last send attempt """
+  lastHttpStatusCode: Int
+
+  """ Response body from the last send attempt (truncated to 1000 chars) """
+  lastResponseBody: String
+
+  """ Error message from the last send attempt """
+  lastErrorMessage: String
+
+  """ Timestamp after which no more send attempts will be made """
+  expiresAt: String
+
+  """ Timestamp for the next send attempt """
+  nextRetryAt: String
+
+  """ Timestamp of the last send attempt """
+  lastSentAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input WebhookPayloadWhereInput {
+  AND: [WebhookPayloadWhereInput]
+  OR: [WebhookPayloadWhereInput]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  payload: String
+  payload_not: String
+  payload_contains: String
+  payload_not_contains: String
+  payload_starts_with: String
+  payload_not_starts_with: String
+  payload_ends_with: String
+  payload_not_ends_with: String
+  payload_i: String
+  payload_not_i: String
+  payload_contains_i: String
+  payload_not_contains_i: String
+  payload_starts_with_i: String
+  payload_not_starts_with_i: String
+  payload_ends_with_i: String
+  payload_not_ends_with_i: String
+  payload_in: [String]
+  payload_not_in: [String]
+  secret: String
+  secret_not: String
+  secret_contains: String
+  secret_not_contains: String
+  secret_starts_with: String
+  secret_not_starts_with: String
+  secret_ends_with: String
+  secret_not_ends_with: String
+  secret_i: String
+  secret_not_i: String
+  secret_contains_i: String
+  secret_not_contains_i: String
+  secret_starts_with_i: String
+  secret_not_starts_with_i: String
+  secret_ends_with_i: String
+  secret_not_ends_with_i: String
+  secret_in: [String]
+  secret_not_in: [String]
+  eventType: String
+  eventType_not: String
+  eventType_contains: String
+  eventType_not_contains: String
+  eventType_starts_with: String
+  eventType_not_starts_with: String
+  eventType_ends_with: String
+  eventType_not_ends_with: String
+  eventType_i: String
+  eventType_not_i: String
+  eventType_contains_i: String
+  eventType_not_contains_i: String
+  eventType_starts_with_i: String
+  eventType_not_starts_with_i: String
+  eventType_ends_with_i: String
+  eventType_not_ends_with_i: String
+  eventType_in: [String]
+  eventType_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: ID
+  itemId_not: ID
+  itemId_in: [ID]
+  itemId_not_in: [ID]
+  webhookSubscription: WebhookSubscriptionWhereInput
+  webhookSubscription_is_null: Boolean
+  status: WebhookPayloadStatusType
+  status_not: WebhookPayloadStatusType
+  status_in: [WebhookPayloadStatusType]
+  status_not_in: [WebhookPayloadStatusType]
+  attempt: Int
+  attempt_not: Int
+  attempt_lt: Int
+  attempt_lte: Int
+  attempt_gt: Int
+  attempt_gte: Int
+  attempt_in: [Int]
+  attempt_not_in: [Int]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  nextRetryAt: String
+  nextRetryAt_not: String
+  nextRetryAt_lt: String
+  nextRetryAt_lte: String
+  nextRetryAt_gt: String
+  nextRetryAt_gte: String
+  nextRetryAt_in: [String]
+  nextRetryAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input WebhookPayloadWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookPayloadsBy {
+  url_ASC
+  url_DESC
+  payload_ASC
+  payload_DESC
+  secret_ASC
+  secret_DESC
+  eventType_ASC
+  eventType_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
+  webhookSubscription_ASC
+  webhookSubscription_DESC
+  status_ASC
+  status_DESC
+  attempt_ASC
+  attempt_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  nextRetryAt_ASC
+  nextRetryAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input WebhookPayloadUpdateInput {
+  url: String
+  payload: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: ID
+  webhookSubscription: WebhookSubscriptionRelateToOneInput
+  status: WebhookPayloadStatusType
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookPayloadsUpdateInput {
+  id: ID!
+  data: WebhookPayloadUpdateInput
+}
+
+input WebhookPayloadCreateInput {
+  url: String
+  payload: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: ID
+  webhookSubscription: WebhookSubscriptionRelateToOneInput
+  status: WebhookPayloadStatusType
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookPayloadsCreateInput {
+  data: WebhookPayloadCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
-scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+scalar JSON
 
 type _ListAccess {
   """
@@ -4806,6 +6933,9 @@ input _ListSchemaFieldsInput {
   type: String
 }
 
+"""File, that could be loaded through new file server or by legacy way"""
+scalar FileMeta
+
 input AuthenticateUserWithPhoneAndPasswordInput {
   phone: String!
   password: String!
@@ -4868,6 +6998,74 @@ input RegisterNewUserInput {
   password: String!
 }
 
+input B2BAppPublishOptions {
+  info: Boolean
+}
+
+input PublishB2BAppInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2BAppWhereUniqueInput!
+  environment: AppEnvironment!
+  options: B2BAppPublishOptions!
+}
+
+type PublishB2BAppOutput {
+  success: Boolean!
+}
+
+input AllB2BAppContextsInput {
+  app: B2BAppWhereUniqueInput!
+  first: Int!
+  skip: Int!
+  environment: AppEnvironment!
+  search: String
+}
+
+enum B2BAppContextStatus {
+  InProgress
+  Error
+  Finished
+}
+
+type OrganizationInfo {
+  id: ID!
+  name: String!
+  tin: String
+}
+
+type B2BAppContext {
+  id: ID!
+  status: B2BAppContextStatus!
+  organization: OrganizationInfo!
+}
+
+type B2BAppContextMeta {
+  count: Int!
+}
+
+type AllB2BAppContextsOutput {
+  objs: [B2BAppContext!]!
+  meta: B2BAppContextMeta!
+}
+
+enum B2BAppContextAction {
+  connect
+  disconnect
+}
+
+input UpdateB2BAppContextInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  environment: AppEnvironment!
+  action: B2BAppContextAction!
+}
+
+type UpdateB2BAppContextOutput {
+  success: Boolean!
+}
+
 input B2CAppPublishOptions {
   info: Boolean
   build: B2CAppBuildWhereUniqueInput
@@ -4899,11 +7097,18 @@ input ImportB2CAppToInput {
   app: B2CAppWhereUniqueInput!
 }
 
+enum ImportAppConflictPolicy {
+  panic
+  setNull
+  delete
+}
+
 input ImportB2CAppOptionsInput {
   info: Boolean!
   builds: Boolean!
   publish: Boolean!
   accessRight: Boolean!
+  conflictPolicy: ImportAppConflictPolicy!
 }
 
 input ImportB2CAppInput {
@@ -4923,6 +7128,7 @@ input AllB2CAppPropertiesInput {
   first: Int!
   skip: Int!
   environment: AppEnvironment!
+  search: String
 }
 
 type B2CAppProperty {
@@ -4965,6 +7171,22 @@ type DeleteB2CAppPropertyOutput {
   address: String!
 }
 
+input GetB2CAppInfoInput {
+  app: B2CAppWhereUniqueInput!
+  environment: AppEnvironment!
+}
+
+type B2CAppCurrentBuild {
+  id: String!
+  version: String!
+}
+
+type GetB2CAppInfoOutput {
+  id: String!
+  environment: AppEnvironment!
+  currentBuild: B2CAppCurrentBuild
+}
+
 input AppWhereUniqueInput {
   id: ID!
 }
@@ -4978,6 +7200,7 @@ type OIDCClient {
   id: String!
   clientId: String!
   redirectUri: String!
+  isEnabled: Boolean!
 }
 
 input CreateOIDCClientInput {
@@ -5127,6 +7350,63 @@ type Query {
 
   """ Retrieve the meta-data for the User list. """
   _UsersMeta: _ListMeta
+
+  """ Search for all B2BAppHistoryRecord items which match the where clause. 
+  """
+  allB2BAppHistoryRecords(where: B2BAppHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppHistoryRecord]
+
+  """ Search for the B2BAppHistoryRecord item with the matching ID. """
+  B2BAppHistoryRecord(where: B2BAppHistoryRecordWhereUniqueInput!): B2BAppHistoryRecord
+
+  """ Perform a meta-query on all B2BAppHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppHistoryRecordsMeta(where: B2BAppHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppHistoryRecord list. """
+  _B2BAppHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BApp items which match the where clause. """
+  allB2BApps(where: B2BAppWhereInput, search: String, sortBy: [SortB2BAppsBy!], orderBy: String, first: Int, skip: Int): [B2BApp]
+
+  """ Search for the B2BApp item with the matching ID. """
+  B2BApp(where: B2BAppWhereUniqueInput!): B2BApp
+
+  """ Perform a meta-query on all B2BApp items which match the where clause. 
+  """
+  _allB2BAppsMeta(where: B2BAppWhereInput, search: String, sortBy: [SortB2BAppsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BApp list. """
+  _B2BAppsMeta: _ListMeta
+
+  """ Search for all B2BAppPublishRequestHistoryRecord items which match the where clause. 
+  """
+  allB2BAppPublishRequestHistoryRecords(where: B2BAppPublishRequestHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPublishRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPublishRequestHistoryRecord]
+
+  """ Search for the B2BAppPublishRequestHistoryRecord item with the matching ID. 
+  """
+  B2BAppPublishRequestHistoryRecord(where: B2BAppPublishRequestHistoryRecordWhereUniqueInput!): B2BAppPublishRequestHistoryRecord
+
+  """ Perform a meta-query on all B2BAppPublishRequestHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppPublishRequestHistoryRecordsMeta(where: B2BAppPublishRequestHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPublishRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppPublishRequestHistoryRecord list. 
+  """
+  _B2BAppPublishRequestHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppPublishRequest items which match the where clause. 
+  """
+  allB2BAppPublishRequests(where: B2BAppPublishRequestWhereInput, search: String, sortBy: [SortB2BAppPublishRequestsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPublishRequest]
+
+  """ Search for the B2BAppPublishRequest item with the matching ID. """
+  B2BAppPublishRequest(where: B2BAppPublishRequestWhereUniqueInput!): B2BAppPublishRequest
+
+  """ Perform a meta-query on all B2BAppPublishRequest items which match the where clause. 
+  """
+  _allB2BAppPublishRequestsMeta(where: B2BAppPublishRequestWhereInput, search: String, sortBy: [SortB2BAppPublishRequestsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppPublishRequest list. """
+  _B2BAppPublishRequestsMeta: _ListMeta
 
   """ Search for all B2CAppHistoryRecord items which match the where clause. 
   """
@@ -5297,9 +7577,24 @@ type Query {
   """ Retrieve the meta-data for the WebhookSubscription list. """
   _WebhookSubscriptionsMeta: _ListMeta
 
+  """ Search for all WebhookPayload items which match the where clause. """
+  allWebhookPayloads(where: WebhookPayloadWhereInput, search: String, sortBy: [SortWebhookPayloadsBy!], orderBy: String, first: Int, skip: Int): [WebhookPayload]
+
+  """ Search for the WebhookPayload item with the matching ID. """
+  WebhookPayload(where: WebhookPayloadWhereUniqueInput!): WebhookPayload
+
+  """ Perform a meta-query on all WebhookPayload items which match the where clause. 
+  """
+  _allWebhookPayloadsMeta(where: WebhookPayloadWhereInput, search: String, sortBy: [SortWebhookPayloadsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookPayload list. """
+  _WebhookPayloadsMeta: _ListMeta
+
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
+  allB2BAppContexts(data: AllB2BAppContextsInput!): AllB2BAppContextsOutput
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
+  getB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
   OIDCClient(data: GetOIDCClientInput!): OIDCClient
 
   """The version of the Keystone application serving this API."""
@@ -5415,6 +7710,78 @@ type Mutation {
 
   """ Delete multiple User items by ID. """
   deleteUsers(ids: [ID!]): [User]
+
+  """ Create a single B2BAppHistoryRecord item. """
+  createB2BAppHistoryRecord(data: B2BAppHistoryRecordCreateInput): B2BAppHistoryRecord
+
+  """ Create multiple B2BAppHistoryRecord items. """
+  createB2BAppHistoryRecords(data: [B2BAppHistoryRecordsCreateInput]): [B2BAppHistoryRecord]
+
+  """ Update a single B2BAppHistoryRecord item by ID. """
+  updateB2BAppHistoryRecord(id: ID!, data: B2BAppHistoryRecordUpdateInput): B2BAppHistoryRecord
+
+  """ Update multiple B2BAppHistoryRecord items by ID. """
+  updateB2BAppHistoryRecords(data: [B2BAppHistoryRecordsUpdateInput]): [B2BAppHistoryRecord]
+
+  """ Delete a single B2BAppHistoryRecord item by ID. """
+  deleteB2BAppHistoryRecord(id: ID!): B2BAppHistoryRecord
+
+  """ Delete multiple B2BAppHistoryRecord items by ID. """
+  deleteB2BAppHistoryRecords(ids: [ID!]): [B2BAppHistoryRecord]
+
+  """ Create a single B2BApp item. """
+  createB2BApp(data: B2BAppCreateInput): B2BApp
+
+  """ Create multiple B2BApp items. """
+  createB2BApps(data: [B2BAppsCreateInput]): [B2BApp]
+
+  """ Update a single B2BApp item by ID. """
+  updateB2BApp(id: ID!, data: B2BAppUpdateInput): B2BApp
+
+  """ Update multiple B2BApp items by ID. """
+  updateB2BApps(data: [B2BAppsUpdateInput]): [B2BApp]
+
+  """ Delete a single B2BApp item by ID. """
+  deleteB2BApp(id: ID!): B2BApp
+
+  """ Delete multiple B2BApp items by ID. """
+  deleteB2BApps(ids: [ID!]): [B2BApp]
+
+  """ Create a single B2BAppPublishRequestHistoryRecord item. """
+  createB2BAppPublishRequestHistoryRecord(data: B2BAppPublishRequestHistoryRecordCreateInput): B2BAppPublishRequestHistoryRecord
+
+  """ Create multiple B2BAppPublishRequestHistoryRecord items. """
+  createB2BAppPublishRequestHistoryRecords(data: [B2BAppPublishRequestHistoryRecordsCreateInput]): [B2BAppPublishRequestHistoryRecord]
+
+  """ Update a single B2BAppPublishRequestHistoryRecord item by ID. """
+  updateB2BAppPublishRequestHistoryRecord(id: ID!, data: B2BAppPublishRequestHistoryRecordUpdateInput): B2BAppPublishRequestHistoryRecord
+
+  """ Update multiple B2BAppPublishRequestHistoryRecord items by ID. """
+  updateB2BAppPublishRequestHistoryRecords(data: [B2BAppPublishRequestHistoryRecordsUpdateInput]): [B2BAppPublishRequestHistoryRecord]
+
+  """ Delete a single B2BAppPublishRequestHistoryRecord item by ID. """
+  deleteB2BAppPublishRequestHistoryRecord(id: ID!): B2BAppPublishRequestHistoryRecord
+
+  """ Delete multiple B2BAppPublishRequestHistoryRecord items by ID. """
+  deleteB2BAppPublishRequestHistoryRecords(ids: [ID!]): [B2BAppPublishRequestHistoryRecord]
+
+  """ Create a single B2BAppPublishRequest item. """
+  createB2BAppPublishRequest(data: B2BAppPublishRequestCreateInput): B2BAppPublishRequest
+
+  """ Create multiple B2BAppPublishRequest items. """
+  createB2BAppPublishRequests(data: [B2BAppPublishRequestsCreateInput]): [B2BAppPublishRequest]
+
+  """ Update a single B2BAppPublishRequest item by ID. """
+  updateB2BAppPublishRequest(id: ID!, data: B2BAppPublishRequestUpdateInput): B2BAppPublishRequest
+
+  """ Update multiple B2BAppPublishRequest items by ID. """
+  updateB2BAppPublishRequests(data: [B2BAppPublishRequestsUpdateInput]): [B2BAppPublishRequest]
+
+  """ Delete a single B2BAppPublishRequest item by ID. """
+  deleteB2BAppPublishRequest(id: ID!): B2BAppPublishRequest
+
+  """ Delete multiple B2BAppPublishRequest items by ID. """
+  deleteB2BAppPublishRequests(ids: [ID!]): [B2BAppPublishRequest]
 
   """ Create a single B2CAppHistoryRecord item. """
   createB2CAppHistoryRecord(data: B2CAppHistoryRecordCreateInput): B2CAppHistoryRecord
@@ -5631,12 +7998,32 @@ type Mutation {
 
   """ Delete multiple WebhookSubscription items by ID. """
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
+
+  """ Create a single WebhookPayload item. """
+  createWebhookPayload(data: WebhookPayloadCreateInput): WebhookPayload
+
+  """ Create multiple WebhookPayload items. """
+  createWebhookPayloads(data: [WebhookPayloadsCreateInput]): [WebhookPayload]
+
+  """ Update a single WebhookPayload item by ID. """
+  updateWebhookPayload(id: ID!, data: WebhookPayloadUpdateInput): WebhookPayload
+
+  """ Update multiple WebhookPayload items by ID. """
+  updateWebhookPayloads(data: [WebhookPayloadsUpdateInput]): [WebhookPayload]
+
+  """ Delete a single WebhookPayload item by ID. """
+  deleteWebhookPayload(id: ID!): WebhookPayload
+
+  """ Delete multiple WebhookPayload items by ID. """
+  deleteWebhookPayloads(ids: [ID!]): [WebhookPayload]
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
   completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User
+  publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput
+  updateB2BAppContext(data: UpdateB2BAppContextInput!): UpdateB2BAppContextOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
@@ -5655,8 +8042,3 @@ type Mutation {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
-
-enum CacheControlScope {
-  PUBLIC
-  PRIVATE
-}

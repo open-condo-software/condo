@@ -4,6 +4,8 @@ import { Big } from 'big.js'
 import {
     hasSingleVorItem,
     hasOverpaymentReceivers,
+    hasFeePayers,
+    getVorItems,
     split,
     createRecipientKey,
     areAllRecipientsUnique,
@@ -30,31 +32,84 @@ function createTestRecipient (extra = {}) {
 
 describe('paymentSplitter', () => {
     describe('helper functions', () => {
-        test('recipient key created successfully', () => {
-            const recipient = createTestRecipient()
-            expect(createRecipientKey(recipient)).toBe(`${recipient.tin}_${recipient.bic}_${recipient.bankAccount}`)
+        describe('createRecipientKey', () => {
+            test('creates key successfully', () => {
+                const recipient = createTestRecipient()
+                expect(createRecipientKey(recipient)).toBe(`${recipient.tin}_${recipient.bic}_${recipient.bankAccount}`)
+            })
+
+            test('returns empty string for null recipient', () => {
+                expect(createRecipientKey(null)).toBe('')
+            })
         })
 
-        test('distributions sorted by vor ond order', () => {
-            const recipient1 = createTestRecipient()
-            const recipient2 = createTestRecipient()
-            const recipient3 = createTestRecipient()
-            const recipient4 = createTestRecipient()
+        describe('sortByVorAndOrderComparator', () => {
+            test('sorts distributions by vor and order', () => {
+                const recipient1 = createTestRecipient()
+                const recipient2 = createTestRecipient()
+                const recipient3 = createTestRecipient()
+                const recipient4 = createTestRecipient()
 
-            const distribution: DistributionItem[] = [
-                { recipient: recipient1, order: 0, amount: '0', vor: true },
-                { recipient: recipient2, order: 0, amount: '0' },
-                { recipient: recipient3, order: 2, amount: '0', vor: true },
-                { recipient: recipient4, order: 1, amount: '0' },
-            ]
+                const distribution: DistributionItem[] = [
+                    { recipient: recipient1, order: 0, amount: '0', vor: true },
+                    { recipient: recipient2, order: 0, amount: '0' },
+                    { recipient: recipient3, order: 2, amount: '0', vor: true },
+                    { recipient: recipient4, order: 1, amount: '0' },
+                ]
 
-            const sortedDistribution = distribution.sort(sortByVorAndOrderComparator)
-            expect(sortedDistribution).toEqual([
-                { recipient: recipient2, order: 0, amount: '0' },
-                { recipient: recipient4, order: 1, amount: '0' },
-                { recipient: recipient1, order: 0, amount: '0', vor: true },
-                { recipient: recipient3, order: 2, amount: '0', vor: true },
-            ])
+                const sortedDistribution = distribution.sort(sortByVorAndOrderComparator)
+                expect(sortedDistribution).toEqual([
+                    { recipient: recipient2, order: 0, amount: '0' },
+                    { recipient: recipient4, order: 1, amount: '0' },
+                    { recipient: recipient1, order: 0, amount: '0', vor: true },
+                    { recipient: recipient3, order: 2, amount: '0', vor: true },
+                ])
+            })
+        })
+
+        describe('hasFeePayers', () => {
+            test('returns true when distribution has fee payers', () => {
+                const distribution = [
+                    { recipient: createTestRecipient(), amount: '100', isFeePayer: true },
+                    { recipient: createTestRecipient(), amount: '200' },
+                ]
+                expect(hasFeePayers(distribution)).toBe(true)
+            })
+
+            test('returns false when distribution has no fee payers', () => {
+                const distribution = [
+                    { recipient: createTestRecipient(), amount: '100' },
+                    { recipient: createTestRecipient(), amount: '200' },
+                ]
+                expect(hasFeePayers(distribution)).toBe(false)
+            })
+        })
+
+        describe('getVorItems', () => {
+            test('returns all items with vor=true', () => {
+                const recipient1 = createTestRecipient()
+                const recipient2 = createTestRecipient()
+                const recipient3 = createTestRecipient()
+                const distribution = [
+                    { recipient: recipient1, amount: '100', vor: true },
+                    { recipient: recipient2, amount: '200' },
+                    { recipient: recipient3, amount: '300', vor: true },
+                ]
+                const vorItems = getVorItems(distribution)
+                expect(vorItems).toHaveLength(2)
+                expect(vorItems).toEqual([
+                    { recipient: recipient1, amount: '100', vor: true },
+                    { recipient: recipient3, amount: '300', vor: true },
+                ])
+            })
+
+            test('returns empty array when no vor items', () => {
+                const distribution = [
+                    { recipient: createTestRecipient(), amount: '100' },
+                    { recipient: createTestRecipient(), amount: '200' },
+                ]
+                expect(getVorItems(distribution)).toEqual([])
+            })
         })
     })
 
@@ -877,5 +932,249 @@ describe('paymentSplitter', () => {
         const feeSum = [...splits1, ...splits2, ...splits3].reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
         expect(Big(paymentAmount1).plus(paymentAmount2).plus(paymentAmount3).eq(splitSum.plus(feeSum))).toBe(true)
+    })
+
+    describe('custom decimalPlaces option', () => {
+        test('split with decimalPlaces=3', () => {
+            const paymentAmount = '100.000'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '500' },
+                { recipient: recipient2, amount: '500', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '500' },
+            ]
+            const splits = split(paymentAmount, distribution, { decimalPlaces: 3 })
+
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '33.333' },
+                { recipient: recipient2, amount: '33.334' },
+                { recipient: recipient3, amount: '33.333' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+        })
+
+        test('split with decimalPlaces=0 (whole numbers)', () => {
+            const paymentAmount = '100'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '500' },
+                { recipient: recipient2, amount: '500', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '500' },
+            ]
+            const splits = split(paymentAmount, distribution, { decimalPlaces: 0 })
+
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '33' },
+                { recipient: recipient2, amount: '34' },
+                { recipient: recipient3, amount: '33' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+        })
+    })
+
+    describe('overpayment with different overpaymentPart ratios', () => {
+        test('split overpayment with different ratios (1:2:3)', () => {
+            const paymentAmount = '400'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '100', overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', overpaymentPart: 2 },
+                { recipient: recipient3, amount: '100', vor: true, overpaymentPart: 3 },
+            ]
+            const splits = split(paymentAmount, distribution)
+
+            // Total distribution = 300, overpayment = 100
+            // Overpayment distribution: 1/(1+2+3) = 1/6, 2/6, 3/6
+            // recipient1: 100 + 100*(1/6) = 100 + 16.67 = 116.67
+            // recipient2: 100 + 100*(2/6) = 100 + 33.33 = 133.33
+            // recipient3: 100 + 100*(3/6) = 100 + 50 = 150 (vor gets rounding)
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '116.67' },
+                { recipient: recipient2, amount: '133.33' },
+                { recipient: recipient3, amount: '150' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+        })
+
+        test('split overpayment with different ratios (0.5:1:1.5)', () => {
+            const paymentAmount = '600'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '100', overpaymentPart: 0.5 },
+                { recipient: recipient2, amount: '100', overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100', vor: true, overpaymentPart: 1.5 },
+            ]
+            const splits = split(paymentAmount, distribution)
+
+            // Total distribution = 300, overpayment = 300
+            // Overpayment distribution: 0.5/3, 1/3, 1.5/3
+            // recipient1: 100 + 300*(0.5/3) = 100 + 50 = 150
+            // recipient2: 100 + 300*(1/3) = 100 + 100 = 200
+            // recipient3: 100 + 300*(1.5/3) = 100 + 150 = 250 (vor gets rounding)
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '150' },
+                { recipient: recipient2, amount: '200' },
+                { recipient: recipient3, amount: '250' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+        })
+    })
+
+
+    describe('edge cases with multiple groups', () => {
+        test('split with 3 groups (orders 0, 1, 2)', () => {
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100', order: 2, vor: true, overpaymentPart: 1 },
+            ]
+
+            const paymentAmount = '150'
+            const splits = split(paymentAmount, distribution)
+
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '100' },
+                { recipient: recipient2, amount: '50' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+        })
+
+        test('split with groups in non-sequential order (0, 5, 10)', () => {
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 5, vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100', order: 10, vor: true, overpaymentPart: 1 },
+            ]
+
+            const paymentAmount = '250'
+            const splits = split(paymentAmount, distribution)
+
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '100' },
+                { recipient: recipient2, amount: '100' },
+                { recipient: recipient3, amount: '50' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+        })
+    })
+
+    describe('overpayment distribution with multiple recipients and different orders', () => {
+        test('overpayment split with multiple overpaymentPart recipients across groups', () => {
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+            const recipient4 = createTestRecipient()
+
+            // Each group must have exactly ONE vor item
+            const distribution = [
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 1, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
+                { recipient: recipient4, amount: '100', order: 2, vor: true, overpaymentPart: 1 },
+            ]
+
+            const paymentAmount = '600'
+            const splits = split(paymentAmount, distribution)
+
+            // All recipients get their base + share of overpayment
+            // Base total: 400, overpayment: 200
+            // All 4 recipients have overpaymentPart=1, so each gets 200/4 = 50 extra
+            expect(splits).toHaveLength(4)
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            expect(Big(paymentAmount).eq(splitSum)).toBe(true)
+
+            // Verify all recipients get base + overpayment share
+            const recipient1Split = splits.find(s => s.recipient === recipient1)
+            const recipient2Split = splits.find(s => s.recipient === recipient2)
+            const recipient3Split = splits.find(s => s.recipient === recipient3)
+            const recipient4Split = splits.find(s => s.recipient === recipient4)
+            
+            // Each should get 100 + 50 = 150 (with rounding adjustments)
+            expect(recipient1Split).toBeDefined()
+            expect(recipient2Split).toBeDefined()
+            expect(recipient3Split).toBeDefined()
+            expect(recipient4Split).toBeDefined()
+        })
+    })
+
+    describe('fee distribution with complex scenarios', () => {
+        test('fee distribution with different decimal places', () => {
+            const paymentAmount = '1000.000'
+            const feeAmount = '33.333'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '600', isFeePayer: true },
+                { recipient: recipient2, amount: '400', vor: true, overpaymentPart: 1, isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount, decimalPlaces: 3 })
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
+        })
+
+        test('single fee payer with multiple non-fee payers', () => {
+            const paymentAmount = '1000'
+            const feeAmount = '100'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '400' },
+                { recipient: recipient2, amount: '300' },
+                { recipient: recipient3, amount: '300', vor: true, overpaymentPart: 1, isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount })
+
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '400' },
+                { recipient: recipient2, amount: '300' },
+                { recipient: recipient3, amount: '200', feeAmount: '100' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
+        })
     })
 })

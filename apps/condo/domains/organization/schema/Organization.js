@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const userAccess = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -17,6 +17,7 @@ const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
+const { ORGANIZATION_SUBSCRIPTION_FIELD } = require('@condo/domains/organization/schema/fields/subscription')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -210,6 +211,8 @@ const Organization = new GQLListSchema('Organization', {
             type: 'Checkbox',
             defaultValue: true,
         },
+
+        subscription: ORGANIZATION_SUBSCRIPTION_FIELD,
     },
     hooks: {
         async afterChange ({ originalInput, existingItem, operation }) {
@@ -230,7 +233,7 @@ const Organization = new GQLListSchema('Organization', {
         ],
     },
     plugins: [
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(),
     ],
     access: {
         read: access.canReadOrganizations,

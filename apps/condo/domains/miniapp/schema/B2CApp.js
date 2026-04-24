@@ -3,19 +3,25 @@
  */
 
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2CApp')
 const { RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
 const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
+const { getDevicePermissionsFields } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     IS_HIDDEN_FIELD,
+    IFRAME_URL_FIELD,
+    SUBSCRIPTION_PLANS_FIELD_B2C,
 } = require('@condo/domains/miniapp/schema/fields/integration')
+
+const { OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD, ADDITIONAL_DOMAINS_FIELD } = require('./fields/domains')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
@@ -38,7 +44,12 @@ const B2CApp = new GQLListSchema('B2CApp', {
         },
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
+        subscriptionPlans: SUBSCRIPTION_PLANS_FIELD_B2C,
         colorSchema: COLOR_SCHEMA_FIELD,
+        appUrl: IFRAME_URL_FIELD,
+        additionalDomains: ADDITIONAL_DOMAINS_FIELD,
+        oidcClient: OIDC_CLIENT_FIELD,
+        domains: MINIAPP_DOMAINS_FIELD,
         currentBuild: {
             schemaDoc: 'Link to current active app build',
             type: 'Relationship',
@@ -68,11 +79,12 @@ const B2CApp = new GQLListSchema('B2CApp', {
             many: true,
             access: { create: false, update: false },
         },
+        ...getDevicePermissionsFields(),
     },
     hooks: {
         afterChange: logoMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadB2CApps,
         create: access.canManageB2CApps,

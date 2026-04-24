@@ -12,7 +12,7 @@ import { Ticket, TicketComment, TicketCommentFile } from '@app/condo/schema'
 import { Form, FormInstance, notification } from 'antd'
 import classNames from 'classnames'
 import dayjs from 'dayjs'
-import { pickBy } from 'lodash'
+import pickBy from 'lodash/pickBy'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
@@ -115,11 +115,13 @@ const Comments: React.FC<CommentsPropsType> = ({
     const commentTextAreaRef = useRef(null)
     const commentsContainerRef = useRef(null)
 
-    const [runGenerateCommentAIFlow, {
+    const [ { execute: runGenerateCommentAIFlow }, {
         loading: generateCommentLoading,
         data: generateCommentData,
     }] = useAIFlow<{ answer: string }>({
-        flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT_FLOW_TYPE,
+        flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT,
+        modelName: 'Ticket',
+        itemId: ticketId,
         defaultContext: {
             ticketId: ticketId,
             ticketDetails: ticket.details ?? '-',
@@ -332,20 +334,22 @@ const Comments: React.FC<CommentsPropsType> = ({
     const commentTabContentProps = commentType === RESIDENT_COMMENT_TYPE ?
         residentCommentsTabContentProps : organizationCommentsTabContentProps
 
-    const [runRewriteTextAIFlow, {
+    const [ { execute: runRewriteTextAIFlow }, {
         loading: rewriteTextLoading,
         data: rewriteTextData,
     }] = useAIFlow<{ answer: string }>({
-        flowType: FLOW_TYPES.REWRITE_TEXT_FLOW_TYPE,
+        flowType: FLOW_TYPES.REWRITE_TEXT,
+        modelName: 'Ticket',
+        itemId: ticketId,
     })
 
     useEffect(() => {
-        setGenerateCommentAnswer(generateCommentData?.answer)
-    }, [generateCommentData?.answer])
+        setGenerateCommentAnswer(generateCommentData?.result?.answer)
+    }, [generateCommentData?.result?.answer])
 
     useEffect(() => {
-        setRewriteTextAnswer(rewriteTextData?.answer)
-    }, [rewriteTextData?.answer])
+        setRewriteTextAnswer(rewriteTextData?.result?.answer)
+    }, [rewriteTextData?.result?.answer])
 
     const handleRewriteTextClick = async () => {
         const context = {

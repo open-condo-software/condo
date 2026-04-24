@@ -7,7 +7,7 @@ const cloneDeep = require('lodash/cloneDeep')
 const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest, userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -28,7 +28,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER = {
     windowSizeInSec: 60 * 60,
-    windowLimit: 30,
+    windowLimit: 120,
 }
 let EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 try {
@@ -76,6 +76,7 @@ const ERRORS = {
     },
 }
 
+
 const redisGuard = new RedisGuard()
 
 const ajv = new Ajv()
@@ -83,7 +84,6 @@ const ajv = new Ajv()
 const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
     schemaDoc: 'Allows you to run a deferred task to execute a request to AI. Saves information about the request, as well as about the process of executing the request itself.',
     fields: {
-
         flowType: {
             schemaDoc: `The type of AI flow to be called.
              \nThe value can be one of the list (${FLOW_TYPES_LIST.map(flowType => `"${flowType}"`).join('.')}), or some allowed custom value.`,
@@ -107,6 +107,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         context: {
             schemaDoc: 'Context for executing a request to AI.',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
             access: {
                 create: true,
@@ -118,6 +119,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         cleanContext: {
             schemaDoc: 'Cleaned context for executing a request to AI. This field is managed by the system',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
             access: {
                 create: false,
@@ -142,6 +144,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         result: {
             schemaDoc: 'Result of query execution to AI.',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: true,
@@ -172,6 +175,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         meta: {
             schemaDoc: 'Additional arbitrary data about the task.',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: userIsAdminOrIsSupport,
@@ -214,8 +218,53 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             },
         },
 
+        organization: {
+            schemaDoc: 'Organization on which behalf this operation was requested.',
+            type: 'Relationship',
+            ref: 'Organization',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        modelName: {
+            schemaDoc: 'Name of the model that was changed via this task. Used for analytics',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        itemId: {
+            schemaDoc: 'ID of the item that was changed via this task. Used for analytics',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        aiSessionId: {
+            schemaDoc: 'Session identifier for grouping related AI tasks in a conversation and using memory',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadExecutionAIFlowTasks,
         create: access.canManageExecutionAIFlowTasks,

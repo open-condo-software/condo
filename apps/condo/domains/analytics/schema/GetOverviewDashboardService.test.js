@@ -26,8 +26,7 @@ const {
     Payment,
     createTestMultiPayment,
     updateTestMultiPayment,
-    createTestAcquiringIntegrationContext,
-    createTestAcquiringIntegration,
+    updateTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { getOverviewDashboardByTestClient } = require('@condo/domains/analytics/utils/testSchema')
 const { updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
@@ -421,11 +420,7 @@ describe('GetOverviewDashboardService', () => {
                 await updateTestPayment(admin, payments[0].id, { status: PAYMENT_DONE_STATUS })
 
                 const paymentsSum = payments.reduce((prev, curr) => new Big(prev).plus(curr.amount), 0)
-
-                const [invoiceAcquiringIntegration] = await createTestAcquiringIntegration(admin, {
-                    canGroupReceipts: true,
-                })
-                await createTestAcquiringIntegrationContext(admin, organization, invoiceAcquiringIntegration, {
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
 

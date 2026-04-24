@@ -1,21 +1,25 @@
 import { OrganizationEmployee } from '@app/condo/schema'
-import { Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button, Typography } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { REINVITE_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
+
+import styles from './EmployeeInviteRetryButton.module.css'
 
 interface IEmployeeInviteRetryButtonProps {
     employee: OrganizationEmployee
 }
+
+const ROW_GUTTER: RowProps['gutter'] = 4
 
 export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps> = (props) => {
     const intl = useIntl()
@@ -52,20 +56,31 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
                 const isCountDownActive = countdown > 0
 
                 return (
-                    <Button
-                        type='inlineLink'
-                        loading={loading}
-                        disabled={isCountDownActive}
-                        onClick={runAction}
-                    >
-                        {RetryInviteMessage}
-                        {isCountDownActive && (
-                            <Typography.Text type='secondary'>
-                                &nbsp;
-                                ({ countdown } {Seconds})
-                            </Typography.Text>
-                        )}
-                    </Button>
+                    <Row gutter={ROW_GUTTER}>
+                        <Col>
+                            <Button
+                                type='accent'
+                                size='medium'
+                                minimal
+                                compact
+                                stateless
+                                loading={loading}
+                                disabled={isCountDownActive}
+                                onClick={runAction}
+                            >
+                                {RetryInviteMessage}
+                            </Button>
+                        </Col>
+                        {
+                            isCountDownActive && 
+                            <Col>
+                                <Typography.Text type='primary' size='medium' strong>
+                                    <span className={styles.countdownText}>{`(${countdown} ${Seconds})`}</span>
+                                </Typography.Text>
+                            </Col>
+                        }
+                    </Row>
+                   
                 )
             }}
         </CountDownTimer>

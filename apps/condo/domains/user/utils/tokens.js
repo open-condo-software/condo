@@ -1,4 +1,4 @@
-const { v4: uuid } = require('uuid')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 
 const TOKEN_TYPES = {
@@ -68,7 +68,7 @@ function generateToken (tokenType) {
         throw new Error('Unsupported token type!')
     }
 
-    return [ABBREVIATION_BY_TOKEN_TYPE[tokenType], uuid()].join(TOKEN_SEPARATOR)
+    return [ABBREVIATION_BY_TOKEN_TYPE[tokenType], generateUUIDv4()].join(TOKEN_SEPARATOR)
 }
 
 /**
@@ -76,7 +76,7 @@ function generateToken (tokenType) {
  * @return {string}
  */
 function generateSimulatedToken () {
-    return ['simulated', uuid()].join(TOKEN_SEPARATOR)
+    return ['simulated', generateUUIDv4()].join(TOKEN_SEPARATOR)
 }
 
 /**

@@ -5,9 +5,7 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION } = require('@condo/domains/common/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -28,6 +26,7 @@ async function _internalScheduleTaskByNameByTestClient(client, extraAttrs = {}) 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {

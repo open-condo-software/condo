@@ -15,6 +15,8 @@ const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
+const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
+const { REGISTER_EXTERNAL_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils('AcquiringIntegration')
@@ -119,6 +121,32 @@ async function calculateFeeForReceipt (context, data) {
     })
 }
 
+async function setPaymentPosReceiptUrl (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to setPaymentPosReceiptUrl',
+        dataPath: 'obj',
+    })
+}
+
+async function registerExternalPayments (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_EXTERNAL_PAYMENTS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerExternalPayments',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -138,5 +166,7 @@ module.exports = {
     registerMultiPaymentForInvoices,
     calculateFeeForReceipt,
     PaymentsFile,
+    setPaymentPosReceiptUrl,
+    registerExternalPayments,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

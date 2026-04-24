@@ -1,5 +1,6 @@
 import { File } from '@app/condo/schema'
-import { isNil, isFunction } from 'lodash'
+import isFunction from 'lodash/isFunction'
+import isNil from 'lodash/isNil'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'

@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { versioned, uuided, tracked, dvAndSender } = require('@open-condo/keystone/plugins')
+const { versioned, uuided, tracked, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
@@ -38,10 +38,10 @@ const keysOfLocalizedTextFields = new Map([
  * @type {GQLListSchema}
  */
 const TicketChange = new GQLListSchema('TicketChange', {
-    schemaDoc: 'Incremental changes of Ticket',
+    schemaDoc: 'Tracks incremental changes to a ticket',
     fields: {
         ticket: {
-            schemaDoc: 'Related ticket, whose change is logged in this entity',
+            schemaDoc: 'Ticket whose changes are recorded in this entry',
             type: 'Relationship',
             ref: 'Ticket',
             isRequired: true,
@@ -55,11 +55,11 @@ const TicketChange = new GQLListSchema('TicketChange', {
             keysOfLocalizedTextFields,
         ),
         actualCreationDate: {
-            schemaDoc: 'Actual creation ticket change date, for case when ticket updated from offline',
+            schemaDoc: 'Date when this change was originally created, used when syncing offline updates',
             type: 'DateTimeUtc',
         },
         changedByRole: {
-            schemaDoc: 'Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee',
+            schemaDoc: 'Role of the user who made the change. Can be an employee role from the same or a linked organization, a resident, or a deleted employee',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
@@ -124,7 +124,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             return resolvedData
         },
     },
-    plugins: [uuided(), versioned(), tracked(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender(), analytical()],
     access: {
         read: access.canReadTicketChanges,
         create: access.canManageTicketChanges,

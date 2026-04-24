@@ -1,8 +1,7 @@
 import { useGetTicketPropertyHintByIdQuery, useGetTicketPropertyHintPropertyByPropertyQuery } from '@app/condo/gql'
 import styled from '@emotion/styled'
 import { Col, ColProps, Typography } from 'antd'
-import { get } from 'lodash'
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
@@ -27,12 +26,11 @@ const StyledAlert = styled(Alert)`
 
 type TicketPropertyHintCardProps = {
     propertyId: string
-    hintContentStyle?: CSSProperties
     colProps?: ColProps
     className?: string
 }
 
-export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, colProps, className }) => {
+export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, colProps, className }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
 
@@ -61,15 +59,14 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
     const ticketPropertyHint = useMemo(() => ticketPropertyHintData?.ticketPropertyHints?.filter(Boolean)[0],
         [ticketPropertyHintData?.ticketPropertyHints])
 
-    const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+    const content = useMemo(() => ticketPropertyHint?.content ?? '', [ticketPropertyHint])
 
     const Hint = useMemo(() => (
         <StyledAlert
             message={<Typography.Text strong>{PropertyHintMessage}</Typography.Text>}
             description={
                 <TicketPropertyHintContent
-                    html={htmlContent}
-                    style={hintContentStyle}
+                    content={content}
                     className={className}
                     linkToHint={`/property/${propertyId}/hint`}
                 />
@@ -77,7 +74,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
             showIcon
             type='info'
         />
-    ), [PropertyHintMessage, className, hintContentStyle, htmlContent, propertyId])
+    ), [PropertyHintMessage, className, content, propertyId])
 
     if (!ticketPropertyHintProperty || !ticketPropertyHint) {
         return null

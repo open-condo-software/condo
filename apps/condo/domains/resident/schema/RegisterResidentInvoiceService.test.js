@@ -14,6 +14,7 @@ const {
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
@@ -38,7 +39,6 @@ const {
     makeClientWithResidentUser, makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
 
 let adminClient
@@ -46,9 +46,12 @@ let organization, acquiringIntegration
 
 describe('RegisterResidentInvoiceService', () => {
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient();
-        [acquiringIntegration] = await createTestAcquiringIntegration(adminClient);
-        [organization] = await createTestOrganization(adminClient)
+        adminClient = await makeLoggedInAdminClient()
+        await createTestBillingIntegration(adminClient)
+        const acquiringIntegrationResult = await createTestAcquiringIntegration(adminClient)
+        const organizationResult = await createTestOrganization(adminClient)
+        acquiringIntegration = acquiringIntegrationResult[0]
+        organization = organizationResult[0]
         await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 

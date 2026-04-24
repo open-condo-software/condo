@@ -3,7 +3,7 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canExecuteB2CAppMutationAsOwner } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
+const { canExecuteAppMutationAsOwner } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 async function canUpdateOIDCClientUrl (params) {
     const { authentication: { item: user } } = params
@@ -12,7 +12,7 @@ async function canUpdateOIDCClientUrl (params) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return await canExecuteB2CAppMutationAsOwner(params)
+    return await canExecuteAppMutationAsOwner(params)
 }
 
 /*

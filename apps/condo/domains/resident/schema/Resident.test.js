@@ -4,7 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
+
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
@@ -70,6 +71,8 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     addResidentAccess,
     createTestPhone,
+    updateTestUser,
+    createTestUserRightsSet,
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('Resident', () => {
@@ -874,6 +877,31 @@ describe('Resident', () => {
             const objs = await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
+        })
+
+        it('user with canReadResidents rights set can read all residents', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const anotherUserClient = await makeClientWithProperty()
+            
+            const [resident1] = await createTestResident(adminClient, userClient.user, userClient.property)
+            const [resident2] = await createTestResident(adminClient, anotherUserClient.user, anotherUserClient.property)
+            
+            const [rightsSet] = await createTestUserRightsSet(adminClient, {
+                canReadResidents: true,
+            })
+            
+            const readerClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            await updateTestUser(adminClient, readerClient.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+            
+            const residents = await Resident.getAll(readerClient, {
+                id_in: [resident1.id, resident2.id],
+            })
+            
+            expect(residents).toHaveLength(2)
+            expect(residents.map(r => r.id).sort()).toEqual([resident1.id, resident2.id].sort())
         })
 
         it('cannot be read by anonymous', async () => {

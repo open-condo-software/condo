@@ -4,13 +4,22 @@
 
 const { Big } = require('big.js')
 const dayjs = require('dayjs')
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
+const {
+    PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
+    applyWebhookSecretGeneration,
+    isWebhookUrlInWhitelist,
+} = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
@@ -24,9 +33,23 @@ const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsFi
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 
+const ERRORS = {
+    WEBHOOK_URL_NOT_IN_WHITELIST: {
+        code: BAD_USER_INPUT,
+        type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+        message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+        messageForUser: 'api.billing.billingReceipt.WEBHOOK_URL_NOT_IN_WHITELIST',
+    },
+}
+
 const findAcquiringContext = async (item) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-    const acquiringContexts = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+    const acquiringContexts = await find('AcquiringIntegrationContext', {
+        organization: { id: billingContext.organization },
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+    })
     return acquiringContexts[0]
 }
 
@@ -214,6 +237,20 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
                 if (!category) return false
 
+                const billingContext = await getByCondition('BillingIntegrationOrganizationContext', {
+                    id: get(receipt, 'context'),
+                    deletedAt: null,
+                })
+                if (!billingContext) return false
+
+                const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
+                    organization: { id: get(billingContext, 'organization') },
+                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+                    deletedAt: null,
+                })
+                if (!activeAcquiringContexts || activeAcquiringContexts.length !== 1) return false
+
                 const validityMonths = get(category, 'receiptValidityMonths')
                 if (validityMonths) {
                     const periodDate = dayjs(get(receipt, 'period'))
@@ -302,8 +339,20 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 return billingContext.organization
             },
         }),
+
+        paymentStatusChangeWebhookUrl: PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
+
+        paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        historical(),
+        analytical(),
+    ],
     access: {
         read: access.canReadBillingReceipts,
         create: access.canManageBillingReceipts,
@@ -333,7 +382,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         ],
     },
     hooks: {
-        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
+        validateInput: async ({ resolvedData, addValidationError, existingItem, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
 
@@ -348,13 +397,26 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
             }
 
+            // Validate callback URL is in whitelist
+            // Normalize empty string to null
+            let callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
+            if (!callbackUrl) {
+                callbackUrl = null
+                resolvedData['paymentStatusChangeWebhookUrl'] = null
+            }
+            if (callbackUrl && !await isWebhookUrlInWhitelist(callbackUrl)) {
+                throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
+            }
         },
-        resolveInput: ({ resolvedData }) => {
+        resolveInput: ({ resolvedData, existingItem, context }) => {
             // TODO(DOMA-6519): remove hook after toPayDetails field removal
             // Update toPayDetails explicit fields directly from passed value
             if ('toPayDetails' in resolvedData) {
                 resolvedData = { ...resolvedData, ...resolvedData.toPayDetails }
             }
+
+            // Auto-generate webhook secret when callback URL is set
+            applyWebhookSecretGeneration({ resolvedData, existingItem })
 
             return resolvedData
         },

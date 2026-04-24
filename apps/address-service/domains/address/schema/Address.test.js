@@ -352,10 +352,11 @@ describe('Address', () => {
 
     describe('Use cases', () => {
         test('The house keeps the firstly created address', async () => {
-            const source1 = faker.random.alphaNumeric(42)
-            const source2 = faker.random.alphaNumeric(42)
             const address1 = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
             const address2 = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+            const source1 = faker.random.alphaNumeric(42)
+            const source2 = faker.random.alphaNumeric(42)
+            const source3 = address1.toLowerCase()
 
             const fakeMeta = {
                 value: '',
@@ -406,10 +407,11 @@ describe('Address', () => {
 
             const sources = await AddressSource.getAll(adminClient, { address: { id: addressModel.id } })
 
-            expect(sources).toHaveLength(2)
+            expect(sources).toHaveLength(3)
             expect(sources).toEqual(expect.arrayContaining([
                 expect.objectContaining({ source: source1 }),
                 expect.objectContaining({ source: source2 }),
+                expect.objectContaining({ source: source3 }),
             ]))
         })
 
@@ -454,11 +456,13 @@ describe('Address', () => {
 
             const sources = await AddressSource.getAll(adminClient, { address: { id: addressModel.id } })
             const helpersHash = hashJSON(helpers)
-            const fullSource = `${source}|helpers:${helpersHash}`.toLowerCase()
+            const source1 = `${source}|helpers:${helpersHash}`.toLowerCase()
+            const source2 = `${address}|helpers:${helpersHash}`.toLowerCase()
 
-            expect(sources).toHaveLength(1)
+            expect(sources).toHaveLength(2)
             expect(sources).toEqual(expect.arrayContaining([
-                expect.objectContaining({ source: fullSource }),
+                expect.objectContaining({ source: source1 }),
+                expect.objectContaining({ source: source2 }),
             ]))
         })
     })

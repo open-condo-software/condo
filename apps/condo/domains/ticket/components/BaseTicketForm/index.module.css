@@ -1,0 +1,16 @@
+.ticket-property-hint-card {
+  max-width: 250px;
+  max-height: 11em;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.invoice-row {
+  padding-bottom: 24px;
+}

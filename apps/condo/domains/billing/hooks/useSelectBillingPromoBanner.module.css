@@ -1,0 +1,28 @@
+.promo {
+  position: relative;
+  height: 330px;
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.promo-image-wrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 171px !important;
+  object-fit: contain;
+  transition: opacity 0.4s ease-in;
+  pointer-events: none;
+}
+
+.image-visible {
+  opacity: 1;
+}
+
+.image-hidden {
+  opacity: 0;
+}
+
+.title {
+  white-space: pre-line;
+}

@@ -1,6 +1,7 @@
 const path = require('path')
 
-const { getRandomString, prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+const { getRandomString } = require('@open-condo/keystone/test.utils')
 
 const { User, UserRightsSet } = require('@condo/domains/user/utils/serverSchema')
 

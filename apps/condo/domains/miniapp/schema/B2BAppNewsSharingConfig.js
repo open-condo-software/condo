@@ -4,7 +4,7 @@
 
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
@@ -66,18 +66,21 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
         publishUrl: {
             schemaDoc: 'URL that publishes NewsItem. Should implement POST publish method. It will be called once news item is ready to be published. Check News domain for reference',
             type: 'Url',
+            sensitive: true,
             isRequired: true,
         },
 
         previewUrl: {
             schemaDoc: 'URL that returns rendered HTML preview of News Item. Used to render NewsItem preview. If not provided, app preview will not be rendered',
             type: 'Url',
+            sensitive: true,
             isRequired: false,
         },
 
         getRecipientsUrl: {
             schemaDoc: 'URL that returns chats and/or channels. Should implement POST getRecipients method. If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used',
             type: 'Url',
+            sensitive: true,
             isRequired: false,
         },
 
@@ -87,12 +90,14 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
         customFormUrl: {
             schemaDoc: 'URL that implements customForm. Use only if you need custom NewsItemSharing data structure, for example if . Allows to provide custom UI for sending news. If not provided app will use condo news form',
             type: 'Url',
+            sensitive: true,
             isRequired: false,
         },
 
         getRecipientsCountersUrl: {
             schemaDoc: 'URL that returns number of subscribers for condo scopes. Should implement POST customGetRecipientsCounters method. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, recipients counter will not be rendered',
             type: 'Url',
+            sensitive: true,
             isRequired: false,
         },
     },
@@ -102,7 +107,7 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             await previewPictureMetaAfterChange({ updatedItem, listKey })
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadB2BAppNewsSharingConfigs,
         create: access.canManageB2BAppNewsSharingConfigs,

@@ -1,11 +1,9 @@
 import { Layout, Row, Col } from 'antd'
-import classnames from 'classnames'
 import getConfig from 'next/config'
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 
 import styles from './Footer.module.css'
@@ -23,15 +21,11 @@ export const Footer: React.FC = () => {
     const intl = useIntl()
     const privacyPolicyText = intl.formatMessage({ id: 'PrivacyPolicy' })
 
-    const { breakpoints } = useLayoutContext()
-
     const localizedFooterConfig = footerConfig?.[intl?.locale] || null
-
-    const footerClassName = useMemo(() => classnames(styles.footer, (!breakpoints.TABLET_LARGE ? styles.mobileFooter : styles.desktopFooter)), [breakpoints.TABLET_LARGE])
 
     return localizedFooterConfig && (
         <Layout.Footer
-            className={footerClassName}
+            className={styles.footer}
         >
             <Row justify='end'>
                 {

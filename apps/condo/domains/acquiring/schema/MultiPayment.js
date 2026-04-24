@@ -3,11 +3,13 @@
  */
 
 const Big = require('big.js')
-const { compact, get, uniq } = require('lodash')
+const compact = require('lodash/compact')
+const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
+const { getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/MultiPayment')
@@ -35,7 +37,11 @@ const {
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
     MULTIPAYMENT_NOT_UNIQUE_INVOICES,
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
+    MULTIPAYMENT_NON_DONE_PAYMENTS,
+    MULTIPAYMENT_SEVERAL_PAYMENTS,
+    MULTIPAYMENT_INVALID_STATUS,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
@@ -68,6 +74,22 @@ const ERRORS = {
         type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
         message: 'Receipts and invoices are forbidden to be together',
         messageForUser: 'api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN',
+    },
+    MULTIPAYMENT_NON_DONE_PAYMENTS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_NON_DONE_PAYMENTS,
+        message: `MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_DONE_STATUS}" for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
+    },
+
+    MULTIPAYMENT_SEVERAL_PAYMENTS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_SEVERAL_PAYMENTS,
+        message: `MultiPayment cannot be created with several payments for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
+    },
+    MULTIPAYMENT_INVALID_STATUS: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_INVALID_STATUS,
+        message: `MultiPayment cannot be created with status different from "${MULTIPAYMENT_DONE_STATUS}" for acquiring integration with type "${ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE}"`,
     },
 }
 
@@ -158,6 +180,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         payerEmail: {
             schemaDoc: 'Payer email address (optional). Can be used by support to find MultiPayment faster or to send digital receipt',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
         },
 
@@ -179,6 +202,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         meta: {
             schemaDoc: 'Additional acquiring-specific information',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: { read: access.canReadMultiPaymentsSensitiveData },
         },
@@ -217,6 +241,23 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             },
         },
 
+        payerInfo: {
+            schemaDoc: 'Personal information for service account about user, who made this payment',
+            type: 'Virtual',
+            extendGraphQLTypes: ['type PayerInfo { id: ID!, name: String, email: String, phone: String }'],
+            graphQLReturnType: 'PayerInfo',
+            graphQLReturnFragment: '{ id name email phone }',
+            resolver: async (item, _args, _context) => {
+                if (!item?.user) return null
+                const user = await getByCondition('User', { id: item.user, deletedAt: null })
+                if (!user) return null
+                const email = user.isEmailVerified ? user.email : null
+                const phone = user.isPhoneVerified ? user.phone : null
+                return { id: user.id, name: user.name, email, phone }
+            },
+            access: access.canReadPayerInfoField,
+        },
+
         payments: {
             schemaDoc: 'Link to all related payments',
             type: 'Relationship',
@@ -249,13 +290,39 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {
                     id_in: paymentsIds,
+                    deletedAt: null,
                 })
-                const noInitPayments = payments
-                    .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
-                    .map(payment => payment.id)
-                if (noInitPayments.length) {
-                    addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+
+                const externalImportIntegration = await getByCondition('AcquiringIntegration', {
+                    id: resolvedData?.integration,
+                    type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+                    deletedAt: null,
+                })
+                if (externalImportIntegration) {
+                    const mismatchedPayments = payments
+                        .filter(payment => payment.status !== PAYMENT_DONE_STATUS)
+                        .map(payment => payment.id)
+
+                    if (mismatchedPayments.length) {
+                        throw new GQLError(ERRORS.MULTIPAYMENT_NON_DONE_PAYMENTS, context)
+                    }
+
+                    if (payments.length !== 1) {
+                        throw new GQLError(ERRORS.MULTIPAYMENT_SEVERAL_PAYMENTS, context)
+                    }
+
+                    if (resolvedData?.status !== MULTIPAYMENT_DONE_STATUS) {
+                        throw new GQLError(ERRORS.MULTIPAYMENT_INVALID_STATUS, context)
+                    }
+                } else {
+                    const noInitPayments = payments
+                        .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
+                        .map(payment => payment.id)
+                    if (noInitPayments.length) {
+                        addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+                    }
                 }
+
                 const alreadyWithMPPayments = payments
                     .filter(payment => payment.multiPayment)
                     .map(payment => payment.id)
@@ -403,7 +470,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMultiPayments,
         create: access.canManageMultiPayments,

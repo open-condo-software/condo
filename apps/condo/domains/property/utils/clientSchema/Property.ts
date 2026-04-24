@@ -10,7 +10,7 @@ import {
     BuildingMap,
 } from '@app/condo/schema'
 import dayjs from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 

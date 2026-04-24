@@ -4,9 +4,10 @@
 
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
-const { get, isNull } = require('lodash')
+const get = require('lodash/get')
+const isNull = require('lodash/isNull')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -111,7 +112,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadTicketOrganizationSettings,
         create: access.canManageTicketOrganizationSettings,

@@ -1,8 +1,9 @@
 const { Integer } = require('@open-keystone/fields')
 const get = require('lodash/get')
-const { default: Redlock } = require('redlock')
 
+const { castUuidParams } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { KVLocker } = require('@open-condo/keystone/locks')
 
 class AutoIncrementInteger extends Integer.implementation {
 
@@ -67,7 +68,12 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         // NOTE(pahaz): it's really hack! please don't copy this staff in a future! I'll find a better solution for that!
         //  I didn't found a way to use knex subquery for that. Probably, we need to create some DB procedure or use another table with
         //  sequence column. At the moment this code just help us to avoid `duplicate key value violates unique constraint`
-        const rlock = new Redlock([this.redis])
+        const locker = new KVLocker({
+            retryDelay: 1000,
+            retryCount: 30,
+            retryJitter: 1000,
+            lockDuration: 500,  // 0.5 sec
+        })
 
         const scopeParts = Object.keys(scopeWhere).reduce((result, fieldName) => [...result, fieldName, get(scopeWhere, fieldName)], [])
 
@@ -77,12 +83,7 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         const redisLockKey = redisLockKeyParts.filter(Boolean).join(':')
         const redisMaxValueKey = redisMaxValueKeyParts.filter(Boolean).join(':')
 
-        let lock = await rlock.acquire([redisLockKey], 500, {
-            retryDelay: 1000,
-            retryCount: 30,
-            automaticExtensionThreshold: 100,
-            retryJitter: 1000,
-        }) // 0.5 sec
+        let lock = await locker.acquire(redisLockKey)
         try {
             let currentMaxNumber = await this.redis.get(redisMaxValueKey)
             if (!currentMaxNumber) {
@@ -111,10 +112,63 @@ class AutoIncrementIntegerMongooseFieldAdapter extends Integer.adapters.mongoose
     }
 }
 
-// TODO(pahaz): is it working? or just hack?
 class AutoIncrementIntegerPrismaFieldAdapter extends Integer.adapters.prisma {
-    async nextValue () {
-        throw new Error('Is not supported yet!')
+    get redis () {
+        if (!this._redis) this._redis = getKVClient()
+        return this._redis
+    }
+
+    async nextValue (scopeWhere = {}) {
+        const tableName = this.listAdapter.key
+        const fieldName = this.dbPath
+        const prisma = this.listAdapter.parentAdapter.prisma
+        const locker = new KVLocker({
+            retryDelay: 1000,
+            retryCount: 30,
+            retryJitter: 1000,
+            lockDuration: 500,  // 0.5 sec
+        })
+
+        const scopeParts = Object.keys(scopeWhere).reduce((result, fieldName) => [...result, fieldName, get(scopeWhere, fieldName)], [])
+
+        const redisLockKeyParts = ['AutoIncrementInteger', tableName, fieldName, ...scopeParts]
+        const redisMaxValueKeyParts = ['AutoIncrementInteger', tableName, fieldName, 'value', ...scopeParts]
+
+        const redisLockKey = redisLockKeyParts.filter(Boolean).join(':')
+        const redisMaxValueKey = redisMaxValueKeyParts.filter(Boolean).join(':')
+
+        let lock = await locker.acquire(redisLockKey)
+        try {
+            let currentMaxNumber = await this.redis.get(redisMaxValueKey)
+
+            // NOTE: Build WHERE clause from scopeWhere for raw SQL
+            const whereKeys = Object.keys(scopeWhere)
+            let whereClause = ''
+            const params = []
+            if (whereKeys.length > 0) {
+                const conditions = whereKeys.map((key, idx) => {
+                    params.push(scopeWhere[key])
+                    return `"${key}" = $${idx + 1}`
+                })
+                whereClause = `WHERE ${conditions.join(' AND ')}`
+            }
+
+            const maxQuery = `SELECT MAX("${fieldName}") as max FROM "${tableName}" ${whereClause}`
+            const [{ max }] = await prisma.$queryRawUnsafe(castUuidParams(maxQuery, params), ...params)
+
+            if (!currentMaxNumber) {
+                currentMaxNumber = max
+            } else {
+                if (max > currentMaxNumber) {
+                    currentMaxNumber = max
+                }
+            }
+            currentMaxNumber = parseInt(currentMaxNumber || 0)
+            await this.redis.set(redisMaxValueKey, currentMaxNumber + 1)
+            return currentMaxNumber + 1
+        } finally {
+            await lock.release()
+        }
     }
 }
 

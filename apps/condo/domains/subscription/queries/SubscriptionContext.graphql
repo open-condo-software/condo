@@ -1,0 +1,239 @@
+query getOrganizationActivatedSubscriptions($organizationId: ID!) {
+    activatedSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            status: DONE
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+            priority
+        }
+        isTrial
+        startAt
+        endAt
+        bindingId
+        invoice {
+            id
+            toPay
+        }
+        frozenPaymentInfo {
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
+    }
+}
+
+query getOrganizationTrialSubscriptions($organizationId: ID!) {
+    trialSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            isTrial: true
+            status: DONE
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+        }
+        isTrial
+        startAt
+        daysRemaining
+        endAt
+        createdAt
+        bindingId
+        frozenPaymentInfo {
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
+    }
+}
+
+query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
+    lastExpiredContext: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            endAt_lte: $now
+            status: DONE
+        }
+        sortBy: [endAt_DESC]
+        first: 1
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+        }
+        isTrial
+        startAt
+        endAt
+        bindingId
+        frozenPaymentInfo {
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
+    }
+}
+
+query getSubscriptionContextById($id: ID!) {
+    subscriptionContext: SubscriptionContext(where: { id: $id }) {
+        id
+        subscriptionPlan {
+            id
+            name
+            priority
+            canBePromoted
+            trialDays
+        }
+        invoice {
+            id
+            toPay
+        }
+        isTrial
+        createdAt
+        startAt
+        endAt
+        daysRemaining
+        bindingId
+        frozenPaymentInfo {
+            paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }
+            invoice { id rows { name count price toPay } toPay }
+            pricingRuleId
+        }
+    }
+}
+
+query getOrganizationSubscriptionContextsWithPaymentMethods($organizationId: ID!) {
+    subscriptionContexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            bindingId_not: null
+            isTrial: false
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        bindingId
+        startAt
+        endAt
+        status
+        isTrial
+        createdAt
+        subscriptionPlan {
+            id
+            name
+            planType
+        }
+        subscriptionPlanPricingRule {
+            id
+            price
+            currencyCode
+        }
+        frozenPaymentInfo {
+            paymentMethod {
+                bindingId
+                paymentSystem
+                cardNumber
+                expiration
+                bankName
+                bankCountryCode
+            }
+        }
+    }
+}
+
+query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: Int) {
+    paymentHistory: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            invoice_is_null: false
+            status: DONE
+        }
+        sortBy: [createdAt_DESC]
+        skip: $offset
+        first: $first
+    ) {
+        id
+        createdAt
+        subscriptionPlan {
+            id
+            name
+            planType
+            enabledB2BApps
+            enabledB2CApps
+        }
+        frozenPaymentInfo {
+            paymentMethod {
+                paymentSystem
+                cardNumber
+            }
+            invoice {
+                toPay
+                currencyCode
+            }
+            multiPaymentId
+        }
+    }
+    meta: _allSubscriptionContextsMeta(
+        where: {
+            organization: { id: $organizationId }
+            invoice_is_null: false
+            status: DONE
+        }
+    ) {
+        count
+    }
+}
+
+query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
+    contexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            subscriptionPlan: { id: $planId }
+            bindingId_not: null
+            status: DONE
+            isTrial: false
+        }
+        sortBy: [createdAt_DESC]
+        first: 1
+    ) {
+        id
+        createdAt
+    }
+}
+
+query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
+    lastFailedContext: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            subscriptionPlan: { id: $subscriptionPlanId }
+            bindingId_not: null
+            status_in: [ERROR, PENDING]
+            isTrial: false
+        }
+        sortBy: [createdAt_DESC]
+        first: 1
+    ) {
+        id
+        status
+        bindingId
+        createdAt
+    }
+}
+
+mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
+    result: updateSubscriptionContextPaymentMethod(data: $data) {
+        id
+    }
+}

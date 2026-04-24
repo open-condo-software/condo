@@ -14,10 +14,14 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
+    expectToThrowGraphQLRequestError,
     UploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
 const { INVALID_MIMETYPE } = require('@dev-portal-api/domains/common/constants/errors')
+const { B2C_APP_CORDOVA_TYPE, B2C_APP_WEB_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getEnvironmentalFieldName } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
 const {
     B2CApp,
     createTestB2CApp,
@@ -221,6 +225,79 @@ describe('B2CApp', () => {
                     code: 'BAD_USER_INPUT',
                     type: INVALID_MIMETYPE,
                     message: 'Attached file have invalid mimetype',
+                })
+            })
+        })
+    })
+    describe('Field access tests', () => {
+        let actors = {
+            admin: null,
+            support: null,
+            user: null,
+            anotherUser: null,
+        }
+        beforeAll(() => {
+            actors = {
+                admin,
+                support,
+                user,
+                anotherUser,
+            }
+        })
+        describe('type field', () => {
+            let app
+            beforeAll(async () => {
+                [app] = await createTestB2CApp(user, { type: B2C_APP_CORDOVA_TYPE })
+            })
+            test('Can be changed after app creation by admin', async () => {
+                const [updatedApp] = await updateTestB2CApp(admin, app.id, { type: B2C_APP_WEB_TYPE })
+                expect(updatedApp).toHaveProperty('type', B2C_APP_WEB_TYPE)
+
+                const [revertedApp] = await updateTestB2CApp(admin, app.id, { type: B2C_APP_CORDOVA_TYPE })
+                expect(revertedApp).toHaveProperty('type', B2C_APP_CORDOVA_TYPE)
+            })
+            test('Can be changed after app creation by support', async () => {
+                const [updatedApp] = await updateTestB2CApp(support, app.id, { type: B2C_APP_WEB_TYPE })
+                expect(updatedApp).toHaveProperty('type', B2C_APP_WEB_TYPE)
+
+                const [revertedApp] = await updateTestB2CApp(support, app.id, { type: B2C_APP_CORDOVA_TYPE })
+                expect(revertedApp).toHaveProperty('type', B2C_APP_CORDOVA_TYPE)
+            })
+            test('Cannot be changed after app creation by app owner', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestB2CApp(user, app.id, { type: B2C_APP_WEB_TYPE })
+                })
+            })
+            test('Cannot be changed after app creation by other user', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestB2CApp(anotherUser, app.id, { type: B2C_APP_WEB_TYPE })
+                })
+            })
+        })
+        describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
+            const fieldName = getEnvironmentalFieldName(environment, 'publishedAt')
+            describe(`${fieldName} field`, () => {
+                describe('Cannot be manually set on creation',  () => {
+                    test.each(Object.keys(actors))('By %p', async (actorName) => {
+                        const actor = actors[actorName]
+
+                        await expectToThrowGraphQLRequestError(async () => {
+                            await createTestB2CApp(actor, { [fieldName]: dayjs().toISOString() })
+                        }, `Field "${fieldName}" is not defined by type "B2CAppCreateInput"`)
+                    })
+                })
+                describe('Cannot be manually set on update',  () => {
+                    let app
+                    beforeAll(async () => {
+                        [app] = await createTestB2CApp(user)
+                    })
+                    test.each(Object.keys(actors))('By %p', async (actorName) => {
+                        const actor = actors[actorName]
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestB2CApp(actor, app.id, { [fieldName]: dayjs().toISOString() })
+                        })
+                    })
                 })
             })
         })

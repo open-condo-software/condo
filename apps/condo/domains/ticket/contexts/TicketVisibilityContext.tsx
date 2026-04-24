@@ -4,15 +4,18 @@ import {
     useGetPropertyScopeOrganizationEmployeesQuery,
     useGetPropertyScopesQuery,
     useGetPropertyScopePropertiesQuery,
+    GetTicketObserversByTicketIdQuery,
 } from '@app/condo/gql'
 import { TicketWhereInput } from '@app/condo/schema'
 import { createContext, useCallback, useContext, useMemo } from 'react'
 import React from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import {
     ORGANIZATION_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
@@ -24,7 +27,7 @@ import {
 interface ITicketVisibilityContext {
     ticketFilterQuery: TicketWhereInput
     ticketFilterQueryLoading: boolean
-    canEmployeeReadTicket: (ticket: GetTicketByIdQueryResult['data']['tickets'][0]) => boolean
+    canEmployeeReadTicket: (ticket: GetTicketByIdQueryResult['data']['tickets'][0], observers: GetTicketObserversByTicketIdQuery['observers']) => boolean
 }
 
 const TicketVisibilityContext = createContext<ITicketVisibilityContext>(null)
@@ -39,12 +42,14 @@ const getTicketsQueryByTicketVisibilityType = ({
     properties,
     propertyScopes,
     employee,
+    isTicketObserversEnabled,
 }) => {
     const assignedTicketFiltersQuery = {
         OR: [
             {
                 assignee: { id: userId },
                 executor: { id: userId },
+                ...(isTicketObserversEnabled ? { observers_some: { user: { id: userId } } } : {}),
             },
         ],
     }
@@ -144,8 +149,11 @@ const isEmployeeCanReadTicket = ({
     properties,
     propertyScopes,
     employee,
+    observers,
+    isTicketObserversEnabled,
 }) => {
     const isUserIsTicketAssigneeOrExecutor = ticket?.assignee?.id === userId || ticket?.executor?.id === userId
+    const isUserIsTicketObserver = isTicketObserversEnabled && Array.isArray(observers) ? (observers.some(observer => observer?.user?.id === userId)) : false
     const isEmployeeOrganizationMatchToTicketOrganization = ticket?.organization?.id === organizationId
     const isTicketPropertyInPropertyScopes = !!properties.find(propertyId => propertyId === ticket?.property?.id)
     const isTicketClassifierInSpecializations = !!specializations.find(specId => specId === ticket?.classifier?.category?.id)
@@ -163,7 +171,7 @@ const isEmployeeCanReadTicket = ({
             }
 
             return isEmployeeOrganizationMatchToTicketOrganization && (
-                isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
+                isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver
             )
         }
         case PROPERTY_AND_SPECIALIZATION_VISIBILITY: {
@@ -173,23 +181,23 @@ const isEmployeeCanReadTicket = ({
 
             if (isEmployeeInPropertyScopeWithAllProperties) {
                 return isEmployeeOrganizationMatchToTicketOrganization && (
-                    isUserIsTicketAssigneeOrExecutor || isTicketClassifierInSpecializations
+                    isUserIsTicketAssigneeOrExecutor || isTicketClassifierInSpecializations || isUserIsTicketObserver
                 )
             }
             if (isEmployeeHasAllSpecializations) {
                 return isEmployeeOrganizationMatchToTicketOrganization && ticket?.classifier && (
-                    isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
+                    isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver
                 )
             }
 
             return isEmployeeOrganizationMatchToTicketOrganization && (
-                isUserIsTicketAssigneeOrExecutor || (
+                isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver ||  (
                     isTicketPropertyInPropertyScopes && isTicketClassifierInSpecializations
                 )
             )
         }
         case ASSIGNED_TICKET_VISIBILITY: {
-            return isEmployeeOrganizationMatchToTicketOrganization && isUserIsTicketAssigneeOrExecutor
+            return isEmployeeOrganizationMatchToTicketOrganization && (isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver)
         }
 
         default: {
@@ -199,7 +207,7 @@ const isEmployeeCanReadTicket = ({
 }
 
 const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading: userIsLoading, isAuthenticated } = useAuth()
     const userId = user?.id || null
 
     const { isLoading: userOrganizationLoading, organization: userOrganization, employee } = useOrganization()
@@ -209,11 +217,14 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
 
     const { persistor } = useCachePersistor()
 
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
+
     const { data: propertyScopeEmployeesData, loading: employeesLoading } = useGetPropertyScopeOrganizationEmployeesQuery({
         variables: {
             employeeId,
         },
-        skip: !employeeId || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || !employeeId || !persistor,
     })
     const propertyScopeEmployees = useMemo(() =>
         propertyScopeEmployeesData?.propertyScopeOrganizationEmployees.filter(Boolean) || [],
@@ -228,7 +239,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
             organizationId,
             propertyScopeIds,
         },
-        skip: !organizationId || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || !organizationId || !persistor,
     })
     const propertyScopes = useMemo(() =>
         propertyScopesData?.propertyScope.filter(Boolean) || [],
@@ -238,7 +249,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         variables: {
             propertyScopeIds: propertyScopes.map(scope => scope.id),
         },
-        skip: propertyScopes.length === 0 || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || propertyScopes.length === 0 || !persistor,
     })
     const propertyScopeProperties = useMemo(() =>
         propertyScopePropertiesData?.propertyScopeProperty.filter(Boolean) || [],
@@ -248,7 +259,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         variables: {
             employeeId,
         },
-        skip: !employeeId || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || !employeeId || !persistor,
     })
     const employeeSpecializations = useMemo(() =>
         organizationEmployeeSpecializationsData?.organizationEmployeeSpecializations.filter(Boolean) || [],
@@ -269,12 +280,13 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         properties,
         propertyScopes,
         employee,
+        isTicketObserversEnabled,
     })
 
-    const ticketFilterQueryLoading = isLoading || userOrganizationLoading || employeesLoading ||
+    const ticketFilterQueryLoading = userIsLoading || userOrganizationLoading || employeesLoading ||
         propertyScopeLoading || propertiesLoading || specializationsLoading
 
-    const canEmployeeReadTicket = useCallback((ticket) => isEmployeeCanReadTicket({
+    const canEmployeeReadTicket = useCallback((ticket, observers) => isEmployeeCanReadTicket({
         ticket,
         ticketVisibilityType,
         organizationId,
@@ -283,7 +295,9 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         properties,
         propertyScopes,
         employee,
-    }), [employee, organizationId, properties, propertyScopes, specializations, ticketVisibilityType, userId])
+        observers,
+        isTicketObserversEnabled,
+    }), [employee, organizationId, properties, propertyScopes, specializations, ticketVisibilityType, userId, isTicketObserversEnabled])
 
     return (
         <TicketVisibilityContext.Provider value={{

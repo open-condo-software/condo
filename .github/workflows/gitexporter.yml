@@ -38,6 +38,13 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           path: ignore.gitexporter.target
           ref: 'main'
+      - name: Force set repo format version to 0
+        run: |
+          for R in ignore.gitexporter.source ignore.gitexporter.target; do
+            echo "Before fix: $(git -C "$R" config --get core.repositoryformatversion)"
+            git -C "$R" config core.repositoryformatversion 0
+            echo "Now: $(git -C "$R" config --get core.repositoryformatversion)"
+          done
       - name: gitexporter.sh
         run: |
           bash .github/workflows/gitexporter.sh ignore.gitexporter.source ignore.gitexporter.target

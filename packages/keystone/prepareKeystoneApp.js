@@ -1,5 +1,6 @@
 const debug = require('debug')('@open-condo/keystone/prepareKeystoneApp')
 const express = require('express')
+const proxyaddr = require('proxy-addr')
 
 const conf = require('@open-condo/config')
 const { getRequestIp } = require('@open-condo/miniapp-utils/helpers/proxying')
@@ -46,6 +47,17 @@ async function prepareKeystoneExpressApp (entryPoint, { excludeApps } = {}) {
             })
 
             return getRequestIp(modifiedReq, trustProxyFn, knownProxies)
+        },
+    })
+
+    // NOTE: original express implementation https://github.com/expressjs/express/blob/4.x/lib/request.js#L350
+    Object.defineProperty(app.request, 'originalIp', {
+        enumerable: true,
+        configurable: true,
+        get () {
+            const trustProxyFn = this.app.get('trust proxy fn')
+
+            return proxyaddr(this, trustProxyFn)
         },
     })
 

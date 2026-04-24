@@ -5,6 +5,20 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+function randomizeCase (str) {
+    return str.split('').map(char => {
+        return Math.random() > 0.5 ? char.toUpperCase() : char.toLowerCase()
+    }).join('')
+}
+
+function filterPropertiesBySearch (properties, search) {
+    const searchLower = search.toLowerCase()
+    return properties.filter(prop => {
+        const addressLower = prop.address.toLowerCase()
+        return addressLower.includes(searchLower)
+    })
+}
+
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 const {
@@ -243,6 +257,68 @@ describe('AllB2CAppPropertiesService', () => {
             expect(secondProdResult.objs).toHaveLength(15)
             const totalProdResult = firstProdResult.objs.concat(secondProdResult.objs)
             expect(totalProdResult).toEqual(expect.arrayContaining(prodProperties))
+        })
+
+        describe('Search functionality', () => {
+            test('Without search parameter everything is returned', async () => {
+                const [devResult] = await allB2CAppPropertiesByTestClient(user, app, DEV_ENVIRONMENT)
+                expect(devResult).toHaveProperty(['meta', 'count'], 35)
+                expect(devResult.objs).toHaveLength(35)
+
+                const [prodResult] = await allB2CAppPropertiesByTestClient(user, app, PROD_ENVIRONMENT)
+                expect(prodResult).toHaveProperty(['meta', 'count'], 35)
+                expect(prodResult.objs).toHaveLength(35)
+            })
+
+            test('Full search by address case insensitive', async () => {
+                const randomIndex = Math.floor(Math.random() * devProperties.length)
+                const targetProperty = devProperties[randomIndex]
+                const searchAddress = targetProperty.address
+                expect(searchAddress).toBeDefined()
+                expect(searchAddress.length).toBeGreaterThanOrEqual(4)
+
+                const randomCaseAddress = randomizeCase(searchAddress)
+                const expectedProperties = filterPropertiesBySearch(devProperties, searchAddress)
+
+                const [result] = await allB2CAppPropertiesByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: randomCaseAddress,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], expectedProperties.length)
+                expect(result.objs).toHaveLength(expectedProperties.length)
+                expect(result.objs).toEqual(expect.arrayContaining(expectedProperties))
+            })
+
+            test('Search by substring of address case insensitive', async () => {
+                const randomIndex = Math.floor(Math.random() * devProperties.length)
+                const targetProperty = devProperties[randomIndex]
+                const fullAddress = targetProperty.address
+                expect(fullAddress).toBeDefined()
+                expect(fullAddress.length).toBeGreaterThanOrEqual(4)
+
+                const substringAddress = fullAddress.substring(1, 5)
+                const randomCaseSubstring = randomizeCase(substringAddress)
+                const expectedProperties = filterPropertiesBySearch(devProperties, substringAddress)
+
+                const [result] = await allB2CAppPropertiesByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: randomCaseSubstring,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], expectedProperties.length)
+                expect(result.objs).toHaveLength(expectedProperties.length)
+                expect(result.objs).toEqual(expect.arrayContaining(expectedProperties))
+            })
+
+            test('Search returns empty result when no matches found', async () => {
+                const nonExistentSearch = 'NONEXISTENT123456789'
+
+                const [result] = await allB2CAppPropertiesByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: nonExistentSearch,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], 0)
+                expect(result.objs).toHaveLength(0)
+            })
         })
     })
 })

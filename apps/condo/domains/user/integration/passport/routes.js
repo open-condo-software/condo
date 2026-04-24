@@ -13,6 +13,13 @@ const { passportConfigSchema } = require('./utils/config')
 const { checkAuthRateLimits } = require('./utils/routes')
 const { captureUserType, ensureUserType } = require('./utils/user')
 
+const authInfoSchema = z.object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+    provider: z.string(),
+    clientID: z.string(),
+}).partial()
+
 /** @type PassportAuthRouter */
 let _globalRouter = null
 
@@ -81,14 +88,24 @@ class PassportAuthRouter {
         async function onAuthSuccess (req, res, next) {
             const user = req.user
 
-            if (!user || !user.id) {
+            if (!user || !user.id || typeof user.id !== 'string') {
                 return next(new GQLError(ERRORS.AUTHORIZATION_FAILED, { req }))
+            }
+
+            const { success: isValidAuthInfo, data: authInfo, error: authInfoError } = authInfoSchema.safeParse(req.authInfo || {})
+            if (!isValidAuthInfo) {
+                return next(new GQLError(ERRORS.INVALID_AUTH_INFO, { req }, [authInfoError]))
             }
 
             try {
                 await keystone._sessionManager.startAuthedSession(req, {
                     item: { id: user.id },
                     list: keystone.lists['User'],
+                    meta: {
+                        source: 'passport',
+                        provider: authInfo.provider || req.params.provider,
+                        clientID: authInfo.clientID,
+                    },
                 })
 
                 return res.redirect('/')

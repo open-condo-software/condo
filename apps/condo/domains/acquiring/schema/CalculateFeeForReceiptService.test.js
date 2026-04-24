@@ -9,6 +9,7 @@ const { expectToThrowGQLError, expectToThrowGQLErrorToResult } = require('@open-
 
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const { calculateFeeForReceiptByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
+const { HOUSING_CATEGORY_ID, ELECTRICITY_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 describe('CalculateFeeForReceiptService', () => {
@@ -46,7 +47,87 @@ describe('CalculateFeeForReceiptService', () => {
             expect(result.explicitFee).toBe('0')
             expect(result.explicitServiceCharge).toBe('0')
         })
+
+        describe('Implicit fee calculation with categories', () => {
+            const AMOUNT = '1000'
+
+            test.each([
+                {
+                    name: 'uses "commission" recipient for service charge',
+                    schema: [
+                        { recipient: 'acquiring', percent: '0', category: HOUSING_CATEGORY_ID },
+                        { recipient: 'commission', percent: '0.5', category: HOUSING_CATEGORY_ID },
+                    ],
+                    receiptCategory: HOUSING_CATEGORY_ID,
+                    amount: AMOUNT,
+                    expectedExplicitFee: '5',
+                },
+                {
+                    name: 'uses "service" recipient for service charge',
+                    schema: [
+                        { recipient: 'acquiring', percent: '0', category: HOUSING_CATEGORY_ID },
+                        { recipient: 'service', percent: '0.5', category: HOUSING_CATEGORY_ID },
+                    ],
+                    receiptCategory: HOUSING_CATEGORY_ID,
+                    amount: AMOUNT,
+                    expectedServiceCharge: '5',
+                },
+                {
+                    name: 'falls back to default service charge when no schema matches',
+                    schema: null,
+                    receiptCategory: HOUSING_CATEGORY_ID,
+                    amount: AMOUNT,
+                    expectedServiceCharge: '12',
+                },
+                {
+                    name: 'applies category-specific overrides and falls back correctly',
+                    schema: [
+                        { recipient: 'acquiring', percent: '0.3', category: HOUSING_CATEGORY_ID },
+                        { recipient: 'service', percent: '0.2', category: HOUSING_CATEGORY_ID },
+                    ],
+                    receiptCategory: ELECTRICITY_CATEGORY_ID,
+                    amount: AMOUNT,
+                    expectedServiceCharge: '12',
+                },
+                {
+                    name: 'applies category-specific overrides',
+                    schema: [
+                        { recipient: 'acquiring', percent: '0.4', category: ELECTRICITY_CATEGORY_ID },
+                        { recipient: 'service', percent: '0.5', category: ELECTRICITY_CATEGORY_ID },
+                        { recipient: 'organization', percent: '0.9', category: ELECTRICITY_CATEGORY_ID },
+                    ],
+                    receiptCategory: ELECTRICITY_CATEGORY_ID,
+                    amount: AMOUNT,
+                },
+            ])('$name', async ({
+                schema,
+                receiptCategory,
+                amount,
+                expectedServiceCharge,
+                expectedExplicitFee,
+            }) => {
+                if (schema) {
+                    await utils.updateAcquiringContext({ implicitFeeDistributionSchema: schema })
+                } else {
+                    await utils.updateAcquiringContext({ implicitFeeDistributionSchema: [] })
+                }
+
+                const [[receipt]] = await utils.createReceipts([
+                    utils.createJSONReceipt({ category: { id: receiptCategory } }),
+                ])
+
+                const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, {
+                    receipt: { id: receipt.id },
+                    amount,
+                })
+
+                expect(result.amountWithoutExplicitFee).toBe(amount)
+                expect(result.explicitFee).toBe(expectedExplicitFee || '0')
+                expect(result.explicitServiceCharge).toBe(expectedServiceCharge || '0')
+            })
+        })
     })
+
     describe('Check receipt', () => {
         test('Receipt must exist', async () => {
             const missingReceiptId = faker.datatype.uuid()

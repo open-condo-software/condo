@@ -202,7 +202,7 @@ async function getAppServerUrl (appName) {
     return await getAppEnvValue(appName, 'SERVER_URL')
 }
 
-async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedirectUrl } = {}) {
+async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedirectUrl, useNativeApplicationType = true } = {}) {
     const clientSecret = getRandomString(20)
     const clientId = appName
     const serverUrl = await getAppServerUrl('condo')
@@ -211,15 +211,24 @@ async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedi
     if (postLogoutRedirectUrl) {
         command += ` ${postLogoutRedirectUrl}`
     }
+    if (useNativeApplicationType) {
+        command += ' --native-application-type'
+    }
     await safeExec(command)
     return { serverUrl, clientId, clientSecret }
 }
 
-async function prepareCondoAppB2BAppConfig (appName, b2bAppName, withLaunchRoute) {
+async function prepareCondoAppB2BAppConfig (appName, b2bAppName, options = {}) {
+    const {
+        withLaunchRoute = false,
+        serviceUserEmail = null,
+        serviceUserAccessRightSetData = null,
+    } = options
     let appUrl = await getAppServerUrl(appName)
     appUrl = withLaunchRoute ? (appUrl + '/launch') : appUrl
     const opts = JSON.stringify({ appUrl, displayPriority: 2 })
-    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${b2bAppName} ${JSON.stringify(opts)} ${appName}`)
+    const accessRight = JSON.stringify({ serviceUserEmail, serviceUserAccessRightSetData })
+    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${b2bAppName} ${JSON.stringify(opts)} ${appName} ${JSON.stringify(accessRight)}`)
     return { appUrl }
 }
 
@@ -346,6 +355,25 @@ async function getAllActualApps () {
     })
 }
 
+async function registerAppProxy (appName, proxyName) {
+    const currentValue = await getAppEnvValue(appName, 'TRUSTED_PROXIES_CONFIG') || '{}'
+    const currentProxies = JSON.parse(currentValue)
+    if (!currentProxies.hasOwnProperty(proxyName)) {
+        const secret = getRandomString(32)
+
+        currentProxies[proxyName] = {
+            address: '::1',
+            secret,
+        }
+
+        await updateAppEnvFile(appName, 'TRUSTED_PROXIES_CONFIG', JSON.stringify(currentProxies))
+
+        return { proxySecret: secret, proxyId: proxyName }
+    }
+
+    return { proxySecret: currentProxies[proxyName].secret, proxyId: proxyName }
+}
+
 module.exports = {
     getRandomString,
     safeExec,
@@ -365,4 +393,5 @@ module.exports = {
     copyEnv,
     fillAppEnvWithDefaultValues,
     fillGlobalEnvWithDefaultValues,
+    registerAppProxy,
 }

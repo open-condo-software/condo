@@ -7,13 +7,16 @@ import {
     useGetTicketCommentsQuery,
     useGetTicketLastCommentsTimeQuery, useGetUserTicketCommentsReadTimeQuery,
     useUpdateTicketCommentMutation,
+    useUpdateTicketMutation,
     useCreateUserTicketCommentReadTimeMutation,
     useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery, GetIncidentsQuery,
+    useGetTicketObserversByTicketIdQuery,
 } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
-import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
+import { Affix, Col, ColProps, notification, Row, RowProps, Space } from 'antd'
 import dayjs from 'dayjs'
 import compact from 'lodash/compact'
+import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
@@ -24,11 +27,17 @@ import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { Link as LinkIcon } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Alert, Button } from '@open-condo/ui'
+import {
+    ActionBar,
+    Alert,
+    Button,
+    Typography,
+} from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
@@ -63,6 +72,7 @@ import { TicketDetailsField } from '@condo/domains/ticket/components/TicketId/Ti
 import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/TicketExecutorField'
 import { TicketFeedbackFields } from '@condo/domains/ticket/components/TicketId/TicketFeedbackFields'
 import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
+import { TicketObserversField } from '@condo/domains/ticket/components/TicketId/TicketObserversField'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import { TicketQualityControlFields } from '@condo/domains/ticket/components/TicketId/TicketQualityControlFields'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
@@ -80,7 +90,8 @@ import {
 } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
-import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
+import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedTickets'
+import { hasTicketChangeDiff, useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketDocumentGenerationTask } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
@@ -93,6 +104,8 @@ import {
 import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
+import styles from './index.module.css'
 
 
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -109,6 +122,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
     const PayableMessage = intl.formatMessage({ id: 'Payable' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
     const ChangedMessage = intl.formatMessage({ id: 'Changed' })
     const TimeHasPassedMessage = intl.formatMessage({ id: 'TimeHasPassed' })
     const DaysShortMessage = intl.formatMessage({ id: 'DaysShort' })
@@ -130,6 +144,9 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
 
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket, 'canReadByResident'), [ticket])
+
+    const { isSupervisedTicketSource } = useSupervisedTickets()
+    const isSupervised = useMemo(() => isSupervisedTicketSource(ticket?.source?.id), [ticket, isSupervisedTicketSource])
 
     const createdBy = useMemo(() => get(ticket, ['createdBy']), [ticket])
     const formattedStatusUpdatedAt = useMemo(() => dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm'), [statusUpdatedAt])
@@ -170,8 +187,9 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                         <Col xl={13} md={11} xs={24}>
                             <Row gutter={SMALL_VERTICAL_GUTTER} align='middle'>
                                 <Col span={breakpoints.TABLET_LARGE ? 24 : 22}>
-                                    <Typography.Title style={TITLE_STYLE}
-                                        level={1}>{TicketTitleMessage}</Typography.Title>
+                                    <Typography.Title level={1}>
+                                        {TicketTitleMessage}
+                                    </Typography.Title>
                                 </Col>
                                 {
                                     !breakpoints.TABLET_LARGE && (
@@ -185,29 +203,31 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                 <Col id='ticket__create-info' span={24}>
                                     <Row>
                                         <Col span={24}>
-                                            <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}
-                                                    type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                                <UserNameField user={createdBy}>
-                                                    {({ name, postfix }) => (
-                                                        <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                            {name}
-                                                            {postfix && <Typography.Text type='secondary'
-                                                                ellipsis>&nbsp;{postfix}</Typography.Text>}
-                                                        </Typography.Text>
-                                                    )}
-                                                </UserNameField>
+                                            <Typography.Text type='secondary' size='small'>
+                                                {TicketCreationDate}, {TicketAuthorMessage}{' '}
                                             </Typography.Text>
+                                            <UserNameField user={createdBy}>
+                                                {({ name, postfix }) => (
+                                                    <Typography.Text size='small'>
+                                                        {name}
+                                                        {postfix && (
+                                                            <Typography.Text type='secondary' size='small'>
+                                                                &nbsp;{postfix}
+                                                            </Typography.Text>
+                                                        )}
+                                                    </Typography.Text>
+                                                )}
+                                            </UserNameField>
                                         </Col>
                                         <Col span={24}>
-                                            <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                            <Typography.Text type='secondary' size='small'>
                                                 {SourceMessage} — {sourceName}
                                             </Typography.Text>
                                         </Col>
                                         <Col span={24}>
                                             {
                                                 !isResidentTicket && !canReadByResident && (
-                                                    <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                    <Typography.Text type='secondary' size='small'>
                                                         <FormattedMessage
                                                             id='pages.condo.ticket.title.CanReadByResident'
                                                             values={canReadByResidentFormattedValue}
@@ -244,14 +264,19 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         </Col>
                                         {
                                             statusUpdatedAt && (
-                                                <Col>
-                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
-                                                        {ChangedMessage}: {formattedStatusUpdatedAt}
-                                                    </Typography.Paragraph>
-                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}
-                                                        type='secondary'>
-                                                        {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                    </Typography.Paragraph>
+                                                <Col id='ticket__update-info'>
+                                                    <Row justify='end'>
+                                                        <Col offset={4}>
+                                                            <Typography.Text size='small'>
+                                                                {ChangedMessage}: {formattedStatusUpdatedAt}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col>
+                                                            <Typography.Text type='secondary' size='small'>
+                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             )
                                         }
@@ -269,14 +294,19 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         </Col>
                                         {
                                             statusUpdatedAt && (
-                                                <Col>
-                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
-                                                        {ChangedMessage}: {formattedStatusUpdatedAt}
-                                                    </Typography.Paragraph>
-                                                    <Typography.Paragraph style={TICKET_CREATE_INFO_TEXT_STYLE}
-                                                        type='secondary'>
-                                                        {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                    </Typography.Paragraph>
+                                                <Col id='ticket__update-info'>
+                                                    <Row justify='end'>
+                                                        <Col offset={4}>
+                                                            <Typography.Text size='small'>
+                                                                {ChangedMessage}: {formattedStatusUpdatedAt}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col>
+                                                            <Typography.Text type='secondary' size='small'>
+                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             )
                                         }
@@ -289,35 +319,34 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                 <Col span={24}>
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
                         <Col span={!breakpoints.TABLET_LARGE && 24}
-                            hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
+                            hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0 && !isSupervised}>
                             <Space id='ticket__field-status' direction='horizontal'>
                                 {isEmergency && (
-                                    <TicketTag
-                                        style={TICKET_TYPE_TAG_STYLE.emergency}
-                                    >
+                                    <TicketTag style={TICKET_TYPE_TAG_STYLE.emergency}>
                                         {EmergencyMessage}
                                     </TicketTag>
                                 )}
                                 {isPayable && (
-                                    <TicketTag
-                                        style={TICKET_TYPE_TAG_STYLE.payable}
-                                    >
+                                    <TicketTag style={TICKET_TYPE_TAG_STYLE.payable}>
                                         {PayableMessage}
                                     </TicketTag>
                                 )}
                                 {isWarranty && (
-                                    <TicketTag
-                                        style={TICKET_TYPE_TAG_STYLE.warranty}
-                                    >
+                                    <TicketTag style={TICKET_TYPE_TAG_STYLE.warranty}>
                                         {WarrantyMessage}
                                     </TicketTag>
                                 )}
                                 {
                                     statusReopenedCounter > 0 && (
-                                        <TicketTag
-                                            style={TICKET_TYPE_TAG_STYLE.returned}
-                                        >
+                                        <TicketTag style={TICKET_TYPE_TAG_STYLE.returned}>
                                             {ReturnedMessage} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                        </TicketTag>
+                                    )
+                                }
+                                {
+                                    isSupervised && (
+                                        <TicketTag style={TICKET_TYPE_TAG_STYLE.supervised}>
+                                            {SupervisedTicketMessage}
                                         </TicketTag>
                                     )
                                 }
@@ -333,7 +362,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
     )
 }
 
-const TicketContent = ({ ticket }) => {
+const TicketContent = ({ ticket, ticketDetails, updateTicketDetails }) => {
     return (
         <Col span={24}>
             <Row gutter={[0, 16]}>
@@ -342,11 +371,12 @@ const TicketContent = ({ ticket }) => {
                 <TicketDeadlineField ticket={ticket}/>
                 <TicketPropertyField ticket={ticket}/>
                 <TicketClientField ticket={ticket}/>
-                <TicketDetailsField ticket={ticket}/>
+                <TicketDetailsField ticketDetails={ticketDetails} updateTicketDetails={updateTicketDetails}/>
                 <TicketFileListField ticket={ticket}/>
                 <TicketClassifierField ticket={ticket}/>
                 <TicketExecutorField ticket={ticket}/>
                 <TicketAssigneeField ticket={ticket}/>
+                <TicketObserversField ticket={ticket}/>
             </Row>
         </Col>
     )
@@ -438,6 +468,7 @@ const TicketActionBar = ({
                             disabled={disabledEditTicketButton}
                             type='primary'
                             data-cy='ticket__update-link'
+                            block
                         >
                             {UpdateMessage}
                         </Button>
@@ -470,10 +501,6 @@ const TicketActionBar = ({
     )
 }
 
-const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
-const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
-const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
-const TITLE_STYLE: CSSProperties = { margin: 0 }
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CopyMessageStyle: CSSProperties = { flexShrink: 1, whiteSpace: 'nowrap' }
 
@@ -543,17 +570,54 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
     )
 }
 
+const DEFAULT_DAYS_TO_ESCALATION_DEADLINE = 3
+
 export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
+    const EscalatedTicketAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.title' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+    })
+    const EscalatedTicketAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.description' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+        days: DEFAULT_DAYS_TO_ESCALATION_DEADLINE,
+    })
+    const TicketEscalationWarningAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.TicketEscalationWarning.description' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+        days: DEFAULT_DAYS_TO_ESCALATION_DEADLINE,
+    })
 
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
     const { persistor } = useCachePersistor()
 
     const id = useMemo(() => ticket?.id, [ticket?.id])
+
+    const { isSupervisedTicketSource, shouldShowTicketEscalationWarning, calculateDeadlineToEscalationTicket } = useSupervisedTickets()
+    const isSupervised = useMemo(() => isSupervisedTicketSource(ticket?.source?.id), [ticket, isSupervisedTicketSource])
+    const [showTicketEscalationWarning, setShowTicketEscalationWarning] = useState<boolean>(false)
+    useEffect(() => {
+        shouldShowTicketEscalationWarning(ticket).then((res) => setShowTicketEscalationWarning(res))
+    }, [ticket, shouldShowTicketEscalationWarning])
+    const deadlineToEscalationTicket = useMemo(() => {
+        const deadlineToEscalation = calculateDeadlineToEscalationTicket(ticket, DEFAULT_DAYS_TO_ESCALATION_DEADLINE)
+        const isEqualYears = dayjs(deadlineToEscalation).year() === dayjs(ticket?.createdAt).year()
+            && dayjs(deadlineToEscalation).year() === dayjs().year()
+        const formatTemplate = isEqualYears ? 'DD MMMM' : 'DD MMMM YYYY'
+        return deadlineToEscalation?.format(formatTemplate)
+    }, [ticket, calculateDeadlineToEscalationTicket])
+    const TicketEscalationWarningAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.alert.TicketEscalationWarning.title' }, { deadlineToEscalationTicket })
+
+    const [ticketDetails, setTicketDetails] = useState(ticket?.details)
+
+    useEffect(() => {
+        setTicketDetails(ticket?.details)
+    }, [ticket?.details])
 
     const {
         data: ticketChangesData,
@@ -565,7 +629,11 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         },
         skip: !persistor,
     })
-    const ticketChanges = useMemo(() => ticketChangesData?.ticketChanges?.filter(Boolean) || [], [ticketChangesData?.ticketChanges])
+    const ticketChanges = useMemo(() => {
+        const changes = ticketChangesData?.ticketChanges?.filter(Boolean) || []
+
+        return changes.filter(hasTicketChangeDiff)
+    }, [ticketChangesData?.ticketChanges])
     const ticketChangesCount = useMemo(() => ticketChanges.length, [ticketChanges.length])
 
     const {
@@ -600,6 +668,30 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
             files: ticketCommentFiles.filter(file => file.ticketComment.id === comment.id),
         }
     }), [comments, ticketCommentFiles])
+
+    const [updateTicket] = useUpdateTicketMutation()
+    const debouncedUpdateTicket = useMemo(() => debounce(updateTicket, 500), [updateTicket])
+
+    const handleUpdateTicketDetails = async (newTicketDetails: string) => {
+        setTicketDetails(newTicketDetails)
+
+        await debouncedUpdateTicket({
+            variables: {
+                id: id,
+                data: {
+                    details: newTicketDetails,
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
+            },
+            onError: () => {
+                setTicketDetails(ticket?.details)
+                notification.error({
+                    message: intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' }),
+                })
+            },
+        })
+    }
 
     const [updateComment] = useUpdateTicketCommentMutation({
         onCompleted: async () => {
@@ -713,8 +805,32 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                                 </Col>
                             )
                         }
+                        {
+                            isSupervised && ticket?.sentToAuthoritiesAt && (
+                                <Col span={24}>
+                                    <Alert
+                                        type='error'
+                                        showIcon
+                                        message={EscalatedTicketAlertTitle}
+                                        description={EscalatedTicketAlertDescription}
+                                    />
+                                </Col>
+                            )
+                        }
+                        {
+                            isSupervised && !ticket?.sentToAuthoritiesAt && showTicketEscalationWarning && (
+                                <Col span={24}>
+                                    <Alert
+                                        type='warning'
+                                        showIcon
+                                        message={TicketEscalationWarningAlertTitle}
+                                        description={TicketEscalationWarningAlertDescription}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
-                    <TicketContent ticket={ticket}/>
+                    <TicketContent ticket={ticket} ticketDetails={ticketDetails} updateTicketDetails={handleUpdateTicketDetails}/>
                     {
                         isNoServiceProviderOrganization && ticket.isPayable && (
                             <Col span={24}>
@@ -731,8 +847,8 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
                             <TicketPropertyHintCard
                                 propertyId={ticketPropertyId}
-                                hintContentStyle={HINT_CARD_STYLE}
                                 colProps={HINTS_COL_PROPS}
+                                className={styles.ticketPropertyHintCard}
                             />
                         )
                     }
@@ -834,6 +950,17 @@ const TicketIdPage: PageComponentType = () => {
     })
     const ticketOrganizationEmployee = useMemo(() => data?.employees?.filter(Boolean)[0], [data?.employees])
 
+    const {
+        data: observersData,
+        loading: observersLoading,
+    } = useGetTicketObserversByTicketIdQuery({
+        variables: {
+            ticketId: ticketId,
+        },
+        skip: !persistor || !ticketId,
+    })
+    const observers = useMemo(() => observersData?.observers?.filter(Boolean)?.filter(observer => observer?.user?.id) || [], [observersData?.observers])
+
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [intl, ticket])
 
     const currentEmployeeOrganizationId = organization?.id
@@ -855,13 +982,13 @@ const TicketIdPage: PageComponentType = () => {
     if (!ticket || ticketFilterQueryLoading) {
         return (
             <LoadingOrErrorPage
-                loading={ticketFilterQueryLoading || ticketLoading}
+                loading={ticketFilterQueryLoading || ticketLoading || observersLoading}
                 error={error && ServerErrorMessage}
             />
         )
     }
 
-    if (!canEmployeeReadTicket(ticket)) {
+    if (!canEmployeeReadTicket(ticket, observers)) {
         return (
             <AccessDeniedPage/>
         )

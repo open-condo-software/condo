@@ -1,4 +1,3 @@
-import isEqual from 'lodash/isEqual'
 import React, {
     createContext,
     Dispatch, ReactNode,
@@ -16,6 +15,9 @@ import { useOrganization } from '@open-condo/next/organization'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
+import { useEmailConfirmationNotification } from '@condo/domains/notification/hooks/useEmailConfirmationNotification'
+import { useSubscriptionExpirationNotification } from '@condo/domains/notification/hooks/useSubscriptionExpirationNotification'
+import { useSubscriptionPaymentNotifications } from '@condo/domains/notification/hooks/useSubscriptionPaymentNotifications'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
@@ -65,28 +67,32 @@ const READ_USER_MESSAGES_AT_BROADCAST_CHANNEL = 'read-user-messages-at'
 type UserMessagesListContextProviderProps = {
     children: ReactNode
     organizationIdsToFilter: Array<string>
+    disabled?: boolean
 }
 
-export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ children, organizationIdsToFilter }) => {
+export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ disabled, children, organizationIdsToFilter }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
+    const [isExcludedMessageTypesSetted, setIsExcludedMessageTypesSetted] = useState<boolean>(false)
     const [isNotificationSoundEnabled, setIsNotificationSoundEnabled] = useState<boolean>()
 
-    const { user } = useAuth()
-    const { organization } = useOrganization()
+    const { user, isAuthenticated, isLoading: userIsLoading } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
 
-    const { messageTypes, loading: allowedMessageTypesLoading } = useAllowedToFilterMessageTypes()
-    const messageTypesToFilter = useMemo(
-        () => messageTypes.filter(type => !excludedMessageTypes?.includes(type)),
-        [excludedMessageTypes, messageTypes])
-
     const {
         userMessagesSettingsStorage,
+        loading: userMessagesSettingsLoading,
     } = useUserMessagesListSettingsStorage()
+
+    const { messageTypes, loading: allowedMessageTypesLoading } = useAllowedToFilterMessageTypes()
+    const messageTypesToFilter = useMemo(() => {
+        if (userMessagesSettingsLoading || !isExcludedMessageTypesSetted) return []
+        return messageTypes.filter(type => !excludedMessageTypes?.includes(type))
+    }, [excludedMessageTypes, messageTypes, userMessagesSettingsLoading, isExcludedMessageTypesSetted])
 
     const {
         userMessages, messagesListRef, clearLoadedMessages,
@@ -95,13 +101,42 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         isDropdownOpen,
         messageTypesToFilter,
         organizationIdsToFilter,
-        skipQueryMessagesCondition:
-            !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt ||
-            messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
+        skipQueryMessagesCondition: disabled || userIsLoading || organizationIsLoading || !isAuthenticated || 
+        !organizationId || userMessagesSettingsLoading || allowedMessageTypesLoading || !readUserMessagesAt || 
+        messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })
+
+    const {
+        message: emailConfirmationMessage,
+        markAsRead: markEmailConfirmationMessageAsRead,
+    } = useEmailConfirmationNotification()
+
+    const {
+        message: subscriptionExpirationMessage,
+        markAsRead: markSubscriptionExpirationMessageAsRead,
+    } = useSubscriptionExpirationNotification()
+
+    const {
+        messages: subscriptionPaymentMessages,
+        markReminderAsRead: markPaymentReminderAsRead,
+        markSuccessAsRead: markPaymentSuccessAsRead,
+        markErrorAsRead: markPaymentErrorAsRead,
+    } = useSubscriptionPaymentNotifications()
+
+    const userMessagesWithCustomMessages = useMemo(() => [
+        emailConfirmationMessage,
+        subscriptionExpirationMessage,
+        ...subscriptionPaymentMessages,
+        ...(userMessages || []),
+    ]
+        .filter(Boolean)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage, subscriptionPaymentMessages])
 
     // Set initial settings to state
     useEffect(() => {
+        if (!userMessagesSettingsStorage || userMessagesSettingsLoading) return
+
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
         if (!lastReadUserMessagesAt) {
             lastReadUserMessagesAt = new Date().toISOString()
@@ -111,10 +146,11 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
         const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
         setExcludedMessageTypes(excludedMessageTypesToFilter)
+        setIsExcludedMessageTypesSetted(true)
 
         const isSoundEnabled = userMessagesSettingsStorage.getIsNotificationSoundEnabled()
         setIsNotificationSoundEnabled(isSoundEnabled)
-    }, [organizationId, userId, userMessagesSettingsStorage])
+    }, [organizationId, userId, userMessagesSettingsStorage, userMessagesSettingsLoading])
 
     const { sendMessageToBroadcastChannel: sendReadUserMessagesAtToBroadcast } = useBroadcastChannel<string>(
         READ_USER_MESSAGES_AT_BROADCAST_CHANNEL,
@@ -123,15 +159,41 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         }
     )
 
+    const messageHandlers = useMemo(() => [
+        markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
+        markPaymentReminderAsRead,
+        markPaymentSuccessAsRead,
+        markPaymentErrorAsRead,
+    ], [
+        markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
+        markPaymentReminderAsRead,
+        markPaymentSuccessAsRead,
+        markPaymentErrorAsRead,
+    ])
+
     const updateReadUserMessagesAt = useCallback(() => {
-        const newestMessageCreatedAt = userMessages?.[0]?.createdAt
+        const newestMessageCreatedAt = userMessagesWithCustomMessages?.[0]?.createdAt
 
         if (new Date(newestMessageCreatedAt) > new Date(readUserMessagesAt)) {
             setReadUserMessagesAt(newestMessageCreatedAt)
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
             sendReadUserMessagesAtToBroadcast(newestMessageCreatedAt)
+
+            messageHandlers.forEach(fn => {
+                if (typeof fn === 'function') {
+                    fn()
+                }
+            })
         }
-    }, [readUserMessagesAt, sendReadUserMessagesAtToBroadcast, userMessages, userMessagesSettingsStorage])
+    }, [
+        userMessagesWithCustomMessages,
+        readUserMessagesAt,
+        userMessagesSettingsStorage,
+        sendReadUserMessagesAtToBroadcast,
+        messageHandlers,
+    ])
 
     const handleDropdownOpenChange = useCallback((isOpen: boolean) => {
         setIsDropdownOpen(isOpen)
@@ -160,7 +222,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         <UserMessageListContext.Provider
             value={{
                 messagesListRef,
-                userMessages,
+                userMessages: userMessagesWithCustomMessages,
                 readUserMessagesAt,
                 updateReadUserMessagesAt,
                 newMessagesLoading,

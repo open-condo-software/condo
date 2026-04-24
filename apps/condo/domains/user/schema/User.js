@@ -5,10 +5,9 @@
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 const { z } = require('zod')
 
-const userAccess = require('@open-condo/keystone/access')
 const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -62,6 +61,7 @@ const User = new GQLListSchema('User', {
         name: {
             schemaDoc: 'Name. If impersonal account should be a company name',
             type: 'Text',
+            sensitive: true,
             access: {
                 read: access.canReadUserNameField,
             },
@@ -75,6 +75,7 @@ const User = new GQLListSchema('User', {
         password: {
             schemaDoc: 'Password. Update only',
             type: 'Password',
+            sensitive: true,
             rejectCommon: true,
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
@@ -122,6 +123,7 @@ const User = new GQLListSchema('User', {
         email: {
             schemaDoc: 'Email. Transformed to lower case',
             type: 'Text',
+            sensitive: true,
             access: access.canAccessToEmailField,
             kmigratorOptions: { null: true, unique: false },
             hooks: {
@@ -166,6 +168,7 @@ const User = new GQLListSchema('User', {
 
         isEmailVerified: {
             schemaDoc: 'Email verification flag. User verify email by access to secret link',
+            sensitive: false,
             type: 'Checkbox',
             defaultValue: false,
             access: access.canAccessToIsEmailVerifiedField,
@@ -174,6 +177,7 @@ const User = new GQLListSchema('User', {
         phone: {
             schemaDoc: 'Phone. In international E.164 format without spaces',
             type: 'Text',
+            sensitive: true,
             access: access.canAccessToPhoneField,
             hooks: {
                 resolveInput: ({ resolvedData }) => {
@@ -223,6 +227,7 @@ const User = new GQLListSchema('User', {
         isPhoneVerified: {
             schemaDoc: 'Phone verification flag. User verify phone by access to secret sms message',
             type: 'Checkbox',
+            sensitive: false,
             defaultValue: false,
             access: access.canAccessToIsPhoneVerifiedField,
         },
@@ -233,6 +238,7 @@ const User = new GQLListSchema('User', {
                 'It can be used as contact information but cannot be used for authorization. ' +
                 'It may be the same for several users.',
             type: 'Text',
+            sensitive: true,
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
             // so there's no need to read it directly
             access: SERVER_CREATE_ONLY_ACCESS,
@@ -249,6 +255,7 @@ const User = new GQLListSchema('User', {
         isExternalPhoneVerified: {
             schemaDoc: 'Verification status of the user\'s phone number obtained from an external system',
             type: 'Checkbox',
+            sensitive: false,
             isRequired: true,
             defaultValue: false,
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
@@ -262,6 +269,7 @@ const User = new GQLListSchema('User', {
                 'It can be used as contact information but cannot be used for authorization. ' +
                 'It may be the same for several users.',
             type: 'Text',
+            sensitive: true,
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
             // so there's no need to read it directly
             access: SERVER_CREATE_ONLY_ACCESS,
@@ -278,6 +286,7 @@ const User = new GQLListSchema('User', {
         isExternalEmailVerified: {
             schemaDoc: 'Verification status of the user\'s email address obtained from an external system',
             type: 'Checkbox',
+            sensitive: false,
             isRequired: true,
             defaultValue: false,
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
@@ -317,6 +326,8 @@ const User = new GQLListSchema('User', {
 
         meta: {
             schemaDoc: 'User metadata. Example: `city`, `country`, ...',
+            // NOTE: contains provider info from passport integrations
+            sensitive: true,
             type: 'Json',
             // TODO(pahaz): we should check the structure!
         },
@@ -355,11 +366,16 @@ const User = new GQLListSchema('User', {
             ref: 'UserRightsSet',
             knexOptions: { isNotNullable: false }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-            access: {
-                read: true,
-                create: userAccess.userIsAdminOrIsSupport,
-                update: userAccess.userIsAdminOrIsSupport,
-            },
+            access: access.canAccessRightsSet,
+        },
+
+        isTwoFactorAuthenticationEnabled: {
+            schemaDoc: 'If true then Two-factor authentication is enabled. Value can only be changed via "changeTwoFactorAuthentication" mutation.',
+            type: 'Checkbox',
+            isRequired: false,
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+            access: access.canAccessIsTwoFactorAuthenticationEnabledField,
         },
     },
     kmigratorOptions: {
@@ -415,6 +431,7 @@ const User = new GQLListSchema('User', {
         dvAndSender(),
         historical(),
         webHooked(),
+        analytical(),
     ],
     access: {
         read: access.canReadUsers,

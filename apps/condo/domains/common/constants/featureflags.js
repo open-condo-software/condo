@@ -23,7 +23,6 @@ const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
 const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
 const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
 const METER_REPORTING_PERIOD_STRICT_RULE = 'meter-reporting-period-strict-rule'
-const SUBSCRIPTION = 'subscription'
 const CHECK_TLS_CLIENT_CERT = 'check-tls-client-cert-config'
 const ADD_SECTION_FLOOR = 'add-section-floor'
 const ACQUIRING_PAYMENTS_FILES_TABLE = 'acquiring-payments-files-table'
@@ -34,6 +33,20 @@ const SKIP_SEARCH_ORGANIZATION_BY_TIN = 'skip-search-organization-by-tin'
 const ANALYTICS_RESIDENT_IN_CONTACT_PAGE = 'analytics-resident-in-contact-page'
 const SKIP_DAILY_TICKET_LIMIT = 'skip-daily-ticket-limit'
 const SKIP_DAILY_SAME_TICKET_LIMIT = 'skip-daily-same-ticket-limit'
+const SUPERVISED_TICKET_SOURCE = 'supervised-ticket-source'
+const UI_AI_GENERATE_NEWS_BY_INCIDENT = 'ui-ai-generation-news-by-incident'
+const UI_AI_REWRITE_TICKET_COMMENT = 'ui-ai-ticket-rewrite-comment'
+const UI_AI_REWRITE_TEXT = 'ui-ai-rewrite-text'
+const UI_AI_REWRITE_NEWS_TEXT = 'ui-ai-news-rewrite-text'
+const UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT = 'ui-ai-rewrite-incident-text-for-resident'
+const UI_AI_CHAT_WITH_CONDO = 'ui-ai-chat-with-condo'
+const UI_NEWS_MARKDOWN = 'ui-news-markdown'
+const SUBSCRIPTIONS = 'subscriptions'
+const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
+const TICKET_OBSERVERS = 'ticket-observers'
+const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
+const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
+const TWO_FACTOR_SETTING = 'two-factor-setting'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -61,7 +74,7 @@ module.exports = {
     SNOWFLAKES_SETTINGS,
     USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
     METER_REPORTING_PERIOD_STRICT_RULE,
-    SUBSCRIPTION,
+    SUBSCRIPTIONS,
     CHECK_TLS_CLIENT_CERT,
     ADD_SECTION_FLOOR,
     ACQUIRING_PAYMENTS_FILES_TABLE,
@@ -72,4 +85,17 @@ module.exports = {
     ANALYTICS_RESIDENT_IN_CONTACT_PAGE,
     SKIP_DAILY_TICKET_LIMIT,
     SKIP_DAILY_SAME_TICKET_LIMIT,
+    SUPERVISED_TICKET_SOURCE,
+    UI_AI_GENERATE_NEWS_BY_INCIDENT,
+    UI_AI_REWRITE_TICKET_COMMENT,
+    UI_AI_REWRITE_TEXT,
+    UI_AI_REWRITE_NEWS_TEXT,
+    UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
+    UI_AI_CHAT_WITH_CONDO,
+    UI_NEWS_MARKDOWN,
+    ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
+    TICKET_OBSERVERS,
+    DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
+    SUBSCRIPTION_PAYMENT_MODAL,
+    TWO_FACTOR_SETTING,
 }

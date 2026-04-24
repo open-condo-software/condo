@@ -24,3 +24,6 @@ ignore.*
 # not a source code files
 *docker-compose.yml
 *docker-compose.yaml
+
+README.md
+apps/**/docs/**/*.mdx

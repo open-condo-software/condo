@@ -4,6 +4,7 @@ import {
     useGetTicketsCountLazyQuery,
     useGetTicketsCountQuery,
     useGetTicketsQuery,
+    useGetUserTicketCommentsReadTimeQuery,
 } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
@@ -54,7 +55,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { TICKET_IMPORT, TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -86,12 +87,14 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
+import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedTickets'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { getTicketTypeFilter } from '@condo/domains/ticket/utils/tables.utils'
 
 import styles from './index.module.css'
 
@@ -349,9 +352,12 @@ const TicketsTableContainer = ({
     baseQueryLoading,
     TicketImportButton,
     playSoundOnNewTickets,
+    refetchTicketTypeCountersRef,
 }) => {
     const intl = useIntl()
 
+    const { user } = useAuth()
+    const { persistor } = useCachePersistor()
     const router = useRouter()
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
 
@@ -384,6 +390,22 @@ const TicketsTableContainer = ({
     })
     const tickets = useMemo(() => ticketsData?.tickets?.filter(Boolean) || [], [ticketsData?.tickets])
     const total = useMemo(() => ticketsData?.meta?.count, [ticketsData?.meta?.count])
+    const ticketIds = useMemo(() => tickets?.map(ticket => ticket?.id), [tickets])
+    const userId = useMemo(() => user?.id, [user?.id])
+
+    const {
+        data: userTicketCommentReadTimesData,
+        loading: userTicketCommentReadTimesLoading,
+        refetch: refetchUserTicketCommentReadTimes,
+    } = useGetUserTicketCommentsReadTimeQuery({
+        variables: {
+            userId,
+            ticketIds,
+        },
+        skip: !persistor || !userId || isEmpty(ticketIds),
+    })
+    const userTicketCommentReadTimes = useMemo(() => userTicketCommentReadTimesData?.objs?.filter(Boolean) || [],
+        [userTicketCommentReadTimesData?.objs])
 
     const [loadNewTicketCount] = useGetTicketsCountLazyQuery({
         onCompleted: ({ meta: { count } }) => {
@@ -420,26 +442,72 @@ const TicketsTableContainer = ({
         },
     })
 
-    const refetchTickets = useCallback(async () => {
-        await refetch()
-
-        if (playSoundOnNewTicketsRef.current) {
-            await loadNewTicketCount()
-        }
-    }, [loadNewTicketCount, refetch])
-
-    const {
-        columns,
-        loading: columnsLoading,
-    } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
-
     useEffect(() => {
         if (playSoundOnNewTicketsRef.current) {
             loadNewTicketCount()
         }
     }, [loadNewTicketCount])
 
-    const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
+    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
+
+    const refetchTickets = useCallback(async () => {
+        setIsRefetching(true)
+        await refetch()
+        await refetchUserTicketCommentReadTimes()
+        if (refetchTicketTypeCountersRef.current) {
+            await refetchTicketTypeCountersRef.current()
+        }
+        setIsRefetching(false)
+    }, [refetch, refetchUserTicketCommentReadTimes])
+
+    const shouldRefetchOnFocusRef = useRef(false)
+    const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+    useEffect(() => {
+        if (!isRefetchTicketsFeatureEnabled) return
+
+        const scheduleNext = () => {
+            timerRef.current = setTimeout(async () => {
+                if (document.hidden) {
+                    shouldRefetchOnFocusRef.current = true
+                } else {
+                    await refetchTickets()
+                    shouldRefetchOnFocusRef.current = false
+                }
+
+                if (playSoundOnNewTicketsRef.current) {
+                    await loadNewTicketCount()
+                }
+
+                scheduleNext()
+            }, refetchInterval)
+        }
+
+        const onVisibilityChange = async () => {
+            if (!document.hidden && shouldRefetchOnFocusRef.current) {
+                await refetchTickets()
+                shouldRefetchOnFocusRef.current = false
+
+                if (timerRef.current) clearTimeout(timerRef.current)
+                scheduleNext()
+            }
+        }
+
+        scheduleNext()
+        document.addEventListener('visibilitychange', onVisibilityChange)
+
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current)
+            document.removeEventListener('visibilitychange', onVisibilityChange)
+        }
+    }, [isRefetchTicketsFeatureEnabled, refetchTickets, loadNewTicketCount, refetchInterval])
+
+    const columns = useTableColumns({
+        filterMetas,
+        userTicketCommentReadTimes,
+    })
+
+    const loading = (isTicketsFetching || userTicketCommentReadTimesLoading || baseQueryLoading) && !isRefetching
 
     return (
         <TicketTable
@@ -457,7 +525,7 @@ const TicketsTableContainer = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
-const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
+const ATTRIBUTE_NAMES_TO_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 // todo(doma-5776): update amplitude
 const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
@@ -572,7 +640,7 @@ const FILTERS_BUTTON_ROW_GUTTER: RowProps['gutter'] = [16, 10]
 const FILTERS_BUTTON_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap' }
 const RESET_FILTERS_BUTTON_STYLES: CSSProperties = { padding: 0 }
 
-const FiltersContainer = ({ filterMetas }) => {
+const FiltersContainer = ({ filterMetas, hasSupervisedTickets }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
@@ -581,17 +649,25 @@ const FiltersContainer = ({ filterMetas }) => {
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
     const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
 
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
+    const attributeNames = useMemo(() => {
+        const attrNames = [...ATTRIBUTE_NAMES_TO_FILTERS]
+        if (hasSupervisedTickets) attrNames.push('isSupervised')
+        return attrNames
+    }, [hasSupervisedTickets])
+
     const [search, changeSearch, handleResetSearch] = useSearch<IFilters>(1500)
-    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
+    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(attributeNames)
     const {
         isEmergency: emergency,
         isRegular: regular,
         isWarranty: warranty,
         statusReopenedCounter: returned,
         isPayable: payable,
+        isSupervised: supervised,
     } = attributes
     const {
         value: isCompletedAfterDeadline,
@@ -723,6 +799,20 @@ const FiltersContainer = ({ filterMetas }) => {
                                             children={ExpiredLabel}
                                         />
                                     </Col>
+                                    {
+                                        hasSupervisedTickets && (
+                                            <Col>
+                                                <Checkbox
+                                                    onChange={handleAttributeCheckboxChange('isSupervised')}
+                                                    checked={supervised}
+                                                    id='ticket-filter-supervised'
+                                                    data-cy='ticket__filter-isSupervised'
+                                                    className={styles.checkboxLabelNowrap}
+                                                    children={SupervisedTicketMessage}
+                                                />
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
                         </Row>
@@ -762,6 +852,8 @@ export const TicketsPageContent = ({
     isTicketsExists,
     playSoundOnNewTickets = false,
     error,
+    refetchTicketTypeCountersRef,
+    hasSupervisedTickets = false,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -778,8 +870,8 @@ export const TicketsPageContent = ({
     const searchTicketsWithoutStatusQuery = useMemo(() => ({
         ...baseTicketsQuery,
         ...filtersToWhere(omit(filters, 'status')),
-    }),
-    [baseTicketsQuery, filters, filtersToWhere])
+    }), [baseTicketsQuery, filters, filtersToWhere])
+
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)
@@ -842,6 +934,7 @@ export const TicketsPageContent = ({
                 <Col span={24}>
                     <FiltersContainer
                         filterMetas={filterMetas}
+                        hasSupervisedTickets={hasSupervisedTickets}
                     />
                 </Col>
                 <Col span={24}>
@@ -859,12 +952,13 @@ export const TicketsPageContent = ({
                 baseQueryLoading={loading}
                 TicketImportButton={TicketImportButton}
                 playSoundOnNewTickets={playSoundOnNewTickets}
+                refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
             />
         </>
     )
 }
 
-export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
+export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCountersRef }) => {
     const intl = useIntl()
     const AllTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.all' })
     const OwnTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
@@ -873,6 +967,8 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     const { persistor } = useCachePersistor()
     const { user } = useAuth()
     const { userFavoriteTicketsCount } = useFavoriteTickets()
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
     const router = useRouter()
     const { filters } = useMemo(() => parseQuery(router.query), [router.query])
 
@@ -901,7 +997,9 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
 
     // NOTE: we have index "ticket_org_assign_exec_deletedAt" for this filter
     // If you change filter condition, you need to change index
-    const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id } }] }
+    const ownTicketsQuery = useMemo(() => (
+        getTicketTypeFilter(user.id, { includeObservers: isTicketObserversEnabled })('own')
+    ), [isTicketObserversEnabled, user.id])
     const { data: ownTicketsCountData, refetch: refetchOwnTickets } = useGetTicketsCountQuery({
         variables: {
             where: {
@@ -913,22 +1011,14 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     })
     const ownTicketsCount = useMemo(() => ownTicketsCountData?.meta?.count, [ownTicketsCountData?.meta?.count])
 
-    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
     const refetch = useCallback(async () => {
         await refetchOwnTickets()
         await refetchAllTickets()
     }, [refetchAllTickets, refetchOwnTickets])
 
     useEffect(() => {
-        if (isRefetchTicketsFeatureEnabled) {
-            const handler = setInterval(async () => {
-                await refetch()
-            }, refetchInterval)
-            return () => {
-                clearInterval(handler)
-            }
-        }
-    }, [isRefetchTicketsFeatureEnabled, refetchInterval])
+        refetchTicketTypeCountersRef.current = refetch
+    }, [refetch])
 
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
@@ -1032,6 +1122,14 @@ const TicketsPage: PageComponentType = () => {
     const isCallRecordsExists = useMemo(() => callRecordFragmentExistenceData?.callRecordFragments?.length > 0,
         [callRecordFragmentExistenceData?.callRecordFragments?.length])
 
+    const refetchTicketTypeCountersRef = useRef()
+
+    const { hasSupervisedTicketsInOrganization } = useSupervisedTickets()
+    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
+    useEffect(() => {
+        hasSupervisedTicketsInOrganization(userOrganizationId).then((res) => setHasSupervisedTickets(res))
+    }, [userOrganizationId, hasSupervisedTicketsInOrganization])
+
     return (
         <>
             <Head>
@@ -1058,20 +1156,19 @@ const TicketsPage: PageComponentType = () => {
                                         <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                             {
                                                 isCallRecordsExists && (
-                                                    <Link href='/callRecord'>
-                                                        <Typography.Link size='large'>
-                                                            <Space size={8}>
-                                                                <Phone size='medium'/>
-                                                                {CallRecordsLogMessage}
-                                                            </Space>
-                                                        </Typography.Link>
-                                                    </Link>
+                                                    <Typography.Link component={Link} href='/callRecord' size='large'>
+                                                        <Space size={8}>
+                                                            <Phone size='medium'/>
+                                                            {CallRecordsLogMessage}
+                                                        </Space>
+                                                    </Typography.Link>
                                                 )
                                             }
                                             {
                                                 !ticketExistenceLoading && isTicketsExists && (
                                                     <TicketTypeFilterSwitch
                                                         ticketFilterQuery={ticketFilterQuery}
+                                                        refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
                                                     />
                                                 )
                                             }
@@ -1089,6 +1186,8 @@ const TicketsPage: PageComponentType = () => {
                                             showImport
                                             isTicketsExists={isTicketsExists}
                                             error={error}
+                                            refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
+                                            hasSupervisedTickets={hasSupervisedTickets}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>

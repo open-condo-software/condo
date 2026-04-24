@@ -39,15 +39,13 @@ const STATUS_SELECT_COLORS = {
 }
 
 const COMMON_TAG_STYLES = { border: 'none', fontSize: '12px', padding: '2px 10px', fontWeight: 600 }
-/**
- * This is colors of ant's tags
- * @link https://ant.design/components/tag/
- */
 const TICKET_TYPE_TAG_STYLE = {
     emergency: { ...COMMON_TAG_STYLES, color: uiColors.pink[7], backgroundColor: uiColors.pink[1] },
     payable: { ...COMMON_TAG_STYLES, color: uiColors.teal[7], backgroundColor: uiColors.teal[1] },
     warranty: { ...COMMON_TAG_STYLES, color: uiColors.purple[7], backgroundColor: uiColors.purple[1] },
     returned: { ...COMMON_TAG_STYLES, color: uiColors.brown[7], backgroundColor: uiColors.brown[1] },
+    supervised: { ...COMMON_TAG_STYLES, color: uiColors.blue[7], backgroundColor: uiColors.blue[1] },
+    escalated: { ...COMMON_TAG_STYLES, color: uiColors.white, backgroundColor: uiColors.red[7] },
 }
 
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }

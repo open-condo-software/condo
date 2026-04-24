@@ -1,5 +1,5 @@
 import { Invoice } from '@app/condo/schema'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 

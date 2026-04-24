@@ -1,13 +1,13 @@
-import { useGetTourStepsLazyQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
+import { useGetTourStepsQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
@@ -42,25 +42,14 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
 }
 
 export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const { user, isLoading: userIsLoading } = useAuth()
-    const { organization, isLoading: organizationIsLoading } = useOrganization()
+    const { isAuthenticated, isLoading: userIsLoading } = useAuth()
+    const { organization } = useOrganization()
     const organizationId = organization?.id || null
     const organizationType = organization?.type || null
 
-    const [getTourSteps, {
-        refetch: refetchSteps,
-    }] = useGetTourStepsLazyQuery({
-        variables: {
-            where: {
-                organization: {
-                    id: organizationId,
-                },
-            },
-        },
-    })
-
+    const { refetch: refetchSteps } = useGetTourStepsQuery({ skip: true })
     const [updateTourStep] = useUpdateTourStepMutation({
-        onCompleted: async () => await refetchSteps(),
+        onCompleted: async () => await refetchSteps({ where:{ organization: { id: organizationId } } }),
     })
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
@@ -71,18 +60,14 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
                 sender: getClientSideSenderInfo(),
             },
         },
-        onCompleted: async () => {
-            if (organizationId) {
-                await refetchSteps()
-            }
-        },
+        onCompleted: async () => await refetchSteps({ where: { organization: { id: organizationId } } }),
     })
 
     useEffect(() => {
-        if (!organizationId || !user || userIsLoading || organizationIsLoading) return
+        if (!organizationId || !isAuthenticated) return
 
         syncTourStepMutation()
-    }, [organizationId, organizationIsLoading, syncTourStepMutation, user, userIsLoading])
+    }, [organizationId, syncTourStepMutation, isAuthenticated])
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
 
@@ -113,15 +98,14 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
+        if (!isAuthenticated || userIsLoading) return
 
         const {
             data: tourStepData,
-        } = await getTourSteps({
-            variables: {
-                where: {
-                    organization: { id: organizationId },
-                    type,
-                },
+        } = await refetchSteps({
+            where: {
+                organization: { id: organizationId },
+                type,
             },
         })
         const tourStep = tourStepData?.tourSteps.filter(Boolean)[0] || null
@@ -149,7 +133,7 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         } else {
             updateCompletedStepModalData(type, nextRoute)
         }
-    }, [organizationId, organizationType, getTourSteps, updateCompletedStepModalData, updateTourStep])
+    }, [organizationType, isAuthenticated, userIsLoading, refetchSteps, organizationId, updateTourStep, updateCompletedStepModalData])
 
     useEffect(() => {
         const mutationHandler = async ({ data, name }) => {

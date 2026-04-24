@@ -41,5 +41,11 @@ export const theme: ThemeConfig = {
         Collapse: {
             headerBg: colors.white,
         },
+        Notification: {
+            colorInfoBg: colors.white,
+            colorSuccessBg: colors.white,
+            colorWarningBg: colors.white,
+            colorErrorBg: colors.white,
+        },
     },
 }

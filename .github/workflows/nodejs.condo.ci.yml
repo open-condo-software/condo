@@ -22,6 +22,7 @@ concurrency:
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  CONDO_TEST_SHARD_TOTAL: 20
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
@@ -52,8 +53,9 @@ jobs:
           sudo apt update && sudo apt install -y git
       - name: Set registry variables
         run: |
-          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
-          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
+          ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
+          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref}" >> $GITHUB_ENV
+          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref},mode=max,image-manifest=true" >> $GITHUB_ENV
       - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
@@ -118,6 +120,11 @@ jobs:
     name: Define job list based on changed files
     needs: authorize
     runs-on: ubuntu-22.04
+    permissions:
+      # See actions/checkout@v4 recommended permissions https://github.com/actions/checkout?tab=readme-ov-file#recommended-permissions
+      contents: read
+      # See dorny/paths-filter@v3 required permissions https://github.com/dorny/paths-filter?tab=readme-ov-file#conditional-execution
+      pull-requests: read
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-portal-api: ${{ steps.detect-changes.outputs.dev-portal-api }}
@@ -131,6 +138,8 @@ jobs:
       registry-importer: ${{ steps.detect-changes.outputs.registry-importer }}
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
       pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
+      accruals-gateway: ${{ steps.detect-changes.outputs.accruals-gateway }}
+      resident-app: ${{ steps.detect-changes.outputs.resident-app }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -139,11 +148,17 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
+          # See https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+          # Quote from link: Yes it is (workflow is vulnerable), because a workflow triggered on pull_request_target still has the read/write repository token in memory that is potentially available to any running program. If the workflow uses actions/checkout and does not pass the optional parameter persist-credentials as false, it makes it even worse. The default for the parameter is true. It means that in any subsequent steps any running code can simply read the stored repository token from the disk. If you don’t need a repository write access or secrets, just stick to the pull_request trigger.
+          persist-credentials: false
       - name: Scan changed files
         uses: dorny/paths-filter@v3
         id: detect-changes
         with:
           filters: |
+            accruals-gateway:
+              - 'apps/accruals-gateway/**'
+              - 'apps/condo/domains/acquiring/**'
             address-service:
               - 'apps/address-service/**'
               - 'packages/**'
@@ -180,14 +195,25 @@ jobs:
               - 'packages/**'
               - 'apps/condo/domains/acquiring/**'
               - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/miniapp/**'
             rb:
               - 'apps/rb'
               - 'apps/condo/domains/acquiring/**'
               - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/user/**'
               - 'packages/**'
             registry-importer:
               - 'apps/registry-importer/**'
+              - 'apps/condo/domains/acquiring/**'
+              - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/user/**'
               - 'apps/rb'
+              - 'packages/**'
+            resident-app:
+              - 'apps/resident-app'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
@@ -198,7 +224,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [ 22.x ]
+        node-version: [ 24.x ]
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -235,7 +261,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [ 22.x ]
+        node-version: [ 24.x ]
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -287,8 +313,8 @@ jobs:
 #        TODO: Fix windows "too many files open" runner issue
 #        os: [ ubuntu-22.04, windows-latest ]
         os: [ ubuntu-22.04 ]
-        node-version: [ 22.x ]
-        python-version: [ 3.13 ]
+        node-version: [ 24.x ]
+        python-version: [ 3.14 ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code without submodules
@@ -391,34 +417,37 @@ jobs:
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
+  generate-condo-test-shards:
+    name: Generate Condo test shards
+    needs: authorize
+    runs-on: ubuntu-22.04
+    outputs:
+      ids: ${{ steps.generate.outputs.ids }}
+      total: ${{ steps.generate.outputs.total }}
+    steps:
+      - name: Generate shard indexes
+        id: generate
+        env:
+          SHARD_TOTAL: ${{ env.CONDO_TEST_SHARD_TOTAL }}
+        run: |
+          echo "ids=$(jq -c -n --argjson total "$SHARD_TOTAL" '[range(1; $total + 1)]')" >> "$GITHUB_OUTPUT"
+          echo "total=$SHARD_TOTAL" >> "$GITHUB_OUTPUT"
+
   run-condo-tests:
     name: Condo Tests
     needs:
       - authorize
       - build-image
+      - generate-condo-test-shards
     strategy:
       # TODO: remove this back
       fail-fast: false
       matrix:
-        domain:
-          - organization
-          - user
-          - scope
-          - property
-          - acquiring
-          - billing
-          - miniapp
-          - banking
-          - ticket
-          - meter
-          - contact
-          - resident
-          - notification
-          - common
-          - others
+        shard_index: ${{ fromJSON(needs.generate-condo-test-shards.outputs.ids) }}
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
-      domain_name: ${{ matrix.domain }}
+      shard_index: ${{ matrix.shard_index }}
+      shard_total: ${{ fromJSON(needs.generate-condo-test-shards.outputs.total) }}
       runs-on: test-runners
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit
@@ -647,6 +676,58 @@ jobs:
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
+  run-accruals-gateway-tests:
+    name: Accruals-gateway Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - build-image
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.accruals-gateway == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          ${{ env.REDIS_RUN_COMMAND }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f condo accruals-gateway
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/accruals-gateway makemigrations --check
+      - name: Run apps and tests
+        run: |
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "(\
+          yarn workspace @app/condo start & \
+          yarn workspace @app/accruals-gateway start & \
+          node bin/wait-apps-apis.js -f condo accruals-gateway) && \
+          yarn workspace @app/accruals-gateway test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
   run-external-api-tests:
     name: External API Tests
     runs-on: ubuntu-22.04
@@ -848,6 +929,33 @@ jobs:
           yarn workspace @app/registry-importer start & \
           node bin/wait-apps-apis.js -f condo registry-importer rb) && \
           yarn workspace @app/registry-importer test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+  run-resident-app-tests:
+    name: Resident App Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.resident-app == 'true' }}
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+      - name: Run @app/resident-app tests
+        run: yarn workspace @app/resident-app test
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}

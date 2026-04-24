@@ -7,12 +7,16 @@ const TASK_STATUSES = {
 
 const FLOW_ADAPTERS = {
     FLOWISE: 'flowise',
+    N8N: 'n8n',
 }
 
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
 const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
+const INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE = 'incident_rewrite_text_for_resident_flow'
+const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
+const CHAT_WITH_CONDO_FLOW_TYPE = 'chat-with-condo'
 
 /**
  * list of hardcoded flow types
@@ -21,9 +25,12 @@ const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
  * EXAMPLE: 'example'
  */
 const FLOW_TYPES = {
-    TICKET_REWRITE_COMMENT_FLOW_TYPE: TICKET_REWRITE_COMMENT_FLOW_TYPE,
-    REWRITE_TEXT_FLOW_TYPE: REWRITE_TEXT_FLOW_TYPE,
-    NEWS_REWRITE_TEXT_FLOW_TYPE: NEWS_REWRITE_TEXT_FLOW_TYPE,
+    TICKET_REWRITE_COMMENT: TICKET_REWRITE_COMMENT_FLOW_TYPE,
+    REWRITE_TEXT: REWRITE_TEXT_FLOW_TYPE,
+    NEWS_REWRITE_TEXT: NEWS_REWRITE_TEXT_FLOW_TYPE,
+    INCIDENT_REWRITE_TEXT_FOR_RESIDENT: INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE,
+    GENERATE_NEWS_BY_INCIDENT: GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE,
+    CHAT_WITH_CONDO: CHAT_WITH_CONDO_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -57,7 +64,7 @@ const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
  *     },
  */
 const FLOW_META_SCHEMAS = {
-    [TICKET_REWRITE_COMMENT_FLOW_TYPE]: {
+    [FLOW_TYPES.TICKET_REWRITE_COMMENT]: {
         input: {
             type: 'object',
             properties: {
@@ -96,7 +103,7 @@ const FLOW_META_SCHEMAS = {
             },
         },
     },
-    REWRITE_TEXT_FLOW_TYPE: {
+    [FLOW_TYPES.REWRITE_TEXT]: {
         input: {
             type: 'object',
             properties: {
@@ -110,7 +117,7 @@ const FLOW_META_SCHEMAS = {
             },
         },
     },
-    [NEWS_REWRITE_TEXT_FLOW_TYPE]: {
+    [FLOW_TYPES.NEWS_REWRITE_TEXT]: {
         input: {
             type: 'object',
             properties: {
@@ -124,6 +131,105 @@ const FLOW_META_SCHEMAS = {
             properties: {
                 answer: { type: 'string' },
             },
+        },
+    },
+    [FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT]: {
+        input: {
+            type: 'object',
+            properties: {
+                selectedClassifiers: {
+                    items: {
+                        type: 'object',
+                        properties: {
+                            category: { type: 'string' },
+                            problem: { type: 'string' },
+                        },
+                    },
+                    type: 'array',
+                    minItems: 0,
+                },
+                details: { type: 'string' },
+                textForResident: { type: 'string' },
+                workFinish: { type: 'string' },
+                workStart: { type: 'string' },
+                workType: { type: 'string' },
+                isFinished: { type: 'boolean' },
+            },
+        },
+        output: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                body: { type: 'string' },
+            },
+            additionalProperties: false,
+            required: ['title', 'body'],
+        },
+    },
+    [FLOW_TYPES.INCIDENT_REWRITE_TEXT_FOR_RESIDENT]: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
+            },
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+            },
+        },
+    },
+    [FLOW_TYPES.CHAT_WITH_CONDO]: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
+                userData: {
+                    type: 'object',
+                    additionalProperties: true,
+                    properties: {
+                        userId: { type: 'string' },
+                        organizationId: { type: 'string' },
+                        toolCalls: {
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    name: { type: 'string' },
+                                    args: { type: 'object', additionalProperties: true },
+                                    result: { type: ['object', 'array'] },
+                                },
+                                required: ['name', 'args'],
+                            },
+                            type: 'array',
+                            minItems: 0,
+                        },
+                    },
+                    required: ['userId', 'organizationId'],
+                },
+            },
+            required: ['userInput', 'userData'],
+            additionalProperties: true,
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+                toolCalls: {
+                    items: {
+                        type: 'object',
+                        properties: {
+                            name: { type: 'string' },
+                            args: { type: 'object', additionalProperties: true },
+                        },
+                        required: ['name'],
+                    },
+                    type: 'array',
+                    minItems: 0,
+                },
+            },
+            required: ['answer'],
+            additionalProperties: true,
         },
     },
     [CUSTOM_FLOW_TYPE]: {
@@ -153,4 +259,5 @@ module.exports = {
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
+    CHAT_WITH_CONDO_FLOW_TYPE,
 }

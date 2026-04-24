@@ -1,18 +1,15 @@
 import { Col, Row } from 'antd'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Banner, Markdown, Space, Typography, Button } from '@open-condo/ui'
 
-import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
+import { INTEGRATION_TYPE_B2B_APP, INTEGRATION_TYPE_BILLING } from '@condo/domains/billing/constants/constants'
+import { useIntegrationContext } from '@condo/domains/billing/hooks/useIntegrationContext'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
-import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
+import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } from '@condo/domains/miniapp/constants'
 
 import type { RowProps } from 'antd'
-
 
 type BillingDescriptionModalContentProps = {
     id: string
@@ -22,7 +19,11 @@ type BillingDescriptionModalContentProps = {
     bannerColor: string
     bannerTextColor: string
     bannerPromoImageUrl?: string
-    receiptsLoadingTime: string
+    receiptsLoadingTime?: string
+    servicePrice?: string
+    integrationType: typeof INTEGRATION_TYPE_BILLING | typeof INTEGRATION_TYPE_B2B_APP
+    setupButtonLabel?: string
+    onCompleted?: () => void
 }
 
 const MODAL_PIC_GAP: RowProps['gutter'] = [40, 40]
@@ -39,52 +40,25 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
     bannerTextColor,
     bannerPromoImageUrl,
     receiptsLoadingTime,
+    integrationType,
+    setupButtonLabel,
+    servicePrice,
+    onCompleted,
 }) => {
     const intl = useIntl()
     const ReceiptsAwaitingTitle = intl.formatMessage({ id: 'accrualsAndPayments.billingModal.receiptAwaitingTime' })
+    const ServicePriceTitle = intl.formatMessage({ id: 'accrualsAndPayments.billingModal.price' })
     const SetupButtonLabel = intl.formatMessage({ id: 'accrualsAndPayments.billingModal.setupButtonLabel' })
+    
     const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
-    const router = useRouter()
-
-    const { organization } = useOrganization()
-    const orgId = get(organization, 'id', null)
-
-    const { obj: ctx, loading: ctxLoading } = BillingContext.useObject({
-        where: {
-            organization: { id: orgId },
-        },
-    })
-    const ctxCreateAction = BillingContext.useCreate({
-        settings: { dv: 1 },
-        state: { dv: 1 },
-        status: CONTEXT_IN_PROGRESS_STATUS,
-    })
-
-    const ctxSoftDeleteAction = BillingContext.useSoftDelete()
-
-    const contextId = get(ctx, 'id', null)
-    const contextIntegrationId = get(ctx, 'integration.id', null)
-
-    const handleSetupClick = useCallback(() => {
-        if (!contextId) {
-            ctxCreateAction({ organization: { connect: { id: orgId } }, integration: { connect: { id } } })
-                .then(() => {
-                    router.push({ query: { step: 1, billing: id } }, undefined, { shallow: true })
-                })
-        } else if (contextId && contextIntegrationId !== id) {
-            ctxSoftDeleteAction(ctx).then(()=> {
-                ctxCreateAction({ organization: { connect: { id: orgId } }, integration: { connect: { id } } })
-                    .then(() => {
-                        router.push({ query: { step: 1, billing: id } }, undefined, { shallow: true })
-                    })
-            })
-        } else {
-            router.push({ query: { step: 1, billing: id } }, undefined, { shallow: true })
-        }
-    }, [contextId, orgId, id, ctxCreateAction, router, contextIntegrationId, ctxSoftDeleteAction])
-
+    const { loading, handleSetupClick } = useIntegrationContext({ integrationType, integrationId: id })
+    const isBilling = integrationType === INTEGRATION_TYPE_BILLING
     const cols = width >= MODAL_COL_BREAKPOINT ? 2 : 1
+    const handleSetup = useCallback(async () => {
+        await handleSetupClick()
+        onCompleted?.()
+    }, [handleSetupClick, onCompleted])
 
     return (
         <Row gutter={MODAL_PIC_GAP} ref={setRef}>
@@ -104,12 +78,14 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
             </Col>
             <Col span={FULL_SPAN / cols}>
                 <Space size={SETUP_BUTTON_GAP} direction='vertical' width='100%'>
-                    <div>
-                        <Typography.Title level={4}>{ReceiptsAwaitingTitle}</Typography.Title>
-                        <Typography.Text type='secondary'>{receiptsLoadingTime}</Typography.Text>
-                    </div>
-                    <Button type='primary' onClick={handleSetupClick} disabled={ctxLoading}>
-                        {SetupButtonLabel}
+                    {((isBilling && receiptsLoadingTime) || (!isBilling && servicePrice )) && (
+                        <div>
+                            <Typography.Title level={4}>{isBilling ? ReceiptsAwaitingTitle : ServicePriceTitle}</Typography.Title>
+                            <Typography.Text type='secondary'>{isBilling ? receiptsLoadingTime : servicePrice}</Typography.Text>
+                        </div>
+                    )}
+                    <Button type='primary' onClick={handleSetup} disabled={loading}>
+                        {setupButtonLabel || SetupButtonLabel}
                     </Button>
                 </Space>
             </Col>

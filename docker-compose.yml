@@ -46,6 +46,8 @@ services:
         -c max_connections=2000
         -c wal_level=replica
         -c synchronous_commit=on
+        -c statement_timeout=10s
+        -c shared_buffers=256MB
     volumes:
       - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:
@@ -70,7 +72,7 @@ services:
         chmod -R 0700 /var/lib/postgresql/data
         touch /var/lib/postgresql/initialized
       fi
-      postgres -c max_connections=2000
+      postgres -c max_connections=2000 -c statement_timeout=10s -c shared_buffers=256MB
       "
     networks:
       - app-network
@@ -85,6 +87,29 @@ services:
     networks:
       - app-network
     command: ["redis-server", "--databases", "64"]
+
+  nats:
+    image: ${REGISTRY}nats:2.12-alpine
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8222:8222"
+    environment:
+      MESSAGING_CONFIG: ${MESSAGING_CONFIG}
+    networks:
+      - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: ["/nats-entrypoint.sh"]
+    command: ["-c", "/etc/nats/nats.conf"]
+    volumes:
+      - ./nats.conf:/etc/nats/nats.conf:ro
+      - ./nats-entrypoint.sh:/nats-entrypoint.sh:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   valkey-cluster:
     image: ${REGISTRY}alpine

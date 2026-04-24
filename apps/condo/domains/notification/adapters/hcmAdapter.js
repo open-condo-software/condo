@@ -1,4 +1,9 @@
-const { isEmpty, isObject, isNull, get, cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -25,6 +30,7 @@ const {
 const {
     DEFAULT_NOTIFICATION_OPTIONS,
     PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE, SUCCESS_CODES,
+    ALL_TOKENS_ARE_INVALID_CODE,
 } = require('./hcm/constants')
 const HCMMessaging = require('./hcm/messaging')
 
@@ -131,10 +137,12 @@ class HCMAdapter {
     /**
      * Mimics HMS failure response
      * @param token
+     * @param appType
      * @returns {{msg: string, code: string, requestId}}
      */
-    static getFakeErrorResponse (token, appType) {
+    static getFakeErrorResponse (token, appType, additionalProperties = {}) {
         return {
+            ...additionalProperties,
             code: PUSH_PARTIAL_SUCCESS_CODE,
             msg: `{"success":0,"failure":1,"illegal_tokens":["${token}"]}`,
             type: 'Fake',
@@ -148,8 +156,9 @@ class HCMAdapter {
      * Mimics HMS success response
      * @returns {{msg: string, code: string, requestId}}
      */
-    static getFakeSuccessResponse (token, appType) {
+    static getFakeSuccessResponse (token, appType, additionalProperties = {}) {
         return {
+            ...additionalProperties,
             code: PUSH_SUCCESS_CODE,
             msg: 'Success',
             type: 'Fake',
@@ -165,9 +174,10 @@ class HCMAdapter {
      * because it's almost impossible to get real FireBase push token in automated way.
      * @param result
      * @param fakeNotifications
+     * @param appIds
      * @returns {*}
      */
-    static injectFakeResults (result, fakeNotifications, appIds) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? HCMAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
@@ -175,12 +185,12 @@ class HCMAdapter {
 
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(HCMAdapter.getFakeSuccessResponse(token, appType))
+                mixed.responses.push(HCMAdapter.getFakeSuccessResponse(token, appType, { appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(HCMAdapter.getFakeErrorResponse(token, appType))
+                mixed.responses.push(HCMAdapter.getFakeErrorResponse(token, appType, { appId: appIds[token] }))
             }
         })
 
@@ -190,29 +200,32 @@ class HCMAdapter {
     /**
      * Prepares notification for either/both sending to HMS and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
-     * @param data
+     * @param notificationByTokenRaw
+     * @param dataByToken
      * @param tokens
      * @param pushTypes
-     * @returns {Promise<(*[]|{})[]>}
+     * @param appIds
+     * @returns {Promise<[[], [], {}]>}
      */
-    static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
+    static async prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, appIds = {}) {
         const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
-        const notification = HCMAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
+            const notification = HCMAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = HCMAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const pushData = isSilentDataPushEnabled && pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
                     data: JSON.stringify({
-                        ...preparedData,
+                        ...data,
                         '_title': notification.title,
                         '_body': notification.body,
                     }),
@@ -220,17 +233,34 @@ class HCMAdapter {
                 }
                 : {
                     token: pushToken,
-                    data: preparedData,
+                    data: data,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken])
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
 
         return [notifications, fakeNotifications, pushContext]
+    }
+
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://developer.huawei.com/consumer/en/doc/quickapp-access-push-kit#h2-1582279813559
+        return z.union([
+            z.object({
+                code: z.literal(ALL_TOKENS_ARE_INVALID_CODE),
+            }),
+            z.object({
+                code: z.literal(PUSH_PARTIAL_SUCCESS_CODE),
+                msg: z.string()
+                    .refine(msg => response.pushToken && JSON.parse(msg).illegal_tokens.includes(response.pushToken)),
+            }),
+        ]).safeParse(response).success
     }
 
     /**
@@ -239,23 +269,24 @@ class HCMAdapter {
      * Would try to send request to HMS only if HMS is initialized and `tokens` array contains real (non-fake) items.
      * Would succeed if at least one real token succeeds in delivering notification through HMS, or
      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-     * @param notification
-     * @param data
+     * @param notificationByToken
+     * @param dataByToken
      * @param tokens
      * @param pushTypes
      * @param appIds
+     * @param metaByToken
      * @returns {Promise<[boolean, {error: string}]|[boolean, (*&{pushContext: (*[]|{})})]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}) {
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes)
+        const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notificationByToken, dataByToken, tokens, pushTypes, appIds)
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
         logger.info({
             msg: 'sendNotification prepareBatchData done',
             data: {
-                args: { notification, data, tokens, pushTypes },
+                args: { notificationByToken, dataByToken, tokens, pushTypes },
                 result: { notifications, fakeNotifications, pushContext },
             },
         })
@@ -281,7 +312,7 @@ class HCMAdapter {
         if (!isNull(this.apps[APP_MASTER_KEY]) && !isNull(this.apps[APP_RESIDENT_KEY]) && !isEmpty(notifications)) {
             const hcmResult = HCMAdapter.getEmptyResult()
 
-            for (let idx = 0; idx < notifications.length; idx++) {
+            const promises = await Promise.allSettled(notifications.map(async (_, idx) => {
                 const notification = cloneDeep(notifications[idx])
 
                 // TODO (@toplenboren) DOMA-10611 remove excessive logging
@@ -291,37 +322,61 @@ class HCMAdapter {
 
                 const app = this.apps[appType]
 
+                const remoteClientData = {
+                    idx,
+                    appType,
+                    pushToken: notification.token,
+                    pushType: pushTypes?.[notification.token] ?? null,
+                    appId: appIds?.[notification.token] ?? null,
+                    remoteClientMeta: metaByToken?.[notification.token] ?? null,
+                }
+
                 try {
                     if (!appType || !app) throw new Error(`${HCM_UNSUPPORTED_APP_ID_ERROR}: ${get(appIds, notification.token)}`)
-
                     const sendResult = await app.send(notification)
-
-                    hcmResult.responses.push({
-                        idx,
-                        appType,
-                        pushToken: notification.token,
-                        pushType: pushTypes[notification.token],
+                    return {
+                        ...remoteClientData,
                         ...sendResult,
-                    })
+                    }
+                } catch (error) {
+                    const safeError = safeFormatError(error, false)
+                    logger.error({ msg: 'sendNotification error', error: safeError })
+                    return { 
+                        ...remoteClientData,
+                        state: 'error',
+                        error: safeError,
+                    }
+                }
+            }))
 
-                    if (sendResult.code === PUSH_SUCCESS_CODE) hcmResult.successCount += 1
+            for (const p of promises) {
+                if (p.status !== 'fulfilled') {
+                    hcmResult.failureCount++
+                    hcmResult.responses.push({ error: p.reason })
+                    continue
+                }
+                const response = p.value
+                hcmResult.responses.push(response)
 
-                    if (sendResult.code === PUSH_PARTIAL_SUCCESS_CODE) {
-                        const json = JSON.parse(sendResult.msg)
+                if (response.state === 'error') {
+                    hcmResult.failureCount++
+                    continue
+                }
+
+                if (response.code === PUSH_SUCCESS_CODE) hcmResult.successCount += 1
+
+                if (response.code === PUSH_PARTIAL_SUCCESS_CODE) {
+                    try {
+                        const json = JSON.parse(response.msg)
 
                         hcmResult.successCount += json.success
                         hcmResult.failureCount += json.failure
+                    } catch (err) {
+                        hcmResult.failureCount++
                     }
-
-                    if (!SUCCESS_CODES.includes(sendResult.code)) hcmResult.failureCount += 1
-
-                } catch (error) {
-                    const safeError = safeFormatError(error, false)
-
-                    hcmResult.failureCount += 1
-                    hcmResult.responses.push({ state: 'error', error: safeError })
-                    logger.error({ msg: 'sendNotification error', error: safeError })
                 }
+
+                if (!SUCCESS_CODES.includes(response.code)) hcmResult.failureCount += 1
             }
 
             // TODO (@toplenboren) DOMA-10611 remove excessive logging
@@ -329,7 +384,7 @@ class HCMAdapter {
                 msg: 'sendNotification end',
                 data: {
                     result: hcmResult,
-                    args: { notification, notifications, fakeNotifications, appIds },
+                    args: { notifications, fakeNotifications, appIds },
                 },
             })
 
@@ -343,4 +398,4 @@ class HCMAdapter {
 
 }
 
-module.exports = HCMAdapter
+module.exports = { HCMAdapter }

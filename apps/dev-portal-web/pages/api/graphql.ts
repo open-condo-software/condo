@@ -1,35 +1,30 @@
-import httpProxy from 'http-proxy'
 import getConfig from 'next/config'
 
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { createProxy } from '@open-condo/miniapp-utils/helpers/proxying'
 
 const {
     publicRuntimeConfig: { serverUrl },
-    serverRuntimeConfig: { proxyName },
+    serverRuntimeConfig: { proxyName, trustedProxiesConfig, apiProxyConfig },
 } = getConfig()
-
-const proxy = httpProxy.createProxy()
-proxy.on('proxyReq',  (proxyReq, req, res, options) => {
-    proxyReq.setHeader('via', proxyName)
-})
 
 export const config = {
     api: {
         bodyParser: false,
+        externalResolver: true,
     },
 }
 
-export default function handler (req: NextApiRequest, res: NextApiResponse): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        proxy.web(req, res, {
-            target: `${serverUrl}/admin/api`,
-            changeOrigin: true,
-            ignorePath: true,
-        }, (err) => {
-            if (err) {
-                return reject(err)
-            }
-            return resolve()
-        })
-    })
-}
+const proxyHandler = createProxy({
+    name: proxyName,
+    proxyPrefix: '/api/graphql',
+    upstreamOrigin: serverUrl,
+    upstreamPrefix: '/admin/api',
+    ipProxying: apiProxyConfig ? {
+        proxyId: apiProxyConfig.proxyId,
+        proxySecret: apiProxyConfig.proxySecret,
+        trustProxyFn: () => true,
+        knownProxies: trustedProxiesConfig,
+    } : undefined,
+})
+
+export default proxyHandler

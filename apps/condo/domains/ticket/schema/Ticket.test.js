@@ -3,7 +3,9 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { get, pick } = require('lodash')
+const { gql } = require('graphql-tag')
+const get = require('lodash/get')
+const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const {
@@ -51,6 +53,7 @@ const {
     ASSIGNED_TICKET_VISIBILITY,
     ORGANIZATION_TICKET_VISIBILITY,
 } = require('@condo/domains/organization/constants/common')
+const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -67,7 +70,7 @@ const {
     updateTestProperty,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     createTestPropertyScope,
     createTestPropertyScopeOrganizationEmployee,
@@ -88,6 +91,7 @@ const {
     Ticket,
     TicketOrganizationSetting,
     TicketComment,
+    TicketObserver,
     createTestTicket,
     updateTestTicket,
     createTestTicketComment,
@@ -98,6 +102,8 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestPhone,
     makeClientWithSupportUser,
+    updateTestUser,
+    createTestUserRightsSet,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -230,6 +236,25 @@ describe('Ticket', () => {
             expect(obj.clientName).toEqual(name)
             expect(obj.clientPhone).toEqual(phone)
             expect(obj.clientEmail).toEqual(email)
+        })
+
+        test('resident: can create Ticket if has serviceConsumer for the Organization', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [organization1] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property1, propertyAttrs] = await createTestProperty(admin, organization1)
+            const [resident] = await createTestResident(admin, userClient.user, property1, {
+                unitName,
+            })
+            const [organization2] = await createTestOrganization(admin, { type: SERVICE_PROVIDER_TYPE })
+            const [property2] = await createTestProperty(admin, organization2, { address: propertyAttrs.address })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicket(userClient, organization2, property2, { unitName })
+            })
+            await createTestServiceConsumer(admin, resident, organization2, { accountNumber: null })
+            const [ticket] = await createTestTicket(userClient, organization2, property2, { unitName })
+            expect(ticket.id).toMatch(UUID_RE)
         })
 
         test('user with 2 residents: can create Ticket for each resident', async () => {
@@ -1170,6 +1195,98 @@ describe('Ticket', () => {
                 expect(updatedTicket.qualityControlUpdatedBy.id).toEqual(client.user.id)
             })
         })
+
+        describe('field "sentToAuthoritiesAt"', () => {
+            test('resident: cannot create "sentToAuthoritiesAt"', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                        unitName,
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                }, 'Field "sentToAuthoritiesAt" is not defined by type "TicketCreateInput"')
+            })
+
+            test('resident: cannot update "sentToAuthoritiesAt"', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                    unitName,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicket(residentClient, ticket.id, {
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                })
+            })
+
+            test('staff: cannot create "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        unitName,
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                }, 'Field "sentToAuthoritiesAt" is not defined by type "TicketCreateInput"')
+            })
+
+            test('staff: cannot update "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    unitName,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicket(client, ticket.id, {
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                })
+            })
+
+            test('user with rightSet: cannot create "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const client2 = await makeClientWithProperty()
+                const [rightsSet] = await createTestUserRightsSet(admin, { canManageTicketSentToAuthoritiesAtField: true })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+                const unitName = faker.random.alphaNumeric(5)
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(client, client2.organization, client2.property, {
+                        unitName,
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                }, 'Field "sentToAuthoritiesAt" is not defined by type "TicketCreateInput"')
+            })
+
+            test('support: can update "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const client2 = await makeClientWithProperty()
+                const [rightsSet] = await createTestUserRightsSet(admin, {  canManageTicketSentToAuthoritiesAtField: true })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+                const unitName = faker.random.alphaNumeric(5)
+                const [ticket] = await createTestTicket(client2, client2.organization, client2.property, {
+                    unitName,
+                })
+
+                const [updatedTicket, ticketAttrs] = await updateTestTicket(client, ticket.id, {
+                    sentToAuthoritiesAt: dayjs().toISOString(),
+                })
+
+                expect(updatedTicket.sentToAuthoritiesAt).toBe(ticketAttrs.sentToAuthoritiesAt)
+            })
+        })
     })
 
     describe('Permissions', () => {
@@ -1484,6 +1601,76 @@ describe('Ticket', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicket(client, ticket.id, pick(payload, field))
                 })
+            })
+        })
+
+        describe('staff: observers fields access', () => {
+            test('user cannot read observers from ticket', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(
+                    admin,
+                    client.organization,
+                    client.property,
+                    {
+                        observers: {
+                            create: [{
+                                user: { connect: { id: client.user.id } },
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                            }],
+                        },
+                    }
+                )
+                const GET_TICKET_WITH_OBSERVERS_BY_ID = gql`
+                    query getTicketsWithObserversById($ticketId: ID!) {
+                        tickets: allTickets(where: { id: $ticketId }) {
+                            id
+                            observers {
+                                id
+                            }
+                        }
+                    }
+                `
+                const { errors } = await client.query(GET_TICKET_WITH_OBSERVERS_BY_ID, { ticketId: ticket.id })
+
+                expect(errors).toHaveLength(1)
+            })
+
+            test('user: can create and update observers from ticket', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(
+                    client,
+                    client.organization,
+                    client.property,
+                    {
+                        observers: {
+                            create: [{
+                                user: { connect: { id: client.user.id } },
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                            }],
+                        },
+                    }
+                )
+
+                const [ticketObserverBeforeUpdate] = await TicketObserver.getAll(client, { ticket: { id: ticket.id } })
+
+                expect(ticketObserverBeforeUpdate.id).toMatch(UUID_RE)
+                expect(ticketObserverBeforeUpdate.user.id).toEqual(client.user.id)
+                expect(ticketObserverBeforeUpdate.ticket.id).toEqual(ticket.id)
+                await updateTestTicket(
+                    client,
+                    ticket.id,
+                    {
+                        observers: { disconnect: [{ id: ticketObserverBeforeUpdate.id }] },
+                    }
+                )
+                // NOTE: Read by admin, because we cannot read TicketObserver without ticket
+                const [ticketObserverAfterUpdate] = await TicketObserver.getAll(admin, { id: ticketObserverBeforeUpdate.id })
+
+                expect(ticketObserverAfterUpdate.id).toMatch(UUID_RE)
+                expect(ticketObserverAfterUpdate.user.id).toEqual(client.user.id)
+                expect(ticketObserverAfterUpdate.ticket).toBeNull()
             })
         })
     })

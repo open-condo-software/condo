@@ -1,7 +1,7 @@
 import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
-import { isNull } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
+import isNull from 'lodash/isNull'
 import React from 'react'
 
 import { getEscaped } from '@condo/domains/common/utils/string.utils'

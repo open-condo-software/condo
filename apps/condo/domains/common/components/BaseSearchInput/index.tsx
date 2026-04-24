@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
-import { isEmpty } from 'lodash'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import throttle from 'lodash/throttle'
 import uniqBy from 'lodash/uniqBy'

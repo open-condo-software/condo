@@ -188,6 +188,7 @@ async function _internalSendHashedResidentPhones (context, data) {
     })
 }
 
+const RemoteClientPushToken = generateServerUtils('RemoteClientPushToken')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -207,5 +208,6 @@ module.exports = {
     NotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersion,
     _internalSendHashedResidentPhones,
+    RemoteClientPushToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

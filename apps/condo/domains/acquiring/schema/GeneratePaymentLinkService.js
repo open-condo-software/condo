@@ -8,7 +8,7 @@ const { isNil, map } = require('lodash')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { find, getById, GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/GeneratePaymentLinkService')
 const {
@@ -27,6 +27,7 @@ const {
     INVOICE_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     PAYMENT_LINK_PATH,
     PAYMENT_LINK_QP: {
@@ -42,7 +43,7 @@ const {
     },
 } = require('@condo/domains/acquiring/constants/links')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 /**
@@ -153,6 +154,13 @@ const ERRORS = {
         type: INVOICES_ARE_NOT_PUBLISHED,
         message: 'Found invoices with not "published" status',
     },
+    ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND: {
+        mutation: 'generatePaymentLink',
+        variable: ['data', 'acquiringIntegrationContext'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Specified AcquiringIntegrationContext was not found',
+    },
 }
 
 const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkService', {
@@ -199,7 +207,14 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 }
 
                 if (receipt || receiptData) {
-                    const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+                    const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                        id: acquiringIntegrationContext.id,
+                        integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
+                    })
+
+                    if (!acquiringContext) {
+                        throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_NOT_FOUND, context)
+                    }
 
                     if (acquiringContext.deletedAt) {
                         throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)

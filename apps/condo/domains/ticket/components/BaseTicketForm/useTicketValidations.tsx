@@ -20,6 +20,7 @@ type TicketFieldsKeys = 'property'
 | 'details'
 | 'executor'
 | 'assignee'
+| 'observers'
 type ITicketFieldsRuleMap = {
     [Key in TicketFieldsKeys]: Rule[]
 }
@@ -27,7 +28,7 @@ type ITicketFieldsRuleMap = {
 export function useTicketValidations (): ITicketFieldsRuleMap {
     const intl = useIntl()
 
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidCharError' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const ClassifierIsRequiredMessage = intl.formatMessage({ id: 'field.Classifier.requiredError' })
@@ -60,5 +61,6 @@ export function useTicketValidations (): ITicketFieldsRuleMap {
         ],
         executor: [],
         assignee: [],
+        observers: [],
     }), [ClassifierIsRequiredMessage, DescriptionInvalidLengthMessage, EmailErrorMessage, FullNameInvalidCharMessage, FullNameRequiredMessage, PropertyIsRequired, SelectIsRequiredMessage, changeMessage, emailValidator, phoneValidator, requiredValidator, specCharValidator, trimValidator])
 }

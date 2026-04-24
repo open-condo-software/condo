@@ -136,3 +136,18 @@ query getAllPropertyWithoutMapCountByOrganizationId ($organizationId: ID!) {
         count
     }
 }
+
+query getProperties ($where: PropertyWhereInput!, $first: Int!) {
+    properties: allProperties(
+        where: $where,
+        first: $first,
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        createdAt
+        updatedAt
+        name
+        address
+        organization { id name }
+    }
+}

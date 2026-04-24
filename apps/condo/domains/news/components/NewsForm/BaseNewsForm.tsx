@@ -34,7 +34,7 @@ import isNull from 'lodash/isNull'
 import keyBy from 'lodash/keyBy'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
-import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useMemo, useState, useEffect } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
@@ -48,7 +48,7 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
-import { NewsItemCard } from '@condo/domains/news/components/NewsItemCard'
+import { CondoNewsItemCard, SharingNewsItemCard } from '@condo/domains/news/components/NewsItemCard'
 import {
     detectTargetedSections,
 } from '@condo/domains/news/components/RecipientCounter'
@@ -63,7 +63,9 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { InputStep, SharingAppValuesType } from './InputStep'
 
+import type { NewsItemScopeNoInstanceType } from '../types'
 import type { FormRule as Rule } from 'antd'
+
 
 dayjs.extend(isSameOrAfter)
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -97,6 +99,8 @@ export type InitialValuesType =  Partial<INewsItem> & Partial<{
     hasAllProperties: boolean
     sendPeriod: SendPeriodType
     properties?: Array<IProperty>
+    type?: string
+    validBefore?: Dayjs
 }>
 
 export type TemplatesType = {
@@ -126,6 +130,8 @@ export type BaseNewsFormProps = {
     autoFocusBody?: boolean
     sharingAppContexts: IB2BAppContext[]
     createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
+    initialPropertiesFromQuery?: Array<string>
+    initialStep?: 0 | 1
 }
 
 type CondoFormValues = {
@@ -169,7 +175,7 @@ const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
-const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
+const ANGLE_BRACKETS_REGEX = /<[^>]*?>/
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
 const DATE_FORMAT = 'DD MMMM YYYY HH:mm'
 
@@ -203,19 +209,19 @@ const getValidBeforeAfterSendAt = (form) => {
     return true
 }
 
-const containWordsInSquareBrackets = (str) => {
-    const words = str.match(ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX) || []
-    return words.length !== 0
+const containTemplatePlaceholders = (str?: string) => {
+    if (!str) return false
+    return ANGLE_BRACKETS_REGEX.test(str)
 }
 
 const getTitleTemplateChanged = (form) => {
     const { title } = form.getFieldsValue(['title'])
-    return !containWordsInSquareBrackets(title)
+    return !containTemplatePlaceholders(title)
 }
 
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
-    return !containWordsInSquareBrackets(body)
+    return !containTemplatePlaceholders(body)
 }
 
 const isDateDisabled = date => {
@@ -343,6 +349,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     actionName,
     totalProperties,
     autoFocusBody,
+    initialPropertiesFromQuery,
+    initialStep = 0,
 }) => {
     const intl = useIntl()
     const MobileAppLabel = intl.formatMessage({ id: 'MobileAppName' })
@@ -382,6 +390,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const router = useRouter()
 
+    const [newsItemsForm] = Form.useForm()
+
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
@@ -395,8 +405,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const initialPropertyIds: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
 
+        if (initialPropertiesFromQuery) {
+            return initialPropertiesFromQuery
+        }
         return uniq(initialNewsItemScopes.map(item => item.property.id))
-    }, [initialHasAllProperties, initialNewsItemScopes])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialPropertiesFromQuery])
     const initialSectionKeys = useMemo(() => {
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
@@ -442,7 +455,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
-    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore, DATE_FORMAT))
+    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore))
 
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
@@ -470,6 +483,62 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: scope.selectedPropertiesId },
     }, { fetchPolicy: 'cache-first' })
+    
+    const newsItemScopesNoInstance = useMemo<Array<NewsItemScopeNoInstanceType>>(() => {
+        if (scope.isAllPropertiesChecked) {
+            return [{
+                property: null,
+                unitType: null,
+                unitName: null,
+            }]
+        }
+
+        if (selectedPropertiesLoading || scope.selectedPropertiesId.length === 0) {
+            return []
+        }
+
+        if (scope.selectedPropertiesId.length === 1) {
+            if (!isEmpty(scope.selectedUnitNameKeys)) {
+                return scope.selectedUnitNameKeys.map((unitKey) => {
+                    const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
+                    return {
+                        property: selectedProperties[0],
+                        unitType: unitType,
+                        unitName: unitName,
+                    }
+                })
+            }
+            if (!isEmpty(scope.selectedSectionKeys)) {
+                const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(selectedProperties[0], scope.selectedSectionKeys)
+                return unitNames.map((unitName, i) => {
+                    return {
+                        property: selectedProperties[0],
+                        unitType: unitTypes[i],
+                        unitName: unitName,
+                    }
+                })
+            }
+            if (isEmpty(scope.selectedUnitNameKeys) && isEmpty(scope.selectedSectionKeys)) {
+                return [{
+                    property: selectedProperties[0],
+                    unitType: null,
+                    unitName: null,
+                }]
+            }
+
+            return []
+        } else if (!isEmpty(selectedProperties)) {
+            return selectedProperties.map(property => {
+                return {
+                    property: property,
+                    unitType: null,
+                    unitName: null,
+                }
+            })
+        }
+
+        return []
+    }, [scope, selectedProperties, selectedPropertiesLoading])
 
     const softDeleteNewsItemScope = NewsItemScope.useSoftDeleteMany()
     const createNewsItemScope = NewsItemScope.useCreateMany({})
@@ -929,6 +998,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const isSharingAppStep = getStepTypeByStep(currentStep) === 'sharingApp'
     const isFormStep = getStepTypeByStep(currentStep) === 'condoApp' || isSharingAppStep
 
+    useEffect(() => {
+        // NOTE:    We skip steps using "useEffect"
+        //          because each step (even a skipped one) may contain some important logic
+        //          that is only triggered when moving to the next step.
+
+        if (!initialStep) return
+        if (initialStep >= 2) return
+
+        const stepsForSkip = initialStep - currentStep
+        for (let i = 0; i < stepsForSkip; i++) {
+            handleNextStep({ form: newsItemsForm })
+        }
+    }, [])
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -944,6 +1027,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 </Row>
 
                 <FormWithAction
+                    formInstance={newsItemsForm}
                     initialValues={initialFormValues}
                     colon={false}
                     action={handleFormSubmit}
@@ -1080,28 +1164,39 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
                                             <Col span={24} style={MARGIN_BOTTOM_38_STYLE}>
                                                 <NewsCardGrid>
-                                                    <NewsItemCard
+                                                    <CondoNewsItemCard
                                                         title={selectedTitle}
                                                         body={selectedBody}
                                                         appName={MobileAppLabel}
                                                         icon={DOMA_APP_ICON_URL}
+                                                        validBefore={selectedValidBefore}
+                                                        type={selectedType}
+                                                        newsItemScopesNoInstance={newsItemScopesNoInstance}
                                                     />
                                                     {getSelectedAndNotSkippedSharingApps().map(ctxId => {
-
                                                         const ctx = sharingAppContextsIndex[ctxId]
 
-                                                        const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', ' ')
-                                                        const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
-                                                        const title = get(sharingAppsFormValues, [ctxId, 'preview', 'renderedTitle'])
-                                                        const body = get(sharingAppsFormValues, [ctxId, 'preview', 'renderedBody'])
+                                                        const sharingAppId = ctx?.app?.id || null
+                                                        const sharingAppConfig = ctx?.app?.newsSharingConfig || null
+                                                        const sharingAppName = (ctx?.app?.newsSharingConfig?.name || '').replaceAll(' ', ' ')
+                                                        const sharingAppIcon = ctx?.app?.newsSharingConfig?.icon?.publicUrl || SHARING_APP_FALLBACK_ICON
+                                                        const title = sharingAppsFormValues?.[ctxId]?.preview?.renderedTitle
+                                                        const body = sharingAppsFormValues?.[ctxId]?.preview?.renderedBody
+                                                        const newsSharingScope = sharingAppsFormValues?.[ctxId]?.scope
 
                                                         return (
-                                                            <NewsItemCard
+                                                            <SharingNewsItemCard
                                                                 key={ctx.id}
                                                                 title={title}
                                                                 body={body}
                                                                 appName={sharingAppName}
                                                                 icon={sharingAppIcon}
+                                                                validBefore={selectedValidBefore}
+                                                                type={selectedType}
+                                                                sharingAppId={sharingAppId}
+                                                                newsSharingScope={newsSharingScope}
+                                                                newsSharingConfig={sharingAppConfig}
+                                                                newsItemScopesNoInstance={newsItemScopesNoInstance}
                                                             />
                                                         )
                                                     })}

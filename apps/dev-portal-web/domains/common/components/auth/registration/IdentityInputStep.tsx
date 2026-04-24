@@ -3,22 +3,25 @@ import getConfig from 'next/config'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Input } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './IdentityInputStep.module.css'
 
+import type { RowProps } from 'antd'
 import type { FormRule } from 'antd'
 
-import { useRegisterNewUserMutation, useSignInMutation } from '@/lib/gql'
+import { useRegisterNewUserMutation, useSignInMutation } from '@/gql'
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 const FULL_SPAN_COL = 24
+const FORM_GUTTER: RowProps['gutter'] = [24, 24]
+
 const IDENTITY_FORM_ERRORS_TO_FIELDS_MAP = {
     [USER_ALREADY_EXISTS]: 'phone',
     [PASSWORD_TOO_SIMPLE]: 'password',
@@ -37,13 +40,13 @@ type IdentityInputStepProps = {
 
 export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, actionId, onComplete }) => {
     const intl = useIntl()
-    const NameFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.name.label' })
-    const NameFieldPlaceholder = intl.formatMessage({ id: 'global.registerForm.items.name.placeholder' })
-    const PhoneFieldLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
-    const PasswordFieldLabel = intl.formatMessage({ id: 'global.authForm.items.password.label' })
-    const ConfirmPasswordFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.confirmPassword.label' })
-    const FinishRegistrationButtonLabel = intl.formatMessage({ id: 'global.registerForm.actions.completeRegistration' })
-    const PasswordsDontMatchErrorMessage = intl.formatMessage({ id: 'global.registerForm.validations.passwordsDontMatch.message' })
+    const NameFieldLabel = intl.formatMessage({ id: 'components.common.registerForm.items.name.label' })
+    const NameFieldPlaceholder = intl.formatMessage({ id: 'components.common.registerForm.items.name.placeholder' })
+    const PhoneFieldLabel = intl.formatMessage({ id: 'components.common.authForm.items.phone.label' })
+    const PasswordFieldLabel = intl.formatMessage({ id: 'components.common.authForm.items.password.label' })
+    const ConfirmPasswordFieldLabel = intl.formatMessage({ id: 'components.common.registerForm.items.confirmPassword.label' })
+    const FinishRegistrationButtonLabel = intl.formatMessage({ id: 'components.common.registerForm.actions.completeRegistration' })
+    const PasswordsDontMatchErrorMessage = intl.formatMessage({ id: 'components.common.registerForm.validations.passwordsDontMatch.message' })
 
     const [form] = Form.useForm()
     const { trimValidator, passwordValidator } = useValidations()
@@ -78,14 +81,14 @@ export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, act
 
     return (
         <Form
-            name='register-identity'
+            name='register-new-user-form'
             layout='vertical'
             requiredMark={false}
             form={form}
             initialValues={{ phone }}
             onFinish={registerAndLogin}
         >
-            <Row>
+            <Row gutter={FORM_GUTTER}>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='name' label={NameFieldLabel} required rules={[trimValidator]}>
                         <Input placeholder={NameFieldPlaceholder} autoComplete='off'/>

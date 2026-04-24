@@ -624,12 +624,11 @@ describe('RegisterPropertyMetersReadingsService', () => {
 
                 const row = data[0]
 
+                const propertyMeterReading = await PropertyMeterReading.getOne(adminClient, { id: row.id })
                 if (path.startsWith('meterMeta')) {
                     path = path.substring('meterMeta.'.length)
-                    const propertyMeter = await PropertyMeter.getOne(adminClient, { id: row.meter.id })
-                    expect(propertyMeter).toHaveProperty(path, dayjs(output).toISOString())
+                    expect(propertyMeterReading).toHaveProperty(['meter', path], dayjs(output).toISOString())
                 } else {
-                    const propertyMeterReading = await PropertyMeterReading.getOne(adminClient, { id: row.id })
                     expect(propertyMeterReading).toHaveProperty(path, dayjs(output).toISOString())
                 }
             })
@@ -911,11 +910,9 @@ describe('RegisterPropertyMetersReadingsService', () => {
         // create another reading for same meter and change `verificationDate`, `nextVerificationDate` and `archiveDate` fields values
         const nextVerificationDate = dayjs().add(1, 'week').toISOString()
         const verificationDate2 = dayjs().subtract(1, 'week').toISOString()
-        const archiveDate = dayjs().add(2, 'week').toISOString()
+        const archiveDate = dayjs().subtract(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
-            value1: faker.random.numeric(3),
-            value2: faker.random.numeric(4),
             meterMeta: {
                 ...readings[0].meterMeta,
                 verificationDate: verificationDate2,
@@ -944,8 +941,6 @@ describe('RegisterPropertyMetersReadingsService', () => {
         // sent third readings with isAutomatic = false, 'verificationDate' must stay the same
         const thirdReadings = [{
             ...readings[0],
-            value1: faker.random.numeric(3),
-            value2: faker.random.numeric(4),
             meterMeta: {
                 isAutomatic: false,
             },

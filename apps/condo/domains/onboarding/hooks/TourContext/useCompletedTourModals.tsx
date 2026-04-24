@@ -18,6 +18,7 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 
 type ButtonClickType = () => void
@@ -32,6 +33,8 @@ type CompletedStepModalDataValueType = {
         resident?: string[]
     }
     onButtonClick: { default: ButtonClickType } & { [key in TourStepTypeType]?: ButtonClickType }
+    buttonLabel?: { default?: string } & { [key in TourStepTypeType]?: string }
+    bodyText?: { default?: string } & { [key in TourStepTypeType]?: string }
 }
 
 type CompletedStepModalDataType = {
@@ -131,10 +134,18 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const ArchvieMetersResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.archiveMeters' })
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
 
+    const ViewResidentsAppGuideButtonLabelResident = intl.formatMessage({ id: 'tour.completedStepModal.viewResidentsAppGuide.buttonLabel.resident' })
+    const ViewResidentsAppGuideButtonLabelDefault = intl.formatMessage({ id: 'tour.completedStepModal.viewResidentsAppGuide.buttonLabel.default' })
+    const ViewResidentsAppGuideBodyTextResident = intl.formatMessage({ id: 'tour.completedStepModal.viewResidentsAppGuide.bodyText.resident' })
+    const ViewResidentsAppGuideBodyTextDefault = intl.formatMessage({ id: 'tour.completedStepModal.viewResidentsAppGuide.bodyText.default' })
+
     const router = useRouter()
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const hasNewsFeature = useMemo(() => isFeatureAvailable('news'), [isFeatureAvailable])
 
     const [completedStepModalData, setCompletedStepModalData] = useState<CompletedStepModalDataValueType | null>()
     const [completedTourFlow, setCompletedTourFlow] = useState<TourStepTypeType | null>()
@@ -178,8 +189,15 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: Building,
             newFeatures: {
-                employee: [CreateTicketsOnPropertyEmployeeFeature, CreateNewsOnPropertyEmployeeFeature, CreateReadingsOnPropertyEmployeeFeature],
-                resident: [CreateTicketsResidentFeature, ReadNewsResidentFeature],
+                employee: [
+                    CreateTicketsOnPropertyEmployeeFeature,
+                    hasNewsFeature && CreateNewsOnPropertyEmployeeFeature,
+                    CreateReadingsOnPropertyEmployeeFeature,
+                ].filter(Boolean),
+                resident: [
+                    CreateTicketsResidentFeature,
+                    hasNewsFeature && ReadNewsResidentFeature,
+                ].filter(Boolean),
             },
             onButtonClick: {
                 default: () => { router.push('/property') },
@@ -190,8 +208,16 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: Building,
             newFeatures: {
-                employee: [CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature],
-                resident: [ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature],
+                employee: [
+                    CreateTicketsEmployeeFeature,
+                    hasNewsFeature && CreateNewsEmployeeFeature,
+                    CreateReadingsEmployeeFeature,
+                    CreateContactsEmployeeFeature,
+                ].filter(Boolean),
+                resident: [
+                    ReadTicketsResidentFeature,
+                    hasNewsFeature && ReadNewsByUnitResidentFeature,
+                ].filter(Boolean),
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -205,8 +231,17 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: Building,
             newFeatures: {
-                employee: [CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature],
-                resident: [CreateTicketsResidentFeature, ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature],
+                employee: [
+                    CreateTicketsEmployeeFeature,
+                    hasNewsFeature && CreateNewsEmployeeFeature,
+                    CreateReadingsEmployeeFeature,
+                    CreateContactsEmployeeFeature,
+                ].filter(Boolean),
+                resident: [
+                    CreateTicketsResidentFeature,
+                    ReadTicketsResidentFeature,
+                    hasNewsFeature && ReadNewsByUnitResidentFeature,
+                ].filter(Boolean),
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -276,10 +311,18 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             },
             onButtonClick: {
                 default: () => { return },
-                [TourStepTypeType.Resident]: () => { router.push('/news') },
+                [TourStepTypeType.Resident]: hasNewsFeature ? () => { router.push('/news') } : () => { router.push('/tour') },
+            },
+            buttonLabel: {
+                default: ViewResidentsAppGuideButtonLabelDefault,
+                [TourStepTypeType.Resident]: hasNewsFeature ? ViewResidentsAppGuideButtonLabelResident : ViewResidentsAppGuideButtonLabelDefault,
+            },
+            bodyText: {
+                default: ViewResidentsAppGuideBodyTextDefault,
+                [TourStepTypeType.Resident]: hasNewsFeature ? ViewResidentsAppGuideBodyTextResident : ViewResidentsAppGuideBodyTextDefault,
             },
         },
-    }), [handleViewGuideClick, router])
+    }), [handleViewGuideClick, router, hasNewsFeature, CreateTicketsOnPropertyEmployeeFeature, CreateNewsOnPropertyEmployeeFeature, CreateReadingsOnPropertyEmployeeFeature, CreateTicketsResidentFeature, ReadNewsResidentFeature, CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature, ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature, TrackAndChangeTicketStatusEmployeeFeature, ChatWithResidentEmployeeFeature, ChatWithEmployeesEmployeeFeature, TrackTicketsResidentFeature, ChatWithOrganizationResidentFeature, CreateMeterReadingsResidentFeatureMessage, TakeReadingsFromResidentsFeatureMessage, ArchvieMetersResidentFeatureMessage, UploadReceiptsEmployeeFeatureMessage, TrackResidentPaymentsEmployeeFeatureMessage, PayBillsResidentFeatureMessage, NotifyResidentsAboutAppEmployeeFeatureMessage, DownloadAppResidentFeatureMessage, ViewResidentsAppGuideButtonLabelResident, ViewResidentsAppGuideButtonLabelDefault, ViewResidentsAppGuideBodyTextResident, ViewResidentsAppGuideBodyTextDefault])
 
     const updateCompletedStepModalData = useCallback((type: TourStepTypeType | 'importProperties', nextRoute?: string) => {
         if (activeStep !== TourStepTypeType.Resident && type === TourStepTypeType.CreateNews) return
@@ -318,6 +361,9 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
 
         if (isEmpty(completedActionType)) return
 
+        const buttonLabelOverride = get(completedStepModalData, ['buttonLabel', currentActiveStep]) || get(completedStepModalData, ['buttonLabel', 'default'])
+        const bodyTextOverride = get(completedStepModalData, ['bodyText', currentActiveStep]) || get(completedStepModalData, ['bodyText', 'default'])
+
         return {
             title: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.title` as FormatjsIntl.Message['ids'] }),
             subtitleText: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.subtitle` as FormatjsIntl.Message['ids'] }),
@@ -326,9 +372,9 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkIcon: get(completedStepModalData, 'subtitleLinkIcon'),
             newEmployeeFeatures: get(completedStepModalData, 'newFeatures.employee'),
             newResidentFeatures: get(completedStepModalData, 'newFeatures.resident'),
-            buttonLabel: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.buttonLabel.${currentActiveStep}` as FormatjsIntl.Message['ids'] }),
+            buttonLabel: buttonLabelOverride || intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.buttonLabel.${currentActiveStep}` as FormatjsIntl.Message['ids'] }),
             buttonOnClick: get(completedStepModalData, ['onButtonClick', activeStep], get(completedStepModalData, ['onButtonClick', 'default'])),
-            bodyText: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.bodyText.${currentActiveStep}` as FormatjsIntl.Message['ids'] }),
+            bodyText: bodyTextOverride || intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.bodyText.${currentActiveStep}` as FormatjsIntl.Message['ids'] }),
         }
     }, [activeStep, completedStepModalData, intl])
 

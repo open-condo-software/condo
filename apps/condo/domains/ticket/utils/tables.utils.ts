@@ -24,9 +24,9 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 type MultipleDataIndexType = DataIndexType[]
-type AttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
+type AttributesFilterGetterType = (dataIndices: MultipleDataIndexType, supervisedTicketSourceId?: string) => FilterType
 
-export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndices) => {
+export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndices, supervisedTicketSourceId) => {
     return function getWhereQuery (search) {
         if (!search || search.length === 0 || dataIndices.length === 1) return
 
@@ -35,6 +35,10 @@ export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndice
         return {
             OR: dataIndices.map(wrappedDataIndex => {
                 if (!args.find(arg => arg === wrappedDataIndex) || !isString(wrappedDataIndex)) return
+
+                if (wrappedDataIndex === 'isSupervised' && supervisedTicketSourceId) {
+                    return { 'source': { id: supervisedTicketSourceId } }
+                }
 
                 if (wrappedDataIndex === 'statusReopenedCounter') {
                     return { [`${wrappedDataIndex}_gt`]: 0 }
@@ -165,12 +169,18 @@ export const getPropertyScopeFilter = () => {
     }
 }
 
-export const getTicketTypeFilter = (userId) => {
+export const getTicketTypeFilter = (userId, { includeObservers = false } = {}) => {
     return function getWhereQuery (option) {
         if (isEmpty(option)) return
 
         if (option === 'own') {
-            return { OR: [{ executor: { id: userId }, assignee: { id: userId } }] }
+            const ownTicketFilter = {
+                executor: { id: userId },
+                assignee: { id: userId },
+                ...(includeObservers ? { observers_some: { user: { id: userId } } } : {}),
+            }
+
+            return { OR: [ownTicketFilter] }
         }
 
         if (option === 'favorite') {
@@ -186,14 +196,7 @@ export const getClientNameFilter = () => {
         return {
             OR: [
                 {
-                    AND: [
-                        {
-                            contact_is_null: true,
-                            clientName_contains_i: search,
-                        },
-                    ],
-                },
-                {
+                    clientName_contains_i: search,
                     contact: { name_contains_i: search },
                 },
             ],

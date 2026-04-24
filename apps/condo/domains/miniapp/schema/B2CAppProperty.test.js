@@ -7,8 +7,10 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     createTestB2CApp,
     createTestB2CAppAccessRight,
@@ -16,7 +18,14 @@ const {
     createTestB2CAppProperty,
     updateTestB2CAppProperty,
 } = require('@condo/domains/miniapp/utils/testSchema')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { 
+    createTestSubscriptionPlan, 
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -223,6 +232,224 @@ describe('B2CAppProperty test', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestB2CAppProperty(permittedUser, secondApp)
             })
+        })
+    })
+
+    describe('isAvailable field', () => {
+        let prevSubscriptionsFlag
+          
+        beforeAll(() => {
+            prevSubscriptionsFlag = setFeatureFlag(SUBSCRIPTIONS, true)
+        })
+
+        afterAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, prevSubscriptionsFlag)
+        })
+
+        test('returns true when no organizations at address', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp)
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(true)
+        })
+
+        test('returns false when organization at address has no subscription', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [organization] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property] = await createTestProperty(admin, organization)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
+
+            await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [b2cApp.id],
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(false)
+        })
+
+        test('returns true when organization has active subscription with app enabled', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [organization] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property] = await createTestProperty(admin, organization)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
+
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [b2cApp.id],
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(true)
+        })
+
+        test('returns false when organization has active subscription but app not enabled', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [organization] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property] = await createTestProperty(admin, organization)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
+
+            await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [b2cApp.id],
+            })
+
+            const [anotherPlan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [],
+            })
+
+            await createTestSubscriptionContext(admin, organization, anotherPlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(false)
+        })
+
+        test('returns true when app not restricted by any plan', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [organization] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property] = await createTestProperty(admin, organization)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
+
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [],
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(true)
+        })
+
+        test('returns true when no plans exist for organization type', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [organization] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property] = await createTestProperty(admin, organization)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(true)
+        })
+
+        test('returns true when at least one organization has app enabled (multiple orgs)', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [org1] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [org2] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property1] = await createTestProperty(admin, org1)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property1.address,
+                addressMeta: property1.addressMeta,
+            })
+            
+            await createTestProperty(admin, org2, {
+                address: property1.address,
+                addressMeta: property1.addressMeta,
+            })
+
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [b2cApp.id],
+            })
+
+            const [planWithoutApp] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [],
+            })
+
+            await createTestSubscriptionContext(admin, org1, planWithoutApp, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            await createTestSubscriptionContext(admin, org2, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(true)
+        })
+
+        test('returns false when all organizations have subscriptions but app not enabled in any', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [org1] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [org2] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+            const [property1] = await createTestProperty(admin, org1)
+            
+            const [appProperty] = await createTestB2CAppProperty(admin, b2cApp, {
+                address: property1.address,
+                addressMeta: property1.addressMeta,
+            })
+            
+            await createTestProperty(admin, org2, {
+                address: property1.address,
+                addressMeta: property1.addressMeta,
+            })
+
+            await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [b2cApp.id],
+            })
+
+            const [planWithoutApp] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                enabledB2CApps: [],
+            })
+
+            await createTestSubscriptionContext(admin, org1, planWithoutApp, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            await createTestSubscriptionContext(admin, org2, planWithoutApp, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+            })
+
+            const properties = await B2CAppProperty.getAll(admin, { id: appProperty.id }, 'id isAvailable')
+            expect(properties).toHaveLength(1)
+            expect(properties[0].isAvailable).toBe(false)
         })
     })
 })

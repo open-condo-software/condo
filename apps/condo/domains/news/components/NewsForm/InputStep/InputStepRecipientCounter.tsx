@@ -40,7 +40,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const parsedNewsSharingScope = useMemo(()=>newsSharingScope?.map(scope =>
+    const parsedNewsSharingScope = useMemo(() => newsSharingScope?.map(scope =>
         typeof scope === 'string' ? JSON.parse(scope)?.value : scope) || [],
     [newsSharingScope]
     )
@@ -48,42 +48,56 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
         parsedNewsSharingScope?.filter(scope=> !!scope.id),
     [parsedNewsSharingScope]
     )
-    const receiversCount = useMemo(()=> filteredNewsSharingScope.reduce((acc, scope) => {
+    const receiversCount = useMemo(() => filteredNewsSharingScope.reduce((acc, scope) => {
         const count = Number(scope?.receiversCount) || 0
         return acc + count
     }, 0) || 0, [filteredNewsSharingScope])
 
-    const newsSharingRecipientCounter = useMemo(() => <>{isSharingStep && (
-        newsSharingConfig?.getRecipientsCountersUrl ? (
-            <MemoizedNewsSharingRecipientCounter
-                contextId={sharingAppId}
-                newsItemScopes={newsItemScopesNoInstance}
-            /> ) :
-            <HiddenBlock hide={!filteredNewsSharingScope?.length} className={styles.customCounter} >
-                <Card title={<Card.CardHeader headingTitle={StatisticsTitle} />}>
-                    <Space direction='horizontal' size={24}  className={styles.customCounterContent}>
-                        <Counter
-                            label={ChannelsLabel}
-                            value={filteredNewsSharingScope?.length}
-                        />
-                        <Counter
-                            label={SubscribersLabel}
-                            value={receiversCount}
-                        />
-                    </Space>
-                </Card>
-            </HiddenBlock>
-    )}</>, [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance,
+    const newsSharingRecipientCounter = useMemo(() => (
+        <>
+            {
+                isSharingStep && (
+                    newsSharingConfig?.getRecipientsCountersUrl
+                        ? (
+                            <MemoizedNewsSharingRecipientCounter
+                                contextId={sharingAppId}
+                                newsItemScopes={newsItemScopesNoInstance}
+                            />
+                        )
+                        : (
+                            <HiddenBlock hide={!filteredNewsSharingScope?.length} className={styles.customCounter}>
+                                <Card title={<Card.CardHeader headingTitle={StatisticsTitle} />}>
+                                    <Space direction='horizontal' size={24}  className={styles.customCounterContent}>
+                                        <Counter
+                                            label={ChannelsLabel}
+                                            value={filteredNewsSharingScope?.length}
+                                        />
+                                        <Counter
+                                            label={SubscribersLabel}
+                                            value={receiversCount}
+                                        />
+                                    </Space>
+                                </Card>
+                            </HiddenBlock>
+                        )
+                )
+            }
+        </>
+    ), [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance,
         filteredNewsSharingScope, StatisticsTitle, ChannelsLabel, SubscribersLabel, receiversCount]
     )
 
     return (
         <Col span={formInfoColSpan} className={styles.recipientCounter}>
-            {isSharingStep ? newsSharingRecipientCounter : (
-                <HiddenBlock hide={newsItemScopesNoInstance.length <= 0}>
-                    <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                </HiddenBlock>
-            )}
+            {
+                isSharingStep
+                    ? newsSharingRecipientCounter
+                    : (
+                        <HiddenBlock hide={newsItemScopesNoInstance.length <= 0}>
+                            <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance} />
+                        </HiddenBlock>
+                    )
+            }
         </Col>
     )
 }

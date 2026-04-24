@@ -1,5 +1,6 @@
 import { getCookie, setCookie } from 'cookies-next'
 
+import { getEmbeddingContext } from './embeddingContext'
 import { generateUUIDv4 } from './uuid'
 
 type SenderInfo = {
@@ -10,7 +11,9 @@ type SenderInfo = {
 /** Name of the cookie in which the fingerprint will be stored */
 export const FINGERPRINT_ID_COOKIE_NAME = 'fingerprint'
 /** Default fingerprint length */
-export const FINGERPRINT_ID_LENGTH = 12
+export const FINGERPRINT_ID_LENGTH = 32
+/** Fingerprint cookie should be persistent, so we are giving it a big maxAge */
+const VERY_LONG_MAX_AGE_IN_SECONDS = Math.pow(2, 31) - 1 // Around 68 years in seconds
 
 function makeId (length: number): string {
     const croppedLength = Math.min(length, 32)
@@ -30,11 +33,20 @@ export function generateFingerprint (): string {
  * So consider using it instead
  */
 export function getClientSideFingerprint (): string {
+    // NOTE: if we're inside another application, use its device id as fingerprint, but not persist it in cookie
+    const embeddingContext = getEmbeddingContext()
+    if (embeddingContext) {
+        return embeddingContext.ctx.device.id
+    }
+
     let fingerprint = getCookie(FINGERPRINT_ID_COOKIE_NAME)
     if (!fingerprint) {
         fingerprint = generateFingerprint()
-        setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint)
     }
+    // Since 2022 browsers maintain cookie for 400 days at max, so let's update cookie expiration time
+    setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint, {
+        maxAge: VERY_LONG_MAX_AGE_IN_SECONDS, // no "maxAge" or "expires" means that cookie clears when session ends (f.e. when browser closes)
+    })
 
     return fingerprint
 }

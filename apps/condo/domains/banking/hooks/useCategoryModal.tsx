@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Typography, List, RadioGroup, Radio, Space, Button, Alert } from '@open-condo/ui'
 

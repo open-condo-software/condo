@@ -2,9 +2,11 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { WebhookGQL, WebhookSubscriptionGQL } = require('@open-condo/webhooks/schema/gql')
+const { WebhookGQL, WebhookSubscriptionGQL, WebhookPayloadGQL } = require('@open-condo/webhooks/schema/gql')
+
 const Webhook = generateGQLTestUtils(WebhookGQL)
 const WebhookSubscription = generateGQLTestUtils(WebhookSubscriptionGQL)
+const WebhookPayload = generateGQLTestUtils(WebhookPayloadGQL)
 
 async function createTestWebhook (client, user, extraAttrs = {}) {
     if (!client) throw new Error('No client!')
@@ -93,13 +95,59 @@ async function softDeleteTestWebhookSubscription (client, id) {
     })
 }
 
+async function createTestWebhookPayload (client, extraAttrs = {}) {
+    if (!client) throw new Error('No client!')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        payload: JSON.stringify({ eventType: 'User.created', data: { test: true } }),
+        url: faker.internet.url(),
+        secret: faker.random.alphaNumeric(32),
+        eventType: 'User.created',
+        ...extraAttrs,
+    }
+
+    const obj = await WebhookPayload.create(client, attrs)
+
+    return [obj, attrs]
+}
+
+async function updateTestWebhookPayload (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('No client!')
+    if (!id) throw new Error('No id!')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+
+    const obj = await WebhookPayload.update(client, id, attrs)
+
+    return [obj, attrs]
+}
+
+async function softDeleteTestWebhookPayload (client, id) {
+    return await updateTestWebhookPayload(client, id, {
+        deletedAt: dayjs().toISOString(),
+    })
+}
+
 module.exports = {
     Webhook,
     WebhookSubscription,
+    WebhookPayload,
     createTestWebhook,
     updateTestWebhook,
     softDeleteTestWebhook,
     createTestWebhookSubscription,
     updateTestWebhookSubscription,
     softDeleteTestWebhookSubscription,
+    createTestWebhookPayload,
+    updateTestWebhookPayload,
+    softDeleteTestWebhookPayload,
 }

@@ -1,15 +1,19 @@
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+
+import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { ActionBar, Typography, Button } from '@open-condo/ui'
 
+import { DynamicIcon, IconName } from '@condo/domains/common/components/DynamicIcon'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
+import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
@@ -36,8 +40,9 @@ export type IFrameProps = {
     withPrefetch?: boolean
     withResize?: boolean
     allowFullscreen?: boolean
+    onLoad?: () => void
+    initialHeight?: number
 }
-
 
 const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props, ref) => {
     const {
@@ -48,6 +53,8 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         withPrefetch = false,
         withResize = false,
         allowFullscreen = false,
+        onLoad,
+        initialHeight = DEFAULT_FRAME_HEIGHT,
     } = props
 
     const intl = useIntl()
@@ -67,26 +74,33 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const [frameId, setFrameId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isError, setIsError] = useState(false)
-    const [frameHeight, setFrameHeight] = useState(DEFAULT_FRAME_HEIGHT)
+    const [frameHeight, setFrameHeight] = useState(initialHeight)
     const isClientSide = typeof window !== 'undefined'
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { addFrame, addEventHandler, removeFrame } = usePostMessageContext()
-
+    const { addFrame, addEventHandler, removeFrame, actionsContext: { actions, actionsSource, actionsOrigin } } = usePostMessageContext()
     const userId = get(user, 'id', null)
+    const userType = get(user, 'type', STAFF)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
         const url = new URL(src)
+        url.searchParams.set('condoUserType', userType)
+        url.searchParams.set('condoContextEntity', 'Organization')
+        if (typeof window !== 'undefined') {
+            url.searchParams.set('condoDeviceId', getClientSideFingerprint())
+        }
+
         if (userId && (reloadScope === 'user' || reloadScope === 'organization')) {
             url.searchParams.set('condoUserId', userId)
         }
         if (organizationId && reloadScope === 'organization') {
+            // TODO: remove this later
             url.searchParams.set('condoOrganizationId', organizationId)
+            url.searchParams.set('condoContextEntityId', organizationId)
         }
-
         return url.toString()
-    }, [src, userId, organizationId, reloadScope])
+    }, [src, userType, userId, reloadScope, organizationId])
 
     const rerenderKey = useMemo(() => {
         const params: { [key: string]: string } = { src }
@@ -102,7 +116,8 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const handleLoad = useCallback(() => {
         setIsLoading(false)
-    }, [])
+        onLoad?.()
+    }, [onLoad])
 
     const preFetch = useCallback(async () => {
         if (isClientSide) {
@@ -162,33 +177,90 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         }
     }, [frameId, addEventHandler, requestAuth])
 
+
+    const sendActionClickEvent = useCallback((actionId: string) => {
+        if (!actionsSource || !actionsOrigin) return
+
+        actionsSource.postMessage({ type: 'CondoWebAppActionClickEvent', data: { actionId } }, actionsOrigin)
+    }, [actionsSource, actionsOrigin])
+
+    const actionButtons = useMemo(() => {
+        if (!actions?.length) return null
+
+        const actionElements = actions
+            .map((action, index) => {
+                const actionId = action.id
+                if (!actionId) return null
+
+                return (
+                    <Button
+                        key={actionId}
+                        id={actionId}
+                        type={index === 0 ? 'primary' : 'secondary'}
+                        loading={action.loading}
+                        disabled={action.disabled}
+                        onClick={() => sendActionClickEvent(actionId)}
+                        icon={action.icon ? <DynamicIcon name={action.icon as IconName} /> : undefined}
+                    >
+                        {action.label}
+                    </Button>
+                )
+            }).filter(Boolean)
+
+        return actionElements.length ? actionElements : null
+    }, [actions, sendActionClickEvent])
+
+    const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
+    const shouldShowActionBar = isActionOwner && actionsOrigin && Boolean(actions?.length)
+
+    const containerStyle = useMemo<CSSProperties>(() => {
+        const shouldAnimateHeight = withResize && !shouldShowActionBar
+
+        return {
+            height: frameHeight,
+            overflowY: 'hidden',
+            transition: shouldAnimateHeight ? 'height 200ms ease' : 'none',
+            display: hidden ? 'none' : 'block',
+        }
+    }, [frameHeight, hidden, shouldShowActionBar, withResize])
+
     return (
         <>
-            {withLoader && isLoading && (
-                <Loader fill size='large'/>
+            <div style={containerStyle}>
+                {withLoader && isLoading && (
+                    <Loader fill size='large'/>
+                )}
+                {withPrefetch && isError && (
+                    <BasicEmptyListView {...EMPTY_LIST_PROPS}>
+                        <Typography.Title level={4}>
+                            {LoadingErrorOccurredTitle}
+                        </Typography.Title>
+                        <Typography.Text type='secondary'>
+                            {LoadingErrorOccurredMessage}
+                        </Typography.Text>
+                    </BasicEmptyListView>
+                )}
+            
+                <iframe
+                    src={srcWithMeta}
+                    key={rerenderKey}
+                    style={IFRAME_STYLES}
+                    onLoad={handleLoad}
+                    hidden={isLoading || isError || hidden}
+                    ref={handleRefChange}
+                    height={frameHeight}
+                    allowFullScreen={allowFullscreen}
+                    allow='clipboard-write'
+                    // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
+                    scrolling='no'
+                />
+            
+            </div>
+            {shouldShowActionBar && (
+                <ActionBar
+                    actions={actionButtons as [ReactElement, ...ReactElement[]]}
+                />
             )}
-            {withPrefetch && isError && (
-                <BasicEmptyListView {...EMPTY_LIST_PROPS}>
-                    <Typography.Title level={4}>
-                        {LoadingErrorOccurredTitle}
-                    </Typography.Title>
-                    <Typography.Text type='secondary'>
-                        {LoadingErrorOccurredMessage}
-                    </Typography.Text>
-                </BasicEmptyListView>
-            )}
-            <iframe
-                src={srcWithMeta}
-                key={rerenderKey}
-                style={IFRAME_STYLES}
-                onLoad={handleLoad}
-                hidden={isLoading || isError || hidden}
-                ref={handleRefChange}
-                height={frameHeight}
-                allowFullScreen={allowFullscreen}
-                // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
-                scrolling='no'
-            />
         </>
     )
 })

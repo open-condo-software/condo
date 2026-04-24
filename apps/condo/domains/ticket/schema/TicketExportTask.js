@@ -6,7 +6,7 @@ const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -82,6 +82,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: 'File',
+            sensitive: true,
             adapter: TicketExportTaskFileAdapter,
             access: {
                 read: true,
@@ -93,6 +94,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
         meta: {
             schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: 'Json',
+            sensitive: true,
             access: {
                 read: true,
                 create: canOnlyServerSideWithoutUserRequest,
@@ -103,6 +105,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
         where: {
             schemaDoc: 'Filtering conditions for records to export',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
             // TODO(antonal): add validation by reusing `TicketWhereInput` as a GraphQL type
             access: {
@@ -199,7 +202,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadTicketExportTasks,
         create: access.canManageTicketExportTasks,

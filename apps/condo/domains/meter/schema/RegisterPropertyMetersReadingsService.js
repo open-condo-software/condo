@@ -25,11 +25,13 @@ const {
     getValues, getMeterDates, getMeterFields, getReadingFields,
     getFieldsToUpdate,
     getValuesList,
-    getMeterReadingByDate,
+    getMeterReadingsForSearchingDuplicates,
+    createMeterReadingKey,
     tryToISO,
     getDateStrValidationError,
     transformToPlainObject,
     getAddressesKeys, getResolvedAddresses,
+    getSortedValues,
 } = require('@condo/domains/meter/utils/serverSchema/registerHelpers')
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
@@ -142,7 +144,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                     deletedAt: null,
                 })
 
-                const meterReadingByDate = await getMeterReadingByDate(readings, meters, properties, 'PropertyMeterReading')
+                const meterReadingForSearchingDuplicates = await getMeterReadingsForSearchingDuplicates(readings, meters, properties, 'PropertyMeterReading')
 
                 for (const reading of readings) {
                     const meterNumber = reading.meterNumber.trim()
@@ -164,8 +166,6 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                         continue
                     }
 
-                    const dateISO = tryToISO(reading.date)
-                    const startOfDayISO = dateISO ? dayjs(dateISO).startOf('day').toISOString() : undefined
                     const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
@@ -212,10 +212,14 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                                     context,
                                     foundMeter.id,
                                     { dv, sender, ...fieldsToUpdate },
-                                    'id property { id } number resource { id }'
+                                    'id property { id address addressKey } number resource { id }'
                                 )
-                                const meterIndex = meters.indexOf(meter => meter.id === updatedMeter.id)
+                                const meterIndex = meters.findIndex(meter => meter.id === updatedMeter.id)
                                 meters[meterIndex] = transformToPlainObject(updatedMeter)
+                                const key = createMeterReadingKey(meterId, getSortedValues(reading))
+                                if (meterReadingForSearchingDuplicates[key]) {
+                                    meterReadingForSearchingDuplicates[key]['meter'] = updatedMeter
+                                }
                             }
                         } else {
                             const propertyMeterFieldsGetter = getMeterFields(true)
@@ -235,8 +239,8 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
 
                     try {
                         // NOTE: we look for duplicates with the same date, disregarding the time of day
-                        const key = `${meterId}-${startOfDayISO}`
-                        const duplicateReading = meterReadingByDate[key]
+                        const key = createMeterReadingKey(meterId, getSortedValues(reading))
+                        const duplicateReading = meterReadingForSearchingDuplicates[key]
 
                         if (!duplicateReading) {
                             const propertyMeterReadingFieldsGetter = getReadingFields(true)
@@ -246,7 +250,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                                 ...propertyMeterReadingFieldsGetter(meterId, readingSource, reading, values),
                             }, 'id meter { id number property { id address addressKey } }')
 
-                            meterReadingByDate[key] = createdMeterReading
+                            meterReadingForSearchingDuplicates[key] = createdMeterReading
                             resultRows.push(meterReadingAsResult(createdMeterReading))
                         } else {
                             resultRows.push(meterReadingAsResult(duplicateReading))

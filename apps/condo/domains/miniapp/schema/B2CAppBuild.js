@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2CAppBuild')
@@ -61,6 +61,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
         data: {
             schemaDoc: 'B2C app cordova build compressed to single .zip file',
             type: 'File',
+            sensitive: true,
             isRequired: true,
             adapter: B2C_APP_BUILD_FILE_ADAPTER,
             hooks: {
@@ -95,7 +96,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical(), analytical()],
     access: {
         read: access.canReadB2CAppBuilds,
         create: access.canManageB2CAppBuilds,

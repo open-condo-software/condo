@@ -1,8 +1,9 @@
 import { AddressMetaField } from '@app/condo/schema'
 import getConfig from 'next/config'
 
+import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
+
 import { makeId } from './makeid.utils'
-import { getCurrentUserId } from './userid.utils'
 
 type TSuggestion = AddressMetaField & {
     rawValue: string
@@ -56,7 +57,7 @@ export class AddressApi implements IAddressApi {
     }
 
     private setSessionConfig () {
-        const user = getCurrentUserId()
+        const user = getClientSideFingerprint()
         const session = makeId(8)
         this.session = `${user}-${session}`
     }

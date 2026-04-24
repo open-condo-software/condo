@@ -172,7 +172,6 @@ export const InputStep: React.FC<InputStepProps> = ({
 
     const [sharingAppFormValues, setSharingAppFormValues] = useState<SharingAppValuesType>(processedInitialValues)
 
-
     const countPropertiesAvailableToSelect = useRef(null)
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (scope.selectedPropertiesId.length === 1), [scope.selectedPropertiesId.length])
@@ -259,7 +258,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         setSelectedTitle(value)
         form.setFieldsValue({ title: value })
-        form.validateFields(['title'])
+        if (form.isFieldTouched('title')) form.validateFields(['title'])
     }, [isSharingStep])
 
     const handleFormBodyChange = useCallback((form) => (value: string) => {
@@ -272,7 +271,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         setSelectedBody(value)
         form.setFieldsValue({ body: value })
-        form.validateFields(['body'])
+        if (form.isFieldTouched('body')) form.validateFields(['body'])
     }, [isSharingStep])
 
     useEffect(() => {
@@ -390,8 +389,6 @@ export const InputStep: React.FC<InputStepProps> = ({
                     />
                 </Col>
             )}
-        </Row>)
+        </Row>
+    )
 }
-
-
-

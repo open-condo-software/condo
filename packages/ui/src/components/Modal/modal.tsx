@@ -74,7 +74,7 @@ const Modal: React.FC<ModalProps> = (props) => {
             className={classes}
             closeIcon={<Cross/>}
             footer={footer || null}
-            title={<Typography.Title level={3} ellipsis={{ rows: 2 }} children={title}/>}
+            title={<Typography.Title level={3} ellipsis={{ rows: 4 }} children={title}/>}
             width={CONDO_MODAL_WIDTH[width]}
             focusTriggerAfterClose={false}
             // NOTE: this hack need for forwarding ref

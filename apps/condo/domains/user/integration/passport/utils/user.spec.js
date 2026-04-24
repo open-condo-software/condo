@@ -375,6 +375,31 @@ describe('User utils', () => {
                 expect(user).toHaveProperty('isEmailVerified', true)
                 expect(user).toHaveProperty('isExternalEmailVerified', true)
             })
+            test('Must accept explicitly set null values for name / email / phone', async () => {
+                const profile = {
+                    sub: faker.datatype.uuid(),
+                    name: null,
+                    email: null,
+                    phone_number: null,
+                }
+
+                const { id } = await syncUser(
+                    createMockRequest(),
+                    profile,
+                    getRandomUserType(),
+                    generateProviderInfo(),
+                )
+                const user = await getById('User', id)
+                expect(user).toHaveProperty('name', null)
+                expect(user).toHaveProperty('email', null)
+                expect(user).toHaveProperty('phone', null)
+                expect(user).toHaveProperty('externalEmail', null)
+                expect(user).toHaveProperty('externalPhone', null)
+                expect(user).toHaveProperty('isEmailVerified', false)
+                expect(user).toHaveProperty('isPhoneVerified', false)
+                expect(user).toHaveProperty('isExternalEmailVerified', false)
+                expect(user).toHaveProperty('isExternalPhoneVerified', false)
+            })
             test('conversion test', async () => {
                 const fields = {
                     id: [faker.random.alphaNumeric(12), faker.datatype.uuid()],

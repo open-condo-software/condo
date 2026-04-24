@@ -12,7 +12,8 @@ export const B2C_BUILD_ALLOWED_MIMETYPES  = [
     'application/zip-compressed',
 ]
 export const B2C_BUILD_MAX_FILE_SIZE_IN_BYTES = 200 * 1024 * 1024  // 200 Mb in bytes
-export const B2C_BUILD_VERSION_REGEXP = /^\d{1,10}.\d{1,10}.\d{1,10}(?:-\w{1,64})?$/
+// NOTE: taken from https://semver.org
+export const B2C_BUILD_VERSION_REGEXP = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 export const DEFAULT_PAGE_SIZE = 10
 
 // TODO: Replace with relative link after migrating docs

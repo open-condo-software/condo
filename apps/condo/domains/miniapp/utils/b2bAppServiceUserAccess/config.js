@@ -57,6 +57,22 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
             pathToOrganizationId: ['context', 'organization', 'id'],
             canBeManaged: false,
         },
+        BillingReceiptFile: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+            canBeManaged: false,
+        },
+        BillingAccount: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+            canBeManaged: false,
+        },
+        BillingProperty: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+            canBeManaged: false,
+        },
+        BillingRecipient: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+            canBeManaged: false,
+        },
 
         // Contact domain
         Contact: {},
@@ -69,6 +85,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         MeterReading: {
             pathToOrganizationId: ['meter', 'organization', 'id'],
         },
+        MeterReportingPeriod: {},
 
         // Organization domain
         Organization: {
@@ -112,6 +129,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         registerPropertyMetersReadings: {},
         registerBillingReceipts: {},
         registerBillingReceiptFile: {},
+        setPaymentPosReceiptUrl: {},
     },
 }
 

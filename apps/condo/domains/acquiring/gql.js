@@ -20,13 +20,19 @@ const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegration
 
 const FEE_DISTRIBUTION_FIELDS = 'recipient percent minAmount maxAmount category'
 
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name setupUrl hostUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } invoiceTaxRegime invoiceVatPercent invoiceSalesTaxPercent }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name type setupUrl hostUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } invoiceTaxRegime invoiceVatPercent invoiceSalesTaxPercent }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
-const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
+const MULTI_PAYMENT_PAYER_INFO_FIELDS = 'payerInfo { id name email phone }'
+const MULTI_PAYMENT_COMMON_FIELDS = `amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS}`
+const MULTI_PAYMENT_FIELDS = `{ ${MULTI_PAYMENT_COMMON_FIELDS} }`
+const MULTI_PAYMENT_WITH_PAYER_INFO = `{ ${MULTI_PAYMENT_PAYER_INFO_FIELDS} ${MULTI_PAYMENT_COMMON_FIELDS} }`
+const MULTI_PAYMENT_ADMIN_FIELDS = `{ user { id name email phone isEmailVerified isPhoneVerified } ${MULTI_PAYMENT_PAYER_INFO_FIELDS} ${MULTI_PAYMENT_COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
+const MultiPaymentWithPayerInfo = generateGqlQueries('MultiPayment', MULTI_PAYMENT_WITH_PAYER_INFO)
+const MultiPaymentAdmin = generateGqlQueries('MultiPayment', MULTI_PAYMENT_ADMIN_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount rawAddress frozenDistribution frozenSplits }`
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount rawAddress frozenDistribution frozenSplits posReceiptUrl }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
@@ -91,6 +97,21 @@ const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
 const PAYMENTS_FILE_FIELDS = `{ number file { id originalFilename publicUrl mimetype } context { id } importId bankAccount paymentPeriodStartDate paymentPeriodEndDay loadedAt paymentsCount amount amountWithoutFees name status bankComment paymentOrder ${COMMON_FIELDS} }`
 const PaymentsFile = generateGqlQueries('PaymentsFile', PAYMENTS_FILE_FIELDS)
 
+const SET_PAYMENT_POS_RECEIPT_URL_MUTATION = gql`
+    mutation setPaymentPosReceiptUrl ($data: SetPaymentPosReceiptUrlInput!) {
+        result: setPaymentPosReceiptUrl(data: $data) { success }
+    }
+`
+
+const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS = `{ name url isEnabled description organization { id name } ${COMMON_FIELDS} }`
+const PaymentStatusChangeWebhookUrl = generateGqlQueries('PaymentStatusChangeWebhookUrl', PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS)
+
+const REGISTER_EXTERNAL_PAYMENTS_MUTATION = gql`
+    mutation registerExternalPayments ($data: RegisterExternalPaymentsInput!) {
+        result: registerExternalPayments(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -104,6 +125,8 @@ module.exports = {
     AcquiringIntegrationAccessRight,
     AcquiringIntegrationContext,
     MultiPayment,
+    MultiPaymentWithPayerInfo,
+    MultiPaymentAdmin,
     Payment,
     REGISTER_MULTI_PAYMENT_MUTATION,
     EXPORT_PAYMENTS_TO_EXCEL,
@@ -118,5 +141,9 @@ module.exports = {
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
     PaymentsFile,
+    SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS,
+    PaymentStatusChangeWebhookUrl,
+    REGISTER_EXTERNAL_PAYMENTS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

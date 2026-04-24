@@ -1,6 +1,6 @@
 import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 import { gql } from 'graphql-tag'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 
 const GET_ALL_BILLING_PROPERTIES_BY_VALUE_QUERY = gql`
     query selectBillingProperty ($where: BillingPropertyWhereInput, $orderBy: String, $first: Int, $skip: Int) {

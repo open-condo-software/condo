@@ -23,10 +23,10 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
 import { useOrganizationEmployeeRequests } from '@condo/domains/organization/hooks/useOrganizationEmployeeRequests'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
-
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
 
@@ -37,11 +37,12 @@ interface IHeaderProps {
 
 export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
-    const { breakpoints, toggleCollapsed } = useLayoutContext()
+    const { toggleCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
+    const { hasSubscription } = useOrganizationSubscription()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
     const organizationIdsToFilterMessages = useMemo(() => [organization?.id], [organization?.id])
@@ -74,41 +75,38 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     }, [isAuthenticated, router])
 
     return (
-        <UserMessagesListContextProvider organizationIdsToFilter={organizationIdsToFilterMessages}>
+        <UserMessagesListContextProvider disabled={!hasSubscription} organizationIdsToFilter={organizationIdsToFilterMessages}>
             {ChooseEmployeeRoleModal}
             {
-                !breakpoints.TABLET_LARGE
-                    ? (
-                        <>
-                            <div id='tasks-container' className='tasks-container' />
-                            <Layout.Header className='header mobile-header'>
-                                <div className='context-bar'>
-                                    <UserMessagesList />
-                                    <div className='organization-user-block'>
-                                        <Space direction='horizontal' size={4}>
-                                            <SBBOLIndicator organization={organization} />
-                                            <InlineOrganizationSelect/>
-                                        </Space>
-                                        <UserMenu/>
-                                    </div>
+                isMobileView ?
+                    <>
+                        <div id='tasks-container' className='tasks-container' />
+                        <Layout.Header className='header mobile-header'>
+                            <div className='context-bar'>
+                                <UserMessagesList disabled={!hasSubscription} />
+                                <div className='organization-user-block'>
+                                    <Space direction='horizontal' size={4}>
+                                        <SBBOLIndicator organization={organization} />
+                                        <InlineOrganizationSelect/>
+                                    </Space>
+                                    <UserMenu/>
                                 </div>
-                                <div className='appeals-bar'>
-                                    <Menu size='large' onClick={toggleCollapsed}/>
-                                    <Logo onClick={handleLogoClick} minified/>
-                                    <div>
-                                        {hasAccessToAppeals && (
-                                            <ResidentActions minified/>
-                                        )}
-                                    </div>
+                            </div>
+                            <div className='appeals-bar'>
+                                <Menu size='large' onClick={toggleCollapsed}/>
+                                <Logo onClick={handleLogoClick} minified/>
+                                <div>
+                                    {hasAccessToAppeals && (
+                                        <ResidentActions minified/>
+                                    )}
                                 </div>
-                            </Layout.Header>
-                        </>
-                    )
-                    : (
-                        <Layout.Header className='header desktop-header'>
-                            <TopMenuItems headerAction={props.headerAction}/>
+                            </div>
                         </Layout.Header>
-                    )
+                    </> :
+                    <Layout.Header className='header desktop-header'>
+                        <TopMenuItems headerAction={props.headerAction}/>
+                    </Layout.Header>
+
             }
         </UserMessagesListContextProvider>
     )

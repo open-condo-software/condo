@@ -2,7 +2,7 @@ import { TicketPropertyHint } from '@app/condo/schema'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -16,7 +16,7 @@ import { getManyPropertiesAddressRender } from '@condo/domains/property/utils/cl
 import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
-const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
+import styles from './useTicketPropertyHintTableColumns.module.css'
 
 export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: TicketPropertyHint[]) {
     const intl = useIntl()
@@ -50,8 +50,8 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
     const renderTicketPropertyHint = useCallback((value, _) => {
         return (
             <TicketPropertyHintContent
-                html={value}
-                style={HINT_STYLES}
+                content={value}
+                className={styles.ticketPropertyHintContent}
             />
         )
     }, [])

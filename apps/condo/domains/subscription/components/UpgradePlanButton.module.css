@@ -1,0 +1,6 @@
+.button-text:hover {
+  background: var(--condo-global-color-brand-gradient-5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

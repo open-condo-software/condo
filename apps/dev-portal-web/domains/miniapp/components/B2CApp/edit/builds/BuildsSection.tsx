@@ -3,15 +3,17 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { PlusCircle } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Modal, Input, Alert, Typography } from '@open-condo/ui'
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { CurrentBuildsInfo } from '@/domains/miniapp/components/B2CApp/edit/builds/CurrentBuildsInfo'
 import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
     B2C_BUILD_ALLOWED_MIMETYPES,
@@ -34,11 +36,12 @@ import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 import {
     useCreateB2CAppBuildMutation,
     useAllB2CAppBuildsQuery,
-} from '@/lib/gql'
+} from '@/gql'
 
 
-const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
-const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
+const ROW_BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
+const ROW_BUILDS_GUTTER: RowProps['gutter'] = [40, 40]
+const ROW_FORM_GUTTER: RowProps['gutter'] = [24, 24]
 const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
 const BUILD_FORM_ERROR_TO_FIELD_MAPPING = {
@@ -60,32 +63,34 @@ type BuildFormValues = {
 export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     const formatFileSize = useFileSizeFormatter()
     const intl = useIntl()
-    const BuildsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.title' })
-    const VersionColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.version.title' })
-    const CreatedAtColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.createdAt.title' })
-    const AddBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.actions.addBuild' })
-    const NewBuildModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.title' })
-    const VersionFormLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.label' })
-    const UploadBuildMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.uploadBuild.label' })
-    const UploadActionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.actions.upload' })
-    const NonSemanticVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message' })
-    const NonUniqueVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message' })
-    const BuildLimitationsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.title' })
-    const EmptyTableMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.empty.message' })
-    const SemVerFragment = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment' })
-    const VersionLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.message' }, {
+    const BuildsTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.title' })
+    const VersionColumnTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.table.columns.version.title' })
+    const CreatedAtColumnTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.table.columns.createdAt.title' })
+    const AddBuildLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.actions.addBuild' })
+    const NewBuildModalTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.title' })
+    const VersionFormLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.version.label' })
+    const UploadBuildMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.uploadBuild.label' })
+    const UploadActionLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.actions.upload' })
+    const NonSemanticVersionErrorMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message' })
+    const NonUniqueVersionErrorMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message' })
+    const BuildLimitationsTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.title' })
+    const EmptyTableMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.table.empty.message' })
+    const SemVerFragment = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment' })
+    const VersionLimitationsMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.version.message' }, {
         semVerCorrect: (
             <Typography.Link target='_blank' href={SEMVER_RULES_LINK}>
                 {SemVerFragment}
             </Typography.Link>
         ),
     })
-    const FormatLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.format.message' }, {
+    const FormatLimitationsMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.format.message' }, {
         format: '.zip',
     })
-    const SizeLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.size.message' }, {
+    const SizeLimitationsMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.size.message' }, {
         limit: formatFileSize(B2C_BUILD_MAX_FILE_SIZE_IN_BYTES),
     })
+
+    const { persistor } = useCachePersistor()
 
     const [isUploading, setIsUploading] = useState(false)
 
@@ -99,6 +104,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
             first: DEFAULT_PAGE_SIZE,
             skip: DEFAULT_PAGE_SIZE * (page - 1),
         },
+        skip: !persistor,
     })
 
     const builds = (data?.builds || []).filter(nonNull)
@@ -183,29 +189,36 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     return (
         <Section>
             <SubSection title={BuildsTitle}>
-                <Row gutter={ROW_BUTTON_GUTTER}>
+                <Row gutter={ROW_BUILDS_GUTTER}>
                     <Col span={FULL_COL_SPAN}>
-                        <Table
-                            columns={columns}
-                            bordered
-                            dataSource={builds}
-                            pagination={{
-                                pageSize: DEFAULT_PAGE_SIZE,
-                                position: PAGINATION_POSITION,
-                                showSizeChanger: false,
-                                total: data?.meta?.count || 0,
-                                simple: true,
-                                current: page,
-                                onChange: handlePaginationChange,
-                            }}
-                            rowKey='version'
-                            locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage}/> }}
-                        />
+                        <CurrentBuildsInfo id={id}/>
                     </Col>
                     <Col span={FULL_COL_SPAN}>
-                        <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={handleOpenModal}>
-                            {AddBuildLabel}
-                        </Button>
+                        <Row gutter={ROW_BUTTON_GUTTER}>
+                            <Col span={FULL_COL_SPAN}>
+                                <Table
+                                    columns={columns}
+                                    bordered
+                                    dataSource={builds}
+                                    pagination={{
+                                        pageSize: DEFAULT_PAGE_SIZE,
+                                        position: PAGINATION_POSITION,
+                                        showSizeChanger: false,
+                                        total: data?.meta?.count || 0,
+                                        simple: true,
+                                        current: page,
+                                        onChange: handlePaginationChange,
+                                    }}
+                                    rowKey='version'
+                                    locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage}/> }}
+                                />
+                            </Col>
+                            <Col span={FULL_COL_SPAN}>
+                                <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={handleOpenModal}>
+                                    {AddBuildLabel}
+                                </Button>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
                 {uploadModalOpen && (
@@ -216,7 +229,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                         footer={<Button type='primary' disabled={isUploading} loading={isUploading} onClick={form.submit}>{UploadActionLabel}</Button>}
                     >
                         <Form
-                            name='create-app-build'
+                            name='create-b2c-app-build-form'
                             layout='vertical'
                             form={form}
                             onFinish={handleUploadBuild}

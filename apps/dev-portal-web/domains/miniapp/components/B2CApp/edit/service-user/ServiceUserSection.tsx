@@ -15,16 +15,16 @@ import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/minia
 
 import type { RowProps } from 'antd'
 
-import { AppEnvironment, useAllB2CAppAccessRightsQuery } from '@/lib/gql'
+import { AppEnvironment, useAllB2CAppAccessRightsQuery } from '@/gql'
 
 const SELECT_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
 
 export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const ServiceUserSectionTitle = intl.formatMessage({ id: 'apps.b2c.sections.serviceUser.title' })
-    const DevStandLabel = intl.formatMessage({ id: 'apps.environments.development.label' })
-    const ProdStandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
+    const ServiceUserSectionTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.serviceUser.title' })
+    const DevStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.development.label' })
+    const ProdStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
 
     const router = useRouter()
     const { env } = router.query

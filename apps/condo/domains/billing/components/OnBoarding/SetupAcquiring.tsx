@@ -1,3 +1,4 @@
+import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy, AcquiringIntegrationTypeType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -58,10 +59,14 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         status: CONTEXT_FINISHED_STATUS,
     })
 
-    const { obj: billingCtx, loading: billingCtxLoading, error: billingCtxError } = BillingContext.useObject({
+    const { objs: billingContexts, loading: billingCtxLoading, error: billingCtxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
         },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
 
     // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
@@ -69,27 +74,40 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         where: {
             isHidden: false,
             setupUrl_not: null,
+            type: AcquiringIntegrationTypeType.OnlineProcessing,
         },
     })
 
     const acquiringId = get(acquiring, ['0', 'id'], null)
 
-    const { obj: acquiringCtx, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringContext.useObject({
+    const { objs: acquiringContexts, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringContext.useObjects({
         where: {
-            integration: { id: acquiringId },
             organization: { id: orgId },
+            integration: { id: acquiringId, deletedAt: null },
         },
+        sortBy: [
+            SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
+            SortAcquiringIntegrationContextsBy.IdDesc,
+        ],
     })
 
     // Note: is active context is in FINISHED status - we'll ignore this step render at all, so we only interested in verification ones
-    const { obj: connectedCtx, loading:connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObject({
+    const { objs: connectedContexts, loading: connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObjects({
         where: {
             organization: { id: orgId },
             status_in: [CONTEXT_VERIFICATION_STATUS],
+            integration: { id: acquiringId, deletedAt: null },
         },
+        sortBy: [
+            SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
+            SortAcquiringIntegrationContextsBy.IdDesc,
+        ],
     })
 
 
+    const billingCtx = billingContexts[0] || null
+    const acquiringCtx = acquiringContexts[0] || null
+    const connectedCtx = connectedContexts[0] || null
     const billingCtxId = get(billingCtx, 'id', null)
     const acquiringCtxId = get(acquiringCtx, 'id', null)
     const connectedCtxId = get(connectedCtx, 'id', null)
@@ -204,6 +222,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             withPrefetch
             withLoader
             withResize
+            initialHeight={400}
         />
     )
 }

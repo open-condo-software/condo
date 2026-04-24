@@ -79,13 +79,17 @@ class EncryptionManager {
     _encryptionVersionId
     /** @type {Record<string, EncryptionVersion>} */
     _config = {}
+    /** @type {boolean} */
+    returnPlainTextOnCreate = false
 
     /**
      * @param config
      * @param {EncryptionManagerConfig?} config.versions - override default versions for encryption and decryption
      * @param {string?} config.encryptionVersionId - override default version to encrypt data with
+     * @param {boolean?} config.returnPlainTextOnCreate - return plain text value on create operation (for webhook secrets)
      * */
-    constructor ({ versions = null, encryptionVersionId  } = {}) {
+    constructor ({ versions = null, encryptionVersionId, returnPlainTextOnCreate = false } = {}) {
+        this.returnPlainTextOnCreate = returnPlainTextOnCreate
         if (isNil(versions)) {
             this._initializeDefaults(encryptionVersionId)
         } else {
@@ -156,7 +160,7 @@ class EncryptionManager {
         }
 
         // Skip .env parsing in build time, when .env is not present
-        if (conf.PHASE === 'build') {
+        if (conf.PHASE === 'build' || process.env.PHASE === 'build') {
             return
         }
 

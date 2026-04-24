@@ -147,7 +147,7 @@ describe('syncUser from Telegram', () => {
             clients.support = await makeClientWithSupportUser()
             clients.userWithRightsSet = await makeClientWithNewRegisteredAndLoggedInUser()
             const [rightsSet] = await createTestUserRightsSet(clients.support)
-            const [updatedUserWithReightsSet] = await updateTestUser(clients.support, clients.userWithRightsSet.user.id, {
+            const [updatedUserWithReightsSet] = await updateTestUser(clients.admin, clients.userWithRightsSet.user.id, {
                 rightsSet: { connect: { id: rightsSet.id } },
             })
             clients.userWithRightsSet.user = updatedUserWithReightsSet

@@ -4,7 +4,7 @@
 
 const get = require('lodash/get')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/AddressInjection')
@@ -133,7 +133,7 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadAddressInjections,
         create: access.canManageAddressInjections,

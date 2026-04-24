@@ -27,10 +27,12 @@ const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
     NewsItem,
+    NewsItemFile,
     createTestNewsItem,
     updateTestNewsItem,
     publishTestNewsItem,
     createTestNewsItemScope,
+    createTestNewsItemFile,
 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
@@ -1152,6 +1154,20 @@ describe('NewsItems', () => {
                 const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
                 expect(publishedNewsItem).toHaveProperty('sendAt', dayjs(publishedNewsItem.publishedAt).add(SENDING_DELAY_SEC, 'second').toISOString())
             })
+        })
+    })
+
+    describe('Basic logic', () => {
+        test('Should delete NewsItemFiles when NewsItem deleted', async () => {
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            const [file] = await createTestNewsItemFile(adminClient, newsItem, dummyO10n)
+            const [file2] = await createTestNewsItemFile(adminClient, newsItem, dummyO10n)
+            const [file3] = await createTestNewsItemFile(adminClient, newsItem, dummyO10n)
+            await NewsItem.softDelete(adminClient, newsItem.id)
+            const files = await NewsItemFile.getAll(adminClient, {
+                id_in: [file.id, file2.id, file3.id],
+            })
+            expect(files).toHaveLength(0)
         })
     })
 })

@@ -1,4 +1,4 @@
-const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegrationProblem')
@@ -30,7 +30,7 @@ const BillingIntegrationProblem = new GQLListSchema('BillingIntegrationProblem',
             isRequired: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), analytical()],
     access: {
         read: access.canReadBillingIntegrationProblems,
         create: access.canManageBillingIntegrationProblems,

@@ -1,4 +1,5 @@
-const toString = require('lodash/toString')
+const pick = require('lodash/pick')
+const _toString = require('lodash/toString')
 const stdSerializers = require('pino-std-serializers')
 
 const { normalizeVariables } = require('./normalize')
@@ -13,6 +14,99 @@ function toNumber (data) {
 
 function raw (data) {
     return data
+}
+
+function pickSerializer (...fields) {
+    return function (data) {
+        return pick(data, ...fields)
+    }
+}
+
+// NOTE: lodash toString does not handle objects well "[object Object]"
+function toString (data) {
+    if (data === null || data === undefined) return data
+    if (typeof data === 'object') return JSON.stringify(data)
+    return _toString(data)
+}
+
+const REDACTED_VALUE = '***'
+const SENSITIVE_HEADERS_REGEX = /^(authorization|proxy-authorization)$/i
+const SENSITIVE_RESPONSE_HEADERS_REGEX = /^set-cookie$/i
+const SENSITIVE_COOKIE_NAMES_REGEX = /^keystone\.sid$/i
+
+function redactCookieHeaderValue (cookieValue, sensitiveRegex) {
+    if (!cookieValue) return cookieValue
+    return cookieValue
+        .split(';')
+        .map((cookie) => {
+            const [name, ...rest] = cookie.split('=')
+            const normalizedName = name?.trim()
+            if (normalizedName && sensitiveRegex.test(normalizedName)) {
+                return `${normalizedName}=${REDACTED_VALUE}`
+            }
+            return cookie
+        })
+        .join(';')
+}
+
+function sanitizeHeaders (headers, {
+    sensitiveHeadersRegex = SENSITIVE_HEADERS_REGEX,
+    sensitiveCookieNamesRegex = SENSITIVE_COOKIE_NAMES_REGEX,
+    redactedValue = REDACTED_VALUE,
+} = {}) {
+    if (!headers) return headers
+    const sanitizedHeaders = { ...headers }
+    for (const headerName of Object.keys(sanitizedHeaders)) {
+        if (sensitiveHeadersRegex.test(headerName)) {
+            sanitizedHeaders[headerName] = redactedValue
+        }
+    }
+    if (Object.hasOwn(sanitizedHeaders, 'cookie')) {
+        sanitizedHeaders.cookie = redactCookieHeaderValue(sanitizedHeaders.cookie, sensitiveCookieNamesRegex)
+    }
+    return sanitizedHeaders
+}
+
+function sanitizeReq (req) {
+    const data = stdSerializers.req(req)
+    if (!data || !data.headers) return data
+    const headers = sanitizeHeaders(data.headers)
+    return { ...data, headers }
+}
+
+function sanitizeRes (res) {
+    const data = stdSerializers.res(res)
+    if (!data || !data.headers) return data
+    const headers = sanitizeHeaders(data.headers, { sensitiveHeadersRegex: SENSITIVE_RESPONSE_HEADERS_REGEX })
+    return { ...data, headers }
+}
+
+function propertyStringifySerializer (...fields) {
+    return function (data) {
+        if (typeof data !== 'object' || data === null) return data
+        for (const field of fields) {
+            if (Object.hasOwn(data, field)) {
+                const value = data[field]
+                if (Array.isArray(value)) {
+                    data[field] = value.map(toString)
+                } else if (typeof value === 'object') {
+                    data[field] = toString(value)
+                }
+            }
+        }
+
+        return data
+    }
+}
+
+function combineSerializers (...serializers) {
+    return function (data) {
+        let result = data
+        for (const serializer of serializers) {
+            result = serializer(result)
+        }
+        return result
+    }
 }
 
 const SERIALIZERS = {
@@ -45,21 +139,29 @@ const SERIALIZERS = {
     /** HTTP status code, task status, or any other status you want to pass */
     status: toString,
 
-    /** Generic error object */
-    err: stdSerializers.err,
+    /**
+     * Generic error object
+     * NOTE 1: stdSerializers.err does not handler nested arrays of errors well, so we use our serializer here
+     * NOTE 2: safeFormatError works, but omits unknown fields (stdSerializers.err has "for key in err"),
+     * right now seems like it's ok, but if we need to add more fields, we should modify our serializer
+     *  */
+    err: combineSerializers(safeFormatError, propertyStringifySerializer('errors')),
 
     /**
      * @deprecated used by graphql-error logger to format errors,
      * for generic errors consider using err instead
      * (you don't need safeFormat on bots / clients, since it'll be already formatted by API)
      * */
-    error: safeFormatError,
+    error: combineSerializers(safeFormatError, propertyStringifySerializer('errors')),
 
     /** Used to collect memory usage via getHeapFree */
     mem: raw,
 
     /** ID of request. Will be filled automatically from execution context, don't pass it directly */
     reqId: toString,
+
+    /** ID of error */
+    errId: toString,
 
     /**
      * ID of stating request
@@ -84,10 +186,10 @@ const SERIALIZERS = {
     method: toString,
 
     /** http-request */
-    req: stdSerializers.req,
+    req: sanitizeReq,
 
     /** http-response */
-    res: stdSerializers.res,
+    res: sanitizeRes,
 
     /** Request path (/api/something) **/
     path: toString,
@@ -110,14 +212,26 @@ const SERIALIZERS = {
     /** time of server response / task execution in milliseconds */
     responseTime: toNumber,
 
+    /** time of task execution in milliseconds */
+    executionTime: toNumber,
+
+    /** time of task procession (wait + execution/response time) */
+    processingTime: toNumber,
+
     /** time of request waiting before execution */
     timeUntilExecution: toNumber,
 
     /** GQL-request state */
     state: toString,
 
-    /** session identifier */
+    /**
+     * session identifier
+     * @deprecated use session.id instead
+     * */
     sessionId: toString,
+
+    /** session information (id, source, provider, clientID, createdBy) */
+    session: pickSerializer('id', 'source', 'provider', 'clientID', 'createdBy'),
 
     /** device fingerprint */
     fingerprint: toString,
@@ -157,6 +271,27 @@ const SERIALIZERS = {
 
     /** name of task based on file, where logger is initialized */
     taskName: toString,
+
+    /** runtime statistics of current container */
+    runtimeStats: raw,
+
+    /** worker statistics */
+    workerStats: raw,
+
+    /** name of queue where task is executed */
+    queue: toString,
+
+    /** task information (name, id, execution time, etc.) */
+    task: raw,
+
+    /** name of function related to log */
+    functionName: toString,
+
+    /** name of listKey related to log */
+    listKey: toString,
+
+    /** development / production. Used for services communicating with multiple envs at once (dev-portal) */
+    environment: toString,
 }
 
 const KNOWN_FIELDS = new Set(Object.keys(SERIALIZERS))

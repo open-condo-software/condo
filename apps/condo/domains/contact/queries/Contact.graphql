@@ -37,17 +37,17 @@ query getContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: Contact
         name
         email
         phone
+        note
         role { id name }
         isVerified
     }
 }
 
 query getContactsExistence ($where: ContactWhereInput) {
-    contacts: allContacts(
-        first: 1
+    count: _allContactsMeta(
         where: $where
     ) {
-        id
+        count
     }
 }
 
@@ -92,6 +92,26 @@ query getContactForClientCard($where: ContactWhereInput, $first: Int!, $skip: In
     }
 }
 
+query getContactForAIAssistant($where: ContactWhereInput, $first: Int!, $skip: Int, $sortBy: [SortContactsBy!]) {
+    contacts: allContacts(
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        unitName
+        unitType
+        phone
+        email
+        ownershipPercentage
+        note
+        communityFee
+        property { address }
+    }
+}
+
 query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
     contacts: allContacts(
         where: $where
@@ -113,6 +133,7 @@ query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $
         organization {
             id
             name
+            phoneNumberPrefix
         }
         property {
             id

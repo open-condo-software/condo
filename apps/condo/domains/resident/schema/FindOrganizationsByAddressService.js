@@ -4,6 +4,9 @@
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_SUBSCRIPTION_FIELDS } = require('@condo/domains/organization/gql')
+const { ORGANIZATION_SUBSCRIPTION_FIELD } = require('@condo/domains/organization/schema/fields/subscription')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
@@ -46,7 +49,11 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType]!, meters: [FindOrganizationByAddressMeterType]! }',
+            type: ORGANIZATION_SUBSCRIPTION_FIELD.extendGraphQLTypes,
+        },
+        {
+            access: true,
+            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType]!, meters: [FindOrganizationByAddressMeterType]!, subscription: OrganizationSubscriptionFeatures }',
         },
     ],
     queries: [
@@ -62,27 +69,25 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 }
 
                 const properties = await find('Property', {
-                    organization: { deletedAt: null },
+                    organization: {
+                        ...(tin ? { tin } : { tin_not: null }),
+                        deletedAt: null, 
+                    },
                     addressKey,
                     deletedAt: null,
                 })
 
                 if (!properties.length && !tin && !accountNumber) return []
 
-                let organizations = await find('Organization', {
-                    id_in: [...new Set(properties.map(({ organization }) => organization))],
-                    ...(tin ? { tin } : {}),
-                    deletedAt: null,
-                })
+                const organizationFields = `id name tin type subscription { ${ORGANIZATION_SUBSCRIPTION_FIELDS} }`
+
+                const organizationIds = [...new Set(properties.map(({ organization }) => organization))]
+                let organizations = await Organization.getAll(context, { id_in: organizationIds, deletedAt: null }, organizationFields)
 
                 if (tin && accountNumber) {
                     // NOTE(YEgorLu): Service providers might not have properties in system. But we should be able to
                     //                see them by tin and account number
-                    let serviceProviders = await find('Organization', {
-                        tin,
-                        type: SERVICE_PROVIDER_TYPE,
-                        deletedAt: null,
-                    })
+                    let serviceProviders = await Organization.getAll(context, { tin, type: SERVICE_PROVIDER_TYPE, deletedAt: null }, organizationFields)
                     const uniqueIds = new Set(organizations.map(({ id }) => id))
                     serviceProviders = serviceProviders.filter(provider => !uniqueIds.has(provider.id))
                     organizations = organizations.concat(serviceProviders)

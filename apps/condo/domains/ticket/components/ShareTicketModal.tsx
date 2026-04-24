@@ -10,6 +10,7 @@ import getConfig from 'next/config'
 import Link from 'next/link'
 import React, { useCallback, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
@@ -17,7 +18,6 @@ import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSear
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { packShareData } from '@condo/domains/ticket/utils/shareDataPacker'
 

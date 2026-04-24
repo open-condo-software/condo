@@ -1,3 +1,4 @@
+import { AcquiringIntegrationTypeType } from '@app/condo/schema'
 import { Row, Col, RowProps } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
@@ -53,6 +54,7 @@ const MarketplaceOnboardingPage: PageComponentType<MarketplaceOnboardingPageProp
     } = AcquiringIntegrationContext.useObject({
         where: {
             organization: { id: orgId },
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
     })
 

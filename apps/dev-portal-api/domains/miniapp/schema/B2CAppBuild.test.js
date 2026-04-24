@@ -171,7 +171,7 @@ describe('B2CAppBuild', () => {
                     }, {
                         code: 'BAD_USER_INPUT',
                         type: INVALID_BUILD_VERSION,
-                        message: 'The build version must be semantically correct and be in X.Y.Z format',
+                        message: 'The build version must follow semantic versioning (semver) format: MAJOR.MINOR.PATCH with optional pre-release and build metadata',
                     })
                 })
             })

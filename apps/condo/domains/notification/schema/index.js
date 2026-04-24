@@ -13,6 +13,7 @@ const { MessageUserBlackList } = require('./MessageUserBlackList')
 const { NotificationAnonymousSetting } = require('./NotificationAnonymousSetting')
 const { NotificationUserSetting } = require('./NotificationUserSetting')
 const { RemoteClient } = require('./RemoteClient')
+const { RemoteClientPushToken } = require('./RemoteClientPushToken')
 const { SendMessageService } = require('./SendMessageService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { SyncRemoteClientService } = require('./SyncRemoteClientService')
@@ -34,5 +35,6 @@ module.exports = {
     NotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersionService,
     _internalSendHashedResidentPhonesService,
+    RemoteClientPushToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

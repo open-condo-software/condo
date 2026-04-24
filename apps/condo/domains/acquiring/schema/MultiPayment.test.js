@@ -12,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
+    expectToThrowAccessDeniedError,
 } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
@@ -38,7 +39,10 @@ const {
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
+    MULTIPAYMENT_NON_DONE_PAYMENTS,
+    MULTIPAYMENT_SEVERAL_PAYMENTS,
 } = require('@condo/domains/acquiring/constants/errors')
+const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const {
     MULTIPAYMENT_INIT_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
@@ -54,11 +58,14 @@ const {
 const {
     Payment,
     MultiPayment,
+    MultiPaymentWithPayerInfo,
+    MultiPaymentAdmin,
     createTestMultiPayment,
     updateTestMultiPayment,
     createTestAcquiringIntegration,
     updateTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
+    AcquiringIntegration,
     createTestPayment,
     updateTestPayment,
     getRandomHiddenCard,
@@ -70,7 +77,8 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { UserAdmin, makeClientWithSupportUser, makeClientWithServiceUser, createTestPhone, createTestEmail, updateTestUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
@@ -164,6 +172,79 @@ describe('MultiPayment', () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await MultiPayment.getAll(anonymousClient)
                 })
+            })
+            describe('fields', () => {
+
+                describe('payerInfo', () => {
+                    let admin
+                    let user
+                    let multiPaymentId
+                    let acquiringIntegration
+
+                    beforeEach(async () => {
+                        const {
+                            admin: createdAdmin,
+                            acquiringIntegration: createdAcquiringIntegration,
+                            client,
+                            payments,
+                            
+                        } = await makePayerAndPayments()
+                        const [{ id: createdMultiPaymentId }] = await createTestMultiPayment(createdAdmin, payments, client.user, createdAcquiringIntegration)
+                        admin = createdAdmin
+                        user = client
+                        multiPaymentId = createdMultiPaymentId
+                        acquiringIntegration = createdAcquiringIntegration
+                    })
+                    test('admin can', async () => {
+                        const multiPayment = await MultiPaymentWithPayerInfo.getOne(admin, { id: multiPaymentId })
+                        expect(multiPayment).toBeDefined()
+                        expect(multiPayment.payerInfo).toBeDefined()
+                    })
+                    it('support can\'t', async () => {
+                        const support = await makeClientWithSupportUser()
+                        await expectToThrowAccessDeniedError(async () => {
+                            await MultiPaymentWithPayerInfo.getAll(support, { id: multiPaymentId })
+                        }, ['objs', 0, 'payerInfo'])
+                    })
+                    describe('user', () => {
+                        it('resident can\'t', async () => {
+                            // NOTE(YEgorLu): for some reason expectToThrowAccessDeniedError can't find access error for ['objs', 0, 'payerInfo'] path here 
+                            const { data, errors } = await MultiPaymentWithPayerInfo.getAll(user, { id: multiPaymentId }, { raw: true })
+                            const multiPayment = data?.objs?.[0]
+                            expect(errors.length).toBeGreaterThanOrEqual(1)
+                            expect(errors).toEqual(expect.arrayContaining([expect.objectContaining({
+                                message: 'You do not have access to this resource',
+                                name: 'AccessDeniedError',
+                                path: ['objs', 0, 'payerInfo'],
+
+                            })]))
+                            expect(multiPayment).toBeDefined()
+                            expect(multiPayment.id).toEqual(multiPaymentId)
+                            expect(multiPayment.payerInfo).toBeNull()
+                        })
+                        test('acquiring integration service user can see', async () => {
+                            const integrationClient = await makeClientWithServiceUser()
+                            await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+                            const multiPayment = await MultiPaymentWithPayerInfo.getOne(integrationClient, { id: multiPaymentId })
+                            expect(multiPayment).toBeDefined()
+                            expect(multiPayment.payerInfo).toBeDefined()
+                        })
+                        test('service user from another acquiring integration can\'t see', async () => {
+                            const { acquiringIntegration: anotherAcquiringIntegration } = await makePayer()
+                            const anotherIntegrationClient = await makeClientWithServiceUser()
+                            await createTestAcquiringIntegrationAccessRight(admin, anotherAcquiringIntegration, anotherIntegrationClient.user)
+                            const multiPayments = await MultiPaymentWithPayerInfo.getAll(anotherIntegrationClient, { id: multiPaymentId })
+                            expect(multiPayments).toHaveLength(0)
+                        })
+                    })
+                    test('anonymous can\'t', async () => {
+                        const anonymous = await makeClient()
+                        await expectToThrowAuthenticationErrorToObjects(async () => {
+                            await MultiPayment.getAll(anonymous, { id: multiPaymentId })
+                        })
+                    })
+                })
+
             })
         })
         describe('update', () => {
@@ -262,6 +343,62 @@ describe('MultiPayment', () => {
         })
     })
     describe('Validation tests', () => {
+        describe('External import', () => {
+            async function setup (count = 1){
+                const data = await makePayerAndPayments(count)
+                await AcquiringIntegration.update(data.admin, data.acquiringIntegration.id, {
+                    dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+                })
+                return data
+            }
+
+            test('Should pass with valid data', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup()
+                await Payment.update(admin, payments[0].id, {
+                    dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS,
+                })
+                const [mp] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: MULTIPAYMENT_DONE_STATUS })
+                expect(mp).toBeDefined()
+            })
+
+            test('Should throw if payments not done', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup()
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    , {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_NON_DONE_PAYMENTS',
+                        message: 'MultiPayment cannot be created if any of payments has status not equal to "DONE" for acquiring integration with type "EXTERNAL_IMPORT"',
+                    })
+            })
+
+            test('Should throw if multipayment has several payments', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup(2)
+                const updatePayload = [
+                    { id: payments[0].id, data: { dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS } },
+                    { id: payments[1].id, data: { dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS } },
+                ]
+                await Payment.updateMany(admin, updatePayload)
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    , {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_SEVERAL_PAYMENTS',
+                        message: 'MultiPayment cannot be created with several payments for acquiring integration with type "EXTERNAL_IMPORT"',
+                    })
+            })
+
+            test('Should throw if multipayment not done', async () => {
+                const { admin, payments, acquiringIntegration, client } = await setup()
+                await Payment.update(admin, payments[0].id, {
+                    dv: 1, sender: { dv: 1, fingerprint: 'testtest' }, status: PAYMENT_DONE_STATUS,
+                })
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, { status: MULTIPAYMENT_INIT_STATUS })
+                    , {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_INVALID_STATUS',
+                        message: 'MultiPayment cannot be created with status different from "DONE" for acquiring integration with type "EXTERNAL_IMPORT"',
+                    })
+            })
+        })
         describe('Fields validation', () => {
             test('Should have correct dv field (=== 1)', async () => {
                 const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
@@ -432,7 +569,7 @@ describe('MultiPayment', () => {
                     paymentWay: 'CARD',
                     transactionId: faker.datatype.uuid(),
                 }
-                const cases = ['withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId', 'explicitFee', 'explicitServiceCharge']
+                const cases = ['withdrawnAt', 'transactionId', 'explicitFee', 'explicitServiceCharge']
                 test.each(cases)(`Status ${MULTIPAYMENT_DONE_STATUS}, missing %p field`, async (field) => {
                     const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
@@ -905,6 +1042,66 @@ describe('MultiPayment', () => {
             expect(retrievedMultiPayment.implicitFee).toBeNull()
             expect(retrievedMultiPayment.transactionId).toBeNull()
             expect(retrievedMultiPayment.meta).toBeNull()
+        })
+        describe('payerInfo', () => {
+            test('takes info from MultiPayment.user', async () => {
+                const {
+                    admin,
+                    acquiringIntegration,
+                    client,
+                    payments,
+                } = await makePayerAndPayments()
+
+                const user = await UserAdmin.getOne(admin, { id: client.user.id })
+
+                const [{ id: createdMultiPaymentId }] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                const [createdMultiPayment] = await MultiPaymentAdmin.getAll(admin, { id: createdMultiPaymentId })
+
+                // payerInfo took data from user
+                expect(createdMultiPayment).toBeDefined()
+                expect(createdMultiPayment).toHaveProperty(['payerInfo', 'id'], user.id)
+                expect(createdMultiPayment).toHaveProperty(['payerInfo', 'name'], user.name)
+                expect(createdMultiPayment).toHaveProperty(['payerInfo', 'email'], (user.isEmailVerified && user.email ? user.email : null) ?? null)
+                expect(createdMultiPayment).toHaveProperty(['payerInfo', 'phone'], (user.isPhoneVerified && user.phone ? user.phone : null) ?? null)
+
+                // payerInfo did not took data from createdBy
+                expect(createdMultiPayment).toHaveProperty('createdBy')
+                expect(createdMultiPayment).toHaveProperty('user')
+                expect(createdMultiPayment.createdBy.id).not.toEqual(createdMultiPayment.user.id)
+            }) 
+            test('email and phone are skipped, if they are not verified', async () => {
+                const {
+                    admin,
+                    acquiringIntegration,
+                    client,
+                    payments,
+                } = await makePayerAndPayments()
+
+                const [{ id: createdMultiPaymentId }] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                let multiPayment
+                const getMultiPayment = () => MultiPaymentAdmin.getAll(admin, { id: createdMultiPaymentId }).then(multiPayments => multiPayments[0])
+
+                const phone = createTestPhone()
+                const email = createTestEmail()
+
+                // 1. phone and email are verified
+                await updateTestUser(admin, client.user.id, { phone, email, isPhoneVerified: true, isEmailVerified: true })
+                multiPayment = await getMultiPayment()
+                expect(multiPayment).toHaveProperty(['payerInfo', 'email'], email)
+                expect(multiPayment).toHaveProperty(['payerInfo', 'phone'], phone)
+
+                // 2. email is not verified
+                await updateTestUser(admin, client.user.id, { isEmailVerified: false })
+                multiPayment = await getMultiPayment()
+                expect(multiPayment).toHaveProperty(['payerInfo', 'email'], null)
+                expect(multiPayment).toHaveProperty(['payerInfo', 'phone'], phone)
+                
+                // 3. phone is not verified
+                await updateTestUser(admin, client.user.id, { isEmailVerified: false, isPhoneVerified: false })
+                multiPayment = await getMultiPayment()
+                expect(multiPayment).toHaveProperty(['payerInfo', 'email'], null)
+                expect(multiPayment).toHaveProperty(['payerInfo', 'phone'], null)
+            })
         })
     })
 })

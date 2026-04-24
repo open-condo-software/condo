@@ -13,16 +13,23 @@ type ParamUpdateHandler = (key: string) => void
 const DEFAULT_TABS = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY]
 const PAYMENTS_TYPES = [PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY]
 
-export function useQueryParams (includeExtension: boolean): [string, PaymentTypes, ParamUpdateHandler] {
-    const AVAILABLE_TABS = [...DEFAULT_TABS]
-    if (includeExtension) {
-        AVAILABLE_TABS.push(EXTENSION_TAB_KEY)
-    }
+export function useQueryParams (extensionTabKeys: Array<string> = []): [string, PaymentTypes, ParamUpdateHandler] {
+    const availableTabs = useMemo(() => ([
+        ...DEFAULT_TABS,
+        ...extensionTabKeys.filter(Boolean),
+    ]), [extensionTabKeys])
 
     const router = useRouter()
     const { tab, type } = parseQuery(router.query)
 
-    const activeTab = useMemo(() => AVAILABLE_TABS.includes(tab) ? tab : AVAILABLE_TABS[0],  [tab])
+    const normalizedTab = useMemo(() => {
+        if (tab === EXTENSION_TAB_KEY && extensionTabKeys.length > 0) {
+            return extensionTabKeys[0]
+        }
+        return tab
+    }, [extensionTabKeys, tab])
+
+    const activeTab = useMemo(() => availableTabs.includes(normalizedTab) ? normalizedTab : availableTabs[0],  [availableTabs, normalizedTab])
     const activeType = useMemo(() => PAYMENTS_TYPES.includes(type) ? type : PAYMENTS_TYPES[0], [type])
 
     const changeRouteToActiveParams = useCallback(async (newParameters) => {

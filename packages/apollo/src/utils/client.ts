@@ -28,6 +28,8 @@ type ApolloClientOptions = {
     cacheConfig?: InvalidationCacheConfig
     /** Middleware to process / enrich requests */
     middlewares?: Array<ApolloLink | RequestHandler>
+    /** Default context to pass to apollo links */
+    defaultContext?: Record<string, unknown>
 }
 
 export type InitApolloClientOptions = Partial<Omit<ApolloClientOptions, 'cacheConfig'>> & {
@@ -87,6 +89,7 @@ function createApolloClient (options: ApolloClientOptions): ApolloClient<Normali
         ssrMode: isSSR(),
         link,
         cache: createApolloCache(options.cacheConfig),
+        defaultContext: options.defaultContext,
     })
 }
 

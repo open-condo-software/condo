@@ -2,12 +2,12 @@ import { TicketDocumentGenerationTaskCreateInput, TicketDocumentGenerationTaskFo
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Dropdown, DropdownProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
 import { SUPPORTED_DOCUMENT_TYPES_BY_LOCALE } from '@condo/domains/ticket/constants/ticketDocument'
 

@@ -1,5 +1,5 @@
 import { Typography } from 'antd'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

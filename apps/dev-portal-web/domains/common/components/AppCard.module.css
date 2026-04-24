@@ -1,0 +1,27 @@
+.card-top-row-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--condo-global-color-gray-3);
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.card-text-container {
+  display: flex;
+  flex-direction: column;
+  min-height:
+    calc(
+      max(var(--condo-global-line-height-h4-sm), var(--condo-global-line-height-h4)) * 2
+      + var(--condo-global-typography-text-m-line-height) * 3 + 4px
+    );
+  margin-top: 12px;
+  row-gap: 4px;
+}

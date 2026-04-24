@@ -4,7 +4,7 @@
 
 const get = require('lodash/get')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/PropertyMeter')
@@ -49,6 +49,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
         meta: {
             schemaDoc: 'Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
         },
 
@@ -100,7 +101,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadPropertyMeters,
         create: access.canManagePropertyMeters,

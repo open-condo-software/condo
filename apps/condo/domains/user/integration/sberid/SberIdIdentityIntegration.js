@@ -1,13 +1,12 @@
-const axios = require('axios').default
-
-// eslint-disable-next-line import/order
 const https = require('https')
+
 const jwtDecode = require('jwt-decode')
 const { capitalize, isNil } = require('lodash')
 const { customAlphabet } = require('nanoid')
 
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -28,7 +27,7 @@ const {
 } = SBER_ID_CONFIG
 const callbackPath = '/api/sber_id/auth/callback'
 const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
-const axiosTimeout = 10000
+const REQUEST_TIMEOUT = 10000
 // instantiate httpsAgent in order to support mTLS communication with sber id servers
 const httpsAgent = new https.Agent({
     rejectUnauthorized: verifyServerSsl,
@@ -71,27 +70,35 @@ class SberIdIdentityIntegration {
         }
 
         // send a request
-        const tokenResponse = await axios.create({
-            timeout: axiosTimeout,
+        const tokenResponse = await fetch(tokenUrl, {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'x-ibm-client-id': clientId,
                 'rquid': nanoid(),
             },
-            validateStatus: () => true,
-            httpsAgent,
-        }).post(tokenUrl, new URLSearchParams(request))
+            body: new URLSearchParams(request),
+            abortRequestTimeout: REQUEST_TIMEOUT,
+            agent: httpsAgent,
+        })
+
+        if (!tokenResponse.ok) {
+            throw new Error('Failed to issue external identity token')
+        }
 
         // extract required params
+        const data = await tokenResponse.json()
+
         const {
             access_token: accessToken,
             token_type: tokenType,
             expires_in: expiresIn,
             scope,
             id_token: idToken,
-        } = tokenResponse.data
+        } = data
 
-        if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
-            throw new Error(JSON.stringify(tokenResponse.data))
+        if (isNil(accessToken) || isNil(idToken)) {
+            throw new Error('Failed to issue external identity token')
         }
 
         return {
@@ -107,18 +114,24 @@ class SberIdIdentityIntegration {
         if (!accessToken) throw new Error('call getUserInfo without required accessToken')
 
         // send a request
-        const response = await axios.create({
-            timeout: axiosTimeout,
+        const response = await fetch(userInfoUrl, {
+            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'x-ibm-client-id': clientId,
                 'x-introspect-rquid': nanoid(),
             },
-            validateStatus: () => true,
-            httpsAgent,
-        }).get(userInfoUrl)
+            abortRequestTimeout: REQUEST_TIMEOUT,
+            agent: httpsAgent,
+        })
+
+        if (!response.ok) {
+            throw new Error('Failed to get user info')
+        }
 
         // extract params that going to be cleaned
+        const data = await response.json()
+
         const {
             iss,
             sub,
@@ -126,10 +139,10 @@ class SberIdIdentityIntegration {
             phone_number: phoneNumber,
             family_name: familyName,
             given_name: givenName,
-        } = response.data
+        } = data
 
-        if (response.status !== 200 || isNil(sub)) {
-            throw new Error(JSON.stringify(response.data))
+        if (isNil(sub)) {
+            throw new Error('Failed to get user info')
         }
 
         return {

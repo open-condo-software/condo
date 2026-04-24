@@ -2,12 +2,19 @@ const path = require('path')
 
 const { faker } = require('@faker-js/faker')
 
-const { prepareAppEnvLocalAdminUsers, getAppEnvValue, updateAppEnvFile, safeExec } = require('@open-condo/cli')
+const {
+    prepareCondoAppOidcConfig,
+    prepareAppEnvLocalAdminUsers,
+    getAppEnvValue,
+    updateAppEnvFile,
+    safeExec,
+} = require('@open-condo/cli')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..'))
 const BOT_RIGHTS_SET = JSON.stringify({
     name: '[DEV-PORTAL] Service bot permissions',
     canReadB2BApps: true,
+    canReadB2BAppContexts: true,
     canReadB2BAppAccessRights: true,
     canReadB2BAppAccessRightSets: true,
     canReadB2BAppPermissions: true,
@@ -17,10 +24,12 @@ const BOT_RIGHTS_SET = JSON.stringify({
     canReadB2CAppBuilds: true,
     canReadB2CAppProperties: true,
     canReadOidcClients: true,
+    canReadOrganizations: true,
     canReadUsers: true,
     canReadUserEmailField: true,
 
     canManageB2BApps: true,
+    canManageB2BAppContexts: true,
     canManageB2BAppAccessRights: true,
     canManageB2BAppAccessRightSets: true,
     canManageB2BAppPermissions: true,
@@ -36,8 +45,10 @@ const BOT_RIGHTS_SET = JSON.stringify({
 })
 
 async function main () {
+    // STEP 1. Register local users
     await prepareAppEnvLocalAdminUsers(APP_NAME, 'phone')
 
+    // STEP 2. Register bots
     const condoUrl = await getAppEnvValue(APP_NAME, 'CONDO_DOMAIN')
     const devBotEnvValue = await getAppEnvValue(APP_NAME, 'CONDO_DEV_BOT_CONFIG')
     const devBotConfig = devBotEnvValue ? JSON.parse(devBotEnvValue) : {
@@ -59,6 +70,12 @@ async function main () {
     const prodBotOptions = JSON.stringify({ type: 'service', password: prodBotConfig.password, name: '[DEV-PORTAL] Prod bot' })
     await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(devBotConfig.email)} ${JSON.stringify(devBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
     await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(prodBotConfig.email)} ${JSON.stringify(prodBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
+
+    // STEP 3. Register OIDC client
+    const portalWebDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_WEB_DOMAIN')
+    const redirectUrl = `${portalWebDomain}/api/oidc/callback`
+    const oidcConf = await prepareCondoAppOidcConfig(APP_NAME, { redirectUrl })
+    await updateAppEnvFile(APP_NAME, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify({ ...oidcConf, scope: 'openid phone' }))
 }
 
 main().then(() => {

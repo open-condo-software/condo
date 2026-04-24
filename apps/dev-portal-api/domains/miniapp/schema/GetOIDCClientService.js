@@ -30,7 +30,7 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
         },
         {
             access: true,
-            type: 'type OIDCClient { id: String!, clientId: String!, redirectUri: String! }',
+            type: 'type OIDCClient { id: String!, clientId: String!, redirectUri: String!, isEnabled: Boolean! }',
         },
     ],
     
@@ -61,6 +61,7 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
                     id: oidcClient.id,
                     clientId: oidcClient.clientId,
                     redirectUri: oidcClient.payload.redirect_uris[0],
+                    isEnabled: oidcClient.isEnabled,
                 }
             },
         },

@@ -5,7 +5,7 @@
  */
 
 const { gql } = require('graphql-tag')
-const { upperFirst } = require('lodash')
+const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
@@ -32,10 +32,13 @@ const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl pushNotificationSettings customFormUrl getRecipientsUrl getRecipientsCountersUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} developer partnerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
+const B2B_APP_POS_INTEGRATION_CONFIG_FIELDS = `{ paymentsAlertPageUrl fetchLastPosReceiptUrl ${COMMON_FIELDS} }`
+const B2BAppPosIntegrationConfig = generateGqlQueries('B2BAppPosIntegrationConfig', B2B_APP_POS_INTEGRATION_CONFIG_FIELDS)
+
+const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features additionalDomains domains { mapping { from to } } subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
-const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
+const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
 const B2B_ACCESSES_LISTS_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists)
@@ -49,16 +52,16 @@ const B2B_ACCESSES_SERVICES_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVA
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } accessRightSet { id deletedAt ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} } ${COMMON_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
-const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } ${COMMON_FIELDS} }`
+const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } additionalDomains domains { mapping { from to } } subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
-const B2C_APP_ACCESS_RIGHT_FIELDS = `{ user { id } app { id } ${COMMON_FIELDS} }`
+const B2C_APP_ACCESS_RIGHT_FIELDS = `{ user { id } app { id } accessRightSet { id } ${COMMON_FIELDS} }`
 const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS_RIGHT_FIELDS)
 
 const B2C_APP_BUILD_FIELDS = `{ app { id } version ${COMMON_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
-const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
+const B2C_APP_PROPERTY_FIELDS = `{ app { id } addressKey isAvailable address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
 const B2B_APP_PERMISSION_FIELDS = `{ app { id } key name ${COMMON_FIELDS} }`
@@ -94,11 +97,14 @@ const SEND_B2B_APP_PUSH_MESSAGE_MUTATION = gql`
     }
 `
 
-const CUSTOM_FIELD_FIELDS = `{ locale name priority schemaName type validationRules isVisible ${COMMON_FIELDS} }`
+const CUSTOM_FIELD_FIELDS = `{ locale name priority modelName type validationRules isVisible ${COMMON_FIELDS} }`
 const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
 
-const CUSTOM_VALUE_FIELDS = `{ objectId data customField { id name priority schemaName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
+const CUSTOM_VALUE_FIELDS = `{ itemId data customField { id name priority modelName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
 const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
+
+const B2C_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
+const B2CAppAccessRightSet = generateGqlQueries('B2CAppAccessRightSet', B2C_APP_ACCESS_RIGHT_SET_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -127,5 +133,7 @@ module.exports = {
     AppMessageSetting,
     SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
     B2BAppRoleWithoutEmployeeRole,
+    B2BAppPosIntegrationConfig,
+    B2CAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

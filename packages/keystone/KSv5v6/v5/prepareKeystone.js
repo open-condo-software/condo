@@ -9,8 +9,8 @@ const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
-
 const conf = require('@open-condo/config')
+const { FileRecordScalarSchema } = require('@open-condo/files/schema/models')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const {
     ApolloRateLimitingPlugin,
@@ -82,6 +82,7 @@ const sendAppMetrics = () => {
     metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
     metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
     metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
+    metrics.gauge({ name: 'processMemoryUsage.arrayBuffers', value: memUsage.arrayBuffers })
 
     if (IS_WORKER_PROCESS && taskQueues.size > 0) {
         Array.from(taskQueues.entries()).forEach(([queueName, queue]) => {
@@ -156,6 +157,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
     globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
     // We need to register all schemas as they will appear in admin ui
+    registerSchemas(keystone, [FileRecordScalarSchema], globalPreprocessors)
     registerSchemas(keystone, schemas(), globalPreprocessors)
 
     const defaultAuthStrategyConfigHooks = {
@@ -198,7 +200,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         hooks: composeHooks(defaultAuthStrategyConfigHooks, get(authStrategyOpts, 'hooks', {})),
     })
 
-    if (!IS_BUILD) {
+    if (!IS_BUILD && !IS_BUILD_PHASE) {
         // Since tasks may require Redis connection, and Redis variable is not present during build time:
         // We need to register all tasks as they will be possible to execute
         registerTaskQueues(queues)
@@ -298,7 +300,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     const fingerprint = cookies['userId'] || cuid()
                     res.cookie('sender', JSON.stringify({ fingerprint, dv: 1 }), { maxAge: INFINITY_MAX_AGE_COOKIE })
                     res.cookie('dv', 1, { maxAge: INFINITY_MAX_AGE_COOKIE })
-                    res.cookie('userId', fingerprint, { maxAge: INFINITY_MAX_AGE_COOKIE })
+                    res.cookie('fingerprint', fingerprint, { maxAge: INFINITY_MAX_AGE_COOKIE })
                 }
                 next()
             })

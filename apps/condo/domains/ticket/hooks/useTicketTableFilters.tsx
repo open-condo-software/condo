@@ -4,9 +4,10 @@ import {
     Ticket,
     TicketWhereInput,
 } from '@app/condo/schema'
-import React, { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { QuestionCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -16,6 +17,7 @@ import { colors } from '@open-condo/ui/colors'
 
 
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import {
     ComponentType,
     convertToOptions,
@@ -23,6 +25,7 @@ import {
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
 import {
+    FiltersGetterType,
     getDayRangeFilter,
     getFilter,
     getNumberFilter,
@@ -31,7 +34,7 @@ import {
 import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
-import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/sourceTypes'
+import { VISIBLE_TICKET_SOURCE_IDS } from '@condo/domains/ticket/constants/sources'
 import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
@@ -51,6 +54,7 @@ import {
     FilterModalPlaceClassifierSelect,
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
+import { useSupervisedTickets } from './useSupervisedTickets'
 
 
 const filterNumber = getNumberFilter('number')
@@ -68,9 +72,9 @@ const filterAddressForSearch = getFilterAddressForSearch('propertyAddress', null
 const filterClientName = getClientNameFilter()
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
+const filterObserver = getFilter(['observers_some', 'user', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterFeedbackValue = getFilter('feedbackValue', 'array', 'string', 'in')
 const filterQualityControlValue = getFilter('qualityControlValue', 'array', 'string', 'in')
@@ -82,13 +86,51 @@ const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['classifier', 'place', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['classifier', 'category', 'id'], 'array', 'string', 'in')
 const filterProblemClassifier = getFilter(['classifier', 'problem', 'id'], 'array', 'string', 'in')
-const filterCategoryClassifierSearch = getStringContainsFilter(['classifier', 'category', 'name'])
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
 const filterIsCompletedAfterDeadline = getIsCompletedAfterDeadlineFilter()
+const filterClientNameForSearch = getStringContainsFilter('clientName')
+const filterClientPhoneForSearch = getStringContainsFilter('clientPhone')
 
+
+const getSearchFilter: FiltersGetterType<TicketWhereInput> = (rawSearch: string) => {
+    const search = rawSearch?.trim()
+    if (!search) return []
+
+    const baseFilters = [
+        filterDetails,
+    ]
+    const searchSpecificFilters = []
+
+    const isTicketNumberSearch = /^\d+$/.test(search)
+    const isPhoneNumberSearch = /^\+?\d+$/.test(search)
+    const isDateSearch = /^[\d.:-]+$/.test(search)
+    const isNameSearch = !isTicketNumberSearch && /^[\p{L}\d\s.'"-]+$/u.test(search)
+    const isAddressSearch = /^[\p{L}\d\s,.-]+$/u.test(search)
+
+    if (isTicketNumberSearch) {
+        searchSpecificFilters.push(filterNumber)
+    }
+    if (isPhoneNumberSearch) {
+        searchSpecificFilters.push(filterClientPhoneForSearch)
+    }
+    if (isDateSearch) {
+        searchSpecificFilters.push(filterCreatedAtRange)
+    }
+    if (isNameSearch) {
+        searchSpecificFilters.push(filterClientNameForSearch, filterExecutorName, filterAssigneeName)
+    }
+    if (isAddressSearch) {
+        searchSpecificFilters.push(filterAddressForSearch)
+    }
+
+    return [
+        ...baseFilters, 
+        ...searchSpecificFilters,
+    ]
+}
 
 export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ticket>> {
     const intl = useIntl()
@@ -120,6 +162,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const OnlyUnansweredComments = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredComments' })
     const OnlyUnansweredCommentsTooltipHelp = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredCommentsTooltipHelp' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const ObserverMessage = intl.formatMessage({ id: 'field.Observer' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
@@ -134,7 +177,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const QualityControlValueMessage = intl.formatMessage({ id: 'ticket.qualityControl.filter.label' })
     const GoodQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.good' })
     const BadQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.bad' })
-    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' }).toLowerCase()
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
+    const SupervisedTicketFormattedMessage = useMemo(() => SupervisedTicketMessage.slice(0, 1).toLowerCase() + SupervisedTicketMessage.slice(1), [SupervisedTicketMessage])
     const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
@@ -147,19 +192,43 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const FavoriteTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
     const { user } = useAuth()
+    const userOrganization = useOrganization()
+    const userOrganizationId = userOrganization?.organization?.id
+
     const { persistor } = useCachePersistor()
+
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
+
+    const { hasSupervisedTicketsInOrganization, supervisedTicketSourceId } = useSupervisedTickets()
+    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
+    useEffect(() => {
+        hasSupervisedTicketsInOrganization(userOrganizationId).then((res) => setHasSupervisedTickets(res))
+    }, [userOrganizationId, hasSupervisedTicketsInOrganization])
 
     const { data: statusesData } = useGetTicketStatusesQuery({ skip: !persistor })
     const statuses = useMemo(() => statusesData?.statuses?.filter(Boolean) || [], [statusesData?.statuses])
     const statusOptions = useMemo(() => convertToOptions(statuses, 'name', 'type'), [statuses])
 
     const { data: sourcesData } = useGetTicketSourcesQuery({
-        variables: {
-            types: VISIBLE_TICKET_SOURCE_TYPES,
-        },
         skip: !persistor,
+        variables: {
+            where: {
+                OR: [
+                    {
+                        id_in: VISIBLE_TICKET_SOURCE_IDS,
+                    },
+                    {
+                        isDefault: false,
+                    },
+                ],
+            },
+        },
     })
-    const sources = useMemo(() => sourcesData?.sources?.filter(Boolean) || [], [sourcesData?.sources])
+    const sources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean) || [],
+        [sourcesData?.sources]
+    )
     const sourceOptions = useMemo(() => convertToOptions(sources, 'name', 'id'), [sources])
 
     const attributeOptions = useMemo(() => [
@@ -167,8 +236,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         { label: PayableMessage, value: 'isPayable' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
-        { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
-    ], [EmergencyMessage, PayableMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
+        { label: ReturnedMessage, value: 'statusReopenedCounter' },
+        hasSupervisedTickets && { label: SupervisedTicketFormattedMessage, value: 'isSupervised' },
+    ].filter(Boolean), [EmergencyMessage, PayableMessage, RegularMessage, ReturnedMessage, WarrantyMessage, SupervisedTicketFormattedMessage, hasSupervisedTickets])
     const feedbackValueOptions = useMemo(() => [
         { label: GoodFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.GOOD },
         { label: BadFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.BAD },
@@ -195,9 +265,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = useMemo(() => convertToOptions(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
 
-    const userOrganization = useOrganization()
-    const userOrganizationId = userOrganization?.organization?.id
-
     const ticketTypeOptions = useMemo(
         () => [
             { label: FavoriteTicketTypeMessage, value: 'favorite' },
@@ -206,24 +273,19 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         [FavoriteTicketTypeMessage, OwnTicketTypeMessage]
     )
     const filterTicketType = useMemo(
-        () => getTicketTypeFilter(user.id),
-        [user.id]
+        () => getTicketTypeFilter(user.id, { includeObservers: isTicketObserversEnabled }),
+        [isTicketObserversEnabled, user.id]
+    )
+    const filterAttribute = useMemo(
+        () => getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular', hasSupervisedTickets && 'isSupervised'].filter(Boolean), supervisedTicketSourceId),
+        [hasSupervisedTickets, supervisedTicketSourceId],
     )
 
     return useMemo(() => {
-        return [
+        const filterMetas: FiltersMeta<TicketWhereInput, Ticket>[] = [
             {
                 keyword: 'search',
-                filters: [
-                    filterNumber,
-                    filterClientName,
-                    filterAddressForSearch,
-                    filterDetails,
-                    filterExecutorName,
-                    filterAssigneeName,
-                    filterClientPhone,
-                    filterCreatedAtRange,
-                ],
+                filters: getSearchFilter,
                 combineType: 'OR',
             },
             {
@@ -664,6 +726,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     },
                 },
             },
+            isTicketObserversEnabled ? {
+                keyword: 'observer',
+                filters: [filterObserver],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchEmployeeUser(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterFullNameMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ObserverMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            } : undefined,
             {
                 keyword: 'createdBy',
                 filters: [filterTicketAuthor],
@@ -729,5 +808,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, ExpiredTickets, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, commentsTypeOptions, HasComments, OnlyUnansweredComments, OnlyUnansweredCommentsTooltipHelp, StartDateMessage, EndDateMessage, LastCommentAtMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+        return filterMetas.filter(Boolean)
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, ExpiredTickets, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, commentsTypeOptions, HasComments, OnlyUnansweredComments, OnlyUnansweredCommentsTooltipHelp, StartDateMessage, EndDateMessage, LastCommentAtMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage, ObserverMessage, filterAttribute, isTicketObserversEnabled])
 }

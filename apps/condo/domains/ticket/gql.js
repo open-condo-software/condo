@@ -27,7 +27,7 @@ const REVIEW_CONTROL_FIELDS = 'reviewValue reviewComment'
  * @type {string}
  */
 const IS_PAID_FIELD = 'isPaid'
-const TICKET_FIELDS = `{ canReadByResident completedAt isCompletedAfterDeadline lastCommentAt lastResidentCommentAt lastCommentWithResidentTypeAt lastCommentWithOrganizationTypeAt lastCommentWithResidentTypeCreatedByUserType isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } customClassifier title kanbanOrder kanbanColumn isInsurance priority ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident completedAt isCompletedAfterDeadline lastCommentAt lastResidentCommentAt lastCommentWithResidentTypeAt lastCommentWithOrganizationTypeAt lastCommentWithResidentTypeCreatedByUserType isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } customClassifier title kanbanOrder kanbanColumn isInsurance priority ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} sentToAuthoritiesAt }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_LAST_COMMENTS_TIME_FIELDS = '{ id lastResidentCommentAt lastCommentWithResidentTypeAt }'
@@ -146,6 +146,10 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'qualityControlCommentTo',
     'qualityControlAdditionalOptionsFrom',
     'qualityControlAdditionalOptionsTo',
+    'observersIdsFrom',
+    'observersIdsTo',
+    'observersDisplayNamesFrom',
+    'observersDisplayNamesTo',
 ]
 const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } actualCreationDate ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
@@ -266,6 +270,10 @@ const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_A
 const TICKET_DOCUMENT_GENERATION_TASK_FIELDS = `{ ticket { id } status format progress user { id } timeZone file { id originalFilename publicUrl mimetype } documentType meta ${COMMON_FIELDS} }`
 const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGenerationTask', TICKET_DOCUMENT_GENERATION_TASK_FIELDS)
 
+const TICKET_OBSERVER_FIELDS = `{ ticket { id } user { id } ${COMMON_FIELDS} }`
+const TicketObserver = generateGqlQueries('TicketObserver', TICKET_OBSERVER_FIELDS)
+
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -306,5 +314,6 @@ module.exports = {
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,
+    TicketObserver,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

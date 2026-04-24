@@ -2,7 +2,9 @@ const fs = require('fs')
 const path = require('path')
 const process = require('process')
 
-const { get, template, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const template = require('lodash/template')
 
 const conf = require('@open-condo/config')
 
@@ -10,7 +12,7 @@ const VARIABLE_REGEXP = /{([\s\S]+?)}/g
 
 let translations = {}
 
-const loadTranslations = () => {
+function loadTranslations () {
     const translationsDir = path.join(process.cwd(), 'lang')
     const availableLocales = fs.readdirSync(translationsDir, { withFileTypes: true })
 
@@ -51,21 +53,21 @@ const loadTranslations = () => {
     }))
 }
 
-const maybeLoadTranslations = () => {
+function maybeLoadTranslations () {
     if (isEmpty(translations)) loadTranslations()
 }
 
-const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
+function getTranslations (lang = conf.DEFAULT_LOCALE) {
     maybeLoadTranslations()
     return translations[lang] || translations[conf.DEFAULT_LOCALE]
 }
 
-const getAvailableLocales = () => {
+function getAvailableLocales () {
     maybeLoadTranslations()
     return Object.keys(translations)
 }
 
-const getLocalized = (lang, key) => {
+function getLocalized (lang, key) {
     const translations = getTranslations(lang)
     return get(translations, key, key)
 }
@@ -89,12 +91,16 @@ const getLocalized = (lang, key) => {
  * i18n('greeting', { meta: { name: 'World' } })
  * // => "Hello, World!"
  */
-const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
-    const { locale, meta } = options
+function i18n (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) {
+    const { locale = conf.DEFAULT_LOCALE } = options
 
     maybeLoadTranslations()
 
-    return template(get(translations, [locale, code], code), { interpolate: VARIABLE_REGEXP })(meta)
+    return renderTranslation(get(translations, [locale, code], code), options)
+}
+
+function renderTranslation (translationTemplate, options = { meta: {} }) {
+    return template(translationTemplate, { interpolate: VARIABLE_REGEXP })(options.meta)
 }
 
 module.exports = {
@@ -102,4 +108,6 @@ module.exports = {
     getAvailableLocales,
     getLocalized,
     i18n,
+
+    renderTranslation,
 }

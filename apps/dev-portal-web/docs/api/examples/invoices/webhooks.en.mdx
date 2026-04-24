@@ -1,0 +1,208 @@
+## General Information
+
+Webhooks allow you to receive real-time notifications when the payment status of an invoice changes.
+This is useful for integrating with external systems that need to react to payment events.
+
+## How It Works
+
+1. **Register your webhook URL** in the whitelist (contact support)
+2. **Create an invoice** with the `paymentStatusChangeWebhookUrl` field set to your registered URL
+3. **Store the secret** returned in `paymentStatusChangeWebhookSecret` - you'll need it to verify webhook signatures
+4. **Receive webhooks** when payment status changes (e.g., from `processing` to `done`)
+
+## Invoice Fields for Webhooks
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `paymentStatusChangeWebhookUrl` | String (URL) | Your webhook endpoint URL. Must be registered in the whitelist. |
+| `paymentStatusChangeWebhookSecret` | String | Auto-generated secret for signature verification. Read-only. |
+
+## Creating an Invoice with Webhook
+
+When creating an invoice, specify the `paymentStatusChangeWebhookUrl` field. The system will automatically generate a secret.
+
+<Tabs labels={['Example GQL Query', 'Example Response']}>
+    ```graphql
+    mutation createInvoice {
+      obj: createInvoice(
+        data: {
+          dv: 1,
+          sender: {dv: 1, fingerprint: "my-service"},
+          organization: {connect: {id: "e40b5367-49a8-4340-9eed-802538331326"}},
+          property: {connect: {id: "809bff2d-b1ff-485e-b2e9-33b4c5974d3b"}},
+          unitName: "42",
+          unitType: flat,
+          clientPhone: "+79999999999",
+          clientName: "John Doe",
+          toPay: "1500",
+          rows: [{name: "Service payment", count: 1, toPay: "1500", isMin: false}],
+          paymentType: online,
+          status: published,
+          paymentStatusChangeWebhookUrl: "https://your-service.com/webhook/payment"
+        }
+      ) {
+        id
+        number
+        status
+        paymentStatusChangeWebhookUrl
+        paymentStatusChangeWebhookSecret
+      }
+    }
+    ```
+    ```json
+    {
+      "data": {
+        "obj": {
+          "id": "34b5c321-c086-4540-bca8-18f2f586be7d",
+          "number": 15,
+          "status": "published",
+          "paymentStatusChangeWebhookUrl": "https://your-service.com/webhook/payment",
+          "paymentStatusChangeWebhookSecret": "a1b2c3d4e5f6..."
+        }
+      }
+    }
+    ```
+</Tabs>
+
+<Alert type="warning">
+    Store the `paymentStatusChangeWebhookSecret` securely! You will need it to verify webhook signatures.
+    The secret is encrypted and can only be read when creating or querying the invoice.
+</Alert>
+
+## Webhook Payload
+
+When a payment status changes, the system sends an HTTP POST request to your webhook URL with the following payload:
+
+```json
+{
+  "__typename": "Payment",
+  "id": "payment-uuid",
+  "v": 2,
+  "dv": 1,
+  "status": "done",
+  "amount": "1500.00000000",
+  "currencyCode": "RUB",
+  "organization": {
+    "__typename": "Organization",
+    "id": "org-uuid",
+    "name": "Organization Name"
+  },
+  "invoice": {
+    "__typename": "Invoice",
+    "id": "invoice-uuid",
+    "number": 15,
+    "toPay": "1500.00000000"
+  },
+  "receipt": null,
+  "createdAt": "2024-12-16T10:00:00.000Z",
+  "updatedAt": "2024-12-16T10:05:00.000Z"
+}
+```
+
+### Payment Statuses
+
+| Status | Description |
+|--------|-------------|
+| `created` | Created in condo database |
+| `processing` | Created in external acquiring |
+| `withdrawn` | Withdrawn from payer |
+| `done` | Received by receiver |
+| `error` | Error |
+
+## Webhook Headers
+
+Each webhook request includes the following headers:
+
+| Header | Description |
+|--------|-------------|
+| `Content-Type` | `application/json` |
+| `X-Webhook-Signature` | HMAC signature of the request body (see `X-Webhook-Signature-Algorithm`) |
+| `X-Webhook-Signature-Algorithm` | Hash algorithm used for HMAC (possible values: `sha256`, `sha384`, `sha512`) |
+| `X-Webhook-Id` | Unique identifier for this webhook |
+
+## Verifying Webhook Signatures
+
+To ensure the webhook is authentic, verify the `X-Webhook-Signature` header using the secret you received when creating the invoice.
+Use the `X-Webhook-Signature-Algorithm` header to select the hash algorithm for HMAC.
+
+### Node.js Example
+
+```javascript
+const crypto = require('node:crypto')
+
+function verifyWebhookSignature(rawBody, signature, secret, algorithm) {
+    const allowedAlgorithms = new Set(['sha256', 'sha384', 'sha512'])
+    if (!allowedAlgorithms.has(algorithm)) return false
+
+    const expectedSignature = crypto
+        .createHmac(algorithm, secret)
+        .update(rawBody)
+        .digest('hex')
+    
+    return signature === expectedSignature
+}
+
+// Express.js middleware example
+app.post('/webhook/payment', express.text({ type: 'application/json' }), (req, res) => {
+    const signature = req.headers['x-webhook-signature']
+    const algorithm = req.headers['x-webhook-signature-algorithm'] || 'sha256'
+    const webhookId = req.headers['x-webhook-id']
+    const rawBody = req.body
+    
+    // Get the stored secret for this invoice
+    const secret = getStoredSecretForInvoice(invoiceId)
+    
+    if (!verifyWebhookSignature(rawBody, signature, secret, algorithm)) {
+        return res.status(401).json({ error: 'Invalid signature' })
+    }
+    
+    const payload = JSON.parse(rawBody)
+    
+    // Process the webhook
+    console.log(`Payment ${payload.id} status changed to ${payload.status}`)
+    
+    res.status(200).json({ status: 'ok' })
+})
+```
+
+## URL Whitelist
+
+For security reasons, webhook URLs must be registered in the whitelist before they can be used.
+
+<Alert type="info">
+    Contact support to register your webhook URL in the whitelist.
+</Alert>
+
+## Best Practices
+
+1. **Always verify signatures** - Never trust webhook payloads without signature verification
+2. **Respond quickly** - Return a 2xx response within a few seconds to acknowledge receipt
+3. **Handle duplicates** - Use `X-Webhook-Id` to detect and handle duplicate deliveries
+4. **Store secrets securely** - Keep webhook secrets encrypted and never expose them in logs
+5. **Use HTTPS** - Always use HTTPS endpoints in production
+
+## Retry Policy
+
+If webhook delivery fails, the system will automatically retry with exponential backoff. Retries continue for up to **7 days** from the initial attempt.
+
+| Attempt | Delay After Previous |
+|---------|---------------------|
+| 1 | Immediate |
+| 2 | 1 minute |
+| 3 | 5 minutes |
+| 4 | 30 minutes |
+| 5 | 2 hours |
+| 6 | 6 hours |
+| 7+ | 24 hours (daily) |
+
+<Alert type="info">
+    After 7 days of unsuccessful delivery attempts, the webhook is marked as permanently failed and no further retries will be made.
+</Alert>
+
+## Error Handling
+
+If your webhook endpoint returns a non-2xx status code, the system will retry the delivery. Make sure to:
+
+- Return `200 OK` for successful processing
+- Return `401 Unauthorized` for signature verification failures
+- Return `500 Internal Server Error` for temporary failures (will trigger retry)

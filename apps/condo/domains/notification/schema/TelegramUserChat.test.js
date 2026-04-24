@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, catchErrorFrom, isUniqueConstraintViolationMessage } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -195,7 +195,7 @@ describe('TelegramUserChat', () => {
             await catchErrorFrom(async () => {
                 await createTestTelegramUserChat(admin, secondUser.user, { telegramChatId })
             }, (caught) => {
-                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "TelegramUserChat_unique_telegramChatId"')
+                expect(isUniqueConstraintViolationMessage(caught.errors[0].message, 'TelegramUserChat_unique_telegramChatId')).toBe(true)
             })
         })
 
@@ -208,7 +208,7 @@ describe('TelegramUserChat', () => {
             await catchErrorFrom(async () => {
                 await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId: telegramChatId2 })
             }, (caught) => {
-                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "TelegramUserChat_unique_user"')
+                expect(isUniqueConstraintViolationMessage(caught.errors[0].message, 'TelegramUserChat_unique_user')).toBe(true)
             })
         })
     })

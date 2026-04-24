@@ -2,17 +2,14 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
 import { Col, notification, Row, Skeleton } from 'antd'
-import every from 'lodash/every'
-import filter from 'lodash/filter'
 import get from 'lodash/get'
 import intersectionWith from 'lodash/intersectionWith'
 import isEqual from 'lodash/isEqual'
 import map from 'lodash/map'
-import slice from 'lodash/slice'
 import throttle from 'lodash/throttle'
-import uniq from 'lodash/uniq'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -25,13 +22,13 @@ import {
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
     GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
 } from '@condo/domains/news/gql'
 import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
 
+import styles from './RecipientCounter.module.css'
 import { NewsItemScopeNoInstanceType, TUnit } from './types'
 
 
@@ -46,19 +43,12 @@ interface CounterProps {
 
 const styleQuestionCircle: CSSProperties = { color: colors.gray['5'], cursor: 'help' }
 
-export const RecipientCounterContainer: React.FC<React.PropsWithChildren<{ title: React.ReactNode }>> = ({ children, title }) => {
+export const RecipientCounterContainer: React.FC<React.PropsWithChildren<{ title?: string }>> = ({ children, title }) => {
     return (
-        <Card>
-            <Typography.Text>
-                {title}
-            </Typography.Text>
-            <Space direction='vertical' size={24} width='100%'>
-                <Col xs={24}>
-                    <Row align='top' justify='space-evenly'>
-                        {children}
-                    </Row>
-                </Col>
-            </Space>
+        <Card title={title && <Typography.Title level={3}>{title}</Typography.Title>}>
+            <Row align='top' justify='space-evenly' gutter={[16, 16]}>
+                {children}
+            </Row>
         </Card>
     )
 }
@@ -83,24 +73,12 @@ export const Counter: React.FC<CounterProps> = ({ label, value, type = 'success'
                     )
             }
         </Space>
-        <Row wrap={false} style={{ lineBreak: 'anywhere' }} align='middle'>
+        <Row wrap={false} align='middle' className={styles.counterLabelWrapper}>
             <Typography.Text type='secondary'>{label}</Typography.Text>
             {downloadButton}
         </Row>
     </Space>
 )
-
-const isTargetedToEntireProperty = ({ property, unitType, unitName }: NewsItemScopeNoInstanceType) => (
-    !!property && !unitType && !unitName
-)
-
-const isTargetedToUnitName = ({ property, unitType, unitName }: NewsItemScopeNoInstanceType) => (
-    !!property && !!unitType && !!unitName
-)
-
-const isAllOrganization = (newsItemScopes: NewsItemScopeNoInstanceType[]) => {
-    return filter(newsItemScopes, { property: null, unitType: null, unitName: null }).length > 0
-}
 
 const getUnitsFromSection = (section: BuildingSection): TUnit[] => section.floors.flatMap(floor => floor.units.map(unit => ({
     unitType: unit.unitType,
@@ -126,59 +104,10 @@ export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property
     return { sections, parking }
 }
 
-const areTargetedToOneProperty = (newsItemScopes: NewsItemScopeNoInstanceType[]): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
-
-const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
-    if (isAllOrganization(newsItemScopes)) {
-        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInAllProperties' })
-    } else if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
-        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperty' }, {
-            address: newsItemScopes[0].property.address,
-        })
-    } else if (every(newsItemScopes, isTargetedToEntireProperty)) {
-        const displayCount = 3
-        const addressList = slice(newsItemScopes.map(({ property }) => property.address), 0, displayCount).join(', ')
-        const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
-        const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties.andMore' }, { count: andMoreCount })
-        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties' }, {
-            addressList,
-            andMore,
-        })
-    } else if (areTargetedToOneProperty(newsItemScopes) && every(newsItemScopes, isTargetedToUnitName)) {
-        const displayCount = 4
-        const property: PropertyType = newsItemScopes[0].property
-        const { sections, parking } = detectTargetedSections(newsItemScopes, property)
-        // Here we can split sections by location: house or parking
-        const targetedSections = [...sections, ...parking]
-        if (targetedSections.length === 1) {
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySection' }, {
-                section: targetedSections[0].name,
-                address: newsItemScopes[0].property.address,
-            })
-        } else if (targetedSections.length > 1) {
-            const targetedSectionsList = slice(map(targetedSections, 'name'), 0, displayCount).join(', ')
-            const andMoreCount = targetedSections.length <= displayCount ? null : targetedSections.length - displayCount
-            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections.andMore' }, { count: andMoreCount })
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections' }, {
-                sections: targetedSectionsList,
-                andMore: andMore,
-                address: newsItemScopes[0].property.address,
-            })
-        } else {
-            const unitNamesList = slice(map(newsItemScopes, 'unitName').sort(), 0, displayCount).join(', ')
-            const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
-            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits.andMore' }, { count: andMoreCount })
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits' }, {
-                unitNames: unitNamesList,
-                andMore: andMore,
-                address: newsItemScopes[0].property.address,
-            })
-        }
-    }
-}
-
 interface RecipientCounterProps {
     newsItemScopes: NewsItemScopeNoInstanceType[]
+    withTitle?: boolean
+    withCardWrapper?: boolean
 }
 
 const processNewsItemScopes = (newsItemScopes: NewsItemScopeNoInstanceType[]) => {
@@ -196,15 +125,19 @@ const processNewsItemScopes = (newsItemScopes: NewsItemScopeNoInstanceType[]) =>
     }, [])
 }
 
-export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
+export const RecipientCounter: React.FC<RecipientCounterProps> = ({
+    newsItemScopes,
+    withTitle = true,
+    withCardWrapper = true,
+}) => {
     const intl = useIntl()
-    const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
-    const formatPropertiesLabelMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' }, { count })
+    const StatisticsMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.statistics' })
+    const formatPropertiesLabelMessage = useCallback((count) => intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' }, { count }), [intl])
     const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
     const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.label' })
-    const formatWillNotReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' }, { count })
+    const formatWillNotReceiveHintMessage = useCallback((count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' }, { count }), [intl])
     const WillZeroNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hintZero' })
-    const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
+    const formatWillReceiveHintMessage = useCallback((count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count }), [intl])
     const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
     const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
 
@@ -261,8 +194,6 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         })
     }, [getCounters, organization.id, processedNewsItemScope])
 
-    const message = buildMessageFromNewsItemScopes(newsItemScopes, intl)
-
     // NOTE(antonal): Not all corner cases are handled, because they rarely will occur:
     // - When some records of NewsItemScope are connected to Property and some are not
     // - When some records of NewsItemScope have unitName, that does not exist in connected Property
@@ -275,10 +206,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
 
     const isLoadingCounters = isCountersLoading || !counters
 
-    return (
-        <RecipientCounterContainer
-            title={<>{MailingMessage}<Typography.Text strong>{message}</Typography.Text></>}
-        >
+    const content = useMemo(() => (
+        <>
             <Col>
                 <Counter
                     label={formatPropertiesLabelMessage(propertiesCount)}
@@ -306,17 +235,38 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                     isLoading={isLoadingCounters}
                 />
             </Col>
-        </RecipientCounterContainer>
+        </>
+    ), [NewsItemRecipientsExportToXlsxButton, WillNotReceiveLabelMessage, WillReceiveLabelMessage, WillZeroNotReceiveHintMessage, WillZeroReceiveHintMessage, formatPropertiesLabelMessage, formatWillNotReceiveHintMessage, formatWillReceiveHintMessage, isLoadingCounters, propertiesCount, receiversCount, unitsCount, willNotReceiveUnitsCount])
+
+    if (withCardWrapper) {
+        return (
+            <RecipientCounterContainer
+                title={withTitle ? StatisticsMessage : ''}
+            >
+                {content}
+            </RecipientCounterContainer>
+        )
+    }
+
+    return (
+        <Row align='top' justify='space-evenly' gutter={[16, 16]}>
+            {content}
+        </Row>
     )
 }
 
-const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[] }> = ({ contextId, newsItemScopes }) => {
-    const [counter, setCounter] = useState(null)
-
+const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[], withTitle?: boolean, withCardWrapper?: boolean }> = ({
+    contextId,
+    newsItemScopes,
+    withTitle = true,
+    withCardWrapper = true,
+}) => {
     const intl = useIntl()
-    const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
+    const StatisticsMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.statistics' })
     const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
     const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
+
+    const [counter, setCounter] = useState(null)
 
     const [getCounter, { loading: isCounterLoading }] = useLazyQuery(
         GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
@@ -350,19 +300,35 @@ const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes:
                 },
             },
         })
-    }, [ getCounter, contextId, newsItemScopes ])
+    }, [getCounter, contextId, newsItemScopes])
 
     // if typeof counter !== number is used here instead of just if !counter because bool(0) => false
     const isLoadingCounter = isCounterLoading || typeof counter !== 'number'
 
+    const content = useMemo(() => (
+        <Col>
+            <Counter
+                label={WillReceiveLabelMessage}
+                value={counter}
+                isLoading={isLoadingCounter}
+            />
+        </Col>
+    ), [WillReceiveLabelMessage, counter, isLoadingCounter])
+
+    if (withCardWrapper) {
+        return (
+            <RecipientCounterContainer
+                title={withTitle ? StatisticsMessage : ''}
+            >
+                {content}
+            </RecipientCounterContainer>
+        )
+    }
+
     return (
-        <RecipientCounterContainer
-            title={<>{MailingMessage}<Typography.Text strong>{buildMessageFromNewsItemScopes(newsItemScopes, intl)}</Typography.Text></>}
-        >
-            <Col>
-                <Counter label={WillReceiveLabelMessage} value={counter} isLoading={isLoadingCounter}/>
-            </Col>
-        </RecipientCounterContainer>
+        <Row align='top' justify='space-evenly' gutter={[16, 16]}>
+            {content}
+        </Row>
     )
 }
 

@@ -7,6 +7,7 @@ const dayjs = require('dayjs')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const conf = require('@open-condo/config')
 const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const {
     makeClient,
@@ -16,6 +17,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
+const { B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
 const {
     APP_NOT_FOUND,
     FIRST_PUBLISH_WITHOUT_INFO,
@@ -23,7 +25,8 @@ const {
     BUILD_NOT_FOUND,
     PUBLISH_NOT_ALLOWED,
 } = require('@dev-portal-api/domains/miniapp/constants/errors')
-const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getEnvironmentalFieldName } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
 const {
     publishB2CAppByTestClient,
     createTestB2CApp,
@@ -38,6 +41,7 @@ const {
     createOIDCClientByTestClient,
     registerAppUserServiceByTestClient,
     createCondoB2CApp,
+    updateCondoB2CApp,
     createCondoB2CAppAccessRight,
     importB2CAppByTestClient,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
@@ -49,10 +53,33 @@ const {
     verifyEmailByTestClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
-const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v }'))
+const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer appUrl logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id importId importRemoteSystem } isFullscreenAllowed isMicrophoneAllowed isCameraAllowed isSpeakerSelectionAllowed isBleBeaconBgAllowed isBleCentralBgAllowed isBlePeripheralBgAllowed isPushNotificationsAllowed isVoipNotificationsAllowed }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version app { id } importId importRemoteSystem deletedAt }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
 const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem v deletedAt }'))
+
+function expectStaticAppUrl (condoApp) {
+    const condoDomain = conf['CONDO_DOMAIN']
+    const condoUrl = new URL(condoDomain)
+    const hostnameParts = condoUrl.hostname.split('.')
+    const domainSuffix = hostnameParts.length > 2 ? hostnameParts.slice(1) : hostnameParts
+    const appHostname = [condoApp.id, 'miniapps-static', ...domainSuffix].join('.')
+    const port = condoUrl.port
+
+    const appUrl = `${condoUrl.protocol}//${appHostname}${port ? `:${port}` : ''}`
+
+    expect(condoApp).toHaveProperty('appUrl', appUrl)
+}
+
+async function createApprovedB2CAppPublishRequest (supportClient, app) {
+    const [request] = await createTestB2CAppPublishRequest(supportClient, app, {
+        isAppTested: true,
+        isContractSigned: true,
+        isInfoApproved: true,
+        status: PUBLISH_REQUEST_APPROVED_STATUS,
+    })
+    return request
+}
 
 describe('PublishB2CAppService', () => {
     let admin
@@ -308,6 +335,206 @@ describe('PublishB2CAppService', () => {
                     type: CONDO_APP_NOT_FOUND,
                 }, 'result')
             })
+            describe('appUrl', () => {
+                describe.each(AVAILABLE_ENVIRONMENTS)('%s environment', (environment) => {
+                    const fieldName = getEnvironmentalFieldName(environment, 'webTransformEnabled')
+                    test(`Must be set on publish for cordova app if ${fieldName} set to true`, async () => {
+                        const [cordovaApp] = await createTestB2CApp(user, {
+                            type: B2C_APP_CORDOVA_TYPE,
+                            [fieldName]: true,
+                        })
+                        expect(cordovaApp).toHaveProperty(fieldName, true)
+
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, cordovaApp)
+                        }
+
+                        const [result] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(result).toHaveProperty('success', true)
+
+                        const apiApp = await B2CApp.getOne(admin, { id: cordovaApp.id })
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+                        expect(apiApp).toHaveProperty(exportIdField)
+                        expect(apiApp[exportIdField]).not.toBeNull()
+
+                        const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expectStaticAppUrl(condoApp)
+                    })
+                    test(`Must be reset on publish for cordova app if ${fieldName} set to false`, async () => {
+                        const [cordovaApp] = await createTestB2CApp(user, {
+                            type: B2C_APP_CORDOVA_TYPE,
+                            [fieldName]: true,
+                        })
+
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, cordovaApp)
+                        }
+
+                        const [firstResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(firstResult).toHaveProperty('success', true)
+
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+                        const firstApiApp = await B2CApp.getOne(admin, { id: cordovaApp.id })
+                        const firstCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expectStaticAppUrl(firstCondoApp)
+
+                        await updateTestB2CApp(user, cordovaApp.id, { [fieldName]: false })
+
+                        const [secondResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(secondResult).toHaveProperty('success', true)
+
+                        const secondCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expect(secondCondoApp).toHaveProperty('appUrl', null)
+                    })
+                    test('Must not be set on publish for web app', async () => {
+                        const [webApp] = await createTestB2CApp(user, {
+                            type: 'web',
+                            [fieldName]: true,
+                        })
+
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, webApp)
+                        }
+
+                        const [result] = await publishB2CAppByTestClient(user, webApp, { info: true }, environment)
+                        expect(result).toHaveProperty('success', true)
+
+                        const apiApp = await B2CApp.getOne(admin, { id: webApp.id })
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+                        expect(apiApp).toHaveProperty(exportIdField)
+                        expect(apiApp[exportIdField]).not.toBeNull()
+
+                        const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expect(condoApp).toHaveProperty('appUrl', null)
+                    })
+                    test(`Must remain set on subsequent publish for cordova app if ${fieldName} remains true`, async () => {
+                        const [cordovaApp] = await createTestB2CApp(user, {
+                            type: B2C_APP_CORDOVA_TYPE,
+                            [fieldName]: true,
+                        })
+
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, cordovaApp)
+                        }
+
+                        const [firstResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(firstResult).toHaveProperty('success', true)
+
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+                        const firstApiApp = await B2CApp.getOne(admin, { id: cordovaApp.id })
+                        const firstCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expectStaticAppUrl(firstCondoApp)
+
+                        const [secondResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(secondResult).toHaveProperty('success', true)
+
+                        const secondCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expectStaticAppUrl(secondCondoApp)
+                        expect(secondCondoApp.appUrl).toBe(firstCondoApp.appUrl)
+                    })
+                    test(`Can toggle ${fieldName} between publishes`, async () => {
+                        const [cordovaApp] = await createTestB2CApp(user, {
+                            type: B2C_APP_CORDOVA_TYPE,
+                            [fieldName]: false,
+                        })
+
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, cordovaApp)
+                        }
+
+                        const [firstResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(firstResult).toHaveProperty('success', true)
+
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+                        const firstApiApp = await B2CApp.getOne(admin, { id: cordovaApp.id })
+                        const firstCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expect(firstCondoApp).toHaveProperty('appUrl', null)
+
+                        await updateTestB2CApp(user, cordovaApp.id, { [fieldName]: true })
+
+                        const [secondResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(secondResult).toHaveProperty('success', true)
+
+                        const secondCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expectStaticAppUrl(secondCondoApp)
+
+                        await updateTestB2CApp(user, cordovaApp.id, { [fieldName]: false })
+
+                        const [thirdResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
+                        expect(thirdResult).toHaveProperty('success', true)
+
+                        const thirdCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
+                        expect(thirdCondoApp).toHaveProperty('appUrl', null)
+                    })
+                })
+            })
+            describe('publishedAt', () => {
+                describe.each(AVAILABLE_ENVIRONMENTS)('%s environment', (environment) => {
+                    const fieldName = getEnvironmentalFieldName(environment, 'publishedAt')
+                    test(`Publish mutation must set "${fieldName}" field to B2CApp on successful publish to ${environment} environment`, async () => {
+                        const [app] = await createTestB2CApp(user)
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, app)
+                        }
+                        await publishB2CAppByTestClient(user, app, { info: true }, environment)
+                        const apiApp = await B2CApp.getOne(support, { id: app.id })
+                        expect(apiApp[fieldName]).toBeDefined()
+                        expect(apiApp[fieldName]).not.toBeNull()
+                    })
+                })
+            })
+            describe('Device permissions', () => {
+                describe('Device permissions field must be transferred properly', () => {
+                    function condoPermissionToPortal (condoPermission, environment) {
+                        return environment + condoPermission.slice(2)
+                    }
+                    test.each(AVAILABLE_ENVIRONMENTS)('on %p environment', async (environment) => {
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+
+                        const condoPermissions = [
+                            'isFullscreenAllowed',
+                            'isMicrophoneAllowed',
+                            'isCameraAllowed',
+                            'isSpeakerSelectionAllowed',
+                            'isBleBeaconBgAllowed',
+                            'isBleCentralBgAllowed',
+                            'isPushNotificationsAllowed',
+                            'isVoipNotificationsAllowed',
+                        ]
+
+                        const truePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [condoPermissionToPortal(permission, environment), true])
+                        )
+                        const expectedCondoTruePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [permission, true])
+                        )
+
+                        const [app] = await createTestB2CApp(user, truePayload)
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, app)
+                        }
+
+                        await publishB2CAppByTestClient(user, app, { info: true }, environment)
+
+                        const apiApp = await B2CApp.getOne(support, { id: app.id })
+                        const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expect(condoApp).toEqual(expect.objectContaining(expectedCondoTruePayload))
+
+                        const falsePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [condoPermissionToPortal(permission, environment), false])
+                        )
+                        const expectedCondoFalsePayload = Object.fromEntries(
+                            condoPermissions.map((permission) => [permission, false])
+                        )
+
+                        await updateTestB2CApp(user, app.id, falsePayload)
+                        await publishB2CAppByTestClient(user, app, { info: true }, environment)
+
+                        const updatedCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expect(updatedCondoApp).toEqual(expect.objectContaining(expectedCondoFalsePayload))
+                    })
+                })
+            })
         })
         describe('B2CAppBuild', () => {
             let app
@@ -476,6 +703,109 @@ describe('PublishB2CAppService', () => {
                 expect(condoClientAfter).toHaveProperty('clientId', condoClientBefore.clientId)
                 expect(condoClientAfter).toHaveProperty('payload', condoClientBefore.payload)
             })
+            test('B2CApp must be linked to OIDC client if not linked before', async () => {
+                const [result] = await publishB2CAppByTestClient(user, app)
+                expect(result).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: app.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+
+
+                const condoAppAfter = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportField] })
+                expect(condoAppAfter).toHaveProperty('oidcClient')
+                expect(condoAppAfter.oidcClient).toEqual(expect.objectContaining({
+                    id: oidcClient.id,
+                    importId: app.id,
+                    importRemoteSystem: REMOTE_SYSTEM,
+                }))
+            })
+            test('B2CApp.oidcClient must not be set, if already manually linked', async () => {
+                const [anotherApp] = await createTestB2CApp(user)
+                const [result] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(result).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: anotherApp.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+
+                const condoAppId = apiApp[exportField]
+
+                const condoAppBefore = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(condoAppBefore).toHaveProperty('oidcClient', null)
+
+                const [updatedCondoApp] = await updateCondoB2CApp(condoAdmin, { id: condoAppId }, {
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+
+                expect(updatedCondoApp).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
+
+                const [apiClient] = await createOIDCClientByTestClient(user, anotherApp)
+                expect(apiClient).toHaveProperty('id')
+
+                const [secondResult] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const updatedCondoAppAfter = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(updatedCondoAppAfter).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
+
+            })
+            test('B2CApp.oidcClient can be overwritten if linked client is deleted', async () => {
+                const [anotherApp] = await createTestB2CApp(user)
+                const [result] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(result).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: anotherApp.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+
+                const condoAppId = apiApp[exportField]
+
+                const condoAppBefore = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(condoAppBefore).toHaveProperty('oidcClient', null)
+
+                const [updatedCondoApp] = await updateCondoB2CApp(condoAdmin, { id: condoAppId }, {
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+
+                expect(updatedCondoApp).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
+
+                await CondoOIDCClient.update(condoAdmin, oidcClient.id, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                const [apiClient] = await createOIDCClientByTestClient(user, anotherApp)
+                expect(apiClient).toHaveProperty('id')
+
+                const [secondResult] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const updatedCondoAppAfter = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(updatedCondoAppAfter).toHaveProperty(['oidcClient', 'id'], apiClient.id)
+            })
+            test('B2CApp remains linked to same OIDC client after multiple publishes', async () => {
+                const [firstResult] = await publishB2CAppByTestClient(user, app, { info: true })
+                expect(firstResult).toHaveProperty('success', true)
+
+                const apiApp = await B2CApp.getOne(admin, { id: app.id })
+                const condoAppAfterFirst = await CondoB2CApp.getOne(condoAdmin, { id: apiApp.developmentExportId })
+                expect(condoAppAfterFirst.oidcClient.id).toBe(oidcClient.id)
+
+                // Second publish should keep the same OIDC client link
+                const [secondResult] = await publishB2CAppByTestClient(user, app)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const condoAppAfterSecond = await CondoB2CApp.getOne(condoAdmin, { id: apiApp.developmentExportId })
+                expect(condoAppAfterSecond.oidcClient.id).toBe(oidcClient.id)
+            })
         })
         describe('B2CAppAccessRight', () => {
             test('Publishing application for the first time after registeringAppUser must create B2CAppAccessRight in condo', async () => {
@@ -529,7 +859,7 @@ describe('PublishB2CAppService', () => {
                 const [app] = await createTestB2CApp(user)
 
                 // NOTE: app was imported before .accessRight option exists
-                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false } })
+                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false, conflictPolicy: 'delete' } })
 
                 const confirmAction = await verifyEmailByTestClient(user, admin)
                 const [registerResult] = await registerAppUserServiceByTestClient(user, app, confirmAction)

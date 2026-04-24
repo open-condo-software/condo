@@ -8,7 +8,9 @@ Use: `yarn workspace @app/condo node ./bin/sbbol/credentials.js change-client-se
 
 # Create OIDC client #
 
-Use: `yarn workspace @app/condo node ./bin/create-oidc-client.js client1 secret1 http://localhost:3001/oidc/callback` command
+Use: `yarn workspace @app/condo node ./bin/create-oidc-client.js client1 secret1 http://localhost:3001/oidc/callback postLogoutRedirectUri [--native-application-type]`
+
+- --native-application-type - allows OIDC working on localhost without https
 
 # HowTo organise ?
 

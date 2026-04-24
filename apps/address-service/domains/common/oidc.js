@@ -33,6 +33,7 @@ class OIDCHelper {
             token_endpoint_auth_method: 'client_secret_basic',
             ...(clientOptions || {}),
         })
+        this.clientID = clientId
     }
 
     getAuthorizationUrlWithParams (checks) {
@@ -86,7 +87,6 @@ class OIDCKeystoneApp {
                 }
 
                 const { accessToken, userInfo } = await helper.completeAuth(req, checks)
-                console.log(userInfo)
 
                 if (!userInfo.isAdmin && !userInfo.isSupport) {
                     return res.status(404).send(`ERROR: "${get(userInfo, 'name', 'unknown name')}" is neither admin nor support user`)
@@ -96,6 +96,11 @@ class OIDCKeystoneApp {
                 await keystone._sessionManager.startAuthedSession(req, {
                     item: { id: user.id },
                     list: keystone.lists['User'],
+                    meta: {
+                        source: 'oidc',
+                        provider: 'condo',
+                        clientID: helper.clientID,
+                    },
                 })
 
                 delete req.session[oidcSessionKey]

@@ -12,18 +12,20 @@ If successful, you will receive a JSON object of the following type:
     type GetLaunchParamsData = {
         condoUserId: string | null                       // Current user ID
         condoUserType: 'staff' | 'resident'              // User type
-        condoLocale: string                              // Current interface locale ("en" / "ru")
         condoContextEntity: 'Organization' | 'Resident'  // Context entity type
         condoContextEntityId: string | null              // Context entity ID
+        condoDeviceId: string                            // Device ID
+        condoLocale: string                              // Current interface locale ("en" / "ru")
     }
     ```
     ```json
     {
       "condoUserId": "8c427089-9392-4a3b-bdf5-db87ba516118",
       "condoUserType":"staff",
-      "condoLocale":"en",
       "condoContextEntity":"Organization",
-      "condoContextEntityId":"495d6ef0-d8fb-4beb-8760-2a049ddf97fd"
+      "condoContextEntityId":"495d6ef0-d8fb-4beb-8760-2a049ddf97fd",
+      "condoDeviceId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "condoLocale":"en"
     }
     ```
 </Tabs>

@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -165,7 +165,7 @@ const Incident = new GQLListSchema('Incident', {
             )(...args)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadIncidents,
         create: access.canManageIncidents,

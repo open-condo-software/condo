@@ -1,12 +1,15 @@
 import { Col, Row, RowProps } from 'antd'
+import classNames from 'classnames'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Markdown, Typography } from '@open-condo/ui'
 
-import { HtmlContent, HtmlContentProps } from '@condo/domains/common/components/HtmlContent'
+import styles from './TicketPropertyHintContent.module.css'
 
-type TicketPropertyHintContentProps = HtmlContentProps & {
+type TicketPropertyHintContentProps = {
+    content: string
+    className?: string
     linkToHint?: string
 }
 
@@ -26,21 +29,24 @@ export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps)
     }, [ref])
 
     return (
-        <>
-            <Row gutter={CONTENT_GUTTER}>
-                <Col span={24}>
-                    <HtmlContent {...props} ref={ref}/>
-                </Col>
-                {
-                    isContentOverflow && props.linkToHint && (
-                        <Col span={24}>
-                            <Typography.Link href={props.linkToHint} size='large' target='_blank' rel='noreferrer'>
-                                {ExtraTitleMessage}
-                            </Typography.Link>
-                        </Col>
-                    )
-                }
-            </Row>
-        </>
+        <Row gutter={CONTENT_GUTTER}>
+            <Col span={24}>
+                <div
+                    ref={ref}
+                    className={classNames(styles.contentWrapper, props.className)}
+                >
+                    <Markdown type='inline'>{props.content}</Markdown>
+                </div>
+            </Col>
+            {
+                isContentOverflow && props.linkToHint && (
+                    <Col span={24}>
+                        <Typography.Link href={props.linkToHint} size='large' target='_blank' rel='noreferrer'>
+                            {ExtraTitleMessage}
+                        </Typography.Link>
+                    </Col>
+                )
+            }
+        </Row>
     )
 }

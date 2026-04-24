@@ -13,7 +13,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
-const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, COMPLETED, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {
     createTestOrganization,
@@ -23,7 +23,8 @@ const {
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('TicketExportTask', () => {
     describe('validations', () => {
@@ -251,6 +252,31 @@ describe('TicketExportTask', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
+
+        it('can be created by support', async () => {
+            const supportClient = await makeClientWithSupportUser()
+
+            const [obj, attrs] = await createTestTicketExportTask(supportClient, supportClient.user)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+        })
+
+        it('cannot be created by support with other user', async () => {
+            const supportClient = await makeClientWithSupportUser()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicketExportTask(supportClient, userClient.user)
+            })
+        })
     })
 
     describe('Read', () => {
@@ -299,22 +325,41 @@ describe('TicketExportTask', () => {
     })
 
     describe('Update', () => {
-        it('cannot be updated by admin', async () => {
+        // NOTE: ValidationFailureError here is expected: access checks run first (list + field),
+        // so this confirms permissions passed and the mutation was rejected by validation logic.
+        it('can be updated by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const [obj, attrs] = await createTestTicketExportTask(adminClient, adminClient.user)
-            const newAttrs = {
-                status: difference(EXPORT_STATUS_VALUES, [attrs.status])[0],
-            }
-            const [updatedObj] = await updateTestTicketExportTask(adminClient, obj.id, newAttrs)
-            expect(updatedObj.status).toEqual(newAttrs.status)
+            const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
+
+            // NOTE: we cannot guarantee that the task has been cancelled
+            // because the task completion may happen very quickly before we send the task cancellation request
+            await waitFor(async () => {
+                const foundedTask = await TicketExportTask.getOne(adminClient, { id: obj.id })
+                expect(foundedTask).toHaveProperty('status', COMPLETED)
+            })
+            await expectToThrowValidationFailureError(
+                async () => await updateTestTicketExportTask(adminClient, obj.id, { status: CANCELLED }),
+                'status is already completed',
+            )
         })
 
+        // NOTE: ValidationFailureError here is expected: access checks run first (list + field),
+        // so this confirms permissions passed and the mutation was rejected by validation logic.
         it('can be updated by user with specifying "cancelled" value for "status" field', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
-            const [objUpdated] = await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED })
-            expect(objUpdated.status).toEqual(CANCELLED)
+
+            // NOTE: we cannot guarantee that the task has been cancelled
+            // because the task completion may happen very quickly before we send the task cancellation request
+            await waitFor(async () => {
+                const foundedTask = await TicketExportTask.getOne(adminClient, { id: obj.id })
+                expect(foundedTask).toHaveProperty('status', COMPLETED)
+            })
+            await expectToThrowValidationFailureError(
+                async () => await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED }),
+                'status is already completed',
+            )
         })
 
         const forbiddenFieldsToUpdateByUser = {

@@ -2,7 +2,18 @@ const { faker } = require('@faker-js/faker')
 
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
-const { hashJSON, mergeAddressAndHelpers, createOrUpdateAddressWithSource } = require('./searchServiceUtils')
+jest.mock('./heuristicMatcher', () => ({
+    findAddressByHeuristics: jest.fn(),
+    upsertHeuristics: jest.fn(),
+}))
+
+const { findAddressByHeuristics, upsertHeuristics } = require('./heuristicMatcher')
+const {
+    hashJSON,
+    mergeAddressAndHelpers,
+    createOrUpdateAddressWithSource,
+    upsertAddressSource,
+} = require('./searchServiceUtils')
 
 describe('Search service utils', () => {
     describe('hashJSON()', () => {
@@ -160,6 +171,139 @@ describe('Search service utils', () => {
             expect(addressServerUtils.create).toHaveBeenCalled()
             expect(addressSourceServerUtils.getOne).toHaveBeenCalled()
             expect(addressSourceServerUtils.create).toHaveBeenCalled()
+        })
+
+        test('should use heuristic match when heuristics are provided and match exists', async () => {
+            const matchedAddressId = faker.datatype.uuid()
+            const existingAddress = { id: matchedAddressId, address: 'existing', key: 'existing-key', meta: {} }
+            const heuristics = [{ type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }]
+
+            findAddressByHeuristics.mockResolvedValueOnce({
+                addressId: matchedAddressId,
+                matchedHeuristic: { type: 'fias_id', value: heuristics[0].value },
+            })
+            addressServerUtils.getOne.mockResolvedValueOnce(existingAddress)
+
+            const result = await createOrUpdateAddressWithSource(
+                context,
+                addressServerUtils,
+                addressSourceServerUtils,
+                addressData,
+                'test-address',
+                dvSender,
+                heuristics,
+            )
+
+            expect(findAddressByHeuristics).toHaveBeenCalledWith(heuristics)
+            expect(addressServerUtils.getOne).toHaveBeenCalledWith(
+                context,
+                { id: matchedAddressId, deletedAt: null },
+                expect.any(String),
+            )
+            expect(addressServerUtils.getOne).not.toHaveBeenCalledWith(
+                context,
+                { key: addressData.key, deletedAt: null },
+                expect.any(String),
+            )
+            expect(addressServerUtils.create).not.toHaveBeenCalled()
+            expect(upsertHeuristics).toHaveBeenCalledWith(
+                context,
+                existingAddress.id,
+                heuristics,
+                'test-provider',
+                dvSender,
+            )
+            expect(result).toEqual(existingAddress)
+        })
+
+        test('should fall back to key lookup when heuristics are provided but no match found', async () => {
+            const heuristics = [{ type: 'fallback', value: 'test-fallback', reliability: 10 }]
+            const existingByKey = { id: 'existing-by-key', address: 'existing by key', key: 'test-key', meta: {} }
+
+            findAddressByHeuristics.mockResolvedValueOnce(null)
+            addressServerUtils.getOne
+                .mockResolvedValueOnce(existingByKey)
+
+            const result = await createOrUpdateAddressWithSource(
+                context,
+                addressServerUtils,
+                addressSourceServerUtils,
+                addressData,
+                'test-address',
+                dvSender,
+                heuristics,
+            )
+
+            expect(findAddressByHeuristics).toHaveBeenCalledWith(heuristics)
+            expect(addressServerUtils.getOne).toHaveBeenCalledWith(
+                context,
+                { key: addressData.key, deletedAt: null },
+                expect.any(String),
+            )
+            expect(addressServerUtils.create).not.toHaveBeenCalled()
+            expect(upsertHeuristics).toHaveBeenCalledWith(
+                context,
+                existingByKey.id,
+                heuristics,
+                'test-provider',
+                dvSender,
+            )
+            expect(result).toEqual(existingByKey)
+        })
+    })
+
+    describe('upsertAddressSource()', () => {
+        const context = {}
+        const dvSender = { dv: 1, sender: { dv: 1, fingerprint: 'test' } }
+
+        let addressSourceServerUtils
+
+        beforeEach(() => {
+            addressSourceServerUtils = {
+                getOne: jest.fn().mockResolvedValue(null),
+                create: jest.fn().mockResolvedValue({ id: 'created-id' }),
+                update: jest.fn().mockResolvedValue({ id: 'updated-id' }),
+            }
+            jest.clearAllMocks()
+        })
+
+        test('returns null when normalizedSource is falsy', async () => {
+            const id = await upsertAddressSource(context, addressSourceServerUtils, dvSender, '', 'addr-id')
+            expect(id).toBeNull()
+            expect(addressSourceServerUtils.getOne).not.toHaveBeenCalled()
+        })
+
+        test('creates when not existing', async () => {
+            const id = await upsertAddressSource(context, addressSourceServerUtils, dvSender, 'Norm-Source|123', 'addr-id')
+            expect(addressSourceServerUtils.getOne).toHaveBeenCalledWith(
+                context,
+                { source: 'norm-source|123', deletedAt: null },
+                expect.any(String),
+            )
+            expect(addressSourceServerUtils.create).toHaveBeenCalledWith(
+                context,
+                expect.objectContaining({
+                    ...dvSender,
+                    source: 'norm-source|123',
+                    address: { connect: { id: 'addr-id' } },
+                }),
+            )
+            expect(id).toBe('created-id')
+        })
+
+        test('updates when existing', async () => {
+            addressSourceServerUtils.getOne.mockResolvedValueOnce({ id: 'existing-id' })
+            const id = await upsertAddressSource(context, addressSourceServerUtils, dvSender, 'AbC', 'addr-id')
+            expect(addressSourceServerUtils.update).toHaveBeenCalledWith(
+                context,
+                'existing-id',
+                expect.objectContaining({
+                    ...dvSender,
+                    source: 'abc',
+                    address: { connect: { id: 'addr-id' } },
+                }),
+            )
+            expect(id).toBe('existing-id')
         })
     })
 })

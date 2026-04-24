@@ -2,6 +2,7 @@ import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import React, { useState, useMemo, useEffect } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -12,7 +13,6 @@ import TicketChartView from '@condo/domains/analytics/components/TicketChartView
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useDetailChartView } from '@condo/domains/analytics/hooks/useDetailChartView'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import { TicketByCategoryDataMapper } from './dataMappers'
 

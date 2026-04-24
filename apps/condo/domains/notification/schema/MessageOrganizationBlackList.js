@@ -3,7 +3,7 @@
  */
 
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/MessageOrganizationBlackList')
@@ -40,7 +40,7 @@ const MessageOrganizationBlackList = new GQLListSchema('MessageOrganizationBlack
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMessageOrganizationBlackLists,
         create: access.canManageMessageOrganizationBlackLists,

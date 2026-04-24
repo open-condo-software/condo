@@ -1,4 +1,4 @@
-import { AcquiringIntegrationContext, BankAccount } from '@app/condo/schema'
+import { AcquiringIntegrationContext, AcquiringIntegrationTypeType, BankAccount } from '@app/condo/schema'
 import { AutoComplete, Col, Form, Input, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -71,6 +71,7 @@ export const RequisitesSetup: React.FC = () => {
     } = AcquiringIntegrationContextApi.useObject({
         where: {
             organization: { id: orgId },
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
     })
 

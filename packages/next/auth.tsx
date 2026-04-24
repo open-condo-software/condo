@@ -2,7 +2,7 @@ import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
 import get from 'lodash/get'
 import { NextPage } from 'next'
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
 import { isSSR } from '@open-condo/miniapp-utils'
 
@@ -262,21 +262,28 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
  */
 const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const apolloClient = useApolloClient()
+    const cachedUser = apolloClient.cache.readQuery<{ authenticatedUser: UserType }>({
+        query: USER_QUERY,
+    })?.authenticatedUser ?? null
 
+    const [user, setUser] = useState<UserType | null>(cachedUser)
     const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)
 
-    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
-        onCompleted: () => setIsAuthLoading(false),
+    const { loading: userLoading, refetch } = useQuery(USER_QUERY, {
+        onCompleted: (data) => {
+            setUser(data.authenticatedUser)
+            setIsAuthLoading(false)
+        },
         onError: (error) => {
             console.error(error)
+            setUser(null)
             setIsAuthLoading(false)
         },
     })
 
-    const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
-
     const refetchAuth = useCallback(async () => {
-        await refetch()
+        const { data } = await refetch()
+        setUser(data?.authenticatedUser || null)
     }, [refetch])
 
     const [signInMutation, { loading: signInLoading }] = useMutation(SIGNIN_MUTATION, {
@@ -286,20 +293,20 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
             if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signIn()')
 
             if (item) {
+                setUser(item)
                 await apolloClient.clearStore()
             }
             setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setUser(null)
             setIsAuthLoading(false)
         },
     })
 
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async () => {
-            await refetch()
-            removeCookieEmployeeId()
             await apolloClient.cache.reset()
             apolloClient.cache.writeQuery({
                 query: USER_QUERY,
@@ -307,10 +314,12 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
                     authenticatedUser: null,
                 },
             })
+            setUser(null)
             setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setUser(null)
             setIsAuthLoading(false)
         },
     })

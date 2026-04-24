@@ -39,10 +39,10 @@ const USER_FIELDS = 'id type name phone isPhoneVerified email isEmailVerified de
 
 const userSchema = z.object({
     id: z.union([z.string(), z.int().nonnegative()]).transform(val => String(val)),
-    name: z.string().optional().default(null),
-    phone: z.e164().optional().default(null),
+    name: z.string().nullish().default(null),
+    phone: z.e164().nullish().default(null),
     isPhoneVerified: z.boolean().optional().default(true),
-    email: z.email().optional().default(null),
+    email: z.email().nullish().default(null),
     isEmailVerified: z.boolean().optional().default(true),
 }).strict()
 

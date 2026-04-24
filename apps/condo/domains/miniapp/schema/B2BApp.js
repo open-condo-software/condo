@@ -3,7 +3,7 @@
  */
 
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -21,7 +21,7 @@ const {
     APPS_FILE_ADAPTER,
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
-    PARTNER_URL_FIELD,
+    DEVELOPER_URL_FIELD,
     APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
@@ -31,7 +31,10 @@ const {
     PRICE_FIELD,
     ICON_FIELD,
     MENU_CATEGORY_FIELD,
+    SUBSCRIPTION_PLANS_FIELD_B2B,
 } = require('@condo/domains/miniapp/schema/fields/integration')
+
+const { ADDITIONAL_DOMAINS_FIELD, OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD } = require('./fields/domains')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
@@ -49,12 +52,15 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: false,
         },
         developer: DEVELOPER_FIELD,
-        partnerUrl: PARTNER_URL_FIELD,
+        developerUrl: DEVELOPER_URL_FIELD,
         detailedDescription: {
             ...APP_DETAILS_FIELD,
             isRequired: false,
         },
         appUrl: IFRAME_URL_FIELD,
+        additionalDomains: ADDITIONAL_DOMAINS_FIELD,
+        oidcClient: OIDC_CLIENT_FIELD,
+        domains: MINIAPP_DOMAINS_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {
             schemaDoc: 'Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It\'s also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section',
@@ -78,6 +84,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
+        subscriptionPlans: SUBSCRIPTION_PLANS_FIELD_B2B,
         icon: ICON_FIELD,
         menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
@@ -108,6 +115,13 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+        posIntegrationConfig: {
+            schemaDoc: 'Configuration for POS Integration feature. If specified, then this B2BApp is embeddable to the /billing and /marketplace pages and supports POS Integration API',
+            type: 'Relationship',
+            ref: 'B2BAppPosIntegrationConfig',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {
@@ -133,7 +147,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         },
         afterChange: logoMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadB2BApps,
         create: access.canManageB2BApps,

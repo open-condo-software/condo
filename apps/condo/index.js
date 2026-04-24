@@ -7,6 +7,7 @@ const utc = require('dayjs/plugin/utc')
 
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
+const { FileMiddleware } = require('@open-condo/files/fileMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -18,11 +19,14 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { find } = require('@open-condo/keystone/schema')
+const { MessagingMiddleware, setupMessaging } = require('@open-condo/messaging')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
-const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
+const { WEBHOOK_EVENTS } = require('@condo/domains/common/constants/webhooks')
+const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
@@ -63,7 +67,8 @@ const schemas = () => [
     require('@condo/domains/marketplace/schema'),
     require('@condo/domains/document/schema'),
     require('@condo/domains/ai/schema'),
-    getWebhookModels('@app/condo/schema.graphql'),
+    getWebhookModels('@app/condo/schema.graphql', WEBHOOK_EVENTS),
+    require('@open-condo/files/schema'),
 ]
 
 const tasks = () => [
@@ -80,6 +85,7 @@ const tasks = () => [
     require('@condo/domains/marketplace/tasks'),
     require('@condo/domains/analytics/tasks'),
     require('@condo/domains/ai/tasks'),
+    require('@condo/domains/subscription/tasks'),
 ]
 
 const checks = [
@@ -118,8 +124,10 @@ const apps = () => {
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
+        new MessagingMiddleware(),
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
+        new FileMiddleware({ apiPrefix: '/api/files' }),
         FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
     ]
@@ -127,6 +135,14 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
+    // shared state visible to the helper
+    app.locals._grace = app.locals._grace || { draining: false, inflight: 0 }
+
+    app.get('/.well-known/apollo/server-health', (req, res, next) => {
+        if (req.app.locals._grace.draining) return res.status(503).json({ status: 'shutting_down' })
+        next()
+    })
+
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
@@ -148,6 +164,22 @@ const authStrategyOpts = {
         },
     },
 }
+
+setupMessaging({
+    accessCheckers: {
+        organization: async (context, userId, organizationId) => {
+            const employees = await find('OrganizationEmployee', {
+                user: { id: userId },
+                organization: { id: organizationId },
+                isAccepted: true,
+                isRejected: false,
+                isBlocked: false,
+                deletedAt: null,
+            })
+            return employees.length > 0
+        },
+    },
+})
 
 module.exports = prepareKeystone({
     extendExpressApp,

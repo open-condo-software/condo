@@ -1,0 +1,6 @@
+.highlighted-text {
+  padding: 0 2px;
+  color: var(--condo-global-color-white);
+  background-color: var(--condo-global-color-green-5);
+  border-radius: var(--condo-global-border-radius-small);
+}

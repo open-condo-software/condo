@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@open-condo/tsconfig/react-lib.json",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "rootDir": "./src",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+

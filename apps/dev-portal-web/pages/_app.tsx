@@ -3,14 +3,30 @@ import { ConfigProvider } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
+import { useMemo } from 'react'
 import { IntlProvider } from 'react-intl'
+
+import { CachePersistorContext } from '@open-condo/apollo'
 
 import { CreateAppContextProvider } from '@/domains/common/components/CreateAppContext'
 import { SeoProvider } from '@/domains/common/components/SeoProvider'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+import { useApollo } from '@/domains/common/utils/apollo'
+import { AuthProvider } from '@/domains/user/utils/auth'
+
+import type { AppProps } from 'next/app'
+import type { ReactNode } from 'react'
+
+
+import 'antd/dist/reset.css'
+import '@open-condo/ui/dist/styles.min.css'
+import '@open-condo/ui/style-vars/css'
+import 'easymde/dist/easymde.min.css'
+import './global.css'
 
 const mainFont = localFont({
     src: '../public/WixMadeForDisplay.woff2',
@@ -22,16 +38,7 @@ const monoFont = Noto_Sans_Mono({
     style: ['normal'],
 })
 
-import type { AppProps } from 'next/app'
-import type { ReactNode } from 'react'
-
-import { useApollo } from '@/lib/apollo'
-import { AuthProvider } from '@/lib/auth'
-
-import 'antd/dist/reset.css'
-import '@open-condo/ui/dist/styles.min.css'
-import '@open-condo/ui/style-vars/css'
-import './global.css'
+const { publicRuntimeConfig: { runtimeTranslations } } = getConfig()
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together
@@ -56,21 +63,27 @@ declare global {
 
 function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const { locale = DEFAULT_LOCALE } = router
-    const client = useApollo(pageProps)
+    const { client, cachePersistor } = useApollo(pageProps)
+
+    const messages = useMemo(() => {
+        return { ...get(MESSAGES, locale), ...runtimeTranslations[locale] }
+    }, [locale])
 
     return (
-        <IntlProvider locale={locale} messages={get(MESSAGES, locale)}>
+        <IntlProvider locale={locale} messages={messages}>
             <SeoProvider/>
             <ApolloProvider client={client}>
-                <AuthProvider>
-                    <ConfigProvider theme={theme}>
-                        <main className={`${mainFont.variable} ${monoFont.variable}`}>
-                            <CreateAppContextProvider>
-                                <Component {...pageProps}/>
-                            </CreateAppContextProvider>
-                        </main>
-                    </ConfigProvider>
-                </AuthProvider>
+                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
+                    <AuthProvider>
+                        <ConfigProvider theme={theme}>
+                            <main className={`${mainFont.variable} ${monoFont.variable}`}>
+                                <CreateAppContextProvider>
+                                    <Component {...pageProps}/>
+                                </CreateAppContextProvider>
+                            </main>
+                        </ConfigProvider>
+                    </AuthProvider>
+                </CachePersistorContext.Provider>
             </ApolloProvider>
         </IntlProvider>
     )

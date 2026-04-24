@@ -13,10 +13,11 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingProperty, createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
+const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
     MeterReportingPeriod,
@@ -24,6 +25,12 @@ const {
     updateTestMeterReportingPeriod,
     createTestMeter,
 } = require('@condo/domains/meter/utils/testSchema')
+const {
+    createTestB2BApp,
+    createTestB2BAppAccessRight,
+    createTestB2BAppAccessRightSet,
+    createTestB2BAppContext,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization,
@@ -39,7 +46,11 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithResidentUser,
+    makeClientWithServiceUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require( './MeterReportingPeriod')
 
@@ -91,6 +102,40 @@ describe('MeterReportingPeriod', () => {
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestMeterReportingPeriod(anonymous, { id: 'id' })
+                })
+            })
+
+            test('service user with access rights can', async () => {
+                const [b2bApp] = await createTestB2BApp(admin)
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
+                    canReadOrganizations: true,
+                    canReadProperties: true,
+                    canReadMeterReportingPeriods: true,
+                    canManageMeterReportingPeriods: true,
+                })
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, accessRightSet)
+                await createTestB2BAppContext(admin, b2bApp, commonOrganization, { status: 'Finished' })
+
+                const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
+                const [obj, attrs] = await createTestMeterReportingPeriod(serviceUserClient, commonOrganization, {
+                    property: { connect: { id: property.id } },
+                })
+
+                expectValuesOfCommonFields(obj, attrs, serviceUserClient)
+            })
+
+            test('service user without access rights can\'t', async () => {
+                const [b2bApp] = await createTestB2BApp(admin)
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp)
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, accessRightSet)
+                await createTestB2BAppContext(admin, b2bApp, commonOrganization, { status: 'Finished' })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestMeterReportingPeriod(serviceUserClient, commonOrganization, {
+                        property: { connect: { id: commonProperty.id } },
+                    })
                 })
             })
         })
@@ -184,6 +229,40 @@ describe('MeterReportingPeriod', () => {
 
                 expect(objs[0]).toMatchObject({
                     id: defaultMeterReportingPeriod.id,
+                })
+            })
+
+            test('Service user with access rights can', async () => {
+                const [b2bApp] = await createTestB2BApp(admin)
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
+                    canReadOrganizations: true,
+                    canReadProperties: true,
+                    canReadMeterReportingPeriods: true,
+                })
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, accessRightSet)
+                await createTestB2BAppContext(admin, b2bApp, commonOrganization, { status: 'Finished' })
+                const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
+
+                const [obj] = await createTestMeterReportingPeriod(admin, commonOrganization, {
+                    property: { connect: { id: property.id } },
+                })
+
+                const objs = await MeterReportingPeriod.getAll(serviceUserClient, { id: obj.id })
+
+                expect(objs).toHaveLength(1)
+                expect(objs[0]).toMatchObject({ id: obj.id })
+            })
+
+            test('Service user without access rights can\'t', async () => {
+                const [b2bApp] = await createTestB2BApp(admin)
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp)
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, accessRightSet)
+                await createTestB2BAppContext(admin, b2bApp, commonOrganization, { status: 'Finished' })
+
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MeterReportingPeriod.getAll(serviceUserClient, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 

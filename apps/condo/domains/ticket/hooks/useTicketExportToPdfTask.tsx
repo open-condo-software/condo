@@ -16,6 +16,7 @@ import isEmpty from 'lodash/isEmpty'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { ResolvedIntlConfig } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Checkbox } from '@open-condo/ui'
 
@@ -25,7 +26,6 @@ import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics, EventsData } from '@condo/domains/common/utils/analytics'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
 import { useTicketExportTaskUIInterface } from './useTicketExportTaskUIInterface'

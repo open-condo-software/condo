@@ -32,6 +32,22 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             importId
             importRemoteSystem
             meta
+            subscription {
+                paymentsEndAt
+                analyticsEndAt
+                propertiesEndAt
+                metersEndAt
+                ticketsEndAt
+                newsEndAt
+                marketplaceEndAt
+                supportEndAt
+                aiEndAt
+                customizationEndAt
+                b2bApps { id endAt }
+                b2cApps { id endAt }
+                activeSubscriptionEndAt
+                activeSubscriptionContextId
+            }
         }
         role {
             id
@@ -107,6 +123,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             canReadMarketSetting
             canManageMarketSetting
             canManageTicketAutoAssignments
+            canManageSubscriptions
         }
     }
 }
@@ -196,6 +213,24 @@ query getLastEmployeeInvite($userId: ID!) {
     }
 }
 
+query getOrganizationEmployeesForAIAssistant ($where: OrganizationEmployeeWhereInput, $sortBy: [SortOrganizationEmployeesBy!], $first: Int!, $skip: Int) {
+    employees: allOrganizationEmployees (
+        where: $where,
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        phone
+        email
+        role {
+            name
+            description
+        }
+    }
+}
+
 query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereInput) {
     employees: allOrganizationEmployees (
         where: $where,
@@ -234,6 +269,23 @@ query getOrganizationEmployeeByUserAndOrganizationId ($userId: ID!, $organizatio
     }
 }
 
+query getEmployeesByOrganizationIdAndUserIds ($organizationId: ID!, $userIds: [ID!]!) {
+    employees: allOrganizationEmployees (
+        where: {
+            organization: { id: $organizationId }
+            user: { id_in: $userIds },
+        }
+        first: 100,
+    ) {
+        id 
+        name
+        user {
+            id
+            name
+        }
+    }
+}
+
 query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizationType: [OrganizationTypeType!]) {
     invitations: allOrganizationEmployees (
         where: {
@@ -249,5 +301,22 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
         organization {
             name
         }
+    }
+}
+
+query checkEmployeeExistence($organizationId: ID!, $phone: String, $email: String) {
+    objs: allOrganizationEmployees(
+        first: 100
+        where: {
+            organization: { id: $organizationId }
+            OR: [
+                { phone: $phone }
+                { email: $email }
+            ]
+        }
+    ) {
+        id
+        phone
+        email
     }
 }

@@ -1,4 +1,8 @@
-const { isEmpty, isNull, get, isObject } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -51,6 +55,7 @@ class AppleAdapter {
     /**
      * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
      * @param data
+     * @param token
      */
     static prepareData (data = {}, token) {
         const result = { token }
@@ -90,8 +95,9 @@ class AppleAdapter {
      * Mimics Apple push failure response
      * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
      */
-    static getFakeErrorResponse () {
+    static getFakeErrorResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: false,
             type: 'Fake',
             state: 'error',
@@ -106,8 +112,9 @@ class AppleAdapter {
      * Mimics Apple push success response
      * @returns {{success: boolean, messageId: string}}
      */
-    static getFakeSuccessResponse () {
+    static getFakeSuccessResponse (additionalProperties = {}) {
         return {
+            ...additionalProperties,
             success: true,
             type: 'Fake',
             status: APS_RESPONSE_STATUS_SUCCESS,
@@ -125,18 +132,18 @@ class AppleAdapter {
      * @param fakeNotifications
      * @returns {*}
      */
-    static injectFakeResults (result, fakeNotifications) {
+    static injectFakeResults (result, fakeNotifications, appIds = {}) {
         const mixed = !isObject(result) || isEmpty(result) ? AppleAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(AppleAdapter.getFakeSuccessResponse())
+                mixed.responses.push(AppleAdapter.getFakeSuccessResponse({ appId: appIds[token] }))
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(AppleAdapter.getFakeErrorResponse())
+                mixed.responses.push(AppleAdapter.getFakeErrorResponse({ appId: appIds[token] }))
             }
         })
 
@@ -146,27 +153,31 @@ class AppleAdapter {
     /**
      * Prepares notification for either/both sending to Apple push and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
-     * @param data
+     * @param notificationByTokenRaw
+     * @param dataByToken
      * @param tokens
+     * @param pushTypes
+     * @param appIds
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds) {
-        const notification = AppleAdapter.validateAndPrepareNotification(notificationRaw)
+    static prepareBatchData (notificationByTokenRaw = {}, dataByToken = {}, tokens = [], pushTypes = {}, appIds) {
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
+            const notification = AppleAdapter.validateAndPrepareNotification(notificationByTokenRaw[pushToken])
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = AppleAdapter.prepareData(data, pushToken)
+            const data = dataByToken[pushToken]
+            if (!data) return
+
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
                     data: {
-                        ...preparedData,
+                        ...data,
                         '_title': notification.title,
                         '_body': notification.body,
                     },
@@ -176,19 +187,34 @@ class AppleAdapter {
                 }
                 : {
                     token: pushToken,
-                    data: preparedData,
+                    data: data,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                     type: pushType,
                     appId: get(appIds, pushToken),
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (
+                !APPS_WITH_DISABLED_NOTIFICATIONS.includes(get(appIds, pushToken))
+                && (!data.app || !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app))
+            ) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
 
         return [notifications, fakeNotifications, pushContext]
+    }
+
+    static shouldClearPushTokenByErrorsInResponse (response) {
+        // https://developer.apple.com/documentation/usernotifications/handling-notification-responses-from-apns
+        return z.object({
+            error: z.object({
+                reason: z.union([
+                    z.literal('Unregistered'),
+                    z.literal('ExpiredToken'),
+                ]),
+            }),
+        }).safeParse(response).success
     }
 
     /**
@@ -197,25 +223,21 @@ class AppleAdapter {
      * Would try to send request to Apple only if Apple is initialized and `tokens` array contains real (non-fake) items.
      * Would succeed if at least one real token succeeds in delivering notification through Apple push, or
      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-     * @param notification
+     * @param notificationByToken
+     * @param dataByToken
      * @param tokens
-     * @param data
      * @param pushTypes
+     * @param appIds
+     * @param metaByToken
+     * @param isVoIP
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
+    async sendNotification ({ notificationByToken, dataByToken, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
-        let result
+        const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notificationByToken, dataByToken, tokens, pushTypes, appIds)
+        let result = AppleAdapter.getEmptyResult()
 
-        // If we come up to here and no real tokens provided, that means fakeNotifications contains
-        // some FAKE tokens and emulation is required for testing purposes
-        if (isEmpty(notifications)) {
-            result = AppleAdapter.injectFakeResults(AppleAdapter.getEmptyResult(), fakeNotifications)
-        }
-
-        // NOTE: we try to fire Apple push request only if Apple push was initialized and we have some real notifications
         if (!isNull(this.#config) && !isEmpty(notifications)) {
             const notificationsByAppId = {}
             for (const notification of notifications) {
@@ -223,37 +245,78 @@ class AppleAdapter {
                 notificationsByAppId[appId] ||= []
                 notificationsByAppId[appId].push(notification)
             }
-            for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
+
+            const promises = await Promise.allSettled(Object.entries(notificationsByAppId).map(async ([appId, notificationsBatchForApp]) => {
                 const configForApp = this.#config[appId]
                 if (!configForApp) {
                     logger.error({ msg: 'unknown appId. Config was not found', data: { appId } })
-                    continue
+                    return {
+                        state: 'error',
+                        error: 'unknown appId. Config was not found',
+                        appId,
+                        failureCount: notificationsBatchForApp.length,
+                        successCount: 0,
+                        responses: notificationsBatchForApp.map(notification => ({
+                            pushToken: notification.token,
+                            pushType: get(pushTypes, notification.token, null),
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
+                        })),
+                    }
                 }
 
                 const app = new AppleMessaging(configForApp)
 
                 try {
                     const appleResult = await app.sendAll(notificationsBatchForApp, isVoIP)
-
                     if (!isEmpty(appleResult.responses)) {
                         appleResult.responses = appleResult.responses.map(
-                            (response, idx) =>
-                                ({
+                            (response, idx) => {
+                                const pushToken = notificationsBatchForApp[idx]?.token
+                                return {
                                     ...response,
-                                    pushToken: notificationsBatchForApp[idx].token,
-                                    pushType: pushTypes[notificationsBatchForApp[idx].token],
+                                    pushToken,
+                                    pushType: pushTypes?.[pushToken] ?? null,
                                     appleServerUrl: configForApp.url,
-                                })
-                        )
+                                    appId: appIds?.[pushToken] ?? null,
+                                    remoteClientMeta: metaByToken?.[pushToken] ?? null,
+                                }
+                            })
                     }
-
-                    result = AppleAdapter.injectFakeResults(appleResult, fakeNotifications)
+                    return appleResult
                 } catch (err) {
                     logger.error({ msg: 'sendNotification error', err })
-                    result = { state: 'error', error: err }
+                    return {
+                        state: 'error',
+                        error: err,
+                        failureCount: notificationsBatchForApp.length,
+                        successCount: 0,
+                        responses: notificationsBatchForApp.map(notification => ({
+                            pushToken: notification.token,
+                            pushType: get(pushTypes, notification.token, null),
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
+                        })),
+                    }
                 }
+            }))
+
+            let combinedResult = AppleAdapter.getEmptyResult()
+            for (const p of promises) {
+                if (p.status !== 'fulfilled') {
+                    combinedResult.failureCount++
+                    combinedResult.responses.push({ error: p.reason })
+                    continue
+                }
+                const result = p.value
+                combinedResult.successCount += (result.successCount || 0)
+                combinedResult.failureCount += (result.failureCount || 0)
+                combinedResult.responses = (combinedResult.responses || []).concat(result.responses || [])
             }
+            result = combinedResult
         }
+
+        result = AppleAdapter.injectFakeResults(result, fakeNotifications, appIds)
 
         const isOk = !isEmpty(result) && result.successCount > 0
 

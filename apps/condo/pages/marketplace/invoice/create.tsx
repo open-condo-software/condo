@@ -1,9 +1,10 @@
-import { Typography, Row, Col } from 'antd'
+import { Row, Col } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Head from 'next/head'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'

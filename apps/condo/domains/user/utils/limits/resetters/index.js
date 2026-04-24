@@ -1,4 +1,6 @@
 const { AuthGuardResetter } = require('./AuthGuardResetter')
+const { ChangeOrVerifyUserEmail } = require('./ChangeOrVerifyUserEmail')
+const { ChangeTwoFactorAuthentication } = require('./ChangeTwoFactorAuthenticationResetter')
 const { ChangeUserPassword } = require('./ChangeUserPassword')
 const { CheckUserExistenceResetter } = require('./CheckUserExistenceResetter')
 const { EmailGuardResetter } = require('./EmailGuardResetter')
@@ -16,4 +18,6 @@ module.exports = {
     AuthGuardResetter,
     CheckUserExistenceResetter,
     ChangeUserPassword,
+    ChangeOrVerifyUserEmail,
+    ChangeTwoFactorAuthentication,
 }

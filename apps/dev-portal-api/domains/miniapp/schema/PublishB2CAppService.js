@@ -8,6 +8,7 @@ const dayjs = require('dayjs')
 const got = require('got')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { KVLocker } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -20,7 +21,7 @@ const {
     CondoB2CAppAccessRightGql,
 } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/PublishB2CAppService')
-const { DEFAULT_COLOR_SCHEMA } = require('@dev-portal-api/domains/miniapp/constants/b2c')
+const { DEFAULT_COLOR_SCHEMA, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
 const {
     FIRST_PUBLISH_WITHOUT_INFO,
     APP_NOT_FOUND,
@@ -41,7 +42,11 @@ const {
     B2CAppAccessRight,
 } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/index')
 
+const { getEnvironmentalPermissionsFieldsSelection, extractDevicePermissionsForCondo } = require('./fields/devicePermissions')
+const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
+
+const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalPermissionsFieldsSelection()} ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {
@@ -77,9 +82,41 @@ const ERRORS = {
 }
 
 const logger = getLogger()
+const locker = new KVLocker({
+    retryCount: 10,
+    retryDelay: 500,
+    retryJitter: 100,
+    lockDuration: 60_000,
+})
+
+function wrapResolverWithLock (originalResolver) {
+    return async function (parent, args, contextValue, info) {
+        const { data: { app: { id }, environment } } = args
+
+        const lockKey = `publishB2CApp:${id}:${environment}`
+        const lock = await locker.acquire(lockKey)
+
+        try {
+            return await originalResolver(parent, args, contextValue, info)
+        } finally {
+            await lock.release()
+        }
+    }
+}
 
 function getExportIdField (environment) {
     return `${environment}ExportId`
+}
+
+function getAppStaticUrl ({ condoApp, serverClient }) {
+    const condoUrl = new URL(serverClient.endpoint)
+    const condoDomainParts = condoUrl.hostname.split('.')
+    // NOTE: condo.example.com -> example.com, localhost -> localhost, example.com -> example.com
+    const domainSuffix = condoDomainParts.length > 2 ? condoDomainParts.slice(1) : condoDomainParts
+    const domainParts = [condoApp.id, 'miniapps-static', ...domainSuffix]
+    const port = condoUrl.port
+
+    return `${condoUrl.protocol}//${domainParts.join('.')}${port ? `:${port}` : ''}`
 }
 
 async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
@@ -87,14 +124,18 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     logger.info({
         msg: 'started app publishing',
         entityId: app.id,
-        entity: 'B2BApp',
+        entity: 'B2CApp',
         environment,
     })
     const exportIdField = getExportIdField(environment)
     const exportId = app[exportIdField]
 
+    const webTransformField = getEnvironmentalFieldName(environment, 'webTransformEnabled')
+    const webTransformEnabled = app[webTransformField] === true
+
     // Step 1. Prepare payload
     const appPayload = {
+        ...extractDevicePermissionsForCondo(app, environment),
         dv,
         sender,
         name: app.name,
@@ -119,10 +160,17 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'found existing condo app',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: condoApp.id },
         })
+
+        if (app.type === B2C_APP_CORDOVA_TYPE) {
+            appPayload.appUrl = webTransformEnabled
+                ? getAppStaticUrl({ condoApp, serverClient })
+                : null
+        }
+
         updatedCondoApp = await serverClient.updateModel({
             modelGql: CondoB2CAppGql,
             id: condoApp.id,
@@ -131,7 +179,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'condo app successfully updated',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             data: { condoAppId: condoApp.id },
             environment,
         })
@@ -140,17 +188,28 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'condo app not found. Creating new one',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
         })
         updatedCondoApp = await serverClient.createModel({
             modelGql: CondoB2CAppGql,
             createInput: appPayload,
         })
+        if (app.type === B2C_APP_CORDOVA_TYPE && webTransformEnabled) {
+            updatedCondoApp = await serverClient.updateModel({
+                modelGql: CondoB2CAppGql,
+                id: updatedCondoApp.id,
+                updateInput: {
+                    dv,
+                    sender,
+                    appUrl: getAppStaticUrl({ condoApp: updatedCondoApp, serverClient }),
+                },
+            })
+        }
         logger.info({
             msg: 'condo app successfully created',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: updatedCondoApp.id },
         })
@@ -165,7 +224,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'dev-portal app exportId updated',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: updatedCondoApp.id },
         })
@@ -183,7 +242,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         logger.info({
             msg: 'condo build not found, creating new one',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: {
                 condoAppId: condoApp.id,
@@ -210,7 +269,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         logger.info({ msg: 'condo build created',
             environment,
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             data: { version: build.version, condoAppId: condoApp.id },
         })
     }
@@ -219,7 +278,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         msg: 'updating condo app current build',
         environment,
         entityId: app.id,
-        entity: 'B2BApp',
+        entity: 'B2CApp',
         data: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id },
     })
     await serverClient.updateModel({
@@ -235,7 +294,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         msg: 'current build successfully updated',
         environment,
         entityId: app.id,
-        entity: 'B2BApp',
+        entity: 'B2CApp',
         data: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id },
     })
 
@@ -248,14 +307,14 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         logger.info({
             msg: 'dev-portal build exportId updated',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id },
         })
     }
 }
 
-async function enableOIDCClient ({ args, serverClient }) {
+async function syncOIDCClient ({ args, serverClient, condoApp }) {
     const { data: { dv, sender, app, environment } } = args
 
     const oidcClients = await serverClient.getModels({
@@ -268,7 +327,7 @@ async function enableOIDCClient ({ args, serverClient }) {
         logger.info({
             msg: 'no OIDC clients found for app',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
         })
         return
@@ -276,33 +335,45 @@ async function enableOIDCClient ({ args, serverClient }) {
 
     const oidcClient = oidcClients[0]
 
-    if (oidcClient.isEnabled) {
+    if (!oidcClient.isEnabled) {
+        await serverClient.updateModel({
+            modelGql: CondoOIDCClientGql,
+            id: oidcClient.id,
+            updateInput: {
+                dv,
+                sender,
+                isEnabled: true,
+            },
+        })
         logger.info({
-            msg: 'OIDC client is already enabled',
+            msg: 'OIDC client is enabled now',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { oidcClientId: oidcClient.id },
         })
-        return
     }
 
-    await serverClient.updateModel({
-        modelGql: CondoOIDCClientGql,
-        id: oidcClient.id,
-        updateInput: {
-            dv,
-            sender,
-            isEnabled: true,
-        },
-    })
-    logger.info({
-        msg: 'OIDC client is enabled now',
-        entityId: app.id,
-        entity: 'B2BApp',
-        environment,
-        data: { oidcClientId: oidcClient.id },
-    })
+
+
+    if (!condoApp.oidcClient || condoApp.oidcClient.deletedAt) {
+        await serverClient.updateModel({
+            modelGql: CondoB2CAppGql,
+            id: condoApp.id,
+            updateInput: {
+                dv,
+                sender,
+                oidcClient: { connect: { id: oidcClient.id } },
+            },
+        })
+        logger.info({
+            msg: 'B2CApp is connected to OIDC client',
+            entityId: app.id,
+            entity: 'B2CApp',
+            environment,
+            data: { oidcClientId: oidcClient.id },
+        })
+    }
 }
 
 async function addAccessRight ({ args, serverClient, context, condoApp }) {
@@ -319,7 +390,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         logger.info({
             msg: 'access right found for app',
             entityId: id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { accessRightId: accessRight.id },
         })
@@ -336,7 +407,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
             logger.info({
                 msg: 'existing condo access right found for app',
                 entityId: id,
-                entity: 'B2BApp',
+                entity: 'B2CApp',
                 environment,
                 data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
             })
@@ -348,7 +419,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
                 logger.info({
                     msg: 'existing condo access right user does not match with dev-portal one',
                     entityId: id,
-                    entity: 'B2BApp',
+                    entity: 'B2CApp',
                     environment,
                     data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
                 })
@@ -364,7 +435,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
                 logger.info({
                     msg: 'existing condo access right successfully deleted',
                     entityId: id,
-                    entity: 'B2BApp',
+                    entity: 'B2CApp',
                     environment,
                     data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
                 })
@@ -374,7 +445,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         logger.info({
             msg: 'creating new condo access right',
             entityId: id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { accessRightId: accessRight.id },
         })
@@ -392,7 +463,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         logger.info({
             msg: 'Updating dev-portal access right info',
             entityId: id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id },
         })
@@ -428,13 +499,16 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
         {
             access: access.canPublishB2CApp,
             schema: 'publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput',
-            resolver: async (parent, args, context) => {
-                const { data: { app: { id }, options, environment } } = args
+            resolver: wrapResolverWithLock(async (parent, args, context) => {
+                const { data: { app: { id }, options, environment, dv, sender } } = args
+
+                const publishingTime = dayjs().toISOString()
+                const publishingField = getEnvironmentalFieldName(environment, 'publishedAt')
 
                 const app = await B2CApp.getOne(
                     context,
                     { id, deletedAt: null },
-                    'id developmentExportId productionExportId name developer createdBy { name } logo { publicUrl originalFilename }'
+                    B2C_APP_FIELDS,
                 )
                 if (!app) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
@@ -516,12 +590,18 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                 await addAccessRight({ args, serverClient, context, condoApp })
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
-                await enableOIDCClient({ args, serverClient })
+                await syncOIDCClient({ args, serverClient, condoApp })
+
+                await B2CApp.update(context, app.id, {
+                    dv,
+                    sender,
+                    [publishingField]: publishingTime,
+                })
 
                 return {
                     success: true,
                 }
-            },
+            }),
         },
     ],
 })

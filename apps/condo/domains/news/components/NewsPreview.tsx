@@ -3,11 +3,12 @@ import { Row, Col, Divider } from 'antd'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Card, Space, RadioGroup, Radio } from '@open-condo/ui'
+import { Typography, Card, Space, RadioGroup, Radio, Markdown } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import type { RowProps } from 'antd'
@@ -153,7 +154,7 @@ const NewsPushPreview: React.FC<INewsItemPushPreview> = ({ appName, appIcon, new
                             </Col>
                             <Col span={24}>
                                 <Typography.Paragraph ellipsis={PUSH_PARAGRAPH_ELLIPSIS_CONFIG} size='medium'>
-                                    {body}
+                                    {stripMarkdown(body)}
                                 </Typography.Paragraph>
                             </Col>
                         </Row>
@@ -163,8 +164,6 @@ const NewsPushPreview: React.FC<INewsItemPushPreview> = ({ appName, appIcon, new
         </NewsPushPreviewContainer>
     )
 }
-
-const LINE_BREAK_STYLE: CSSProperties = { whiteSpace: 'break-spaces' }
 
 interface INewsPreviewContainer {
     push?: {
@@ -238,26 +237,24 @@ const CondoAppPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) =
                     <Divider />
                 </Col>
                 <Col span={24} style={APP_CONTENT_STYLE}>
-                    <div style={LINE_BREAK_STYLE}>
-                        <Space direction='vertical' size={16}>
-                            <Space direction='vertical' size={8}>
-                                <Typography.Title level={2}>
-                                    {title}
-                                </Typography.Title>
-                                <Typography.Text size='small' type='secondary'>
-                                    {ReceivedAtTitle}
-                                    {!!validBefore && (
-                                        <>
-                                            &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
-                                        </>
-                                    )}
-                                </Typography.Text>
-                            </Space>
-                            <Typography.Paragraph>
-                                {body}
-                            </Typography.Paragraph>
+                    <Space direction='vertical' size={16}>
+                        <Space direction='vertical' size={8}>
+                            <Typography.Title level={2}>
+                                {title}
+                            </Typography.Title>
+                            <Typography.Text size='small' type='secondary'>
+                                {ReceivedAtTitle}
+                                {!!validBefore && (
+                                    <>
+                                        &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
+                                    </>
+                                )}
+                            </Typography.Text>
                         </Space>
-                    </div>
+                        <Typography.Paragraph type='secondary'>
+                            <Markdown type='inline'>{body}</Markdown>
+                        </Typography.Paragraph>
+                    </Space>
                 </Col>
             </Row>
         </CondoAppPreviewContainer>
@@ -313,7 +310,7 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
                     // el => iFrameRef.current = el is used here to support IFrame API
                     // @ts-ignore
                     ref={el => iFrameRef.current = el}
-                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
+                    src={`${iFrameUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
                     reloadScope='organization'
                 />
                 <SharingAppOverflowContainer/>

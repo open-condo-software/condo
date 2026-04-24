@@ -7,7 +7,7 @@ import { PaymentsFileStatusType } from '@app/condo/schema'
 import JSZip from 'jszip'
 import { useCallback } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 

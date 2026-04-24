@@ -7,6 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2CAppServiceUser, canManageObjectsAsB2CAppServiceUser } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/server.utils')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -19,7 +20,8 @@ const { checkB2CAppAccessRight } = require('../utils/accessSchema')
  * 4. Service users with AccessRights to specific app
  * 5. Any residents
  */
-async function canReadB2CAppProperties ({ authentication: { item: user }, listKey }) {
+async function canReadB2CAppProperties (args) {
+    const { authentication: { item: user }, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -29,7 +31,7 @@ async function canReadB2CAppProperties ({ authentication: { item: user }, listKe
 
     if (user.type === RESIDENT) return {}
     if (user.type === SERVICE) {
-        return { app: { accessRights_some: { deletedAt: null, user: { id: user.id } } } }
+        return canReadObjectsAsB2CAppServiceUser(args)
     }
 
     return false
@@ -41,7 +43,9 @@ async function canReadB2CAppProperties ({ authentication: { item: user }, listKe
  * 2. Users with direct access
  * 4. (TODO(DOMA-7062): remove this part) Service users with AccessRights to specific app
  */
-async function canManageB2CAppProperties ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
+async function canManageB2CAppProperties (args) {
+    const { authentication: { item: user }, originalInput, operation, listKey } = args
+    
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -49,14 +53,8 @@ async function canManageB2CAppProperties ({ authentication: { item: user }, orig
     const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
-    if (operation === 'create') {
-        return await checkB2CAppAccessRight(user.id, get(originalInput, ['app', 'connect', 'id']))
-    } else if (operation === 'update') {
-        if (!itemId) return false
-        if (user.type !== SERVICE) return false
-        const item = await getById('B2CAppProperty', itemId)
-        const appId = get(item, 'app')
-        return await checkB2CAppAccessRight(user.id, appId)
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2CAppServiceUser(args)
     }
 
     return false

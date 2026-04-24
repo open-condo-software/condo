@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getByCondition } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -77,6 +77,7 @@ const Contact = new GQLListSchema('Contact', {
         email: {
             schemaDoc: 'Normalized contact email of this person',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
@@ -96,6 +97,7 @@ const Contact = new GQLListSchema('Contact', {
         phone: {
             schemaDoc: 'Normalized contact phone of this person in E.164 format without spaces',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
@@ -114,6 +116,7 @@ const Contact = new GQLListSchema('Contact', {
         name: {
             schemaDoc: 'Name or full name of this person',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
@@ -209,6 +212,7 @@ const Contact = new GQLListSchema('Contact', {
         note: {
             schemaDoc: 'A note about the contact',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
@@ -265,7 +269,7 @@ const Contact = new GQLListSchema('Contact', {
         ],
     },
     plugins: [
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(),
     ],
     access: {
         read: access.canReadContacts,

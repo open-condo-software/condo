@@ -24,6 +24,51 @@ const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
 describe('SendMessageToSupportService', () => {
+    test('with userAgent fallback', async () => {
+        const residentClient = await makeClientWithResidentAccessAndProperty()
+        const adminClient = await makeLoggedInAdminClient()
+        await createTestResident(adminClient, residentClient.user, residentClient.property)
+
+        const payload = {
+            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}`,
+            emailFrom: EMAIL_FROM,
+            os: 'android 8',
+            appVersion: '0.0.1a',
+            lang: RU_LOCALE,
+        }
+
+        const [result] = await supportSendMessageToSupportByTestClient(residentClient, payload)
+        expect(result.status).toEqual(MESSAGE_SENDING_STATUS)
+        const messages = await Message.getAll(adminClient, { id: result.id })
+        expect(messages).toHaveLength(1)
+        expect(messages[0].meta.userAgent).toBe('node-fetch/1.0 (+https://github.com/bitinn/node-fetch)')
+    })
+
+    test('with platform and userAgent', async () => {
+        const residentClient = await makeClientWithResidentAccessAndProperty()
+        const adminClient = await makeLoggedInAdminClient()
+        await createTestResident(adminClient, residentClient.user, residentClient.property)
+
+        const payload = {
+            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}`,
+            emailFrom: EMAIL_FROM,
+            os: 'android 8',
+            app: 'appName',
+            appVersion: '0.0.1a',
+            lang: RU_LOCALE,
+            platform: 'android',
+            userAgent: 'someUserAgentInfo',
+        }
+
+        const [result] = await supportSendMessageToSupportByTestClient(residentClient, payload)
+        expect(result.status).toEqual(MESSAGE_SENDING_STATUS)
+        const messages = await Message.getAll(adminClient, { id: result.id })
+        expect(messages).toHaveLength(1)
+        expect(messages[0].meta.app).toBe('appName')
+        expect(messages[0].meta.platform).toBe('android')
+        expect(messages[0].meta.userAgent).toBe('someUserAgentInfo')
+    })
+
     test('with attachments, with emailFrom', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()

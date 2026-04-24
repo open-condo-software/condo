@@ -17,15 +17,19 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadProperties (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user }, context, listKey } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     if (user.type === RESIDENT) {
         const residents = await getUserResidents(context, user)
@@ -50,11 +54,14 @@ async function canReadProperties (args) {
 }
 
 async function canManageProperties (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context } = args
+    const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context, listKey } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
 
     if (user.type === SERVICE) {
         return await canManageObjectsAsB2BAppServiceUser(args)

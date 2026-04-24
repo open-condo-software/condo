@@ -1,0 +1,14 @@
+const {
+    EMAIL_VERIFY_CODE_MESSAGE_TYPE,
+    VERIFY_USER_EMAIL_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+
+
+const CONFIRM_EMAIL_ACTION_MESSAGE_TYPES = [
+    EMAIL_VERIFY_CODE_MESSAGE_TYPE,
+    VERIFY_USER_EMAIL_MESSAGE_TYPE,
+]
+
+module.exports = {
+    CONFIRM_EMAIL_ACTION_MESSAGE_TYPES,
+}

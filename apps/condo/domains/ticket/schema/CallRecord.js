@@ -4,7 +4,7 @@
 const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
@@ -26,6 +26,7 @@ const CallRecord = new GQLListSchema('CallRecord', {
         file: {
             schemaDoc: 'Conversation file',
             type: 'File',
+            sensitive: true,
             adapter: Adapter,
         },
         callerPhone: {
@@ -63,6 +64,11 @@ const CallRecord = new GQLListSchema('CallRecord', {
             type: 'Text',
             isRequired: true,
         },
+        transcript: {
+            schemaDoc: 'Call transcription',
+            type: 'Text',
+            sensitive: true,
+        },
     },
     hooks: {
         afterChange: fileMetaAfterChange,
@@ -72,7 +78,7 @@ const CallRecord = new GQLListSchema('CallRecord', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadCallRecords,
         create: access.canManageCallRecords,

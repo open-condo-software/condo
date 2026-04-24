@@ -1,17 +1,18 @@
+import { Col, Row, Skeleton } from 'antd'
 import React, { useCallback } from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Alert, Space, Typography, Button, Checkbox } from '@open-condo/ui'
 
-import { Spin } from '@/domains/common/components/Spin'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
 import styles from './RequestStatusInfo.module.css'
 
-import type { AllB2CAppPublishRequestsQuery } from '@/lib/gql'
+import type { AllB2CAppPublishRequestsQuery, AppEnvironment } from '@/gql'
+import type { RowProps } from 'antd'
 
-import { useCreateB2CAppPublishRequestMutation, AllB2CAppPublishRequestsDocument } from '@/lib/gql'
+import { useCreateB2CAppPublishRequestMutation, AllB2CAppPublishRequestsDocument } from '@/gql'
 
 
 type RequestStatusInfoProps = {
@@ -26,19 +27,25 @@ const fieldsToCheck = [
     'isContractSigned',
 ] as const
 
+const REQUEST_BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
+const FULL_COL_SPAN = 24
+
 export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, request, loading }) => {
     const intl = useIntl()
-    const VerificationRequiredTitle = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.title' })
-    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.details.aboutVerification' })
-    const RequestVerificationLabel = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.actions.requestVerification' })
-    const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.details.nextSteps' }, {
+    const VerificationRequiredTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title' })
+    const RequestVerificationLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.actions.requestVerification' })
+    const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps' }, {
         action: RequestVerificationLabel,
     })
-    const VerificationStatusTitle = intl.formatMessage({ id: 'apps.id.verification.activeVerificationAlert.title' })
-    const StandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
-    const VerificationDetailsText = intl.formatMessage({ id: 'apps.id.verification.activeVerificationAlert.details.text' }, {
-        stand: StandLabel.toLowerCase(),
+    const VerificationStatusTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.title' })
+    const EnvironmentLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const VerificationDetailsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.details.text' }, {
+        environment: EnvironmentLabel.toLowerCase(),
     })
+    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' }, {
+        environment: EnvironmentLabel.toLowerCase(),
+    })
+
 
     const onError = useMutationErrorHandler()
     const [createRequestMutation] = useCreateB2CAppPublishRequestMutation({
@@ -62,30 +69,34 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
 
     if (loading) {
         return (
-            <Spin size='large'/>
+            <Skeleton active/>
         )
     }
 
     if (!request) {
         return (
-            <Space direction='vertical' size={40}>
-                <Alert
-                    type='warning'
-                    message={VerificationRequiredTitle}
-                    description={(
-                        <Space direction='vertical' size={16}>
-                            <Typography.Paragraph size='medium'>
-                                {VerificationRequiredDetailsAboutText}
-                            </Typography.Paragraph>
-                            <Typography.Paragraph size='medium'>
-                                {VerificationRequiredDetailsNextStepsText}
-                            </Typography.Paragraph>
-                        </Space>
-                    )}
-                    showIcon
-                />
-                <Button type='primary' onClick={handleRequestVerification}>{RequestVerificationLabel}</Button>
-            </Space>
+            <Row gutter={REQUEST_BUTTON_GUTTER}>
+                <Col span={FULL_COL_SPAN}>
+                    <Alert
+                        type='warning'
+                        message={VerificationRequiredTitle}
+                        description={(
+                            <Space direction='vertical' size={16}>
+                                <Typography.Paragraph size='medium'>
+                                    {VerificationRequiredDetailsAboutText}
+                                </Typography.Paragraph>
+                                <Typography.Paragraph size='medium'>
+                                    {VerificationRequiredDetailsNextStepsText}
+                                </Typography.Paragraph>
+                            </Space>
+                        )}
+                        showIcon
+                    />
+                </Col>
+                <Col span={FULL_COL_SPAN}>
+                    <Button type='primary' onClick={handleRequestVerification}>{RequestVerificationLabel}</Button>
+                </Col>
+            </Row>
         )
     }
 
@@ -99,7 +110,7 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
                     <Space size={8} direction='vertical' className={styles.checkboxList}>
                         {fieldsToCheck.map((field) => (
                             <Checkbox key={field} disabled checked={request[field] || false}>
-                                <Typography.Text size='medium' type='secondary'><FormattedMessage id={`apps.id.verification.activeVerificationAlert.checkboxes.${field}.label`}/></Typography.Text>
+                                <Typography.Text size='medium' type='secondary'><FormattedMessage id={`pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.checkboxes.${field}.label`}/></Typography.Text>
                             </Checkbox>
                         ))}
                     </Space>

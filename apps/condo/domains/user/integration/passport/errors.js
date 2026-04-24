@@ -14,6 +14,7 @@ const UNKNOWN_PROVIDER = 'UNKNOWN_PROVIDER'
 const UNKNOWN_CONFIRM_TOKEN_TYPE = 'UNKNOWN_CONFIRM_TOKEN_TYPE'
 const PHONE_CONFIRMATION_REQUIRED = 'PHONE_CONFIRMATION_REQUIRED'
 const EMAIL_CONFIRMATION_REQUIRED = 'EMAIL_CONFIRMATION_REQUIRED'
+const INVALID_AUTH_INFO = 'INVALID_AUTH_INFO'
 
 const ERRORS = {
     MISSING_QUERY_PARAMETER: {
@@ -85,6 +86,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: EMAIL_CONFIRMATION_REQUIRED,
         message: 'Email must be verified to continue authorization. Verify it using startConfirmEmailAction / completeConfirmEmailAction mutations and provide verified token as "{parameter}" query-parameter',
+    },
+    INVALID_AUTH_INFO: {
+        code: INTERNAL_ERROR,
+        type: INVALID_AUTH_INFO,
+        message: 'Authorization cannot be completed, because auth provider returned invalid authInfo',
     },
 }
 

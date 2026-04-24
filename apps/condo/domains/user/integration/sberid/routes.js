@@ -106,7 +106,14 @@ class SberIdRoutes {
         // auth session
         const user = await User.getOne(context, { id: userId }, 'id type')
         const { keystone } = getSchemaCtx('User')
-        const token = await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+        const token = await keystone._sessionManager.startAuthedSession(req, {
+            item: { id: user.id },
+            list: keystone.lists['User'],
+            meta: {
+                source: 'auth-integration',
+                provider: 'sber-id',
+            },
+        })
 
         // remove tmp data
         delete req.session[SBER_ID_SESSION_KEY]

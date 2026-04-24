@@ -14,12 +14,15 @@ const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
 const { PaymentsFile } = require('./PaymentsFile')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
+const { PaymentStatusChangeWebhookUrl } = require('./PaymentStatusChangeWebhookUrl')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
+const { RegisterExternalPaymentsService } = require('./RegisterExternalPaymentsService')
 const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPaymentForInvoicesService')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
+const { SetPaymentPosReceiptUrlService } = require('./SetPaymentPosReceiptUrlService')
 const { SumPaymentsService } = require('./SumPaymentsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -29,6 +32,7 @@ module.exports = {
     AcquiringIntegrationContext,
     MultiPayment,
     Payment,
+    PaymentStatusChangeWebhookUrl,
     RegisterMultiPaymentService,
     ExportPaymentsService,
     PaymentsFilterTemplate,
@@ -42,5 +46,7 @@ module.exports = {
     RegisterMultiPaymentForInvoicesService,
     CalculateFeeForReceiptService,
     PaymentsFile,
+    SetPaymentPosReceiptUrlService,
+    RegisterExternalPaymentsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

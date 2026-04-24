@@ -1,13 +1,14 @@
-import { Editor } from '@tinymce/tinymce-react'
-import { Alert, Col, Form, Input, Row, Typography } from 'antd'
+import { Alert, Col, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get, isEmpty } from 'lodash'
-import getConfig from 'next/config'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Input } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -91,12 +92,6 @@ const HINT_CONTENT_FIELD_LAYOUT_PROPS = {
     wrapperCol: { span: 0 },
 }
 
-const {
-    publicRuntimeConfig,
-} = getConfig()
-
-const { TinyMceApiKey } = publicRuntimeConfig
-
 type BaseTicketPropertyHintFormProps = {
     children
     action
@@ -112,23 +107,43 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
 
-    const router = useRouter()
+    const toolbarLabels = useMemo(() => ({
+        undo: intl.formatMessage({ id: 'richTextArea.toolbar.undo' }),
+        redo: intl.formatMessage({ id: 'richTextArea.toolbar.redo' }),
+        link: intl.formatMessage({ id: 'richTextArea.toolbar.link' }),
+        bold: intl.formatMessage({ id: 'richTextArea.toolbar.bold' }),
+        italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
+        unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
+        orderedList: intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' }),
+        removeFormatting: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormatting' }),
+    }), [intl])
 
-    const editorInitValues = useMemo(() => ({
-        link_title: false,
-        contextmenu: '',
-        menubar: false,
-        elementpath: false,
-        content_style: 'p {margin: 0}',
-        plugins: 'link autolink lists',
-        toolbar: 'undo redo | ' +
-            'link | bold italic backcolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat',
-        link_default_target: '_blank',
-        link_target_list: false,
-        language: intl.locale,
-    }), [intl.locale])
+    const bottomPanelLabels = useMemo(() => ({
+        emoji: intl.formatMessage({ id: 'richTextArea.toolbar.emoji' }),
+    }), [intl])
+
+    const linkModalLabels = useMemo(() => ({
+        urlLabel: intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' }),
+        textLabel: intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' }),
+        submitLabel: intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' }),
+    }), [intl])
+
+    const emojiDropdownLabels = useMemo(() => ({
+        categories: {
+            activity: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.activity' }),
+            flags: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.flags' }),
+            foods: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.foods' }),
+            frequent: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.frequent' }),
+            nature: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.nature' }),
+            objects: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.objects' }),
+            people: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.people' }),
+            places: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.places' }),
+            symbols: intl.formatMessage({ id: 'richTextArea.emojiDropdown.categories.symbols' }),
+        },
+    }), [intl])
+
+    const router = useRouter()
+    const client = useApolloClient()
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -139,7 +154,6 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
 
     const [editorValue, setEditorValue] = useState(initialContent)
-    const [editorLoading, setEditorLoading] = useState(true)
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
         TicketPropertyHintProperty.useAllObjects({
@@ -180,8 +194,6 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         form.setFieldsValue({ content: newValue })
     }, [])
 
-    const handleEditorLoad = useCallback(() => setEditorLoading(false), [])
-
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, ...otherValues } = values
         const initialTicketPropertyHintId = get(initialValues, 'id')
@@ -220,8 +232,16 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
             }
         }
 
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketPropertyHints' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketPropertyHintProperties' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'TicketPropertyHint' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'TicketPropertyHintProperty' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketPropertyHintsMeta' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketPropertyHintPropertiesMeta' })
+        client.cache.gc()
+
         await router.push('/settings/hint')
-    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction])
+    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction, client.cache])
 
     if (organizationTicketPropertyHintPropertiesLoading) {
         return (
@@ -294,15 +314,24 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                         />
                                     </Col>
                                     <Col span={14}>
-                                        {editorLoading && <Loader />}
-                                        <Editor
-                                            onLoadContent={handleEditorLoad}
-                                            apiKey={TinyMceApiKey}
+                                        <Input.RichTextArea
+                                            type='inline'
                                             disabled={!organizationId}
                                             value={editorValue}
-                                            onEditorChange={(newValue) => handleEditorChange(newValue, form)}
-                                            initialValue={initialContent}
-                                            init={editorInitValues}
+                                            onChange={(newValue) => handleEditorChange(newValue, form)}
+                                            placeholder={HintMessage}
+                                            maxLength={5000}
+                                            autoSize={{ minRows: 2 }}
+                                            bottomPanelUtils={[{
+                                                key: 'emoji',
+                                                dropdownProps: { placement: 'topRight' },
+                                            }]}
+                                            customLabels={{
+                                                toolbar: toolbarLabels,
+                                                linkModal: linkModalLabels,
+                                                emojiDropdown: emojiDropdownLabels,
+                                                bottomPanelLabels: bottomPanelLabels,
+                                            }}
                                         />
                                     </Col>
                                 </Row>

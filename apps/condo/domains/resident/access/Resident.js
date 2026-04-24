@@ -6,12 +6,16 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadResidents ({ authentication: { item: user } }) {
+async function canReadResidents ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isAdmin) return {}
+
+    const directAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (directAccess) return {}
 
     if (user.type === RESIDENT) {
         return { user: { id: user.id } }

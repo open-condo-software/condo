@@ -1,26 +1,51 @@
-import { Form } from 'antd'
+import { Form, notification } from 'antd'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Checkbox, Select, Button } from '@open-condo/ui'
 import type { CheckboxProps } from '@open-condo/ui'
 
+import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import styles from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishForm.module.css'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 
-import { useAllB2CAppBuildsLazyQuery } from '@/lib/gql'
+import { AppEnvironment, GetB2CAppDocument, useAllB2CAppBuildsLazyQuery, usePublishB2CAppMutation } from '@/gql'
 
-export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ id, isPublishing }) => {
+type PublishFormProps = {
+    id: string
+    environment: AppEnvironment
+}
+
+type PublishFormValues = {
+    info?: boolean
+    buildId?: string
+}
+
+export const PublishForm: React.FC<PublishFormProps> = ({ id, environment }) => {
     const intl = useIntl()
-    const ChooseComponentsLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.components.label' })
-    const InfoLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.info.label' })
-    const BuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.build.label' })
-    const SelectBuildPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.build.select.placeholder' })
-    const PublishButtonLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.actions.publish' })
+    const ChooseComponentsLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.components.label' })
+    const InfoLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.info.label' })
+    const BuildLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.build.label' })
+    const SelectBuildPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.build.select.placeholder' })
+    const PublishButtonLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.actions.publish' })
+    const ChangesPublishedTitle = intl.formatMessage({ id: 'pages.apps.any.id.notifications.successPublish.title' })
 
     const [buildChecked, setBuildChecked] = useState(false)
+    const [isPublishing, setIsPublishing] = useState(false)
+    const [form] = Form.useForm()
+
+    const onError = useMutationErrorHandler()
+    const onCompleted = useCallback(() => {
+        notification.success( { message: ChangesPublishedTitle })
+    }, [ChangesPublishedTitle])
+    const [publishMutation] = usePublishB2CAppMutation({
+        onError,
+        onCompleted,
+        refetchQueries: [{ query: GetB2CAppDocument, variables: { id } }],
+    })
 
     const { requiredFieldValidator } = useValidations()
 
@@ -64,6 +89,25 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
         })
     }, [fetchBuilds, id])
 
+    const handlePublish = useCallback((values: PublishFormValues) => {
+        const data = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+            app: { id },
+            environment,
+            options: {
+                info: values.info,
+                build: values.buildId ? { id: values.buildId } : undefined,
+            },
+        }
+        setIsPublishing(true)
+        publishMutation({
+            variables: {
+                data,
+            },
+        }).finally(() => { setIsPublishing(false) })
+    }, [environment, id, publishMutation])
+
     const buildOptions = (buildsData?.builds || []).filter(nonNull).map(build => {
         return {
             label: build.version as string,
@@ -73,15 +117,20 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
     })
 
     return (
-        <>
+        <Form
+            name='publish-b2c-app-form'
+            layout='vertical'
+            form={form}
+            onFinish={handlePublish}
+        >
             <Form.Item name='info' valuePropName='checked' label={ChooseComponentsLabel} className={styles.checkboxItem}>
                 <Checkbox label={InfoLabel}/>
             </Form.Item>
-            <Form.Item name='build' valuePropName='checked' className={styles.checkboxItem}>
+            <Form.Item name='build' valuePropName='checked' className={styles.checkboxItemLast}>
                 <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
             </Form.Item>
             {buildChecked && (
-                <Form.Item name='buildId' rules={[requiredFieldValidator]}>
+                <Form.Item name='buildId' rules={[requiredFieldValidator]} className={styles.buildSelector}>
                     <Select
                         onSearch={handleSearchChange}
                         optionFilterProp='key'
@@ -100,6 +149,6 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
             >
                 {PublishButtonLabel}
             </Button>
-        </>
+        </Form>
     )
 }

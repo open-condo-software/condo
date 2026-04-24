@@ -5,13 +5,16 @@
 const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
+    expectToThrowGQLErrorToResult,
     makeClient,
 } = require('@open-condo/keystone/test.utils')
 
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { PUBLISH_REQUEST_APPROVED_STATUS, PUBLISH_REQUEST_PENDING_STATUS, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const {
     importB2CAppByTestClient,
+    publishB2CAppByTestClient,
     createTestB2CApp,
     createTestB2CAppBuild,
     createCondoB2CApp,
@@ -32,7 +35,7 @@ const {
     makeRegisteredAndLoggedInUser,
     makeLoggedInCondoAdminClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
- 
+
 describe('ImportB2CAppService', () => {
     let admin
     let support
@@ -115,11 +118,13 @@ describe('ImportB2CAppService', () => {
                 expect(updatedProdApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
             })
             test('App info must not be updated if options.info set to false', async () => {
-                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: false, builds: true, publish: true, accessRight: true } })
+                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: false, builds: true, publish: true, accessRight: true, conflictPolicy: 'delete' } })
                 expect(result).toHaveProperty('success', true)
 
                 const updatedApp = await B2CApp.getOne(support, { id: app.id })
-                expect(updatedApp).toHaveProperty('v', 1)
+                expect(updatedApp.name).not.toBeNull()
+                expect(updatedApp.name).not.toEqual(condoDevApp.name)
+                expect(updatedApp.name).not.toEqual(condoProdApp.name)
             })
         })
         describe('App builds', () => {
@@ -209,13 +214,13 @@ describe('ImportB2CAppService', () => {
                 const [condoProdApp] = await createCondoB2CApp(condoAdmin)
                 await createCondoB2CAppBuild(condoAdmin, condoProdApp)
 
-                const [firstResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: false, publish: true, accessRight: true } })
+                const [firstResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: false, publish: true, accessRight: true, conflictPolicy: 'setNull' } })
                 expect(firstResult).toHaveProperty('success', true)
 
                 const allBuilds = await B2CAppBuild.getAll(support, { app: { id: app.id } })
                 expect(allBuilds).toHaveLength(0)
 
-                const [secondResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: true, accessRight: true } })
+                const [secondResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: true, accessRight: true, conflictPolicy: 'delete' } })
                 expect(secondResult).toHaveProperty('success', true)
 
                 const allNewBuilds = await B2CAppBuild.getAll(support, { app: { id: app.id } })
@@ -261,7 +266,7 @@ describe('ImportB2CAppService', () => {
                 const [app] = await createTestB2CApp(user)
                 const [condoDevApp] = await createCondoB2CApp(condoAdmin)
 
-                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: false, accessRight: true } })
+                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: false, accessRight: true, conflictPolicy: 'delete' } })
                 expect(result).toHaveProperty('success', true)
 
                 const request = await B2CAppPublishRequest.getOne(support, { app: { id: app.id } })
@@ -307,6 +312,85 @@ describe('ImportB2CAppService', () => {
                 expect(firstAccessRight).toHaveProperty('condoUserId', firstCondoAccessRight.user.id)
                 const secondAccessRight = await B2CAppAccessRight.getOne(user, { app: { id: secondApp.id }, environment: DEV_ENVIRONMENT })
                 expect(secondAccessRight).toHaveProperty('condoUserId', secondCondoAccessRight.user.id)
+            })
+        })
+        describe('Conflict policy', () => {
+            describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
+                let from
+                let fromApp
+                beforeEach(async () => {
+                    // Create app - it auto-publishes and gets linked to a condo app
+                    [app] = await createTestB2CApp(user)
+                    if (environment !== DEV_ENVIRONMENT) {
+                        await createTestB2CAppPublishRequest(support, app, {
+                            isAppTested: true,
+                            isContractSigned: true,
+                            isInfoApproved: true,
+                            status: PUBLISH_REQUEST_APPROVED_STATUS,
+                        })
+                    }
+                    await publishB2CAppByTestClient(support, app, undefined, environment);
+                    // Create a different condo app that we'll try to import - this creates a conflict
+                    [fromApp] = await createCondoB2CApp(condoAdmin)
+                    const fieldName = `${environment}App`
+                    from = {
+                        [fieldName]: fromApp,
+                    }
+                })
+                test('Must throw error on conflict if conflictPolicy is set to "panic"', async () => {
+                    const devApp = environment === DEV_ENVIRONMENT ? fromApp : null
+                    const prodApp = devApp ? null : fromApp
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await importB2CAppByTestClient(support, app, devApp, prodApp, { options: { info: true, builds: false, publish: false, accessRight: false, conflictPolicy: 'panic' } })
+                    }, {
+                        code: 'INTERNAL_ERROR',
+                        type: 'MULTIPLE_FOUND',
+                    })
+                })
+                test('Must unlink conflicting app if conflictPolicy is set to "setNull"', async () => {
+                    const devApp = environment === DEV_ENVIRONMENT ? fromApp : null
+                    const prodApp = devApp ? null : fromApp
+                    // Get the originally auto-linked condo app before import
+                    const exportField = environment === DEV_ENVIRONMENT ? 'developmentExportId' : 'productionExportId'
+                    const appBefore = await B2CApp.getOne(support, { id: app.id })
+                    const originalCondoAppId = appBefore[exportField]
+                    expect(originalCondoAppId).not.toBeNull()
+
+                    const [result] = await importB2CAppByTestClient(support, app, devApp, prodApp, { options: { info: true, builds: false, publish: false, accessRight: false, conflictPolicy: 'setNull' } })
+                    expect(result).toHaveProperty('success', true)
+
+                    // Check that fromApp is now linked to the dev-portal app
+                    const updatedFromApp = await CondoB2CApp.getOne(condoAdmin, { id: fromApp.id })
+                    expect(updatedFromApp).toHaveProperty('importId', app.id)
+                    expect(updatedFromApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+
+                    // Check that the originally auto-linked condo app was unlinked (importId set to null)
+                    const originalCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: originalCondoAppId })
+                    expect(originalCondoApp).toHaveProperty('importId', null)
+                    expect(originalCondoApp).toHaveProperty('importRemoteSystem', null)
+                })
+                test('Must delete previously linked app if conflictPolicy is set to "delete"', async () => {
+                    const devApp = environment === DEV_ENVIRONMENT ? fromApp : null
+                    const prodApp = devApp ? null : fromApp
+                    // Get the originally auto-linked condo app before import
+                    const exportField = environment === DEV_ENVIRONMENT ? 'developmentExportId' : 'productionExportId'
+                    const appBefore = await B2CApp.getOne(support, { id: app.id })
+                    const originalCondoAppId = appBefore[exportField]
+                    expect(originalCondoAppId).not.toBeNull()
+
+                    const [result] = await importB2CAppByTestClient(support, app, devApp, prodApp, { options: { info: true, builds: false, publish: false, accessRight: false, conflictPolicy: 'delete' } })
+                    expect(result).toHaveProperty('success', true)
+
+                    // Check that fromApp is now linked to the dev-portal app
+                    const updatedFromApp = await CondoB2CApp.getOne(condoAdmin, { id: fromApp.id })
+                    expect(updatedFromApp).toHaveProperty('importId', app.id)
+                    expect(updatedFromApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+                    expect(updatedFromApp).toHaveProperty('deletedAt', null)
+
+                    // Check that the originally auto-linked condo app was soft-deleted
+                    const originalCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: originalCondoAppId })
+                    expect(originalCondoApp).not.toBeDefined()
+                })
             })
         })
     })

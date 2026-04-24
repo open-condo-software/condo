@@ -8,6 +8,8 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
 
+import styles from './LoginWithSBBOLButton.module.css'
+
 
 type LoginWithSBBOLButtonProps = {
     label?: string
@@ -15,6 +17,7 @@ type LoginWithSBBOLButtonProps = {
     redirect?: string
     checkTlsCert: boolean
     tabIndex?: number
+    className?: string
 }
 
 export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
@@ -23,6 +26,7 @@ export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
     redirect,
     checkTlsCert = true,
     tabIndex,
+    className,
 }) => {
     const intl = useIntl()
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
@@ -43,11 +47,15 @@ export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
         onFail: redirectToTlsPage,
     })
 
+    const buttonClassName = className 
+        ? `condo-btn-sbbol ${styles.greenButton} ${className}` 
+        : `condo-btn-sbbol ${styles.greenButton}`
+
     return (
         <Button
             key='submit'
             type='secondary'
-            className='condo-btn-sbbol'
+            className={buttonClassName}
             icon={<Sber color={colors.teal['5']}/>}
             onClick={() => checkTlsCert ? checkSSLClientCert() : redirectToAuth()}
             loading={loading}

@@ -64,7 +64,7 @@ describe('MessageBatch', () => {
             canManageMessageBatches: true,
         })
 
-        await updateTestUser(support, permittedClient.user.id, {
+        await updateTestUser(admin, permittedClient.user.id, {
             rightsSet: { connect: { id: rightsSet.id } },
         })
         permittedClient.rightsSet = rightsSet
@@ -252,7 +252,7 @@ describe('MessageBatch', () => {
                     canManageMessageBatches: true,
                 })
 
-                await updateTestUser(support, client.user.id, {
+                await updateTestUser(admin, client.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
 
@@ -277,7 +277,7 @@ describe('MessageBatch', () => {
                     await MessageBatch.getAll(client, {}, { first: 100 })
                 })
 
-                await updateTestUser(support, client.user.id, {
+                await updateTestUser(admin, client.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
 

@@ -1,11 +1,15 @@
+import emojiData from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { Input as DefaultInput } from 'antd'
 import { TextAreaProps as AntdTextAreaProps } from 'antd/es/input'
 import classNames from 'classnames'
-import React, { forwardRef, useState, useEffect, TextareaHTMLAttributes } from 'react'
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, TextareaHTMLAttributes } from 'react'
 
-import { ArrowUp } from '@open-condo/icons'
+import { ArrowUp, Smile } from '@open-condo/icons'
 
 import { Button } from '../Button'
+import { Dropdown } from '../Dropdown'
+import { Tooltip } from '../Tooltip'
 
 import type { InputRef } from 'antd'
 
@@ -13,13 +17,66 @@ const { TextArea: DefaultTextArea } = DefaultInput
 
 export const TEXTAREA_CLASS_PREFIX = 'condo-input'
 
+export type TextAreaCustomLabels = {
+    bottomPanelLabels?: Partial<TextAreaBottomPanelLabels>
+    emojiDropdown?: Partial<TextAreaEmojiDropdownLabels>
+}
+
+
+type TextAreaBottomPanelLabels = {
+    emoji: string
+}
+
+type TextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: string
+        flags: string
+        foods: string
+        frequent: string
+        nature: string
+        objects: string
+        people: string
+        places: string
+        symbols: string
+    }
+}
+
+const DEFAULT_BOTTOM_PANEL_LABELS: TextAreaBottomPanelLabels = {
+    emoji: 'Emoji',
+}
+
+const DEFAULT_EMOJI_DROPDOWN_LABELS: TextAreaEmojiDropdownLabels = {
+    categories: {
+        activity: 'Activity',
+        flags: 'Flags',
+        foods: 'Foods',
+        frequent: 'Frequent',
+        nature: 'Nature',
+        objects: 'Objects',
+        people: 'People',
+        places: 'Places',
+        symbols: 'Symbols',
+    },
+}
+
+type BottomPanelBuiltinKey = 'emoji'
+type BottomPanelBuiltinUtilConfig =
+    | {
+        key: 'emoji'
+        dropdownProps?: Pick<React.ComponentProps<typeof Dropdown>, 'placement'>
+    }
+
+type BottomPanelReactUtilElement = React.ReactElement<{ disabled?: boolean }>
+type BottomPanelUtilsItem = BottomPanelBuiltinKey | BottomPanelBuiltinUtilConfig | BottomPanelReactUtilElement
+
 export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size' | 'onResize'> &
 Pick<AntdTextAreaProps, 'autoSize'> & {
     value?: string
     isSubmitDisabled?: boolean
     showCount?: boolean
     onSubmit?: (value: string) => void
-    bottomPanelUtils?: React.ReactElement[]
+    bottomPanelUtils?: BottomPanelUtilsItem[]
+    customLabels?: TextAreaCustomLabels
 }
 
 const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
@@ -33,6 +90,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         isSubmitDisabled,
         value: propsValue,
         bottomPanelUtils = [],
+        customLabels,
         onChange: propsOnChange,
         autoSize = { minRows: 1 },
         ...restProps
@@ -40,6 +98,21 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
     const [internalValue, setInternalValue] = useState('')
     const [isFocused, setIsFocused] = useState(false)
+    const [emojiPickerDropdownOpen, setEmojiPickerDropdownOpen] = useState(false)
+    const [emojiPickerTooltipOpen, setEmojiPickerTooltipOpen] = useState(false)
+    const textAreaContainerRef = useRef<HTMLDivElement>(null)
+
+    const resolvedBottomPanelLabels = useMemo(() => ({
+        ...DEFAULT_BOTTOM_PANEL_LABELS,
+        ...customLabels?.bottomPanelLabels,
+    }), [customLabels?.bottomPanelLabels])
+
+    const resolvedEmojiDropdownLabels = useMemo(() => ({
+        categories: {
+            ...DEFAULT_EMOJI_DROPDOWN_LABELS.categories,
+            ...customLabels?.emojiDropdown?.categories,
+        },
+    }), [customLabels?.emojiDropdown])
 
     useEffect(() => {
         if (propsValue !== undefined) {
@@ -94,9 +167,130 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         },
     )
 
+    const emitValueChange = useCallback((nextValue: string) => {
+        if (propsValue === undefined) {
+            setInternalValue(nextValue)
+        }
+
+        if (propsOnChange) {
+            propsOnChange({
+                target: { value: nextValue },
+                currentTarget: { value: nextValue },
+            } as React.ChangeEvent<HTMLTextAreaElement>)
+        }
+    }, [propsOnChange, propsValue])
+
+    const handleEmojiDropdownOpenChange = useCallback((open: boolean) => {
+        if (disabled) {
+            setEmojiPickerDropdownOpen(false)
+            setEmojiPickerTooltipOpen(false)
+            return
+        }
+        if (open) {
+            setEmojiPickerTooltipOpen(false)
+        }
+        setEmojiPickerDropdownOpen(open)
+    }, [disabled])
+
+    const handleEmojiTooltipOpenChange = useCallback((open: boolean) => {
+        setEmojiPickerTooltipOpen(emojiPickerDropdownOpen ? false : open)
+    }, [emojiPickerDropdownOpen])
+
+    const handleBottomEmojiSelect = useCallback((emoji: { native?: string }) => {
+        if (disabled) return
+        const nativeEmoji = emoji?.native
+        if (!nativeEmoji) return
+        const textAreaElement = textAreaContainerRef.current?.querySelector('textarea')
+        const currentText = currentValue || ''
+        if (!textAreaElement) {
+            emitValueChange(currentText + nativeEmoji)
+            return
+        }
+        const start = textAreaElement.selectionStart ?? currentText.length
+        const end = textAreaElement.selectionEnd ?? currentText.length
+        textAreaElement.setRangeText(nativeEmoji, start, end, 'end')
+        emitValueChange(textAreaElement.value)
+        requestAnimationFrame(() => {
+            textAreaElement.focus()
+        })
+    }, [currentValue, disabled, emitValueChange])
+
+    const renderBottomPanelBuiltinUtil = useCallback((util: BottomPanelUtilsItem, index: number) => {
+        if (React.isValidElement(util)) {
+            return React.cloneElement(util, {
+                key: util.key ?? index,
+                disabled: util.props?.disabled || disabled,
+            })
+        }
+
+        const normalizedBuiltinUtil = typeof util === 'string'
+            ? { key: util }
+            : util
+        
+        switch (normalizedBuiltinUtil.key) {
+            case 'emoji':
+                return (
+                    <Dropdown
+                        key={`builtin-${normalizedBuiltinUtil.key}-${index}`}
+                        trigger={['click']}
+                        placement='bottomLeft'
+                        open={emojiPickerDropdownOpen}
+                        onOpenChange={handleEmojiDropdownOpenChange}
+                        overlayClassName='condo-input-emoji-dropdown-overlay'
+                        dropdownRender={() => (
+                            <div className='condo-input-emoji-dropdown'>
+                                <Picker
+                                    data={emojiData}
+                                    onEmojiSelect={handleBottomEmojiSelect}
+                                    previewPosition='none'
+                                    skinTonePosition='none'
+                                    searchPosition='none'
+                                    theme='light'
+                                    icons='outline'
+                                    i18n={resolvedEmojiDropdownLabels}
+                                />
+                            </div>
+                        )}
+                        {...normalizedBuiltinUtil.dropdownProps}
+                    >
+                        <span>
+                            <Tooltip 
+                                title={resolvedBottomPanelLabels.emoji}
+                                mouseEnterDelay={0.5}
+                                mouseLeaveDelay={0}
+                                open={emojiPickerTooltipOpen}
+                                onOpenChange={handleEmojiTooltipOpenChange}
+                            >
+                                <Button
+                                    type='secondary'
+                                    minimal
+                                    compact
+                                    size='medium'
+                                    disabled={disabled}
+                                    icon={<Smile size='small' />}
+                                    onClick={() => null}
+                                />
+                            </Tooltip>
+                        </span>
+                    </Dropdown>
+                )
+            default:
+                return null
+        }
+    }, [
+        disabled,
+        emojiPickerDropdownOpen,
+        handleEmojiDropdownOpenChange,
+        emojiPickerTooltipOpen,
+        handleEmojiTooltipOpenChange,
+        handleBottomEmojiSelect,
+        resolvedBottomPanelLabels,
+        resolvedEmojiDropdownLabels,
+    ])
+
 
     return (
-        <div className={textAreaWrapperClassName}>
+        <div className={textAreaWrapperClassName} ref={textAreaContainerRef}>
             <DefaultTextArea
                 {...restProps}
                 ref={ref}
@@ -117,11 +311,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                 <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel`}>
                     {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
-                            {bottomPanelUtils.map((util, index) => (
-                                <React.Fragment key={index}>
-                                    {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
-                                </React.Fragment>
-                            ))}
+                            {bottomPanelUtils.map((util, index) => renderBottomPanelBuiltinUtil(util, index))}
                         </span>
                     )}
 

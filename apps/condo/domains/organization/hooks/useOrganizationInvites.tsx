@@ -4,12 +4,12 @@ import { notification } from 'antd'
 import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { MutationTuple } from '@apollo/client/react/types/types'
 
@@ -25,7 +25,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
-    const { user, isAuthenticated } = useAuth()
+    const { user, isAuthenticated, isLoading: authLoading } = useAuth()
     const userId = user?.id || null
     const { selectEmployee } = useOrganization()
     const { persistor } = useCachePersistor()
@@ -39,8 +39,8 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
             userId,
             organizationType: organizationTypes,
         },
-        fetchPolicy: 'cache-and-network',
-        skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
+        fetchPolicy: 'network-only',
+        skip: authLoading || !isAuthenticated || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
     const userInvites = useMemo(() => userInvitationsData?.invitations?.filter(Boolean) || [], [userInvitationsData?.invitations])
 
@@ -68,7 +68,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
 
         await refetch()
     }
-    if (isAuthenticated && userInvites) {
+    if (!authLoading && isAuthenticated && userInvites) {
         userInvites.forEach(invite => {
             addNotification({
                 actions: [

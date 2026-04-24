@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { Payment as PaymentType, PaymentStatusType, PaymentWhereInput, SortPaymentsBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, RowProps } from 'antd'
+import { Col, Row, RowProps, Space, Spin } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -12,12 +12,14 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Modal, Checkbox, Typography } from '@open-condo/ui'
+import { Button, Modal, Checkbox, Typography, Tour } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
+import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
+import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -60,7 +62,7 @@ interface IPaymentsSumInfoProps {
     title: string
     message: string
     currencyCode?: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
     loading: boolean
 }
 
@@ -92,8 +94,33 @@ const MarketplacePaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
-const MarketplacePaymentsTableContent = () => {
+const MarketplacePaymentsTable = () => {
+    const { PosIntegrationAlert, loading: isAlertLoading } = usePosIntegrationAlert()
+
+    return (
+        <Space size={0} direction='vertical'>
+            {PosIntegrationAlert}
+            {isAlertLoading ? (
+                <Spin size='large' />
+            ) : (
+                <MarketplacePaymentsTableContent isAlertLoading={isAlertLoading} />
+            )}
+        </Space>
+    )
+}
+
+interface MarketplacePaymentsTableContentProps {
+    isAlertLoading: boolean
+}
+
+const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentProps> = ({ isAlertLoading }) => {
     const intl = useIntl()
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
+        skipUntilAuthenticated: isAlertLoading,
+    })
+    // Track if date range has been cleared for testing receipt to prevent the effect from running
+    // multiple times and interfering with tab navigation (e.g., switching to bills or services tab)
+    const hasDateRangeBeenClearedRef = React.useRef(false)
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const ClearListSelectedRowMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const AllPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.allPayment' })
@@ -108,6 +135,7 @@ const MarketplacePaymentsTableContent = () => {
     const orgId = get(userOrganization, ['organization', 'id'], null)
 
     const { filters, offset, sorters } = parseQuery(router.query)
+    const currentTab = router.query.tab
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const queryMetas = useMarketplacePaymentsFilters()
@@ -124,7 +152,13 @@ const MarketplacePaymentsTableContent = () => {
         setTextStatusDescModal(textModal)
         setIsStatusDescModalVisible(true)
     }
-    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal)
+    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext })
+
+    useEffect(() => {
+        if (!isAlertLoading) {
+            refetchLastTestingPosReceipt()
+        }
+    }, [isAlertLoading, refetchLastTestingPosReceipt])
 
     const [showPaymentsOnlyInDoneStatus, setShowPaymentsOnlyInDoneStatus] = useState(false)
     const switchShowPaymentsOnlyInDoneStatus = useCallback(
@@ -182,7 +216,7 @@ const MarketplacePaymentsTableContent = () => {
     const [selectedRows, setSelectedRows] = useState([])
 
     const [search, handleSearchChange] = useSearch()
-    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+    const handleSearch = useCallback((e) => { handleSearchChange(e.target.value) }, [handleSearchChange])
 
     const [dateRange, setDateRange] = useDateRangeSearch('createdAt')
     const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
@@ -198,7 +232,17 @@ const MarketplacePaymentsTableContent = () => {
             routerAction: 'replace', resetOldParameters: false, shallow: true,
         })
     }, [])
-    
+
+    useEffect(() => {
+        if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === MARKETPLACE_PAGE_TYPES.payments && !hasDateRangeBeenClearedRef.current) {
+            hasDateRangeBeenClearedRef.current = true
+            setDateRange(null)
+        } else if (currentTab !== MARKETPLACE_PAGE_TYPES.payments) {
+            // Reset flag when leaving the tab so it can be cleared again on return
+            hasDateRangeBeenClearedRef.current = false
+        }
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
+
     const disabledDate = useCallback((currentDate) => {
         const minDate = dayjs().startOf('year').subtract(1, 'year')
         const maxDate = dayjs().endOf('year')
@@ -233,130 +277,151 @@ const MarketplacePaymentsTableContent = () => {
         setSelectedRows([])
     }, [])
 
+    const sortedPayments = useMemo(() => {
+        if (!lastTestingPosReceipt || !payments) return payments
+
+        const sortedObjs = [...payments]
+        const highlightedIndex = sortedObjs.findIndex(obj => obj.id === lastTestingPosReceipt.condoPaymentId)
+
+        if (highlightedIndex > 0) {
+            const [highlightedRow] = sortedObjs.splice(highlightedIndex, 1)
+            sortedObjs.unshift(highlightedRow)
+        }
+
+        return sortedObjs
+    }, [payments, lastTestingPosReceipt])
+
     return (
-        <TablePageContent>
-            <Row gutter={[0, 40]}>
-                <Col span={24}>
-                    <Row gutter={[0, 24]}>
-                        <Col span={24}>
-                            <TableFiltersContainer>
-                                <Row gutter={ROW_GUTTERS} justify='start' align='middle'>
-                                    <Col span={24}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={handleSearch}
-                                            value={search}
-                                            allowClear
-                                            suffix={<Search size='medium' color={colors.gray[7]} />}
-                                        />
-                                    </Col>
-                                    <Col span={!breakpoints.TABLET_SMALL && 24}>
-                                        <DateRangePicker
-                                            style={!breakpoints.TABLET_SMALL ? { width: '100%' } : null}
-                                            value={dateRange}
-                                            onChange={setDateRange}
-                                            allowClear
-                                            disabledDate={disabledDate}
-                                            defaultValue={[dayjs().subtract(7, 'days'), dayjs()]}
-                                        />
-                                    </Col>
-                                    <Col style={QUICK_FILTERS_COL_STYLE}>
-                                        <Checkbox
-                                            checked={showPaymentsOnlyInDoneStatus}
-                                            onChange={switchShowPaymentsOnlyInDoneStatus}
-                                            children={PaymentsOnlyInDoneStatusMessage}
-                                        />
-                                    </Col>
-                                </Row>
-                            </TableFiltersContainer>
-                        </Col>
-                        <Col span={24}>
-                            <PaymentsSumTable>
-                                <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
-                                    <Col>
-                                        <MarketplacePaymentsSumInfo
-                                            title={AllPaymentsSumMessage}
-                                            message={get(allPaymentsSum, 'result.sum', 0)}
-                                            loading={allPaymentsSumLoading}
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <MarketplacePaymentsSumInfo
-                                            title={DonePaymentsSumMessage}
-                                            message={get(donePaymentsSum, 'result.sum', 0)}
-                                            type='success'
-                                            loading={donePaymentsSumLoading}
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <MarketplacePaymentsSumInfo
-                                            title={WithdrawnPaymentsSumMessage}
-                                            message={get(withdrawnPaymentsSum, 'result.sum', 0)}
-                                            type='warning'
-                                            loading={withdrawnPaymentsSumLoading}
-                                        />
-                                    </Col>
-                                </Row>
-                            </PaymentsSumTable>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row
-                        gutter={ROW_GUTTERS}
-                        align='middle'
-                        justify='center'
-                    >
-                        <Col span={24}>
-                            <Table
-                                totalRows={total}
-                                loading={paymentsLoading}
-                                dataSource={payments}
-                                columns={tableColumns}
-                                rowSelection={rowSelection}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-            <Modal
-                open={isStatusDescModalVisible}
-                onCancel={() => setIsStatusDescModalVisible(false)}
-                title={titleStatusDescModal}
-                footer={[
-                    <Button
-                        key='close'
-                        type='secondary'
-                        onClick={() => setIsStatusDescModalVisible(false)}
-                    >
-                        {ConfirmTitle}
-                    </Button>,
-                ]}
-            >
-                <Typography.Text type='secondary'>
-                    {textStatusDescModal}
-                </Typography.Text>
-            </Modal>
-            <ExportToExcelActionBar
-                key='exportToExcel'
-                searchObjectsQuery={{
-                    ...searchPaymentsQuery,
-                    ...filtersToWhere(filters),
-                }}
-                sortBy={sortBy}
-                exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
-                disabled={total < 1}
-                actions={[
-                    selectedRows.length > 0 ? <Button
-                        key='clearListSelectedRow'
-                        type='primary'
-                        onClick={handleClearListSelectedRow}
-                    >
-                        {ClearListSelectedRowMessage}
-                    </Button> : undefined,
-                ]}
-            />
-        </TablePageContent>
+        <Tour.Provider>
+            <TablePageContent>
+                <Row gutter={[0, 40]}>
+                    <Col span={24}>
+                        <Row gutter={[0, 24]}>
+                            <Col span={24}>
+                                <TableFiltersContainer>
+                                    <Row gutter={ROW_GUTTERS} justify='start' align='middle'>
+                                        <Col span={24}>
+                                            <Input
+                                                placeholder={SearchPlaceholder}
+                                                onChange={handleSearch}
+                                                value={search}
+                                                allowClear
+                                                suffix={<Search size='medium' color={colors.gray[7]} />}
+                                            />
+                                        </Col>
+                                        <Col span={!breakpoints.TABLET_SMALL && 24}>
+                                            <DateRangePicker
+                                                style={!breakpoints.TABLET_SMALL ? { width: '100%' } : null}
+                                                value={dateRange}
+                                                onChange={setDateRange}
+                                                allowClear
+                                                disabledDate={disabledDate}
+                                                defaultValue={[dayjs().subtract(7, 'days'), dayjs()]}
+                                            />
+                                        </Col>
+                                        <Col style={QUICK_FILTERS_COL_STYLE}>
+                                            <Checkbox
+                                                checked={showPaymentsOnlyInDoneStatus}
+                                                onChange={switchShowPaymentsOnlyInDoneStatus}
+                                                children={PaymentsOnlyInDoneStatusMessage}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </TableFiltersContainer>
+                            </Col>
+                            <Col span={24}>
+                                <PaymentsSumTable>
+                                    <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
+                                        <Col>
+                                            <MarketplacePaymentsSumInfo
+                                                title={AllPaymentsSumMessage}
+                                                message={get(allPaymentsSum, 'result.sum', 0)}
+                                                loading={allPaymentsSumLoading}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <MarketplacePaymentsSumInfo
+                                                title={DonePaymentsSumMessage}
+                                                message={get(donePaymentsSum, 'result.sum', 0)}
+                                                type='success'
+                                                loading={donePaymentsSumLoading}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <MarketplacePaymentsSumInfo
+                                                title={WithdrawnPaymentsSumMessage}
+                                                message={get(withdrawnPaymentsSum, 'result.sum', 0)}
+                                                type='warning'
+                                                loading={withdrawnPaymentsSumLoading}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </PaymentsSumTable>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col span={24}>
+                        <Row
+                            gutter={ROW_GUTTERS}
+                            align='middle'
+                            justify='center'
+                        >
+                            <Col span={24}>
+                                <Table
+                                    totalRows={total}
+                                    loading={paymentsLoading || isLastTestingPosReceiptLoading}
+                                    dataSource={sortedPayments}
+                                    columns={tableColumns}
+                                    rowSelection={rowSelection}
+                                    onRow={(record) => {
+                                        if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
+                                            return { style: { backgroundColor: colors.orange[1] } }
+                                        }
+                                    }}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+                <Modal
+                    open={isStatusDescModalVisible}
+                    onCancel={() => setIsStatusDescModalVisible(false)}
+                    title={titleStatusDescModal}
+                    footer={[
+                        <Button
+                            key='close'
+                            type='secondary'
+                            onClick={() => setIsStatusDescModalVisible(false)}
+                        >
+                            {ConfirmTitle}
+                        </Button>,
+                    ]}
+                >
+                    <Typography.Text type='secondary'>
+                        {textStatusDescModal}
+                    </Typography.Text>
+                </Modal>
+                <ExportToExcelActionBar
+                    key='exportToExcel'
+                    searchObjectsQuery={{
+                        ...searchPaymentsQuery,
+                        ...filtersToWhere(filters),
+                    }}
+                    sortBy={sortBy}
+                    exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
+                    disabled={total < 1}
+                    actions={[
+                        selectedRows.length > 0 ? <Button
+                            key='clearListSelectedRow'
+                            type='primary'
+                            onClick={handleClearListSelectedRow}
+                        >
+                            {ClearListSelectedRowMessage}
+                        </Button> : undefined,
+                    ]}
+                />
+            </TablePageContent>
+        </Tour.Provider>
     )
 }
 
@@ -393,5 +458,5 @@ export const MarketplacePaymentsContent = () => {
         )
     }
 
-    return <MarketplacePaymentsTableContent />
+    return <MarketplacePaymentsTable />
 }

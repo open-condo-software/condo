@@ -13,7 +13,6 @@ const {
 } = require('./common.utils')
 const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('./config')
 
-
 const DEFAULT_CHECKBOX_FIELD = {
     type: 'Checkbox',
     isRequired: true,
@@ -69,6 +68,7 @@ function generateRightSetFields (config) {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to read "${field.fieldName}" field of model "${schemaName}"`,
+                    access: field.userRightsSetAccess,
                 }
             }
             if (field.manage) {
@@ -76,6 +76,7 @@ function generateRightSetFields (config) {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to update "${field.fieldName}" field of model "${schemaName}"`,
+                    access: field.userRightsSetAccess,
                 }
             }
         }
@@ -148,6 +149,10 @@ async function canDirectlyReadSchemaField (user, schemaName, fieldName) {
     return await _hasSpecificRights(user, [generateReadSensitiveFieldFieldName(schemaName, fieldName)])
 }
 
+async function canDirectlyManageSchemaField (user, schemaName, fieldName) {
+    return await _hasSpecificRights(user, [generateManageSensitiveFieldFieldName(schemaName, fieldName)])
+}
+
 /**
  * Checks if user can execute query/mutation from GQLCustomSchema service
  * @param {AuthUser} user - user obtained from Keystone access function
@@ -164,5 +169,6 @@ module.exports = {
     canDirectlyReadSchemaObjects,
     canDirectlyReadSchemaField,
     canDirectlyManageSchemaObjects,
+    canDirectlyManageSchemaField,
     canDirectlyExecuteService,
 }

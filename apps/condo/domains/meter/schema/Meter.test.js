@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
 const { makeClient, UUID_RE, makeLoggedInAdminClient, waitFor, getRandomString, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const {
@@ -1343,6 +1344,38 @@ describe('Meter', () => {
                     })
                     expect(updatedMeter).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
                     expect(updatedMeter).toHaveProperty('unitName', attrs.unitName)
+                })
+            })
+
+            describe('archiveDate', () => {
+                let client, resource
+
+                beforeAll(async () => {
+                    [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                })
+
+                beforeEach(async () => {
+                    client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeters: true,
+                    })
+                })
+
+                test('should keep previous value if new archiveDate is in the future ', async () => {
+                    const pastDate = dayjs().subtract(1, 'minute').toISOString()
+                    const futureDate = dayjs().add(1, 'minute').toISOString()
+                    const [meter] = await createTestMeter(client, client.organization, client.property, resource)
+                    const [updatedMeter] = await updateTestMeter(admin, meter.id, {
+                        archiveDate: futureDate,
+                    })
+                    expect(updatedMeter).toHaveProperty('archiveDate', null)
+                    const [updatedMeter2] = await updateTestMeter(admin, meter.id, {
+                        archiveDate: pastDate,
+                    })
+                    expect(updatedMeter2).toHaveProperty('archiveDate', pastDate)
+                    const [updatedMeter3] = await updateTestMeter(admin, meter.id, {
+                        archiveDate: futureDate,
+                    })
+                    expect(updatedMeter3).toHaveProperty('archiveDate', pastDate)
                 })
             })
         })

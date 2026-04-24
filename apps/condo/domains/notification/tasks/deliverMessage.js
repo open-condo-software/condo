@@ -1,7 +1,6 @@
 const { format } = require('util')
 
 const dayjs = require('dayjs')
-const { isEmpty } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
@@ -27,7 +26,6 @@ const {
     MESSAGE_THROTTLED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
-const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
 const smsAdapter = require('@condo/domains/notification/transports/sms')
@@ -94,17 +92,15 @@ function getThrottlingCacheKey (message) {
  * Tries to deliver message via available transports depending on transport priorities
  * based on provided message data and available channels. If more prioritized channels fail message delivery,
  * tries to deliver message through less prioritized fallback channels. Updates message status & meta in every case.
- * @param messageId
+ * @param message
  * @returns {Promise<string>}
  */
-async function deliverMessage (messageId) {
+async function deliverMessage (message) {
     const { keystone: context } = getSchemaCtx('Message')
-    const message = await Message.getOne(context,
-        { id: messageId },
-        MESSAGE_FIELDS
-    )
 
-    if (isEmpty(message)) throw new Error('get message by id has wrong result')
+    if (!message || !message.id) {
+        throw new Error('deliverMessage: invalid "message" argument – expected object with non-empty "id"')
+    }
     // Skip messages that are already have been processed
     if (!MESSAGE_TASK_RETRY_STATUSES.includes(message.status)) return `already-${message.status}`
 
@@ -145,7 +141,7 @@ async function deliverMessage (messageId) {
 
             logger.info({
                 msg: 'throttled',
-                entityId: messageId,
+                entityId: message.id,
                 entity: 'Message',
                 data: { throttlePeriodForUser, lastMessageTypeSentDate },
             })
@@ -199,7 +195,7 @@ async function deliverMessage (messageId) {
                 transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
                 logger.info({
                     msg: 'disabled by user',
-                    entityId: messageId,
+                    entityId: message.id,
                     entity: 'Message',
                     data: { transport, userTransportSettings },
                 })
@@ -208,7 +204,7 @@ async function deliverMessage (messageId) {
                 const [isOk, deliveryMeta] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
                 logger.info({
                     msg: 'sendMessageByAdapter',
-                    entityId: messageId,
+                    entityId: message.id,
                     entity: 'Message',
                     status: isOk ? 'ok' : 'error',
                     data: {
@@ -227,7 +223,7 @@ async function deliverMessage (messageId) {
             logger.error({
                 msg: 'deliverMessage error',
                 error,
-                entityId: messageId,
+                entityId: message.id,
                 entity: 'Message',
                 data: {
                     transportMeta,

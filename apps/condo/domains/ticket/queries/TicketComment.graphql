@@ -20,6 +20,21 @@ query getTicketComments ($ticketId: ID!) {
     }
 }
 
+query getTicketCommentsForAIAssistant ($where: TicketCommentWhereInput!, $first: Int!, $skip: Int) {
+    ticketComments: allTicketComments (
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: [updatedAt_DESC]
+    ) {
+        id
+        type
+        content
+        updatedAt
+        ticket { id number }
+    }
+}
+
 query getPollTicketComments ($where: TicketCommentWhereInput!, $first: Int!) {
     ticketComments: allTicketComments (
         where: $where
@@ -40,6 +55,15 @@ query getTicketCommentsForClientCard ($where: TicketCommentWhereInput!, $first: 
     ) {
         content
         ticket { id }
+    }
+}
+
+query checkTicketCommentsExistence ($where: TicketCommentWhereInput!) {
+    ticketComments: allTicketComments (
+        where: $where,
+        first: 1,
+    ) {
+        id
     }
 }
 

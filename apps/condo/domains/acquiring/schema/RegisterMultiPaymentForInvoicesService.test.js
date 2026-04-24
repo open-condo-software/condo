@@ -135,8 +135,8 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                 }),
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS',
-                    message: 'Listed serviceConsumers are linked to different acquiring integrations',
+                    type: 'MULTIPLE_ACQUIRING_INTEGRATION',
+                    message: 'Listed invoices are linked to different acquiring integrations',
                 },
                 'result',
             )

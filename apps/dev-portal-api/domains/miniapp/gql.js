@@ -7,12 +7,27 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getEnvironmentalFieldsSelection } = require('./schema/fields/environmental')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}ExportId`).join(' ')
+const EXPORT_FIELDS = getEnvironmentalFieldsSelection(['exportId'])
 
-const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2B_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
+
+const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
+const B2BAppPublishRequest = generateGqlQueries('B2BAppPublishRequest', B2B_APP_PUBLISH_REQUEST_FIELDS)
+
+
+const PUBLISH_B2B_APP_MUTATION = gql`
+    mutation publishB2BApp ($data: PublishB2BAppInput!) {
+        result: publishB2BApp(data: $data) { success }
+    }
+`
+
+
+
+const B2C_APP_FIELDS = `{ name type developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['webTransformEnabled', 'publishedAt'])}  ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
 const B2C_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
@@ -24,6 +39,23 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
 const B2C_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
 const B2CAppPublishRequest = generateGqlQueries('B2CAppPublishRequest', B2C_APP_PUBLISH_REQUEST_FIELDS)
+
+const ALL_B2B_APP_CONTEXTS_QUERY = gql`
+    query allB2BAppContexts ($data: AllB2BAppContextsInput!) {
+        result: allB2BAppContexts(data: $data) { 
+            objs { id organization { id name tin } status }
+            meta { count }
+        }
+    }
+`
+
+const UPDATE_B2B_APP_CONTEXT_MUTATION = gql`
+    mutation updateB2BAppContext ($data: UpdateB2BAppContextInput!) {
+        result: updateB2BAppContext(data: $data) { success }
+    }
+`
+
+
 
 const PUBLISH_B2C_APP_MUTATION = gql`
     mutation publishB2CApp ($data: PublishB2CAppInput!) {
@@ -58,6 +90,12 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
     }
 `
 
+const GET_B2C_APP_INFO_QUERY = gql`
+    query getB2CAppInfoById ($data: GetB2CAppInfoInput!) {
+        result: getB2CAppInfo(data: $data) { id environment currentBuild { id version } }
+    }
+`
+
 const GET_OIDC_CLIENT_QUERY = gql`
     query getGetOIDCClient ($data: GetOIDCClientInput!) {
         result: OIDCClient(data: $data) { id clientId redirectUri }
@@ -87,11 +125,17 @@ const REGISTER_APP_USER_SERVICE_MUTATION = gql`
         result: registerAppUserService(data: $data) { id }
     }
 `
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     EXPORT_FIELDS,
+
+    B2BApp,
+    B2BAppPublishRequest,
+    PUBLISH_B2B_APP_MUTATION,
+    ALL_B2B_APP_CONTEXTS_QUERY,
+    UPDATE_B2B_APP_CONTEXT_MUTATION,
+
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
@@ -101,6 +145,8 @@ module.exports = {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_B2C_APP_INFO_QUERY,
+
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,

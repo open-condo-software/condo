@@ -50,6 +50,7 @@ const TO_PAY_DETAILS_FIELD = {
         'All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). ' +
         'After toPayDetails field removal you should update it content explicitly',
     type: 'Json',
+    sensitive: true,
     extendGraphQLTypes: [TO_PAY_DETAILS_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME,
     graphQLReturnType: BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,

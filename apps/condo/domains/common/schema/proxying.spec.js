@@ -196,7 +196,7 @@ describe('Express proxying tests', () => {
                             method: 'GET',
                             url: '/api/whoami',
                         // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
-                        }, '123'),
+                        }, '123', { algorithm: 'HS256' }),
                         'x-forwarded-for': proxyIp,
                     }, ip)
                     await expectIP(serverUrl, {
@@ -247,6 +247,31 @@ describe('Express proxying tests', () => {
                     'x-proxy-signature': 'blah-blah-blah',
                     'x-forwarded-for': proxyIp,
                 }, proxyIp)
+            })
+            test('If signature algorithm is not HS256', async () => {
+                const ip = faker.internet.ip()
+                const proxyIp = '1.2.3.4'
+                const timestampString = String(Date.now())
+                const signaturePayload = {
+                    'x-proxy-ip': ip,
+                    'x-proxy-id': 'simple-proxy-name',
+                    'x-proxy-timestamp': timestampString,
+                    method: 'GET',
+                    url: '/api/whoami',
+                }
+
+                const algorithms = ['HS384', 'HS512']
+                for (const algorithm of algorithms) {
+                    const headers = {
+                        'x-proxy-ip': ip,
+                        'x-proxy-id': 'simple-proxy-name',
+                        'x-proxy-timestamp': timestampString,
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
+                        'x-proxy-signature': jwt.sign(signaturePayload, '123', { algorithm }),
+                        'x-forwarded-for': proxyIp,
+                    }
+                    await expectIP(serverUrl, headers, proxyIp)
+                }
             })
             describe('If some fields in decrypted signature is missing / does not match', () => {
                 test.each(

@@ -180,3 +180,7 @@ Check [migration.md](docs/migration.md)
 ## Deploying
 
 Check [deploy.md](docs/deploy.md)
+
+## Open Source partners
+
+ - This project is tested with [BrowserStack](https://www.browserstack.com/)

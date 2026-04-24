@@ -3,10 +3,23 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { ServiceSubscription } = require('./ServiceSubscription')
+
+const { ActivateSubscriptionContextService } = require('./ActivateSubscriptionContextService')
+const { GetAvailableSubscriptionPlansService } = require('./GetAvailableSubscriptionPlansService')
+const { RegisterSubscriptionContextService } = require('./RegisterSubscriptionContextService')
+const { SubscriptionContext } = require('./SubscriptionContext')
+const { SubscriptionPlan } = require('./SubscriptionPlan')
+const { SubscriptionPlanPricingRule } = require('./SubscriptionPlanPricingRule')
+const { UpdateSubscriptionContextPaymentMethodService } = require('./UpdateSubscriptionContextPaymentMethodService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
-    ServiceSubscription,
+    SubscriptionPlan,
+    SubscriptionPlanPricingRule,
+    SubscriptionContext,
+    GetAvailableSubscriptionPlansService,
+    ActivateSubscriptionContextService,
+    RegisterSubscriptionContextService,
+    UpdateSubscriptionContextPaymentMethodService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

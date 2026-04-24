@@ -1,0 +1,151 @@
+The Condo API can be embedded into third-party surfaces and used as a backend
+in mobile, web and desktop applications.
+Such integrations often require the ability to authorize in the Condo API through an external partner service.
+
+Condo allows adding this authorization using the [Open ID Connect](https://openid.net/developers/how-connect-works/) protocol.
+
+
+## Authorization in Condo via OIDC
+
+To add authorization to Condo through your service using OIDC,
+you need to implement this protocol on your backend, thus becoming an OIDC authorization provider for the Condo API.
+
+<Alert type='warning'>
+We strongly recommend not implementing the protocol yourself, but
+using [one of the certified libraries](https://openid.net/developers/certified-openid-connect-implementations/) (see the Certified OpenID Provider Libraries section).
+</Alert>
+
+After that, you need to provide the Condo team with the following set of parameters:
+
+| Parameter Name | Parameter Description                                                                                               | Example                                   |
+|----------------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| userInfoURL    | The API endpoint of your server that will return user information based on the received token.                      | https://my-app.example.com/api/oidc/me    |
+
+## How OIDC Authorization Works
+
+After registering you as an authorization provider, we will give you a provider name (`provider`),
+used in the authorization endpoints, and a client ID (`client_id`).
+
+You can then start the authorization process by navigating to an endpoint like **/api/auth/:provider?user_type=...&client_id=...&access_token=...**
+
+<Alert type='info'>
+To authorize management company employees, you need to pass the query parameter `user_type=staff`, for residents use `user_type=resident`.
+</Alert>
+
+This endpoint will process your request and redirect you to **/api/auth/:provider/callback**,
+where the actual authorization will take place.
+If the authorization is successful, the **callback endpoint** will redirect you to **/**, setting the `set-cookie` header with the `keystone.sid` parameter,
+which is necessary for making further API requests.
+
+## About the access_token
+
+To start the authorization, in addition to `client_id` and `user_type`, you must provide us with an OIDC `access_token` from your service.
+Using this token, the Condo API will make a request to the `userInfoURL` you provided to get user information.
+This token is issued by your service just before authorization.
+It can be short-lived and have minimal access rights necessary to obtain information about the current user.
+
+## The userInfo Structure
+
+Special attention should be paid to the `userInfoURL` endpoint,
+as it is responsible for creating and synchronizing users in the Condo platform with the partner's service.
+
+At a minimum, for correct user linking, `userInfo` must return the **user ID** in your service,
+their **phone number**, and **name**. Email can be provided additionally if available.
+
+```json
+{
+  "sub": "cmd30383l000q07jy8cqo2zd7",
+  "phone_number": "+79990001234",
+  "name": "John Doe"
+}
+```
+
+<Alert type='warning'>
+If users in your service can exist **without a confirmed phone or email**,
+you must also report the verification status of that phone or email.
+</Alert>
+
+```json
+{
+  "sub": "cmd30383l000q07jy8cqo2zd7",
+  "phone_number": "+79990001234",
+  "phone_number_verified": true,
+  "email": "j.doe@example.com",
+  "email_verified": false,
+  "name": "John Doe"
+}
+```
+
+<Alert type='info'>
+The phone number must be transmitted in the normalized [E.164](https://en.wikipedia.org/wiki/E.164) format (+7XXXYYYYYYYY).
+</Alert>
+
+<Alert type='info'>
+In the examples above, the field names correspond to the generally accepted naming conventions for fields in OIDC.
+However, if you already have a ready-made OIDC mechanism (or a similar mechanism that returns user information by token)
+where these fields are present in a different form, we can additionally configure a remapping of your fields to the ones specified above.
+</Alert>
+
+## About Phone Verification
+
+During the user's first authorization, the Condo API will require additional confirmation of the phone number
+provided by you from `userInfoURL`. In this case, `/api/auth/:provider/callback` will return a corresponding error:
+
+![Example of an error response](/api/auth-confirm-phone-error.png)
+
+To verify the phone, you need to execute 2 anonymous GraphQL queries to the [Condo GraphQL API](/docs/api/about):
+`startConfirmPhoneAction` to send an SMS confirmation code to the specified phone, and `completeConfirmPhoneAction`
+to verify the phone with the received code.
+
+After that, you need to repeat the authorization request, additionally passing the `confirm_phone_action_token` parameter,
+obtained from the `startConfirmPhoneAction` mutation and confirmed in the `completeConfirmPhoneAction` mutation.
+
+## Let's Go Through the Entire Authorization Process
+
+For all requests in the example below, we will use:
+- `test-sdk` - the issued provider name
+- `test-client-id` - the issued `client_id`
+
+To start authorization, we get the OIDC token from your service and go to the endpoint **/api/auth/test-sdk?user_type=resident&client_id=test-client-id&access_token=...**,
+after which we get a redirect to the callback:
+
+![Example of a redirect response](/api/auth-sdk-redirect.png)
+
+We go to the callback and get an error that the phone needs to be confirmed:
+
+![Example of an error response](/api/auth-confirm-phone-error.png)
+
+We execute the `startConfirmPhoneAction` GraphQL query to send a confirmation code and get a `confirm_phone_action_token`:
+
+![Example of an SMS code request](/api/auth-start-confirm-phone-action.png)
+
+We execute the `completeConfirmPhoneAction` GraphQL query to confirm the phone:
+
+![Example of phone confirmation](/api/auth-complete-confirm-phone-action.png)
+
+We go again to **/api/auth/test-sdk?user_type=resident&client_id=test-client-id&access_token=...&confirm_phone_action_token=cp:18f854bd-8c06-4c98-bdcb-5b01f61ea383**,
+get a redirect to the callback, and then to **/**.
+
+![Example of getting user authorization in the keystone.sid cookie](/api/auth-sdk-success-redirect.png)
+
+## Getting the User Token from the set-cookie Header
+
+For security purposes, we pass the user's authorization token not in plain text, but as a `keystone.sid` cookie.
+To get the token from it, you first need to decode the value using [decodeURIComponent](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent),
+and then remove the `s:` prefix. After that, the resulting token can be used as a Bearer token in subsequent requests:
+
+![Example of decoding the keystone.sid value](/api/auth-decode-auth-cookie.png)
+
+## Browser Implementation Specifics
+
+When implementing this integration in a browser environment, you may encounter the following problems:
+ - CORS policy does not allow you to execute GraphQL queries from a third-party domain;
+ - The `set-cookie` header is not available to the browser client.
+
+To resolve them, it is recommended to proxy the `/admin/api` GraphQL endpoint, as well as the `/api/auth/:provider` and `/api/auth/:provider/callback` you received,
+through your backend.
+
+<Alert type='warning'>
+The Condo API has additional restrictions on the frequency of sending SMS and authorizations from a single IP address (no more than 10 per hour).
+To bypass these restrictions when using a proxy server, use the ["IP Proxying"](/docs/api/proxying) guide.
+</Alert>

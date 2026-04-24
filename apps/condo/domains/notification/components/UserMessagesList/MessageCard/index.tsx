@@ -9,7 +9,7 @@ import { Card, Typography } from '@open-condo/ui'
 
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
-import { MessageTypeAllowedToFilterType, UserMessageType } from '@condo/domains/notification/utils/client/constants'
+import { UserMessageType } from '@condo/domains/notification/utils/client/constants'
 
 import styles from './MessageCard.module.css'
 
@@ -20,17 +20,24 @@ export type MessageCardProps = {
     viewed?: boolean
 }
 
-const MESSAGE_ICON: Record<MessageTypeAllowedToFilterType, string> = {
+const MESSAGE_ICON: Record<UserMessageType['type'], string> = {
     PASS_TICKET_CREATED: '🔑',
+    PASS_TICKET_COMMENT_CREATED: '✏️',
     TICKET_COMMENT_CREATED: '✏️',
     TICKET_CREATED: '📬',
+    EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE: '🕵🏻‍♀️',
+    SUBSCRIPTION_EXPIRATION_CUSTOM_CLIENT_MESSAGE: '❗️',
+    SUBSCRIPTION_PAYMENT_REMINDER_CUSTOM_CLIENT_MESSAGE: '🕊️',
+    SUBSCRIPTION_PAYMENT_SUCCESS_CUSTOM_CLIENT_MESSAGE: '🎉',
+    SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE: '🚨',
 }
 
 export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => {
     const messageType = useMemo(() => message?.type, [message?.type])
 
     const intl = useIntl()
-    const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
+    const customTitle = message?.customTitle
+    const MessageTitle = customTitle || intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
 
     const { setIsDropdownOpen } = useUserMessagesList()
 

@@ -1,5 +1,5 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons'
-import { Alert, Col, Row, Typography } from 'antd'
+import { Alert, Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import Head from 'next/head'
@@ -9,7 +9,11 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { 
+    ActionBar, 
+    Button,
+    Typography,
+} from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
@@ -72,7 +76,7 @@ const TheContactRolePage: PageComponentType = () => {
                 <PageContent>
                     <Row gutter={BIG_VERTICAL_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title>{contactRoleTitleMessage}</Typography.Title>
+                            <Typography.Title level={1}>{contactRoleTitleMessage}</Typography.Title>
                         </Col>
                         {canManageContactRoles && !isCustomRole && (<Col>
                             <Row gutter={BIG_VERTICAL_GUTTER}>

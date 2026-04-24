@@ -2,11 +2,11 @@ import { Form, notification } from 'antd'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Input, Modal } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectionView'
 import { DEV_REDIRECT_URI_EXAMPLE, PROD_REDIRECT_URI_EXAMPLE, OIDC_DOCS_LINK } from '@/domains/miniapp/constants/common'
 
@@ -14,7 +14,7 @@ import styles from './CreateClientForm.module.css'
 import { useSecretContext } from './SecretProvider'
 
 
-import { AppEnvironment, useCreateOidcClientMutation, GetOidcClientDocument, CreateOidcClientMutation } from '@/lib/gql'
+import { AppEnvironment, useCreateOidcClientMutation, GetOidcClientDocument, CreateOidcClientMutation } from '@/gql'
 
 
 
@@ -29,15 +29,15 @@ type CreateOIDCClientFormValues = {
 
 export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environment }) => {
     const intl = useIntl()
-    const NoClientMessage = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.emptyView.message' })
-    const NoClientDescription = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.emptyView.description' })
-    const CreateClientLabel = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.emptyView.actions.create' })
-    const AboutOIDCLabel = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.emptyView.actions.details' })
-    const CreateModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.modal.title' })
-    const RedirectURILabel = intl.formatMessage({ id:'apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.label' })
-    const RedirectURIHintText = intl.formatMessage({ id:'apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.hint' })
-    const SuccessNotificationTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.title' })
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.description' })
+    const NoClientMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.emptyView.message' })
+    const NoClientDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.emptyView.description' })
+    const CreateClientLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.emptyView.actions.create' })
+    const AboutOIDCLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.emptyView.actions.details' })
+    const CreateModalTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.modal.title' })
+    const RedirectURILabel = intl.formatMessage({ id:'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.label' })
+    const RedirectURIHintText = intl.formatMessage({ id:'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.hint' })
+    const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.title' })
+    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.description' })
 
     const [form] = Form.useForm()
     const { requiredFieldValidator, urlValidator } = useValidations()
@@ -126,7 +126,7 @@ export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environm
                     }
                 >
                     <Form
-                        name='create-oidc-client'
+                        name='create-oidc-client-form'
                         layout='vertical'
                         requiredMark={false}
                         form={form}

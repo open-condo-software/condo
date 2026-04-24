@@ -2,11 +2,13 @@ import {
     useGetTicketSourcesQuery,
     useGetPropertyByIdQuery,
     useGetInvoicesByIdsQuery,
+    CreateTicketMutation,
+    UpdateTicketMutation,
 } from '@app/condo/gql'
 import {
+    AcquiringIntegrationTypeType,
     BuildingUnitSubType,
     Organization,
-    Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
 } from '@app/condo/schema'
@@ -65,6 +67,8 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
+import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import {
@@ -73,17 +77,19 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
-import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/sourceTypes'
+import { VISIBLE_TICKET_SOURCE_IDS, TICKET_SOURCE_IDS_BY_TYPE } from '@condo/domains/ticket/constants/sources'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
+import styles from './index.module.css'
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
+
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME = 'condoTicketCurrentFormValues'
@@ -179,6 +185,10 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
     const { link } = useOrganization()
     const canManageInvoices = get(link, 'role.canManageInvoices', false)
 
+    // Subscription check for marketplace feature
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const hasMarketplaceFeature = isFeatureAvailable('marketplace')
+
     const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
 
     const handleCreateInvoice = useCallback(async (values) => {
@@ -204,18 +214,33 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
         return
     }, [form, intl, organizationId])
 
+    if (!canManageInvoices) {
+        return null
+    }
+
     return (
         <>
-            {
-                canManageInvoices && (
-                    <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
-                        <Space size={4} direction='horizontal'>
-                            <PlusCircle />
-                            <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
-                        </Space>
-                    </Col>
-                )
-            }
+            <SubscriptionGuardWithTooltip
+                feature='marketplace'
+                placement='left'
+                fallback={
+                    <div>
+                        <Col className={styles.cursorNotAllowed}>
+                            <Space size={4} direction='horizontal'>
+                                <PlusCircle />
+                                <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
+                            </Space>
+                        </Col>
+                    </div>
+                }
+            >
+                <Col className={styles.cursorPointer} onClick={() => setCreateInvoiceModalOpen(true)}>
+                    <Space size={4} direction='horizontal'>
+                        <PlusCircle />
+                        <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                    </Space>
+                </Col>
+            </SubscriptionGuardWithTooltip>
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm
@@ -250,6 +275,7 @@ const TicketFormInvoicesEmptyContent = ({
         where: {
             organization: { id: organizationId },
             invoiceStatus: CONTEXT_FINISHED_STATUS,
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
     })
 
@@ -296,7 +322,7 @@ const TicketFormInvoicesEmptyContent = ({
                         <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
                     </Col>
                     <Col span={24}>
-                        <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
+                        <Row className={styles.invoiceRow} justify='center' align='middle'>
                             <AddInvoiceButton
                                 initialValues={initialValues}
                                 form={form}
@@ -626,22 +652,39 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 }
 
 const TICKET_SOURCE_SELECT_STYLE: React.CSSProperties = { width: '100%' }
-const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+const DEFAULT_TICKET_SOURCE_ID = TICKET_SOURCE_IDS_BY_TYPE.CALL
 
-export const TicketSourceSelect: React.FC = () => {
+export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
+    initialSourceId,
+}) => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    
+
+    const mergedTicketSourcesIds = useMemo(() => {
+        const result = [...VISIBLE_TICKET_SOURCE_IDS]
+        if (initialSourceId) result.push(initialSourceId)
+        return result
+    }, [initialSourceId])
+
     const {
         data: sourcesData,
         loading,
     } = useGetTicketSourcesQuery({
         variables: {
-            types: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM,
+            where: {
+                id_in: mergedTicketSourcesIds,
+            },
         },
     })
-    const sources = useMemo(() => sourcesData?.sources || [], [sourcesData?.sources])
+    const isCustomInitialSource = useMemo(() => {
+        const initSource = sourcesData?.sources?.find((source) => source.id === initialSourceId) || null
+        return !!initSource && !initSource.isDefault
+    }, [initialSourceId, sourcesData?.sources])
+    const sources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean) || [],
+        [sourcesData?.sources]
+    )
     const sourceOptions = convertToOptions(sources, 'name', 'id')
 
     const LoadingSelect = useMemo(() => (
@@ -665,20 +708,19 @@ export const TicketSourceSelect: React.FC = () => {
             required
             name='source'
             data-cy='ticket__source-item'
-            initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+            initialValue={DEFAULT_TICKET_SOURCE_ID}
         >
             <Select
                 style={TICKET_SOURCE_SELECT_STYLE}
                 options={sourceOptions}
-                defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
-                disabled={loading}
+                defaultValue={DEFAULT_TICKET_SOURCE_ID}
+                disabled={loading || isCustomInitialSource}
             />
         </Form.Item>
     )
 }
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
-const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
 const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }
 const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
@@ -686,10 +728,10 @@ const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px',
 export interface ITicketFormProps {
     organization?: Pick<Organization, 'id'>
     initialValues?: ITicketFormState
-    action?: (...args) => Promise<Ticket>
+    action?: (...args) => Promise<CreateTicketMutation['ticket'] | UpdateTicketMutation['ticket']>
     files?: TicketFileType[]
-    afterActionCompleted?: (ticket: Ticket) => void
-    OnCompletedMsg?: OnCompletedMsgType<Ticket>
+    afterActionCompleted?: (ticket: CreateTicketMutation['ticket'] | UpdateTicketMutation['ticket']) => void
+    OnCompletedMsg?: OnCompletedMsgType<CreateTicketMutation['ticket'] | UpdateTicketMutation['ticket']>
     autoAssign?: boolean
     isExisted?: boolean
     children: React.ReactNode | IFormWithActionChildren
@@ -726,6 +768,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const initialTicketSourceId = useMemo(() => initialValues?.source, [initialValues?.source])
 
     const {
         data: propertyByIdData,
@@ -811,6 +855,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
         // NOTE: update queries, related to objects, which may be created in ticket form
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTickets' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketObservers' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketsMeta' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketFiles' })
@@ -886,7 +931,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <TicketPropertyHintCard
                 propertyId={selectedPropertyId}
-                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                className={styles.ticketPropertyHintCard}
                 colProps={HINTS_COL_PROPS}
             />
             <IncidentHintsBlock
@@ -971,7 +1016,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24} lg={7}>
-                                                    <TicketSourceSelect />
+                                                    <TicketSourceSelect initialSourceId={initialTicketSourceId} />
                                                 </Col>
                                                 <Col span={24}>
                                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>

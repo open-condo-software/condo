@@ -4,10 +4,11 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
-import { v4 as uuidV4 } from 'uuid'
+import React, { useCallback, useRef, useState } from 'react'
 
-import type { CondoBridgeResultResponseEvent } from '@open-condo/bridge'
+import type { CondoBridgeResultResponseEvent, SetPageActionsParams } from '@open-condo/bridge'
+import { generateUUIDv4 } from '@open-condo/miniapp-utils'
+import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -23,12 +24,14 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
-
+export const DEFAULT_MODAL_HEIGHT = 400
 
 type OpenModalRecord = {
     destroy: () => void
     update: (opts: ModalProps) => void
 }
+type ActionWithId = SetPageActionsParams['actions'][number] & { id: string }
+export type Actions = Array<ActionWithId>
 
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {
     const { type, ...restParams } = params
@@ -47,7 +50,7 @@ export const useModalHandler: () => [
     const [show, ContextHandler] = Modal.useModal()
 
     const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin, source) => {
-        const { title, url, size = 'small' } = params
+        const { title, url, size = 'small', initialHeight = DEFAULT_MODAL_HEIGHT } = params
 
         // Throw error if:
         // 1. Origin does not match with event origin AND
@@ -59,7 +62,7 @@ export const useModalHandler: () => [
             throw new Error('Forbidden url. Your url is probably injected')
         }
 
-        const modalId = uuidV4()
+        const modalId = generateUUIDv4()
         // NOTE: Patch url with modalId, so it can be closed by itself as well as by sender window
         const urlWithMeta = new URL(url)
         urlWithMeta.searchParams.set('modalId', modalId)
@@ -89,6 +92,7 @@ export const useModalHandler: () => [
                     withLoader
                     withResize
                     allowFullscreen
+                    initialHeight={initialHeight}
                 />
             ),
             onCancel: handleClose,
@@ -135,6 +139,8 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
     const { organization } = useOrganization()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
+    const deviceId = getClientSideFingerprint()
+
     return useCallback(() => {
         return {
             condoUserId: userId,
@@ -142,9 +148,9 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
             condoLocale: locale,
             condoContextEntity: 'Organization',
             condoContextEntityId: organizationId,
-
+            condoDeviceId: deviceId,
         }
-    }, [userId, organizationId, locale])
+    }, [userId, locale, organizationId, deviceId])
 }
 
 export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowProgressBar'> = () => {
@@ -165,7 +171,7 @@ export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowPro
         description,
         externalTaskId },
     origin) => {
-        const id = uuidV4()
+        const id = generateUUIDv4()
         const taskRecord = {
             id,
             taskId: externalTaskId,
@@ -242,6 +248,26 @@ export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdat
     }, [userId])
 }
 
+export const useGetFragmentHandler: () => RequestHandler<'CondoWebAppGetFragment'> = () => {
+    return useCallback(() => {
+        if (typeof window === 'undefined') {
+            return { fragment: '' }
+        }
+
+        let fragment = window.location.hash.startsWith('#') 
+            ? window.location.hash.substring(1) 
+            : window.location.hash
+
+        try {
+            fragment = decodeURIComponent(fragment)
+        } catch (error) {
+            console.warn('Failed to decode URI fragment:', fragment, error)
+        }
+
+        return { fragment }
+    }, [])
+}
+
 export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = () => {
     const router = useRouter()
 
@@ -266,4 +292,47 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
 
         return { success: true }
     }, [router])
+}
+
+export const useSetActionsHandler: () => [
+    RequestHandler<'CondoWebAppSetPageActions'>,
+    Actions | null,
+    Window | null,
+    string | null,
+    () => void,
+] = () => {
+    const [actions, setActions] = useState<Actions | null>(null)
+    const [source, setSource] = useState<Window | null>(null)
+    const [origin, setOrigin] = useState<string | null>(null)
+    const actionsRef = useRef<Actions | null>(null)
+
+    const handleSetActions = useCallback<RequestHandler<'CondoWebAppSetPageActions'>>((params, nextOrigin, nextSource) => {
+        const prevActions = actionsRef.current || []
+        const actionsWithIds = params.actions.map((action, index) => {
+            const prevId = prevActions[index]?.id
+            return { ...action, id: prevId || generateUUIDv4() }
+        })
+
+        setActions(actionsWithIds)
+        setSource(nextSource)
+        setOrigin(nextOrigin)
+        actionsRef.current = actionsWithIds
+
+        return { actionIds: actionsWithIds.map(a => a.id) }
+    }, [])
+
+    const clear = useCallback(() => {
+        actionsRef.current = null
+        setActions(null)
+        setSource(null)
+        setOrigin(null)
+    }, [])
+
+    return [
+        handleSetActions,
+        actions,
+        source,
+        origin,
+        clear,
+    ]
 }

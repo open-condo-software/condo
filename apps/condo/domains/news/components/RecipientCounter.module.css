@@ -1,0 +1,8 @@
+.counter-label-wrapper {
+  line-break: anywhere;
+}
+
+.counter-label-wrapper > :global(.condo-typography) {
+  white-space: pre-line;
+  text-align: center;
+}

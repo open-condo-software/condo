@@ -17,3 +17,17 @@ query getTicketCommentsFiles ($ticketCommentsIds: [ID!]!) {
         }
     }
 }
+
+mutation createTicketCommentFile($data: TicketCommentFileCreateInput!) {
+    ticketCommentFile: createTicketCommentFile(data: $data) {
+        id
+        ticketComment { id }
+        ticket { id }
+        file {
+            id
+            originalFilename
+            publicUrl
+            mimetype
+        }
+    }
+}

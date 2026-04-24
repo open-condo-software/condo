@@ -6,12 +6,12 @@ import { Menu, Close } from '@open-condo/icons'
 import { Button, Space, Typography } from '@open-condo/ui'
 
 import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
+import { useAuth } from '@/domains/user/utils/auth'
 
 import { UserBadge } from './auth/AuthAction'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import styles from './MobileMenu.module.css'
 
-import { useAuth } from '@/lib/auth'
 
 const MobileMenuAction: React.FC = () => {
     const intl = useIntl()

@@ -127,7 +127,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
             if (mapUnit) {
                 builder.updateUnit({ ...mapUnit, label: trimmedLabel, floor, section, unitType }, renameNextUnits.current)
             } else {
-                builder.removePreviewUnit()
+                builder.removePreviewUnit(false)
                 builder.addUnit({ id: '', label: trimmedLabel, floor, section, unitType }, renameNextUnits.current)
                 resetForm()
             }
@@ -262,7 +262,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                         <Button
                             onClick={applyChanges}
                             type='primary'
-                            disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
+                            disabled={!(floor && section && label?.trim() && !isValidationErrorVisible)}
                             block
                             data-cy='property-map__unit-form__submit-button'
                         >

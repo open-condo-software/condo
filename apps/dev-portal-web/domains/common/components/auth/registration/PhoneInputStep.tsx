@@ -3,19 +3,22 @@ import getConfig from 'next/config'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Input, Button, Typography } from '@open-condo/ui'
 import type { PhoneInputProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { INVALID_PHONE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './PhoneInputStep.module.css'
 
-import { useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/lib/gql'
+import type { RowProps } from 'antd'
+
+import { useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/gql'
 
 const FULL_SPAN_COL = 24
+const FORM_GUTTER: RowProps['gutter'] = [24, 24]
 const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {
     [INVALID_PHONE]: 'phone',
 }
@@ -32,11 +35,11 @@ export type PhoneInputStepProps = {
 
 export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) => {
     const intl = useIntl()
-    const PhoneLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
+    const PhoneLabel = intl.formatMessage({ id: 'components.common.authForm.items.phone.label' })
     const SignUpButtonLabel = intl.formatMessage({ id: 'global.actions.signUp' })
-    const PrivacyPolicyText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.privacyPolicy' })
-    const UserAgreementText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.userAgreement' })
-    const ConsentText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.consent' })
+    const PrivacyPolicyText = intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.privacyPolicy' })
+    const UserAgreementText = intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.userAgreement' })
+    const ConsentText = intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.consent' })
     
     const [formattedPhone, setFormattedPhone] = useState<string | undefined>(undefined)
     const { phoneFormatValidator } = useValidations()
@@ -76,13 +79,13 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
 
     return (
         <Form
-            name='register-phone'
+            name='start-confirm-phone-action-form'
             layout='vertical'
             requiredMark={false}
             form={form}
             onFinish={startConfirmPhoneAction}
         >
-            <Row>
+            <Row gutter={FORM_GUTTER}>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]} required>
                         <Input.Phone country={defaultLocale} onChange={onPhoneInputChange}/>
@@ -92,7 +95,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
                     <Col span={FULL_SPAN_COL}>
                         <Typography.Paragraph type='secondary' size='small'>
                             {
-                                intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.message' }, {
+                                intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.message' }, {
                                     signUpButton: SignUpButtonLabel,
                                     userAgreementLink: (
                                         <Typography.Link href={termsOfUseUrl} target='_blank'>{UserAgreementText}</Typography.Link>

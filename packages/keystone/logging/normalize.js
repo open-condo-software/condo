@@ -1,6 +1,7 @@
-const { get, set } = require('lodash')
-
-const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'receipts', 'data.password', 'data.secret', 'data.receipts']
+const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|receipt)/i
+const SENSITIVE_KEYS_OVERRIDE = [
+    'groupedReceipts',
+].map((key) => key.toLowerCase())
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -9,15 +10,33 @@ function normalizeQuery (string) {
     return string.replace(/[\s,]+/g, ' ').trim()
 }
 
+function isSensitiveKey (key) {
+    if (!SENSITIVE_KEY_REGEX.test(key)) return false
+
+    return !SENSITIVE_KEYS_OVERRIDE.includes(key.toLowerCase())
+}
+
+function redactSensitiveValues (value) {
+    if (Array.isArray(value)) {
+        return value.map(redactSensitiveValues)
+    }
+
+    if (value && typeof value === 'object') {
+        const entries = Object.entries(value)
+        return entries.reduce((acc, [key, entryValue]) => {
+            acc[key] = isSensitiveKey(key) ? '***' : redactSensitiveValues(entryValue)
+            return acc
+        }, {})
+    }
+
+    return value
+}
+
 function normalizeVariables (object) {
     if (!object) return undefined
     const data = JSON.parse(JSON.stringify(object))
-    for (const key of HIDE_GRAPHQL_VARIABLES_KEYS) {
-        if (get(data, key)) {
-            set(data, key, '***')
-        }
-    }
-    return JSON.stringify(data)
+    const redacted = redactSensitiveValues(data)
+    return JSON.stringify(redacted)
 }
 
 module.exports = {

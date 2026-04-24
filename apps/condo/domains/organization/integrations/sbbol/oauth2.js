@@ -1,3 +1,4 @@
+const https = require('https')
 const util = require('util')
 
 const jwtDecode = require('jwt-decode') // decode jwt without validation
@@ -11,6 +12,8 @@ const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
+
+const AUTH_REQUEST_TIMEOUT = 20000
 
 const logger = getLogger('sbbol-oauth2')
 
@@ -35,15 +38,17 @@ class SbbolOauth2Api {
             token_endpoint_auth_method: 'client_secret_post',
             tls_client_certificate_bound_access_tokens: true,
         })
-        client[custom.http_options] = (options) => {
+
+        client[custom.http_options] = (url, options) => {
             if (SBBOL_PFX.certificate) {
                 return {
                     ...options,
-                    https: {
-                        pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
-                        passphrase: SBBOL_PFX.passphrase,
-                        ...(SBBOL_PFX.https || {}),
-                    },
+                    ...SBBOL_PFX.https,
+                    agent: new https.Agent({
+                        ...SBBOL_PFX.https,
+                    }),
+                    pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
+                    passphrase: SBBOL_PFX.passphrase,
                 }
             }
             return options
@@ -54,7 +59,7 @@ class SbbolOauth2Api {
             try {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (err) {
-                logger.error({ msg: 'JWT validation error', err, data: { jwt } })
+                logger.info({ msg: 'JWT validation error', data: { err } })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
@@ -69,8 +74,6 @@ class SbbolOauth2Api {
             userinfo_endpoint: this.userInfoUrl,
             revocation_endpoint: this.revokeUrl,
         })
-        // turn off JWKS storage as it's not workin with sbbol
-        // TODO(zuch): Find a way to turn on jwks
         sbbolIssuer.keystore = async () => null
         sbbolIssuer.queryKeyStore = async () => null
         this.issuer = sbbolIssuer
@@ -137,6 +140,7 @@ class SbbolOauth2Api {
      */
     enableDebugMode () {
         custom.setHttpOptionsDefaults({
+            timeout: AUTH_REQUEST_TIMEOUT,
             hooks: {
                 beforeRequest: [
                     (options) => {

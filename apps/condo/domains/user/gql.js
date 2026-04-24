@@ -221,6 +221,12 @@ const START_CONFIRM_EMAIL_ACTION_MUTATION = gql`
     }
 `
 
+const START_CONFIRM_PHONE_ACTION_MUTATION = gql`
+    mutation startConfirmPhoneAction ($data: StartConfirmPhoneActionInput!) {
+        result: startConfirmPhoneAction(data: $data) { token }
+    }
+`
+
 const RESEND_CONFIRM_EMAIL_ACTION_MUTATION = gql`
     mutation resendConfirmEmailAction ($data: ResendConfirmEmailActionInput!) {
         result: resendConfirmEmailAction(data: $data) { status }
@@ -246,6 +252,24 @@ const AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION = gql`
 const CHANGE_USER_PASSWORD_MUTATION = gql`
     mutation changeUserPassword ($data: ChangeUserPasswordInput!) {
         result: changeUserPassword(data: $data) { status }
+    }
+`
+
+const CHANGE_USER_EMAIL_MUTATION = gql`
+    mutation changeUserEmail ($data: ChangeUserEmailInput!) {
+        result: changeUserEmail(data: $data) { status }
+    }
+`
+
+const VERIFY_USER_EMAIL_MUTATION = gql`
+    mutation verifyUserEmail ($data: VerifyUserEmailInput!) {
+        result: verifyUserEmail(data: $data) { status }
+    }
+`
+
+const CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION = gql`
+    mutation changeTwoFactorAuthentication ($data: ChangeTwoFactorAuthenticationInput!) {
+        result: changeTwoFactorAuthentication(data: $data) { status }
     }
 `
 
@@ -286,10 +310,14 @@ module.exports = {
     AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
     ConfirmEmailAction,
     GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
+    START_CONFIRM_PHONE_ACTION_MUTATION,
     START_CONFIRM_EMAIL_ACTION_MUTATION,
     RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
     COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
     AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION,
     CHANGE_USER_PASSWORD_MUTATION,
+    CHANGE_USER_EMAIL_MUTATION,
+    VERIFY_USER_EMAIL_MUTATION,
+    CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

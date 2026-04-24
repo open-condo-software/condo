@@ -163,6 +163,11 @@ class CondoOIDCMiddleware {
                 const appToken = await keystone._sessionManager.startAuthedSession(req, {
                     item: { id: user.id },
                     list: keystone.lists['User'],
+                    meta: {
+                        source: 'oidc',
+                        provider: 'condo',
+                        clientID: helper.clientID,
+                    },
                 })
 
                 req.session[CONDO_ACCESS_TOKEN_KEY] = accessToken

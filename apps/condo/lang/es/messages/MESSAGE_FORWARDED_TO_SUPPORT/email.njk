@@ -1,5 +1,8 @@
 Sistema: {{ message.meta.os }}
+Plataforma: {% if message.meta.platform %}{{ message.meta.platform | safe }}{% else %}no indicada{% endif %}
+Nombre de la aplicación: {% if message.meta.app %}{{ message.meta.app | safe }}{% else %}no indicada{% endif %}
 Versión de la aplicación: {{ message.meta.appVersion }}
+User agent: {% if message.meta.userAgent %}{{ message.meta.userAgent | safe }}{% else %}no indicada{% endif %}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}no indicado{% endif %}
 Información del vecino:
 {%- if message.meta.residentsExtraInfo.length == 0 -%}

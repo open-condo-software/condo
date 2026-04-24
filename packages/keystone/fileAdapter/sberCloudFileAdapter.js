@@ -3,17 +3,23 @@ const path = require('path')
 const { getItem, getItems } = require('@open-keystone/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const { get, isEmpty, isString, isNil } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('./constants')
 
+
 const logger = getLogger('cloud-ru-file-adapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
-const NO_SET_CONTENT_DISPOSITION_FOLDERS = ['marketitemfile'] // files to be opened in a new window by clicking on a link
 
+const SAFE_INLINE_MIMETYPES = [
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp', 'image/x-icon',
+    'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+]
 
 class SberCloudObsAcl {
     constructor (config) {
@@ -32,7 +38,10 @@ class SberCloudObsAcl {
             Key: filename,
         })
         if (result.CommonMsg.Status < 300) {
-            return result.InterfaceResult.Metadata
+            return {
+                ...(result?.InterfaceResult?.Metadata || {}),
+                mimetype: result?.InterfaceResult?.ContentType,
+            }
         } else {
             return {}
         }
@@ -54,12 +63,17 @@ class SberCloudObsAcl {
      * @param {string} filename should starts from the folder if exists (`${adapter.folder}/${filename}`)
      * @param {number} ttl
      * @param {string} originalFilename filename going to be appeared for end user
+     * @param {string} mimetype file mimetype
      * @returns {string}
      */
-    generateUrl ({ filename, ttl = 300, originalFilename }) { // obs default
-        const extraParams = isNil(originalFilename) ? {} : {
-            QueryParams: { 'response-content-disposition': `attachment; filename="${encodeURIComponent(originalFilename)}"` },
-        }
+    generateUrl ({ filename, ttl = 300, originalFilename, mimetype }) { // obs default
+        const isSafeInline = SAFE_INLINE_MIMETYPES.includes(mimetype)
+        const extraParams = (!isSafeInline && originalFilename) ? {
+            QueryParams: {
+                'response-content-disposition': `attachment; filename="${encodeURIComponent(originalFilename)}"`,
+            },
+        } : {}
+
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
             Bucket: this.bucket,
@@ -81,6 +95,7 @@ class SberCloudFileAdapter {
         this.shouldResolveDirectUrl = config.isPublic
         this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
+        this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
     errorFromCommonMsg ({ CommonMsg: { Status, Message } }) {
@@ -88,6 +103,57 @@ class SberCloudFileAdapter {
             return new Error(Message)
         }
         return null
+    }
+
+    _uploadStream ({ stream, fileData, key, mimetype, meta }) {
+        return new Promise((resolve, reject) => {
+            let finished = false
+
+            const cleanup = () => {
+                if (!stream.destroyed) {
+                    stream.destroy()
+                }
+            }
+
+            const fail = (err) => {
+                if (finished) return
+                finished = true
+                cleanup()
+                reject(err)
+            }
+
+            const succeed = (result) => {
+                if (finished) return
+                finished = true
+                cleanup()
+                resolve(result)
+            }
+
+            stream.on('error', fail)
+
+            stream.on('aborted', () => {
+                fail(Object.assign(new Error('Upload aborted by client'), { statusCode: 499 }))
+            })
+
+            const uploadParams = this.uploadParams({ ...fileData, meta })
+            this.s3.putObject(
+                {
+                    Body: stream,
+                    ContentType: mimetype,
+                    Bucket: this.bucket,
+                    Key: key,
+                    ...uploadParams,
+                },
+                (error, data) => {
+                    if (error) return fail(error)
+
+                    const obsError = this.errorFromCommonMsg(data)
+                    if (obsError) return fail(obsError)
+
+                    succeed({ ...fileData, _meta: data })
+                }
+            )
+        })
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
@@ -100,27 +166,6 @@ class SberCloudFileAdapter {
             encoding,
         }
         const key = `${this.folder}/${fileData.filename}`
-        const saveFile = (resolve, reject) => {
-            const uploadParams = this.uploadParams({ ...fileData, meta })
-            this.s3.putObject(
-                {
-                    Body: stream,
-                    ContentType: mimetype,
-                    Bucket: this.bucket,
-                    Key: key,
-                    ...uploadParams,
-                },
-                (error, data) => {
-                    error = error || this.errorFromCommonMsg(data)
-                    if (error) {
-                        reject(error)
-                    } else {
-                        resolve({ ...fileData, _meta: data })
-                    }
-                    stream.destroy()
-                }
-            )
-        }
 
         if (this.saveFileName) {
             return this.acl.getMeta(key)
@@ -129,11 +174,11 @@ class SberCloudFileAdapter {
                         return { ...fileData, _meta: existedMeta }
                     }
 
-                    return new Promise(saveFile)
+                    return this._uploadStream({ stream, fileData, key, mimetype, meta })
                 })
         }
 
-        return new Promise(saveFile)
+        return this._uploadStream({ stream, fileData, key, mimetype, meta })
     }
 
     delete (file, options = {}) {
@@ -153,7 +198,7 @@ class SberCloudFileAdapter {
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}` // will skip adding originalFilename
     }
 
-    publicUrl ({ filename, originalFilename }) {
+    publicUrl ({ filename, originalFilename, ...props }, user) {
         // It is possible to sign public URL here and to return the signed URL with access token without using middleware.
         // We are using middleware on the following reasons
         // 1. we want file urls to point to our server
@@ -161,18 +206,35 @@ class SberCloudFileAdapter {
         //    user opens ticket page
         //    then after 5 minutes, he decides to download the file and click on the URL
         //    the token is expired - user needs to reload the page to generate a new access token
+        let folder = this.folder
+        let sign
+        if ('meta' in props && props['meta']['fileClientId']) {
+            folder = props['meta']['sourceFileClientId'] || props['meta']['fileClientId']
+            if (!conf['FILE_SECRET']) {
+                throw new Error('FILE_SECRET is not configured')
+            }
+
+            sign = jwt.sign({ id: props.id, filename, fileClientId: folder, user }, this._appClients[folder]?.secret || conf['FILE_SECRET'], { expiresIn: '1h', algorithm: 'HS256' })
+        }
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({
-                filename: `${this.folder}/${filename}`,
+                filename: `${folder}/${filename}`,
                 ttl: PUBLIC_URL_TTL,
                 originalFilename,
             })
         }
 
         // propagate original filename for an indirect url
-        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(this.folder) ?
-            '' : `?original_filename=${encodeURIComponent(originalFilename)}`
-        return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
+        let qs = ''
+        const searchParams = new URLSearchParams({
+            ...(!isNil(originalFilename) && { original_filename: encodeURIComponent(originalFilename) }),
+            ...(sign && { sign }),
+        }).toString()
+
+        if (searchParams) {
+            qs = `?${searchParams}`
+        }
+        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {
@@ -190,12 +252,12 @@ class SberCloudFileAdapter {
 const obsRouterHandler = ({ keystone }) => {
 
     const obsConfig = SBERCLOUD_OBS_CONFIG ? JSON.parse(SBERCLOUD_OBS_CONFIG) : {}
+    const appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     const Acl = new SberCloudObsAcl(obsConfig)
 
     return async function (req, res, next) {
         try {
             if (!req.user) {
-            // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
                 res.status(403)
                 return res.end()
             }
@@ -205,95 +267,130 @@ const obsRouterHandler = ({ keystone }) => {
                 res.status(404)
                 return res.end()
             }
-            const {
-                id: itemId,
-                ids: stringItemIds,
-                listkey: listKey,
-                propertyquery: encodedPropertyQuery,
-                propertyvalue: encodedPropertyValue,
-            } = meta
-            const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
-            const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
-            if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
-                res.status(404)
-                return res.end()
-            }
+            const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
 
-            const context = await keystone.createContext({ authentication: { item: req.user, listKey: 'User' } })
+            // Legacy download
+            if (!hasSign) {
+                const {
+                    id: itemId,
+                    ids: stringItemIds,
+                    listkey: listKey,
+                    propertyquery: encodedPropertyQuery,
+                    propertyvalue: encodedPropertyValue,
+                    mimetype } = meta
+                const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
+                const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
-            let hasAccessToReadFile
-
-            // If user has access to at least one of the objects with this file => user has access to read file
-            if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
-                const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
-                const items = await getItems({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    where: { id_in: itemIds, deletedAt: null },
-                })
-
-                hasAccessToReadFile = items.length > 0
-            }
-
-            if (itemId && !hasAccessToReadFile) {
-                let returnFields = 'id'
-
-                // for checking property we have to include property name in the return fields list
-                if (isString(propertyQuery)) {
-                    returnFields += `, ${propertyQuery}`
+                if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+                    res.status(404)
+                    return res.end()
                 }
 
-                const item = await getItem({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    returnFields,
+                const context = await keystone.createContext({ authentication: { item: req.user, listKey: 'User' } })
+
+                let hasAccessToReadFile
+
+                // If user has access to at least one of the objects with this file => user has access to read file
+                if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
+                    const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
+                    const items = await getItems({
+                        keystone,
+                        listKey,
+                        itemId,
+                        context,
+                        where: { id_in: itemIds, deletedAt: null },
+                    })
+
+                    hasAccessToReadFile = items.length > 0
+                }
+
+                if (itemId && !hasAccessToReadFile) {
+                    let returnFields = 'id'
+
+                    // for checking property we have to include property name in the return fields list
+                    if (isString(propertyQuery)) {
+                        returnFields += `, ${propertyQuery}`
+                    }
+
+                    const item = await getItem({
+                        keystone,
+                        listKey,
+                        itemId,
+                        context,
+                        returnFields,
+                    })
+
+                    // item accessible
+                    hasAccessToReadFile = !isNil(item)
+
+                    // check property access case
+                    if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
+                        const propertyPath = propertyQuery
+                            .replaceAll('}', '') // remove close brackets of sub props querying
+                            .split('{') // work with each path parts separately
+                            .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
+                            .join('.') // join by . for lodash get utility
+                        hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                    }
+                }
+
+                if (!hasAccessToReadFile) {
+                    res.status(403)
+                    return res.end()
+                }
+                const url = Acl.generateUrl({
+                    filename: req.params.file,
+                    originalFilename: req.query.original_filename,
+                    mimetype,
                 })
 
-                // item accessible
-                hasAccessToReadFile = !isNil(item)
-
-                // check property access case
-                if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
-                    const propertyPath = propertyQuery
-                        .replaceAll('}', '') // remove close brackets of sub props querying
-                        .split('{') // work with each path parts separately
-                        .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
-                        .join('.') // join by . for lodash get utility
-                    hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                /*
+                * NOTE
+                * Problem:
+                *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
+                *   it is impossible to read the response of the request.
+                *
+                * Solution:
+                *   When adding the "shallow-redirect" header,
+                *   the redirect link to the file comes in json format and a second request is made to get the file.
+                *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
+                * */
+                if (req.get('shallow-redirect')) {
+                    res.status(200)
+                    return res.json({ redirectUrl: url })
                 }
-            }
 
-            if (!hasAccessToReadFile) {
-                res.status(403)
-                return res.end()
-            }
-            const url = Acl.generateUrl({
-                filename: req.params.file,
-                originalFilename: req.query.original_filename,
-            })
+                return res.redirect(url)
+            } else {
+                const pathArgs = req.path.split('/')
+                const appId = pathArgs[pathArgs.length - 2]
+                const { sign } = req.query
 
-            /*
-            * NOTE
-            * Problem:
-            *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
-            *   it is impossible to read the response of the request.
-            *
-            * Solution:
-            *   When adding the "shallow-redirect" header,
-            *   the redirect link to the file comes in json format and a second request is made to get the file.
-            *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
-            * */
-            if (req.get('shallow-redirect')) {
-                res.status(200)
-                return res.json({ redirectUrl: url })
-            }
+                if (!(appId in appClients)) {
+                    res.status(404)
+                    return res.end()
+                }
 
-            return res.redirect(url)
+                try {
+                    jwt.verify(sign, appClients[appId].secret, { algorithms: ['HS256'] })
+                } catch (e) {
+                    res.status(410)
+                    return res.end()
+                }
+
+                const url = Acl.generateUrl({
+                    filename: req.params.file,
+                    originalFilename: req.query.original_filename,
+                })
+
+                if (req.get('shallow-redirect')) {
+                    res.status(200)
+                    return res.json({ redirectUrl: url })
+                }
+
+                return res.redirect(url)
+            }
         } catch (err) {
             logger.error({ msg: 's3 route handler error', err })
             // TODO(pahaz): we need to research a better solution here may be we need a 404 or 403
@@ -309,7 +406,7 @@ class OBSFilesMiddleware {
         // this mean no csrf attacking possible - since no data change operation going to be made by opening a link
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
-        app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
+        app.get('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app
     }
 }

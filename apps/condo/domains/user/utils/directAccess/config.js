@@ -1,3 +1,4 @@
+const access = require('@open-condo/keystone/access')
 /**
  * @typedef {Object} DirectAccessList
  * @property {string} schemaName
@@ -55,6 +56,12 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'Ticket',
         'TicketAutoAssignment',
 
+        // Property domain
+        'Property',
+
+        // Resident domain
+        { schemaName: 'Resident', readonly: true },
+
         // User domain
         'OidcClient',
         'ResetUserLimitAction',
@@ -66,14 +73,50 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         
         // Billing domain
         { schemaName: 'BillingReceipt', readonly: true },
-        { schemaName: 'BillingOrganizationIntegrationContext', readonly: true },
+        { schemaName: 'BillingIntegrationOrganizationContext', readonly: true },
     ],
     fields: {
         Organization: [
             { fieldName: 'isApproved', manage: true },
         ],
+        BillingIntegrationOrganizationContext: [
+            { fieldName: 'deletedAt', manage: true },
+        ],
+        Ticket: [
+            { fieldName: 'sentToAuthoritiesAt', manage: true },
+        ],
         User: [
-            { fieldName: 'email', read: true },
+            {
+                fieldName: 'email',
+                read: true,
+                userRightsSetAccess: {
+                    read: true,
+                    create: access.userIsAdmin,
+                    update: access.userIsAdmin,
+                },
+            },
+            {
+                fieldName: 'phone',
+                read: true,
+                userRightsSetAccess: {
+                    read: true,
+                    create: access.userIsAdmin,
+                    update: access.userIsAdmin,
+                },
+            },
+            {
+                fieldName: 'hasMarketingConsent',
+                manage: true,
+            },
+            {
+                fieldName: 'rightsSet',
+                manage: true,
+                userRightsSetAccess: {
+                    read: true,
+                    create: access.userIsAdmin,
+                    update: access.userIsAdmin,
+                },
+            },
         ],
     },
     services: [
@@ -82,6 +125,8 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         '_internalSendHashedResidentPhones',
         '_allPaymentsSum',
         '_allBillingReceiptsSum',
+        'getAvailableSubscriptionPlans',
+        'registerSubscriptionContext',
     ],
 }
 

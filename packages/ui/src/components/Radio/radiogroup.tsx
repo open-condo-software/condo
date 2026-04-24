@@ -19,7 +19,7 @@ export type ItemGroupProps = {
     options: Array<ItemGroupOptionType>
 }
 
-export type RadioGroupProps = Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled' | 'children' | 'optionType' | 'defaultValue'>
+export type RadioGroupProps = Pick<DefaultRadioGroupProps, 'id' | 'className' | 'value' | 'onChange' | 'disabled' | 'children' | 'optionType' | 'defaultValue'>
 
 type CompoundedComponent = React.FC<RadioGroupProps> & {
     ItemGroup: React.FC<ItemGroupProps>

@@ -23,14 +23,14 @@ export const GlobalAppsContainer: React.FC = () => {
     //  2. Move constants like REQUEST_FEATURE_MESSAGE_NAME, ORGANIZATION_CHANGE_MESSAGE_NAME to incoming bridge events
     //  so miniapps can use bridge.subscribe with Type safety on them!
     const { user, isLoading } = useAuth()
-    const { organization } = useOrganization()
+    const { organization, isLoading: organizationLoading } = useOrganization()
     const organizationId = organization?.id || null
     const { persistor } = useCachePersistor()
 
     const {
         data: b2bAppsData,
     } = useGetGlobalB2BAppsQuery({
-        skip: !user || !organizationId || isLoading || !persistor,
+        skip: !user || !organizationId || organizationLoading || isLoading || !persistor,
     })
     const b2bApps = useMemo(() => b2bAppsData?.b2bApps?.filter(Boolean) || [], [b2bAppsData?.b2bApps])
 

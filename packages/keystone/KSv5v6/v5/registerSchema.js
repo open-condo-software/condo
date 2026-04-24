@@ -19,13 +19,14 @@ const {
     AddressPartWithType,
     AutoIncrementInteger,
     DateInterval,
-    FileWithUTF8Name,
+    ExternalContent,
     Json,
     LocalizedText,
     Select,
     SignedDecimal,
     Text,
     EncryptedText,
+    CustomFile,
 } = require('../../fields')
 const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
 const { AuthedRelationship, Relationship } = require('../../plugins/utils/Relationship')
@@ -77,8 +78,9 @@ function convertStringToTypes (schema) {
         AddressPartWithType,
         AutoIncrementInteger,
         DateInterval,
-        File: FileWithUTF8Name,
+        File: CustomFile,
         Json,
+        ExternalContent,
         HiddenRelationship,
         LocalizedText,
         Select,

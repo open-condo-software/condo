@@ -2,29 +2,33 @@ import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
 import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Typography, Button } from '@open-condo/ui'
+import { Modal, Typography, Button, Tour } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
+import styles from '@condo/domains/acquiring/components/payments/PaymentsTable.module.css'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
+import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
+import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
@@ -37,6 +41,7 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
@@ -53,7 +58,7 @@ interface IPaymentsSumInfoProps {
     title: string
     message: string
     currencyCode: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
     loading: boolean
 }
 
@@ -80,8 +85,18 @@ export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 }
 
 
-const PaymentsTableContent: React.FC = (): JSX.Element => {
+interface PaymentsTableContentProps {
+    areAlertLoading: boolean
+}
+
+const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoading }): JSX.Element => {
     const intl = useIntl()
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
+        skipUntilAuthenticated: areAlertLoading,
+    })
+    // Track if date range has been cleared for testing receipt to prevent the effect from running
+    // multiple times and interfering with tab navigation (e.g., switching to accruals tab)
+    const hasDateRangeBeenClearedRef = React.useRef(false)
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -98,8 +113,8 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const userOrganization = useOrganization()
 
     const { filters, sorters, offset } = parseQuery(router.query)
+    const currentTab = router.query.tab
 
-    // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
@@ -114,7 +129,13 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         setIsStatusDescModalVisible(true)
     }
 
-    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext })
+
+    useEffect(() => {
+        if (!areAlertLoading) {
+            refetchLastTestingPosReceipt()
+        }
+    }, [areAlertLoading, refetchLastTestingPosReceipt])
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(organizationId)
@@ -162,6 +183,16 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         setDateRange(value)
     }, [setDateRange])
 
+    useEffect(() => {
+        if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === 'payments' && !hasDateRangeBeenClearedRef.current) {
+            hasDateRangeBeenClearedRef.current = true
+            setFiltersAreReset(true)
+            setDateRange(null)
+        } else if (currentTab !== 'payments') {
+            // Reset flag when leaving the tab so it can be cleared again on return
+            hasDateRangeBeenClearedRef.current = false
+        }
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange, setFiltersAreReset])
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
@@ -179,8 +210,22 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         extraQueryParameters: { tab: 'payments', type: 'list' },
     })
 
+    const sortedDataSource = useMemo(() => {
+        if (!lastTestingPosReceipt || !objs) return objs
+        
+        const sortedObjs = [...objs]
+        const highlightedIndex = sortedObjs.findIndex(obj => obj.id === lastTestingPosReceipt.condoPaymentId)
+        
+        if (highlightedIndex > 0) {
+            const [highlightedRow] = sortedObjs.splice(highlightedIndex, 1)
+            sortedObjs.unshift(highlightedRow)
+        }
+        
+        return sortedObjs
+    }, [objs, lastTestingPosReceipt])
+
     return (
-        <>
+        <Tour.Provider>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
                     <TableFiltersContainer>
@@ -260,10 +305,15 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
                 <Col span={24}>
                     <Table
-                        loading={loading}
-                        dataSource={objs}
+                        loading={loading || isLastTestingPosReceiptLoading}
+                        dataSource={sortedDataSource}
                         totalRows={count}
                         columns={tableColumns}
+                        onRow={(record) => {
+                            if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
+                                return { style: { backgroundColor: colors.orange[1] } }
+                            }
+                        }}
                     />
                 </Col>
                 <Col span={24}>
@@ -297,15 +347,25 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
             </Modal>
 
             <MultipleFiltersModal />
-        </>
+        </Tour.Provider>
     )
 }
 
 const PaymentsTable: React.FC = (props) => {
+    const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
+
     return (
-        <MultipleFilterContextProvider>
-            <PaymentsTableContent {...props} />
-        </MultipleFilterContextProvider>
+        <Space size={0} direction='vertical'>
+            {areAlertLoading && (
+                <div className={styles.loaderContainer}>
+                    <Loader size='large' fill/>
+                </div>
+            )}
+            {PosIntegrationAlert}
+            <MultipleFilterContextProvider>
+                <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
+            </MultipleFilterContextProvider>
+        </Space>
     )
 }
 

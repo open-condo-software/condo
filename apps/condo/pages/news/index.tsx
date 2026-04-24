@@ -1,6 +1,6 @@
 import { Col, Row, RowProps } from 'antd'
-import { isEmpty } from 'lodash'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'

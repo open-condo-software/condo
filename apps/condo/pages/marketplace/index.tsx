@@ -1,3 +1,4 @@
+import { AcquiringIntegrationTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
@@ -17,7 +18,6 @@ import {
 } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import { MarketplaceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-
 
 const MarketplacePage: PageComponentType = () => {
     const intl = useIntl()
@@ -39,6 +39,7 @@ const MarketplacePage: PageComponentType = () => {
         where: {
             invoiceStatus_in: [CONTEXT_FINISHED_STATUS],
             organization: { id: orgId },
+            integration: { type: AcquiringIntegrationTypeType.OnlineProcessing },
         },
     })
 

@@ -1,9 +1,6 @@
-.recipient-counter {
-  justify-items: end;
-}
-
 .recipient-counter > div {
   max-width: 500px;
+  margin-left: auto;
 }
 
 .custom-counter-content {

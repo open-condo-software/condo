@@ -54,7 +54,9 @@ const {
     registerNewOrganization,
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { createTestResident, Resident } = require('@condo/domains/resident/utils/testSchema')
 const {
     UserRightsSet,
     createTestUserRightsSet,
@@ -69,6 +71,7 @@ const {
     OidcClient,
     createTestOidcClient,
     updateTestOidcClient,
+    makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -303,7 +306,7 @@ describe('UserRightsSet', () => {
                     canManageB2BApps: true,
                     canReadB2BApps: true,
                 })
-                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                const [updatedUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -311,7 +314,7 @@ describe('UserRightsSet', () => {
                 expect(createdApp).toHaveProperty('id')
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -323,7 +326,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -362,7 +365,7 @@ describe('UserRightsSet', () => {
                 const [rightsSet] = await createTestUserRightsSet(support, {
                     canReadOrganizations: true,
                 })
-                const [updatedUser] = await updateTestUser(support, reader.user.id, {
+                const [updatedUser] = await updateTestUser(admin, reader.user.id, {
                     rightsSet: { connect:{ id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -373,7 +376,7 @@ describe('UserRightsSet', () => {
                 })])
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, reader.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, reader.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -381,7 +384,7 @@ describe('UserRightsSet', () => {
                 expect(allOrganizations2).toHaveLength(0)
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, reader.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, reader.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -416,7 +419,7 @@ describe('UserRightsSet', () => {
                 const [rightsSet] = await createTestUserRightsSet(support, {
                     canExecuteRegisterNewServiceUser: true,
                 })
-                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                const [updatedUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -424,7 +427,7 @@ describe('UserRightsSet', () => {
                 expect(registeredUser1).toHaveProperty('id')
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -433,7 +436,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -477,7 +480,7 @@ describe('UserRightsSet', () => {
                     canReadOrganizations: true,
                     canManageOrganizationIsApprovedField: true,
                 })
-                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                const [updatedUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -494,7 +497,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -512,7 +515,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -620,7 +623,7 @@ describe('UserRightsSet', () => {
             describe('Dev-portal service user', () => {
                 let portalClient
                 beforeAll(async () => {
-                    const [portalRightSet] = await createTestUserRightsSet(support, {
+                    const [portalRightSet] = await createTestUserRightsSet(admin, {
                         canReadB2BApps: true,
                         canReadB2BAppAccessRights: true,
                         canReadB2BAppAccessRightSets: true,
@@ -828,6 +831,88 @@ describe('UserRightsSet', () => {
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestOrganization(executor)
                     })
+                })
+            })
+            describe('Resident + User legacy proxy service user', () => {
+                test('User with canReadResidents + canReadUsers + canReadUserPhoneField can lookup resident by phone and addressKey', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(admin, {
+                        canReadResidents: true,
+                        canReadUsers: true,
+                        canReadUserPhoneField: true,
+                    })
+                    const rightsSetUser = await makeClientWithNewRegisteredAndLoggedInUser({
+                        rightsSet: { connect: { id: rightsSet.id } },
+                    })
+                    
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const residentUser = await makeClientWithResidentUser()
+                    const [resident] = await createTestResident(admin, residentUser.user, property)
+                    
+                    const UserWithPhone = generateGQLTestUtils(generateGqlQueries('User', '{ id phone deletedAt }'))
+                    const foundUser = await UserWithPhone.getOne(rightsSetUser, {
+                        id: residentUser.user.id,
+                    })
+                    expect(foundUser).toBeDefined()
+                    expect(foundUser).toHaveProperty('phone', residentUser.userAttrs.phone)
+                    
+                    const foundResidents = await Resident.getAll(rightsSetUser, {
+                        user: { phone: residentUser.userAttrs.phone },
+                        addressKey: property.addressKey,
+                    })
+                    expect(foundResidents).toHaveLength(1)
+                    expect(foundResidents[0]).toHaveProperty('id', resident.id)
+                    expect(foundResidents[0]).toHaveProperty('addressKey', property.addressKey)
+                })
+                
+                test('User with canReadResidents + canReadUsers can lookup resident by user id and addressKey', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(admin, {
+                        canReadResidents: true,
+                        canReadUsers: true,
+                    })
+                    const rightsSetUser = await makeClientWithNewRegisteredAndLoggedInUser({
+                        rightsSet: { connect: { id: rightsSet.id } },
+                    })
+                    
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const residentUser = await makeClientWithResidentUser()
+                    const [resident] = await createTestResident(admin, residentUser.user, property)
+                    
+                    const foundUser = await User.getOne(rightsSetUser, {
+                        id: residentUser.user.id,
+                    })
+                    expect(foundUser).toBeDefined()
+                    expect(foundUser).toHaveProperty('id', residentUser.user.id)
+                    
+                    const foundResidents = await Resident.getAll(rightsSetUser, {
+                        user: { id: residentUser.user.id },
+                        addressKey: property.addressKey,
+                    })
+                    expect(foundResidents).toHaveLength(1)
+                    expect(foundResidents[0]).toHaveProperty('id', resident.id)
+                    expect(foundResidents[0]).toHaveProperty('addressKey', property.addressKey)
+                })
+            })
+        })
+
+        describe('Cannot create and update sensitive UserRightsSet', () => {
+            const cases = [
+                ['canReadUserPhoneField', true],
+                ['canReadUserEmailField', true],
+                ['canManageUserRightsSetField', true],
+            ]
+            test.each(cases)('Support cannot create %p', async (name, value) => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestUserRightsSet(support, { [name]: value })
+                })
+            })
+
+            test.each(cases)('Support cannot update %p', async (name, value) => {
+                const [rightsSet] = await createTestUserRightsSet(support, { canManageOrganizations: false })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestUserRightsSet(support, rightsSet.id, { [name]: value })
                 })
             })
         })

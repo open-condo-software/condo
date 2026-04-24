@@ -47,8 +47,13 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         merge: listHelper.mergeLists,
                     },
                     allContacts: {
-                        keyArgs: ['where'],
+                        keyArgs: ['where', 'sortBy'],
                         read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allContactRoles: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('showAll'),
                         merge: listHelper.mergeLists,
                     },
                     allIncidentChanges: {
@@ -101,6 +106,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allTicketObservers: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                     allInvoices: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction('paginate'),
@@ -133,6 +143,36 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     },
                     allPaymentsFiles: {
                         keyArgs: ['where', 'skip'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketCategoryClassifiers: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('showAll'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allNotificationUserSettings: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allSubscriptionContexts: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allSubscriptionPlans: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allSubscriptionPlanPricingRules: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allUserHelpRequests: {
+                        keyArgs: ['where'],
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },

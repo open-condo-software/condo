@@ -30,6 +30,7 @@ const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithServiceUser, createTestUserRightsSet } = require('@condo/domains/user/utils/testSchema')
 
 
 const emptyParkingValueCases = [null, undefined]
@@ -185,6 +186,31 @@ describe('Property', () => {
                     isApproved: true,
                 })
                 expect(newProperty).toHaveProperty('isApproved', true)
+            })
+        })
+        describe('Service user', () => {
+            test('Can read and manage any property if has user access rights', async () => {
+                const client = await makeClientWithProperty()
+
+                const [rightsSet] = await createTestUserRightsSet(admin, {
+                    canReadProperties: true,
+                    canManageProperties: true,
+                    canReadOrganizations: true,
+                })
+
+                const serviceUserClient = await makeClientWithServiceUser({ rightsSet: { connect: { id: rightsSet.id } } })
+
+                const randomPropertyName = faker.random.alphaNumeric(10)
+
+                const property = await Property.getOne(serviceUserClient, { id: client.property.id })
+                expect(property).toHaveProperty('id', client.property.id)
+                expect(property).toHaveProperty('name')
+                const [updated] = await updateTestProperty(serviceUserClient, property.id, {
+                    name: randomPropertyName,
+                })
+                expect(updated).toHaveProperty('name', randomPropertyName)
+                const [newProperty] = await createTestProperty(serviceUserClient, client.organization, { name: randomPropertyName })
+                expect(newProperty).toHaveProperty('name', randomPropertyName)
             })
         })
         describe('Admin', () => {

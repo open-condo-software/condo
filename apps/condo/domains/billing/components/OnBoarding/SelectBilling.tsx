@@ -1,3 +1,4 @@
+import { SortBillingIntegrationOrganizationContextsBy, type BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -6,19 +7,16 @@ import React, { useCallback, useEffect } from 'react'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Modal } from '@open-condo/ui'
 
-
+import { BillingDescriptionModalContent } from '@condo/domains/billing/components/OnBoarding/BillingDescriptionModalContent'
+import { INTEGRATION_TYPE_BILLING } from '@condo/domains/billing/constants/constants'
+import useSelectBillingPromoBanner from '@condo/domains/billing/hooks/useSelectBillingPromoBanner'
 import { BillingIntegrationOrganizationContext as BillingContext, BillingIntegration } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { MIN_CARD_WIDTH, AppCard } from '@condo/domains/miniapp/components/AppCard'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
-import { BillingDescriptionModalContent } from './BillingDescriptionModalContent'
-
-
-import type { BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
-
 
 const CARD_GAP = 40
 const MAX_CARDS = 4
@@ -35,20 +33,26 @@ export const SelectBilling: React.FC = () => {
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
-    const [spawnModal, BillingModalContext] = Modal.useModal()
+    const [spawnModal, SetupBillingModal] = Modal.useModal()
     const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(width)
+    const { Banner, SetupPromoAppModal, shouldShowBanner } = useSelectBillingPromoBanner()
 
-    const { obj: connectedCtx, loading: ctxLoading, error: ctxError } = BillingContext.useObject({
+    const { objs: connectedContexts, loading: ctxLoading, error: ctxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
             status: CONTEXT_FINISHED_STATUS,
         },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
     const { objs: billings, loading: billingsLoading, error: billingsError } = BillingIntegration.useObjects({
         where: { isHidden: false },
     })
 
+    const connectedCtx = connectedContexts[0] || null
     const connectedContextId = get(connectedCtx, 'id', null)
 
     const handleCardClick = useCallback((billing: BillingIntegrationType) => {
@@ -65,6 +69,7 @@ export const SelectBilling: React.FC = () => {
                         bannerPromoImageUrl={get(billing, ['bannerPromoImage', 'publicUrl'])}
                         receiptsLoadingTime={billing.receiptsLoadingTime}
                         detailedDescription={billing.detailedDescription}
+                        integrationType={INTEGRATION_TYPE_BILLING}
                     />
                 ),
             })
@@ -90,6 +95,11 @@ export const SelectBilling: React.FC = () => {
     return (
         <>
             <Row gutter={ROW_GUTTER} ref={setRef}>
+                {shouldShowBanner && (
+                    <Col span={FULL_SPAN / cardsPerRow}>
+                        {Banner}
+                    </Col>
+                )}
                 {billings.map((billing) => (
                     <Col key={billing.id} span={FULL_SPAN / cardsPerRow}>
                         <AppCard
@@ -102,7 +112,8 @@ export const SelectBilling: React.FC = () => {
                     </Col>
                 ))}
             </Row>
-            {BillingModalContext}
+            {SetupBillingModal}
+            {SetupPromoAppModal}
         </>
     )
 }

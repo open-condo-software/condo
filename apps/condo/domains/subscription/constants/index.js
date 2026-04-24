@@ -1,66 +1,73 @@
-const SUBSCRIPTION_TRIAL_PERIOD_DAYS = 15
-const SUBSCRIPTION_SBBOL_PERIOD_DAYS = 365
+const SUBSCRIPTION_PERIOD = {
+    MONTH: 'month',
+    YEAR: 'year',
+}
+const SUBSCRIPTION_PERIODS = Object.values(SUBSCRIPTION_PERIOD)
 
-const SUBSCRIPTION_TYPE = {
-    DEFAULT: 'default',
-    SBBOL: 'sbbol',
+const PERIOD_TO_MONTHS = {
+    [SUBSCRIPTION_PERIOD.MONTH]: 1,
+    [SUBSCRIPTION_PERIOD.YEAR]: 12,
 }
 
-/**
- * Reduced set of statuses from a set of statuses in external system, that contains much more of them.
- * Based on this status a system will filter payment request for subsequent fetching of statuses from remote system.
- */
-const SUBSCRIPTION_PAYMENT_STATUS = {
-    // Payment was just created in our system and its status in remote system in unknown yet
-    CREATED: 'created',
-    // Work in payment is in progress (on remote system the payment can have many stages of processing, that are mapped to this one for simplicity)
-    PROCESSING: 'processing',
-    DONE: 'done',
-    ERROR: 'error',
-    // Payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct.
-    // Payments with "stopped" status should not be polled from remote system, further status update should be performed manually.
-    STOPPED: 'stopped',
-    // Client has refused to pay
-    CANCELLED: 'cancelled',
+const SUBSCRIPTION_CONTEXT_CREATED_STATUS = 'CREATED'
+const SUBSCRIPTION_CONTEXT_DONE_STATUS = 'DONE'
+const SUBSCRIPTION_CONTEXT_PENDING_STATUS = 'PENDING'
+const SUBSCRIPTION_CONTEXT_ERROR_STATUS = 'ERROR'
+
+const SUBSCRIPTION_CONTEXT_STATUS = {
+    [SUBSCRIPTION_CONTEXT_CREATED_STATUS]: SUBSCRIPTION_CONTEXT_CREATED_STATUS,
+    [SUBSCRIPTION_CONTEXT_DONE_STATUS]: SUBSCRIPTION_CONTEXT_DONE_STATUS,
+    [SUBSCRIPTION_CONTEXT_PENDING_STATUS]: SUBSCRIPTION_CONTEXT_PENDING_STATUS,
+    [SUBSCRIPTION_CONTEXT_ERROR_STATUS]: SUBSCRIPTION_CONTEXT_ERROR_STATUS,
 }
 
-const SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS = {
-    [SUBSCRIPTION_PAYMENT_STATUS.CREATED]: [
-        SUBSCRIPTION_PAYMENT_STATUS.PROCESSING,
-        SUBSCRIPTION_PAYMENT_STATUS.DONE,
-        SUBSCRIPTION_PAYMENT_STATUS.ERROR,
-        SUBSCRIPTION_PAYMENT_STATUS.STOPPED,
-        SUBSCRIPTION_PAYMENT_STATUS.CANCELLED,
-    ],
-    [SUBSCRIPTION_PAYMENT_STATUS.PROCESSING]: [
-        SUBSCRIPTION_PAYMENT_STATUS.DONE,
-        SUBSCRIPTION_PAYMENT_STATUS.ERROR,
-        SUBSCRIPTION_PAYMENT_STATUS.STOPPED,
-        SUBSCRIPTION_PAYMENT_STATUS.CANCELLED,
-    ],
-    [SUBSCRIPTION_PAYMENT_STATUS.DONE]: [],
-    [SUBSCRIPTION_PAYMENT_STATUS.ERROR]: [],
-    [SUBSCRIPTION_PAYMENT_STATUS.STOPPED]: [
-        SUBSCRIPTION_PAYMENT_STATUS.PROCESSING,
-        SUBSCRIPTION_PAYMENT_STATUS.DONE,
-        SUBSCRIPTION_PAYMENT_STATUS.ERROR,
-        SUBSCRIPTION_PAYMENT_STATUS.CANCELLED,
-    ],
-    [SUBSCRIPTION_PAYMENT_STATUS.CANCELLED]: [],
+const SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS = {
+    [SUBSCRIPTION_CONTEXT_CREATED_STATUS]: [SUBSCRIPTION_CONTEXT_PENDING_STATUS, SUBSCRIPTION_CONTEXT_ERROR_STATUS, SUBSCRIPTION_CONTEXT_DONE_STATUS],
+    [SUBSCRIPTION_CONTEXT_DONE_STATUS]: [],
+    [SUBSCRIPTION_CONTEXT_PENDING_STATUS]: [SUBSCRIPTION_CONTEXT_ERROR_STATUS, SUBSCRIPTION_CONTEXT_DONE_STATUS],
+    [SUBSCRIPTION_CONTEXT_ERROR_STATUS]: [],
+}
+const SUBSCRIPTION_CONTEXT_STATUSES = Object.values(SUBSCRIPTION_CONTEXT_STATUS)
+
+const SUBSCRIPTION_PAYMENT_BUFFER_DAYS = 5
+
+const SUBSCRIPTION_PLAN_TYPE_SERVICE = 'service'
+const SUBSCRIPTION_PLAN_TYPE_FEATURE = 'feature'
+const SUBSCRIPTION_PLAN_TYPES = [SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE]
+
+const planFeatureField = (name) => ({
+    schemaDoc: `Whether ${name} feature is included in this plan`,
+    type: 'Checkbox',
+    defaultValue: false,
+    isRequired: true,
+})
+
+const SUBSCRIPTION_PLAN_FEATURE_FIELDS = {
+    payments: planFeatureField('payments'),
+    meters: planFeatureField('meters'),
+    tickets: planFeatureField('tickets'),
+    news: planFeatureField('news'),
+    marketplace: planFeatureField('marketplace'),
+    support: planFeatureField('support'),
+    ai: planFeatureField('ai'),
+    customization: planFeatureField('customization'),
+    properties: planFeatureField('properties'),
+    analytics: planFeatureField('analytics'),
 }
 
-const SUBSCRIPTION_PAYMENT_CURRENCY = {
-    RUB: 'RUB',
-}
-
-const SBBOL_YEARLY_SUBSCRIPTION_PRICE = 1.0
+const SUBSCRIPTION_PLAN_FEATURES = Object.keys(SUBSCRIPTION_PLAN_FEATURE_FIELDS)
 
 module.exports = {
-    SUBSCRIPTION_TYPE,
-    SUBSCRIPTION_TRIAL_PERIOD_DAYS,
-    SUBSCRIPTION_SBBOL_PERIOD_DAYS,
-    SUBSCRIPTION_PAYMENT_STATUS,
-    SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS,
-    SUBSCRIPTION_PAYMENT_CURRENCY,
-    SBBOL_YEARLY_SUBSCRIPTION_PRICE,
+    SUBSCRIPTION_PERIOD,
+    SUBSCRIPTION_PERIODS,
+    PERIOD_TO_MONTHS,
+    SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_CONTEXT_STATUSES,
+    SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS,
+    SUBSCRIPTION_PLAN_TYPE_SERVICE,
+    SUBSCRIPTION_PLAN_TYPE_FEATURE,
+    SUBSCRIPTION_PLAN_TYPES,
+    SUBSCRIPTION_PLAN_FEATURE_FIELDS,
+    SUBSCRIPTION_PLAN_FEATURES,
 }

@@ -21,15 +21,16 @@ function getImmutableRanges (text) {
 }
 
 function normalizeText (text) {
-    if (!text) return
+    if (typeof text !== 'string') return 
+    if (text === '') return ''
     String(text).normalize()
 
     const immutableRanges = getImmutableRanges(text)
     return text
         // remove unprintable letters without \n
         .replace(/[^\P{C}\n]+/gmu, '')
-        // replace two or more \n to one \n
-        .replace(/\n+/gm, '\n')
+        // replace three or more \n to two \n (preserve paragraph breaks)
+        .replace(/\n{3,}/gm, '\n\n')
         // replace two or more spaces to one space
         .replace(/\p{Z}+/gu, ' ')
         // normalize punctuation between words, e.g: 'test  ,test' -> 'test, test'

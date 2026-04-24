@@ -52,6 +52,10 @@ const PERIOD_REGEX = /^\d{4}-\d{2}-01$/
 const CONTEXT_FINISHED_STATUS = 'Finished'
 const CONTEXT_IN_PROGRESS_STATUS = 'InProgress'
 
+// TODO(@abshnko): when billingIntegration becomes b2bApp this won't be necessary
+const INTEGRATION_TYPE_BILLING = 'billing'
+const INTEGRATION_TYPE_B2B_APP = 'b2bApp'
+
 module.exports = {
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
     BILLING_RECEIPT_SERVICE_INPUT_NAME,
@@ -91,4 +95,6 @@ module.exports = {
     PERIOD_REGEX,
     CONTEXT_FINISHED_STATUS,
     CONTEXT_IN_PROGRESS_STATUS,
+    INTEGRATION_TYPE_BILLING,
+    INTEGRATION_TYPE_B2B_APP,
 }

@@ -11,7 +11,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import styles from './CookieAgreement.module.css'
 
 
-const { publicRuntimeConfig: { privacyPolicyUrl } } = getConfig()
+const { publicRuntimeConfig: { cookiesUrl } } = getConfig()
 
 const COOKIE_AGREEMENT_KEY = 'cookieAgreementAccepted'
 
@@ -66,9 +66,9 @@ export const CookieAgreement: React.FC = () => {
                             <Typography.Paragraph>
                                 <Typography.Text type='secondary' size='medium'>{CookieAgreementDescriptionMsg} </Typography.Text>
                                 {
-                                    privacyPolicyUrl && (
+                                    cookiesUrl && (
                                         <Typography.Text type='secondary' size='medium'>
-                                            {CookieExpandActionMsg} <Typography.Link href={privacyPolicyUrl} target='_blank'>{privacyPolicyUrl}</Typography.Link>
+                                            {CookieExpandActionMsg} <Typography.Link href={cookiesUrl} target='_blank'>{cookiesUrl}</Typography.Link>
                                         </Typography.Text>
                                     ) 
                                 }

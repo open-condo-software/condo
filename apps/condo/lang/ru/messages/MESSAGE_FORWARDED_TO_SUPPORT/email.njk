@@ -1,5 +1,8 @@
 Система: {{ message.meta.os }}
+Платформа: {% if message.meta.platform %}{{ message.meta.platform | safe }}{% else %}не указана{% endif %}
+Название приложения: {% if message.meta.app %}{{ message.meta.app | safe }}{% else %}не указано{% endif %}
 Версия приложения: {{ message.meta.appVersion }}
+User agent: {% if message.meta.userAgent %}{{ message.meta.userAgent | safe }}{% else %}не указана{% endif %}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не указан{% endif %}
 Информация о жителе:
 {%- if message.meta.residentsExtraInfo.length == 0 -%}

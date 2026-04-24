@@ -82,6 +82,7 @@ const CondoWebAppShowModalWindowParamsSchema = {
         title: { type: 'string' },
         url: { type: 'string', format: 'uri', pattern: '^https?://'  },
         size: { type: 'string', enum: ['small', 'big'] },
+        initialHeight: { type: 'number' },
     },
     required: ['title', 'url'],
     additionalProperties: false,
@@ -149,6 +150,33 @@ const CondoWebAppUpdateProgressBarParamsSchema = {
     required: ['barId', 'data'],
 }
 
+const ActionSchema = {
+    type: 'object',
+    properties: {
+        label: { type: 'string' },
+        disabled: { type: 'boolean' },
+        loading: { type: 'boolean' },
+        icon: { type: 'string' },
+    },
+    required: [],
+    additionalProperties: false,
+}
+
+export const CondoWebAppSetPageActionsSchema = {
+    type: 'object',
+    properties: {
+        actions: {
+            type: 'array',
+            items: {
+                ...ActionSchema,
+            },
+        },
+    },
+    required: ['actions'],
+    additionalProperties: false,
+}
+
+
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
@@ -156,10 +184,12 @@ export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
     CondoWebAppCloseModalWindow: ajv.compile(CondoWebAppCloseModalWindowParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
+    CondoWebAppGetFragment: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppRequestAuth: ajv.compile(CondoWebAppRequestAuthSchema),
     CondoWebAppRedirect: ajv.compile(CondoWebAppRedirectParamsSchema),
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
+    CondoWebAppSetPageActions: ajv.compile(CondoWebAppSetPageActionsSchema),
     CondoWebAppShowModalWindow: ajv.compile(CondoWebAppShowModalWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),

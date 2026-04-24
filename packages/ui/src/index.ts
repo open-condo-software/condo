@@ -25,7 +25,16 @@ export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
 
 export { Input } from './components/Input'
-export type { InputType, BaseInputProps, InputProps, PasswordInputProps, PhoneInputProps } from './components/Input'
+export type { 
+    InputType, 
+    BaseInputProps, 
+    InputProps, 
+    PasswordInputProps, 
+    PhoneInputProps,
+    RichTextAreaProps,
+    RichTextAreaCustomLabels,
+    ToolbarGroup,
+} from './components/Input'
 
 export { List } from './components/List'
 export type { ListProps } from './components/List'
@@ -47,6 +56,31 @@ export type { SpaceProps } from './components/Space'
 
 export { Steps } from './components/Steps'
 export type { StepsProps, StepItem } from './components/Steps'
+
+export { 
+    Table,
+    renderTextWithTooltip,
+    defaultUpdateUrlQuery,
+    defaultParseUrlQuery,
+} from './components/Table'
+export type { 
+    TableProps, 
+    TableColumn, 
+    RenderTableCell,
+    TableLabels, 
+    GetTableData, 
+    TableState, 
+    FullTableState,
+    DefaultColumn,
+    RowSelectionOptions,
+    TableRef,
+    FilterComponentProps,
+    FilterComponent,
+    FilterConfig,
+    RowSelectionState,
+    SortState,
+    FilterState,
+} from './components/Table'
 
 export { Tabs } from './components/Tabs'
 export type { TabsProps, TabItem } from './components/Tabs'

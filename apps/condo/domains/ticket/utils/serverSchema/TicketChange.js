@@ -40,6 +40,7 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
     }
 
+
     await TicketChange.create(
         context.createContext({ skipAccessControl: true }),
         payload,
@@ -139,7 +140,7 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
  * @param {KeystoneOperationArgsForTicketChange} args - variables, passed to Keystone afterChange hook
  * @return {Promise<{existing: {displayNames: *, ids: *}, updated: {displayNames: *, ids: *}}}|{}>}
  */
-const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', args) => {
+const resolveManyToManyField = async (fieldName, ref, displayNameRef, displayNameAttr, args) => {
     const { context, existingItem, originalInput } = args
     let updated
     const updatedResult = await context.executeGraphQL({
@@ -150,7 +151,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
                         id
                         ${fieldName} {
                             id
-                            name
+                            ${displayNameRef ? `${displayNameRef} { id ${displayNameAttr} }` : displayNameAttr }
                         }
                     }
                 }
@@ -168,7 +169,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
     if (updatedResult.data.ticket) {
         updated = {
             ids: map(updatedResult.data.ticket[fieldName], 'id'),
-            displayNames: map(updatedResult.data.ticket[fieldName], displayNameAttr),
+            displayNames: map(updatedResult.data.ticket[fieldName], displayNameRef ? `${displayNameRef}.${displayNameAttr}` : displayNameAttr),
         }
     }
 
@@ -195,6 +196,16 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
             // Perform opposite operation
             existing.ids = difference(existing.ids, map(originalInput[fieldName].connect, 'id'))
         }
+        if (displayNameRef && originalInput[fieldName].create) {
+            // NOTE: We don't know the id of the created records, so we need to calculate them and delete them from the array of existing records.
+            let newConnectedDisplayNameRefIds = new Set(map(originalInput[fieldName].create, `${displayNameRef}.connect.id`))
+            if (newConnectedDisplayNameRefIds.size > 0) {
+                const createdRefIds = updatedResult.data.ticket[fieldName]
+                    .filter(item => item[displayNameRef]?.id && newConnectedDisplayNameRefIds.has(item[displayNameRef].id))
+                    .map(item => item.id)
+                existing.ids = difference(existing.ids, createdRefIds)
+            }
+        }
     }
     const existingResult = await context.executeGraphQL({
         context: context.createContext({ skipAccessControl: true }),
@@ -202,18 +213,22 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
                 query changeTrackable_find${ref}s($ids: [ID!]) {
                     items: all${ref}s(where: { id_in: $ids }) {
                         id
-                        ${displayNameAttr}
+                        ${displayNameRef ? `${displayNameRef} { ${displayNameAttr} }` : displayNameAttr }
                     }
                 }
             `,
         variables: { ids: existing.ids },
     })
-    if (existingResult.error) {
-        console.error('Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+    if (existingResult.errors) {
+        // this log entry for development & support purposes only
+        // no important logs can be hided by injected external console.log formatters
+        // no logs formatters can be injected
+        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+        console.error(`Error while fetching ${ref} items in relatedManyToManyResolvers of changeTrackable for a Ticket`, existingResult.errors)
         return {}
     }
     if (existingResult.data.items) {
-        existing.displayNames = map(existingResult.data.items, 'name')
+        existing.displayNames = map(existingResult.data.items, displayNameRef ? `${displayNameRef}.${displayNameAttr}` : displayNameAttr)
     }
 
     return {
@@ -230,14 +245,26 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
  * and for display text in change history we are using field `name` of `TicketFile` schema.
  * NOTE: This is how it was implemented before deprecation of all many-to-many relationships in `Ticket` schema
  * for performance reasons. Implementation of resolvers will also be changed after it.
+ * @param {string} fieldName - name of Ticket field (e.g., 'observers')
+ * @param {string} ref - name of related entity schema (e.g., 'TicketObserver')
+ * @param {string} displayNameRef - name of field in related entity that references another entity for display name (e.g., 'user', or null if displayNameAttr is directly on the related entity)
+ * @param {string} displayNameAttr - attribute of related entity that will act as display name (e.g., 'name')
+ * @param {KeystoneOperationArgsForTicketChange} args - variables, passed to Keystone afterChange hook
  * @example
  * const relatedManyToManyResolvers = {
  *     'files': async (args) => {
- *           return resolveManyToManyField('files', 'TicketFile', 'name', args)
+ *           return resolveManyToManyField('files', 'TicketFile', null, 'name', args)
+ *     },
+ *     'observers': async (args) => {
+ *           return resolveManyToManyField('observers', 'TicketObserver', 'user', 'name', args)
  *     }
  * }
  */
-const relatedManyToManyResolvers = {}
+const relatedManyToManyResolvers = {
+    'observers': async (args) => {
+        return resolveManyToManyField('observers', 'TicketObserver', 'user', 'name', args)
+    },
+}
 
 module.exports = {
     createTicketChange,

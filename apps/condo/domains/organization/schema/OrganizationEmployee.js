@@ -3,12 +3,13 @@
  */
 const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
-const { v4: uuid } = require('uuid')
 
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, tracked, softDeleted, uuided, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, tracked, softDeleted, uuided, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, find } = require('@open-condo/keystone/schema')
+const { revokeMessagingUser } = require('@open-condo/messaging')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -70,7 +71,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         inviteCode: {
             schemaDoc: 'Secret invite code (used for accept invite verification)',
             type: 'Uuid',
-            defaultValue: () => uuid(),
+            sensitive: true,
+            defaultValue: () => generateUUIDv4(),
             kmigratorOptions: { null: true, unique: true },
             access: {
                 read: userIsAdmin,
@@ -81,10 +83,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         name: {
             factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: 'Text',
+            sensitive: true,
         },
         email: {
             factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             kmigratorOptions: { null: true },
             hooks: {
@@ -119,6 +123,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         },
         phone: {
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             kmigratorOptions: { null: true },
             hooks: {
@@ -220,7 +225,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadOrganizationEmployees,
         create: access.canManageOrganizationEmployees,
@@ -247,6 +252,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             // TODO(DOMA-4440): we need to make a tool for automatic cascading soft deletion of related objects
             if (isSoftDeleteOperation) {
                 await softDeletePropertyScopeOrganizationEmployee(context, updatedItem)
+            }
+
+            const isBlockOperation = operation === 'update' && !existingItem.isBlocked && updatedItem.isBlocked
+            const isRejectOperation = operation === 'update' && !existingItem.isRejected && updatedItem.isRejected
+            if ((isSoftDeleteOperation || isBlockOperation || isRejectOperation) && updatedUserId) {
+                await revokeMessagingUser(updatedUserId)
             }
         },
     },

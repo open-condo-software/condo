@@ -1,4 +1,6 @@
-import { differenceBy, get, isEmpty } from 'lodash'
+import differenceBy from 'lodash/differenceBy'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
 import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'

@@ -122,13 +122,17 @@ async function config () {
     /** @type import('knip').KnipConfig['workspaces'] */
     const staticWorkspaces = {
         '.': {
+            entry: ['bin/**/*.js'],
             ignoreDependencies: [/commitlint/],
+        },
+        'apps/asterisk-bot': {
+            entry: ['index.ts'],
         },
         'apps/insurance': {
             ignoreDependencies: ['@graphql-codegen/typescript'],
         },
         'apps/resident-app': {
-            entry: ['domains/common/utils/sw.ts'],
+            entry: ['domains/common/utils/sw.ts', 'domains/telegram-bot/utils/bot.js' ],
         },
         'packages/icons': {
             ignoreDependencies: ['@svgr/plugin-svgo', '@svgr/plugin-prettier', '@svgr/plugin-jsx'],

@@ -1,6 +1,7 @@
 const { gql } = require('graphql-tag')
-const fetch = require('node-fetch')
 const pluralize = require('pluralize')
+
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const buildQuery = (modelName, fields) => {
     const pluralName = pluralize.plural(modelName)
@@ -18,6 +19,7 @@ async function trySendData (url, data) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
+            abortRequestTimeout: 30 * 1000,
         })
 
         return { ok: !!response.ok, status: response.status }

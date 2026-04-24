@@ -1,6 +1,6 @@
 import { Property } from '@app/condo/schema'
 import { gql } from 'graphql-tag'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 
 async function _search (client, query, variables) {
     return await client.query({

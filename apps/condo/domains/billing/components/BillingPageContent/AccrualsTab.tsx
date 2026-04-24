@@ -12,7 +12,7 @@ import { ReportMessage } from './ReportMessage'
 import type { RowProps } from 'antd'
 
 const FULL_SPAN = 24
-const SECTION_GUTTER: RowProps['gutter'] = [40, 40]
+const SECTION_GUTTER: RowProps['gutter'] = [0, 30]
 
 type AccrualsTabProps = {
     uploadComponent?: React.ReactElement

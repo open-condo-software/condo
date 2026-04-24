@@ -3,7 +3,7 @@
  */
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/onboarding/access/UserHelpRequestFile')
@@ -24,12 +24,13 @@ const UserHelpRequestFile = new GQLListSchema('UserHelpRequestFile', {
         file: {
             adapter: Adapter,
             type: 'File',
+            sensitive: true,
         },
     },
     hooks: {
         afterChange: fileMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadUserHelpRequestFiles,
         create: access.canManageUserHelpRequestFiles,

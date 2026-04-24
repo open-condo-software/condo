@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -91,6 +91,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
         content: {
             schemaDoc: 'Plain text content',
             type: 'Text',
+            sensitive: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
                     return normalizeText(resolvedData['content']) || ''
@@ -119,7 +120,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             await sendTicketCommentNotifications(requestData)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,

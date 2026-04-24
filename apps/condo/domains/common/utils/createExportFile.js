@@ -3,9 +3,9 @@ const { Duplex } = require('stream')
 const { Readable } = require('stream')
 
 const carbone = require('carbone')
-const { v4: uuid } = require('uuid')
 
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { EXCEL, DOCX } = require('@condo/domains/common/constants/export')
 
@@ -52,7 +52,7 @@ async function createExportFile ({ fileName, templatePath, replaces, meta, forma
     const buffer = new Duplex()
     buffer.push(fileContent)
     buffer.push(null)
-    const id = uuid()
+    const id = generateUUIDv4()
     // TODO(zuch): add mime types and encoding detector from template
     // mimetype: 'application/vnd.oasis.opendocument.spreadsheet', - for ods
     const fileInfo = await ExportFileAdapter.save({

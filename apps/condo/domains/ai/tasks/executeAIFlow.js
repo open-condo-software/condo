@@ -6,7 +6,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 
-const { FlowiseAdapter } = require('@condo/domains/ai/adapters')
+const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
     FLOW_ADAPTERS: FLOW_ADAPTER_NAMES,
@@ -22,6 +22,7 @@ const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGE
 
 const FLOW_ADAPTERS = {
     [FLOW_ADAPTER_NAMES.FLOWISE]: new FlowiseAdapter(),
+    [FLOW_ADAPTER_NAMES.N8N]: new N8NAdapter(),
 }
 
 const ajv = new Ajv()
@@ -38,7 +39,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
-    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status')
+    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status aiSessionId')
 
     try {
         if (!task || task.deletedAt) {
@@ -66,6 +67,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         const fullContext = {
             ...task.cleanContext,
             locale: task.locale,
+            aiSessionId: task.aiSessionId,
         }
 
         const prediction = await adapter.execute(predictionUrl, fullContext)
@@ -101,8 +103,8 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
         const { replacements } = removeSensitiveDataFromObj(task.context)
         const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
-
-        await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
+        
+        let updateData = {
             ...BASE_ATTRIBUTES,
             result: resultWithRestoredPII,
             meta: {
@@ -110,7 +112,9 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                 response: prediction._response,
             },
             status: TASK_STATUSES.COMPLETED,
-        })
+        }
+
+        await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, updateData)
     } catch (error) {
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,

@@ -40,6 +40,7 @@ const {
     RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
     GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
     START_CONFIRM_EMAIL_ACTION_MUTATION,
+    START_CONFIRM_PHONE_ACTION_MUTATION,
 } = require('@condo/domains/user/gql')
 const { generateSmsCode, generateSecureCode } = require('@condo/domains/user/utils/serverSchema')
 
@@ -58,6 +59,9 @@ const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/do
 const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 const { CHANGE_USER_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
+const { CHANGE_USER_EMAIL_MUTATION } = require('@condo/domains/user/gql')
+const { VERIFY_USER_EMAIL_MUTATION } = require('@condo/domains/user/gql')
+const { CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbingo.org/dump/request'
@@ -699,6 +703,22 @@ async function completeConfirmEmailActionByTestClient (client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
+async function startConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(START_CONFIRM_PHONE_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function startConfirmEmailActionByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -774,6 +794,48 @@ async function changeUserPasswordByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function changeUserEmailByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHANGE_USER_EMAIL_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function verifyUserEmailByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(VERIFY_USER_EMAIL_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function changeTwoFactorAuthenticationByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -826,5 +888,9 @@ module.exports = {
     getEmailByConfirmEmailActionTokenByTestClient,
     authenticateUserWithEmailAndPasswordByTestClient,
     changeUserPasswordByTestClient,
+    changeUserEmailByTestClient,
+    verifyUserEmailByTestClient,
+    changeTwoFactorAuthenticationByTestClient,
+    startConfirmPhoneActionByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

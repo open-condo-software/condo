@@ -1,4 +1,5 @@
-const { get, isFunction } = require('lodash')
+const get = require('lodash/get')
+const isFunction = require('lodash/isFunction')
 const { v4: uuid } = require('uuid')
 
 const { composeNonResolveInputHook, isValidDate } = require('./utils')
@@ -51,6 +52,7 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
         Text: (field) => ({ type: 'Text' }),
         LocalizedText: (field) => ({ type: 'Text' }),
         SignedDecimal: (field) => ({ type: 'Decimal' }),
+        ExternalContent: (field) => ({ type: 'Text' }),
         AuthedRelationship: (field) => ({
             type: 'HiddenRelationship',
             ref: field.ref,

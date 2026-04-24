@@ -5,17 +5,17 @@ import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Modal, Select, Button, Alert } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
-import type { AppEnvironment } from '@/lib/gql'
+import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
 
-import { useCreateB2CAppPropertyMutation, AllB2CAppPropertiesDocument } from '@/lib/gql'
+import { useCreateB2CAppPropertyMutation, AllB2CAppPropertiesDocument } from '@/gql'
 
 const { publicRuntimeConfig: { addressServiceUrl } } = getConfig()
 
@@ -36,7 +36,7 @@ type PropertyFormValues = {
 }
 
 const DEBOUNCE_TIMEOUT = 500
-const ROW_FORM_GUTTER: RowProps['gutter'] = [12, 12]
+const ROW_FORM_GUTTER: RowProps['gutter'] = [24, 24]
 const FULL_COL_SPAN = 24
 const ALLOWED_TYPES = ['building']
 const ADDRESS_FORM_ERRORS_TO_FIELDS_MAP = {
@@ -45,16 +45,16 @@ const ADDRESS_FORM_ERRORS_TO_FIELDS_MAP = {
 
 export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, closeFn, environment, appId }) => {
     const intl = useIntl()
-    const ModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.title' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.placeholder' })
+    const ModalTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.title' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.items.address.placeholder' })
     const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
-    const EmptySearchNoDataMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.noData.placeholder.emptySearch' })
-    const NoDataMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.noData.placeholder.withSearch' })
-    const SubmitButtonLabel = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.actions.add' })
-    const InfoMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.info.description' })
-    const WrongAddressTypeError = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.errors.invalidType.message' })
-    const SuccessCreationMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.notifications.successCreation.title' })
-    const AlreadyCreatedErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.errors.alreadyCreated.message' })
+    const EmptySearchNoDataMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.items.address.noData.placeholder.emptySearch' })
+    const NoDataMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.items.address.noData.placeholder.withSearch' })
+    const SubmitButtonLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.actions.add' })
+    const InfoMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.info.description' })
+    const WrongAddressTypeError = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.items.address.errors.invalidType.message' })
+    const SuccessCreationMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.notifications.successCreation.title' })
+    const AlreadyCreatedErrorMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.newPropertyModal.form.errors.alreadyCreated.message' })
 
     const [form] = Form.useForm()
     const [options, setOptions] = useState<SelectProps['options']>([])
@@ -148,7 +148,7 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, 
             scrollX={false}
         >
             <Form
-                name='create-b2c-app-property'
+                name='create-b2c-app-property-form'
                 layout='vertical'
                 form={form}
                 onFinish={handleFormSubmit}

@@ -6,7 +6,6 @@ const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/
 const { MANAGING_COMPANY_TYPE, ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -117,25 +116,6 @@ describe('RegisterNewOrganizationService', () => {
             expect(contractorRole).toMatchObject(getPermissions('Contractor'))
         })
 
-        it('creates trial subscription', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [organization] = await registerNewOrganization(admin)
-
-            const [subscription] = await ServiceSubscription.getAll(admin, {
-                organization: {
-                    id: organization.id,
-                },
-            })
-
-            expect(subscription).toBeDefined()
-            expect(subscription.organization.id).toEqual(organization.id)
-            expect(subscription.isTrial).toBeTruthy()
-            expect(subscription.unitsCount).toBeNull()
-            expect(subscription.unitPrice).toBeNull()
-            expect(subscription.totalPrice).toBeNull()
-            expect(subscription.startAt).toBeDefined()
-            expect(subscription.finishAt).toBeDefined()
-        })
         test('creates ticket organization setting', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)

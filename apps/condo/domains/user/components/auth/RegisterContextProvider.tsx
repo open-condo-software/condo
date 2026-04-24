@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { createContext, Dispatch, SetStateAction, useEffect, useState, useContext, useMemo } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
@@ -104,7 +104,7 @@ export const RegisterContextProvider: React.FC<React.PropsWithChildren> = ({ chi
         } else {
             setIsConfirmed(false)
         }
-    }, [queryToken, executeCaptcha, loadPhoneTokenInfo, identifier, loadEmailTokenInfo])
+    }, [queryToken, executeCaptcha, loadPhoneTokenInfo, loadEmailTokenInfo])
 
     return (
         <RegisterContext.Provider

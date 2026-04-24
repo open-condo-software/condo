@@ -4,8 +4,9 @@ import {
 } from '@app/condo/schema'
 import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { difference, isEmpty } from 'lodash'
+import difference from 'lodash/difference'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 

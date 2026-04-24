@@ -3,7 +3,7 @@ const isoWeek = require('dayjs/plugin/isoWeek')
 const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
 
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
@@ -48,7 +48,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
-        const { knex } = getDatabaseAdapter(keystone)
+        const adapter = getDatabaseAdapter(keystone)
 
         this.whereIn = Object.fromEntries(this.whereIn)
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
@@ -65,6 +65,56 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
             return filter
         }, [[], []])
 
+        if (isPrismaAdapter(keystone)) {
+            await this._loadDataPrisma(adapter)
+        } else {
+            await this._loadDataKnex(adapter)
+        }
+    }
+
+    /** @private */
+    async _loadDataPrisma (adapter) {
+        const selectParts = ['COUNT("id") as "count"', ...this.groups.map(g => `"${g}"`)]
+        if (this.aggregateBy.includes('dayGroup')) {
+            selectParts.push(`to_char(date_trunc('${this.dayGroup}', "createdAt"), 'DD.MM.YYYY') as "dayGroup"`)
+        }
+        const groupByCols = this.aggregateBy.map(g => `"${g}"`).join(', ')
+
+        const whereParts = []
+        const params = []
+        let paramIdx = 1
+
+        // Static where conditions
+        for (const [key, val] of Object.entries(this.knexWhere)) {
+            if (val === null) {
+                whereParts.push(`"${key}" IS NULL`)
+            } else {
+                whereParts.push(`"${key}" = $${paramIdx++}`)
+                params.push(val)
+            }
+        }
+
+        // WhereIn conditions
+        for (const [col, values] of Object.entries(this.whereIn)) {
+            if (values.length === 0) { this.result = []; return }
+            const ph = values.map(v => { params.push(v[0]); return `$${paramIdx++}` }).join(', ')
+            whereParts.push(`"${col}" IN (${ph})`)
+        }
+
+        // Date range
+        if (this.dateRange.from && this.dateRange.to) {
+            whereParts.push(`"createdAt" BETWEEN $${paramIdx++} AND $${paramIdx++}`)
+            params.push(this.dateRange.from, this.dateRange.to)
+        }
+
+        const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : ''
+        const sql = `SELECT ${selectParts.join(', ')} FROM "${this.domainName}" ${whereClause} GROUP BY ${groupByCols}`
+        this.result = convertPrismaBigInts(await adapter.prisma.$queryRawUnsafe(castUuidParams(sql, params), ...params))
+    }
+
+    /** @private */
+    async _loadDataKnex (adapter) {
+        const { knex } = adapter
         const query = knex(this.domainName)
             .count('id')
             .select(this.groups)

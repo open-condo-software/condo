@@ -16,6 +16,7 @@ const { PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/
 const {
     updateOIDCClientUrlByTestClient,
     createTestB2CApp,
+    createTestB2BApp,
     createOIDCClientByTestClient,
     CondoOIDCClient,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
@@ -32,10 +33,13 @@ describe('UpdateOIDCClientUrlService', () => {
     let b2cUser
     let b2cApp
     let b2bUser
+    let b2bApp
     let anonymous
     let condoAdmin
-    let oidcClient
-    let initialCondoOidcClient
+    let b2cOIDCClient
+    let b2bOIDCClient
+    let initialCondoB2COIDCClient
+    let initialCondoB2BOIDCClient
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeLoggedInSupportClient()
@@ -45,26 +49,39 @@ describe('UpdateOIDCClientUrlService', () => {
         condoAdmin = await makeLoggedInCondoAdminClient();
 
         [b2cApp] = await createTestB2CApp(b2cUser);
-        [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
-        initialCondoOidcClient = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
+        [b2cOIDCClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
+        initialCondoB2COIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: b2cOIDCClient.id });
+
+        [b2bApp] = await createTestB2BApp(b2bUser);
+        [b2bOIDCClient] = await createOIDCClientByTestClient(b2bUser, b2bApp)
+        initialCondoB2BOIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: b2bOIDCClient.id })
     })
     describe('Access tests', () => {
         test('Admin can update url of any app', async () => {
             const [updatedClient] = await updateOIDCClientUrlByTestClient(admin, b2cApp)
-            expect(updatedClient).toHaveProperty('id', initialCondoOidcClient.id)
+            expect(updatedClient).toHaveProperty('id', initialCondoB2COIDCClient.id)
         })
         test('Support can update url of any app', async () => {
-            const [updatedClient] = await updateOIDCClientUrlByTestClient(support, b2cApp)
-            expect(updatedClient).toHaveProperty('id', initialCondoOidcClient.id)
+            const [updatedClient] = await updateOIDCClientUrlByTestClient(support, b2bApp)
+            expect(updatedClient).toHaveProperty('id', initialCondoB2BOIDCClient.id)
         })
         describe('User', () => {
-            test('Can update url for app he created', async () => {
-                const [updatedClient] = await updateOIDCClientUrlByTestClient(b2cUser, b2cApp)
-                expect(updatedClient).toHaveProperty('id', initialCondoOidcClient.id)
+            describe('Can update url for app he created',  () => {
+                test('For B2BApp', async () => {
+                    const [updatedClient] = await updateOIDCClientUrlByTestClient(b2bUser, b2bApp)
+                    expect(updatedClient).toHaveProperty('id', initialCondoB2BOIDCClient.id)
+                })
+                test('For B2CApp', async () => {
+                    const [updatedClient] = await updateOIDCClientUrlByTestClient(b2cUser, b2cApp)
+                    expect(updatedClient).toHaveProperty('id', initialCondoB2COIDCClient.id)
+                })
             })
             test('Cannot update url for other apps', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await updateOIDCClientUrlByTestClient(b2bUser, b2cApp)
+                })
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await updateOIDCClientUrlByTestClient(b2cUser, b2bApp)
                 })
             })
         })
@@ -76,12 +93,12 @@ describe('UpdateOIDCClientUrlService', () => {
         describe('Logic tests', () => {
             test('Must change payload field properly', async () => {
                 const [updatedClient, attrs] = await updateOIDCClientUrlByTestClient(b2cUser, b2cApp)
-                expect(updatedClient).toHaveProperty('id', initialCondoOidcClient.id)
-                expect(updatedClient).toHaveProperty('clientId', initialCondoOidcClient.clientId)
+                expect(updatedClient).toHaveProperty('id', initialCondoB2COIDCClient.id)
+                expect(updatedClient).toHaveProperty('clientId', initialCondoB2COIDCClient.clientId)
                 expect(updatedClient).toHaveProperty('redirectUri', attrs.redirectUri)
 
                 const updatedCondoClient = await CondoOIDCClient.getOne(condoAdmin, { id: updatedClient.id })
-                const initialPayload = omit(initialCondoOidcClient.payload, 'redirect_uris')
+                const initialPayload = omit(initialCondoB2COIDCClient.payload, 'redirect_uris')
                 const updatedPayload = omit(updatedCondoClient.payload, 'redirect_uris')
                 expect(initialPayload).toEqual(updatedPayload)
                 expect(updatedCondoClient).toHaveProperty(['payload', 'redirect_uris'], [updatedClient.redirectUri])

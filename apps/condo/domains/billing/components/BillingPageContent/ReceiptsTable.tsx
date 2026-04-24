@@ -1,5 +1,5 @@
 import { SortBillingReceiptsBy, BillingReceipt as BillingReceiptType, TourStepTypeType } from '@app/condo/schema'
-import { Row, Col, Typography, Space } from 'antd'
+import { Row, Col, Typography, Space, type RowProps } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
@@ -18,6 +18,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -35,6 +36,8 @@ const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['toPay']
 const INPUT_STYLE: CSSProperties = { width: '18em' }
+const ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
+const FILTERS_GUTTER: RowProps['gutter'] = [16, 20]
 
 export const ReceiptsTable: React.FC = () => {
     const intl = useIntl()
@@ -152,19 +155,22 @@ export const ReceiptsTable: React.FC = () => {
 
     return (
         <>
-            <Row gutter={[0, 40]}>
+            <Row gutter={ITEMS_GUTTER}>
                 <Col span={24}>
-                    <Row gutter={[20, 20]}>
-                        <Col xs={24} md={7}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={(e) => {handleSearchChange(e.target.value)}}
-                                value={search}
-                                allowClear
-                            />
-                        </Col>
-                        <Col xs={24} md={8}>{periodMetaSelect}</Col>
-                    </Row>
+                    <TableFiltersContainer>
+                        <Row gutter={FILTERS_GUTTER}>
+                            <Col xs={24} md={7}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                                    value={search}
+                                    allowClear
+                                />
+                            </Col>
+                            <Col xs={24} md={8}>{periodMetaSelect}</Col>
+                        </Row>
+                    </TableFiltersContainer>
+
                 </Col>
                 <Col span={24}>
                     <Table

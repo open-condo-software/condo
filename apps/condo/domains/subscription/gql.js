@@ -4,16 +4,54 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { gql } = require('graphql-tag')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const SUBSCRIPTION_PLAN_FIELDS = '{ name description organizationType trialDays properties analytics news marketplace support ai enabledB2BApps enabledB2CApps customization isHidden priority canBePromoted id dv sender { dv fingerprint } v }'
+const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
-const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
-const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
+const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = '{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden id dv sender { dv fingerprint } v }'
+const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
+
+const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id priority } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId multiPaymentId } daysRemaining deletedAt id dv sender { dv fingerprint } v }'
+const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
+
+const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`
+    mutation activateSubscriptionContext ($data: ActivateSubscriptionContextInput!) {
+        result: activateSubscriptionContext(data: $data) { 
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId multiPaymentId } }
+        }
+    }
+`
+
+const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
+    query getAvailableSubscriptionPlans ($organization: OrganizationWhereUniqueInput!) {
+        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name priority trialDays } prices { id period price currencyCode } } }
+    }
+`
+
+const REGISTER_SUBSCRIPTION_CONTEXT_MUTATION = gql`
+    mutation registerSubscriptionContext ($data: RegisterSubscriptionContextInput!) {
+        result: registerSubscriptionContext(data: $data) { subscriptionContext { id organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id toPay currencyCode rows { name count toPay } } startAt endAt isTrial status } directPaymentUrl multiPayment { id } }
+    }
+`
+
+const UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION = gql`
+    mutation updateSubscriptionContextPaymentMethod ($data: UpdateSubscriptionContextPaymentMethodInput!) {
+        result: updateSubscriptionContextPaymentMethod(data: $data) { id }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    ServiceSubscription,
+    SubscriptionPlan,
+    SubscriptionPlanPricingRule,
+    SubscriptionContext,
+    ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
+    GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+    REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+    UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

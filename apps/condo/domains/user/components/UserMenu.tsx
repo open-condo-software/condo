@@ -2,6 +2,7 @@ import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { useRouter } from 'next/router'
+import qs from 'qs'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { MoreVertical } from '@open-condo/icons'
@@ -11,9 +12,12 @@ import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 
-import type { DropdownProps } from 'antd'
+import type { DropdownProps, MenuProps } from 'antd'
 
+
+const SIGN_OUT_BROADCAST_CHANNEL = 'signOut'
 
 function formatUserName (name) {
     const splittedName = name.split(' ')
@@ -24,9 +28,11 @@ const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 180, width: '100%' }
 
 type UserMenuProps = {
     goToAfterLogout?: () => unknown | Promise<unknown>
+    extraMenuItems?: MenuProps['items']
 }
 export const UserMenu: React.FC<UserMenuProps> = ({
     goToAfterLogout,
+    extraMenuItems,
 }) => {
     const { breakpoints } = useLayoutContext()
 
@@ -41,14 +47,23 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         router.push('/user')
     }, [router])
 
+    const { 
+        sendMessageToBroadcastChannel: sendSignOutToBroadcast,
+    } = useBroadcastChannel(
+        SIGN_OUT_BROADCAST_CHANNEL,
+        async () => {
+            await router.push('/auth/signin?' + qs.stringify({ next: router.asPath }))
+        }
+    )
+
     const handleSignOutClick = useCallback(async () => {
+        sendSignOutToBroadcast()
+
         await auth.signOut()
         if (isFunction(goToAfterLogout)) {
             await goToAfterLogout()
-        } else {
-            await router.push('/auth/signin')
         }
-    }, [auth, goToAfterLogout])
+    }, [auth, sendSignOutToBroadcast, goToAfterLogout])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {
@@ -60,6 +75,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                     ),
                     onClick: handleProfileClick,
                 },
+                ...(extraMenuItems ?? []),
                 {
                     key: 'signOut',
                     label: (
@@ -69,7 +85,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                 },
             ],
         }
-    }, [MyProfileMessage, SignOutMessage, handleProfileClick, handleSignOutClick])
+    }, [MyProfileMessage, SignOutMessage, handleProfileClick, handleSignOutClick, extraMenuItems])
 
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
 

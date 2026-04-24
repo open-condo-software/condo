@@ -6,14 +6,17 @@ import {
     FindOrganizationsByTinQueryResult,
     RegisterNewOrganizationMutationResult,
     useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
-    SendOrganizationEmployeeRequestMutationResult, GetActualOrganizationEmployeesDocument,
+    SendOrganizationEmployeeRequestMutationResult,
+    GetActualOrganizationEmployeesDocument,
+    useGetAvailableServiceSubscriptionPlansLazyQuery,
+    useRegisterSubscriptionContextMutation,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -21,7 +24,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space, Typography, Input, Button, Alert, Modal } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
-import { SKIP_SEARCH_ORGANIZATION_BY_TIN } from '@condo/domains/common/constants/featureflags'
+import { SKIP_SEARCH_ORGANIZATION_BY_TIN, DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -176,8 +179,9 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const { user } = useAuth()
     const userId = useMemo(() => user?.id, [user?.id])
     const locale = useMemo(() => organization?.country || defaultLocale, [organization?.country])
-    const { useFlag } = useFeatureFlags()
+    const { useFlag, useFlagValue } = useFeatureFlags()
     const skipSearchOrganizationByTin = useFlag(SKIP_SEARCH_ORGANIZATION_BY_TIN)
+    const defaultTrialPlanId = useFlagValue(DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID) as string
 
     const [isFoundOrganizationModalOpen, setIsFoundOrganizationModalOpen] = useState<boolean>(false)
     const [isSearchByTinLimitReached, setIsSearchByTinLimitReached] = useState<boolean>(false)
@@ -208,6 +212,12 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const [getLastActiveOrganizationEmployeeRequest] = useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery({
         onError,
         fetchPolicy: 'network-only',
+    })
+    const [registerSubscriptionContext] = useRegisterSubscriptionContextMutation({
+        onError,
+    })
+    const [getAvailableSubscriptionPlans] = useGetAvailableServiceSubscriptionPlansLazyQuery({
+        onError,
     })
 
     const createOrganizationAction = useCallback(async (values) => {
@@ -293,6 +303,37 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
             await onOrganizationCreated(registeredOrganization)
         }
         const organizationId = registeredOrganization?.id
+
+        try {
+            if (defaultTrialPlanId) {
+                const plansData = await getAvailableSubscriptionPlans({
+                    variables: {
+                        organization: { id: organizationId },
+                    },
+                })
+                
+                const plans = plansData?.data?.result?.plans || []
+                const targetPlan = plans.find(p => p.plan.id === defaultTrialPlanId)
+                const pricingRuleId = targetPlan?.prices?.[0]?.id
+                
+                if (pricingRuleId) {
+                    await registerSubscriptionContext({
+                        variables: {
+                            data: {
+                                dv: 1,
+                                sender: getClientSideSenderInfo(),
+                                organization: { id: organizationId },
+                                subscriptionPlanPricingRule: { id: pricingRuleId },
+                                isTrial: true,
+                            },
+                        },
+                    })
+                }
+            }
+        } catch (error) {
+            console.error('Failed to activate trial subscription:', error)
+        }
+
         const newOrganizationEmployeeData = await getOrganizationEmployee({
             variables: {
                 userId,
@@ -313,7 +354,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         }
         setIsOrganizationCreating(false)
     }, [
-        client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest,
+        registerSubscriptionContext, client, defaultTrialPlanId, findOrganizationsByTin,
+        getAvailableSubscriptionPlans, getLastActiveOrganizationEmployeeRequest,
         getOrganizationEmployee, onEmployeeSelected, onOrganizationCreated, onSendOrganizationRequest,
         registerNewOrganization, selectEmployee, skipSearchOrganizationByTin, type, userId,
     ])

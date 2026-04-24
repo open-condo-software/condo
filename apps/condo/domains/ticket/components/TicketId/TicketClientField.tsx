@@ -1,6 +1,6 @@
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

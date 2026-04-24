@@ -4,6 +4,7 @@ const { get, has, map } = require('lodash')
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { ERROR_INVALID_PRICE } = require('@condo/domains/marketplace/constants')
 const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
@@ -97,6 +98,7 @@ const PRICE_FIELD = {
                 organization: { id: marketItem.organization },
                 deletedAt: null,
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
+                integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE, deletedAt: null },
             })
             return map(get(resolvedData, fieldPath), (row) => ({
                 currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,

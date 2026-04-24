@@ -6,6 +6,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { INSURANCE_BILLING_CATEGORY } = require('@condo/domains/acquiring/constants/recurrentPayment')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
@@ -91,14 +93,13 @@ async function notifyResidentsOnPayday () {
                 status: CONTEXT_FINISHED_STATUS,
                 deletedAt: null,
             },
-            billingIntegrationContext_is_null: false,
             resident: {
                 deletedAt: null,
             },
             deletedAt: null,
         },
         'id resident { id user { id } } organization { id } ' +
-            'accountNumber billingIntegrationContext { id }',
+            'accountNumber',
         {
             skip: state.consumersOffset,
             first: state.consumersChunkSize,
@@ -113,14 +114,18 @@ async function notifyResidentsOnPayday () {
 
                 const receipts = await loadListByChunks({
                     context,
-                    chunkSize:20,
+                    chunkSize: 20,
                     list: BillingReceipt,
                     where: {
                         account: {
                             number: accountNumber,
                         },
                         context: {
-                            id: consumer.billingIntegrationContext.id,
+                            organization: { id: consumer.organization.id },
+                            status: BILLING_CONTEXT_FINISHED_STATUS,
+                        },
+                        category: {
+                            id_not: INSURANCE_BILLING_CATEGORY,
                         },
                         period_gte: dayjs().subtract(2, 'month').startOf('month').toISOString(),
                         toPay_gt: '0',
@@ -133,6 +138,7 @@ async function notifyResidentsOnPayday () {
                     fields: 'id toPay isPayable period organization { id country } account { id number } receiver { id } category { id }',
                     chunkProcessor: async chunk => chunk.filter(receipt => receipt.isPayable),
                 })
+
                 state.processedReceipts += receipts.length
 
                 const receiptsByAccountAndRecipient = {}

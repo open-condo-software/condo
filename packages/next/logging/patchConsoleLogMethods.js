@@ -36,7 +36,11 @@ for (const consoleMethodName of consoleMethodsNames) {
             if (args.every(arg => typeof arg === 'string')) {
                 f({ msg: args.join(' ') })
             } else {
-                f({ msg: 'complex SSR log', data: JSON.stringify({ args }) })
+                f({ 
+                    msg: 'complex SSR log', 
+                    data: JSON.stringify({ args }), 
+                    err: args.find(arg => arg instanceof Error),
+                })
             }
         } else {
             originalLogsMethods[_consoleMethodName](...args)

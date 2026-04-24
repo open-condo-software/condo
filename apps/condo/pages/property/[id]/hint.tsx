@@ -1,11 +1,12 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -42,7 +43,7 @@ const PropertyHintPage: PageComponentType = () => {
         },
     })
 
-    const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+    const content = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
     if (error || propertyLoading || ticketPropertyHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
@@ -64,7 +65,7 @@ const PropertyHintPage: PageComponentType = () => {
                             </Col>
                             <Col span={24}>
                                 <TicketPropertyHintContent
-                                    html={htmlContent}
+                                    content={content}
                                 />
                             </Col>
                         </Row>

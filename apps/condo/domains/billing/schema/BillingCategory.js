@@ -3,7 +3,7 @@
  */
 const Ajv = require('ajv')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingCategory')
@@ -60,7 +60,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
         },
     },
     labelResolver: item => item.id,
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadBillingCategories,
         create: access.canManageBillingCategories,

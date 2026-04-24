@@ -21,6 +21,7 @@ type Props = {
     icon?: JSX.Element
 }
 
+
 export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, scopes, icon = <Download size='small'/> }: Props) => {
     const { NewsItemRecipientsExportTask: TaskUIInterface } = useNewsItemRecipientsExportTaskUIInterface()
 
@@ -34,13 +35,15 @@ export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, sco
 
     const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const NewsItemRecipientsExportToXlsxButton = useCallback(() => (
-        <Button.Icon
-            size='small'
+        <Button
+            type='primary'
+            size='medium'
             onClick={handleClick}
             disabled={loading}
-        >
-            {icon}
-        </Button.Icon>
+            minimal
+            compact
+            icon={icon}
+        />
     ), [handleClick, loading, icon])
 
     return {

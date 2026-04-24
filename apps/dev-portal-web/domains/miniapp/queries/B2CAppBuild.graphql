@@ -1,0 +1,17 @@
+query allB2CAppBuilds($where: B2CAppBuildWhereInput!, $first: Int!, $skip: Int!) {
+    builds: allB2CAppBuilds(where: $where, first: $first, skip: $skip, sortBy: createdAt_DESC) {
+        id
+        version
+        createdAt
+    }
+    meta: _allB2CAppBuildsMeta(where: $where) {
+        count
+    }
+}
+
+mutation createB2CAppBuild($data: B2CAppBuildCreateInput!) {
+    build: createB2CAppBuild(data: $data) {
+        id
+        version
+    }
+}

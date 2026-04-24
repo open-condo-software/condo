@@ -52,6 +52,7 @@ async function canManageTicketExportTasks ({ authentication: { item: user }, ori
         // Ideally this check should be in `validateInput`, but Keystone calls access check functions first
         // So, handle this case as not allowed, rather than invalid input (which would logically be more correct)
         if (get(originalInput, ['user', 'connect', 'id']) !== user.id) return false
+        if (user.isSupport) return true
         const organizationId = get(originalInput, ['where', 'organization', 'id'])
         const organizationIdIn = get(originalInput, ['where', 'organization', 'id_in'])
         const organizationIds = uniq(compact([organizationId, ...(organizationIdIn || [])]))

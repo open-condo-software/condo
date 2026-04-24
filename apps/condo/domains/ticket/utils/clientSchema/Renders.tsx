@@ -14,17 +14,18 @@ import isString from 'lodash/isString'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
+import { AlertCircle } from '@open-condo/icons'
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/colors'
 import { ScreenMap } from '@open-condo/ui/dist/hooks'
 
-
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
@@ -283,23 +284,29 @@ export const getTicketDetailsRender = (search?: FilterValue) => {
     return function render (details: string, ticket: Ticket) {
         const address = get(ticket, ['property', 'address'])
         const maxDetailsLength = address ? address.length : details.length
-        const trimmedDetails = details.length > maxDetailsLength ? `${details.substring(0, maxDetailsLength)}…` : details
+        
+        const cleanedDetails = stripMarkdown(details)
+        const trimmedDetails = cleanedDetails.length > maxDetailsLength ? `${cleanedDetails.substring(0, maxDetailsLength)}…` : cleanedDetails
 
-        return getTableCellRenderer({ search, extraTitle: details })(trimmedDetails)
+        return getTableCellRenderer({ search, extraTitle: cleanedDetails })(trimmedDetails)
     }
 }
 
-export const getStatusRender = (intl, search?: FilterValue) => {
+export const getStatusRender = (intl, search?: FilterValue, isSupervisedTicketSource?: (record) => boolean) => {
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const PayableMessage = intl.formatMessage({ id: 'Payable' })
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
+    const EscalatedTicketMessage = intl.formatMessage({ id: 'ticket.tags.escalated' })
 
     return function render (status, record) {
         const { primary: backgroundColor, secondary: color } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
         const highlightedContent = getHighlightedContents({ search, extraProps })(status.name)
+
+        const isSupervised = isSupervisedTicketSource ? isSupervisedTicketSource(record?.source?.id) : false
 
         return (
             <Space direction='vertical' size={7}>
@@ -337,6 +344,25 @@ export const getStatusRender = (intl, search?: FilterValue) => {
                     record.statusReopenedCounter > 0 && (
                         <TicketTag style={TICKET_TYPE_TAG_STYLE.returned}>
                             {ReturnedMessage} {record.statusReopenedCounter > 1 && `(${record.statusReopenedCounter})`}
+                        </TicketTag>
+                    )
+                }
+                {
+                    isSupervised && !record?.sentToAuthoritiesAt && (
+                        <TicketTag style={TICKET_TYPE_TAG_STYLE.supervised}>
+                            {SupervisedTicketMessage}
+                        </TicketTag>
+                    )
+                }
+                {
+                    isSupervised && record?.sentToAuthoritiesAt && (
+                        <TicketTag style={{ ...TICKET_TYPE_TAG_STYLE.escalated, display: 'inline-flex' }}>
+                            <Space align='center' direction='horizontal' size={4}>
+                                <div style={{ display: 'flex' }}>
+                                    <AlertCircle size='small' />
+                                </div>
+                                {EscalatedTicketMessage}
+                            </Space>
                         </TicketTag>
                     )
                 }

@@ -1,6 +1,6 @@
 import { SortContactRolesBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import lowerCase from 'lodash/lowerCase'

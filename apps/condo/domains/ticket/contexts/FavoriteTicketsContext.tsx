@@ -1,5 +1,7 @@
-import { useGetUserFavoriteTicketsQuery } from '@app/condo/gql'
-import { UserFavoriteTicket as TUserFavoriteTicket } from '@app/condo/schema'
+import { 
+    useGetUserFavoriteTicketsQuery,
+    GetUserFavoriteTicketsQuery,
+} from '@app/condo/gql'
 import { createContext, useContext, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -7,7 +9,7 @@ import { useAuth } from '@open-condo/next/auth'
 
 
 interface IFavoriteTicketsContext {
-    userFavoriteTickets: TUserFavoriteTicket[]
+    userFavoriteTickets: GetUserFavoriteTicketsQuery['userFavoriteTickets']
     userFavoriteTicketsCount: number
     loading: boolean
     refetchFavoriteTickets: () => void

@@ -3,13 +3,27 @@ query getBillingIntegrationOrganizationContexts ($integration: BillingIntegratio
         where: {
             integration: $integration,
             organization: $organization,
-    },
+        },
         first: 1,
     ) {
         id
         lastReport
     }
 }
+
+query getBillingIntegrationOrganizationContextsWithLastReport ($organization: OrganizationWhereInput!) {
+    contexts: allBillingIntegrationOrganizationContexts(
+        where: {
+            organization: $organization,
+            lastReport_not: null,
+        },
+        first: 1,
+    ) {
+        id
+        lastReport
+    }
+}
+
 
 query hasBillingIntegrations ($organization: OrganizationWhereInput!) {
     integrations: allBillingIntegrationOrganizationContexts(
@@ -24,6 +38,35 @@ query hasBillingIntegrations ($organization: OrganizationWhereInput!) {
         first: 1
         skip: 0
     ) {
+        id
+    }
+}
+
+query getBillingIntegrationOrganizationContextsByOrg ($organization: OrganizationWhereInput!) {
+    contexts: allBillingIntegrationOrganizationContexts(
+        where: {
+            organization: $organization,
+        },
+        first: 100,
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        lastReport
+        integration {
+            id
+        }
+    }
+}
+
+mutation createBillingIntegrationOrganizationContext ($data: BillingIntegrationOrganizationContextCreateInput!) {
+    billingContext: createBillingIntegrationOrganizationContext (data: $data) {
+        id
+    }
+}
+
+
+mutation softDeleteBillingContext ($id: ID!, $deletedAt: String!, $sender: SenderFieldInput!) {
+    billingContext: updateBillingIntegrationOrganizationContext (id: $id, data: { deletedAt: $deletedAt, dv: 1, sender: $sender }) {
         id
     }
 }
