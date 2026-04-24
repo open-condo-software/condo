@@ -1,13 +1,16 @@
 const crypto = require('node:crypto')
 
 const dayjs = require('dayjs')
+const express = require('express')
 const nock = require('nock')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
     WEBHOOK_PAYLOAD_STATUS_SENT,
     WEBHOOK_PAYLOAD_STATUS_ERROR,
+    WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
 } = require('@open-condo/webhooks/constants')
 const {
     WebhookPayload,
@@ -28,6 +31,15 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
     describe(`sendWebhookPayload task basic tests for ${appName} app`, () => {
         let sendWebhookPayload
         let actors
+
+        const timeoutPath = '/timeout'
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
+        const timeoutApp = express()
+        timeoutApp.post(timeoutPath, (req, res) => {
+            const timer = setTimeout(() => res.status(200).json({}), WEBHOOK_PAYLOAD_TIMEOUT_IN_MS + 5000)
+            req.on('close', () => clearTimeout(timer))
+        })
+        initTestExpressApp(`${appName}TimeoutServer`, timeoutApp, 'http')
 
         beforeAll(async () => {
             actors = await actorsInitializer()
@@ -318,14 +330,11 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
         })
 
-        // NOTE: This test takes ~10 seconds due to the WEBHOOK_PAYLOAD_TIMEOUT_IN_MS (10s) timeout.
-        // We use a non-routable IP address because nock's delay() doesn't properly trigger
-        // the timeout - it delays the response but the request still completes successfully.
         it('Must handle timeout errors correctly', async () => {
-            // Use a non-routable IP address (RFC 5737 TEST-NET-1) to trigger real network timeout
+            const timeoutServer = getTestExpressApp(`${appName}TimeoutServer`)
             const expiresAt = dayjs().add(7, 'day').toISOString()
             const [payload] = await createTestWebhookPayload(actors.admin, {
-                url: 'http://192.0.2.1:9999/webhook',
+                url: `${timeoutServer.baseUrl}${timeoutPath}`,
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
                 expiresAt,
                 attempt: 0,

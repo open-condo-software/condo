@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { PUSH_TYPE_SILENT_DATA, DEVICE_PLATFORM_IOS, DEVICE_PLATFORM_ANDROID } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TYPE_SILENT_DATA, DEVICE_PLATFORM_IOS, DEVICE_PLATFORM_ANDROID, PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE } = require('@condo/domains/notification/constants/constants')
 const { ERRORS } = require('@condo/domains/notification/schema/SyncRemoteClientService')
 const {
     RemoteClient, syncRemoteClientByTestClient, createTestRemoteClient,
@@ -1279,8 +1279,8 @@ describe('SyncRemoteClientService', () => {
             
             const client = await makeClient()
 
-            const pushTokenFirst = getRandomPushTokenData()
-            const pushTokenSecond = getRandomPushTokenData()
+            const pushTokenFirst = getRandomPushTokenData({ transport: PUSH_TRANSPORT_FIREBASE })
+            const pushTokenSecond = getRandomPushTokenData({ transport: PUSH_TRANSPORT_APPLE })
 
             const deviceKeyFirst = faker.datatype.uuid()
             const deviceKeySecond = faker.datatype.uuid()
