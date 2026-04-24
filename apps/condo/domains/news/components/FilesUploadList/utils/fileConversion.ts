@@ -1,6 +1,8 @@
 import { FFmpeg, ProgressEventCallback } from '@ffmpeg/ffmpeg'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 
+import { Queue } from './queue'
+
 
 let heic2any = null
 let ffmpeg: FFmpeg | null = null
@@ -12,7 +14,6 @@ async function loadHeic2any () {
     }
 }
 
-// TODO(Doma-13015): add query
 const loadFFmpeg = async () => {
     if (!ffmpeg) {
         ffmpeg = new FFmpeg()
@@ -98,7 +99,7 @@ async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
     await ffmpeg.exec(args)
 }
 
-export const convertFile = async (file: File, onProgress?: UploadRequestOption['onProgress']): Promise<File> => {
+const convertFileProcessor = async (file: File, onProgress?: UploadRequestOption['onProgress']): Promise<File> => {
     // 🖼 HEIC → JPEG
     if (file.type === 'image/heic') {
         await loadHeic2any()
@@ -196,4 +197,14 @@ export const convertFile = async (file: File, onProgress?: UploadRequestOption['
     }
 
     return file
+}
+
+const convertFileQueue = new Queue<File>(convertFileProcessor)
+
+export const convertFile = async (file: File, onProgress?: UploadRequestOption['onProgress']): Promise<File> => {
+    if (!['image/heic', 'image/webp', 'video/mp4', 'video/quicktime'].includes(file.type)) {
+        return file
+    }
+
+    return convertFileQueue.add(file, onProgress)
 }
