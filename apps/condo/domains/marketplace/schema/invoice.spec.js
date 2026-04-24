@@ -12,7 +12,6 @@ const {
     setFakeClientMode,
 } = require('@open-condo/keystone/test.utils')
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
-const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
@@ -30,7 +29,6 @@ const {
 const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
-
 
 
 const { keystone } = index
@@ -125,9 +123,6 @@ describe('Invoice', () => {
                     })
                     expect(webhookPayload).toBeTruthy()
                 }, { timeout: 5000, interval: 100 })
-
-                const sendWebhookPayloadTask = getWebhookRegularTasks().sendWebhookPayload
-                await sendWebhookPayloadTask.delay.fn(webhookPayload.id)
 
                 // Wait for webhook to be sent to our test server (with longer timeout for async task processing)
                 await waitFor(async () => {
