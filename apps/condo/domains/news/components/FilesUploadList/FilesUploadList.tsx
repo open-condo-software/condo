@@ -17,6 +17,7 @@ import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 import styles from './FilesUploadList.module.css'
 import { Action } from './hooks/useModifiedFiles'
 import { convertFile } from './utils/fileConversion'
+import { Queue } from './utils/queue'
 import { createImageThumbnailFromUrl, createVideoThumbnailFromUrl } from './utils/thumbnails'
 
 
@@ -213,6 +214,62 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
         }
     }, [fileList])
 
+    const customRequestProcessor = useCallback(async (options) => {
+        const { onSuccess, onError, onProgress } = options
+
+        if (!isFunction(createAction)) {
+            console.error('Specify createActionProp to upload files')
+            return
+        }
+
+        onProgress({ percent: 0 })
+
+        let file = options.file as File
+
+        try {
+            file = await convertFile(file, onProgress)
+        } catch (error) {
+            console.error('Conversion failed', error)
+            const errorMessage = new Error(UploadFailedErrorMessage)
+            onError(errorMessage)
+            return
+        }
+
+        onProgress({ percent: 50 })
+
+        // TODO(Doma-13015): add custom size by types
+        if (file.size > MAX_UPLOAD_FILE_SIZE) {
+            const error = new Error(FileTooBigErrorMessage)
+            onError(error)
+            return
+        }
+
+        try {
+            const dbFile = await createAction({ file })
+
+            const thumbnail = (await tryCreateThumbnailFromUrl(file.type, dbFile?.file?.publicUrl)) || ''
+
+            updateFileList({ type: 'add', payload: dbFile })
+
+            onProgress({ percent: 100 })
+            onSuccess({
+                id: dbFile?.id,
+                url: dbFile?.file?.publicUrl,
+                originalName: dbFile?.file?.originalFilename,
+                mimetype: dbFile?.file?.mimetype,
+                thumbnail: thumbnail,
+            }, null)
+        } catch (err) {
+            const error = new Error(UploadFailedErrorMessage)
+            console.error('Upload failed', err)
+            onError(error)
+        }
+    }, [FileTooBigErrorMessage, UploadFailedErrorMessage, createAction, updateFileList])
+    const queueRef = useRef(new Queue(customRequestProcessor))
+    const customRequest = useCallback(async (options) => {
+        await queueRef.current.add(options)
+    }, [])
+
     if (!isReady) return null
 
     return (
@@ -267,57 +324,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     }}
                     defaultFileList={defaultFileList}
                     fileList={files}
-                    customRequest={async (options) => {
-                        const { onSuccess, onError, onProgress } = options
-
-                        if (!isFunction(createAction)) {
-                            console.error('Specify createActionProp to upload files')
-                            return
-                        }
-
-                        onProgress({ percent: 0 })
-
-                        let file = options.file as File
-
-                        try {
-                            file = await convertFile(file, onProgress)
-                        } catch (error) {
-                            console.error('Conversion failed', error)
-                            const errorMessage = new Error(UploadFailedErrorMessage)
-                            onError(errorMessage)
-                            return
-                        }
-
-                        onProgress({ percent: 50 })
-
-                        // TODO(Doma-13015): add custom size by types
-                        if (file.size > MAX_UPLOAD_FILE_SIZE) {
-                            const error = new Error(FileTooBigErrorMessage)
-                            onError(error)
-                            return
-                        }
-
-                        try {
-                            const dbFile = await createAction({ file })
-
-                            const thumbnail = (await tryCreateThumbnailFromUrl(file.type, dbFile?.file?.publicUrl)) || ''
-
-                            updateFileList({ type: 'add', payload: dbFile })
-
-                            onProgress({ percent: 100 })
-                            onSuccess({
-                                id: dbFile?.id,
-                                url: dbFile?.file?.publicUrl,
-                                originalName: dbFile?.file?.originalFilename,
-                                mimetype: dbFile?.file?.mimetype,
-                                thumbnail: thumbnail,
-                            }, null)
-                        } catch (err) {
-                            const error = new Error(UploadFailedErrorMessage)
-                            console.error('Upload failed', err)
-                            onError(error)
-                        }
-                    }}
+                    customRequest={customRequest}
                     onPreview={handlePreview}
                     iconRender={iconRender}
                 >
