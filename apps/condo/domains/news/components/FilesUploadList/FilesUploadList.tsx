@@ -69,18 +69,19 @@ type ImagesUploadListProps = {
 }
 
 const iconRender = (file) => {
+    const mimetype = file?.type || file.response?.mimetype
     let typeToView = ''
-    if (file.type?.startsWith('video/mp4')) typeToView = 'MP4'
-    if (file.type?.startsWith('image/jpeg')) typeToView = 'JPEG'
-    if (file.type?.startsWith('image/png')) typeToView = 'PNG'
-    if (file.type?.startsWith('application/pdf')) typeToView = 'PDF'
-    if (file.type?.startsWith('text/plain')) typeToView = 'TXT'
-    if (file.type?.startsWith('application/zip')) typeToView = 'ZIP'
-    if (file.type?.startsWith('application/x-zip-compressed')) typeToView = 'ZIP'
-    if (file.type?.startsWith('application/msword')) typeToView = 'DOC'
-    if (file.type?.startsWith('application/vnd.ms-excel')) typeToView = 'XLSX'
-    if (file.type?.startsWith('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) typeToView = 'DOC'
-    if (file.type?.startsWith('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) typeToView = 'XLSX'
+    if (mimetype?.startsWith('video/mp4')) typeToView = 'MP4'
+    if (mimetype?.startsWith('image/jpeg')) typeToView = 'JPEG'
+    if (mimetype?.startsWith('image/png')) typeToView = 'PNG'
+    if (mimetype?.startsWith('application/pdf')) typeToView = 'PDF'
+    if (mimetype?.startsWith('text/plain')) typeToView = 'TXT'
+    if (mimetype?.startsWith('application/zip')) typeToView = 'ZIP'
+    if (mimetype?.startsWith('application/x-zip-compressed')) typeToView = 'ZIP'
+    if (mimetype?.startsWith('application/msword')) typeToView = 'DOC'
+    if (mimetype?.startsWith('application/vnd.ms-excel')) typeToView = 'XLSX'
+    if (mimetype?.startsWith('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) typeToView = 'DOC'
+    if (mimetype?.startsWith('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) typeToView = 'XLSX'
     if (typeToView) return <span className={styles.uploadIcon}>{typeToView}</span>
     return ''
 }
