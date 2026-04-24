@@ -22,7 +22,7 @@ export class Queue<T> {
         if (this.busy || this.tasks.length === 0) return
 
         this.busy = true
-        const task = this.tasks.shift()!
+        const task = this.tasks.shift()
 
         try {
             const result = await this.processor(task.item, task.onProgress)
