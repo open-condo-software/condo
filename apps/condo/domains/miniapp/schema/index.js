@@ -28,6 +28,7 @@ const { GetVoIPCallStatusService } = require('./GetVoIPCallStatusService')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
 const { SendB2BAppPushMessageService } = require('./SendB2BAppPushMessageService')
 const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
+const { SendDTMFToB2CAppService } = require('./SendDTMFToB2CAppService')
 const { SendVoIPCallCancelMessageService } = require('./SendVoIPCallCancelMessageService')
 const { SendVoIPCallStartMessageService } = require('./SendVoIPCallStartMessageService')
 
@@ -62,5 +63,6 @@ module.exports = {
     SendVoIPCallCancelMessageService,
     B2BAppBillingEmbeddingConfig,
     GetVoIPCallStatusService,
+    SendDTMFToB2CAppService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
