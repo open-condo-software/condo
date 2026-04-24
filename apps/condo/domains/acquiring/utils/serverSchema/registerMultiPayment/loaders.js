@@ -1,6 +1,7 @@
 const { GQLError } = require('@open-condo/keystone/errors')
 const { find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { REGISTER_MULTI_PAYMENT_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerMultiPaymentErrors')
 
@@ -177,7 +178,7 @@ function resolveAcquiringContextMaps ({
         const organizationContexts = contextsByOrganizationId[organizationId] || []
 
         if (organizationContexts.length > 1) {
-            throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
+            throw new GQLError(ERRORS.MULTIPLE_ACTIVE_ACQUIRING_INTEGRATION_CONTEXTS, context)
         }
 
         if (organizationContexts.length === 1) {
@@ -213,6 +214,7 @@ async function loadAcquiringContextsForConsumers (consumers, context) {
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         organization: { id_in: [...new Set(consumers.map(({ organization }) => organization))] },
         integration: { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE },
+        status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })
     const resolvedContexts = resolveAcquiringContextMaps({

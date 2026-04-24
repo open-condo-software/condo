@@ -591,7 +591,7 @@ describe('RegisterMultiPaymentService', () => {
                     await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
                         deletedAt: dayjs().toISOString(),
                     })
-                    await createTestAcquiringIntegrationContext(commonData.admin, batches[1].organization, secondAcquiring)
+                    await createTestAcquiringIntegrationContext(commonData.admin, batches[1].organization, secondAcquiring, { status: CONTEXT_FINISHED_STATUS })
                     const [secondResident] = await createTestResident(commonData.admin, commonData.client.user, batches[1].property)
                     const [secondConsumer] = await createTestServiceConsumer(commonData.admin, secondResident, batches[1].organization, {
                         billingIntegrationContext: { connect: { id: batches[1].billingContext.id } },
@@ -623,6 +623,28 @@ describe('RegisterMultiPaymentService', () => {
                             },
                         }])
                     })
+                })
+
+                test('Should allow only one finished context with unfinished', async () => {
+                    const {
+                        admin,
+                        client,
+                        serviceConsumer,
+                        organization,
+                        billingReceipts,
+                        acquiringIntegration,
+                    } = await makePayer()
+
+                    await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+
+                    const payload = [
+                        {
+                            serviceConsumer: { id: serviceConsumer.id },
+                            receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                        },
+                    ]
+
+                    await registerMultiPaymentByTestClient(client, payload)
                 })
             })
         })
