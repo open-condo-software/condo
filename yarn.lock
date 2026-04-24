@@ -610,6 +610,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
   dependencies:
+    "@maxhub/max-bot-api": ^0.2.2
     "@types/node": ^22
     dotenv: ^16.4.7
     https-proxy-agent: ^6
