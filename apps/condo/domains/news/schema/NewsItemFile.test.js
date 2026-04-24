@@ -586,7 +586,6 @@ describe('NewsItemFile', () => {
 
             expect(newsFile.organization).toBeNull()
             expect(newsFile.newsItem).toBeNull()
-            expect(newsFile.newsItem).toBeNull()
             expect(newsFile.file).toBeDefined()
             expect(newsFile.file).not.toBeNull()
 

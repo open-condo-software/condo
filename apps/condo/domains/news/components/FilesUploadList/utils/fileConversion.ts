@@ -1,4 +1,5 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg'
+import { FFmpeg, ProgressEventCallback } from '@ffmpeg/ffmpeg'
+import { UploadRequestOption } from 'rc-upload/lib/interface'
 
 
 let heic2any = null
@@ -25,9 +26,9 @@ const loadFFmpeg = async () => {
     await ffmpegLoadPromise
 }
 
-async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
-    const getCodec = async (type) => {
-        const outputName = `${inputName}_ffprobe_output.json`
+async function getCodec (type, inputName) {
+    const outputName = `${inputName}_ffprobe_output.json`
+    try {
         await ffmpeg.ffprobe([
             '-v', 'error',
             '-select_streams', `${type}:0`,
@@ -41,10 +42,16 @@ async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
         const metadata = JSON.parse(new TextDecoder().decode(data as any))
 
         return metadata.streams?.[0]?.codec_name || null
+    } finally {
+        await Promise.allSettled([
+            ffmpeg.deleteFile(outputName),
+        ])
     }
+}
 
-    const videoCodec = await getCodec('v')
-    const audioCodec = await getCodec('a')
+async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
+    const videoCodec = await getCodec('v', inputName)
+    const audioCodec = await getCodec('a', inputName)
 
     const isH264 = videoCodec === 'h264'
     const isAAC = audioCodec === 'aac'
@@ -91,7 +98,7 @@ async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
     await ffmpeg.exec(args)
 }
 
-export const convertFile = async (file: File, onProgress?): Promise<File> => {
+export const convertFile = async (file: File, onProgress?: UploadRequestOption['onProgress']): Promise<File> => {
     // 🖼 HEIC → JPEG
     if (file.type === 'image/heic') {
         await loadHeic2any()
@@ -148,7 +155,7 @@ export const convertFile = async (file: File, onProgress?): Promise<File> => {
         const inputName = `input_${random}.${inputType}`
         const outputName = `output_${random}.mp4`
 
-        const onProgressHandler = ({ progress }) => {
+        const onProgressHandler: ProgressEventCallback = ({ progress }) => {
             if (progress < 1) {
                 onProgress && onProgress({ percent: progress * 0.5 * 100 })
             }
@@ -158,25 +165,34 @@ export const convertFile = async (file: File, onProgress?): Promise<File> => {
             ffmpeg.on('progress', onProgressHandler)
         }
 
-        await ffmpeg.writeFile(inputName, new Uint8Array(await file.arrayBuffer()))
+        try {
+            await ffmpeg.writeFile(inputName, new Uint8Array(await file.arrayBuffer()))
 
-        await transcodeVideo(ffmpeg, inputName, outputName)
+            await transcodeVideo(ffmpeg, inputName, outputName)
 
-        const data = await ffmpeg.readFile(outputName)
+            const data = await ffmpeg.readFile(outputName)
+            if (typeof data === 'string') {
+                throw new Error('Unexpected string payload from ffmpeg.readFile')
+            }
 
-        if (onProgress) {
-            ffmpeg.off('progress', onProgressHandler)
+            let filename = file.name
+            if (file.type === 'video/quicktime') filename = file.name.replace(/\.mov$/i, '.mp4')
+
+            return new File(
+                [data],
+                filename,
+                { type: 'video/mp4' }
+            )
+        } finally {
+            if (onProgress) {
+                ffmpeg.off('progress', onProgressHandler)
+            }
+            // Best-effort cleanup — swallow
+            await Promise.allSettled([
+                ffmpeg.deleteFile(inputName),
+                ffmpeg.deleteFile(outputName),
+            ])
         }
-
-        let filename = file.name
-        if (file.type === 'video/quicktime') filename = file.name.replace(/\.mov$/i, '.mp4')
-
-        return new File(
-            // @ts-ignore
-            [data.buffer],
-            filename,
-            { type: 'video/mp4' }
-        )
     }
 
     return file
