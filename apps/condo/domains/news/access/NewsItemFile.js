@@ -85,7 +85,9 @@ async function canManageNewsItemFiles ({ authentication: { item: user }, origina
                 const newsItemId = originalInput?.newsItem?.connect?.id || null
                 if (newsItemId) {
                     const newsItem = await getById('NewsItem', newsItemId)
-                    if (!newsItem?.organization) return false
+                    const organizationId = newsItem?.organization || null
+                    if (!organizationId) return false
+                    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
                 }
                 return newsItemFile?.createdBy === user.id
             }
