@@ -63,7 +63,6 @@ type ImagesUploadListProps = {
     defaultFileList?: UploadFileType[]
     fileList?: UploadFileType[]
     createAction?: ({ file }: { file: UploadRequestOption['file'] }) => Promise<DBFile>
-    imageSize?: number
     updateFileList: React.Dispatch<Action>
     maxCount?: number
 }
