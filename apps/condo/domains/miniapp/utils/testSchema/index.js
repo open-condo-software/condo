@@ -37,7 +37,7 @@ const { B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/
 const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonlyAdmin: B2BAccessTokenReadonlyAdminGQL } = require('@condo/domains/miniapp/gql')
 const { AppMessageSetting: AppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
-const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
+const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION, SEND_DTMF_TO_B2C_APP_MUTATION } = require('@condo/domains/miniapp/gql')
 const { CustomField: CustomFieldGQL } = require('@condo/domains/miniapp/gql')
 const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 
@@ -807,6 +807,31 @@ async function updateTestB2CAppAccessRightSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function sendDTMFToB2CAppByTestClient (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+
+    const extraData = extraAttrs?.data ?? {}
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        ...extraAttrs,
+        callId: faker.random.alphaNumeric(8),
+        data: {
+            dtmfCode: faker.random.alphaNumeric(8),
+            ...extraData
+        }
+    }
+
+    const { data, errors } = await client.mutate(SEND_DTMF_TO_B2C_APP_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -835,5 +860,6 @@ module.exports = {
     AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
+    sendDTMFToB2CAppByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

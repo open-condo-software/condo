@@ -106,6 +106,12 @@ const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
 const B2C_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
 const B2CAppAccessRightSet = generateGqlQueries('B2CAppAccessRightSet', B2C_APP_ACCESS_RIGHT_SET_FIELDS)
 
+const SEND_DTMF_TO_B2C_APP_MUTATION = gql`
+    mutation SendDTMFToB2CApp($data: SendDTMFToB2CAppInput!) {
+        result: sendDTMFToB2CApp(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -135,5 +141,6 @@ module.exports = {
     B2BAppRoleWithoutEmployeeRole,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
+    SEND_DTMF_TO_B2C_APP_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
