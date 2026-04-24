@@ -1287,11 +1287,13 @@ __metadata:
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
+    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     markdown-it: ^14.1.1
     openid-client: 5.7.1
+    socks-proxy-agent: ^8.0.3
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
