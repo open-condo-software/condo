@@ -1,9 +1,8 @@
-import { useCreateNewsItemFileMutation, useGetNewsItemFilesLazyQuery } from '@app/condo/gql'
-import { CreateNewsItemFileMutation } from '@app/condo/gql/operation.types'
-import { Col, Form, Row } from 'antd'
+import { useCreateNewsItemFileMutation } from '@app/condo/gql'
+import { Col, Row } from 'antd'
 import getConfig from 'next/config'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback } from 'react'
 
 import { buildMeta, upload as uploadFiles } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -87,7 +86,7 @@ export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
         })
 
         return dbFile?.data?.newsItemFile
-    }, [createNewsItemFile, organization?.id, user.id])
+    }, [createNewsItemFile, organization?.id, user?.id])
 
     return (
         <Col span={24}>

@@ -3,7 +3,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg'
 
 let heic2any = null
 let ffmpeg: FFmpeg | null = null
-let ffmpegLoaded = false
+let ffmpegLoadPromise: ReturnType<FFmpeg['load']> | null = null
 
 async function loadHeic2any () {
     if (!heic2any) {
@@ -19,10 +19,10 @@ const loadFFmpeg = async () => {
             console.log(message)
         })
     }
-    if (!ffmpegLoaded) {
-        await ffmpeg.load()
-        ffmpegLoaded = true
+    if (!ffmpegLoadPromise) {
+        ffmpegLoadPromise = ffmpeg.load()
     }
+    await ffmpegLoadPromise
 }
 
 async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
@@ -110,12 +110,14 @@ export const convertFile = async (file: File, onProgress?): Promise<File> => {
 
     // 🖼 WebP → JPEG
     if (file.type === 'image/webp') {
+        const objectUrl = URL.createObjectURL(file)
         const img = await new Promise<HTMLImageElement>((resolve, reject) => {
             const i = new Image()
             i.onload = () => resolve(i)
             i.onerror = reject
-            i.src = URL.createObjectURL(file)
+            i.src = objectUrl
         })
+        URL.revokeObjectURL(objectUrl)
 
         const canvas = document.createElement('canvas')
         canvas.width = img.width
@@ -126,6 +128,7 @@ export const convertFile = async (file: File, onProgress?): Promise<File> => {
         const blob = await new Promise<Blob | null>((resolve) => {
             canvas.toBlob(resolve, 'image/jpeg', 0.9)
         })
+        if (!blob) throw new Error('Failed to convert WebP to JPEG')
 
         return new File(
             [blob],
@@ -155,7 +158,7 @@ export const convertFile = async (file: File, onProgress?): Promise<File> => {
             ffmpeg.on('progress', onProgressHandler)
         }
 
-        await ffmpeg.writeFile(inputName, await file.bytes())
+        await ffmpeg.writeFile(inputName, new Uint8Array(await file.arrayBuffer()))
 
         await transcodeVideo(ffmpeg, inputName, outputName)
 

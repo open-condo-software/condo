@@ -477,39 +477,6 @@ describe('NewsItemFile', () => {
                 expect(deletedFile.deletedAt).toMatch(DATETIME_RE)
             })
 
-            it('staff with canManageNewsItems can use bulk operations', async () => {
-                const [item] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-                const [item2] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-                const [item3] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-
-                const data = {
-                    dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                    deletedAt: new Date().toISOString(),
-                }
-                const updatePayload = [
-                    { id: item.id, data },
-                    { id: item2.id, data },
-                    { id: item3.id, data },
-                ]
-                const deletedFiles = await NewsItemFile.updateMany(staffWithPermissions, updatePayload)
-                expect(deletedFiles).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            id: item.id,
-                            deletedAt: expect.stringMatching(DATETIME_RE),
-                        }),
-                        expect.objectContaining({
-                            id: item2.id,
-                            deletedAt: expect.stringMatching(DATETIME_RE),
-                        }),
-                        expect.objectContaining({
-                            id: item3.id,
-                            deletedAt: expect.stringMatching(DATETIME_RE),
-                        }),
-                    ])
-                )
-            })
-
             it('staff without canManageNewsItems can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {

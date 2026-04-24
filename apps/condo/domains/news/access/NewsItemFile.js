@@ -6,9 +6,8 @@ const dayjs = require('dayjs')
 const compact = require('lodash/compact')
 const uniq = require('lodash/uniq')
 
-const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const { getEmployedOrRelatedOrganizationsByPermissions, checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
@@ -65,8 +64,6 @@ async function canManageNewsItemFiles ({ authentication: { item: user }, origina
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    const isBulkRequest = Array.isArray(originalInput)
-
     if (user.type === STAFF) {
         if (operation === 'create') {
             const newsItemId = originalInput?.newsItem?.connect?.id || null
@@ -80,27 +77,20 @@ async function canManageNewsItemFiles ({ authentication: { item: user }, origina
             }
             return true
         } else if (operation === 'update') {
-            if (isBulkRequest) {
-                if (!itemIds || !Array.isArray(itemIds)) return false
-                if (itemIds.length !== uniq(itemIds).length) return false
+            const newsItemFile = await getById('NewsItemFile', itemId)
+            if (!newsItemFile) return false
 
-                const newsItemFiles = await find('NewsItemFile', {
-                    id_in: itemIds,
-                    deletedAt: null,
-                })
-                if (newsItemFiles.length !== itemIds.length) return false
-
-                const organizationIds = compact(uniq(newsItemFiles.map(newsItemFile => newsItemFile?.organization)))
-                return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageNewsItems')
-            } else {
-                const newsItemFile = await getById('NewsItemFile', itemId)
-                if (!newsItemFile) return false
-
-                const organizationId = newsItemFile?.organization || null
-                if (!organizationId) return newsItemFile?.createdBy === user.id
-
-                return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
+            const organizationId = newsItemFile?.organization || null
+            if (!organizationId) {
+                const newsItemId = originalInput?.newsItem?.connect?.id || null
+                if (newsItemId) {
+                    const newsItem = await getById('NewsItem', newsItemId)
+                    if (!newsItem?.organization) return false
+                }
+                return newsItemFile?.createdBy === user.id
             }
+
+            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
         }
     }
 
