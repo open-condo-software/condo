@@ -12,29 +12,33 @@ export const createImageThumbnailFromUrl = (url: string) => {
         img.crossOrigin = 'anonymous'
 
         img.onload = () => {
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
+            try {
+                const canvas = document.createElement('canvas')
+                const ctx = canvas.getContext('2d')
 
-            const SIZE = 400
+                const SIZE = 400
 
-            canvas.width = SIZE
-            canvas.height = SIZE
+                canvas.width = SIZE
+                canvas.height = SIZE
 
-            const iw = img.width
-            const ih = img.height
+                const iw = img.width
+                const ih = img.height
 
-            // object-fit: cover
-            const scale = Math.max(SIZE / iw, SIZE / ih)
+                // object-fit: cover
+                const scale = Math.max(SIZE / iw, SIZE / ih)
 
-            const drawWidth = iw * scale
-            const drawHeight = ih * scale
+                const drawWidth = iw * scale
+                const drawHeight = ih * scale
 
-            const offsetX = (SIZE - drawWidth) / 2
-            const offsetY = (SIZE - drawHeight) / 2
+                const offsetX = (SIZE - drawWidth) / 2
+                const offsetY = (SIZE - drawHeight) / 2
 
-            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
 
-            resolve(canvas.toDataURL('image/jpeg', 0.85))
+                resolve(canvas.toDataURL('image/jpeg', 0.85))
+            } catch (error) {
+                reject(error)
+            }
         }
 
         img.onerror = reject
@@ -49,8 +53,8 @@ export const createVideoThumbnailFromUrl = (url: string) => {
         const ctx = canvas.getContext('2d')
 
         video.preload = 'metadata'
-        video.src = url
         video.crossOrigin = 'anonymous'
+        video.src = url
         video.muted = true
         video.playsInline = true
 
@@ -59,59 +63,63 @@ export const createVideoThumbnailFromUrl = (url: string) => {
         }
 
         video.onseeked = () => {
-            const SIZE = 400
+            try {
+                const SIZE = 400
 
-            canvas.width = SIZE
-            canvas.height = SIZE
+                canvas.width = SIZE
+                canvas.height = SIZE
 
-            const vw = video.videoWidth
-            const vh = video.videoHeight
+                const vw = video.videoWidth
+                const vh = video.videoHeight
 
-            // object-fit: cover
-            const scale = Math.max(SIZE / vw, SIZE / vh)
+                // object-fit: cover
+                const scale = Math.max(SIZE / vw, SIZE / vh)
 
-            const drawWidth = vw * scale
-            const drawHeight = vh * scale
+                const drawWidth = vw * scale
+                const drawHeight = vh * scale
 
-            const offsetX = (SIZE - drawWidth) / 2
-            const offsetY = (SIZE - drawHeight) / 2
+                const offsetX = (SIZE - drawWidth) / 2
+                const offsetY = (SIZE - drawHeight) / 2
 
-            ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight)
+                ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight)
 
-            // ⏱ Video duration
-            const duration = formatDuration(video.duration)
+                // ⏱ Video duration
+                const duration = formatDuration(video.duration)
 
-            const scaleFactor = SIZE / 200
-            const fontSize = 32 * scaleFactor
-            const paddingX = 12 * scaleFactor
-            const paddingY = 6 * scaleFactor
-            const margin = 12 * scaleFactor
-            const borderRadius = 12 * scaleFactor
+                const scaleFactor = SIZE / 200
+                const fontSize = 32 * scaleFactor
+                const paddingX = 12 * scaleFactor
+                const paddingY = 6 * scaleFactor
+                const margin = 12 * scaleFactor
+                const borderRadius = 12 * scaleFactor
 
-            ctx.font = `bold ${fontSize}px sans-serif`
-            const textWidth = ctx.measureText(duration).width
+                ctx.font = `bold ${fontSize}px sans-serif`
+                const textWidth = ctx.measureText(duration).width
 
-            const boxWidth = textWidth + paddingX * 2
-            const boxHeight = fontSize + paddingY
+                const boxWidth = textWidth + paddingX * 2
+                const boxHeight = fontSize + paddingY
 
-            const x = SIZE - boxWidth - margin
-            const y = SIZE - boxHeight - margin
+                const x = SIZE - boxWidth - margin
+                const y = SIZE - boxHeight - margin
 
-            ctx.fillStyle = 'rgba(0,0,0,0.75)'
+                ctx.fillStyle = 'rgba(0,0,0,0.75)'
 
-            if (ctx.roundRect) {
-                ctx.beginPath()
-                ctx.roundRect(x, y, boxWidth, boxHeight, borderRadius)
-                ctx.fill()
-            } else {
-                ctx.fillRect(x, y, boxWidth, boxHeight)
+                if (ctx.roundRect) {
+                    ctx.beginPath()
+                    ctx.roundRect(x, y, boxWidth, boxHeight, borderRadius)
+                    ctx.fill()
+                } else {
+                    ctx.fillRect(x, y, boxWidth, boxHeight)
+                }
+
+                ctx.fillStyle = '#fff'
+                ctx.textBaseline = 'top'
+                ctx.fillText(duration, x + paddingX, y + paddingY)
+
+                resolve(canvas.toDataURL('image/jpeg', 0.9))
+            } catch (error) {
+                reject(error)
             }
-
-            ctx.fillStyle = '#fff'
-            ctx.textBaseline = 'top'
-            ctx.fillText(duration, x + paddingX, y + paddingY)
-
-            resolve(canvas.toDataURL('image/jpeg', 0.9))
         }
 
         video.onerror = reject

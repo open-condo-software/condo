@@ -20,3 +20,84 @@
 .scroll-button.scroll-button-right {
   right: 0;
 }
+
+.upload-wrapper {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.upload-wrapper :global(.ant-upload-list.ant-upload-list-picture-card) {
+  display: flex;
+  flex-direction: row-reverse;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.upload-wrapper :global(.ant-upload-list-picture-card-container) {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  margin: 5px 8px 0 0;
+  border-radius: 12px;
+}
+
+.upload-wrapper :global(.ant-upload-list-item-list-type-picture-card.ant-upload-list-item) {
+  padding: 0;
+  border-radius: 12px;
+}
+
+.upload-wrapper :global(.ant-upload-list-item-info) {
+  border-radius: 12px;
+}
+
+.upload-wrapper :global(.ant-upload-list-item-image) {
+  object-fit: fill;
+}
+
+.upload-wrapper :global(.ant-upload-list-item-info::before) {
+  background-color: rgb(112 118 149 / 60%);
+}
+
+.upload-wrapper :global(.ant-upload-list-item-card-actions-btn) {
+  position: absolute;
+  top: -30px;
+  right: -34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  background-color: var(--condo-global-color-red-5);
+  border-radius: 100px;
+  transition: all var(--condo-global-transition-duration-default);
+}
+
+.upload-wrapper :global(.ant-upload-list-item-card-actions-btn:hover) {
+  background-color: var(--condo-global-color-black);
+}
+
+.upload-wrapper :global(.ant-upload.ant-upload-select.ant-upload-select-picture-card) {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  margin-top: 6px;
+  background-color: var(--condo-global-color-gray-1);
+  border: none;
+  border-radius: 12px;
+}
+
+.upload-wrapper :global(.ant-upload-list-item-thumbnail.ant-upload-list-item-file) {
+  line-height: 50px;
+}
+
+.upload-wrapper .upload-icon {
+  color: var(--condo-global-color-gray-7);
+  font-weight: var(--condo-global-font-weight-semibold);
+}
+
+.upload-wrapper :global(.ant-upload-list-picture-card .ant-upload-list-item-file + .ant-upload-list-item-name) {
+  bottom: 20px;
+  padding-right: 8px;
+  padding-left: 8px;
+  color: var(--condo-global-color-black);
+}

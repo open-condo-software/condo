@@ -1,5 +1,4 @@
 import { File as FileSchema } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import classNames from 'classnames'
@@ -13,7 +12,6 @@ import { ChevronLeft, ChevronRight, Eye, PlusCircle, Trash } from '@open-condo/i
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/colors'
 
-import { transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 import styles from './FilesUploadList.module.css'
@@ -40,72 +38,6 @@ const ALLOWED_TYPES = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]
 const ALLOWED_TYPES_AS_STRING = ALLOWED_TYPES.join(',')
-
-
-const UploadWrapper = styled.div<{ imageSize: number }>`
-  display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
-  
-  & .ant-upload-list.ant-upload-list-picture-card {
-    display: flex;
-    flex-direction: row-reverse;
-    width: fit-content;
-    max-width: 100%;
-
-    & .ant-upload-list-picture-card-container {
-      margin: 5px 8px 0 0;
-      flex-shrink: 0;
-      border-radius: 12px;
-      width: ${props => `${props.imageSize}px`};
-      height: ${props => `${props.imageSize}px`};
-
-      & .ant-upload-list-item-list-type-picture-card.ant-upload-list-item {
-        border-radius: 12px;
-        padding: 0;
-
-        .ant-upload-list-item-info {
-          border-radius: 12px;
-          
-          & .ant-upload-list-item-image {
-            object-fit: fill;
-          }
-
-          &::before {
-            background-color: rgba(112, 118, 149, 0.6);
-          }
-        }
-
-        .ant-upload-list-item-card-actions-btn {
-          background-color: ${colors.red[5]};
-          padding: 3px;
-          border-radius: 100px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          position: absolute;
-          top: -30px;
-          right: -34px;
-          transition: ${transitions.allDefault};
-
-          &:hover {
-            background-color: ${colors.black}
-          }
-        }
-      }
-    }
-
-    & .ant-upload.ant-upload-select.ant-upload-select-picture-card {
-      flex-shrink: 0;
-      border-radius: 12px;
-      border: none;
-      background-color: ${colors.gray[1]};
-      width: ${props => `${props.imageSize}px`};
-      height: ${props => `${props.imageSize}px`};
-      margin-top: 6px;
-    }
-  }
-`
 
 const getImagesList = (): HTMLDivElement => {
     return document.querySelector('.upload-images-wrapper')
@@ -149,7 +81,7 @@ const iconRender = (file) => {
     if (file.type?.startsWith('application/vnd.ms-excel')) typeToView = 'XLSX'
     if (file.type?.startsWith('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) typeToView = 'DOC'
     if (file.type?.startsWith('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) typeToView = 'XLSX'
-    if (typeToView) return <span style={{ fontWeight: 'bold', color: 'grey' }}>{typeToView}</span>
+    if (typeToView) return <span className={styles.uploadIcon}>{typeToView}</span>
     return ''
 }
 
@@ -174,7 +106,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     defaultFileList,
     fileList,
     createAction,
-    imageSize = 80,
     updateFileList,
     maxCount = 10,
 }) => {
@@ -285,9 +216,9 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     if (!isReady) return null
 
     return (
-        <UploadWrapper
+        <div
+            className={styles.uploadWrapper}
             ref={imagesListWrapperRef}
-            imageSize={imageSize}
         >
             {
                 !hideArrows && isScrollActiveX && !isAtStartX && (
@@ -302,7 +233,10 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     accept={ALLOWED_TYPES_AS_STRING}
                     listType='picture-card'
                     maxCount={maxCount}
-                    isImageUrl={() => true}
+                    isImageUrl={(file: UploadFile) => {
+                        const mimetype = file?.type || file?.response?.mimetype
+                        return ['image/', 'video/'].some((type) => mimetype?.startsWith(type))
+                    }}
                     showUploadList={{
                         showPreviewIcon: true,
                         previewIcon: <Eye color={colors.white}/>,
@@ -310,7 +244,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                         removeIcon:<Trash size='small' color={colors.white}/>,
                     }}
                     onRemove={async (file) => {
-                        updateFileList({ type: 'delete', payload: file as any })
+                        updateFileList({ type: 'delete', payload: file })
                         return true
                     }}
                     onChange={(info) => {
@@ -357,7 +291,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                         onProgress({ percent: 50 })
 
                         // TODO(Doma-13015): add custom size by types
-                        if (file.size > 512 * 1024 * 1024) {
+                        if (file.size > MAX_UPLOAD_FILE_SIZE) {
                             const error = new Error(FileTooBigErrorMessage)
                             onError(error)
                             return
@@ -397,6 +331,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     </div>
                 )
             }
-        </UploadWrapper>
+        </div>
     )
 }

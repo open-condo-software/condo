@@ -69,7 +69,7 @@ export const useReuploadNewsItemFiles = () => {
         })
 
         return dbFile?.data?.newsItemFile
-    }, [createNewsItemFile, organization?.id, user.id])
+    }, [createNewsItemFile, organization?.id, user?.id])
 
     const reuploadFiles = useCallback(async (newsItemId: string) => {
         if (!newsItemId) return
