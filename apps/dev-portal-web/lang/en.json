@@ -295,6 +295,9 @@
 
   "pages.apps.b2c.id.sections.oidc.title": "OIDC authorization",
 
+  "pages.apps.b2c.id.sections.permissions.title": "App permissions",
+  "pages.apps.b2c.id.sections.permissions.table.columns.permission.title": "Permission",
+
   "pages.apps.b2c.id.sections.serviceUser.title": "Service user",
 
   "pages.apps.b2c.id.sections.publishing.title": "Publishing",

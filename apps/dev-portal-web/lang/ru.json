@@ -295,6 +295,9 @@
 
   "pages.apps.b2c.id.sections.oidc.title": "OIDC авторизация",
 
+  "pages.apps.b2c.id.sections.permissions.title": "Возможности приложения",
+  "pages.apps.b2c.id.sections.permissions.table.columns.permission.title": "Разрешение",
+
   "pages.apps.b2c.id.sections.serviceUser.title": "Сервисная учетная запись",
 
   "pages.apps.b2c.id.sections.publishing.title": "Публикация",

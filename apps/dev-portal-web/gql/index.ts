@@ -1728,15 +1728,33 @@ export type B2CAppCreateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   type?: InputMaybe<B2CAppTypeType>;
@@ -1750,8 +1768,17 @@ export type B2CAppHistoryRecordCreateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2CAppHistoryRecordHistoryActionType>;
@@ -1760,8 +1787,17 @@ export type B2CAppHistoryRecordCreateInput = {
   logo?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
@@ -1781,8 +1817,17 @@ export type B2CAppHistoryRecordUpdateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2CAppHistoryRecordHistoryActionType>;
@@ -1791,8 +1836,17 @@ export type B2CAppHistoryRecordUpdateInput = {
   logo?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
@@ -1842,6 +1896,14 @@ export type B2CAppHistoryRecordWhereInput = {
   developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1860,6 +1922,10 @@ export type B2CAppHistoryRecordWhereInput = {
   developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1868,6 +1934,12 @@ export type B2CAppHistoryRecordWhereInput = {
   developmentPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentPushNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled_not?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
@@ -1924,6 +1996,14 @@ export type B2CAppHistoryRecordWhereInput = {
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1942,6 +2022,10 @@ export type B2CAppHistoryRecordWhereInput = {
   productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1950,6 +2034,12 @@ export type B2CAppHistoryRecordWhereInput = {
   productionPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionPushNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled_not?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -2324,15 +2414,33 @@ export type B2CAppUpdateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   type?: InputMaybe<B2CAppTypeType>;
@@ -2380,6 +2488,14 @@ export type B2CAppWhereInput = {
   developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBleCentralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2398,6 +2514,10 @@ export type B2CAppWhereInput = {
   developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2406,6 +2526,12 @@ export type B2CAppWhereInput = {
   developmentPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentPushNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentVoipNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   developmentWebTransformEnabled_not?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
@@ -2446,6 +2572,14 @@ export type B2CAppWhereInput = {
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBleCentralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2464,6 +2598,10 @@ export type B2CAppWhereInput = {
   productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2472,6 +2610,12 @@ export type B2CAppWhereInput = {
   productionPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionPushNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionVoipNotificationsAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   productionWebTransformEnabled_not?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -3281,6 +3425,12 @@ export type GetOidcClientInput = {
   environment: AppEnvironment;
 };
 
+export enum ImportAppConflictPolicy {
+  Delete = 'delete',
+  Panic = 'panic',
+  SetNull = 'setNull'
+}
+
 export type ImportB2CAppFromInput = {
   developmentApp?: InputMaybe<B2CAppWhereUniqueInput>;
   productionApp?: InputMaybe<B2CAppWhereUniqueInput>;
@@ -3297,6 +3447,7 @@ export type ImportB2CAppInput = {
 export type ImportB2CAppOptionsInput = {
   accessRight: Scalars['Boolean']['input'];
   builds: Scalars['Boolean']['input'];
+  conflictPolicy: ImportAppConflictPolicy;
   info: Scalars['Boolean']['input'];
   publish: Scalars['Boolean']['input'];
 };
@@ -3589,10 +3740,28 @@ export enum SortB2CAppHistoryRecordsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
+  DevelopmentBleBeaconBgAllowedAsc = 'developmentBleBeaconBgAllowed_ASC',
+  DevelopmentBleBeaconBgAllowedDesc = 'developmentBleBeaconBgAllowed_DESC',
+  DevelopmentBleCentralBgAllowedAsc = 'developmentBleCentralBgAllowed_ASC',
+  DevelopmentBleCentralBgAllowedDesc = 'developmentBleCentralBgAllowed_DESC',
+  DevelopmentBlePeripheralBgAllowedAsc = 'developmentBlePeripheralBgAllowed_ASC',
+  DevelopmentBlePeripheralBgAllowedDesc = 'developmentBlePeripheralBgAllowed_DESC',
+  DevelopmentCameraAllowedAsc = 'developmentCameraAllowed_ASC',
+  DevelopmentCameraAllowedDesc = 'developmentCameraAllowed_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DevelopmentFullscreenAllowedAsc = 'developmentFullscreenAllowed_ASC',
+  DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
+  DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
+  DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
   DevelopmentPublishedAtDesc = 'developmentPublishedAt_DESC',
+  DevelopmentPushNotificationsAllowedAsc = 'developmentPushNotificationsAllowed_ASC',
+  DevelopmentPushNotificationsAllowedDesc = 'developmentPushNotificationsAllowed_DESC',
+  DevelopmentSpeakerSelectionAllowedAsc = 'developmentSpeakerSelectionAllowed_ASC',
+  DevelopmentSpeakerSelectionAllowedDesc = 'developmentSpeakerSelectionAllowed_DESC',
+  DevelopmentVoipNotificationsAllowedAsc = 'developmentVoipNotificationsAllowed_ASC',
+  DevelopmentVoipNotificationsAllowedDesc = 'developmentVoipNotificationsAllowed_DESC',
   DevelopmentWebTransformEnabledAsc = 'developmentWebTransformEnabled_ASC',
   DevelopmentWebTransformEnabledDesc = 'developmentWebTransformEnabled_DESC',
   DvAsc = 'dv_ASC',
@@ -3605,10 +3774,28 @@ export enum SortB2CAppHistoryRecordsBy {
   IdDesc = 'id_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ProductionBleBeaconBgAllowedAsc = 'productionBleBeaconBgAllowed_ASC',
+  ProductionBleBeaconBgAllowedDesc = 'productionBleBeaconBgAllowed_DESC',
+  ProductionBleCentralBgAllowedAsc = 'productionBleCentralBgAllowed_ASC',
+  ProductionBleCentralBgAllowedDesc = 'productionBleCentralBgAllowed_DESC',
+  ProductionBlePeripheralBgAllowedAsc = 'productionBlePeripheralBgAllowed_ASC',
+  ProductionBlePeripheralBgAllowedDesc = 'productionBlePeripheralBgAllowed_DESC',
+  ProductionCameraAllowedAsc = 'productionCameraAllowed_ASC',
+  ProductionCameraAllowedDesc = 'productionCameraAllowed_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
+  ProductionFullscreenAllowedAsc = 'productionFullscreenAllowed_ASC',
+  ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
+  ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
+  ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
   ProductionPublishedAtDesc = 'productionPublishedAt_DESC',
+  ProductionPushNotificationsAllowedAsc = 'productionPushNotificationsAllowed_ASC',
+  ProductionPushNotificationsAllowedDesc = 'productionPushNotificationsAllowed_DESC',
+  ProductionSpeakerSelectionAllowedAsc = 'productionSpeakerSelectionAllowed_ASC',
+  ProductionSpeakerSelectionAllowedDesc = 'productionSpeakerSelectionAllowed_DESC',
+  ProductionVoipNotificationsAllowedAsc = 'productionVoipNotificationsAllowed_ASC',
+  ProductionVoipNotificationsAllowedDesc = 'productionVoipNotificationsAllowed_DESC',
   ProductionWebTransformEnabledAsc = 'productionWebTransformEnabled_ASC',
   ProductionWebTransformEnabledDesc = 'productionWebTransformEnabled_DESC',
   TypeAsc = 'type_ASC',
@@ -3684,10 +3871,28 @@ export enum SortB2CAppsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
+  DevelopmentBleBeaconBgAllowedAsc = 'developmentBleBeaconBgAllowed_ASC',
+  DevelopmentBleBeaconBgAllowedDesc = 'developmentBleBeaconBgAllowed_DESC',
+  DevelopmentBleCentralBgAllowedAsc = 'developmentBleCentralBgAllowed_ASC',
+  DevelopmentBleCentralBgAllowedDesc = 'developmentBleCentralBgAllowed_DESC',
+  DevelopmentBlePeripheralBgAllowedAsc = 'developmentBlePeripheralBgAllowed_ASC',
+  DevelopmentBlePeripheralBgAllowedDesc = 'developmentBlePeripheralBgAllowed_DESC',
+  DevelopmentCameraAllowedAsc = 'developmentCameraAllowed_ASC',
+  DevelopmentCameraAllowedDesc = 'developmentCameraAllowed_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DevelopmentFullscreenAllowedAsc = 'developmentFullscreenAllowed_ASC',
+  DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
+  DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
+  DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
   DevelopmentPublishedAtDesc = 'developmentPublishedAt_DESC',
+  DevelopmentPushNotificationsAllowedAsc = 'developmentPushNotificationsAllowed_ASC',
+  DevelopmentPushNotificationsAllowedDesc = 'developmentPushNotificationsAllowed_DESC',
+  DevelopmentSpeakerSelectionAllowedAsc = 'developmentSpeakerSelectionAllowed_ASC',
+  DevelopmentSpeakerSelectionAllowedDesc = 'developmentSpeakerSelectionAllowed_DESC',
+  DevelopmentVoipNotificationsAllowedAsc = 'developmentVoipNotificationsAllowed_ASC',
+  DevelopmentVoipNotificationsAllowedDesc = 'developmentVoipNotificationsAllowed_DESC',
   DevelopmentWebTransformEnabledAsc = 'developmentWebTransformEnabled_ASC',
   DevelopmentWebTransformEnabledDesc = 'developmentWebTransformEnabled_DESC',
   DvAsc = 'dv_ASC',
@@ -3696,10 +3901,28 @@ export enum SortB2CAppsBy {
   IdDesc = 'id_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ProductionBleBeaconBgAllowedAsc = 'productionBleBeaconBgAllowed_ASC',
+  ProductionBleBeaconBgAllowedDesc = 'productionBleBeaconBgAllowed_DESC',
+  ProductionBleCentralBgAllowedAsc = 'productionBleCentralBgAllowed_ASC',
+  ProductionBleCentralBgAllowedDesc = 'productionBleCentralBgAllowed_DESC',
+  ProductionBlePeripheralBgAllowedAsc = 'productionBlePeripheralBgAllowed_ASC',
+  ProductionBlePeripheralBgAllowedDesc = 'productionBlePeripheralBgAllowed_DESC',
+  ProductionCameraAllowedAsc = 'productionCameraAllowed_ASC',
+  ProductionCameraAllowedDesc = 'productionCameraAllowed_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
+  ProductionFullscreenAllowedAsc = 'productionFullscreenAllowed_ASC',
+  ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
+  ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
+  ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
   ProductionPublishedAtDesc = 'productionPublishedAt_DESC',
+  ProductionPushNotificationsAllowedAsc = 'productionPushNotificationsAllowed_ASC',
+  ProductionPushNotificationsAllowedDesc = 'productionPushNotificationsAllowed_DESC',
+  ProductionSpeakerSelectionAllowedAsc = 'productionSpeakerSelectionAllowed_ASC',
+  ProductionSpeakerSelectionAllowedDesc = 'productionSpeakerSelectionAllowed_DESC',
+  ProductionVoipNotificationsAllowedAsc = 'productionVoipNotificationsAllowed_ASC',
+  ProductionVoipNotificationsAllowedDesc = 'productionVoipNotificationsAllowed_DESC',
   ProductionWebTransformEnabledAsc = 'productionWebTransformEnabled_ASC',
   ProductionWebTransformEnabledDesc = 'productionWebTransformEnabled_DESC',
   TypeAsc = 'type_ASC',
@@ -5682,12 +5905,14 @@ export type CreateB2BAppPublishRequestMutationVariables = Exact<{
 
 export type CreateB2BAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2BAppPublishRequest', id: string } | null };
 
+export type B2CAppPermissionsFragment = { __typename?: 'B2CApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null };
+
 export type GetB2CAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2CAppMutationVariables = Exact<{
   data: B2CAppCreateInput;
@@ -5887,6 +6112,28 @@ export const B2BAppFragmentFragmentDoc = gql`
   }
   developmentExportId
   productionExportId
+}
+    `;
+export const B2CAppPermissionsFragmentDoc = gql`
+    fragment B2CAppPermissions on B2CApp {
+  developmentFullscreenAllowed
+  productionFullscreenAllowed
+  developmentMicrophoneAllowed
+  productionMicrophoneAllowed
+  developmentCameraAllowed
+  productionCameraAllowed
+  developmentSpeakerSelectionAllowed
+  productionSpeakerSelectionAllowed
+  developmentBleBeaconBgAllowed
+  productionBleBeaconBgAllowed
+  developmentBleCentralBgAllowed
+  productionBleCentralBgAllowed
+  developmentBlePeripheralBgAllowed
+  productionBlePeripheralBgAllowed
+  developmentPushNotificationsAllowed
+  productionPushNotificationsAllowed
+  developmentVoipNotificationsAllowed
+  productionVoipNotificationsAllowed
 }
     `;
 export const AllB2BAppsDocument = gql`
@@ -6299,9 +6546,10 @@ export const GetB2CAppDocument = gql`
     productionExportId
     developmentWebTransformEnabled
     productionWebTransformEnabled
+    ...B2CAppPermissions
   }
 }
-    `;
+    ${B2CAppPermissionsFragmentDoc}`;
 
 /**
  * __useGetB2CAppQuery__
