@@ -5905,14 +5905,14 @@ export type CreateB2BAppPublishRequestMutationVariables = Exact<{
 
 export type CreateB2BAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2BAppPublishRequest', id: string } | null };
 
-export type B2CAppPermissionsFragment = { __typename?: 'B2CApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null };
+export type B2CAppPermissionsFragment = { __typename?: 'B2CApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null };
 
 export type GetB2CAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2CAppMutationVariables = Exact<{
   data: B2CAppCreateInput;
@@ -6124,16 +6124,16 @@ export const B2CAppPermissionsFragmentDoc = gql`
   productionCameraAllowed
   developmentSpeakerSelectionAllowed
   productionSpeakerSelectionAllowed
+  developmentPushNotificationsAllowed
+  productionPushNotificationsAllowed
+  developmentVoipNotificationsAllowed
+  productionVoipNotificationsAllowed
   developmentBleBeaconBgAllowed
   productionBleBeaconBgAllowed
   developmentBleCentralBgAllowed
   productionBleCentralBgAllowed
   developmentBlePeripheralBgAllowed
   productionBlePeripheralBgAllowed
-  developmentPushNotificationsAllowed
-  productionPushNotificationsAllowed
-  developmentVoipNotificationsAllowed
-  productionVoipNotificationsAllowed
 }
     `;
 export const AllB2BAppsDocument = gql`

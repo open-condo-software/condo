@@ -7,16 +7,16 @@ fragment B2CAppPermissions on B2CApp {
     productionCameraAllowed
     developmentSpeakerSelectionAllowed
     productionSpeakerSelectionAllowed
+    developmentPushNotificationsAllowed
+    productionPushNotificationsAllowed
+    developmentVoipNotificationsAllowed
+    productionVoipNotificationsAllowed
     developmentBleBeaconBgAllowed
     productionBleBeaconBgAllowed
     developmentBleCentralBgAllowed
     productionBleCentralBgAllowed
     developmentBlePeripheralBgAllowed
     productionBlePeripheralBgAllowed
-    developmentPushNotificationsAllowed
-    productionPushNotificationsAllowed
-    developmentVoipNotificationsAllowed
-    productionVoipNotificationsAllowed
 }
 
 query getB2CApp($id: ID!) {

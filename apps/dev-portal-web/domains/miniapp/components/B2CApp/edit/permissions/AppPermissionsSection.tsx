@@ -1,5 +1,5 @@
 import { Table, Row, Col } from 'antd'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -7,6 +7,7 @@ import { Button, Checkbox } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { PermissionText } from '@/domains/miniapp/components/PermissionText'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 
 import type { RowProps } from 'antd'
@@ -35,9 +36,11 @@ const FULL_COL_SPAN = 24
 function getPermissionName (key: string) {
     if (!key.endsWith(PERMISSION_KEY_SUFFIX)) return null
     if (key.startsWith(AppEnvironment.Development)) {
-        return key.slice(AppEnvironment.Development.length, -PERMISSION_KEY_SUFFIX.length)
+        const name = key.slice(AppEnvironment.Development.length, -PERMISSION_KEY_SUFFIX.length)
+        return name.charAt(0).toLowerCase() + name.slice(1)
     } else if (key.startsWith(AppEnvironment.Production)) {
-        return key.slice(AppEnvironment.Production.length, -PERMISSION_KEY_SUFFIX.length)
+        const name = key.slice(AppEnvironment.Production.length, -PERMISSION_KEY_SUFFIX.length)
+        return name.charAt(0).toLowerCase() + name.slice(1)
     }
 
     return null
@@ -64,11 +67,17 @@ export const AppPermissionsSection: React.FC<DevicePermissionsSectionProps> = ({
     const ProductionColumnTitle = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
     const SaveActionLabel = intl.formatMessage({ id: 'global.actions.save' })
 
-    const { data } = useGetB2CAppQuery({
+    const { data, previousData } = useGetB2CAppQuery({
         variables: { id },
     })
 
     const [appPermissions, setAppPermissions] = useState(() => extractAppPermissions(data?.app))
+
+    useEffect(() => {
+        if (data && !previousData && !Object.keys(appPermissions).length) {
+            setAppPermissions(extractAppPermissions(data?.app))
+        }
+    }, [appPermissions, data, previousData])
 
     const tableData = useMemo(() => {
         const rows: Record<string, RowType> = {}
@@ -96,6 +105,9 @@ export const AppPermissionsSection: React.FC<DevicePermissionsSectionProps> = ({
             dataIndex: 'permission',
             key: 'permission',
             width: '50%',
+            render (value: string) {
+                return <PermissionText permission={value}/>
+            },
         },
         {
             title: DevelopmentColumnTitle,
@@ -156,7 +168,7 @@ export const AppPermissionsSection: React.FC<DevicePermissionsSectionProps> = ({
                             columns={columns}
                             bordered
                             dataSource={tableData}
-                            rowKey='version'
+                            rowKey='permission'
                             pagination={false}
                         />
                     </Col>
