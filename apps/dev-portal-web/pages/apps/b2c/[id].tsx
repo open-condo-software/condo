@@ -13,6 +13,7 @@ import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { initializeApollo, prepareSSRContext, extractApolloState } from '@/domains/common/utils/apollo'
 import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/BuildsSection'
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
+import { AppPermissionsSection } from '@/domains/miniapp/components/B2CApp/edit/permissions/AppPermissionsSection'
 import { PropertiesSection } from '@/domains/miniapp/components/B2CApp/edit/properties/PropertiesSection'
 import { PublishingSection } from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishingSection'
 import { ServiceUserSection } from '@/domains/miniapp/components/B2CApp/edit/service-user/ServiceUserSection'
@@ -46,6 +47,7 @@ const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     'builds': BuildsSection,
     'properties': PropertiesSection,
     'oidc': OIDCClientSection,
+    'permissions': AppPermissionsSection,
     'service-user': ServiceUserSection,
     'publishing': PublishingSection,
 }

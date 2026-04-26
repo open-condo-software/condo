@@ -161,6 +161,25 @@
   "pages.apps.any.id.sections.oidc.clientSettings.editClientForm.modal.title": "Confirming the generation of client secret",
   "pages.apps.any.id.sections.oidc.clientSettings.editClientForm.modal.text": "Do you really want to change the client secret of the application? After the update, the old credentials will no longer be available for use.",
 
+  "pages.apps.any.id.sections.permissions.permission.fullscreen.title": "Fullscreen mode",
+  "pages.apps.any.id.sections.permissions.permission.fullscreen.hint": "Allows the mini-app to display its content in fullscreen mode. Commonly used in video players",
+  "pages.apps.any.id.sections.permissions.permission.microphone.title": "Microphone access",
+  "pages.apps.any.id.sections.permissions.permission.microphone.hint": "Allows the mini-app to receive an audio stream from the device",
+  "pages.apps.any.id.sections.permissions.permission.camera.title": "Camera access",
+  "pages.apps.any.id.sections.permissions.permission.camera.hint": "Allows the mini-app to receive a video stream from the device",
+  "pages.apps.any.id.sections.permissions.permission.speakerSelection.title": "Audio device selection",
+  "pages.apps.any.id.sections.permissions.permission.speakerSelection.hint": "Allows the mini-app to browse the list of audio devices and change the current audio device (headphones, speakers, etc.)",
+  "pages.apps.any.id.sections.permissions.permission.bleBeaconBg.title": "BLE Beacon BG",
+  "pages.apps.any.id.sections.permissions.permission.bleBeaconBg.hint": "Enables the device to broadcast a tag or link over the air, allowing other devices to detect its presence without direct contact.",
+  "pages.apps.any.id.sections.permissions.permission.bleCentralBg.title": "BLE Central BG",
+  "pages.apps.any.id.sections.permissions.permission.bleCentralBg.hint": "Allows the mini-app to actively scan for nearby Bluetooth devices and manage data exchange with them",
+  "pages.apps.any.id.sections.permissions.permission.blePeripheralBg.title": "BLE Peripheral BG",
+  "pages.apps.any.id.sections.permissions.permission.blePeripheralBg.hint": "Allows the device to act as a \"smart gadget\" that awaits for connections from other devices",
+  "pages.apps.any.id.sections.permissions.permission.pushNotifications.title": "Push notifications",
+  "pages.apps.any.id.sections.permissions.permission.pushNotifications.hint": "Allows the device to receive push notifications sent by the mini-app",
+  "pages.apps.any.id.sections.permissions.permission.voipNotifications.title": "Incoming calls",
+  "pages.apps.any.id.sections.permissions.permission.voipNotifications.hint": "Allows the device to receive calls initiated by the mini-app",
+
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message": "This application has no service account in the selected environment yet",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description": "Create service user now?",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register": "Create",
@@ -294,6 +313,9 @@
   "pages.apps.b2c.id.sections.properties.notifications.successDeletion.description": "The application is no longer displayed on the «{address}»",
 
   "pages.apps.b2c.id.sections.oidc.title": "OIDC authorization",
+
+  "pages.apps.b2c.id.sections.permissions.title": "App permissions",
+  "pages.apps.b2c.id.sections.permissions.table.columns.permission.title": "Permission",
 
   "pages.apps.b2c.id.sections.serviceUser.title": "Service user",
 

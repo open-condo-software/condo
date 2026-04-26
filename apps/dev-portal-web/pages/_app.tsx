@@ -14,10 +14,11 @@ import { CachePersistorContext } from '@open-condo/apollo'
 import { CreateAppContextProvider } from '@/domains/common/components/CreateAppContext'
 import { SeoProvider } from '@/domains/common/components/SeoProvider'
 import { theme } from '@/domains/common/constants/antd'
-import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 import { useApollo } from '@/domains/common/utils/apollo'
 import { AuthProvider } from '@/domains/user/utils/auth'
 
+import type { MessagesType } from '@/global'
 import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
 
@@ -40,25 +41,11 @@ const monoFont = Noto_Sans_Mono({
 
 const { publicRuntimeConfig: { runtimeTranslations } } = getConfig()
 
-type AvailableLocales = typeof LOCALES[number]
-// NOTE: Combine all keys together
-type MessagesKeysType = keyof typeof en | keyof typeof ru
-// NOTE: Require all message keys in all languages, so no lint translations needed
-type MessagesType = { [Locale in AvailableLocales]: { [Key in MessagesKeysType]: string } }
+
 
 const MESSAGES: MessagesType = {
     ru,
     en,
-}
-
-// NOTE: Override global interface allows us to use autocomplete in intl
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace FormatjsIntl {
-        interface Message {
-            ids: MessagesKeysType
-        }
-    }
 }
 
 function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {

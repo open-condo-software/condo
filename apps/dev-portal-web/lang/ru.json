@@ -161,6 +161,26 @@
   "pages.apps.any.id.sections.oidc.clientSettings.editClientForm.modal.title": "Подтверждение генерации client secret",
   "pages.apps.any.id.sections.oidc.clientSettings.editClientForm.modal.text": "Вы действительно хотите поменять client secret приложения? После обновления старые учетные данные станут недоступными для использования.",
 
+  "pages.apps.any.id.sections.permissions.permission.fullscreen.title": "Полноэкранный режим",
+  "pages.apps.any.id.sections.permissions.permission.fullscreen.hint": "Позволяет мини-приложению показывать свой контент в полноэкранном режиме. Часто используется в видеоплеерах",
+  "pages.apps.any.id.sections.permissions.permission.microphone.title": "Доступ к микрофону",
+  "pages.apps.any.id.sections.permissions.permission.microphone.hint": "Позволяет мини-приложению получать аудиопоток с устройства",
+  "pages.apps.any.id.sections.permissions.permission.camera.title": "Доступ к камере",
+  "pages.apps.any.id.sections.permissions.permission.camera.hint": "Позволяет мини-приложению получать видеопоток с устройства",
+  "pages.apps.any.id.sections.permissions.permission.speakerSelection.title": "Выбор аудиоустройства",
+  "pages.apps.any.id.sections.permissions.permission.speakerSelection.hint": "Позволяет мини-приложению просматривать список аудиоустройств и изменять текущее аудиоустройство (наушники, динамики и т.п.)",
+  "pages.apps.any.id.sections.permissions.permission.bleBeaconBg.title": "BLE Beacon BG",
+  "pages.apps.any.id.sections.permissions.permission.bleBeaconBg.hint": "Дает возможность устройству транслировать в эфир метку или ссылку, позволяя другим устройствам фиксировать присутствие устройства без прямого контакта.",
+  "pages.apps.any.id.sections.permissions.permission.bleCentralBg.title": "BLE Central BG",
+  "pages.apps.any.id.sections.permissions.permission.bleCentralBg.hint": "Позволяет мини-приложению активно искать Bluetooth-устройства поблизости и управлять обменом данными с ними",
+  "pages.apps.any.id.sections.permissions.permission.blePeripheralBg.title": "BLE Peripheral BG",
+  "pages.apps.any.id.sections.permissions.permission.blePeripheralBg.hint": "Позволяет устройству имитировать «умный гаджет», который ждет подключения от других устройств",
+  "pages.apps.any.id.sections.permissions.permission.pushNotifications.title": "Получение пуш-уведомлений",
+  "pages.apps.any.id.sections.permissions.permission.pushNotifications.hint": "Позволяет устройству получать пуш-уведомления, отправленные мини-приложением",
+  "pages.apps.any.id.sections.permissions.permission.voipNotifications.title": "Получение звонков",
+  "pages.apps.any.id.sections.permissions.permission.voipNotifications.hint": "Позволяет устройству получать звонки, инициированные мини-приложением",
+
+
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message": "У данного приложения пока нет учетной записи на выбранном стенде",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description": "Создать сервисного пользователя сейчас?",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register": "Создать",
@@ -294,6 +314,9 @@
   "pages.apps.b2c.id.sections.properties.notifications.successDeletion.description": "Приложение больше не отображается на адресе «{address}»",
 
   "pages.apps.b2c.id.sections.oidc.title": "OIDC авторизация",
+
+  "pages.apps.b2c.id.sections.permissions.title": "Возможности приложения",
+  "pages.apps.b2c.id.sections.permissions.table.columns.permission.title": "Разрешение",
 
   "pages.apps.b2c.id.sections.serviceUser.title": "Сервисная учетная запись",
 

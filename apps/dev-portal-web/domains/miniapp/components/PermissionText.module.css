@@ -1,0 +1,7 @@
+.hint-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--condo-global-color-gray-7);
+  cursor: pointer;
+}

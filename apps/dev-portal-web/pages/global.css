@@ -85,6 +85,10 @@ body {
   top: calc(72px + 40px);
 }
 
+.ant-table-cell {
+  hyphens: auto;
+}
+
 .ant-table.ant-table-bordered .ant-table-cell:not(:last-child) {
   border-inline-end: none !important;
 }

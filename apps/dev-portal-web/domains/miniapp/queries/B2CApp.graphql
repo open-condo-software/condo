@@ -1,3 +1,24 @@
+fragment B2CAppPermissions on B2CApp {
+    developmentFullscreenAllowed
+    productionFullscreenAllowed
+    developmentMicrophoneAllowed
+    productionMicrophoneAllowed
+    developmentCameraAllowed
+    productionCameraAllowed
+    developmentSpeakerSelectionAllowed
+    productionSpeakerSelectionAllowed
+    developmentPushNotificationsAllowed
+    productionPushNotificationsAllowed
+    developmentVoipNotificationsAllowed
+    productionVoipNotificationsAllowed
+    developmentBleBeaconBgAllowed
+    productionBleBeaconBgAllowed
+    developmentBleCentralBgAllowed
+    productionBleCentralBgAllowed
+    developmentBlePeripheralBgAllowed
+    productionBlePeripheralBgAllowed
+}
+
 query getB2CApp($id: ID!) {
     app: B2CApp(where: { id: $id }) {
         id
@@ -11,6 +32,7 @@ query getB2CApp($id: ID!) {
         productionExportId
         developmentWebTransformEnabled
         productionWebTransformEnabled
+        ...B2CAppPermissions
     }
 }
 
