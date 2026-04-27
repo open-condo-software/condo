@@ -43,6 +43,7 @@ const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -84,6 +85,7 @@ const CustomValue = generateGQLTestUtils(CustomValueGQL)
 
 const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConfigGQL)
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
+const B2BAppMeterIntegrationConfig = generateGQLTestUtils(B2BAppMeterIntegrationConfigGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
@@ -778,6 +780,34 @@ async function updateTestB2BAppPosIntegrationConfig (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+async function createTestB2BAppMeterIntegrationConfig (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        validateMeterReadingUrl: faker.internet.url(),
+        ...extraAttrs,
+    }
+    const obj = await B2BAppMeterIntegrationConfig.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppMeterIntegrationConfig (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppMeterIntegrationConfig.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestB2CAppAccessRightSet (client, app, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
@@ -835,5 +865,6 @@ module.exports = {
     AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
+    B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

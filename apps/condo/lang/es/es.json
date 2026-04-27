@@ -461,6 +461,7 @@
   "api.meter.meterReading.METER_READING_DATE_IN_FUTURE": "La fecha de lectura ({givenDate}) no puede ser del futuro",
   "api.meter.meterReading.METER_READING_EXTRA_VALUES": "El contador {meterNumber} tiene {numberOfTariffs} tariff(s), por favor elimina los siguientes campos: {fieldsNames}",
   "api.meter.meterReading.METER_READING_FEW_VALUES": "El contador {meterNumber} tiene {numberOfTariffs} tariff(s), por favor completa los siguientes campos: {fieldsNames}",
+  "api.meter.meterReading.METER_READING_VALIDATION_ERROR": "Error de validación de lectura del contador: {error}",
   "api.meter.meterReading.METER_VERIFICATION_MISSED": "No se puede dar una lectura de un dispositivo que haya perdido la fecha de verificación",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "Fin de período sólo puede tener un valor entre 1 y 31",
   "api.meter.meterReportingPeriod.INVALID_RESTRICTION_END_DAY": "El final de la prohibición de testificar solo puede tener un valor de 1 a 31",

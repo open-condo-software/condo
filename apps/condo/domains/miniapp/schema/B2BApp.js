@@ -122,6 +122,13 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+        meterIntegrationConfig: {
+            schemaDoc: 'Configuration for Meter Integration feature. If specified, then this B2BApp supports Meter Integration API for validating meter readings',
+            type: 'Relationship',
+            ref: 'B2BAppMeterIntegrationConfig',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {
