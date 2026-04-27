@@ -1,16 +1,16 @@
-.cardContent {
+.card-content {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   min-width: 0;
 }
 
-.cardImg {
+.card-img {
   display: block;
   flex-shrink: 0;
 }
 
-.cardText {
+.card-text {
   min-width: 0;
   overflow: hidden;
 }
