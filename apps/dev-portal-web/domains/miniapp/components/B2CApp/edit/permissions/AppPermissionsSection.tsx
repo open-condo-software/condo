@@ -1,4 +1,4 @@
-import { Table, Row, Col } from 'antd'
+import { Col, Row, Table } from 'antd'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -9,11 +9,18 @@ import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationError
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { PermissionText } from '@/domains/miniapp/components/PermissionText'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
+import { NATIVE_B2C_APP_DEVICE_PERMISSIONS } from '@condo/domains/miniapp/constants'
 
-import type { RowProps } from 'antd'
-import type { TableColumnType } from 'antd'
+import type { RowProps, TableColumnType } from 'antd'
 
-import { useGetB2CAppQuery, AppEnvironment, GetB2CAppQuery, useUpdateB2CAppMutation, GetB2CAppDocument } from '@/gql'
+import {
+    AppEnvironment,
+    B2CAppTypeType,
+    GetB2CAppDocument,
+    GetB2CAppQuery,
+    useGetB2CAppQuery,
+    useUpdateB2CAppMutation,
+} from '@/gql'
 
 type AppType = GetB2CAppQuery['app']
 
@@ -50,9 +57,11 @@ function extractAppPermissions (app?: AppType): Record<string, boolean> {
     const result: Record<string, boolean> = {}
 
     for (const [key, value] of Object.entries(app ?? {})) {
-        if (getPermissionName(key) && typeof value === 'boolean') {
-            result[key] = value
-        }
+        const permissionKey = getPermissionName(key)
+        if (!permissionKey || typeof value !== 'boolean') continue
+        if (app?.type === B2CAppTypeType.Web && NATIVE_B2C_APP_DEVICE_PERMISSIONS.includes(permissionKey)) continue
+
+        result[key] = value
     }
 
     return result

@@ -65,7 +65,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             isRequired: true,
             defaultValue: false,
         }),
-        ...getEnvironmentalPermissionsFields(),
+        ...getEnvironmentalPermissionsFields({ listKey: 'B2CApp' }),
         ...getEnvironmentalFields('publishedAt', {
             schemaDoc: 'The last time a mini-app was published on the {environment} environment',
             type: 'DateTimeUtc',

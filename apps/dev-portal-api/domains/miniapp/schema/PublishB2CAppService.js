@@ -46,7 +46,7 @@ const { getEnvironmentalPermissionsFieldsSelection, extractDevicePermissionsForC
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
-const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalPermissionsFieldsSelection()} ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
+const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalPermissionsFieldsSelection({ listKey: 'B2CApp' })} ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {

@@ -1,4 +1,4 @@
-const { MINIAPP_DEVICE_PERMISSIONS } = require('@condo/domains/miniapp/constants')
+const { B2C_APP_DEVICE_PERMISSIONS, B2B_APP_DEVICE_PERMISSIONS } = require('@condo/domains/miniapp/constants')
 
 const BASE_FIELD = {
     schemaDoc: 'Controls whether the mini-app can use “{permission}” device permission',
@@ -20,8 +20,17 @@ function getDevicePermissionFieldName (permission) {
     return `is${_capitalize(permission)}Allowed`
 }
 
-function getDevicePermissionsFields () {
-    return Object.fromEntries(MINIAPP_DEVICE_PERMISSIONS.map(permission => {
+function getDevicePermissions ({ listKey } = {}) {
+    if (listKey === 'B2CApp') return B2C_APP_DEVICE_PERMISSIONS
+    else if (listKey === 'B2BApp') return B2B_APP_DEVICE_PERMISSIONS
+
+    return [...new Set([...B2C_APP_DEVICE_PERMISSIONS, ...B2B_APP_DEVICE_PERMISSIONS])]
+}
+
+function getDevicePermissionsFields ({ listKey }) {
+    const permissions = getDevicePermissions({ listKey })
+
+    return Object.fromEntries(permissions.map(permission => {
         const fieldName = getDevicePermissionFieldName(permission)
         const humanReadableName = _camelSplit(permission).join(' ').toLowerCase()
         return [fieldName, {
@@ -34,4 +43,5 @@ function getDevicePermissionsFields () {
 module.exports = {
     getDevicePermissionFieldName,
     getDevicePermissionsFields,
+    getDevicePermissions,
 }

@@ -4,15 +4,22 @@ import { useIntl } from 'react-intl'
 
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Checkbox, Select, Button } from '@open-condo/ui'
 import type { CheckboxProps } from '@open-condo/ui'
+import { Button, Checkbox, Select } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import styles from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishForm.module.css'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 
-import { AppEnvironment, GetB2CAppDocument, useAllB2CAppBuildsLazyQuery, usePublishB2CAppMutation } from '@/gql'
+import {
+    AppEnvironment,
+    B2CAppTypeType,
+    GetB2CAppDocument,
+    useAllB2CAppBuildsLazyQuery,
+    useGetB2CAppQuery,
+    usePublishB2CAppMutation,
+} from '@/gql'
 
 type PublishFormProps = {
     id: string
@@ -45,6 +52,12 @@ export const PublishForm: React.FC<PublishFormProps> = ({ id, environment }) => 
         onError,
         onCompleted,
         refetchQueries: [{ query: GetB2CAppDocument, variables: { id } }],
+    })
+
+    const { data } = useGetB2CAppQuery({
+        variables: {
+            id,
+        },
     })
 
     const { requiredFieldValidator } = useValidations()
@@ -126,9 +139,11 @@ export const PublishForm: React.FC<PublishFormProps> = ({ id, environment }) => 
             <Form.Item name='info' valuePropName='checked' label={ChooseComponentsLabel} className={styles.checkboxItem}>
                 <Checkbox label={InfoLabel}/>
             </Form.Item>
-            <Form.Item name='build' valuePropName='checked' className={styles.checkboxItemLast}>
-                <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
-            </Form.Item>
+            {Boolean(data?.app?.type !== B2CAppTypeType.Web) && (
+                <Form.Item name='build' valuePropName='checked' className={styles.checkboxItemLast}>
+                    <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
+                </Form.Item>
+            )}
             {buildChecked && (
                 <Form.Item name='buildId' rules={[requiredFieldValidator]} className={styles.buildSelector}>
                     <Select

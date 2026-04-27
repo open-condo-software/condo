@@ -79,7 +79,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             many: true,
             access: { create: false, update: false },
         },
-        ...getDevicePermissionsFields(),
+        ...getDevicePermissionsFields({ listKey: 'B2CApp' }),
     },
     hooks: {
         afterChange: logoMetaAfterChange,

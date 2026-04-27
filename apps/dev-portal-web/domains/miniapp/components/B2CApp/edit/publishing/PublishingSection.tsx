@@ -3,21 +3,19 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Select } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
+import { Select } from '@open-condo/ui'
 
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { PublishingSettingsForm } from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishingSettingsForm'
 import { getEnvironment } from '@/domains/miniapp/utils/query'
-import {
-    DEV_ENVIRONMENT,
-    PROD_ENVIRONMENT,
-} from '@dev-portal-api/domains/miniapp/constants/publishing'
+import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
-import { PublishingSettingsForm } from './PublishingSettingsForm'
 import { PublishingSubsection } from './PublishingSubsection'
 
-import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
+
+import { AppEnvironment, B2CAppTypeType, useGetB2CAppQuery } from '@/gql'
 
 
 const SELECT_GUTTER: RowProps['gutter'] = [40, 40]
@@ -32,6 +30,11 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const router = useRouter()
     const { env } = router.query
     const queryEnvironment = getEnvironment(env)
+    const { data } = useGetB2CAppQuery({
+        variables: {
+            id,
+        },
+    })
 
     const [selectedEnvironment, setSelectedEnvironment] = useState<AppEnvironment>(queryEnvironment)
 
@@ -54,9 +57,11 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                             onChange={handleEnvironmentChange}
                         />
                     </Col>
-                    <Col span={FULL_COL_SPAN}>
-                        <PublishingSettingsForm id={id} environment={selectedEnvironment}/>
-                    </Col>
+                    {Boolean(data?.app?.type !== B2CAppTypeType.Web) && (
+                        <Col span={FULL_COL_SPAN}>
+                            <PublishingSettingsForm id={id} environment={selectedEnvironment}/>
+                        </Col>
+                    )}
                     <Col span={FULL_COL_SPAN}>
                         <PublishingSubsection id={id} environment={selectedEnvironment}/>
                     </Col>
