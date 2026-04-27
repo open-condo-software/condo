@@ -1,12 +1,12 @@
 import { useApolloClient } from '@apollo/client'
-import { Form, Row, Col } from 'antd'
+import { Col, Form, Row } from 'antd'
 import { useRouter } from 'next/router'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useState } from 'react'
-import { useIntl, FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 
-import { Smartphone, Monitor } from '@open-condo/icons'
+import { Monitor, Smartphone } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Modal, Input, Button } from '@open-condo/ui'
+import { Button, Input, Modal } from '@open-condo/ui'
 import { useContainerSize } from '@open-condo/ui/hooks'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
@@ -18,10 +18,11 @@ import { AppCard } from './AppCard'
 import type { RowProps } from 'antd'
 
 import {
-    useCreateB2BAppMutation,
+    B2CAppTypeType,
     CreateB2BAppMutation,
-    useCreateB2CAppMutation,
     CreateB2CAppMutation,
+    useCreateB2BAppMutation,
+    useCreateB2CAppMutation,
 } from '@/gql'
 
 type CreateAppContextType = {
@@ -39,7 +40,17 @@ const FULL_WIDTH_THRESHOLD = 500
 
 const B2B_WEB_APP_VALUE = 'b2bWebApp' as const
 const B2C_NATIVE_APP_VALUE = 'b2cNativeApp' as const
+const B2C_WEB_APP_VALUE = 'b2cWebApp' as const
+
+const DEFAULT_APP_TYPE = B2C_WEB_APP_VALUE
+
 const APP_TYPES = [
+    {
+        key: B2C_WEB_APP_VALUE,
+        icon: <Smartphone size='medium'/>,
+        value: B2C_WEB_APP_VALUE,
+        span: 12,
+    },
     {
         key: B2C_NATIVE_APP_VALUE,
         icon: <Smartphone size='medium'/>,
@@ -51,7 +62,7 @@ const APP_TYPES = [
         icon: <Monitor size='medium'/>,
         value: B2B_WEB_APP_VALUE,
         disabled: (user: AuthenticatedUserType) => !(user?.isSupport || user?.isAdmin),
-        span: 12,
+        span: 24,
     },
 ]
 
@@ -105,7 +116,7 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const [form] = Form.useForm()
     const { trimValidator } = useValidations()
 
-    const [appType, setAppType] = useState<AppType>(B2C_NATIVE_APP_VALUE)
+    const [appType, setAppType] = useState<AppType>(DEFAULT_APP_TYPE)
     const [isAppTypeSelected, setIsAppTypeSelected] = useState(false)
 
     const router = useRouter()
@@ -113,14 +124,14 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const clearFormState = useCallback(() => {
         form.resetFields(['name'])
         setIsAppTypeSelected(false)
-        setAppType(B2C_NATIVE_APP_VALUE)
+        setAppType(DEFAULT_APP_TYPE)
     }, [form])
 
     const handleModalOpen = useCallback(() => {
         setOpenModal(true)
     }, [])
     const handleModalClose = useCallback(() => {
-        setAppType(B2C_NATIVE_APP_VALUE)
+        setAppType(DEFAULT_APP_TYPE)
         clearFormState()
         setOpenModal(false)
     }, [clearFormState])
@@ -165,9 +176,21 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
                     dv: 1,
                     sender: getClientSideSenderInfo(),
                     name: values.name,
+                    type: B2CAppTypeType.Cordova,
                 },
             } })
-        } else {
+        } if (values.type === B2C_WEB_APP_VALUE) {
+            createB2CAppMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        name: values.name,
+                        type: B2CAppTypeType.Web,
+                    },
+                },
+            })
+        } else if (values.type === B2B_WEB_APP_VALUE) {
             createB2BAppMutation({ variables: {
                 data: {
                     dv: 1,

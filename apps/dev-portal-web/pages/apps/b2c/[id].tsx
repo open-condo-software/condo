@@ -138,14 +138,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query }
     }
 
     // Common info prefetch
-    await client.query<GetB2CAppQuery, GetB2CAppQueryVariables>({
+    const { data: appData } = await client.query<GetB2CAppQuery, GetB2CAppQueryVariables>({
         query: GetB2CAppDocument,
         variables: {
             id,
         },
     })
 
-    const currentSection = getCurrentSection(section)
+    const currentSection = getCurrentSection(section, appData.app?.type)
 
     // Tab-specific info prefetch
     if (currentSection === 'builds') {

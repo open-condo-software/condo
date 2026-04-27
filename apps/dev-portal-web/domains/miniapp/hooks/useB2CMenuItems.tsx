@@ -6,6 +6,8 @@ import { Typography } from '@open-condo/ui'
 
 import type { MenuProps } from 'antd'
 
+import { B2CAppTypeType, useGetB2CAppQuery } from '@/gql'
+
 type MenuItem = Required<MenuProps>['items'][number]
 
 const AVAILABLE_SECTIONS = [
@@ -28,22 +30,38 @@ function _camelize (s: SectionType): CamelSectionType<SectionType> {
     return s.replace(/-./g, x => x[1].toUpperCase()) as CamelSectionType<SectionType>
 }
 
-export function getCurrentSection (querySection?: string | Array<string>): SectionType {
-    if (!querySection || Array.isArray(querySection)) {
-        return AVAILABLE_SECTIONS[0]
+function _getSectionsByAppType (appType?: B2CAppTypeType | null) {
+    if (appType === B2CAppTypeType.Web) {
+        return AVAILABLE_SECTIONS.filter(s => s !== 'builds')
     }
-    const idx = (AVAILABLE_SECTIONS as ReadonlyArray<string>).indexOf(querySection.toLowerCase())
 
-    return AVAILABLE_SECTIONS[Math.max(idx, 0)]
+    return AVAILABLE_SECTIONS
+}
+
+export function getCurrentSection (querySection?: string | Array<string>, appType?: B2CAppTypeType | null): SectionType {
+    const sections = _getSectionsByAppType(appType)
+    if (!querySection || Array.isArray(querySection)) {
+        return sections[0]
+    }
+
+    const idx = (sections as ReadonlyArray<string>).indexOf(querySection.toLowerCase())
+
+    return sections[Math.max(idx, 0)]
 }
 
 export function useB2CMenuItems (): [SectionType, Array<MenuItem>] {
     const router = useRouter()
-    const { section } = router.query
-    const currentSection = getCurrentSection(section)
+    const { section, id } = router.query
+    const { data } = useGetB2CAppQuery({
+        variables: { id: id && !Array.isArray(id) ? id : '' },
+        skip: !id || Array.isArray(id),
+    })
+
+    const currentSection = useMemo(() => getCurrentSection(section, data?.app?.type), [data?.app?.type, section])
 
     const menuItems: Array<MenuItem> = useMemo(() => {
-        return AVAILABLE_SECTIONS.map(section => {
+        const sections = _getSectionsByAppType(data?.app?.type)
+        return sections.map(section => {
             const isActive = currentSection === section
             const textType = isActive ? 'success' : 'secondary'
             return {
@@ -57,7 +75,7 @@ export function useB2CMenuItems (): [SectionType, Array<MenuItem>] {
                 ),
             }
         })
-    }, [currentSection])
+    }, [currentSection, data?.app?.type])
 
     return [currentSection, menuItems]
 }

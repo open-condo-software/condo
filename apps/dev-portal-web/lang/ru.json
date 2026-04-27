@@ -82,6 +82,8 @@
   "components.common.createAppContext.createAppForm.steps.enterAppName.title": "Как назовём новое приложение?",
   "components.common.createAppContext.createAppForm.items.type.b2bWebApp.label": "B2B-приложение для УК",
   "components.common.createAppContext.createAppForm.items.type.b2bWebApp.description": "Веб-приложение для управляющих компаний, встроенное в iframe",
+  "components.common.createAppContext.createAppForm.items.type.b2cWebApp.label": "Веб B2C-приложение для жителей",
+  "components.common.createAppContext.createAppForm.items.type.b2cWebApp.description": "Веб-приложение для жителей, встроенное в iframe",
   "components.common.createAppContext.createAppForm.items.type.b2cNativeApp.label": "Нативное B2C-приложение",
   "components.common.createAppContext.createAppForm.items.type.b2cNativeApp.description": "Мобильное мини-приложение для жителей с использованием Cordova",
   "components.common.createAppContext.createAppForm.items.name.placeholder.option.1": "Моё первое приложение",

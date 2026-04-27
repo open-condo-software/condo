@@ -82,6 +82,8 @@
   "components.common.createAppContext.createAppForm.steps.enterAppName.title": "What shall we call the new app?",
   "components.common.createAppContext.createAppForm.items.type.b2bWebApp.label": "B2B app for managing companies",
   "components.common.createAppContext.createAppForm.items.type.b2bWebApp.description": "Iframe-embedded web application for managing companies",
+  "components.common.createAppContext.createAppForm.items.type.b2cWebApp.label": "Web B2C app for residents",
+  "components.common.createAppContext.createAppForm.items.type.b2cWebApp.description": "Iframe-embedded web application for residents",
   "components.common.createAppContext.createAppForm.items.type.b2cNativeApp.label": "Native B2C app",
   "components.common.createAppContext.createAppForm.items.type.b2cNativeApp.description": "Mobile mini-application for residents built with Cordova",
   "components.common.createAppContext.createAppForm.items.name.placeholder.option.1": "My first app",
