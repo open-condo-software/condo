@@ -399,7 +399,7 @@ async function sendVoIPCallStartMessageByTestClient (client, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(SEND_VOIP_START_MESSAGE_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(SEND_VOIP_CALL_START_MESSAGE_MUTATION, { data: attrs })
 
     throwIfError(data, errors, { query: SEND_VOIP_CALL_START_MESSAGE_MUTATION, variables: { data: attrs } })
 
