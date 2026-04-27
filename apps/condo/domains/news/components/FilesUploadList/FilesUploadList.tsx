@@ -13,6 +13,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/colors'
 
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+import { SIZE_LIMIT_BY_FILE_TYPE } from '@condo/domains/news/constants/uploads'
 
 import styles from './FilesUploadList.module.css'
 import { Action } from './hooks/useModifiedFiles'
@@ -182,14 +183,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     if (file.thumbUrl) return file
 
                     try {
-                        let thumb = ''
-                        if (file.response?.mimetype?.startsWith('image/')) {
-                            thumb = await createImageThumbnailFromUrl(file.url)
-                        }
-                        if (file.response?.mimetype?.startsWith('video/')) {
-                            thumb = await createVideoThumbnailFromUrl(file.url)
-                        }
-
+                        const thumb = await tryCreateThumbnailFromUrl(file.response?.mimetype, file.url)
                         if (!thumb) return file
 
                         return {
@@ -237,9 +231,12 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
 
         onProgress({ percent: 50 })
 
-        // TODO(Doma-13015): add custom size by types
-        if (file.size > MAX_UPLOAD_FILE_SIZE) {
-            const error = new Error(FileTooBigErrorMessage)
+        let maxFileSize = SIZE_LIMIT_BY_FILE_TYPE.documents.limitSizeInMb
+        if (file.type?.startsWith('image/')) maxFileSize = SIZE_LIMIT_BY_FILE_TYPE.image.limitSizeInMb
+        if (file.type?.startsWith('video/')) maxFileSize = SIZE_LIMIT_BY_FILE_TYPE.video.limitSizeInMb
+        if (file.size > maxFileSize) {
+            const errorMsg = FileTooBigErrorMessage.replace('{maxSizeInMb}', String(maxFileSize))
+            const error = new Error(errorMsg)
             onError(error)
             return
         }

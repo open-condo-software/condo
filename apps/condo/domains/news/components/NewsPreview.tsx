@@ -63,8 +63,8 @@ const NewsPreviewContainer = styled.div`
 const CondoAppPreviewContainer = styled.div`
   margin-top: 24px;
   position: relative;
-  height: ${675}px;
-  width: ${330}px;
+  height: 675px;
+  width: 330px;
   display: flex;
   align-items: start;
   background-image: url(${CONDO_APP_BACKGROUND_PICTURE_URL});
@@ -85,8 +85,8 @@ const SharingAppPreviewContainer = styled.div`
   position: relative;
   
   margin-top: 24px;
-  height: ${675}px;
-  width: ${330}px;
+  height: 675px;
+  width: 330px;
   display: flex;
   align-items: start;
   justify-content: center;
