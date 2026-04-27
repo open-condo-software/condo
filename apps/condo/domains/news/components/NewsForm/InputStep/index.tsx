@@ -14,7 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { Action, convertFilesToUploadType, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import {
     getTypeAndNameByKey,
@@ -358,17 +357,16 @@ export const InputStep: React.FC<InputStepProps> = ({
                         handleFormBodyChange={handleFormBodyChange}
                     />
 
-                    {
-                        (!newsItemIdForReuploadFiles || (newsItemIdForReuploadFiles && !isLoading)) ? (
-                            <InputStepFilesSelector
-                                onChange={(fileList) => {
-                                    setFiles(fileList)
-                                }}
-                                files={files}
-                                modifyFiles={modifyFiles}
-                            />
-                        ) : <Loader />
-                    }
+                    <InputStepFilesSelector
+                        onChange={(fileList) => {
+                            setFiles(fileList)
+                        }}
+                        files={files}
+                        modifyFiles={modifyFiles}
+                        isSharingStep={isSharingStep}
+                        newsSharingConfig={newsSharingConfig}
+                        isLoaded={!newsItemIdForReuploadFiles || (newsItemIdForReuploadFiles && !isLoading)}
+                    />
 
                     <InputStepSelector
                         ctx={sharingAppData?.ctx}
