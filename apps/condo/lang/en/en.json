@@ -461,6 +461,7 @@
   "api.meter.meterReading.METER_READING_DATE_IN_FUTURE": "Reading date ({givenDate}) can not be from the future",
   "api.meter.meterReading.METER_READING_EXTRA_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please remove next fields: {fieldsNames}",
   "api.meter.meterReading.METER_READING_FEW_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please fill next fields: {fieldsNames}",
+  "api.meter.meterReading.METER_READING_VALIDATION_ERROR": "Meter reading validation failed: {error}",
   "api.meter.meterReading.METER_VERIFICATION_MISSED": "You cannot take readings on a device that has missed the verification date",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "The \"finish\" field can take values in the range from 1 to 31",
   "api.meter.meterReportingPeriod.INVALID_RESTRICTION_END_DAY": "The end of the restriction of taking readings can only take a value from 1 to 31",

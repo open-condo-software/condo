@@ -8,6 +8,8 @@ const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { fetch } = require('@open-condo/keystone/fetch')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
@@ -25,6 +27,7 @@ const {
     METER_READING_DATE_AFTER_NOTIFY_END,
     METER_ARCHIVED,
     METER_VERIFICATION_MISSED,
+    METER_READING_VALIDATION_ERROR,
 } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -32,6 +35,9 @@ const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/ut
 const { isReadingDateAllowed } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
+
+const logger = getLogger()
 
 const ERRORS = {
     METER_READING_DATE_IN_FUTURE: {
@@ -75,6 +81,122 @@ const ERRORS = {
         message: 'Cannot pass meter readings for Meter whose next verification date is in the past',
         messageForUser: 'api.meter.meterReading.METER_VERIFICATION_MISSED',
     },
+    METER_READING_VALIDATION_ERROR: {
+        code: BAD_USER_INPUT,
+        type: METER_READING_VALIDATION_ERROR,
+        message: 'Meter reading validation failed',
+        messageForUser: 'api.meter.meterReading.METER_READING_VALIDATION_ERROR',
+    },
+}
+
+const VALIDATE_METER_READING_TIMEOUT = 3000
+
+/**
+ * Validates meter reading through external B2B app integrations.
+ *
+ * Queries B2BAppContext for the organization to find configured meter integrations,
+ * then calls each integration's validateMeterReadingUrl in parallel to validate the reading.
+ *
+ * Behavior:
+ * - If no integrations configured: returns false (validation skipped)
+ * - If integration service returns { ok: true }: validation passed
+ * - If integration service returns { ok: false, data: error }: throws GQLError with error message
+ * - If network/HTTP/JSON errors occur: skips that integration (logged via logger.warn)
+ * - All integrations must pass - if any fails, throws GQLError
+ *
+ * @param {Object} meterReading - The meter reading data to validate
+ * @param {Object} meter - The meter object with organization reference
+ * @param {Object} context - Keystone context for database queries
+ * @returns {Promise<boolean>} - True if validation was performed and passed, false if skipped
+ * @throws {GQLError} - If validation fails (service returned ok: false)
+ */
+async function validateMeterReadingWithIntegration (meterReading, meter, context) {
+    const organizationId = meter?.organization
+    if (!organizationId) return false
+
+    // Find B2BAppContext for this organization with meterIntegrationConfig
+    // Filter: only apps that have meterIntegrationConfig set (not null)
+    const appContexts = await find('B2BAppContext', {
+        organization: { id: organizationId },
+        app: {
+            meterIntegrationConfig_is_null: false,
+            deletedAt: null,
+        },
+        deletedAt: null,
+        status: 'Finished',
+    })
+
+    // If no integrations configured, skip validation
+    if (appContexts.length === 0) {
+        return false
+    }
+
+    // Build list of validation tasks for parallel execution
+    const validationTasks = []
+    for (const appContext of appContexts) {
+        // appContext.app already has meterIntegrationConfig via B2B_APP_CONTEXT_FIELDS
+        const validateUrl = appContext?.app?.meterIntegrationConfig?.validateMeterReadingUrl
+
+        if (validateUrl) {
+            validationTasks.push(
+                fetch(validateUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        meterReading,
+                        meter,
+                        organization: { id: organizationId },
+                    }),
+                    abortRequestTimeout: VALIDATE_METER_READING_TIMEOUT,
+                }).then(async (response) => {
+                    if (response.ok) {
+                        const result = await response.json()
+                        // API returns {ok: bool, data: string} shape
+                        // If ok is false, data contains error message - this is actual validation failure
+                        if (result && result.ok === false) {
+                            return { success: false, error: result.data }
+                        }
+                        return { success: true }
+                    }
+                    // HTTP non-OK responses are not validation failures - skip this integration
+                    logger.warn({ msg: 'Meter reading validation skipped due to non-OK response', status: response.status })
+                    return { success: true, skipped: true }
+                }).catch((err) => {
+                    // All errors (network, timeout, JSON parse, etc.) skip validation for this integration
+                    // Only actual validation service response with ok: false is considered a failure
+                    logger.warn({ msg: 'Meter reading validation skipped due to error', err })
+                    return { success: true, skipped: true }
+                })
+            )
+        }
+    }
+
+    // No integrations with URLs to validate
+    if (validationTasks.length === 0) {
+        return false
+    }
+
+    // Execute all validations in parallel
+    const results = await Promise.all(validationTasks)
+
+    // Collect errors from actual validation failures (service returned ok: false)
+    const errors = results
+        .filter(r => !r.success)
+        .map(r => r.error)
+
+    // Count actual successful validations (not skipped ones)
+    const actualValidations = results.filter(r => r.success && !r.skipped).length
+
+    // If any service returned ok: false, throw error with the validation message
+    if (errors.length > 0) {
+        throw new GQLError({
+            ...ERRORS.METER_READING_VALIDATION_ERROR,
+            messageInterpolation: { error: errors.join('; ') },
+        }, context)
+    }
+
+    // Return true if at least one validation actually ran and passed
+    return actualValidations > 0
 }
 
 const MeterReading = new GQLListSchema('MeterReading', {
@@ -262,6 +384,20 @@ const MeterReading = new GQLListSchema('MeterReading', {
                 }
 
                 resolvedData.contact = await connectContactToMeterReading(context, contactCreationData, existingItem)
+            }
+
+            // NOTE: Validation is done in resolveInput (not validateInput) because:
+            // 1. validateInput hook cannot modify resolvedData - it can only throw errors
+            // 2. We need to set billingStatus field when validation passes
+            // 3. resolveInput allows both validation and field modification
+            // Validate meter reading through external integration if configured
+            // Throws GQLError if validation fails, returns true if validation passed
+            const nextItem = { ...existingItem, ...resolvedData }
+            const wasValidated = await validateMeterReadingWithIntegration(nextItem, meter, context)
+
+            // If validation was performed (not skipped) and passed, set billingStatus to approved
+            if (wasValidated) {
+                resolvedData.billingStatus = METER_READING_BILLING_STATUS_APPROVED
             }
 
             return resolvedData
