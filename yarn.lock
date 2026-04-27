@@ -1693,7 +1693,6 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     jsonwebtoken: ^9.0.0
@@ -1711,7 +1710,6 @@ __metadata:
     react-intl: ^7.1.11
     react-number-format: ^5.4.4
     serwist: ^9.0.0
-    socks-proxy-agent: ^8.0.3
     swr: ^2.3.6
     telegraf: ^4.16.3
     telegraf-i18n: ^6.6.0
@@ -1720,6 +1718,7 @@ __metadata:
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
     uuid: ^8.0.3
+    yet-another-react-lightbox: ^3.31.0
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
@@ -49984,6 +49983,23 @@ __metadata:
   dependencies:
     buffer-crc32: ~0.2.3
   checksum: daec5154b5485d8621bfea359e905ddca0b2f068430a4aa0a802bf5d67391157a383e0c2767acccbf5964264851da643bc740155a9458e2d8dce55b94c1cc2ed
+  languageName: node
+  linkType: hard
+
+"yet-another-react-lightbox@npm:^3.31.0":
+  version: 3.31.0
+  resolution: "yet-another-react-lightbox@npm:3.31.0"
+  peerDependencies:
+    "@types/react": ^16 || ^17 || ^18 || ^19
+    "@types/react-dom": ^16 || ^17 || ^18 || ^19
+    react: ^16.8.0 || ^17 || ^18 || ^19
+    react-dom: ^16.8.0 || ^17 || ^18 || ^19
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 55eb26f8a7bd996e3480d3d41c50b3cc37d1db5b09f0db1de052c38595c41f36b0e670cc751d5400d98b7c7e87922c5c36b1930b0e7921422b555647e12df516
   languageName: node
   linkType: hard
 
