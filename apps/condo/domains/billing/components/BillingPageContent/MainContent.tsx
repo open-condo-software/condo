@@ -123,7 +123,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             return {
                 id: b2bApp.id,
                 label: b2bApp.name,
-                appUrl: b2bApp?.billingEmbedConfig?.tabUrl,
+                appUrl: b2bApp?.billingEmbeddingConfig?.tabUrl,
             }
         })
     }, [data?.b2bApps])

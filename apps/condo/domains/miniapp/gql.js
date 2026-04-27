@@ -122,7 +122,7 @@ const B2C_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
 const B2CAppAccessRightSet = generateGqlQueries('B2CAppAccessRightSet', B2C_APP_ACCESS_RIGHT_SET_FIELDS)
 
 const B2_BAPP_BILLING_EMBED_CONFIG_FIELDS = `{ tabUrl ${COMMON_FIELDS} }`
-const B2BAppBillingEmbedConfig = generateGqlQueries('B2BAppBillingEmbedConfig', B2_BAPP_BILLING_EMBED_CONFIG_FIELDS)
+const B2BAppBillingEmbeddingConfig = generateGqlQueries('B2BAppBillingEmbeddingConfig', B2_BAPP_BILLING_EMBED_CONFIG_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -156,6 +156,6 @@ module.exports = {
     B2CAppAccessRightSet,
     SEND_VOIP_CALL_START_MESSAGE_MUTATION, 
     SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION,
-    B2BAppBillingEmbedConfig,
+    B2BAppBillingEmbeddingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
