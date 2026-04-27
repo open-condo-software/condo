@@ -12,7 +12,7 @@ const {
 
 
 
-const { B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet, createTestB2CAppProperty, updateTestB2CAppProperty, B2CAppProperty, sendVoIPStartMessageByTestClient, updateTestB2CAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
+const { B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet, createTestB2CAppProperty, updateTestB2CAppProperty, B2CAppProperty, sendVoIPCallStartMessageByTestClient, updateTestB2CAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestB2CApp, createTestB2CAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
@@ -438,20 +438,20 @@ describe('B2CAppAccessRightSet', () => {
 
             // Can't without access right set
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await sendVoIPStartMessageByTestClient(serviceUser, args)
+                await sendVoIPCallStartMessageByTestClient(serviceUser, args)
             })
 
             // Can't with access right set and without b2c app property
-            const [rightSet] = await createTestB2CAppAccessRightSet(support, b2cApp, { canExecuteSendVoIPStartMessage: true })
+            const [rightSet] = await createTestB2CAppAccessRightSet(support, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
             await updateTestB2CAppAccessRight(support, b2cAccessRight.id, { accessRightSet: { connect: { id: rightSet.id } } })
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await sendVoIPStartMessageByTestClient(serviceUser, args)
+                await sendVoIPCallStartMessageByTestClient(serviceUser, args)
             })
 
             // Can with access right set and b2c app property
             const [b2cAppProperty] = await createTestB2CAppProperty(serviceUser, b2cApp)
             args.addressKey = b2cAppProperty.addressKey
-            const [result] = await sendVoIPStartMessageByTestClient(serviceUser, args)
+            const [result] = await sendVoIPCallStartMessageByTestClient(serviceUser, args)
             expect(result).toEqual(expect.objectContaining({
                 verifiedContactsCount: expect.any(Number),
                 createdMessagesCount: expect.any(Number),
@@ -463,13 +463,13 @@ describe('B2CAppAccessRightSet', () => {
             const [anotherB2CAppProperty] = await createTestB2CAppProperty(admin, anotherB2CApp)
             args.addressKey = anotherB2CAppProperty.addressKey
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await sendVoIPStartMessageByTestClient(serviceUser, args)
+                await sendVoIPCallStartMessageByTestClient(serviceUser, args)
             })
 
             // Can't for another app
             args.app.id = anotherB2CApp.id
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await sendVoIPStartMessageByTestClient(serviceUser, args)
+                await sendVoIPCallStartMessageByTestClient(serviceUser, args)
             })
         })
     })
