@@ -72551,7 +72551,7 @@ type B2BAppHistoryRecord {
   price: String
   newsSharingConfig: String
   posIntegrationConfig: String
-  billingEmbedConfig: String
+  billingEmbeddingConfig: String
   id: ID!
   v: Int
   createdAt: String
@@ -72818,10 +72818,10 @@ input B2BAppHistoryRecordWhereInput {
   posIntegrationConfig_not: String
   posIntegrationConfig_in: [String]
   posIntegrationConfig_not_in: [String]
-  billingEmbedConfig: String
-  billingEmbedConfig_not: String
-  billingEmbedConfig_in: [String]
-  billingEmbedConfig_not_in: [String]
+  billingEmbeddingConfig: String
+  billingEmbeddingConfig_not: String
+  billingEmbeddingConfig_in: [String]
+  billingEmbeddingConfig_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -73020,7 +73020,7 @@ input B2BAppHistoryRecordUpdateInput {
   price: String
   newsSharingConfig: String
   posIntegrationConfig: String
-  billingEmbedConfig: String
+  billingEmbeddingConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -73067,7 +73067,7 @@ input B2BAppHistoryRecordCreateInput {
   price: String
   newsSharingConfig: String
   posIntegrationConfig: String
-  billingEmbedConfig: String
+  billingEmbeddingConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -73291,10 +73291,10 @@ input B2BAppPosIntegrationConfigRelateToOneInput {
   disconnectAll: Boolean
 }
 
-input B2BAppBillingEmbedConfigRelateToOneInput {
-  create: B2BAppBillingEmbedConfigCreateInput
-  connect: B2BAppBillingEmbedConfigWhereUniqueInput
-  disconnect: B2BAppBillingEmbedConfigWhereUniqueInput
+input B2BAppBillingEmbeddingConfigRelateToOneInput {
+  create: B2BAppBillingEmbeddingConfigCreateInput
+  connect: B2BAppBillingEmbeddingConfigWhereUniqueInput
+  disconnect: B2BAppBillingEmbeddingConfigWhereUniqueInput
   disconnectAll: Boolean
 }
 
@@ -73416,7 +73416,7 @@ type B2BApp {
 
   """ Configuration for Billing page embedding. If specified, then this B2BApp will be available as an iframe tab on the /billing page 
   """
-  billingEmbedConfig: B2BAppBillingEmbedConfig
+  billingEmbeddingConfig: B2BAppBillingEmbeddingConfig
   id: ID!
   v: Int
   createdAt: String
@@ -73642,8 +73642,8 @@ input B2BAppWhereInput {
   newsSharingConfig_is_null: Boolean
   posIntegrationConfig: B2BAppPosIntegrationConfigWhereInput
   posIntegrationConfig_is_null: Boolean
-  billingEmbedConfig: B2BAppBillingEmbedConfigWhereInput
-  billingEmbedConfig_is_null: Boolean
+  billingEmbeddingConfig: B2BAppBillingEmbeddingConfigWhereInput
+  billingEmbeddingConfig_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -73785,8 +73785,8 @@ enum SortB2BAppsBy {
   newsSharingConfig_DESC
   posIntegrationConfig_ASC
   posIntegrationConfig_DESC
-  billingEmbedConfig_ASC
-  billingEmbedConfig_DESC
+  billingEmbeddingConfig_ASC
+  billingEmbeddingConfig_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -73835,7 +73835,7 @@ input B2BAppUpdateInput {
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
   posIntegrationConfig: B2BAppPosIntegrationConfigRelateToOneInput
-  billingEmbedConfig: B2BAppBillingEmbedConfigRelateToOneInput
+  billingEmbeddingConfig: B2BAppBillingEmbeddingConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -73880,7 +73880,7 @@ input B2BAppCreateInput {
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
   posIntegrationConfig: B2BAppPosIntegrationConfigRelateToOneInput
-  billingEmbedConfig: B2BAppBillingEmbedConfigRelateToOneInput
+  billingEmbeddingConfig: B2BAppBillingEmbeddingConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -83837,20 +83837,20 @@ input B2CAppAccessRightSetsCreateInput {
   data: B2CAppAccessRightSetCreateInput
 }
 
-enum B2BAppBillingEmbedConfigHistoryRecordHistoryActionType {
+enum B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type B2BAppBillingEmbedConfigHistoryRecord {
+type B2BAppBillingEmbeddingConfigHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the B2BAppBillingEmbedConfigHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the B2BAppBillingEmbedConfigHistoryRecord List config, or
-   3. As an alias to a 'name' field on the B2BAppBillingEmbedConfigHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the B2BAppBillingEmbedConfigHistoryRecord List.
+   1. Execution of 'labelResolver' set on the B2BAppBillingEmbeddingConfigHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppBillingEmbeddingConfigHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppBillingEmbeddingConfigHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppBillingEmbeddingConfigHistoryRecord List.
   """
   _label_: String
   tabUrl: String
@@ -83865,13 +83865,13 @@ type B2BAppBillingEmbedConfigHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2BAppBillingEmbedConfigHistoryRecordHistoryActionType
+  history_action: B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2BAppBillingEmbedConfigHistoryRecordWhereInput {
-  AND: [B2BAppBillingEmbedConfigHistoryRecordWhereInput]
-  OR: [B2BAppBillingEmbedConfigHistoryRecordWhereInput]
+input B2BAppBillingEmbeddingConfigHistoryRecordWhereInput {
+  AND: [B2BAppBillingEmbeddingConfigHistoryRecordWhereInput]
+  OR: [B2BAppBillingEmbeddingConfigHistoryRecordWhereInput]
   tabUrl: String
   tabUrl_not: String
   tabUrl_contains: String
@@ -83958,21 +83958,21 @@ input B2BAppBillingEmbedConfigHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: B2BAppBillingEmbedConfigHistoryRecordHistoryActionType
-  history_action_not: B2BAppBillingEmbedConfigHistoryRecordHistoryActionType
-  history_action_in: [B2BAppBillingEmbedConfigHistoryRecordHistoryActionType]
-  history_action_not_in: [B2BAppBillingEmbedConfigHistoryRecordHistoryActionType]
+  history_action: B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType
+  history_action_not: B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType
+  history_action_in: [B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input B2BAppBillingEmbedConfigHistoryRecordWhereUniqueInput {
+input B2BAppBillingEmbeddingConfigHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortB2BAppBillingEmbedConfigHistoryRecordsBy {
+enum SortB2BAppBillingEmbeddingConfigHistoryRecordsBy {
   tabUrl_ASC
   tabUrl_DESC
   id_ASC
@@ -83993,7 +83993,7 @@ enum SortB2BAppBillingEmbedConfigHistoryRecordsBy {
   history_action_DESC
 }
 
-input B2BAppBillingEmbedConfigHistoryRecordUpdateInput {
+input B2BAppBillingEmbeddingConfigHistoryRecordUpdateInput {
   tabUrl: String
   v: Int
   createdAt: String
@@ -84005,16 +84005,16 @@ input B2BAppBillingEmbedConfigHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2BAppBillingEmbedConfigHistoryRecordHistoryActionType
+  history_action: B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2BAppBillingEmbedConfigHistoryRecordsUpdateInput {
+input B2BAppBillingEmbeddingConfigHistoryRecordsUpdateInput {
   id: ID!
-  data: B2BAppBillingEmbedConfigHistoryRecordUpdateInput
+  data: B2BAppBillingEmbeddingConfigHistoryRecordUpdateInput
 }
 
-input B2BAppBillingEmbedConfigHistoryRecordCreateInput {
+input B2BAppBillingEmbeddingConfigHistoryRecordCreateInput {
   tabUrl: String
   v: Int
   createdAt: String
@@ -84026,23 +84026,23 @@ input B2BAppBillingEmbedConfigHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2BAppBillingEmbedConfigHistoryRecordHistoryActionType
+  history_action: B2BAppBillingEmbeddingConfigHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2BAppBillingEmbedConfigHistoryRecordsCreateInput {
-  data: B2BAppBillingEmbedConfigHistoryRecordCreateInput
+input B2BAppBillingEmbeddingConfigHistoryRecordsCreateInput {
+  data: B2BAppBillingEmbeddingConfigHistoryRecordCreateInput
 }
 
 """ Configuration for embedding a B2BApp into the billing page. If specified on a B2BApp, the app will be available as an embeddable tab on the /billing page 
 """
-type B2BAppBillingEmbedConfig {
+type B2BAppBillingEmbeddingConfig {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the B2BAppBillingEmbedConfig List config, or
-   2. As an alias to the field set on 'labelField' in the B2BAppBillingEmbedConfig List config, or
-   3. As an alias to a 'name' field on the B2BAppBillingEmbedConfig List (if one exists), or
-   4. As an alias to the 'id' field on the B2BAppBillingEmbedConfig List.
+   1. Execution of 'labelResolver' set on the B2BAppBillingEmbeddingConfig List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppBillingEmbeddingConfig List config, or
+   3. As an alias to a 'name' field on the B2BAppBillingEmbeddingConfig List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppBillingEmbeddingConfig List.
   """
   _label_: String
 
@@ -84072,9 +84072,9 @@ type B2BAppBillingEmbedConfig {
   sender: SenderField
 }
 
-input B2BAppBillingEmbedConfigWhereInput {
-  AND: [B2BAppBillingEmbedConfigWhereInput]
-  OR: [B2BAppBillingEmbedConfigWhereInput]
+input B2BAppBillingEmbeddingConfigWhereInput {
+  AND: [B2BAppBillingEmbeddingConfigWhereInput]
+  OR: [B2BAppBillingEmbeddingConfigWhereInput]
   tabUrl: String
   tabUrl_not: String
   tabUrl_contains: String
@@ -84151,11 +84151,11 @@ input B2BAppBillingEmbedConfigWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input B2BAppBillingEmbedConfigWhereUniqueInput {
+input B2BAppBillingEmbeddingConfigWhereUniqueInput {
   id: ID!
 }
 
-enum SortB2BAppBillingEmbedConfigsBy {
+enum SortB2BAppBillingEmbeddingConfigsBy {
   tabUrl_ASC
   tabUrl_DESC
   id_ASC
@@ -84176,7 +84176,7 @@ enum SortB2BAppBillingEmbedConfigsBy {
   dv_DESC
 }
 
-input B2BAppBillingEmbedConfigUpdateInput {
+input B2BAppBillingEmbeddingConfigUpdateInput {
   tabUrl: String
   v: Int
   createdAt: String
@@ -84189,12 +84189,12 @@ input B2BAppBillingEmbedConfigUpdateInput {
   sender: SenderFieldInput
 }
 
-input B2BAppBillingEmbedConfigsUpdateInput {
+input B2BAppBillingEmbeddingConfigsUpdateInput {
   id: ID!
-  data: B2BAppBillingEmbedConfigUpdateInput
+  data: B2BAppBillingEmbeddingConfigUpdateInput
 }
 
-input B2BAppBillingEmbedConfigCreateInput {
+input B2BAppBillingEmbeddingConfigCreateInput {
   tabUrl: String
   v: Int
   createdAt: String
@@ -84207,8 +84207,8 @@ input B2BAppBillingEmbedConfigCreateInput {
   sender: SenderFieldInput
 }
 
-input B2BAppBillingEmbedConfigsCreateInput {
-  data: B2BAppBillingEmbedConfigCreateInput
+input B2BAppBillingEmbeddingConfigsCreateInput {
+  data: B2BAppBillingEmbeddingConfigCreateInput
 }
 
 enum MobileFeatureConfigHistoryRecordHistoryActionType {
@@ -98254,35 +98254,36 @@ type Query {
   """ Retrieve the meta-data for the B2CAppAccessRightSet list. """
   _B2CAppAccessRightSetsMeta: _ListMeta
 
-  """ Search for all B2BAppBillingEmbedConfigHistoryRecord items which match the where clause. 
+  """ Search for all B2BAppBillingEmbeddingConfigHistoryRecord items which match the where clause. 
   """
-  allB2BAppBillingEmbedConfigHistoryRecords(where: B2BAppBillingEmbedConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbedConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbedConfigHistoryRecord]
+  allB2BAppBillingEmbeddingConfigHistoryRecords(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbeddingConfigHistoryRecord]
 
-  """ Search for the B2BAppBillingEmbedConfigHistoryRecord item with the matching ID. 
+  """ Search for the B2BAppBillingEmbeddingConfigHistoryRecord item with the matching ID. 
   """
-  B2BAppBillingEmbedConfigHistoryRecord(where: B2BAppBillingEmbedConfigHistoryRecordWhereUniqueInput!): B2BAppBillingEmbedConfigHistoryRecord
+  B2BAppBillingEmbeddingConfigHistoryRecord(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereUniqueInput!): B2BAppBillingEmbeddingConfigHistoryRecord
 
-  """ Perform a meta-query on all B2BAppBillingEmbedConfigHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all B2BAppBillingEmbeddingConfigHistoryRecord items which match the where clause. 
   """
-  _allB2BAppBillingEmbedConfigHistoryRecordsMeta(where: B2BAppBillingEmbedConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbedConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allB2BAppBillingEmbeddingConfigHistoryRecordsMeta(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the B2BAppBillingEmbedConfigHistoryRecord list. 
+  """ Retrieve the meta-data for the B2BAppBillingEmbeddingConfigHistoryRecord list. 
   """
-  _B2BAppBillingEmbedConfigHistoryRecordsMeta: _ListMeta
+  _B2BAppBillingEmbeddingConfigHistoryRecordsMeta: _ListMeta
 
-  """ Search for all B2BAppBillingEmbedConfig items which match the where clause. 
+  """ Search for all B2BAppBillingEmbeddingConfig items which match the where clause. 
   """
-  allB2BAppBillingEmbedConfigs(where: B2BAppBillingEmbedConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbedConfigsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbedConfig]
+  allB2BAppBillingEmbeddingConfigs(where: B2BAppBillingEmbeddingConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbeddingConfig]
 
-  """ Search for the B2BAppBillingEmbedConfig item with the matching ID. """
-  B2BAppBillingEmbedConfig(where: B2BAppBillingEmbedConfigWhereUniqueInput!): B2BAppBillingEmbedConfig
-
-  """ Perform a meta-query on all B2BAppBillingEmbedConfig items which match the where clause. 
+  """ Search for the B2BAppBillingEmbeddingConfig item with the matching ID. 
   """
-  _allB2BAppBillingEmbedConfigsMeta(where: B2BAppBillingEmbedConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbedConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  B2BAppBillingEmbeddingConfig(where: B2BAppBillingEmbeddingConfigWhereUniqueInput!): B2BAppBillingEmbeddingConfig
 
-  """ Retrieve the meta-data for the B2BAppBillingEmbedConfig list. """
-  _B2BAppBillingEmbedConfigsMeta: _ListMeta
+  """ Perform a meta-query on all B2BAppBillingEmbeddingConfig items which match the where clause. 
+  """
+  _allB2BAppBillingEmbeddingConfigsMeta(where: B2BAppBillingEmbeddingConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppBillingEmbeddingConfig list. """
+  _B2BAppBillingEmbeddingConfigsMeta: _ListMeta
 
   """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
   """
@@ -104031,41 +104032,45 @@ type Mutation {
   """ Delete multiple B2CAppAccessRightSet items by ID. """
   deleteB2CAppAccessRightSets(ids: [ID!]): [B2CAppAccessRightSet]
 
-  """ Create a single B2BAppBillingEmbedConfigHistoryRecord item. """
-  createB2BAppBillingEmbedConfigHistoryRecord(data: B2BAppBillingEmbedConfigHistoryRecordCreateInput): B2BAppBillingEmbedConfigHistoryRecord
+  """ Create a single B2BAppBillingEmbeddingConfigHistoryRecord item. """
+  createB2BAppBillingEmbeddingConfigHistoryRecord(data: B2BAppBillingEmbeddingConfigHistoryRecordCreateInput): B2BAppBillingEmbeddingConfigHistoryRecord
 
-  """ Create multiple B2BAppBillingEmbedConfigHistoryRecord items. """
-  createB2BAppBillingEmbedConfigHistoryRecords(data: [B2BAppBillingEmbedConfigHistoryRecordsCreateInput]): [B2BAppBillingEmbedConfigHistoryRecord]
+  """ Create multiple B2BAppBillingEmbeddingConfigHistoryRecord items. """
+  createB2BAppBillingEmbeddingConfigHistoryRecords(data: [B2BAppBillingEmbeddingConfigHistoryRecordsCreateInput]): [B2BAppBillingEmbeddingConfigHistoryRecord]
 
-  """ Update a single B2BAppBillingEmbedConfigHistoryRecord item by ID. """
-  updateB2BAppBillingEmbedConfigHistoryRecord(id: ID!, data: B2BAppBillingEmbedConfigHistoryRecordUpdateInput): B2BAppBillingEmbedConfigHistoryRecord
+  """ Update a single B2BAppBillingEmbeddingConfigHistoryRecord item by ID. 
+  """
+  updateB2BAppBillingEmbeddingConfigHistoryRecord(id: ID!, data: B2BAppBillingEmbeddingConfigHistoryRecordUpdateInput): B2BAppBillingEmbeddingConfigHistoryRecord
 
-  """ Update multiple B2BAppBillingEmbedConfigHistoryRecord items by ID. """
-  updateB2BAppBillingEmbedConfigHistoryRecords(data: [B2BAppBillingEmbedConfigHistoryRecordsUpdateInput]): [B2BAppBillingEmbedConfigHistoryRecord]
+  """ Update multiple B2BAppBillingEmbeddingConfigHistoryRecord items by ID. 
+  """
+  updateB2BAppBillingEmbeddingConfigHistoryRecords(data: [B2BAppBillingEmbeddingConfigHistoryRecordsUpdateInput]): [B2BAppBillingEmbeddingConfigHistoryRecord]
 
-  """ Delete a single B2BAppBillingEmbedConfigHistoryRecord item by ID. """
-  deleteB2BAppBillingEmbedConfigHistoryRecord(id: ID!): B2BAppBillingEmbedConfigHistoryRecord
+  """ Delete a single B2BAppBillingEmbeddingConfigHistoryRecord item by ID. 
+  """
+  deleteB2BAppBillingEmbeddingConfigHistoryRecord(id: ID!): B2BAppBillingEmbeddingConfigHistoryRecord
 
-  """ Delete multiple B2BAppBillingEmbedConfigHistoryRecord items by ID. """
-  deleteB2BAppBillingEmbedConfigHistoryRecords(ids: [ID!]): [B2BAppBillingEmbedConfigHistoryRecord]
+  """ Delete multiple B2BAppBillingEmbeddingConfigHistoryRecord items by ID. 
+  """
+  deleteB2BAppBillingEmbeddingConfigHistoryRecords(ids: [ID!]): [B2BAppBillingEmbeddingConfigHistoryRecord]
 
-  """ Create a single B2BAppBillingEmbedConfig item. """
-  createB2BAppBillingEmbedConfig(data: B2BAppBillingEmbedConfigCreateInput): B2BAppBillingEmbedConfig
+  """ Create a single B2BAppBillingEmbeddingConfig item. """
+  createB2BAppBillingEmbeddingConfig(data: B2BAppBillingEmbeddingConfigCreateInput): B2BAppBillingEmbeddingConfig
 
-  """ Create multiple B2BAppBillingEmbedConfig items. """
-  createB2BAppBillingEmbedConfigs(data: [B2BAppBillingEmbedConfigsCreateInput]): [B2BAppBillingEmbedConfig]
+  """ Create multiple B2BAppBillingEmbeddingConfig items. """
+  createB2BAppBillingEmbeddingConfigs(data: [B2BAppBillingEmbeddingConfigsCreateInput]): [B2BAppBillingEmbeddingConfig]
 
-  """ Update a single B2BAppBillingEmbedConfig item by ID. """
-  updateB2BAppBillingEmbedConfig(id: ID!, data: B2BAppBillingEmbedConfigUpdateInput): B2BAppBillingEmbedConfig
+  """ Update a single B2BAppBillingEmbeddingConfig item by ID. """
+  updateB2BAppBillingEmbeddingConfig(id: ID!, data: B2BAppBillingEmbeddingConfigUpdateInput): B2BAppBillingEmbeddingConfig
 
-  """ Update multiple B2BAppBillingEmbedConfig items by ID. """
-  updateB2BAppBillingEmbedConfigs(data: [B2BAppBillingEmbedConfigsUpdateInput]): [B2BAppBillingEmbedConfig]
+  """ Update multiple B2BAppBillingEmbeddingConfig items by ID. """
+  updateB2BAppBillingEmbeddingConfigs(data: [B2BAppBillingEmbeddingConfigsUpdateInput]): [B2BAppBillingEmbeddingConfig]
 
-  """ Delete a single B2BAppBillingEmbedConfig item by ID. """
-  deleteB2BAppBillingEmbedConfig(id: ID!): B2BAppBillingEmbedConfig
+  """ Delete a single B2BAppBillingEmbeddingConfig item by ID. """
+  deleteB2BAppBillingEmbeddingConfig(id: ID!): B2BAppBillingEmbeddingConfig
 
-  """ Delete multiple B2BAppBillingEmbedConfig items by ID. """
-  deleteB2BAppBillingEmbedConfigs(ids: [ID!]): [B2BAppBillingEmbedConfig]
+  """ Delete multiple B2BAppBillingEmbeddingConfig items by ID. """
+  deleteB2BAppBillingEmbeddingConfigs(ids: [ID!]): [B2BAppBillingEmbeddingConfig]
 
   """ Create a single MobileFeatureConfigHistoryRecord item. """
   createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord

@@ -43,7 +43,7 @@ const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppBillingEmbedConfig: B2BAppBillingEmbedConfigGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -85,7 +85,7 @@ const CustomValue = generateGQLTestUtils(CustomValueGQL)
 
 const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConfigGQL)
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
-const B2BAppBillingEmbedConfig = generateGQLTestUtils(B2BAppBillingEmbedConfigGQL)
+const B2BAppBillingEmbeddingConfig = generateGQLTestUtils(B2BAppBillingEmbeddingConfigGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
@@ -809,7 +809,7 @@ async function updateTestB2CAppAccessRightSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2BAppBillingEmbedConfig (client, extraAttrs = {}) {
+async function createTestB2BAppBillingEmbeddingConfig (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -818,7 +818,7 @@ async function createTestB2BAppBillingEmbedConfig (client, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await B2BAppBillingEmbedConfig.create(client, attrs)
+    const obj = await B2BAppBillingEmbeddingConfig.create(client, attrs)
     return [obj, attrs]
 }
 
@@ -850,6 +850,6 @@ module.exports = {
     AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
-    B2BAppBillingEmbedConfig, createTestB2BAppBillingEmbedConfig, updateTestB2BAppBillingEmbedConfig,
+    B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

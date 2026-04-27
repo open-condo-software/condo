@@ -2997,10 +2997,13 @@ export type GetPublicB2BAppsByIdsSuspenseQueryHookResult = ReturnType<typeof use
 export type GetPublicB2BAppsByIdsQueryResult = Apollo.QueryResult<Types.GetPublicB2BAppsByIdsQuery, Types.GetPublicB2BAppsByIdsQueryVariables>;
 export const GetB2BAppsWithBillingTabEmbeddingConfigDocument = gql`
     query getB2BAppsWithBillingTabEmbeddingConfig {
-  b2bApps: allB2BApps(where: {billingEmbedConfig: {tabUrl_not: null}}, first: 100) {
+  b2bApps: allB2BApps(
+    where: {billingEmbeddingConfig: {tabUrl_not: null}}
+    first: 100
+  ) {
     id
     name
-    billingEmbedConfig {
+    billingEmbeddingConfig {
       tabUrl
     }
   }

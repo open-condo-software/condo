@@ -71,7 +71,7 @@ const CustomValue = generateServerUtils('CustomValue')
 
 const B2BAppPosIntegrationConfig = generateServerUtils('B2BAppPosIntegrationConfig')
 const B2CAppAccessRightSet = generateServerUtils('B2CAppAccessRightSet')
-const B2BAppBillingEmbedConfig = generateServerUtils('B2BAppBillingEmbedConfig')
+const B2BAppBillingEmbeddingConfig = generateServerUtils('B2BAppBillingEmbeddingConfig')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -97,6 +97,6 @@ module.exports = {
     CustomValue,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
-    B2BAppBillingEmbedConfig,
+    B2BAppBillingEmbeddingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

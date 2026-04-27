@@ -454,7 +454,7 @@ export type GetPublicB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array
 export type GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type GetB2BAppsWithBillingTabEmbeddingConfigQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null, billingEmbedConfig?: { __typename?: 'B2BAppBillingEmbedConfig', tabUrl?: string | null } | null } | null> | null };
+export type GetB2BAppsWithBillingTabEmbeddingConfigQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null, billingEmbeddingConfig?: { __typename?: 'B2BAppBillingEmbeddingConfig', tabUrl?: string | null } | null } | null> | null };
 
 export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
