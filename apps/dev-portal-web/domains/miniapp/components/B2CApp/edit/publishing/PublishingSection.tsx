@@ -57,7 +57,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                             onChange={handleEnvironmentChange}
                         />
                     </Col>
-                    {Boolean(data?.app?.type !== B2CAppTypeType.Web) && (
+                    {Boolean(data?.app?.type === B2CAppTypeType.Cordova) && (
                         <Col span={FULL_COL_SPAN}>
                             <PublishingSettingsForm id={id} environment={selectedEnvironment}/>
                         </Col>

@@ -139,7 +139,7 @@ export const PublishForm: React.FC<PublishFormProps> = ({ id, environment }) => 
             <Form.Item name='info' valuePropName='checked' label={ChooseComponentsLabel} className={styles.checkboxItem}>
                 <Checkbox label={InfoLabel}/>
             </Form.Item>
-            {Boolean(data?.app?.type !== B2CAppTypeType.Web) && (
+            {Boolean(data?.app?.type === B2CAppTypeType.Cordova) && (
                 <Form.Item name='build' valuePropName='checked' className={styles.checkboxItemLast}>
                     <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
                 </Form.Item>

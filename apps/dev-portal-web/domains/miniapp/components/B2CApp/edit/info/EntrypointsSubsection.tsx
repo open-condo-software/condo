@@ -51,6 +51,10 @@ export const EntrypointsSubsection: React.FC<{ id: string }> = ({ id }) => {
     }, [data])
 
     const FormItems = useMemo(() => {
+        const nullNormalizer = (value: unknown) => {
+            return value || null
+        }
+
         return (Object.values(AppEnvironment).map(environment => {
             const StandLabel = intl.formatMessage({ id: `global.miniapp.environments.${environment}.label.genitive` })
             const ItemLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.entrypoints.form.items.appUrl.label' }, {
@@ -62,6 +66,7 @@ export const EntrypointsSubsection: React.FC<{ id: string }> = ({ id }) => {
                     name={`${environment}AppUrl`}
                     label={ItemLabel}
                     rules={[remoteUrlValidator]}
+                    normalize={nullNormalizer}
                 >
                     <Input placeholder={EXAMPLES[environment]}/>
                 </Form.Item>

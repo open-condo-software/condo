@@ -95,7 +95,7 @@ export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                         : <Input readOnly disabled placeholder={AppIdPlaceholder} value={AppIdPlaceholder}/>
                 }
             </Form.Item>
-            {Boolean(data?.app?.type !== B2CAppTypeType.Web) && (
+            {Boolean(data?.app?.type === B2CAppTypeType.Cordova) && (
                 <Form.Item
                     name='currentBuild'
                     label={CurrentBuildLabel}
