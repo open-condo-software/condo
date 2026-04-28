@@ -245,7 +245,7 @@ async function getVerifiedResidentsWithContacts ({ context, logContext, addressK
 
     const allResidentsOnUnit = await Resident.getAll(context, {
         addressKey,
-        unitName,
+        unitName_i: unitName,
         unitType,
         deletedAt: null,
     }, 'id user { id phone }')
