@@ -247,7 +247,7 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
                                                 {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
                                                 {cardLabel && (
                                                     <Typography.Text type='secondary'>
-                                                        {' · '}{cardLabel}
+                                                        {' '}{cardLabel}
                                                     </Typography.Text>
                                                 )}
                                             </Typography.Text>
