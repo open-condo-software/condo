@@ -89,13 +89,13 @@ async function notifyResidentsOnPayday () {
     logger.info({ msg: 'start processing', data: { startAt: state.startTime } })
     while (state.hasMoreConsumers) {
         const consumers = await ServiceConsumer.getAll(context, {
-            acquiringIntegrationContext: {
-                status: CONTEXT_FINISHED_STATUS,
-                deletedAt: null,
-            },
             resident: {
                 deletedAt: null,
             },
+            organization: {
+                deletedAt: null,
+            },
+            accountNumber_not: null,
             deletedAt: null,
         },
         'id resident { id user { id } } organization { id } ' +
@@ -111,7 +111,6 @@ async function notifyResidentsOnPayday () {
         for (const consumer of consumers) {
             try {
                 const accountNumber = get(consumer, ['accountNumber'])
-
                 const receipts = await loadListByChunks({
                     context,
                     chunkSize: 20,
@@ -136,6 +135,7 @@ async function notifyResidentsOnPayday () {
                      * @returns {BillingReceipt[]}
                      */
                     fields: 'id toPay isPayable period organization { id country } account { id number } receiver { id } category { id }',
+                    // isPayable filter indicates that AcquiringContext is in Finished status
                     chunkProcessor: async chunk => chunk.filter(receipt => receipt.isPayable),
                 })
 
