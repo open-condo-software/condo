@@ -166,6 +166,7 @@ async function validateMeterReadingWithIntegration (context, meterReading, meter
                             organization: { id: organizationId },
                         },
                     },
+                    b2bAppContextId: appContext.id,
                 }),
                 abortRequestTimeout: VALIDATE_METER_READING_TIMEOUT,
             }).then(async (response) => {
