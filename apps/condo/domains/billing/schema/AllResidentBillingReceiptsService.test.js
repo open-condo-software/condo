@@ -445,11 +445,11 @@ describe('AllResidentBillingReceiptsService', () => {
             const accountNumber = faker.random.alphaNumeric(12)
             const payAmount = '5000.00'
             const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: payAmount })
-            await utils.createReceipts([jsonReceipt])
+            const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
             const resident = await utils.createResident()
             await utils.createServiceConsumer(resident, accountNumber)
-            const [receipt] = await ResidentBillingReceipt.getAll(utils.clients.resident)
-            expect(receipt.explicitFee).toEqual(Big(payAmount).mul(0.012).toString())
+            const [receipts] = await ResidentBillingReceipt.getAll(utils.clients.resident)
+            expect(receipts.find(({ id }) => id === receiptId).explicitFee).toEqual(Big(payAmount).mul(0.012).toString())
         })
     })
 
