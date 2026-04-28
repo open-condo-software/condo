@@ -1,3 +1,4 @@
+import { useUpdateNewsItemFileMutation } from '@app/condo/gql'
 import {
     BuildingUnit as IBuildingUnit,
     NewsItem as INewsItem,
@@ -20,6 +21,7 @@ import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
+import { UploadFile } from 'antd/lib/upload/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import chunk from 'lodash/chunk'
@@ -38,6 +40,8 @@ import React, { ComponentProps, useCallback, useMemo, useState, useEffect } from
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Radio, RadioGroup, Space, Steps, Typography, Modal } from '@open-condo/ui'
 
@@ -62,6 +66,8 @@ import { PARKING_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { InputStep, SharingAppValuesType } from './InputStep'
+
+import { UploadFileType, useModifiedFiles } from '../FilesUploadList'
 
 import type { NewsItemScopeNoInstanceType } from '../types'
 import type { FormRule as Rule } from 'antd'
@@ -142,6 +148,7 @@ type CondoFormValues = {
     hasAllProperties: boolean
     unitNames: Array<string>
     sectionIds: Array<string>
+    files: Array<UploadFile>
 }
 
 type SelectAppsFormValues = {
@@ -469,6 +476,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         selectedSectionKeys: initialSectionIds,
     })
 
+    const [files, setFiles] = useState<Array<UploadFileType>>(() => get(initialValues, 'files', []))
+
     const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false)
 
     // Select apps form values
@@ -543,6 +552,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const softDeleteNewsItemScope = NewsItemScope.useSoftDeleteMany()
     const createNewsItemScope = NewsItemScope.useCreateMany({})
     const updateNewsItem = NewsItem.useUpdate({})
+    const [updateNewsItemFile] = useUpdateNewsItemFileMutation()
 
     const handleSetSendDate = useCallback((value) => {
         const newsItemCountAtSameDay = getNewsItemCountAtSameDay(value, allNews)
@@ -565,8 +575,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const handleValidBeforeChange = useCallback((form, fieldName) => (value, dateString) => {
         const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
-
-        console.log('Handle valid before change', dateString, value)
 
         setSelectedValidBefore(value)
         setSelectedValidBeforeText(dayjs(value).format('HH:mm DD MMMM'))
@@ -614,6 +622,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [initialValues])
 
+    const { modifiedFiles, modifyFiles } = useModifiedFiles()
+    const client = useApolloClient()
+
     const handleFormSubmit = useCallback(async (values) => {
         if (!values || !selectAppsFormValues || !condoFormValues) {
             console.error('Cannot submit form: not all fields are filled')
@@ -654,6 +665,37 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
         const newsItemId = get(newsItem, 'id')
+
+        const sender = getClientSideSenderInfo()
+        const dvAndSender = { dv: 1, sender }
+
+        const { added, deleted } = modifiedFiles
+
+        for (const file of added) {
+            const newsItemFileId = file.id
+            await updateNewsItemFile({
+                variables: {
+                    id: newsItemFileId,
+                    data: {
+                        ...dvAndSender,
+                        newsItem: { connect: { id: newsItemId } },
+                    },
+                },
+            })
+        }
+
+        for (const file of deleted) {
+            const newsItemFileId = file.id
+            await updateNewsItemFile({
+                variables: {
+                    id: newsItemFileId,
+                    data: {
+                        ...dvAndSender,
+                        deletedAt: new Date().toISOString(),
+                    },
+                },
+            })
+        }
 
         if (actionName === 'create') {
             for (const ctxId of getSelectedAndNotSkippedSharingApps()) {
@@ -820,6 +862,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const completedMsgData = OnCompletedMsg(newsItem)
             !!completedMsgData && notification.info(completedMsgData)
         }
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allNewsItemFiles' })
+        client.cache.gc()
+
         if (isFunction(afterAction) && !initialSentAt) {
             await afterAction()
         } else {
@@ -1124,6 +1170,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         form={form}
                                         scope={scope}
                                         setScope={setScope}
+                                        files={files}
+                                        setFiles={setFiles}
+                                        modifyFiles={modifyFiles}
+                                        newsItemIdForReuploadFiles={currentNewsItem?.id}
                                         templates={templates}
                                         isSharingStep={isSharingAppStep}
                                         autoFocusBody={autoFocusBody}

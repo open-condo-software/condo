@@ -14,6 +14,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Action, convertFilesToUploadType, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import {
     getTypeAndNameByKey,
     getUnitNamesAndUnitTypes,
@@ -21,8 +22,10 @@ import {
     ScopeType, TemplatesType,
 } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
+import { useReuploadNewsItemFiles } from '@condo/domains/news/hooks/useReuploadNewsItemFiles'
 import { searchOrganizationProperty } from '@condo/domains/scope/utils/clientSchema/search'
 
+import { InputStepFilesSelector } from './InputStepFilesSelector'
 import { InputStepForm } from './InputStepForm'
 import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
@@ -30,7 +33,6 @@ import { InputStepSelector, Properties } from './InputStepSelector'
 
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
-const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 
 export type SharingAppValuesType = {
     formValues: Record<string, unknown>
@@ -83,6 +85,10 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     form: FormInstance
     scope: ScopeType
     setScope: React.Dispatch<React.SetStateAction<ScopeType>>
+    files: Array<UploadFileType>
+    setFiles: React.Dispatch<React.SetStateAction<Array<UploadFileType>>>
+    modifyFiles: React.Dispatch<Action>
+    newsItemIdForReuploadFiles?: string
     isSharingStep: boolean
     selectedProperty: {
         loading: boolean
@@ -103,16 +109,6 @@ const debouncedPostMessage = debounce((iframeRef, url, title, body, scope) => {
     }, url)
 }, 300)
 
-export const FormContainer: React.FC<React.PropsWithChildren> = ({ children }) => {
-    return (
-        <Col span={24}>
-            <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                {children}
-            </Row>
-        </Col>
-    )
-}
-
 export const InputStep: React.FC<InputStepProps> = ({
     form,
     scope,
@@ -130,6 +126,10 @@ export const InputStep: React.FC<InputStepProps> = ({
     selectedProperty,
     initialPropertyIds,
     initialFormValues,
+    files,
+    setFiles,
+    modifyFiles,
+    newsItemIdForReuploadFiles,
 }
 ) => {
     const intl = useIntl()
@@ -311,62 +311,102 @@ export const InputStep: React.FC<InputStepProps> = ({
         form.validateFields(['title', 'body'])
     }, [templates])
 
+    const { isLoading, reuploadFiles } = useReuploadNewsItemFiles()
+
+    useEffect(() => {
+        if (files?.length > 0) return
+        if (!newsItemIdForReuploadFiles) return
+        if (isLoading) return
+
+        const tryReuploadFiles = async () => {
+            const reuploadedNewsItemFiles = await reuploadFiles(newsItemIdForReuploadFiles)
+
+            if (!Array.isArray(reuploadedNewsItemFiles) || reuploadedNewsItemFiles.length < 1) return
+
+            const converted = convertFilesToUploadType(reuploadedNewsItemFiles)
+
+            setFiles(converted)
+            reuploadedNewsItemFiles.forEach((newsItemFile) => {
+                modifyFiles({ type: 'add', payload: newsItemFile })
+            })
+        }
+        tryReuploadFiles()
+    }, [newsItemIdForReuploadFiles, isLoading])
+
+    const formFieldsColSpan = isMediumWindow ? 24 : 14
+    const formInfoColSpan = 24 - formFieldsColSpan
+
     return (
-        <Row gutter={BIG_VERTICAL_GUTTER}>
-            <FormContainer>
-                <InputStepForm
-                    template={{ id: templateId, ...templates[templateId] }}
-                    sharingAppId={sharingAppId}
-                    newsSharingConfig={newsSharingConfig}
-                    isSharingStep={isSharingStep}
-                    selectedTitle={selectedTitle}
-                    selectedBody={selectedBody}
-                    newsItemData={newsItemData}
-                    templates={templates}
-                    processedInitialValues={processedInitialValues}
-                    form={form}
-                    autoFocusBody={autoFocusBody}
-                    handleTemplateChange={handleTemplateChange}
-                    handleFormTitleChange={handleFormTitleChange}
-                    handleFormBodyChange={handleFormBodyChange}
-                />
+        <Row gutter={[50, 60]}>
+            <Col span={formFieldsColSpan}>
+                <Row gutter={BIG_VERTICAL_GUTTER}>
+                    <InputStepForm
+                        template={{ id: templateId, ...templates?.[templateId] }}
+                        sharingAppId={sharingAppId}
+                        newsSharingConfig={newsSharingConfig}
+                        isSharingStep={isSharingStep}
+                        selectedTitle={selectedTitle}
+                        selectedBody={selectedBody}
+                        newsItemData={newsItemData}
+                        templates={templates}
+                        processedInitialValues={processedInitialValues}
+                        form={form}
+                        autoFocusBody={autoFocusBody}
+                        handleTemplateChange={handleTemplateChange}
+                        handleFormTitleChange={handleFormTitleChange}
+                        handleFormBodyChange={handleFormBodyChange}
+                    />
 
-                <InputStepPreview
-                    newsSharingConfig={newsSharingConfig}
-                    isSharingStep={isSharingStep}
-                    sharingAppFormValues={sharingAppFormValues}
-                    newsItemData={newsItemData}
-                    iFramePreviewRef={iFramePreviewRef}
-                    selectedBody={selectedBody}
-                    selectedTitle={selectedTitle}
-                    sharingAppId={sharingAppId}
-                />
-            </FormContainer>
+                    <InputStepFilesSelector
+                        onChange={(fileList) => {
+                            setFiles(fileList)
+                        }}
+                        files={files}
+                        modifyFiles={modifyFiles}
+                        isSharingStep={isSharingStep}
+                        newsSharingConfig={newsSharingConfig}
+                        isLoaded={!newsItemIdForReuploadFiles || (newsItemIdForReuploadFiles && !isLoading)}
+                    />
 
-            <FormContainer>
-                <InputStepSelector
-                    ctx={sharingAppData?.ctx}
-                    setSharingAppFormValues={setSharingAppFormValues}
-                    newsSharingConfig={newsSharingConfig}
-                    isSharingStep={isSharingStep}
-                    scope={scope}
-                    propertySelectProps={propertySelectProps}
-                    form={form}
-                    selectedProperty={selectedProperty}
-                    setScope={setScope}
-                    newsItemForOneProperty={newsItemForOneProperty}
-                    initialValues={initialValues}
-                    initialFormValues={initialFormValues}
-                />
+                    <InputStepSelector
+                        ctx={sharingAppData?.ctx}
+                        setSharingAppFormValues={setSharingAppFormValues}
+                        newsSharingConfig={newsSharingConfig}
+                        isSharingStep={isSharingStep}
+                        scope={scope}
+                        propertySelectProps={propertySelectProps}
+                        form={form}
+                        selectedProperty={selectedProperty}
+                        setScope={setScope}
+                        newsItemForOneProperty={newsItemForOneProperty}
+                        initialValues={initialValues}
+                        initialFormValues={initialFormValues}
+                    />
+                </Row>
+            </Col>
+            <Col span={formInfoColSpan}>
+                <Row gutter={BIG_VERTICAL_GUTTER}>
+                    <InputStepPreview
+                        newsSharingConfig={newsSharingConfig}
+                        isSharingStep={isSharingStep}
+                        sharingAppFormValues={sharingAppFormValues}
+                        newsItemData={newsItemData}
+                        iFramePreviewRef={iFramePreviewRef}
+                        selectedBody={selectedBody}
+                        selectedTitle={selectedTitle}
+                        sharingAppId={sharingAppId}
+                        selectedFiles={files}
+                    />
 
-                <InputStepRecipientCounter
-                    sharingAppId={sharingAppId}
-                    newsSharingConfig={newsSharingConfig}
-                    isSharingStep={isSharingStep}
-                    newsItemScopesNoInstance={newsItemScopesNoInstance}
-                    newsSharingScope={sharingAppFormValues?.scope}
-                />
-            </FormContainer>
+                    <InputStepRecipientCounter
+                        sharingAppId={sharingAppId}
+                        newsSharingConfig={newsSharingConfig}
+                        isSharingStep={isSharingStep}
+                        newsItemScopesNoInstance={newsItemScopesNoInstance}
+                        newsSharingScope={sharingAppFormValues?.scope}
+                    />
+                </Row>
+            </Col>
 
             {viewNewsSharingSubmit && (
                 <Col span={24}>

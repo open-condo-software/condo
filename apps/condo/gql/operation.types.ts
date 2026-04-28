@@ -491,6 +491,30 @@ export type GetNewsItemsForAiAssistantQueryVariables = Types.Exact<{
 
 export type GetNewsItemsForAiAssistantQuery = { __typename?: 'Query', newsItems?: Array<{ __typename?: 'NewsItem', id: string, number?: number | null, title?: string | null, body?: string | null, type?: Types.NewsItemTypeType | null, publishedAt?: string | null, sentAt?: string | null, validBefore?: string | null, createdAt?: string | null, updatedAt?: string | null, organization?: { __typename?: 'Organization', name?: string | null } | null, createdBy?: { __typename?: 'User', name?: string | null } | null, updatedBy?: { __typename?: 'User', name?: string | null } | null, compactScopes?: { __typename?: 'ShortScopesField', count: number, firstOnes: Array<{ __typename?: 'NewsItemScope', id: string, unitType?: Types.NewsItemScopeUnitTypeType | null, unitName?: string | null, property?: { __typename?: 'Property', address?: string | null } | null } | null> } | null } | null> | null };
 
+export type CreateNewsItemFileMutationVariables = Types.Exact<{
+  data: Types.NewsItemFileCreateInput;
+}>;
+
+
+export type CreateNewsItemFileMutation = { __typename?: 'Mutation', newsItemFile?: { __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null, mimetype?: string | null } | null } | null };
+
+export type UpdateNewsItemFileMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.NewsItemFileUpdateInput;
+}>;
+
+
+export type UpdateNewsItemFileMutation = { __typename?: 'Mutation', newsItemFile?: { __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null, mimetype?: string | null } | null } | null };
+
+export type GetNewsItemFilesQueryVariables = Types.Exact<{
+  where: Types.NewsItemFileWhereInput;
+  sortBy?: Types.InputMaybe<Array<Types.SortNewsItemFilesBy> | Types.SortNewsItemFilesBy>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+
+export type GetNewsItemFilesQuery = { __typename?: 'Query', newsItemFiles?: Array<{ __typename?: 'NewsItemFile', id: string, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null, mimetype?: string | null } | null } | null> | null };
+
 export type GetNewsItemRecipientsExportTasksQueryVariables = Types.Exact<{
   where: Types.NewsItemRecipientsExportTaskWhereInput;
 }>;

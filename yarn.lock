@@ -765,6 +765,7 @@ __metadata:
     "@emotion/server": ^11.11.0
     "@emotion/styled": ^11.11.0
     "@faker-js/faker": ^7.6.0
+    "@ffmpeg/ffmpeg": ^0.12.15
     "@graphql-codegen/cli": ^6.2.0
     "@graphql-codegen/import-types-preset": ^4.0.0
     "@graphql-codegen/typescript": ^5.0.9
@@ -832,6 +833,7 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.2
+    heic2any: ^0.0.4
     html2canvas: ^1.0.0-rc.7
     http-proxy: ^1.18.1
     https-proxy-agent: ^7.0.1
@@ -7301,6 +7303,22 @@ __metadata:
   version: 3.1.1
   resolution: "@fastify/busboy@npm:3.1.1"
   checksum: 7d8cb4bd8eaacad849d1842a54a0ae8d35808bbdd9c364bf4b953f1e70fdb786f59e1f580b6366a2459bc0d1bc4ade6a6c52ba8de74f1e704404ad7cd7d357f0
+  languageName: node
+  linkType: hard
+
+"@ffmpeg/ffmpeg@npm:^0.12.15":
+  version: 0.12.15
+  resolution: "@ffmpeg/ffmpeg@npm:0.12.15"
+  dependencies:
+    "@ffmpeg/types": ^0.12.4
+  checksum: a16cb08043b42da50341d22ac2094f8a8db0f3f25fc51778674be01e4f3cbd1fcd11ab53aa38cbbfa4afd13aa1da062dafa3c9fa3e5adf6a284c09fd148a477d
+  languageName: node
+  linkType: hard
+
+"@ffmpeg/types@npm:^0.12.4":
+  version: 0.12.4
+  resolution: "@ffmpeg/types@npm:0.12.4"
+  checksum: 8b898163e79945d2eba26f2a46f35a22d00296cb53424f16118060f28c36f694d74d48c49f6570f2974320dc089b7aa9f64c3a0fde45109ba125aa9e3c0926db
   languageName: node
   linkType: hard
 
@@ -28453,6 +28471,13 @@ __metadata:
     capital-case: ^1.0.4
     tslib: ^2.0.3
   checksum: 571c83eeb25e8130d172218712f807c0b96d62b020981400bccc1503a7cf14b09b8b10498a962d2739eccf231d950e3848ba7d420b58a6acd2f9283439546cd9
+  languageName: node
+  linkType: hard
+
+"heic2any@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "heic2any@npm:0.0.4"
+  checksum: 3b7a064fb621ebf215559744436ef66bf4facf40f3fa6fe08f76aa96ff34d9539b616f62a3443b171094226b399966f8f17fc5f0fd73b49fdab70dc0661e307f
   languageName: node
   linkType: hard
 
