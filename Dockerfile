@@ -25,13 +25,20 @@ RUN set -ex \
 # Installer
 FROM base AS installer
 
+ARG NPM_REGISTRY_SERVER=https://registry.npmjs.org
+
 WORKDIR /app
 # Copy pruned monorepo (only package.json + yarn.lock)
 COPY --chown=app:app ./out /app
 # Copy yarn berry
 COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+
+ENV NPM_REGISTRY_SERVER=$NPM_REGISTRY_SERVER
+
+RUN --mount=type=secret,id=npm_registry_auth_token \
+    --mount=type=cache,target=/usr/local/share/.cache/yarn \
+	export NPM_REGISTRY_AUTH_TOKEN="$(cat /run/secrets/npm_registry_auth_token 2>/dev/null || true)" && \
     yarn install --immutable --inline-builds
 
 # Builder
