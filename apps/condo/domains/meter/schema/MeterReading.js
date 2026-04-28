@@ -17,8 +17,12 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES, METER_READING_BILLING_STATUS_APPROVED } = require('@condo/domains/meter/constants/constants')
-const { MOBILE_APP_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const {
+    METER_READING_MAX_VALUES_COUNT,
+    METER_READING_BILLING_STATUSES,
+    METER_READING_BILLING_STATUS_APPROVED,
+    MOBILE_APP_SOURCE_ID,
+} = require('@condo/domains/meter/constants/constants')
 const {
     METER_READING_DATE_IN_FUTURE,
     METER_READING_FEW_VALUES,
@@ -38,6 +42,11 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
 const logger = getLogger()
+
+// Validation result constants for external integration validation (used only in this file)
+const VALIDATION_RESULT_VALID = 'valid'
+const VALIDATION_RESULT_INVALID = 'invalid'
+const VALIDATION_RESULT_SKIPPED = 'skipped'
 
 const ERRORS = {
     METER_READING_DATE_IN_FUTURE: {
@@ -104,20 +113,20 @@ const VALIDATE_METER_READING_TIMEOUT = 3000
  * - If network/HTTP/JSON errors occur: skips that integration (logged via logger.warn)
  * - All integrations must pass - if any fails, throws GQLError
  *
+ * @param {Object} context - Keystone context for database queries
  * @param {Object} meterReading - The meter reading data to validate
  * @param {Object} meter - The meter object with organization reference
- * @param {Object} context - Keystone context for database queries
  * @returns {Promise<boolean>} - True if validation was performed and passed, false if skipped
  * @throws {GQLError} - If validation fails (service returned ok: false)
  */
-async function validateMeterReadingWithIntegration (meterReading, meter, context) {
+async function validateMeterReadingWithIntegration (context, meterReading, meter) {
     const organizationId = meter?.organization
     if (!organizationId) return false
 
     // Find B2BAppContext for this organization with meterIntegrationConfig
     // Filter: only apps that have meterIntegrationConfig set (not null)
     const appContexts = await find('B2BAppContext', {
-        organization: { id: organizationId },
+        organization: { id: organizationId, deletedAt: null },
         app: {
             meterIntegrationConfig_is_null: false,
             deletedAt: null,
@@ -137,38 +146,48 @@ async function validateMeterReadingWithIntegration (meterReading, meter, context
         // appContext.app already has meterIntegrationConfig via B2B_APP_CONTEXT_FIELDS
         const validateUrl = appContext?.app?.meterIntegrationConfig?.validateMeterReadingUrl
 
-        if (validateUrl) {
-            validationTasks.push(
-                fetch(validateUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        meterReading,
-                        meter,
-                        organization: { id: organizationId },
-                    }),
-                    abortRequestTimeout: VALIDATE_METER_READING_TIMEOUT,
-                }).then(async (response) => {
-                    if (response.ok) {
-                        const result = await response.json()
-                        // API returns {ok: bool, data: string} shape
-                        // If ok is false, data contains error message - this is actual validation failure
-                        if (result && result.ok === false) {
-                            return { success: false, error: result.data }
-                        }
-                        return { success: true }
+        if (!validateUrl) continue
+
+        validationTasks.push(
+            fetch(validateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reading: {
+                        value1: meterReading.value1,
+                        value2: meterReading.value2,
+                        value3: meterReading.value3,
+                        value4: meterReading.value4,
+                        meter: {
+                            id: meter.id,
+                            number: meter.number,
+                            accountNumber: meter.accountNumber,
+                            resource: { id: meter.resource?.id },
+                            organization: { id: organizationId },
+                        },
+                    },
+                }),
+                abortRequestTimeout: VALIDATE_METER_READING_TIMEOUT,
+            }).then(async (response) => {
+                if (response.ok) {
+                    const result = await response.json()
+                    // API returns {ok: bool, data: string} shape
+                    // If ok is false, data contains error message - this is actual validation failure
+                    if (result && result.ok === false) {
+                        return { result: VALIDATION_RESULT_INVALID, error: result.data }
                     }
-                    // HTTP non-OK responses are not validation failures - skip this integration
-                    logger.warn({ msg: 'Meter reading validation skipped due to non-OK response', status: response.status })
-                    return { success: true, skipped: true }
-                }).catch((err) => {
-                    // All errors (network, timeout, JSON parse, etc.) skip validation for this integration
-                    // Only actual validation service response with ok: false is considered a failure
-                    logger.warn({ msg: 'Meter reading validation skipped due to error', err })
-                    return { success: true, skipped: true }
-                })
-            )
-        }
+                    return { result: VALIDATION_RESULT_VALID }
+                }
+                // HTTP non-OK responses are not validation failures - skip this integration
+                logger.warn({ msg: 'Meter reading validation skipped due to non-OK response', status: response.status })
+                return { result: VALIDATION_RESULT_SKIPPED }
+            }).catch((err) => {
+                // All errors (network, timeout, JSON parse, etc.) skip validation for this integration
+                // Only actual validation service response with ok: false is considered a failure
+                logger.warn({ msg: 'Meter reading validation skipped due to error', err })
+                return { result: VALIDATION_RESULT_SKIPPED }
+            })
+        )
     }
 
     // No integrations with URLs to validate
@@ -181,11 +200,11 @@ async function validateMeterReadingWithIntegration (meterReading, meter, context
 
     // Collect errors from actual validation failures (service returned ok: false)
     const errors = results
-        .filter(r => !r.success)
+        .filter(r => r.result === VALIDATION_RESULT_INVALID)
         .map(r => r.error)
 
     // Count actual successful validations (not skipped ones)
-    const actualValidations = results.filter(r => r.success && !r.skipped).length
+    const actualValidations = results.filter(r => r.result === VALIDATION_RESULT_VALID).length
 
     // If any service returned ok: false, throw error with the validation message
     if (errors.length > 0) {
@@ -393,7 +412,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             // Validate meter reading through external integration if configured
             // Throws GQLError if validation fails, returns true if validation passed
             const nextItem = { ...existingItem, ...resolvedData }
-            const wasValidated = await validateMeterReadingWithIntegration(nextItem, meter, context)
+            const wasValidated = await validateMeterReadingWithIntegration(context, nextItem, meter)
 
             // If validation was performed (not skipped) and passed, set billingStatus to approved
             if (wasValidated) {
