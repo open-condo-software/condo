@@ -86,7 +86,7 @@ async function canReadByServiceUser (args, schemaConfig) {
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
 
-    return getFilterByFieldPathValue(pathToB2CApp, getB2CAppFilter({ user, requirePermission: !!schemaConfig.rightSetRequired, permissionKey }))
+    return getFilterByFieldPathValue(pathToB2CApp, getB2CAppFilter({ user, requirePermission: schemaConfig.rightSetRequired !== false, permissionKey }))
 }
 
 async function canManageByServiceUser ({ authentication: { item: user }, listKey, originalInput, itemId, itemIds, operation, context }, schemaConfig, parentSchemaName) {
@@ -174,7 +174,7 @@ async function canManageByServiceUser ({ authentication: { item: user }, listKey
 
     const uniqueB2CAppIds = [...new Set(b2cAppIds)]
     const b2cApps = await find('B2CApp', {
-        ...getB2CAppFilter({ user, requirePermission: !!schemaConfig.rightSetRequired, permissionKey }),
+        ...getB2CAppFilter({ user, requirePermission: schemaConfig.rightSetRequired !== false, permissionKey }),
         id_in: uniqueB2CAppIds,
         deletedAt: null,
     })
@@ -207,7 +207,7 @@ async function canExecuteByServiceUser (params, serviceConfig) {
         deletedAt: null,
         addressKey,
         app: {
-            ...getB2CAppFilter({ user, requirePermission: !!serviceConfig.rightSetRequired, permissionKey }),
+            ...getB2CAppFilter({ user, requirePermission: serviceConfig.rightSetRequired !== false, permissionKey }),
             id: b2cAppId,
             deletedAt: null, 
         },

@@ -83487,6 +83487,7 @@ type B2CAppAccessRightSetHistoryRecord {
   """
   _label_: String
   app: String
+  canExecuteSendVoIPCallStartMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -83509,6 +83510,8 @@ input B2CAppAccessRightSetHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallStartMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83592,6 +83595,8 @@ input B2CAppAccessRightSetHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2CAppAccessRightSetHistoryRecordsBy {
+  canExecuteSendVoIPCallStartMessage_ASC
+  canExecuteSendVoIPCallStartMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83612,6 +83617,7 @@ enum SortB2CAppAccessRightSetHistoryRecordsBy {
 
 input B2CAppAccessRightSetHistoryRecordUpdateInput {
   app: String
+  canExecuteSendVoIPCallStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83633,6 +83639,7 @@ input B2CAppAccessRightSetHistoryRecordsUpdateInput {
 
 input B2CAppAccessRightSetHistoryRecordCreateInput {
   app: String
+  canExecuteSendVoIPCallStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83667,6 +83674,7 @@ type B2CAppAccessRightSet {
 
   """ Link to B2CApp """
   app: B2CApp
+  canExecuteSendVoIPCallStartMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -83695,6 +83703,8 @@ input B2CAppAccessRightSetWhereInput {
   OR: [B2CAppAccessRightSetWhereInput]
   app: B2CAppWhereInput
   app_is_null: Boolean
+  canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallStartMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83760,6 +83770,8 @@ input B2CAppAccessRightSetWhereUniqueInput {
 enum SortB2CAppAccessRightSetsBy {
   app_ASC
   app_DESC
+  canExecuteSendVoIPCallStartMessage_ASC
+  canExecuteSendVoIPCallStartMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83780,6 +83792,7 @@ enum SortB2CAppAccessRightSetsBy {
 
 input B2CAppAccessRightSetUpdateInput {
   app: B2CAppRelateToOneInput
+  canExecuteSendVoIPCallStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83798,6 +83811,7 @@ input B2CAppAccessRightSetsUpdateInput {
 
 input B2CAppAccessRightSetCreateInput {
   app: B2CAppRelateToOneInput
+  canExecuteSendVoIPCallStartMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -93914,6 +93928,101 @@ input SendB2BAppPushMessageInput {
 type SendB2BAppPushMessageOutput {
   status: String!
   id: String!
+}
+
+input SendVoIPCallStartMessageVoIPPanelParameters {
+  """Dtmf command used to open the panel"""
+  dtmfCommand: String!
+
+  """Name of a panel to be displayed"""
+  name: String
+}
+
+input SendVoIPCallStartMessageDataForCallHandlingByB2CApp {
+  """Data that will be provided to B2CApp. May be stringified JSON"""
+  B2CAppContext: String!
+}
+
+input SendVoIPCallStartMessageDataForCallHandlingByNative {
+  """Address of sip server, which device should connect to"""
+  voipAddress: String!
+
+  """Login for connection to sip server"""
+  voipLogin: String!
+
+  """Password for connection to sip server"""
+  voipPassword: String!
+
+  """
+  Panels and their commands to open. First one must be the main one. Multiple panels are in testing stage right now and may change
+  """
+  voipPanels: [SendVoIPCallStartMessageVoIPPanelParameters!]!
+
+  """
+  Stun server urls. Are used to determine device public ip for media streams
+  """
+  stunServers: [String!]
+
+  """Preferred codec (usually vp8)"""
+  codec: String
+}
+
+input SendVoIPCallStartMessageData {
+  """
+  Unique value for each call session between panel and resident (means same for different devices also).
+  Must be provided for correct work with multiple devices that use same voip call.
+  F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
+  callId: String!
+
+  """
+  If you want your B2CApp to handle incoming VoIP call, provide this argument.
+  """
+  b2cAppCallData: SendVoIPCallStartMessageDataForCallHandlingByB2CApp
+
+  """
+  If you want mobile app to handle call (without your B2CApp), provide this argument. If "b2cAppCallData" and "nativeCallData" are provided together, native call is prioritized. 
+  """
+  nativeCallData: SendVoIPCallStartMessageDataForCallHandlingByNative
+}
+
+input SendVoIPCallStartMessageInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+
+  """
+  Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+  """
+  addressKey: String!
+
+  """Name of unit, same as in Property map"""
+  unitName: String!
+
+  """Type of unit, same as in Property map"""
+  unitType: SendVoIPCallStartMessageUnitType!
+  callData: SendVoIPCallStartMessageData!
+}
+
+type SendVoIPCallStartMessageOutput {
+  """
+  Count of all Organization Contacts, which we possibly could've sent messages to
+  """
+  verifiedContactsCount: Int
+
+  """Count of Messages that will be sent, one for each verified Resident"""
+  createdMessagesCount: Int
+
+  """Count of Messages which was not created due to some internal error"""
+  erroredMessagesCount: Int
+}
+
+enum SendVoIPCallStartMessageUnitType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
 }
 
 type unauthenticateUserOutput {
@@ -106830,6 +106939,12 @@ type Mutation {
   			"voipDtfmCommand": {
   				"required": false
   			},
+  			"voipPanels": {
+  				"required": false
+  			},
+  			"stunServers": {
+  				"required": false
+  			},
   			"stun": {
   				"required": false
   			},
@@ -108291,6 +108406,35 @@ type Mutation {
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
+
+  """
+  Mutation sends VOIP_INCOMING_CALL Messages to each verified resident on address + unit. Also caches calls, so mobile app can properly react to cancel calls. You can either provide all data.* arguments so mobile app will use it's own app to answer call, or provide just B2CAppContext + callId to use your B2CApp's calling app
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PROPERTY_NOT_FOUND",
+    "message": "Unable to find Property or B2CAppProperty by provided addressKey"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "APP_NOT_FOUND",
+    "message": "Unable to find B2CApp."
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CALL_DATA_NOT_PROVIDED",
+    "message": "\"b2cAppCallData\" or \"nativeCallData\" or both should be provided"
+  }`
+  """
+  sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """
