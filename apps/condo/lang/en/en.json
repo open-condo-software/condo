@@ -1598,7 +1598,7 @@
   "news.component.RecipientCounter.willReceive.label": "will receive \npremises",
   "news.create.title": "New news",
   "news.createNews": "Add news",
-  "news.fields.files.label": "Add media files",
+  "news.fields.files.label": "Add media",
   "news.fields.files.info.documents": "document {documentTypes} up to {documentSizeInMb} MB",
   "news.fields.files.info.media": "Image {imageTypes} up to {imageSizeInMb} MB, video {videoTypes} up to {videoSizeInMb} MB",
   "news.fields.address.label": "Select addressees",

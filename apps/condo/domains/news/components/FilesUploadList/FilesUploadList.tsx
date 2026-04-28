@@ -2,7 +2,6 @@ import { File as FileSchema } from '@app/condo/schema'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import classNames from 'classnames'
-import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -304,7 +303,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     onChange={(info) => {
                         let fileList = [...info.fileList]
                         fileList = fileList.map(file => {
-                            if (get(file, 'response.url')) {
+                            if (file?.response?.url) {
                                 file.url = file.response.url
                             }
 
