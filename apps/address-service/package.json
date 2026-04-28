@@ -30,7 +30,7 @@
     "@open-condo/ui": "workspace:^",
     "@open-keystone/app-admin-ui": "^9.0.5",
     "express": "^4.17.1",
-    "fast-xml-parser": "^5.4.0",
+    "fast-xml-parser": "^5.7.0",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
