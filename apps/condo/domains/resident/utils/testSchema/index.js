@@ -100,12 +100,16 @@ async function registerResidentByTestClient (client, extraAttrs = {}, withFlat =
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, organization, extraAttrs = {}) {
+async function createTestServiceConsumer (client, resident, organization, extraAttrsRaw = {}) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
+    const {
+        acquiringIntegrationContext,
+        billingIntegrationContext, // remove deprecated fields
+        ...extraAttrs
+    } = extraAttrsRaw
     const attrs = {
         dv: 1,
         sender,
