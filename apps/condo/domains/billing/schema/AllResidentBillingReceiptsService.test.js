@@ -448,7 +448,7 @@ describe('AllResidentBillingReceiptsService', () => {
             const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
             const resident = await utils.createResident()
             await utils.createServiceConsumer(resident, accountNumber)
-            const [receipts] = await ResidentBillingReceipt.getAll(utils.clients.resident)
+            const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident)
             expect(receipts.find(({ id }) => id === receiptId).explicitFee).toEqual(Big(payAmount).mul(0.012).toString())
         })
     })
