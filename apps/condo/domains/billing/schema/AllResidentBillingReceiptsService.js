@@ -12,20 +12,21 @@ const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
+const {
+    BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
+    BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
+    BILLING_RECEIPT_SERVICES_FIELD,
+} = require('@condo/domains/billing/constants/constants')
 const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
 const { removeKeysFromObjectDeep } = require('@condo/domains/billing/utils/gqlWhereInput.utils')
 const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-
-const {
-    BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
-    BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
-    BILLING_RECEIPT_SERVICES_FIELD,
-} = require('../constants/constants')
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -187,11 +188,26 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 //
                 // Set receipt.paid field and calculate fees
                 //
-                const uniqueContextIds = [...new Set(
-                    processedReceipts
-                        .map(receipt => get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null))
-                        .filter(Boolean)
-                )]
+                
+                const acquiringContexts = await find('AcquiringIntegrationContext', {
+                    integration: { 
+                        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                        deletedAt: null,
+                    },
+                    organization: {
+                        id_in: serviceConsumers.map(({ organization }) => organization),
+                        deletedAt: null,
+                    },
+                    status: CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
+
+                const contextByOrganization = acquiringContexts.reduce((acc, { id, organization }) => {
+                    acc[organization] = id
+                    return acc
+                }, {})
+                
+                const uniqueContextIds = acquiringContexts.map(({ id }) => id)
                 const formulas = await Promise.all(uniqueContextIds.map(contextId =>
                     getAcquiringIntegrationContextFormula(context, contextId)
                 ))
@@ -202,12 +218,13 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 })
 
                 return Promise.all(processedReceipts.map(async receipt => {
-                    const billingCategory = get(receipt, ['category']) || {}
+                    const billingCategory = receipt?.category || {}
                     const newPaid = await getNewPaymentsSum(receipt.id)
-                    const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
-                    const toPay = get(receipt, ['toPay'], 0)
+                    const organizationId = receipt?.serviceConsumer?.organization || null
+                    const acquiringContextId = contextByOrganization[organizationId] || null
+                    const toPay = receipt?.toPay ?? 0
                     let fee = '0'
-                    
+
                     if (acquiringContextId) {
                         const formula = formulaMap[acquiringContextId]
                         const feeCalculator = new FeeDistribution(formula, billingCategory.id)

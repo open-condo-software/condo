@@ -434,6 +434,25 @@ describe('AllResidentBillingReceiptsService', () => {
         })
     })
 
+    describe('Fee logics', () => {
+        test('Should set explicit fee field if explicit fee distribution schema is set', async () => {
+            await utils.updateAcquiringIntegration({
+                explicitFeeDistributionSchema: [
+                    { 'recipient': 'acquiring', 'percent': '1.0' },
+                    { 'recipient': 'service', 'percent': '0.2' },
+                ],
+            })
+            const accountNumber = faker.random.alphaNumeric(12)
+            const payAmount = '5000.00'
+            const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: payAmount })
+            await utils.createReceipts([jsonReceipt])
+            const resident = await utils.createResident()
+            await utils.createServiceConsumer(resident, accountNumber)
+            const [receipt] = await ResidentBillingReceipt.getAll(utils.clients.resident)
+            expect(receipt.explicitFee).toEqual(Big(payAmount).mul(0.012).toString())
+        })
+    })
+
     describe('Paid logics', () => {
 
         describe('Duplicated paid fix', () => {
