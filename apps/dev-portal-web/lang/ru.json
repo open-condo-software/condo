@@ -25,7 +25,10 @@
   "global.forms.validations.phoneFormat.message": "Неверный номер телефона",
   "global.forms.validations.passwordTooEasy.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
   "global.forms.validations.fileRequired.message": "Файл не выбран",
-  "global.forms.validations.notAnUrl.message": "Данное поле должно быть действительным url",
+  "global.forms.validations.url.invalid.message": "Данное поле должно быть действительным url",
+  "global.forms.validations.url.nonHttps.message": "Протокол ссылки должен быть https",
+  "global.forms.validations.url.localhost.message": "Ссылка не может вести на localhost",
+  "global.forms.validations.url.specialIP.message": "Ссылка не может вести на приватный IP-адрес",
   "global.forms.validations.notAnEmail.message": "Неверный email",
 
   "global.errors.serverError.title": "Ошибка сервера",
@@ -37,7 +40,9 @@
   "global.errors.imageUpload.tooBig.description": "Изображение больше {maxSize} пикселей",
 
   "global.miniapp.environments.development.label": "Тестовый стенд",
+  "global.miniapp.environments.development.label.genitive": "Тестового стенда",
   "global.miniapp.environments.production.label": "Продуктовый стенд",
+  "global.miniapp.environments.production.label.genitive": "Продуктового стенда",
 
   "components.common.markdownEditor.controls.undo.title": "Назад",
   "components.common.markdownEditor.controls.redo.title": "Вперед",
@@ -258,6 +263,8 @@
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label": "Название приложения",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.label": "Разработчик",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.placeholder": "Название компании",
+  "pages.apps.b2c.id.sections.info.entrypoints.subtitle": "Точки входа",
+  "pages.apps.b2c.id.sections.info.entrypoints.form.items.appUrl.label": "Точка входа для {environment}",
   "pages.apps.b2c.id.sections.info.environmentInfo.subtitle": "Информация об окружениях",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.stand.label": "Выберите окружение",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.appId.label": "ID приложения на выбранном стенде",

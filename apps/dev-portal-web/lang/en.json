@@ -25,7 +25,10 @@
   "global.forms.validations.phoneFormat.message": "Invalid phone number",
   "global.forms.validations.passwordTooEasy.message": "The specified password is too short or contains many repeated characters",
   "global.forms.validations.fileRequired.message": "File is not selected",
-  "global.forms.validations.notAnUrl.message": "This field must be a valid url",
+  "global.forms.validations.url.invalid.message": "Данное поле должно быть действительным url",
+  "global.forms.validations.url.nonHttps.message": "URL must have https protocol",
+  "global.forms.validations.url.localhost.message": "URL must not lead to localhost",
+  "global.forms.validations.url.specialIP.message": "URL must not lead to private IP address",
   "global.forms.validations.notAnEmail.message": "Invalid email",
 
   "global.errors.serverError.title": "Server error",
@@ -37,7 +40,9 @@
   "global.errors.imageUpload.tooBig.description": "Image is bigger than {maxSize} pixels",
 
   "global.miniapp.environments.development.label": "Test stand",
+  "global.miniapp.environments.development.label.genitive": "Test stand",
   "global.miniapp.environments.production.label": "Production stand",
+  "global.miniapp.environments.production.label.genitive": "Production stand",
 
   "components.common.markdownEditor.controls.undo.title": "Undo",
   "components.common.markdownEditor.controls.redo.title": "Redo",
@@ -257,6 +262,8 @@
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label": "App name",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.label": "Developer",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.placeholder": "Company name",
+  "pages.apps.b2c.id.sections.info.entrypoints.subtitle": "App entrypoints",
+  "pages.apps.b2c.id.sections.info.entrypoints.form.items.appUrl.label": "App entrypoint for {environment}",
   "pages.apps.b2c.id.sections.info.environmentInfo.subtitle": "Environment info",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.stand.label": "Select the environment",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.appId.label": "App ID on the selected environment",

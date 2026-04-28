@@ -6,7 +6,7 @@ const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
-const { isIP, isSpecial, isLocalhost } = require('@open-condo/miniapp-utils/helpers/ip')
+const { getUrlMeta } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const {
@@ -94,23 +94,19 @@ const B2CApp = new GQLListSchema('B2CApp', {
             hooks: {
                 async validateInput ({ resolvedData, fieldPath, context }) {
                     const value = resolvedData[fieldPath]
-                    let url
-                    try {
-                        url = new URL(value)
-                    } catch (e) {
+                    if (value === null) return
+
+                    const urlMeta = getUrlMeta(value)
+                    if (!urlMeta) {
                         throw new GQLError(ERRORS.INVALID_APP_URL, context)
                     }
-                    if (url.protocol !== 'https:') {
+                    if (urlMeta.protocol !== 'https:') {
                         throw new GQLError(ERRORS.HTTPS_ONLY_ALLOWED, context)
                     }
-                    // NOTE: https://[::1]:8000 for ipv6 cases
-                    const hostname = url.hostname.startsWith('[') && url.hostname.endsWith(']')
-                        ? url.hostname.slice(1, -1)
-                        : url.hostname
-                    if (hostname === 'localhost' || (isIP(hostname) && isLocalhost(hostname))) {
+                    if (urlMeta.isLocalhost) {
                         throw new GQLError(ERRORS.LOCALHOST_NOT_ALLOWED, context)
                     }
-                    if (isIP(hostname) && isSpecial(hostname)) {
+                    if (urlMeta.isSpecialIP) {
                         throw new GQLError(ERRORS.SPECIAL_IP_NOT_ALLOWED, context)
                     }
                 },

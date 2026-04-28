@@ -19,6 +19,11 @@ fragment B2CAppPermissions on B2CApp {
     productionBlePeripheralBgAllowed
 }
 
+fragment B2CAppEntryPoints on B2CApp {
+    developmentAppUrl
+    productionAppUrl
+}
+
 query getB2CApp($id: ID!) {
     app: B2CApp(where: { id: $id }) {
         id
@@ -28,11 +33,12 @@ query getB2CApp($id: ID!) {
         logo {
             publicUrl
         }
-        developmentExportId
-        productionExportId
         developmentWebTransformEnabled
         productionWebTransformEnabled
+        ...B2CAppEntryPoints
         ...B2CAppPermissions
+        developmentExportId
+        productionExportId
     }
 }
 
