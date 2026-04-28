@@ -60,6 +60,9 @@
       "helpers/i18n": [
         "dist/helpers/i18n.d.ts"
       ],
+      "helpers/ip": [
+        "dist/helpers/ip/index.d.ts"
+      ],
       "helpers/messaging": [
         "dist/helpers/messaging/index.d.ts"
       ],
@@ -143,6 +146,11 @@
       "types": "./dist/helpers/i18n.d.ts",
       "require": "./dist/helpers/i18n.js",
       "import": "./dist/helpers/i18n.mjs"
+    },
+    "./helpers/ip": {
+      "types": "./dist/helpers/ip/index.d.ts",
+      "require": "./dist/helpers/ip/index.js",
+      "import": "./dist/helpers/ip/index.mjs"
     },
     "./helpers/messaging": {
       "types": "./dist/helpers/messaging/index.d.ts",

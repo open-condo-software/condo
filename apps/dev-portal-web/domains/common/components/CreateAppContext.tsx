@@ -1,12 +1,12 @@
 import { useApolloClient } from '@apollo/client'
-import { Form, Row, Col } from 'antd'
+import { Col, Form, Row } from 'antd'
 import { useRouter } from 'next/router'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useState } from 'react'
-import { useIntl, FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 
-import { Smartphone, Monitor } from '@open-condo/icons'
+import { Monitor, Smartphone } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Modal, Input, Button } from '@open-condo/ui'
+import { Button, Input, Modal } from '@open-condo/ui'
 import { useContainerSize } from '@open-condo/ui/hooks'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
@@ -15,13 +15,15 @@ import { AuthenticatedUserType, useAuth } from '@/domains/user/utils/auth'
 
 import { AppCard } from './AppCard'
 
+import type { ApolloError } from '@apollo/client'
 import type { RowProps } from 'antd'
 
 import {
-    useCreateB2BAppMutation,
+    B2CAppTypeType,
     CreateB2BAppMutation,
-    useCreateB2CAppMutation,
     CreateB2CAppMutation,
+    useCreateB2BAppMutation,
+    useCreateB2CAppMutation,
 } from '@/gql'
 
 type CreateAppContextType = {
@@ -39,7 +41,17 @@ const FULL_WIDTH_THRESHOLD = 500
 
 const B2B_WEB_APP_VALUE = 'b2bWebApp' as const
 const B2C_NATIVE_APP_VALUE = 'b2cNativeApp' as const
+const B2C_WEB_APP_VALUE = 'b2cWebApp' as const
+
+const DEFAULT_APP_TYPE = B2C_WEB_APP_VALUE
+
 const APP_TYPES = [
+    {
+        key: B2C_WEB_APP_VALUE,
+        icon: <Smartphone size='medium'/>,
+        value: B2C_WEB_APP_VALUE,
+        span: 12,
+    },
     {
         key: B2C_NATIVE_APP_VALUE,
         icon: <Smartphone size='medium'/>,
@@ -51,7 +63,7 @@ const APP_TYPES = [
         icon: <Monitor size='medium'/>,
         value: B2B_WEB_APP_VALUE,
         disabled: (user: AuthenticatedUserType) => !(user?.isSupport || user?.isAdmin),
-        span: 12,
+        span: 24,
     },
 ]
 
@@ -102,10 +114,11 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const client = useApolloClient()
 
     const [openModal, setOpenModal] = useState(false)
+    const [isCreating, setIsCreating] = useState(false)
     const [form] = Form.useForm()
     const { trimValidator } = useValidations()
 
-    const [appType, setAppType] = useState<AppType>(B2C_NATIVE_APP_VALUE)
+    const [appType, setAppType] = useState<AppType>(DEFAULT_APP_TYPE)
     const [isAppTypeSelected, setIsAppTypeSelected] = useState(false)
 
     const router = useRouter()
@@ -113,14 +126,14 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const clearFormState = useCallback(() => {
         form.resetFields(['name'])
         setIsAppTypeSelected(false)
-        setAppType(B2C_NATIVE_APP_VALUE)
+        setAppType(DEFAULT_APP_TYPE)
     }, [form])
 
     const handleModalOpen = useCallback(() => {
         setOpenModal(true)
     }, [])
     const handleModalClose = useCallback(() => {
-        setAppType(B2C_NATIVE_APP_VALUE)
+        setAppType(DEFAULT_APP_TYPE)
         clearFormState()
         setOpenModal(false)
     }, [clearFormState])
@@ -132,8 +145,13 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allB2CAppsMeta' })
     }, [client])
 
-    const onError = useMutationErrorHandler()
+    const onErrorHandler = useMutationErrorHandler()
+    const onError = useCallback((error: ApolloError) => {
+        setIsCreating(false)
+        onErrorHandler(error)
+    }, [onErrorHandler])
     const onCompleted = useCallback((data: CreateB2CAppMutation | CreateB2BAppMutation) => {
+        setIsCreating(false)
         handleModalClose()
         clearAppsCache()
         const id = data.app?.id
@@ -159,22 +177,43 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     }, [form])
 
     const handleFormSubmit = useCallback((values: CreateAppFormValues) => {
-        if (values.type === B2C_NATIVE_APP_VALUE) {
-            createB2CAppMutation({ variables: {
-                data: {
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    name: values.name,
-                },
-            } })
-        } else {
-            createB2BAppMutation({ variables: {
-                data: {
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    name: values.name,
-                },
-            } })
+        setIsCreating(true)
+        switch (values.type) {
+            case B2C_NATIVE_APP_VALUE:
+                void createB2CAppMutation({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            name: values.name,
+                            type: B2CAppTypeType.Cordova,
+                        },
+                    },
+                })
+                break
+            case B2C_WEB_APP_VALUE:
+                void createB2CAppMutation({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            name: values.name,
+                            type: B2CAppTypeType.Web,
+                        },
+                    },
+                })
+                break
+            case B2B_WEB_APP_VALUE:
+                void createB2BAppMutation({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            name: values.name,
+                        },
+                    },
+                })
+                break
         }
     }, [createB2BAppMutation, createB2CAppMutation])
 
@@ -195,9 +234,9 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
 
         return [
             <Button key='cancel' type='secondary' onClick={() => setIsAppTypeSelected(false)}>{BackLabel}</Button>,
-            <Button key='cancel' type='primary' onClick={() => form.submit()}>{CreateLabel}</Button>,
+            <Button key='cancel' type='primary' disabled={isCreating} onClick={() => form.submit()}>{CreateLabel}</Button>,
         ]
-    }, [BackLabel, ContinueLabel, CreateLabel, form, isAppTypeSelected])
+    }, [BackLabel, ContinueLabel, CreateLabel, form, isAppTypeSelected, isCreating])
 
     const ModalBody = useMemo(() => {
         if (!isAppTypeSelected) {
@@ -236,7 +275,7 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
                         layout='vertical'
                         form={form}
                         onFinish={handleFormSubmit}
-                        initialValues={{ type: B2C_NATIVE_APP_VALUE }}
+                        initialValues={{ type: DEFAULT_APP_TYPE }}
                     >
                         <Form.Item name='type' hidden/>
                         {ModalBody}

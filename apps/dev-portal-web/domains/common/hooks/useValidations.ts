@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getUrlMeta } from '@open-condo/miniapp-utils/helpers/urls'
+
 import { isValidPassword } from '@dev-portal-api/domains/user/utils/password'
 import { normalizePhone } from '@dev-portal-api/domains/user/utils/phone'
 
@@ -14,6 +16,7 @@ type Validators = {
     emailValidator: FormRule
     trimValidator: FormRule
     urlValidator: FormRule
+    remoteUrlValidator: FormRule
 }
 
 export function useValidations (): Validators {
@@ -22,7 +25,10 @@ export function useValidations (): Validators {
     const FileIsRequiredMessage = intl.formatMessage({ id: 'global.forms.validations.fileRequired.message' })
     const InvalidPhoneMessage = intl.formatMessage({ id: 'global.forms.validations.phoneFormat.message' })
     const PasswordIsTooEasyMessage = intl.formatMessage({ id: 'global.forms.validations.passwordTooEasy.message' })
-    const NotAnUrlMessage = intl.formatMessage({ id: 'global.forms.validations.notAnUrl.message' })
+    const NotAnUrlMessage = intl.formatMessage({ id: 'global.forms.validations.url.invalid.message' })
+    const NonHTTPSUrlMessage = intl.formatMessage({ id: 'global.forms.validations.url.nonHttps.message' })
+    const LocalhostURLMessage = intl.formatMessage({ id: 'global.forms.validations.url.localhost.message' })
+    const SpecialIPURLMessage = intl.formatMessage({ id: 'global.forms.validations.url.specialIP.message' })
     const NotAnEmailMessage = intl.formatMessage({ id: 'global.forms.validations.notAnEmail.message' })
 
     const requiredFieldValidator: FormRule = useMemo(() => ({
@@ -62,6 +68,26 @@ export function useValidations (): Validators {
         message: NotAnUrlMessage,
     }), [NotAnUrlMessage])
 
+    const remoteUrlValidator: FormRule = useMemo(() => ({
+        validator: (_, value) => {
+            if (value === null) return Promise.resolve()
+
+            const urlMeta = getUrlMeta(value)
+            if (!urlMeta) return Promise.reject(NotAnUrlMessage)
+            if (urlMeta.protocol !== 'https:') {
+                return Promise.reject(NonHTTPSUrlMessage)
+            }
+            if (urlMeta.isLocalhost) {
+                return Promise.reject(LocalhostURLMessage)
+            }
+            if (urlMeta.isSpecialIP) {
+                return Promise.reject(SpecialIPURLMessage)
+            }
+
+            return Promise.resolve()
+        },
+    }), [LocalhostURLMessage, NonHTTPSUrlMessage, NotAnUrlMessage, SpecialIPURLMessage])
+
     const emailValidator: FormRule = useMemo(() => ({
         type: 'email',
         message: NotAnEmailMessage,
@@ -77,5 +103,6 @@ export function useValidations (): Validators {
         emailValidator,
         trimValidator,
         urlValidator,
+        remoteUrlValidator,
     }
 }

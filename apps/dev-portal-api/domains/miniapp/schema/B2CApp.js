@@ -3,8 +3,10 @@
  */
 
 const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { getUrlMeta } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const {
@@ -13,6 +15,7 @@ const {
     getMimeTypesValidator,
 } = require('@dev-portal-api/domains/common/utils/files')
 const { B2C_APP_TYPES, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
+const { INVALID_APP_URL } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
@@ -21,6 +24,33 @@ const { getEnvironmentalFields } = require('./fields/environmental')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos', true)
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
+
+const ERRORS = {
+    INVALID_APP_URL: {
+        type: INVALID_APP_URL,
+        code: BAD_USER_INPUT,
+        message: 'App url is not a valid URL',
+        messageForUser: 'api.miniapp.B2CApp.appUrl.INVALID_URL',
+    },
+    HTTPS_ONLY_ALLOWED: {
+        type: INVALID_APP_URL,
+        code: BAD_USER_INPUT,
+        message: 'App url must use https protocol',
+        messageForUser: 'api.miniapp.B2CApp.appUrl.HTTPS_ONLY_ALLOWED',
+    },
+    LOCALHOST_NOT_ALLOWED: {
+        type: INVALID_APP_URL,
+        code: BAD_USER_INPUT,
+        message: 'App url must not be localhost',
+        messageForUser: 'api.miniapp.B2CApp.appUrl.LOCALHOST_NOT_ALLOWED',
+    },
+    SPECIAL_IP_NOT_ALLOWED: {
+        type: INVALID_APP_URL,
+        code: BAD_USER_INPUT,
+        message: 'App url must not be private / special IP address',
+        messageForUser: 'api.miniapp.B2CApp.appUrl.SPECIAL_IP_NOT_ALLOWED',
+    },
+}
 
 const B2CApp = new GQLListSchema('B2CApp', {
     schemaDoc: 'B2C application',
@@ -57,6 +87,31 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: 'Text',
             isRequired: false,
         },
+        ...getEnvironmentalFields('appUrl', {
+            schemaDoc: 'Url to app page, which is the app starting point for {environment} environment and will be opened in iframe',
+            type: 'Url',
+            isRequired: false,
+            hooks: {
+                async validateInput ({ resolvedData, fieldPath, context }) {
+                    const value = resolvedData[fieldPath]
+                    if (value === null) return
+
+                    const urlMeta = getUrlMeta(value)
+                    if (!urlMeta) {
+                        throw new GQLError(ERRORS.INVALID_APP_URL, context)
+                    }
+                    if (urlMeta.protocol !== 'https:') {
+                        throw new GQLError(ERRORS.HTTPS_ONLY_ALLOWED, context)
+                    }
+                    if (urlMeta.isLocalhost) {
+                        throw new GQLError(ERRORS.LOCALHOST_NOT_ALLOWED, context)
+                    }
+                    if (urlMeta.isSpecialIP) {
+                        throw new GQLError(ERRORS.SPECIAL_IP_NOT_ALLOWED, context)
+                    }
+                },
+            },
+        }),
         ...getEnvironmentalFields('webTransformEnabled', {
             schemaDoc:
                 'Enables automatic transformation from native environments to web ' +
@@ -65,7 +120,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             isRequired: true,
             defaultValue: false,
         }),
-        ...getEnvironmentalPermissionsFields(),
+        ...getEnvironmentalPermissionsFields({ listKey: 'B2CApp' }),
         ...getEnvironmentalFields('publishedAt', {
             schemaDoc: 'The last time a mini-app was published on the {environment} environment',
             type: 'DateTimeUtc',

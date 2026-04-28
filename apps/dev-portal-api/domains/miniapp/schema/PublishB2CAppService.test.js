@@ -337,13 +337,14 @@ describe('PublishB2CAppService', () => {
             })
             describe('appUrl', () => {
                 describe.each(AVAILABLE_ENVIRONMENTS)('%s environment', (environment) => {
-                    const fieldName = getEnvironmentalFieldName(environment, 'webTransformEnabled')
-                    test(`Must be set on publish for cordova app if ${fieldName} set to true`, async () => {
+                    const transformField = getEnvironmentalFieldName(environment, 'webTransformEnabled')
+                    const appUrlField = getEnvironmentalFieldName(environment, 'appUrl')
+                    test(`Must be set on publish for cordova app if ${transformField} set to true`, async () => {
                         const [cordovaApp] = await createTestB2CApp(user, {
                             type: B2C_APP_CORDOVA_TYPE,
-                            [fieldName]: true,
+                            [transformField]: true,
                         })
-                        expect(cordovaApp).toHaveProperty(fieldName, true)
+                        expect(cordovaApp).toHaveProperty(transformField, true)
 
                         if (environment === PROD_ENVIRONMENT) {
                             await createApprovedB2CAppPublishRequest(support, cordovaApp)
@@ -360,10 +361,10 @@ describe('PublishB2CAppService', () => {
                         const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
                         expectStaticAppUrl(condoApp)
                     })
-                    test(`Must be reset on publish for cordova app if ${fieldName} set to false`, async () => {
+                    test(`Must be reset on publish for cordova app if ${transformField} set to false`, async () => {
                         const [cordovaApp] = await createTestB2CApp(user, {
                             type: B2C_APP_CORDOVA_TYPE,
-                            [fieldName]: true,
+                            [transformField]: true,
                         })
 
                         if (environment === PROD_ENVIRONMENT) {
@@ -378,7 +379,7 @@ describe('PublishB2CAppService', () => {
                         const firstCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
                         expectStaticAppUrl(firstCondoApp)
 
-                        await updateTestB2CApp(user, cordovaApp.id, { [fieldName]: false })
+                        await updateTestB2CApp(user, cordovaApp.id, { [transformField]: false })
 
                         const [secondResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
                         expect(secondResult).toHaveProperty('success', true)
@@ -386,10 +387,10 @@ describe('PublishB2CAppService', () => {
                         const secondCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
                         expect(secondCondoApp).toHaveProperty('appUrl', null)
                     })
-                    test('Must not be set on publish for web app', async () => {
+                    test(`Must not be generated on publish for web app if ${transformField} set to true`, async () => {
                         const [webApp] = await createTestB2CApp(user, {
                             type: 'web',
-                            [fieldName]: true,
+                            [transformField]: true,
                         })
 
                         if (environment === PROD_ENVIRONMENT) {
@@ -407,10 +408,32 @@ describe('PublishB2CAppService', () => {
                         const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
                         expect(condoApp).toHaveProperty('appUrl', null)
                     })
-                    test(`Must remain set on subsequent publish for cordova app if ${fieldName} remains true`, async () => {
+                    test(`Must be set on publish for web app if ${appUrlField} set`, async () => {
+                        const appUrl = 'https://my-app.example.com/start?query=param&query=list#hash-allowed'
+                        const [webApp] = await createTestB2CApp(user, {
+                            type: 'web',
+                            [appUrlField]: appUrl,
+                        })
+
+                        if (environment === PROD_ENVIRONMENT) {
+                            await createApprovedB2CAppPublishRequest(support, webApp)
+                        }
+
+                        const [result] = await publishB2CAppByTestClient(user, webApp, { info: true }, environment)
+                        expect(result).toHaveProperty('success', true)
+
+                        const apiApp = await B2CApp.getOne(admin, { id: webApp.id })
+                        const exportIdField = getEnvironmentalFieldName(environment, 'exportId')
+                        expect(apiApp).toHaveProperty(exportIdField)
+                        expect(apiApp[exportIdField]).not.toBeNull()
+
+                        const condoApp = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportIdField] })
+                        expect(condoApp).toHaveProperty('appUrl', appUrl)
+                    })
+                    test(`Must remain set on subsequent publish for cordova app if ${transformField} remains true`, async () => {
                         const [cordovaApp] = await createTestB2CApp(user, {
                             type: B2C_APP_CORDOVA_TYPE,
-                            [fieldName]: true,
+                            [transformField]: true,
                         })
 
                         if (environment === PROD_ENVIRONMENT) {
@@ -432,10 +455,10 @@ describe('PublishB2CAppService', () => {
                         expectStaticAppUrl(secondCondoApp)
                         expect(secondCondoApp.appUrl).toBe(firstCondoApp.appUrl)
                     })
-                    test(`Can toggle ${fieldName} between publishes`, async () => {
+                    test(`Can toggle ${transformField} between publishes`, async () => {
                         const [cordovaApp] = await createTestB2CApp(user, {
                             type: B2C_APP_CORDOVA_TYPE,
-                            [fieldName]: false,
+                            [transformField]: false,
                         })
 
                         if (environment === PROD_ENVIRONMENT) {
@@ -450,7 +473,7 @@ describe('PublishB2CAppService', () => {
                         const firstCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
                         expect(firstCondoApp).toHaveProperty('appUrl', null)
 
-                        await updateTestB2CApp(user, cordovaApp.id, { [fieldName]: true })
+                        await updateTestB2CApp(user, cordovaApp.id, { [transformField]: true })
 
                         const [secondResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
                         expect(secondResult).toHaveProperty('success', true)
@@ -458,7 +481,7 @@ describe('PublishB2CAppService', () => {
                         const secondCondoApp = await CondoB2CApp.getOne(condoAdmin, { id: firstApiApp[exportIdField] })
                         expectStaticAppUrl(secondCondoApp)
 
-                        await updateTestB2CApp(user, cordovaApp.id, { [fieldName]: false })
+                        await updateTestB2CApp(user, cordovaApp.id, { [transformField]: false })
 
                         const [thirdResult] = await publishB2CAppByTestClient(user, cordovaApp, { info: true }, environment)
                         expect(thirdResult).toHaveProperty('success', true)

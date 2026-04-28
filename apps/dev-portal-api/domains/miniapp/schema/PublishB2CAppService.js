@@ -46,7 +46,7 @@ const { getEnvironmentalPermissionsFieldsSelection, extractDevicePermissionsForC
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
-const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalPermissionsFieldsSelection()} ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled'])}`
+const B2C_APP_FIELDS = `id name developer type createdBy { name } logo { publicUrl originalFilename } ${getEnvironmentalPermissionsFieldsSelection({ listKey: 'B2CApp' })} ${getEnvironmentalFieldsSelection(['exportId', 'webTransformEnabled', 'appUrl'])}`
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {
@@ -132,6 +132,8 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
 
     const webTransformField = getEnvironmentalFieldName(environment, 'webTransformEnabled')
     const webTransformEnabled = app[webTransformField] === true
+    const appUrlField = getEnvironmentalFieldName(environment, 'appUrl')
+    const appUrl = app[appUrlField]
 
     // Step 1. Prepare payload
     const appPayload = {
@@ -149,6 +151,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
             : serverClient.createUploadFile({
                 stream: fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH),
             }),
+        appUrl,
         importId: app.id,
         importRemoteSystem: REMOTE_SYSTEM,
     }

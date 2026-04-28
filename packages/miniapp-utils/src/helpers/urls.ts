@@ -5,6 +5,8 @@ const WILDCARD_REGEXP_PART_ESCAPED = _escapeRegexp(WILDCARD_REGEXP_PART)
 type URLCache = Map<string, URL>
 type RegExpCache = Map<string, RegExp>
 
+import { isIP, isLocalhost, isSpecial } from './ip'
+
 export function isSafeUrl (url: unknown): boolean {
     if (!url || typeof url !== 'string') return false
     
@@ -142,4 +144,26 @@ export function replaceDomain (source: string, from: string, to: string, options
     }
 
     return replaced
+}
+
+type URLWithMeta = Readonly<URL> & {
+    isIP: boolean
+    isSpecialIP: boolean
+    isLocalhost: boolean
+}
+
+export function getUrlMeta (url: string): URLWithMeta | null {
+    try {
+        const u: URLWithMeta = new URL(url) as URLWithMeta
+        const hostnameUnWrapped = (u.hostname.startsWith('[') && u.hostname.endsWith(']'))
+            ? u.hostname.slice(1, -1)
+            : u.hostname
+        u.isIP = isIP(hostnameUnWrapped) > 0
+        u.isSpecialIP = u.isIP && isSpecial(hostnameUnWrapped)
+        u.isLocalhost = u.hostname === 'localhost' || (u.isIP && isLocalhost(hostnameUnWrapped))
+
+        return u
+    } catch {
+        return null
+    }
 }

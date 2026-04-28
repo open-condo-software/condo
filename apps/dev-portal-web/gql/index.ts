@@ -1728,6 +1728,7 @@ export type B2CAppCreateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1744,6 +1745,7 @@ export type B2CAppCreateInput = {
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1768,6 +1770,7 @@ export type B2CAppHistoryRecordCreateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1787,6 +1790,7 @@ export type B2CAppHistoryRecordCreateInput = {
   logo?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1817,6 +1821,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1836,6 +1841,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   logo?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1896,6 +1902,24 @@ export type B2CAppHistoryRecordWhereInput = {
   developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1996,6 +2020,24 @@ export type B2CAppHistoryRecordWhereInput = {
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2414,6 +2456,7 @@ export type B2CAppUpdateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2430,6 +2473,7 @@ export type B2CAppUpdateInput = {
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2488,6 +2532,24 @@ export type B2CAppWhereInput = {
   developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2572,6 +2634,24 @@ export type B2CAppWhereInput = {
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionBleBeaconBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleBeaconBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3740,6 +3820,8 @@ export enum SortB2CAppHistoryRecordsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
+  DevelopmentAppUrlAsc = 'developmentAppUrl_ASC',
+  DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
   DevelopmentBleBeaconBgAllowedAsc = 'developmentBleBeaconBgAllowed_ASC',
   DevelopmentBleBeaconBgAllowedDesc = 'developmentBleBeaconBgAllowed_DESC',
   DevelopmentBleCentralBgAllowedAsc = 'developmentBleCentralBgAllowed_ASC',
@@ -3774,6 +3856,8 @@ export enum SortB2CAppHistoryRecordsBy {
   IdDesc = 'id_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ProductionAppUrlAsc = 'productionAppUrl_ASC',
+  ProductionAppUrlDesc = 'productionAppUrl_DESC',
   ProductionBleBeaconBgAllowedAsc = 'productionBleBeaconBgAllowed_ASC',
   ProductionBleBeaconBgAllowedDesc = 'productionBleBeaconBgAllowed_DESC',
   ProductionBleCentralBgAllowedAsc = 'productionBleCentralBgAllowed_ASC',
@@ -3871,6 +3955,8 @@ export enum SortB2CAppsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
+  DevelopmentAppUrlAsc = 'developmentAppUrl_ASC',
+  DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
   DevelopmentBleBeaconBgAllowedAsc = 'developmentBleBeaconBgAllowed_ASC',
   DevelopmentBleBeaconBgAllowedDesc = 'developmentBleBeaconBgAllowed_DESC',
   DevelopmentBleCentralBgAllowedAsc = 'developmentBleCentralBgAllowed_ASC',
@@ -3901,6 +3987,8 @@ export enum SortB2CAppsBy {
   IdDesc = 'id_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ProductionAppUrlAsc = 'productionAppUrl_ASC',
+  ProductionAppUrlDesc = 'productionAppUrl_DESC',
   ProductionBleBeaconBgAllowedAsc = 'productionBleBeaconBgAllowed_ASC',
   ProductionBleBeaconBgAllowedDesc = 'productionBleBeaconBgAllowed_DESC',
   ProductionBleCentralBgAllowedAsc = 'productionBleCentralBgAllowed_ASC',
@@ -5907,12 +5995,14 @@ export type CreateB2BAppPublishRequestMutation = { __typename?: 'Mutation', requ
 
 export type B2CAppPermissionsFragment = { __typename?: 'B2CApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null };
 
+export type B2CAppEntryPointsFragment = { __typename?: 'B2CApp', developmentAppUrl?: string | null, productionAppUrl?: string | null };
+
 export type GetB2CAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2CAppMutationVariables = Exact<{
   data: B2CAppCreateInput;
@@ -6134,6 +6224,12 @@ export const B2CAppPermissionsFragmentDoc = gql`
   productionBleCentralBgAllowed
   developmentBlePeripheralBgAllowed
   productionBlePeripheralBgAllowed
+}
+    `;
+export const B2CAppEntryPointsFragmentDoc = gql`
+    fragment B2CAppEntryPoints on B2CApp {
+  developmentAppUrl
+  productionAppUrl
 }
     `;
 export const AllB2BAppsDocument = gql`
@@ -6542,14 +6638,16 @@ export const GetB2CAppDocument = gql`
     logo {
       publicUrl
     }
-    developmentExportId
-    productionExportId
     developmentWebTransformEnabled
     productionWebTransformEnabled
+    ...B2CAppEntryPoints
     ...B2CAppPermissions
+    developmentExportId
+    productionExportId
   }
 }
-    ${B2CAppPermissionsFragmentDoc}`;
+    ${B2CAppEntryPointsFragmentDoc}
+${B2CAppPermissionsFragmentDoc}`;
 
 /**
  * __useGetB2CAppQuery__

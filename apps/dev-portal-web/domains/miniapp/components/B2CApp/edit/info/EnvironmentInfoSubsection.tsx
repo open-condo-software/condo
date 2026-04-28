@@ -1,19 +1,16 @@
 import { Form } from 'antd'
 import getConfig from 'next/config'
-import React, { useCallback, useState, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { Select, Input } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
+import { Input, Select } from '@open-condo/ui'
 
 import { CopyableInput } from '@/domains/common/components/CopyableInput'
-import {
-    DEV_ENVIRONMENT,
-    PROD_ENVIRONMENT,
-} from '@dev-portal-api/domains/miniapp/constants/publishing'
+import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
-import { AppEnvironment, useGetB2CAppQuery, useGetB2CAppInfoQuery } from '@/gql'
+import { AppEnvironment, B2CAppTypeType, useGetB2CAppInfoQuery, useGetB2CAppQuery } from '@/gql'
 
 const { publicRuntimeConfig: { environmentsUris } } = getConfig()
 
@@ -41,7 +38,7 @@ export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const { data } = useGetB2CAppQuery({ variables: { id } })
 
-    const { data: infoData, loading } = useGetB2CAppInfoQuery({
+    const { data: infoData } = useGetB2CAppInfoQuery({
         variables: { data: { app: { id }, environment } },
         skip: !persistor,
         fetchPolicy: 'cache-and-network',
@@ -98,17 +95,19 @@ export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                         : <Input readOnly disabled placeholder={AppIdPlaceholder} value={AppIdPlaceholder}/>
                 }
             </Form.Item>
-            <Form.Item
-                name='currentBuild'
-                label={CurrentBuildLabel}
-                valuePropName='data-value'
-            >
-                {
-                    currentBuild
-                        ? <CopyableInput value={currentBuild}/>
-                        : <Input readOnly disabled placeholder={CurrentBuildPlaceholder} value={CurrentBuildPlaceholder}/>
-                }
-            </Form.Item>
+            {Boolean(data?.app?.type === B2CAppTypeType.Cordova) && (
+                <Form.Item
+                    name='currentBuild'
+                    label={CurrentBuildLabel}
+                    valuePropName='data-value'
+                >
+                    {
+                        currentBuild
+                            ? <CopyableInput value={currentBuild}/>
+                            : <Input readOnly disabled placeholder={CurrentBuildPlaceholder} value={CurrentBuildPlaceholder}/>
+                    }
+                </Form.Item>
+            )}
         </Form>
     )
 }
