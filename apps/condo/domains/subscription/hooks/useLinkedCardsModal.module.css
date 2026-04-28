@@ -1,0 +1,16 @@
+.card-content {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.card-img {
+  display: block;
+  flex-shrink: 0;
+}
+
+.card-text {
+  min-width: 0;
+  overflow: hidden;
+}
