@@ -9,8 +9,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography, Space, Card, Button } from '@open-condo/ui'
 
+import styles from './useLinkedCardsModal.module.css'
+
+
 const { publicRuntimeConfig } = getConfig()
 const CARD_ISSUER_IMAGES = publicRuntimeConfig?.cardIssuerImages || {}
+
 
 type PaymentMethod = {
     id: string
@@ -221,36 +225,35 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
                 onCancel={closeModal}
                 title={LinkedCardsTitle}
                 footer={null}
+                scrollX={false}
             >
                 <Space size={12} direction='vertical' width='100%'>
                     {paymentMethods.map((paymentMethod) => {
                         const cardLabel = getCardLabel(paymentMethod.bindingId)
                         return (
                             <Card key={paymentMethod.bindingId} width='100%'>
-                                <Row justify='space-between' align='middle'>
-                                    <Col>
-                                        <Space size={8} direction='horizontal'>
-                                            <img
-                                                src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)}
-                                                alt={paymentMethod.cardIssuerName || 'card'}
-                                                width={60}
-                                                height={40}
-                                                style={{ display: 'block' }}
-                                                onError={() => handleImageError(paymentMethod.bindingId)}
-                                            />
-                                            <Space size={4} direction='horizontal'>
-                                                <Typography.Text>
-                                                    {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
-                                                </Typography.Text>
+                                <Row justify='space-between' align='middle' wrap={false}>
+                                    <Col flex='auto' className={styles.cardContent}>
+                                        <img
+                                            src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)}
+                                            alt={paymentMethod.cardIssuerName || 'card'}
+                                            width={60}
+                                            height={40}
+                                            className={styles.cardImg}
+                                            onError={() => handleImageError(paymentMethod.bindingId)}
+                                        />
+                                        <div className={styles.cardText}>
+                                            <Typography.Text ellipsis>
+                                                {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
                                                 {cardLabel && (
                                                     <Typography.Text type='secondary'>
-                                                        {cardLabel}
+                                                        {' '}{cardLabel}
                                                     </Typography.Text>
                                                 )}
-                                            </Space>
-                                        </Space>
+                                            </Typography.Text>
+                                        </div>
                                     </Col>
-                                    <Col>
+                                    <Col flex='none'>
                                         <Button
                                             minimal
                                             compact
