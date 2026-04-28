@@ -228,6 +228,86 @@ describe('B2CApp', () => {
                 })
             })
         })
+        describe.each(AVAILABLE_ENVIRONMENTS.map(e => getEnvironmentalFieldName(e, 'appUrl')))('%p', (fieldName) => {
+            test('Must not accept non-url strings', async () =>{
+                await expectToThrowGQLError(async () => {
+                    await createTestB2CApp(user, {
+                        type: 'web',
+                        [fieldName]: 'some text',
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_APP_URL',
+                    messageForUser: 'api.miniapp.B2CApp.appUrl.INVALID_URL',
+                })
+            })
+            describe('Must not accept non-https urls',  () => {
+                test.each([
+                    'http://example.com',
+                    'http://170.170.170.170:3000',
+                    'ftp://s3.example.com',
+                ])('%p', async (url) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestB2CApp(user, {
+                            type: 'web',
+                            [fieldName]: url,
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_APP_URL',
+                        messageForUser: 'api.miniapp.B2CApp.appUrl.HTTPS_ONLY_ALLOWED',
+                    })
+                })
+            })
+            describe('Must not accept localhost',  () => {
+                test.each([
+                    'https://localhost/app',
+                    'https://127.0.0.1/app',
+                    'https://127.1.2.3:3000/app',
+                    'https://[::1]/app',
+                ])('%p', async (url) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestB2CApp(user, {
+                            type: 'web',
+                            [fieldName]: url,
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_APP_URL',
+                        messageForUser: 'api.miniapp.B2CApp.appUrl.LOCALHOST_NOT_ALLOWED',
+                    })
+                })
+            })
+            describe('Must not accept private or special IP urls', () => {
+                test.each([
+                    'https://10.0.0.1/app',
+                    'https://172.16.0.1/app',
+                    'https://192.168.1.1/app',
+                    'https://169.254.1.1/app',
+                    'https://[fe80::1]/app',
+                    'https://[fc00::1]/app',
+                ])('%p', async (url) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestB2CApp(user, {
+                            type: 'web',
+                            [fieldName]: url,
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_APP_URL',
+                        messageForUser: 'api.miniapp.B2CApp.appUrl.SPECIAL_IP_NOT_ALLOWED',
+                    })
+                })
+            })
+            test('Must accept a valid url', async () => {
+                const url = 'https://my-app.example.com/start?query=123#hash'
+                const [app] = await createTestB2CApp(user, {
+                    type: 'web',
+                    [fieldName]: url,
+                })
+                expect(app).toHaveProperty(fieldName, url)
+            })
+        })
     })
     describe('Field access tests', () => {
         let actors = {
