@@ -37,6 +37,7 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { isReadingDateAllowed } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -120,12 +121,12 @@ const VALIDATE_METER_READING_TIMEOUT = 3000
  * @throws {GQLError} - If validation fails (service returned ok: false)
  */
 async function validateMeterReadingWithIntegration (context, meterReading, meter) {
-    const organizationId = meter?.organization
+    const organizationId = meter?.organization?.id
     if (!organizationId) return false
 
     // Find B2BAppContext for this organization with meterIntegrationConfig
     // Filter: only apps that have meterIntegrationConfig set (not null)
-    const appContexts = await find('B2BAppContext', {
+    const appContexts = await B2BAppContext.getAll(context, {
         organization: { id: organizationId, deletedAt: null },
         app: {
             meterIntegrationConfig_is_null: false,
@@ -133,7 +134,7 @@ async function validateMeterReadingWithIntegration (context, meterReading, meter
         },
         deletedAt: null,
         status: 'Finished',
-    })
+    }, 'id app { id meterIntegrationConfig { id validateMeterReadingUrl } }')
 
     // If no integrations configured, skip validation
     if (appContexts.length === 0) {
@@ -143,7 +144,6 @@ async function validateMeterReadingWithIntegration (context, meterReading, meter
     // Build list of validation tasks for parallel execution
     const validationTasks = []
     for (const appContext of appContexts) {
-        // appContext.app already has meterIntegrationConfig via B2B_APP_CONTEXT_FIELDS
         const validateUrl = appContext?.app?.meterIntegrationConfig?.validateMeterReadingUrl
 
         if (!validateUrl) continue
@@ -387,7 +387,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
             const meter = await Meter.getOne(context, {
                 id: get(resolvedData, 'meter', null),
-            }, 'organization { id } property { id } unitName unitType accountNumber')
+            }, 'id number organization { id } property { id } unitName unitType accountNumber resource { id }')
 
             if (operation === 'create') {
                 resolvedData['accountNumber'] = get(meter, 'accountNumber', null)
