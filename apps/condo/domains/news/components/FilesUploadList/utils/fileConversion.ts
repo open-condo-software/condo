@@ -186,7 +186,6 @@ export const convertFile = async (file: File, onProgress?: UploadRequestOption['
             if (onProgress) {
                 ffmpeg.off('progress', onProgressHandler)
             }
-            // Best-effort cleanup — swallow
             await Promise.allSettled([
                 ffmpeg.deleteFile(inputName),
                 ffmpeg.deleteFile(outputName),
