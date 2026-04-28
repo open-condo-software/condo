@@ -26,7 +26,7 @@ const {
     createTestAppMessageSetting,
     createTestCustomField,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, CALL_STATUS_START_SENT } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, CALL_STATUS_STARTED, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -42,7 +42,7 @@ const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser,
 const { ERRORS } = require('./SendVoIPCallStartMessageService')
 
 
-async function prepareSingleActor ({ admin, organization, property, unitName, unitType }) {
+async function prepareUser ({ admin, organization, property, unitName, unitType }) {
     const phone = createTestPhone()
     const userClient = await makeClientWithResidentUser({}, { phone })
     const [contact] = await createTestContact(admin, organization, property, {
@@ -63,7 +63,7 @@ async function prepareSingleActor ({ admin, organization, property, unitName, un
     }
 }
 
-describe('SendVoIPStartMessageService', () => {
+describe('SendVoIPCallStartMessageService', () => {
     let admin
 
     beforeAll(async () => {
@@ -187,6 +187,97 @@ describe('SendVoIPStartMessageService', () => {
             }, ERRORS.CALL_DATA_NOT_PROVIDED)
         })
 
+        describe('should throw error if callId is invalid', () => {
+            let b2cApp
+            let addressKey
+            let unitName
+            let unitType
+            let serviceUser
+
+            beforeAll(async () => {
+                const [testB2CApp] = await createTestB2CApp(admin)
+                b2cApp = testB2CApp
+
+                const { property: testProperty } = await makeClientWithResidentAccessAndProperty()
+                addressKey = testProperty.addressKey
+                await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
+                serviceUser = await makeClientWithServiceUser()
+                const [rightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+                await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: rightSet.id } } })
+
+                unitName = faker.random.alphaNumeric(3)
+                unitType = FLAT_UNIT_TYPE
+            })
+
+            const TEST_CASES = [
+                { name: 'empty', callId: '' },
+                { name: 'invalid character 1', callId: '\u0000' },
+                { name: 'invalid character 2', callId: '±' },
+                { name: `exceeds maximum length of ${MAX_CALL_ID_LENGTH}`, callId: '1'.repeat(MAX_CALL_ID_LENGTH + 1) },
+            ]
+
+            test.each(TEST_CASES)('$name', async ({ callId }) => {
+                await expectToThrowGQLErrorToResult(async () => {
+                    await sendVoIPCallStartMessageByTestClient(serviceUser, {
+                        addressKey,
+                        unitName,
+                        unitType,
+                        app: { id: b2cApp.id },
+                        callData: {
+                            callId,
+                            b2cAppCallData: {
+                                B2CAppContext: '',
+                            },
+                        },
+                    })
+                }, ERRORS.INVALID_CALL_ID)
+            })
+        })
+
+        describe('should throw error if callMeta is invalid', () => {
+            let b2cApp
+            let addressKey
+            let unitName
+            let unitType
+            let serviceUser
+
+            beforeAll(async () => {
+                const [testB2CApp] = await createTestB2CApp(admin)
+                b2cApp = testB2CApp
+
+                const { property: testProperty } = await makeClientWithResidentAccessAndProperty()
+                addressKey = testProperty.addressKey
+                await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
+                serviceUser = await makeClientWithServiceUser()
+                const [rightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+                await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: rightSet.id } } })
+
+                unitName = faker.random.alphaNumeric(3)
+                unitType = FLAT_UNIT_TYPE
+            })
+
+            const TEST_CASES = [
+                { name: `exceeds maximum length of ${MAX_CALL_META_LENGTH}`, callMeta: '1'.repeat(MAX_CALL_META_LENGTH + 1) }
+            ]
+
+            test.each(TEST_CASES)('$name', async ({ callMeta }) => {
+                await expectToThrowGQLErrorToResult(async () => {
+                    await sendVoIPCallStartMessageByTestClient(serviceUser, {
+                        addressKey,
+                        unitName,
+                        unitType,
+                        app: { id: b2cApp.id },
+                        callData: {
+                            callId: faker.random.alphaNumeric(8),
+                            callMeta,
+                            b2cAppCallData: {
+                                B2CAppContext: '',
+                            },
+                        },
+                    })
+                }, ERRORS.INVALID_CALL_META)
+            })
+        })
     })
 
     describe('Logic', () => {
@@ -336,22 +427,13 @@ describe('SendVoIPStartMessageService', () => {
 
                 const residentsCount = 3
                 const prepareDataPromises = []
+                const preparedUsers = []
 
                 for (let i = 0; i < residentsCount; i++) {
-                    prepareDataPromises.push((async (admin) => {
-                        const phone = createTestPhone()
-                        const userClient = await makeClientWithResidentUser({}, { phone })
-                        await createTestContact(admin, organization, property, {
-                            unitName: unitName,
-                            unitType: unitType,
-                            isVerified: true,
-                            phone: phone,
-                        })
-                        await createTestResident(admin, userClient.user, property, {
-                            unitName: unitName,
-                            unitType: unitType,
-                        })
-                    })(admin))
+                    prepareDataPromises.push((async ({ admin, organization, property, unitName, unitType }) => {
+                        const preparedUser = await prepareUser({ admin, organization, property, unitName, unitType })
+                        preparedUsers.push(preparedUser)
+                    })({ admin, organization, property, unitName, unitType }))
                 }
                 await Promise.all(prepareDataPromises)
 
@@ -368,9 +450,11 @@ describe('SendVoIPStartMessageService', () => {
                 expect(result.createdMessagesCount).toBe(residentsCount)
                 expect(result.erroredMessagesCount).toBe(0)
 
-                const cache = await getCallStatus({ b2cAppId: b2cApp.id, callId })
+                const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: preparedUsers[0].user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
+                const callStatusToken = msg.meta.data.callStatusToken
+                const cache = await getCallStatus({ callStatusToken, organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
                 expect(cache).not.toBe(null)
-                expect(cache.status).toBe(CALL_STATUS_START_SENT)
+                expect(cache.status).toBe(CALL_STATUS_STARTED)
             })
 
             test('Saves User.id to Message.id binding', async () => {
@@ -379,24 +463,13 @@ describe('SendVoIPStartMessageService', () => {
 
                 const residentsCount = 3
                 const prepareDataPromises = []
-                const userIds = []
+                const preparedUsers = []
 
                 for (let i = 0; i < residentsCount; i++) {
-                    prepareDataPromises.push((async (admin) => {
-                        const phone = createTestPhone()
-                        const userClient = await makeClientWithResidentUser({}, { phone })
-                        userIds.push(userClient.user.id)
-                        await createTestContact(admin, organization, property, {
-                            unitName: unitName,
-                            unitType: unitType,
-                            isVerified: true,
-                            phone: phone,
-                        })
-                        await createTestResident(admin, userClient.user, property, {
-                            unitName: unitName,
-                            unitType: unitType,
-                        })
-                    })(admin))
+                    prepareDataPromises.push((async ({ admin, organization, property, unitName, unitType }) => {
+                        const preparedUser = await prepareUser({ admin, organization, property, unitName, unitType })
+                        preparedUsers.push(preparedUser)
+                    })({ admin, organization, property, unitName, unitType }))
                 }
                 await Promise.all(prepareDataPromises)
 
@@ -414,13 +487,13 @@ describe('SendVoIPStartMessageService', () => {
                 expect(result.erroredMessagesCount).toBe(0)
 
                 const createdMessages = await Message.getAll(admin, {
-                    user: { id_in: userIds },
+                    user: { id_in: preparedUsers.map(({ user }) => user.id) },
                     type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                 }, { first: residentsCount })
                 expect(createdMessages).toHaveLength(residentsCount)
                 const expectedUserIdToMessageId = Object.fromEntries(createdMessages.map(message => ([message.user.id, message.id])))
-
-                const cache = await getCallStatus({ b2cAppId: b2cApp.id, callId })
+                const callStatusToken = createdMessages[0].meta.data.callStatusToken
+                const cache = await getCallStatus({ callStatusToken, b2cAppId: b2cApp.id, organizationId: organization.id, propertyId: property.id, callId })
                 expect(cache).not.toBe(null)
                 expect(cache.startingMessagesIdsByUserIds).toEqual(expectedUserIdToMessageId)
             })
@@ -492,7 +565,7 @@ describe('SendVoIPStartMessageService', () => {
         
                 for (let i = 0; i < residentsCount; i++) {
                     prepareDataPromises.push((async ({ admin, organization, property, unitName, unitType }) => {
-                        const actor = await prepareSingleActor({ admin, organization, property, unitName, unitType })
+                        const actor = await prepareUser({ admin, organization, property, unitName, unitType })
                         actors.push(actor)
                     })({ admin, organization, property, unitName, unitType }))
                 }
@@ -657,7 +730,7 @@ describe('SendVoIPStartMessageService', () => {
             test('uses native call voipType when CustomValue is absent', async () => {
                 const unitName = faker.random.alphaNumeric(3)
                 const unitType = FLAT_UNIT_TYPE
-                const actor = await prepareSingleActor({ admin, organization, property, unitName, unitType })
+                const actor = await prepareUser({ admin, organization, property, unitName, unitType })
         
                 const callData = {
                     callId: faker.datatype.uuid(),
@@ -719,7 +792,7 @@ describe('SendVoIPStartMessageService', () => {
             await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: b2cRightSet.id } } })
 
 
-            const actor = await prepareSingleActor({ admin, organization, property, unitName, unitType: FLAT_UNIT_TYPE })
+            const actor = await prepareUser({ admin, organization, property, unitName, unitType: FLAT_UNIT_TYPE })
 
 
             const customValue = faker.random.alphaNumeric(8)

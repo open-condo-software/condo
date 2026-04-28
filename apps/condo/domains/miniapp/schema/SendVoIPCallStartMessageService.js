@@ -16,9 +16,10 @@ const {
     NATIVE_VOIP_TYPE,
     B2C_APP_VOIP_TYPE,
     INVALID_CALL_ID_ERROR,
+    INVALID_CALL_META_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2CAppProperty, CustomValue } = require('@condo/domains/miniapp/utils/serverSchema')
-const { setCallStatus, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, generateCallStatusToken, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
 const {
     MESSAGE_META,
     VOIP_INCOMING_CALL_MESSAGE_TYPE, MESSAGE_SENDING_STATUS,
@@ -47,7 +48,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: PROPERTY_NOT_FOUND_ERROR,
         message: 'Unable to find Property or B2CAppProperty by provided addressKey',
-        messageForUser: `api.miniapp.${SERVICE_NAME}.PROPERTY_NOT_FOUND`,
     },
     CALL_DATA_NOT_PROVIDED: {
         mutation: SERVICE_NAME,
@@ -70,6 +70,13 @@ const ERRORS = {
         type: INVALID_CALL_ID_ERROR,
         code: BAD_USER_INPUT,
         message: `"callId" contains invalid characters or does not has length between ${MIN_CALL_ID_LENGTH} and ${MAX_CALL_ID_LENGTH}`,
+    },
+    INVALID_CALL_META: {
+        mutation: SERVICE_NAME,
+        variable: ['data', 'callData', 'callMeta'],
+        type: INVALID_CALL_META_ERROR,
+        code: BAD_USER_INPUT,
+        message: `"callMeta" exceeds maximum length of ${MAX_CALL_META_LENGTH}`,
     },
 }
 
@@ -131,10 +138,10 @@ function getInitialLogContext ({ addressKey, unitName, unitType, app, callData }
 }
 
 async function sendMessageToUser ({ 
-    context, resident, contact, user, 
+    context, resident, contact, user, property,
     customVoIPValuesByContactId,
     sender, dv, b2cApp: { id: b2cAppId, name: b2cAppName }, 
-    callData, 
+    callData, callStatusToken,
 }) {
     const customVoIPValues = customVoIPValuesByContactId[contact.id] || {}
 
@@ -144,6 +151,9 @@ async function sendMessageToUser ({
         B2CAppName: b2cAppName,
         residentId: resident.id,
         callId: callData.callId,
+        organizationId: contact.organization,
+        propertyId: property.id,
+        callStatusToken,
     }
 
     const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
@@ -283,6 +293,8 @@ async function getVerifiedResidentsWithContacts ({ context, logContext, addressK
     return {
         verifiedResidentsWithContacts,
         allVerifiedContactsOnUnit,
+        property: oldestProperty,
+        organization: { id: oldestProperty.organization },
     }
 }
 
@@ -296,6 +308,7 @@ async function getAppInfo ({ context, logContext, addressKey, app }) {
     }, 'id app { id name }')
 
     if (!b2cAppProperty) {
+        logContext.logInfoStats.step = 'find property'
         throw new GQLError(ERRORS.PROPERTY_NOT_FOUND, context)
     }
     logContext.logInfoStats.isPropertyFound = true
@@ -306,9 +319,12 @@ async function getAppInfo ({ context, logContext, addressKey, app }) {
 
 async function getCustomVoIPValuesByContacts ({ context, contactIds }) {
     const customVoIPValues = await CustomValue.getAll(context, {
-        customField: { name_in: POSSIBLE_CUSTOM_FIELD_NAMES, deletedAt: null },
+        customField: { 
+            name_in: POSSIBLE_CUSTOM_FIELD_NAMES, 
+            modelName: 'Contact', 
+            deletedAt: null,
+        },
         itemId_in: contactIds,
-        modelName: 'Contact',
         deletedAt: null,
     }, 'id itemId data customField { name }')
     return customVoIPValues.reduce((byContactId, customValue) => {
@@ -367,6 +383,25 @@ function parseStartingMessagesIdsByUserIdsByMessageResults ({ sendMessagePromise
     }
     
     return startingMessagesIdsByUserIds
+}
+
+function validateInput ({ context, logContext, args }) {
+    logContext.logInfoStats.step = 'input validation'
+    const { data: argsData } = args
+    const { callData: { callId, callMeta, b2cAppCallData, nativeCallData } } = argsData
+    if (!b2cAppCallData && !nativeCallData) {
+        throw new GQLError(ERRORS.CALL_DATA_NOT_PROVIDED, context)
+    }
+                
+    checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
+
+    if (!isCallIdValid(callId)) {
+        throw new GQLError(ERRORS.INVALID_CALL_ID, context)
+    }
+
+    if (!isCallMetaValid(callMeta)) {
+        throw new GQLError(ERRORS.INVALID_CALL_META, context)
+    }
 }
 
 const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMessageService', {
@@ -431,6 +466,10 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                 F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
                 """
                 callId: String!,
+                """
+                Meta information which helps you identify call. Not used right now. Will be sent to you server on answer button press.
+                """
+                callMeta: JSON,
                 """
                 If you want your B2CApp to handle incoming VoIP call, provide this argument.
                 """
@@ -501,35 +540,34 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                 const logContext = getInitialLogContext(argsData)
 
                 try {
-                    if (!callData.b2cAppCallData && !callData.nativeCallData) {
-                        throw new GQLError(ERRORS.CALL_DATA_NOT_PROVIDED, context)
-                    }
-                
-                    checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
-
-                    if (!isCallIdValid(callData.callId)) {
-                        logContext.logInfoStats.step = 'input validation'
-                        throw new GQLError(ERRORS.INVALID_CALL_ID, context)
-                    }
+                    validateInput({ context, logContext, args })
 
                     // 1) Check B2CApp and B2CAppProperty
                     const { b2cAppId, b2cAppName } = await getAppInfo({ context, logContext, addressKey, app }) 
 
                     // 2) Get verified residents
-                    const { verifiedResidentsWithContacts, allVerifiedContactsOnUnit } = await getVerifiedResidentsWithContacts({ context, logContext, addressKey, unitName, unitType })
+                    const { 
+                        verifiedResidentsWithContacts,
+                        allVerifiedContactsOnUnit,
+                        property,
+                        organization,
+                    } = await getVerifiedResidentsWithContacts({ context, logContext, addressKey, unitName, unitType })
 
                     // 3) Check limits
                     await checkLimits({ context, logContext, b2cAppId })
 
                     const customVoIPValuesByContactId = await getCustomVoIPValuesByContacts({ context, contactIds: [...new Set(verifiedResidentsWithContacts.map(({ contact }) => contact.id))] })
                 
+                    const callStatusToken = generateCallStatusToken()
+
                     // 4) Send messages
                     /** @type {Array<Promise<{status, id, isDuplicateMessage}>>} */
                     const sendMessagePromises = verifiedResidentsWithContacts
                         .map(({ resident, contact, user }) => {
                             return sendMessageToUser({ 
-                                context, resident, contact, user, customVoIPValuesByContactId,
+                                context, resident, contact, user, property, customVoIPValuesByContactId,
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
+                                callStatusToken,
                             })
                         })
                 
@@ -541,13 +579,17 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
 
                     if (sendMessageStats.some(stat => !stat.error)) {
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
+                            callStatusToken,
                             b2cAppId,
+                            propertyId: property.id,
+                            organizationId: organization.id,
                             callId: callData.callId,
                             status: CALL_STATUS_STARTED,
                             // NOTE(YEgorLu): we can use uniqKey for that: [pushType, b2cAppId, callId, userId, YYYY-MM-DD].join()
                             //                but this would require to check current and previous day/period
                             //                for now lets save it in session, usually we receive cancel message in less than 1 minute anyway
                             startingMessagesIdsByUserIds: startingMessagesIdsByUserIds, // check uniqKey
+                            callMeta: callData.callMeta,
                         })
                     }
 
