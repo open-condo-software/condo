@@ -2,6 +2,7 @@
 const { faker } = require('@faker-js/faker')
 const express = require('express')
 
+const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient,
     makeLoggedInClient,
@@ -11,6 +12,9 @@ const {
 
 const { sendDTMFToB2CAppByTestClient, createTestB2CApp, createTestB2CAppIntercomConfig } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+
+const SERVER_URL = conf.SERVER_URL
 
 let intercomResponseStatus = 200
 
@@ -143,6 +147,29 @@ describe('SendDTMFToB2CAppService', () => {
                     await sendDTMFToB2CAppByTestClient(client, attrs.app, attrs.extraAttrs)
                 }, expected)
             }
+        })
+    })
+
+    describe('express route', () => {
+        test('works', async () => {
+            const args = {
+                callId: faker.datatype.uuid(),
+                dtmfCode: '#',
+                appId: b2cApp.id,
+                propertyId: faker.datatype.uuid(),
+                organizationId: faker.datatype.uuid(),
+                callStatusToken: faker.datatype.alphaNumeric(8),
+            }
+            const url = new URL(`${SERVER_URL}/api/sendDTMFToB2CApp`)
+            for (const key in args) {
+                url.searchParams.set(key, args[key])
+            }
+            const result = await fetch(url.toString(), {
+                method: 'GET',
+            })
+            expect(result).toBeDefined()
+            const resultJSON = await result.json()
+            expect(resultJSON).toHaveProperty('status', 'OK')
         })
     })
 })
