@@ -74702,11 +74702,11 @@ type B2CAppHistoryRecord {
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
   isSpeakerSelectionAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
-  isPushNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -74829,16 +74829,16 @@ input B2CAppHistoryRecordWhereInput {
   isCameraAllowed_not: Boolean
   isSpeakerSelectionAllowed: Boolean
   isSpeakerSelectionAllowed_not: Boolean
+  isPushNotificationsAllowed: Boolean
+  isPushNotificationsAllowed_not: Boolean
+  isVoipNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed_not: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleBeaconBgAllowed_not: Boolean
   isBleCentralBgAllowed: Boolean
   isBleCentralBgAllowed_not: Boolean
   isBlePeripheralBgAllowed: Boolean
   isBlePeripheralBgAllowed_not: Boolean
-  isPushNotificationsAllowed: Boolean
-  isPushNotificationsAllowed_not: Boolean
-  isVoipNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -74976,16 +74976,16 @@ enum SortB2CAppHistoryRecordsBy {
   isCameraAllowed_DESC
   isSpeakerSelectionAllowed_ASC
   isSpeakerSelectionAllowed_DESC
+  isPushNotificationsAllowed_ASC
+  isPushNotificationsAllowed_DESC
+  isVoipNotificationsAllowed_ASC
+  isVoipNotificationsAllowed_DESC
   isBleBeaconBgAllowed_ASC
   isBleBeaconBgAllowed_DESC
   isBleCentralBgAllowed_ASC
   isBleCentralBgAllowed_DESC
   isBlePeripheralBgAllowed_ASC
   isBlePeripheralBgAllowed_DESC
-  isPushNotificationsAllowed_ASC
-  isPushNotificationsAllowed_DESC
-  isVoipNotificationsAllowed_ASC
-  isVoipNotificationsAllowed_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75023,11 +75023,11 @@ input B2CAppHistoryRecordUpdateInput {
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
   isSpeakerSelectionAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
-  isPushNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75064,11 +75064,11 @@ input B2CAppHistoryRecordCreateInput {
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
   isSpeakerSelectionAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
-  isPushNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75185,6 +75185,14 @@ type B2CApp {
   """
   isSpeakerSelectionAllowed: Boolean
 
+  """ Controls whether the mini-app can use “push notifications” device permission 
+  """
+  isPushNotificationsAllowed: Boolean
+
+  """ Controls whether the mini-app can use “voip notifications” device permission 
+  """
+  isVoipNotificationsAllowed: Boolean
+
   """ Controls whether the mini-app can use “ble beacon bg” device permission 
   """
   isBleBeaconBgAllowed: Boolean
@@ -75196,14 +75204,6 @@ type B2CApp {
   """ Controls whether the mini-app can use “ble peripheral bg” device permission 
   """
   isBlePeripheralBgAllowed: Boolean
-
-  """ Controls whether the mini-app can use “push notifications” device permission 
-  """
-  isPushNotificationsAllowed: Boolean
-
-  """ Controls whether the mini-app can use “voip notifications” device permission 
-  """
-  isVoipNotificationsAllowed: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -75343,16 +75343,16 @@ input B2CAppWhereInput {
   isCameraAllowed_not: Boolean
   isSpeakerSelectionAllowed: Boolean
   isSpeakerSelectionAllowed_not: Boolean
+  isPushNotificationsAllowed: Boolean
+  isPushNotificationsAllowed_not: Boolean
+  isVoipNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed_not: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleBeaconBgAllowed_not: Boolean
   isBleCentralBgAllowed: Boolean
   isBleCentralBgAllowed_not: Boolean
   isBlePeripheralBgAllowed: Boolean
   isBlePeripheralBgAllowed_not: Boolean
-  isPushNotificationsAllowed: Boolean
-  isPushNotificationsAllowed_not: Boolean
-  isVoipNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75476,16 +75476,16 @@ enum SortB2CAppsBy {
   isCameraAllowed_DESC
   isSpeakerSelectionAllowed_ASC
   isSpeakerSelectionAllowed_DESC
+  isPushNotificationsAllowed_ASC
+  isPushNotificationsAllowed_DESC
+  isVoipNotificationsAllowed_ASC
+  isVoipNotificationsAllowed_DESC
   isBleBeaconBgAllowed_ASC
   isBleBeaconBgAllowed_DESC
   isBleCentralBgAllowed_ASC
   isBleCentralBgAllowed_DESC
   isBlePeripheralBgAllowed_ASC
   isBlePeripheralBgAllowed_DESC
-  isPushNotificationsAllowed_ASC
-  isPushNotificationsAllowed_DESC
-  isVoipNotificationsAllowed_ASC
-  isVoipNotificationsAllowed_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75524,11 +75524,11 @@ input B2CAppUpdateInput {
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
   isSpeakerSelectionAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
-  isPushNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75563,11 +75563,11 @@ input B2CAppCreateInput {
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
   isSpeakerSelectionAllowed: Boolean
+  isPushNotificationsAllowed: Boolean
+  isVoipNotificationsAllowed: Boolean
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
-  isPushNotificationsAllowed: Boolean
-  isVoipNotificationsAllowed: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -93976,6 +93976,11 @@ input SendVoIPCallStartMessageData {
   callId: String!
 
   """
+  Meta information which helps you identify call. Not used right now. Will be sent to you server on answer button press.
+  """
+  callMeta: JSON
+
+  """
   If you want your B2CApp to handle incoming VoIP call, provide this argument.
   """
   b2cAppCallData: SendVoIPCallStartMessageDataForCallHandlingByB2CApp
@@ -106950,6 +106955,9 @@ type Mutation {
   			},
   			"codec": {
   				"required": false
+  			},
+  			"callStatusToken": {
+  				"required": false
   			}
   		}
   	},
@@ -108424,14 +108432,20 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "APP_NOT_FOUND",
-    "message": "Unable to find B2CApp."
+    "type": "CALL_DATA_NOT_PROVIDED",
+    "message": "\"b2cAppCallData\" or \"nativeCallData\" or both should be provided"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "CALL_DATA_NOT_PROVIDED",
-    "message": "\"b2cAppCallData\" or \"nativeCallData\" or both should be provided"
+    "type": "INVALID_CALL_ID",
+    "message": "\"callId\" contains invalid characters or does not has length between 1 and 300"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_CALL_META",
+    "message": "\"callMeta\" exceeds maximum length of 1000"
   }`
   """
   sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput
