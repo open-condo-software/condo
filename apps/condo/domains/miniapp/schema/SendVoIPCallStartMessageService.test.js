@@ -6,7 +6,6 @@ const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
     expectToThrowGQLErrorToResult,
-    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
@@ -257,7 +256,7 @@ describe('SendVoIPCallStartMessageService', () => {
             })
 
             const TEST_CASES = [
-                { name: `exceeds maximum length of ${MAX_CALL_META_LENGTH}`, callMeta: '1'.repeat(MAX_CALL_META_LENGTH + 1) }
+                { name: `exceeds maximum length of ${MAX_CALL_META_LENGTH}`, callMeta: '1'.repeat(MAX_CALL_META_LENGTH + 1) },
             ]
 
             test.each(TEST_CASES)('$name', async ({ callMeta }) => {
