@@ -10,6 +10,7 @@ const { B2BApp } = require('./B2BApp')
 const { B2BAppAccessRight } = require('./B2BAppAccessRight')
 const { B2BAppAccessRightSet } = require('./B2BAppAccessRightSet')
 const { B2BAppContext } = require('./B2BAppContext')
+const { B2BAppMeterIntegrationConfig } = require('./B2BAppMeterIntegrationConfig')
 const { B2BAppNewsSharingConfig } = require('./B2BAppNewsSharingConfig')
 const { B2BAppPermission } = require('./B2BAppPermission')
 const { B2BAppPosIntegrationConfig } = require('./B2BAppPosIntegrationConfig')
@@ -48,6 +49,7 @@ module.exports = {
     B2BAccessToken,
     CustomField,
     CustomValue,
+    B2BAppMeterIntegrationConfig,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */

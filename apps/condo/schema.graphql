@@ -72551,6 +72551,7 @@ type B2BAppHistoryRecord {
   price: String
   newsSharingConfig: String
   posIntegrationConfig: String
+  meterIntegrationConfig: String
   id: ID!
   v: Int
   createdAt: String
@@ -72817,6 +72818,10 @@ input B2BAppHistoryRecordWhereInput {
   posIntegrationConfig_not: String
   posIntegrationConfig_in: [String]
   posIntegrationConfig_not_in: [String]
+  meterIntegrationConfig: String
+  meterIntegrationConfig_not: String
+  meterIntegrationConfig_in: [String]
+  meterIntegrationConfig_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -73015,6 +73020,7 @@ input B2BAppHistoryRecordUpdateInput {
   price: String
   newsSharingConfig: String
   posIntegrationConfig: String
+  meterIntegrationConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -73061,6 +73067,7 @@ input B2BAppHistoryRecordCreateInput {
   price: String
   newsSharingConfig: String
   posIntegrationConfig: String
+  meterIntegrationConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -73284,6 +73291,13 @@ input B2BAppPosIntegrationConfigRelateToOneInput {
   disconnectAll: Boolean
 }
 
+input B2BAppMeterIntegrationConfigRelateToOneInput {
+  create: B2BAppMeterIntegrationConfigCreateInput
+  connect: B2BAppMeterIntegrationConfigWhereUniqueInput
+  disconnect: B2BAppMeterIntegrationConfigWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 """ B2B app """
 type B2BApp {
   """
@@ -73399,6 +73413,10 @@ type B2BApp {
   """ Configuration for POS Integration feature. If specified, then this B2BApp is embeddable to the /billing and /marketplace pages and supports POS Integration API 
   """
   posIntegrationConfig: B2BAppPosIntegrationConfig
+
+  """ Configuration for Meter Integration feature. If specified, then this B2BApp supports Meter Integration API for validating meter readings 
+  """
+  meterIntegrationConfig: B2BAppMeterIntegrationConfig
   id: ID!
   v: Int
   createdAt: String
@@ -73624,6 +73642,8 @@ input B2BAppWhereInput {
   newsSharingConfig_is_null: Boolean
   posIntegrationConfig: B2BAppPosIntegrationConfigWhereInput
   posIntegrationConfig_is_null: Boolean
+  meterIntegrationConfig: B2BAppMeterIntegrationConfigWhereInput
+  meterIntegrationConfig_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -73765,6 +73785,8 @@ enum SortB2BAppsBy {
   newsSharingConfig_DESC
   posIntegrationConfig_ASC
   posIntegrationConfig_DESC
+  meterIntegrationConfig_ASC
+  meterIntegrationConfig_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -73813,6 +73835,7 @@ input B2BAppUpdateInput {
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
   posIntegrationConfig: B2BAppPosIntegrationConfigRelateToOneInput
+  meterIntegrationConfig: B2BAppMeterIntegrationConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -73857,6 +73880,7 @@ input B2BAppCreateInput {
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
   posIntegrationConfig: B2BAppPosIntegrationConfigRelateToOneInput
+  meterIntegrationConfig: B2BAppMeterIntegrationConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -83046,6 +83070,379 @@ input CustomValueCreateInput {
 
 input CustomValuesCreateInput {
   data: CustomValueCreateInput
+}
+
+enum B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppMeterIntegrationConfigHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppMeterIntegrationConfigHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppMeterIntegrationConfigHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppMeterIntegrationConfigHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppMeterIntegrationConfigHistoryRecord List.
+  """
+  _label_: String
+  validateMeterReadingUrl: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppMeterIntegrationConfigHistoryRecordWhereInput {
+  AND: [B2BAppMeterIntegrationConfigHistoryRecordWhereInput]
+  OR: [B2BAppMeterIntegrationConfigHistoryRecordWhereInput]
+  validateMeterReadingUrl: String
+  validateMeterReadingUrl_not: String
+  validateMeterReadingUrl_contains: String
+  validateMeterReadingUrl_not_contains: String
+  validateMeterReadingUrl_starts_with: String
+  validateMeterReadingUrl_not_starts_with: String
+  validateMeterReadingUrl_ends_with: String
+  validateMeterReadingUrl_not_ends_with: String
+  validateMeterReadingUrl_i: String
+  validateMeterReadingUrl_not_i: String
+  validateMeterReadingUrl_contains_i: String
+  validateMeterReadingUrl_not_contains_i: String
+  validateMeterReadingUrl_starts_with_i: String
+  validateMeterReadingUrl_not_starts_with_i: String
+  validateMeterReadingUrl_ends_with_i: String
+  validateMeterReadingUrl_not_ends_with_i: String
+  validateMeterReadingUrl_in: [String]
+  validateMeterReadingUrl_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType
+  history_action_not: B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType
+  history_action_in: [B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppMeterIntegrationConfigHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppMeterIntegrationConfigHistoryRecordsBy {
+  validateMeterReadingUrl_ASC
+  validateMeterReadingUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppMeterIntegrationConfigHistoryRecordUpdateInput {
+  validateMeterReadingUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppMeterIntegrationConfigHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppMeterIntegrationConfigHistoryRecordUpdateInput
+}
+
+input B2BAppMeterIntegrationConfigHistoryRecordCreateInput {
+  validateMeterReadingUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppMeterIntegrationConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppMeterIntegrationConfigHistoryRecordsCreateInput {
+  data: B2BAppMeterIntegrationConfigHistoryRecordCreateInput
+}
+
+""" B2BAppMeterIntegrationConfig """
+type B2BAppMeterIntegrationConfig {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppMeterIntegrationConfig List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppMeterIntegrationConfig List config, or
+   3. As an alias to a 'name' field on the B2BAppMeterIntegrationConfig List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppMeterIntegrationConfig List.
+  """
+  _label_: String
+
+  """ The URL to validate meter reading data from miniapp. Used to validate meter readings. Validation skipped if there is an network error. 
+  """
+  validateMeterReadingUrl: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2BAppMeterIntegrationConfigWhereInput {
+  AND: [B2BAppMeterIntegrationConfigWhereInput]
+  OR: [B2BAppMeterIntegrationConfigWhereInput]
+  validateMeterReadingUrl: String
+  validateMeterReadingUrl_not: String
+  validateMeterReadingUrl_contains: String
+  validateMeterReadingUrl_not_contains: String
+  validateMeterReadingUrl_starts_with: String
+  validateMeterReadingUrl_not_starts_with: String
+  validateMeterReadingUrl_ends_with: String
+  validateMeterReadingUrl_not_ends_with: String
+  validateMeterReadingUrl_i: String
+  validateMeterReadingUrl_not_i: String
+  validateMeterReadingUrl_contains_i: String
+  validateMeterReadingUrl_not_contains_i: String
+  validateMeterReadingUrl_starts_with_i: String
+  validateMeterReadingUrl_not_starts_with_i: String
+  validateMeterReadingUrl_ends_with_i: String
+  validateMeterReadingUrl_not_ends_with_i: String
+  validateMeterReadingUrl_in: [String]
+  validateMeterReadingUrl_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2BAppMeterIntegrationConfigWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppMeterIntegrationConfigsBy {
+  validateMeterReadingUrl_ASC
+  validateMeterReadingUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2BAppMeterIntegrationConfigUpdateInput {
+  validateMeterReadingUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppMeterIntegrationConfigsUpdateInput {
+  id: ID!
+  data: B2BAppMeterIntegrationConfigUpdateInput
+}
+
+input B2BAppMeterIntegrationConfigCreateInput {
+  validateMeterReadingUrl: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppMeterIntegrationConfigsCreateInput {
+  data: B2BAppMeterIntegrationConfigCreateInput
 }
 
 enum B2BAppPosIntegrationConfigHistoryRecordHistoryActionType {
@@ -97796,6 +98193,37 @@ type Query {
   """ Retrieve the meta-data for the CustomValue list. """
   _CustomValuesMeta: _ListMeta
 
+  """ Search for all B2BAppMeterIntegrationConfigHistoryRecord items which match the where clause. 
+  """
+  allB2BAppMeterIntegrationConfigHistoryRecords(where: B2BAppMeterIntegrationConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppMeterIntegrationConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppMeterIntegrationConfigHistoryRecord]
+
+  """ Search for the B2BAppMeterIntegrationConfigHistoryRecord item with the matching ID. 
+  """
+  B2BAppMeterIntegrationConfigHistoryRecord(where: B2BAppMeterIntegrationConfigHistoryRecordWhereUniqueInput!): B2BAppMeterIntegrationConfigHistoryRecord
+
+  """ Perform a meta-query on all B2BAppMeterIntegrationConfigHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppMeterIntegrationConfigHistoryRecordsMeta(where: B2BAppMeterIntegrationConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppMeterIntegrationConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppMeterIntegrationConfigHistoryRecord list. 
+  """
+  _B2BAppMeterIntegrationConfigHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppMeterIntegrationConfig items which match the where clause. 
+  """
+  allB2BAppMeterIntegrationConfigs(where: B2BAppMeterIntegrationConfigWhereInput, search: String, sortBy: [SortB2BAppMeterIntegrationConfigsBy!], orderBy: String, first: Int, skip: Int): [B2BAppMeterIntegrationConfig]
+
+  """ Search for the B2BAppMeterIntegrationConfig item with the matching ID. 
+  """
+  B2BAppMeterIntegrationConfig(where: B2BAppMeterIntegrationConfigWhereUniqueInput!): B2BAppMeterIntegrationConfig
+
+  """ Perform a meta-query on all B2BAppMeterIntegrationConfig items which match the where clause. 
+  """
+  _allB2BAppMeterIntegrationConfigsMeta(where: B2BAppMeterIntegrationConfigWhereInput, search: String, sortBy: [SortB2BAppMeterIntegrationConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppMeterIntegrationConfig list. """
+  _B2BAppMeterIntegrationConfigsMeta: _ListMeta
+
   """ Search for all B2BAppPosIntegrationConfigHistoryRecord items which match the where clause. 
   """
   allB2BAppPosIntegrationConfigHistoryRecords(where: B2BAppPosIntegrationConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPosIntegrationConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPosIntegrationConfigHistoryRecord]
@@ -103530,6 +103958,46 @@ type Mutation {
 
   """ Delete multiple CustomValue items by ID. """
   deleteCustomValues(ids: [ID!]): [CustomValue]
+
+  """ Create a single B2BAppMeterIntegrationConfigHistoryRecord item. """
+  createB2BAppMeterIntegrationConfigHistoryRecord(data: B2BAppMeterIntegrationConfigHistoryRecordCreateInput): B2BAppMeterIntegrationConfigHistoryRecord
+
+  """ Create multiple B2BAppMeterIntegrationConfigHistoryRecord items. """
+  createB2BAppMeterIntegrationConfigHistoryRecords(data: [B2BAppMeterIntegrationConfigHistoryRecordsCreateInput]): [B2BAppMeterIntegrationConfigHistoryRecord]
+
+  """ Update a single B2BAppMeterIntegrationConfigHistoryRecord item by ID. 
+  """
+  updateB2BAppMeterIntegrationConfigHistoryRecord(id: ID!, data: B2BAppMeterIntegrationConfigHistoryRecordUpdateInput): B2BAppMeterIntegrationConfigHistoryRecord
+
+  """ Update multiple B2BAppMeterIntegrationConfigHistoryRecord items by ID. 
+  """
+  updateB2BAppMeterIntegrationConfigHistoryRecords(data: [B2BAppMeterIntegrationConfigHistoryRecordsUpdateInput]): [B2BAppMeterIntegrationConfigHistoryRecord]
+
+  """ Delete a single B2BAppMeterIntegrationConfigHistoryRecord item by ID. 
+  """
+  deleteB2BAppMeterIntegrationConfigHistoryRecord(id: ID!): B2BAppMeterIntegrationConfigHistoryRecord
+
+  """ Delete multiple B2BAppMeterIntegrationConfigHistoryRecord items by ID. 
+  """
+  deleteB2BAppMeterIntegrationConfigHistoryRecords(ids: [ID!]): [B2BAppMeterIntegrationConfigHistoryRecord]
+
+  """ Create a single B2BAppMeterIntegrationConfig item. """
+  createB2BAppMeterIntegrationConfig(data: B2BAppMeterIntegrationConfigCreateInput): B2BAppMeterIntegrationConfig
+
+  """ Create multiple B2BAppMeterIntegrationConfig items. """
+  createB2BAppMeterIntegrationConfigs(data: [B2BAppMeterIntegrationConfigsCreateInput]): [B2BAppMeterIntegrationConfig]
+
+  """ Update a single B2BAppMeterIntegrationConfig item by ID. """
+  updateB2BAppMeterIntegrationConfig(id: ID!, data: B2BAppMeterIntegrationConfigUpdateInput): B2BAppMeterIntegrationConfig
+
+  """ Update multiple B2BAppMeterIntegrationConfig items by ID. """
+  updateB2BAppMeterIntegrationConfigs(data: [B2BAppMeterIntegrationConfigsUpdateInput]): [B2BAppMeterIntegrationConfig]
+
+  """ Delete a single B2BAppMeterIntegrationConfig item by ID. """
+  deleteB2BAppMeterIntegrationConfig(id: ID!): B2BAppMeterIntegrationConfig
+
+  """ Delete multiple B2BAppMeterIntegrationConfig items by ID. """
+  deleteB2BAppMeterIntegrationConfigs(ids: [ID!]): [B2BAppMeterIntegrationConfig]
 
   """ Create a single B2BAppPosIntegrationConfigHistoryRecord item. """
   createB2BAppPosIntegrationConfigHistoryRecord(data: B2BAppPosIntegrationConfigHistoryRecordCreateInput): B2BAppPosIntegrationConfigHistoryRecord
