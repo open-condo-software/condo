@@ -120,9 +120,14 @@ async function _updateEnvFile (filePath, key, value, opts = { override: true, co
     let updatedValue = value
 
     if (typeof value === 'function') {
-        const prevEnvString = (await readFile(filePath, { encoding: 'utf-8' })).toString()
-        const prevEnv = await dotenv.parse(prevEnvString)
-        updatedValue = await value(prevEnv[key])
+        let prevValue = undefined
+        if (await exists(filePath)) {
+            const prevEnvString = (await readFile(filePath, { encoding: 'utf-8' })).toString()
+            const prevEnv = await dotenv.parse(prevEnvString)
+            prevValue = prevEnv[key]
+        }
+
+        updatedValue = await value(prevValue)
     }
 
     if (typeof updatedValue !== 'string') throw new Error('resolved env value must be a string')
@@ -171,10 +176,17 @@ async function updateEnvFile (filePath, key, value, opts = { override: true, com
     if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
     if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
 
+    // NOTE: filelock utilise atomicity of file system to prevent race conditions, so it will break if we lock non-existent file
+    // So instead we'll lock its dir
+    const lockfileDir = path.dirname(filePath)
+
     let lockRelease
 
     try {
-        lockRelease = await lockfile.lock(filePath, { retries: 10 })
+        lockRelease = await lockfile.lock(lockfileDir, {
+            retries: 10,
+            lockfilePath: `${filePath}.lock`,
+        })
         await _updateEnvFile(filePath, key, value, opts)
     } finally {
         if (lockRelease) {

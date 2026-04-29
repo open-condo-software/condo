@@ -1,6 +1,8 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
+const set = require('lodash/set')
+
 
 const {
     prepareCondoAppOidcConfig,
@@ -51,7 +53,7 @@ async function main () {
     // STEP 2. Prepare file service
     await updateAppEnvFile('condo', 'FILE_UPLOAD_CONFIG', (prev) => {
         const newValue = JSON.parse(prev || '{"clients": {}}')
-        newValue.clients[APP_NAME] = { secret: APP_NAME + '-secret' }
+        set(newValue, ['clients', APP_NAME], { secret: APP_NAME + '-secret' })
         return JSON.stringify(newValue)
     })
     await updateAppEnvFile(APP_NAME, 'FILE_CLIENT_ID', APP_NAME)

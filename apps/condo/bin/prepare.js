@@ -1,3 +1,5 @@
+const set = require('lodash/set')
+
 const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers, safeExec, getAppEnvValue } = require('@open-condo/cli')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
@@ -11,8 +13,8 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
 async function updateAppEnvFileClients (appName) {
     await updateAppEnvFile(appName, 'FILE_UPLOAD_CONFIG', (prev) => {
         const newValue = JSON.parse(prev || '{"clients": {}}')
-        newValue.clients['condo'] = { secret: appName + '-secret' }
-        newValue.clients['miniapp'] = { secret: appName + '-secret' }
+        set(newValue, 'clients.condo', { secret: appName + '-secret' })
+        set(newValue, 'clients.miniapp', { secret: appName + '-secret' })
 
         return JSON.stringify(newValue)
     })
