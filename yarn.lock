@@ -610,6 +610,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
   dependencies:
+    "@maxhub/max-bot-api": ^0.2.2
     "@types/node": ^22
     dotenv: ^16.4.7
     https-proxy-agent: ^6
@@ -913,7 +914,6 @@ __metadata:
     "@graphql-codegen/cli": ^6.2.0
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
-    "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -928,10 +928,10 @@ __metadata:
     antd: ^4.24.12
     cross-env: ^7.0.3
     dayjs: ^1.11.10
+    docx: ^8.5.0
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
-    graphql-upload: ^15.0.2
     jest: ^29.7.0
     jszip: ^3.10.1
     lodash: ^4.17.21
@@ -942,7 +942,7 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
     typescript: ^5.8.3
-    xlsx: ^0.18.5
+    xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
@@ -1223,7 +1223,6 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/react": ^18.3.1
-    commander: 14.0.1
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
@@ -1336,16 +1335,14 @@ __metadata:
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
-<<<<<<< HEAD
     form-data: ^4.0.4
     https-proxy-agent: ^7.0.1
-=======
->>>>>>> 7c4ce545f3 (fix(condo): DOMA-13105 update yarn lock)
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     markdown-it: ^14.1.1
     openid-client: 5.7.1
+    socks-proxy-agent: ^8.0.3
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -16454,6 +16451,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^20.3.1":
+  version: 20.19.39
+  resolution: "@types/node@npm:20.19.39"
+  dependencies:
+    undici-types: ~6.21.0
+  checksum: ebd35fc49e79bb29b9af50b0ca442160c74e9b059e0f814240033b6b757dd15399d9fd1362e32c8246322b1c703f048af793656fc9dfd4c2484cf2b1702f6820
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^22":
   version: 22.16.0
   resolution: "@types/node@npm:22.16.0"
@@ -17763,13 +17769,6 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: 260d9bb6017a1b6e42d31364687f0258f78eb20210b36ef2baad38fd619d78d4e95ff7dde9b3dbe0d81f137f79a8d651a845363a26e6985997f7b71145dc5e94
-  languageName: node
-  linkType: hard
-
-"adler-32@npm:~1.3.0":
-  version: 1.3.1
-  resolution: "adler-32@npm:1.3.1"
-  checksum: c7f6b02df64a4392fcf1591862344f56733716a558e97a8b06a553dadeeaec792054512389000f42f371b13d2be5370e056e18db3b573944b595c4cb7742c5c6
   languageName: node
   linkType: hard
 
@@ -20748,16 +20747,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cfb@npm:~1.2.1":
-  version: 1.2.2
-  resolution: "cfb@npm:1.2.2"
-  dependencies:
-    adler-32: ~1.3.0
-    crc-32: ~1.2.0
-  checksum: cfb63a7d630a7fa415c1b25655dca66666584f29c95fb0ee90866ada1a28090857827f2ba70a9a50df28bdce05728ae58d495bce417249f305ef7b3c85840024
-  languageName: node
-  linkType: hard
-
 "chai@npm:^5.2.0":
   version: 5.2.1
   resolution: "chai@npm:5.2.1"
@@ -21424,13 +21413,6 @@ __metadata:
   version: 5.65.20
   resolution: "codemirror@npm:5.65.20"
   checksum: 8fa3871ff8147e5aa48ee3b0f3e3ce4e545bc14d669377c479dcfdf0705976f9a545d8198357b25ca3ae9f36fcd204ffcba9e6d073a4bbb31c6785f91a32fd16
-  languageName: node
-  linkType: hard
-
-"codepage@npm:~1.15.0":
-  version: 1.15.0
-  resolution: "codepage@npm:1.15.0"
-  checksum: 86bdfd8f8fd4d78ace6ddab02a1621cbb4a833686fe886984b4155d99cd0287581d69495774b816ab2f571c4dc851c1595e1dbb8d69bd6dbb5a631ebf317fab0
   languageName: node
   linkType: hard
 
@@ -22282,7 +22264,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crc-32@npm:^1.2.0, crc-32@npm:~1.2.0, crc-32@npm:~1.2.1":
+"crc-32@npm:^1.2.0":
   version: 1.2.2
   resolution: "crc-32@npm:1.2.2"
   bin:
@@ -23603,6 +23585,19 @@ __metadata:
   dependencies:
     esutils: ^2.0.2
   checksum: fd7673ca77fe26cd5cba38d816bc72d641f500f1f9b25b83e8ce28827fe2da7ad583a8da26ab6af85f834138cf8dae9f69b0cd6ab925f52ddab1754db44d99ce
+  languageName: node
+  linkType: hard
+
+"docx@npm:^8.5.0":
+  version: 8.5.0
+  resolution: "docx@npm:8.5.0"
+  dependencies:
+    "@types/node": ^20.3.1
+    jszip: ^3.10.1
+    nanoid: ^5.0.4
+    xml: ^1.0.1
+    xml-js: ^1.6.8
+  checksum: ff3fdafd4748ba7e4edefcd9f5e78996747d370eda10c6db47818b03945af415dc3ddf037a9583083fd201f9c080e1251e21062f35739791c1bfe4f25073660e
   languageName: node
   linkType: hard
 
@@ -26781,13 +26776,6 @@ __metadata:
   version: 0.2.0
   resolution: "forwarded@npm:0.2.0"
   checksum: fd27e2394d8887ebd16a66ffc889dc983fbbd797d5d3f01087c020283c0f019a7d05ee85669383d8e0d216b116d720fc0cef2f6e9b7eb9f4c90c6e0bc7fd28e6
-  languageName: node
-  linkType: hard
-
-"frac@npm:~1.1.2":
-  version: 1.1.2
-  resolution: "frac@npm:1.1.2"
-  checksum: fbfbb28003bb84506dd35e7aad8543c5a358bdc95451d0065b6127d40d2c45106f14221575c3e9ce3ea4bf0bbf1225b73c5d655965c9f4ce44332cbe1b34667d
   languageName: node
   linkType: hard
 
@@ -35357,6 +35345,15 @@ __metadata:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:^5.0.4":
+  version: 5.1.9
+  resolution: "nanoid@npm:5.1.9"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: a8cc355ed2176165a0fb5e0dbbac0b72f05d9ac08af50bf652ace22252d7a1455ef307b54681e39baf609a4da84600cad843bf01d9bd1cc1440f6fd166e19589
   languageName: node
   linkType: hard
 
@@ -44610,15 +44607,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssf@npm:~0.11.2":
-  version: 0.11.2
-  resolution: "ssf@npm:0.11.2"
-  dependencies:
-    frac: ~1.1.2
-  checksum: 6ecef6ae0a90e67dc4b05bc3cca883e2dffad9773b41124af36ee308884e4a29f98bde66d6c8d2bd1ccf5f860ea4f6c49338bd8d733007fc42ebe02dd5295dcf
-  languageName: node
-  linkType: hard
-
 "ssh-remote-port-forward@npm:^1.0.4":
   version: 1.0.4
   resolution: "ssh-remote-port-forward@npm:1.0.4"
@@ -49432,13 +49420,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wmf@npm:~1.0.1":
-  version: 1.0.2
-  resolution: "wmf@npm:1.0.2"
-  checksum: d336acb2c76fa868ef006fbb06c4e64c7c1ed5ff77d16c48a273cf1f4d0a44e35df209b8fde28d93dd4a924d652a9c4fc8a92ad57885a5e437df0b0900769e3b
-  languageName: node
-  linkType: hard
-
 "word-wrap@npm:^1.2.5":
   version: 1.2.5
   resolution: "word-wrap@npm:1.2.5"
@@ -49450,13 +49431,6 @@ __metadata:
   version: 1.2.3
   resolution: "word-wrap@npm:1.2.3"
   checksum: 30b48f91fcf12106ed3186ae4fa86a6a1842416df425be7b60485de14bec665a54a68e4b5156647dec3a70f25e84d270ca8bc8cd23182ed095f5c7206a938c1f
-  languageName: node
-  linkType: hard
-
-"word@npm:~0.3.0":
-  version: 0.3.0
-  resolution: "word@npm:0.3.0"
-  checksum: f84e7061883380c1bcb0d98bd183b7f2b281688011924af7a96d3ed3ee20aeb12cc59a0451b66e5e57520338a056725ff8e0c07b358c0afecf5488a9557c19fe
   languageName: node
   linkType: hard
 
@@ -49631,23 +49605,6 @@ __metadata:
   bin:
     xlsx: ./bin/xlsx.njs
   checksum: d6a7cce81cdf5f832311feaef08c8918cb51cdaac235efd29c7f6caf881f7aa797aa51cdbcb583a491ba82d1e7c2b97f92ed082eda754de05731a4558768e68d
-  languageName: node
-  linkType: hard
-
-"xlsx@npm:^0.18.5":
-  version: 0.18.5
-  resolution: "xlsx@npm:0.18.5"
-  dependencies:
-    adler-32: ~1.3.0
-    cfb: ~1.2.1
-    codepage: ~1.15.0
-    crc-32: ~1.2.1
-    ssf: ~0.11.2
-    wmf: ~1.0.1
-    word: ~0.3.0
-  bin:
-    xlsx: bin/xlsx.njs
-  checksum: c5774d3c6abdf2db24f33a7b786e305255dac0e41a4e6bf6167c3f8517bfb5bfcb98e8207c39d5105f8304aa7416758da0400a993fb79aaf8e2ea4cfa8801f2e
   languageName: node
   linkType: hard
 
