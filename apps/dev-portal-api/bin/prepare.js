@@ -1,6 +1,8 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
+const set = require('lodash/set')
+
 
 const {
     prepareCondoAppOidcConfig,
@@ -48,7 +50,16 @@ async function main () {
     // STEP 1. Register local users
     await prepareAppEnvLocalAdminUsers(APP_NAME, 'phone')
 
-    // STEP 2. Register bots
+    // STEP 2. Prepare file service
+    await updateAppEnvFile('condo', 'FILE_UPLOAD_CONFIG', (prev) => {
+        const newValue = JSON.parse(prev || '{"clients": {}}')
+        set(newValue, ['clients', APP_NAME], { secret: APP_NAME + '-secret' })
+        return JSON.stringify(newValue)
+    })
+    await updateAppEnvFile(APP_NAME, 'FILE_CLIENT_ID', APP_NAME)
+    await updateAppEnvFile(APP_NAME, 'FILE_SECRET', APP_NAME + '-secret')
+
+    // STEP 3. Register bots
     const condoUrl = await getAppEnvValue(APP_NAME, 'CONDO_DOMAIN')
     const devBotEnvValue = await getAppEnvValue(APP_NAME, 'CONDO_DEV_BOT_CONFIG')
     const devBotConfig = devBotEnvValue ? JSON.parse(devBotEnvValue) : {
@@ -71,7 +82,7 @@ async function main () {
     await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(devBotConfig.email)} ${JSON.stringify(devBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
     await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(prodBotConfig.email)} ${JSON.stringify(prodBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
 
-    // STEP 3. Register OIDC client
+    // STEP 4. Register OIDC client
     const portalWebDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_WEB_DOMAIN')
     const redirectUrl = `${portalWebDomain}/api/oidc/callback`
     const oidcConf = await prepareCondoAppOidcConfig(APP_NAME, { redirectUrl })

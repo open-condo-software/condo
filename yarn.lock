@@ -11907,6 +11907,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     dotenv: ^16.4.7
     pg: ^8.11.3
+    proper-lockfile: ^4.1.2
   languageName: unknown
   linkType: soft
 

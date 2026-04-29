@@ -6,6 +6,7 @@ const util = require('util')
 
 const dotenv = require('dotenv')
 const { Client, Pool } = require('pg')
+const lockfile = require('proper-lockfile')
 
 const conf = require('@open-condo/config')
 
@@ -111,21 +112,32 @@ async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app
  * Add or update some .env config value!
  * @param filePath {string} path to env file
  * @param key {string} environment variable name
- * @param value {string} environment variable value
+ * @param value {string | function} environment variable value
  * @param opts {{ override: boolean, commentAbove: string }}
  * @return {Promise<void>}
  */
-async function updateEnvFile (filePath, key, value, opts = { override: true, commentAbove: '' }) {
-    if (typeof value !== 'string') throw new Error('updateAppEnvFile(..., value) should be a string')
-    if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
-    if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
+async function _updateEnvFile (filePath, key, value, opts = { override: true, commentAbove: '' }) {
+    let updatedValue = value
 
-    value = value.trim()
+    if (typeof value === 'function') {
+        let prevValue = undefined
+        if (await exists(filePath)) {
+            const prevEnvString = (await readFile(filePath, { encoding: 'utf-8' })).toString()
+            const prevEnv = await dotenv.parse(prevEnvString)
+            prevValue = prevEnv[key]
+        }
+
+        updatedValue = await value(prevValue)
+    }
+
+    if (typeof updatedValue !== 'string') throw new Error('resolved env value must be a string')
+
+    updatedValue = updatedValue.trim()
     // NOTE: JSON objects and space-containing strings must be escaped with quotes
-    if ((value.startsWith('{') && value.endsWith('}')) ||
-        (value.startsWith('[') && value.endsWith(']') ||
-        (value.includes(' ') && !value.startsWith('\'') && !value.endsWith('\'')))) {
-        value = `'${value}'`
+    if ((updatedValue.startsWith('{') && updatedValue.endsWith('}')) ||
+        (updatedValue.startsWith('[') && updatedValue.endsWith(']') ||
+        (updatedValue.includes(' ') && !updatedValue.startsWith('\'') && !updatedValue.endsWith('\'')))) {
+        updatedValue = `'${updatedValue}'`
     }
     let envData, result
 
@@ -148,13 +160,38 @@ async function updateEnvFile (filePath, key, value, opts = { override: true, com
         const aboveComment = opts.commentAbove
             ? `\n# Comment for ${key}:\n${opts.commentAbove.split('\n').map((l) => `# ${l}`).join('\n')}\n`
             : ''
-        result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${aboveComment}${key}=${value}\n`
+        result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${aboveComment}${key}=${updatedValue}\n`
     } else if (opts.override) {
-        result = envData.replace(re, `${key}=${value}\n`)
+        result = envData.replace(re, `${key}=${updatedValue}\n`)
     }
 
     if (result) {
         await writeFile(filePath, result, { encoding: 'utf-8' })
+    }
+}
+
+async function updateEnvFile (filePath, key, value, opts = { override: true, commentAbove: '' }) {
+    if (typeof filePath !== 'string') throw new Error('updateEnvFile(..., filePath) should be a string')
+    if (typeof value !== 'string' && typeof value !== 'function') throw new Error('updateAppEnvFile(..., value) should be a string or function')
+    if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
+    if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
+
+    // NOTE: filelock utilise atomicity of file system to prevent race conditions, so it will break if we lock non-existent file
+    // So instead we'll lock its dir
+    const lockfileDir = path.dirname(filePath)
+
+    let lockRelease
+
+    try {
+        lockRelease = await lockfile.lock(lockfileDir, {
+            retries: 10,
+            lockfilePath: `${filePath}.lock`,
+        })
+        await _updateEnvFile(filePath, key, value, opts)
+    } finally {
+        if (lockRelease) {
+            await lockRelease()
+        }
     }
 }
 
