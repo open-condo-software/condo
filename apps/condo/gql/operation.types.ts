@@ -348,6 +348,13 @@ export type UpdateMarketItemsMutationVariables = Types.Exact<{
 
 export type UpdateMarketItemsMutation = { __typename?: 'Mutation', marketItems?: Array<{ __typename?: 'MarketItem', id: string } | null> | null };
 
+export type GetB2BAppContextWithMeterIntegrationConfigQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppContextWithMeterIntegrationConfigQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'B2BAppContext', id: string } | null> | null };
+
 export type UpdateMetersMutationVariables = Types.Exact<{
   data: Array<Types.MetersUpdateInput> | Types.MetersUpdateInput;
 }>;

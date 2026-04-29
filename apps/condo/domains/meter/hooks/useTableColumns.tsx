@@ -2,9 +2,10 @@ import { MeterReading, PropertyMeterReading } from '@app/condo/schema'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { colors } from '@open-condo/ui/colors'
 
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
@@ -16,6 +17,7 @@ import {
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { METER_READING_BILLING_STATUS_DECLINED } from '@condo/domains/meter/constants/constants'
 import {
     METER_TYPES,
     METER_TAB_TYPES,
@@ -33,7 +35,7 @@ import {
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
-export const renderMeterRecord = (record) => {
+export const renderMeterRecord = (record, hasMeterIntegration?: boolean) => {
     const value1 = get(record, 'value1')
     const value2 = get(record, 'value2')
     const value3 = get(record, 'value3')
@@ -41,7 +43,10 @@ export const renderMeterRecord = (record) => {
     const measure = get(record, ['meter', 'resource', 'measure'], '')
     const resourceId = get(record, ['meter', 'resource', 'id'])
 
-    return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
+    const isDeclined = hasMeterIntegration && get(record, 'billingStatus') === METER_READING_BILLING_STATUS_DECLINED
+    const billingStatusText = isDeclined ? get(record, 'billingStatusText') : undefined
+
+    return renderMeterReading([value1, value2, value3, value4], resourceId, measure, billingStatusText)
 }
 
 export function useTableColumns <T> (
@@ -49,7 +54,8 @@ export function useTableColumns <T> (
     meterTabType: MeterPageTypes = METER_TAB_TYPES.meterReading,
     readingsType: MeterTypes,
     isReadingsForSingleMeter?: boolean,
-    records?: Array<MeterReading | PropertyMeterReading>
+    records?: Array<MeterReading | PropertyMeterReading>,
+    hasMeterIntegration?: boolean
 )
 {
     const intl = useIntl()
@@ -138,7 +144,10 @@ export function useTableColumns <T> (
             ellipsis: false,
             key: 'value',
             width: isPropertyMeter ? '25%' : '20%',
-            render: renderMeterRecord,
+            render: (record) => renderMeterRecord(record, hasMeterIntegration),
+            onCell: (record) => hasMeterIntegration && get(record, 'billingStatus') === METER_READING_BILLING_STATUS_DECLINED
+                ? { style: { backgroundColor: colors.red[1] } }
+                : {},
         },
         {
             title: ConsumptionMessage,
@@ -147,7 +156,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getConsumptionRender(intl, records),
         },
-    ]), [AccountNumberMessage, ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
+    ]), [AccountNumberMessage, ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, hasMeterIntegration, intl, isPropertyMeter, records, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
@@ -259,7 +268,10 @@ export function useTableColumns <T> (
                 ellipsis: false,
                 key: 'value',
                 width: isPropertyMeter ? '25%' : '12%',
-                render: renderMeterRecord,
+                render: (record) => renderMeterRecord(record, hasMeterIntegration),
+                onCell: (record) => hasMeterIntegration && get(record, 'billingStatus') === METER_READING_BILLING_STATUS_DECLINED
+                    ? { style: { backgroundColor: colors.red[1] } }
+                    : {},
             },
         ]) : compact([
             ...meterAndMeterReadingColumns,
@@ -284,5 +296,5 @@ export function useTableColumns <T> (
             },
             
         ])
-    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, isReportingPeriod, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterTabType, meterAndMeterReadingColumns, SourceMessage, isPropertyMeter, MeterReadingDateMessage, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
+    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, isReportingPeriod, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterTabType, meterAndMeterReadingColumns, SourceMessage, isPropertyMeter, MeterReadingDateMessage, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage, hasMeterIntegration])
 }
