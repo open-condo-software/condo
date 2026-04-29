@@ -51,6 +51,10 @@ const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domain
 const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { GET_VOIP_CALL_STATUS_QUERY } = require('@condo/domains/miniapp/gql')
+const { 
+    B2CAppIntercomConfig: B2CAppIntercomConfigGQL,
+    B2CAppIntercomConfigAdmin: B2CAppIntercomConfigAdminGQL,
+ } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -94,6 +98,8 @@ const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConf
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
 const B2BAppMeterIntegrationConfig = generateGQLTestUtils(B2BAppMeterIntegrationConfigGQL)
 const B2BAppBillingEmbeddingConfig = generateGQLTestUtils(B2BAppBillingEmbeddingConfigGQL)
+const B2CAppIntercomConfig = generateGQLTestUtils(B2CAppIntercomConfigGQL)
+const B2CAppIntercomConfigAdmin = generateGQLTestUtils(B2CAppIntercomConfigAdminGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
@@ -969,6 +975,35 @@ async function sendDTMFToB2CAppByTestClient (client, app, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function createTestB2CAppIntercomConfig (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        sendDTMFUrl: faker.internet.url(),
+        accessToken: faker.random.alphaNumeric(32),
+        ...extraAttrs,
+    }
+    const obj = await B2CAppIntercomConfig.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppIntercomConfig (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppIntercomConfig.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -1003,5 +1038,6 @@ module.exports = {
     B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
     getVoIPCallStatusByTestClient,
     prepareVoIPUser,
+    B2CAppIntercomConfig, B2CAppIntercomConfigAdmin, createTestB2CAppIntercomConfig, updateTestB2CAppIntercomConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

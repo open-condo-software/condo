@@ -136,6 +136,12 @@ const SEND_DTMF_TO_B2C_APP_MUTATION = gql`
     }
 `
 
+const B2C_APP_INTERCOM_CONFIG_COMMON_FIELDS = `id sendDTMFUrl ${COMMON_FIELDS}`
+const B2C_APP_INTERCOM_CONFIG_FIELDS = `{ ${B2C_APP_INTERCOM_CONFIG_COMMON_FIELDS} }`
+const B2C_APP_INTERCOM_CONFIG_ADMIN_FIELDS = `{ accessToken ${B2C_APP_INTERCOM_CONFIG_COMMON_FIELDS} }`
+const B2CAppIntercomConfig = generateGqlQueries('B2CAppIntercomConfig', B2C_APP_INTERCOM_CONFIG_FIELDS)
+const B2CAppIntercomConfigAdmin = generateGqlQueries('B2CAppIntercomConfig', B2C_APP_INTERCOM_CONFIG_ADMIN_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -171,5 +177,6 @@ module.exports = {
     B2BAppBillingEmbeddingConfig,
     GET_VOIP_CALL_STATUS_QUERY,
     SEND_DTMF_TO_B2C_APP_MUTATION,
+    B2CAppIntercomConfig, B2CAppIntercomConfigAdmin,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

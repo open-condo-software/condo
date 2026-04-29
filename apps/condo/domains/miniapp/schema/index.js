@@ -21,6 +21,7 @@ const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppAccessRightSet } = require('./B2CAppAccessRightSet')
 const { B2CAppBuild } = require('./B2CAppBuild')
+const { B2CAppIntercomConfig } = require('./B2CAppIntercomConfig')
 const { B2CAppProperty } = require('./B2CAppProperty')
 const { CustomField } = require('./CustomField')
 const { CustomValue } = require('./CustomValue')
@@ -64,5 +65,6 @@ module.exports = {
     B2BAppBillingEmbeddingConfig,
     GetVoIPCallStatusService,
     SendDTMFToB2CAppService,
+    B2CAppIntercomConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

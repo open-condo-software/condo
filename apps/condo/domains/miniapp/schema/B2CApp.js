@@ -82,6 +82,13 @@ const B2CApp = new GQLListSchema('B2CApp', {
             access: { create: false, update: false },
         },
         ...getDevicePermissionsFields({ listKey: 'B2CApp' }),
+        intercomConfig: {
+            schemaDoc: 'Configuration for intercom related api, supported by b2c app',
+            type: 'Relationship',
+            ref: 'B2CAppIntercomConfig',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     hooks: {
         afterChange: logoMetaAfterChange,
