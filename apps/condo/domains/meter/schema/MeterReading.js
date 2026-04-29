@@ -411,8 +411,12 @@ const MeterReading = new GQLListSchema('MeterReading', {
             // 3. resolveInput allows both validation and field modification
             // Validate meter reading through external integration if configured
             // Throws GQLError if validation fails, returns true if validation passed
+            // Only validate on create, or on update when a reading value is actually changing
+            const readingValueFields = ['value1', 'value2', 'value3', 'value4']
+            const hasReadingValueChange = readingValueFields.some(field => field in resolvedData)
+            const shouldValidate = operation === 'create' || hasReadingValueChange
             const nextItem = { ...existingItem, ...resolvedData }
-            const wasValidated = await validateMeterReadingWithIntegration(context, nextItem, meter)
+            const wasValidated = shouldValidate && await validateMeterReadingWithIntegration(context, nextItem, meter)
 
             // If validation was performed (not skipped) and passed, set billingStatus to approved
             if (wasValidated) {
