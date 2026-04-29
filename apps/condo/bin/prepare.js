@@ -9,12 +9,13 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
 }
 
 async function updateAppEnvFileClients (appName) {
-    await updateAppEnvFile(appName, 'FILE_UPLOAD_CONFIG', JSON.stringify({
-        clients: {
-            condo: { secret: appName + '-secret' },
-            miniapp: { secret: appName + '-secret' },
-        },
-    }))
+    await updateAppEnvFile(appName, 'FILE_UPLOAD_CONFIG', (prev) => {
+        const newValue = JSON.parse(prev || '{"clients": {}}')
+        newValue.clients['condo'] = { secret: appName + '-secret' }
+        newValue.clients['miniapp'] = { secret: appName + '-secret' }
+
+        return JSON.stringify(newValue)
+    })
     await updateAppEnvFile(appName, 'FILE_CLIENT_ID', appName)
     await updateAppEnvFile(appName, 'FILE_SECRET', appName + '-secret')
 }
