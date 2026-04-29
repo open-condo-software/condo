@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
+const { buildUserTopic, publish } = require('@open-condo/messaging')
 
 
 const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
@@ -16,7 +17,12 @@ const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
-const { FLOW_META_SCHEMAS, CUSTOM_FLOW_TYPE } = require('../constants')
+const { 
+    FLOW_META_SCHEMAS, 
+    CUSTOM_FLOW_TYPE, 
+    EVENT_TYPES, 
+    CHUNK_TYPES,
+} = require('../constants')
 
 const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
 
@@ -39,7 +45,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
-    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status aiSessionId')
+    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status user { id } aiSessionId')
 
     try {
         if (!task || task.deletedAt) {
@@ -64,13 +70,69 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         const predictionUrl = adapterConfig.predictionUrl
         if (!predictionUrl) throw new Error(`Unknown prediction url for flow "${task.flowType}"!`)
 
+        const topic = buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`)
+
+        await publish({
+            topic,
+            data: {
+                type: CHUNK_TYPES.TASK_START,
+            },
+        })
+
         const fullContext = {
             ...task.cleanContext,
             locale: task.locale,
             aiSessionId: task.aiSessionId,
         }
 
-        const prediction = await adapter.execute(predictionUrl, fullContext)
+        const prediction = await adapter.execute(predictionUrl, fullContext, task.flowType, async (event) => {
+            if (!event) return
+
+            switch (event.type) {
+                case EVENT_TYPES.START:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_START,
+                        },
+                    })
+                    return
+                case EVENT_TYPES.ITEM:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_ITEM,
+                            item: event.content,
+                        },
+                    })
+                    return
+                case EVENT_TYPES.END:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_END,
+                        },
+                    })
+                    return
+                case EVENT_TYPES.ERROR:
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_ERROR,
+                            error: event.error,
+                        },
+                    })
+                    return
+                default: 
+                    await publish({
+                        topic,
+                        data: {
+                            type: CHUNK_TYPES.FLOW_ERROR,
+                            error: `Unknown event type: ${event.type}`,
+                        },
+                    })
+            }
+        })
 
         const schema = FLOW_META_SCHEMAS[isCustomFlow ? CUSTOM_FLOW_TYPE : task.flowType]?.output ?? { type: 'object' }
         const validatePrediction = ajv.compile(schema)
@@ -98,12 +160,22 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                 },
                 status: TASK_STATUSES.ERROR,
             })
+
+            await publish({
+                topic,
+                data: {
+                    type: CHUNK_TYPES.TASK_ERROR,
+                    error: JSON.stringify({ message: 'The prediction format is not valid!', validationErrors }),
+                    errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
+                },
+            })
+
             return
         }
 
         const { replacements } = removeSensitiveDataFromObj(task.context)
         const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
-        
+
         let updateData = {
             ...BASE_ATTRIBUTES,
             result: resultWithRestoredPII,
@@ -115,7 +187,22 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         }
 
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, updateData)
+
+        await publish({
+            topic,
+            data: {
+                type: CHUNK_TYPES.TASK_END,
+            },
+        })
     } catch (error) {
+        taskLogger.error({
+            msg: 'Failed to execute AI flow',
+            data: { flowType: task?.flowType },
+            entityId: executionAIFlowTaskId,
+            entity: 'ExecutionAIFlowTask',
+            err: error,
+        })
+
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,
             status: TASK_STATUSES.ERROR,
@@ -126,12 +213,13 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
         })
 
-        taskLogger.error({
-            msg: 'Failed to execute AI flow',
-            data: { flowType: task?.flowType },
-            entityId: executionAIFlowTaskId,
-            entity: 'ExecutionAIFlowTask',
-            err: error,
+        await publish({
+            topic: buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`),
+            data: {
+                type: CHUNK_TYPES.TASK_ERROR,
+                error,
+                errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
+            },
         })
 
         throw error

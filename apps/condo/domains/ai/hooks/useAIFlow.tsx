@@ -1,29 +1,43 @@
 import {
     useCreateExecutionAiFlowTaskMutation,
     useGetExecutionAiFlowTaskByIdLazyQuery,
-    useUpdateExecutionAiFlowTaskMutation,
 } from '@app/condo/gql'
-import { ExecutionAiFlowTask, ExecutionAiFlowTaskStatusType } from '@app/condo/schema'
+import { ExecutionAiFlowTask } from '@app/condo/schema'
 import getConfig from 'next/config'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useMessagingConnection, useMessagingChannels, useMessagingSubscription } from '@open-condo/messaging/hooks'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { FLOW_TYPES_LIST, TASK_STATUSES } from '@condo/domains/ai/constants'
+import { 
+    FLOW_TYPES_LIST, 
+    TASK_STATUSES,
+    CHUNK_TYPES_LIST,
+    CHUNK_TYPES,
+} from '@condo/domains/ai/constants'
 import {
     UI_AI_GENERATE_NEWS_BY_INCIDENT,
     UI_AI_REWRITE_NEWS_TEXT,
     UI_AI_REWRITE_TEXT,
     UI_AI_REWRITE_TICKET_COMMENT,
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
+    AI_STREAMING,
 } from '@condo/domains/common/constants/featureflags'
 
-type FlowType = typeof FLOW_TYPES_LIST[number]
 
-type UseAIFlowPropsType<T = object> = {
+type ChunkType = typeof CHUNK_TYPES_LIST[number]
+type StreamMessageType = {
+    type: ChunkType
+    item?: string
+    meta?: object
+    error?: Error
+}
+
+type FlowType = typeof FLOW_TYPES_LIST[number]
+type UseAIFlowPropsType = {
     flowType: FlowType
     itemId?: string
     modelName?: string
@@ -47,6 +61,7 @@ type UseAIFlowResultType<T> = [
     {
         loading: boolean
         data: UseAIFlowResult<T> | null
+        streamDataText: string
         error: Error | null
         currentTaskId: string | null
     },
@@ -63,19 +78,59 @@ export function useAIFlow<T = object> ({
     defaultContext = {},
     timeout = DEFAULT_TIMEOUT_MS,
     aiSessionId,
-}: UseAIFlowPropsType<T>): UseAIFlowResultType<T> {
+}: UseAIFlowPropsType): UseAIFlowResultType<T> {
     const { user } = useAuth()
     const { organization } = useOrganization()
 
+    const { publicRuntimeConfig: { messagingWsUrl } } = getConfig()
+    
     const [createExecutionAIFlowMutation] = useCreateExecutionAiFlowTaskMutation()
     const [getExecutionAiFlowTaskById] = useGetExecutionAiFlowTaskByIdLazyQuery()
-    const [updateExecutionAIFlowTaskMutation] = useUpdateExecutionAiFlowTaskMutation()
 
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState<UseAIFlowResult<T> | null>(null)
+    const [streamDataText, setStreamDataText] = useState('')
     const [error, setError] = useState<Error | null>(null)
     const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+    const { useFlagValue } = useFeatureFlags()
+    const aiStreamingEnabled = useFlagValue(AI_STREAMING)?.[flowType]
+
+    const { connection, isConnected, userId } = useMessagingConnection({
+        enabled: !!aiStreamingEnabled,
+        autoConnect: true,
+        wsUrl: messagingWsUrl,
+    })
+
+    const { channels } = useMessagingChannels({ enabled: !!aiStreamingEnabled }) 
+
+    const topic = useMemo(() => {
+        if (aiStreamingEnabled && currentTaskId && user?.id === userId) {
+            const userChannel = channels.find((channel) => channel.name === 'user')
+            return `${userChannel.topicPrefix}.executionAIFlowTask.${currentTaskId}`
+        }
+    }, [aiStreamingEnabled, currentTaskId, user?.id, userId, channels])
+
+    const onMessage = useCallback((message: StreamMessageType) => {
+        if (message.type === CHUNK_TYPES.FLOW_ITEM && message?.item) {
+            setStreamDataText(prev => prev + message.item)
+        } else if (message.type === CHUNK_TYPES.TASK_ERROR) {
+            setLoading(false)
+            setError(message.error)
+        } else if (message.type === CHUNK_TYPES.TASK_END) {
+            setLoading(false)
+        }
+    }, [])
+
+    useMessagingSubscription<StreamMessageType>({
+        topic,
+        connection,
+        isConnected,
+        userId,
+        enabled: !!aiStreamingEnabled,
+        onMessage,
+    })
 
     const stopPollingForResult = useCallback(() => {
         if (intervalRef.current) {
@@ -185,6 +240,7 @@ export function useAIFlow<T = object> ({
         setLoading(true)
         setError(null)
         setData(null)
+        setStreamDataText('')
 
         try {
             const data = {
@@ -208,47 +264,58 @@ export function useAIFlow<T = object> ({
             if (!createdTaskId) { return { data: null, error: new Error('Failed to create a task'), localizedErrorText: null } }
 
             setCurrentTaskId(createdTaskId)
-            return await startPollingForResult(createdTaskId)
+
+            if (aiStreamingEnabled && isConnected) {
+                return { data: null, error: null, localizedErrorText: null }
+            } else {
+                return await startPollingForResult(createdTaskId)
+            }
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())
             setError(wrappedErr)
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            setLoading(false)
+            if (!(aiStreamingEnabled && isConnected)) setLoading(false)
         }
     }, [
         flowType,
-        timeout,
         defaultContext,
         createExecutionAIFlowMutation,
-        getExecutionAiFlowTaskById,
         user?.id,
         organization?.id,
         modelName,
         itemId,
         aiSessionId,
+        startPollingForResult,
+        aiStreamingEnabled,
+        isConnected,
     ])
 
     const resume = useCallback(async (taskId: string): Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string }> => {
         setLoading(true)
         setError(null)
         setData(null)
+        setStreamDataText('')
 
         try {
             setCurrentTaskId(taskId)
-            return await startPollingForResult(taskId)
+            if (aiStreamingEnabled && isConnected) {
+                return { data: null, error: null, localizedErrorText: null }
+            } else {
+                return await startPollingForResult(taskId)
+            }
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())
             setError(wrappedErr)
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            setLoading(false)
+            if (!(aiStreamingEnabled && isConnected)) setLoading(false)
         }
-    }, [startPollingForResult])
+    }, [startPollingForResult, aiStreamingEnabled, isConnected])
 
-    return [{ execute, resume }, { loading, data, error, currentTaskId }]
+    return [{ execute, resume }, { loading, data, streamDataText, error, currentTaskId }]
 }
 
 export function useAIConfig () {
