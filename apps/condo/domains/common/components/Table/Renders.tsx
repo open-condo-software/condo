@@ -294,7 +294,7 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     let content
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
-        content = values.map((value, index) => !value ? null : <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></>)
+        content = values.map((value, index) => value ? <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></> : null)
     }
 
     // other resource 1-tariff meter
