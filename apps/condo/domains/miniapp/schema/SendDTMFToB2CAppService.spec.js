@@ -103,53 +103,64 @@ describe('SendDTMFToB2CAppService', () => {
 
         test.each(TEST_CASES)('$name', async ({ getClient }) => {
             const client = await getClient()
-            const [result] = await sendDTMFToB2CAppByTestClient(client, { id: TEST_B2C_APP_ID }, { data: { dtmfCode: '1234' } })
+            const [result] = await sendDTMFToB2CAppByTestClient(client, { id: TEST_B2C_APP_ID }, { 
+                property: { id: faker.datatype.uuid() },
+                organization: { id: faker.datatype.uuid() },
+                callStatusToken: faker.datatype.alphaNumeric(8),
+                data: { dtmfCode: '1234' },
+            })
             expect(result.status).toEqual('OK')
         })
     })
 
     describe('Errors', () => {
+        const defaultArgs = {
+            property: { id: faker.datatype.uuid() },
+            organization: { id: faker.datatype.uuid() },
+            callStatusToken: faker.datatype.alphaNumeric(8),
+        }
+
         const ERROR_CASES = [
             {
                 name: 'throws error if app id not allowed',
                 setup: () => {},
                 getClient: () => makeClient(),
-                args: () => ({ app: { id: faker.datatype.uuid() }, extraAttrs: { data: { dtmfCode: '1234' } } }),
+                args: () => ({ app: { id: faker.datatype.uuid() }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'FORBIDDEN', type: 'APP_NOT_ALLOWED' },
             },
             {
                 name: 'throws error if app not found',
                 setup: () => {},
                 getClient: () => makeClient(),
-                args: () => ({ app: { id: TEST_NOT_FOUND_B2C_APP_ID }, extraAttrs: { data: { dtmfCode: '1234' } } }),
+                args: () => ({ app: { id: TEST_NOT_FOUND_B2C_APP_ID }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'BAD_USER_INPUT', type: 'APP_NOT_FOUND' },
             },
             {
                 name: 'throws error if dtmfCode empty',
                 setup: () => {},
                 getClient: () => makeClient(),
-                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { data: { dtmfCode: '' } } }),
+                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'BAD_USER_INPUT', type: 'INVALID_DTMF_CODE' },
             },
             {
                 name: 'throws error if intercom returns 403',
                 setup: () => { intercomResponseStatus = 403 },
                 getClient: () => makeClient(),
-                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { data: { dtmfCode: '1234' } } }),
+                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'INVALID_ACCESS_TOKEN' },
             },
             {
                 name: 'throws error if intercom returns 404',
                 setup: () => { intercomResponseStatus = 404 },
                 getClient: () => makeClient(),
-                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { data: { dtmfCode: '1234' } } }),
+                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'NOT_FOUND', type: 'CALL_NOT_FOUND' },
             },
             {
                 name: 'throws error if intercom returns 500',
                 setup: () => { intercomResponseStatus = 500 },
                 getClient: () => makeClient(),
-                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { data: { dtmfCode: '1234' } } }),
+                args: () => ({ app: { id: TEST_B2C_APP_ID }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'UNKNOWN_ERROR' },
             },
         ]
