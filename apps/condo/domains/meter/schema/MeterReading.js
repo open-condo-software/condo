@@ -173,7 +173,7 @@ async function validateMeterReadingWithIntegration (context, meterReading, meter
                 if (response.ok) {
                     const result = await response.json()
                     // API returns {ok: bool, data?: string} shape
-                    if (result && result.ok === false) {
+                    if (result?.ok === false) {
                         return { result: VALIDATION_RESULT_INVALID, error: result.data }
                     }
                     return { result: VALIDATION_RESULT_VALID }
