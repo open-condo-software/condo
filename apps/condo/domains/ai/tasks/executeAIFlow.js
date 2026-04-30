@@ -72,7 +72,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
         const topic = buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`)
 
-        await publish({
+        void publish({
             topic,
             data: {
                 type: CHUNK_TYPES.TASK_START,
@@ -90,7 +90,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
             switch (event.type) {
                 case EVENT_TYPES.START:
-                    await publish({
+                    void publish({
                         topic,
                         data: {
                             type: CHUNK_TYPES.FLOW_START,
@@ -98,7 +98,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                     })
                     return
                 case EVENT_TYPES.ITEM:
-                    await publish({
+                    void publish({
                         topic,
                         data: {
                             type: CHUNK_TYPES.FLOW_ITEM,
@@ -107,7 +107,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                     })
                     return
                 case EVENT_TYPES.END:
-                    await publish({
+                    void publish({
                         topic,
                         data: {
                             type: CHUNK_TYPES.FLOW_END,
@@ -115,7 +115,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                     })
                     return
                 case EVENT_TYPES.ERROR:
-                    await publish({
+                    void publish({
                         topic,
                         data: {
                             type: CHUNK_TYPES.FLOW_ERROR,
@@ -124,7 +124,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                     })
                     return
                 default: 
-                    await publish({
+                    void publish({
                         topic,
                         data: {
                             type: CHUNK_TYPES.FLOW_ERROR,
@@ -161,7 +161,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                 status: TASK_STATUSES.ERROR,
             })
 
-            await publish({
+            void publish({
                 topic,
                 data: {
                     type: CHUNK_TYPES.TASK_ERROR,
@@ -188,7 +188,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, updateData)
 
-        await publish({
+        void publish({
             topic,
             data: {
                 type: CHUNK_TYPES.TASK_END,
@@ -213,7 +213,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
         })
 
-        await publish({
+        void publish({
             topic: buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`),
             data: {
                 type: CHUNK_TYPES.TASK_ERROR,

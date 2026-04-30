@@ -20,8 +20,8 @@ class N8NAdapter extends AbstractAdapter {
     constructor () {
         super()
 
-        const flowTypes = Object.keys(AI_ADAPTERS_CONFIG?.n8n || {})
-        this.#isConfigured = flowTypes.length > 0 ? flowTypes.every(flowType => !!AI_ADAPTERS_CONFIG?.n8n?.[flowType]?.apiKey) : false
+        const flowConfigs = Object.values(AI_ADAPTERS_CONFIG?.n8n || {})
+        this.#isConfigured = flowConfigs.some(flowConfig => !!flowConfig?.apiKey)
         if (!this.#isConfigured) console.warn('N8NAdapter not configured for any flow type!')
     }
 
@@ -140,7 +140,7 @@ class N8NAdapter extends AbstractAdapter {
                     stream: true,
                     events,
                     totalevents: eventsLength,
-                    lastEventsType: events[eventsLength - 1],
+                    lastEventsType: events[eventsLength - 1]?.type,
                 },
             }
         } else {

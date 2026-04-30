@@ -1,6 +1,9 @@
 const TEST_API_KEY = 'test-n8n-api-key'
+const TEST_FLOW_TYPE = 'testFlow'
 
-const createAdapter = async (config = { AI_ADAPTERS_CONFIG: JSON.stringify({ n8n: { apiKey: TEST_API_KEY } }) }) => {
+const createAdapter = async (
+    config = { AI_ADAPTERS_CONFIG: JSON.stringify({ n8n: { [TEST_FLOW_TYPE]: { apiKey: TEST_API_KEY } } }) }
+) => {
     jest.resetModules()
 
     const fetchMock = jest.fn()
@@ -41,15 +44,16 @@ describe('N8NAdapter', () => {
         fetchMock.mockResolvedValue({
             ok: true,
             status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
             json: jest.fn().mockResolvedValue(successResponse),
         })
 
-        const result = await adapter.execute('https://n8n.example/webhook', { foo: 'bar' })
+        const result = await adapter.execute('https://n8n.example/webhook', { foo: 'bar' }, TEST_FLOW_TYPE)
 
         expect(fetchMock).toHaveBeenCalledWith('https://n8n.example/webhook', expect.objectContaining({
             method: 'POST',
             headers: expect.objectContaining({
-                'X-N8N-API-KEY': TEST_API_KEY,
+                Authorization: `Bearer ${TEST_API_KEY}`,
                 'Content-Type': 'application/json',
             }),
             body: JSON.stringify({ context: { foo: 'bar' } }),
@@ -68,10 +72,11 @@ describe('N8NAdapter', () => {
         fetchMock.mockResolvedValue({
             ok: true,
             status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
             json: jest.fn().mockResolvedValue(successResponse),
         })
 
-        const result = await adapter.execute('https://n8n.example/webhook', { foo: 'bar' })
+        const result = await adapter.execute('https://n8n.example/webhook', { foo: 'bar' }, TEST_FLOW_TYPE)
 
         expect(result).toEqual({
             result: successResponse,
@@ -83,7 +88,7 @@ describe('N8NAdapter', () => {
         const { adapter } = await createAdapter({})
 
         expect(adapter.isConfigured).toBe(false)
-        await expect(adapter.execute('https://n8n.example/webhook', {})).rejects.toThrow('N8NAdapter not configured!')
+        await expect(adapter.execute('https://n8n.example/webhook', {}, TEST_FLOW_TYPE)).rejects.toThrow('N8NAdapter not configured!')
     })
 
     test('throws error with developer message when response is not successful', async () => {
@@ -97,7 +102,7 @@ describe('N8NAdapter', () => {
             json: jest.fn().mockResolvedValue(errorResponse),
         })
 
-        await expect(adapter.execute('https://n8n.example/webhook', { foo: 'bar' })).rejects.toMatchObject({
+        await expect(adapter.execute('https://n8n.example/webhook', { foo: 'bar' }, TEST_FLOW_TYPE)).rejects.toMatchObject({
             message: 'Failed to complete prediction',
             developerErrorMessage: 'Workflow execution failed',
             _response: errorResponse,
@@ -113,10 +118,20 @@ describe('N8NAdapter', () => {
             json: jest.fn().mockRejectedValue(new Error('Parse error')),
         })
 
-        await expect(adapter.execute('https://n8n.example/webhook', { foo: 'bar' })).rejects.toMatchObject({
+        await expect(adapter.execute('https://n8n.example/webhook', { foo: 'bar' }, TEST_FLOW_TYPE)).rejects.toMatchObject({
             message: 'Failed to complete prediction',
             developerErrorMessage: 'Failed to complete prediction',
             _response: null,
         })
+    })
+
+    test('throws error when API key is not configured for flow', async () => {
+        const { adapter } = await createAdapter({
+            AI_ADAPTERS_CONFIG: JSON.stringify({ n8n: { anotherFlow: { apiKey: TEST_API_KEY } } }),
+        })
+
+        await expect(adapter.execute('https://n8n.example/webhook', { foo: 'bar' }, TEST_FLOW_TYPE)).rejects.toThrow(
+            `N8NAdapter apiKey is not configured for flow "${TEST_FLOW_TYPE}"`
+        )
     })
 })

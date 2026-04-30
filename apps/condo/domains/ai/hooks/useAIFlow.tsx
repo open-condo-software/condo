@@ -93,6 +93,8 @@ export function useAIFlow<T = object> ({
     const [error, setError] = useState<Error | null>(null)
     const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+    const streamTextRef = useRef('')
+    const streamingResolverRef = useRef<((value: { data: UseAIFlowResult<T>, error: object, localizedErrorText: string }) => void) | null>(null)
 
     const { useFlagValue } = useFeatureFlags()
     const aiStreamingEnabled = useFlagValue(AI_STREAMING)?.[flowType]
@@ -114,14 +116,37 @@ export function useAIFlow<T = object> ({
 
     const onMessage = useCallback((message: StreamMessageType) => {
         if (message.type === CHUNK_TYPES.FLOW_ITEM && message?.item) {
-            setStreamDataText(prev => prev + message.item)
+            setStreamDataText((prev) => {
+                const next = prev + message.item
+                streamTextRef.current = next
+                return next
+            })
         } else if (message.type === CHUNK_TYPES.TASK_ERROR) {
+            setData(null)
             setLoading(false)
             setError(message.error)
+            setCurrentTaskId(null)
+            if (streamingResolverRef.current) {
+                streamingResolverRef.current({ data: null, error: message.error, localizedErrorText: null })
+                streamingResolverRef.current = null
+            }
         } else if (message.type === CHUNK_TYPES.TASK_END) {
+            const combinedResult: UseAIFlowResult<T> = {
+                status: TASK_STATUSES.COMPLETED as ExecutionAiFlowTask['status'],
+                aiSessionId: aiSessionId || null,
+                errorMessage: null,
+                result: streamTextRef.current as T,
+            }
+            setData(combinedResult)
             setLoading(false)
+            setError(null)
+            setCurrentTaskId(null)
+            if (streamingResolverRef.current) {
+                streamingResolverRef.current({ data: combinedResult, error: null, localizedErrorText: null })
+                streamingResolverRef.current = null
+            }
         }
-    }, [])
+    }, [aiSessionId])
 
     useMessagingSubscription<StreamMessageType>({
         topic,
@@ -145,6 +170,8 @@ export function useAIFlow<T = object> ({
         setLoading(false)
         setCurrentTaskId(null)
         setData(null)
+        setStreamDataText('')
+        streamTextRef.current = ''
         setError(null)
     }, [aiSessionId, stopPollingForResult])
 
@@ -241,6 +268,7 @@ export function useAIFlow<T = object> ({
         setError(null)
         setData(null)
         setStreamDataText('')
+        streamTextRef.current = ''
 
         try {
             const data = {
@@ -266,17 +294,19 @@ export function useAIFlow<T = object> ({
             setCurrentTaskId(createdTaskId)
 
             if (aiStreamingEnabled && isConnected) {
-                return { data: null, error: null, localizedErrorText: null }
+                return await new Promise((resolve) => {
+                    streamingResolverRef.current = resolve
+                })
             } else {
                 return await startPollingForResult(createdTaskId)
             }
-        } catch (err: any) {
-            const wrappedErr = err instanceof Error ? err : new Error(err.toString())
+        } catch (err: unknown) {
+            const wrappedErr = err instanceof Error ? err : new Error(String(err))
             setError(wrappedErr)
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            if (!(aiStreamingEnabled && isConnected)) setLoading(false)
+            setLoading(false)
         }
     }, [
         flowType,
@@ -297,21 +327,24 @@ export function useAIFlow<T = object> ({
         setError(null)
         setData(null)
         setStreamDataText('')
+        streamTextRef.current = ''
 
         try {
             setCurrentTaskId(taskId)
             if (aiStreamingEnabled && isConnected) {
-                return { data: null, error: null, localizedErrorText: null }
+                return await new Promise((resolve) => {
+                    streamingResolverRef.current = resolve
+                })
             } else {
                 return await startPollingForResult(taskId)
             }
-        } catch (err: any) {
-            const wrappedErr = err instanceof Error ? err : new Error(err.toString())
+        } catch (err: unknown) {
+            const wrappedErr = err instanceof Error ? err : new Error(String(err))
             setError(wrappedErr)
             setCurrentTaskId(null)
             return { data: null, error: wrappedErr, localizedErrorText: null }
         } finally {
-            if (!(aiStreamingEnabled && isConnected)) setLoading(false)
+            setLoading(false)
         }
     }, [startPollingForResult, aiStreamingEnabled, isConnected])
 
