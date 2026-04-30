@@ -26,7 +26,7 @@ const B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     // Something that has B2CApp info and addressKey
     services: {
         sendVoIPCallStartMessage: {},
-        // sendVoIPCancelPushMessage: {}, // NOTE(YEgorLu): to be made in DOMA-12906
+        sendVoIPCallCancelMessage: {},
     },
 }
 

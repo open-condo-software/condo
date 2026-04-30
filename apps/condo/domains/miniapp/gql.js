@@ -35,6 +35,12 @@ const SEND_VOIP_CALL_START_MESSAGE_MUTATION = gql`
     }
 `
 
+const SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION = gql`
+    mutation sendVoIPCallCancelMessage ($data: SendVoIPCallCancelMessageInput!) {
+        result: sendVoIPCallCancelMessage(data: $data) { verifiedContactsCount createdMessagesCount erroredMessagesCount }
+    }
+`
+
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl pushNotificationSettings customFormUrl getRecipientsUrl getRecipientsCountersUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
@@ -141,6 +147,7 @@ module.exports = {
     B2BAppRoleWithoutEmployeeRole,
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
-    SEND_VOIP_CALL_START_MESSAGE_MUTATION,
+    SEND_VOIP_CALL_START_MESSAGE_MUTATION, 
+    SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
