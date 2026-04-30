@@ -160,8 +160,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const processedMeterReadings = useMemo(() => {
         const filteredMeterReading = [...meterReadings].sort((a, b) => {
             if (hasMeterIntegration) {
-                const aDeclined = get(a, 'billingStatus') === METER_READING_BILLING_STATUS_DECLINED
-                const bDeclined = get(b, 'billingStatus') === METER_READING_BILLING_STATUS_DECLINED
+                const aDeclined = a?.billingStatus === METER_READING_BILLING_STATUS_DECLINED
+                const bDeclined = b?.billingStatus === METER_READING_BILLING_STATUS_DECLINED
                 if (aDeclined !== bDeclined) return aDeclined ? -1 : 1
             }
             return a.date < b.date ? 1 : -1
