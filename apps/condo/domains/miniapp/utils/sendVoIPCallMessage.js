@@ -367,8 +367,8 @@ function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
 }
 
 function getLogInfoFn ({ logger, serviceName }) {
-    return function ({ b2cAppId, callId, stats, err }) {
-        logger.info({ msg: `${serviceName} stats`, entityName: 'B2CApp', entityId: b2cAppId, data: { callId, stats }, err: err })
+    return function ({ b2cAppId, callId, logInfoStats, err }) {
+        logger.info({ msg: `${serviceName} stats`, entityName: 'B2CApp', entityId: b2cAppId, data: { callId, stats: logInfoStats }, err: err })
     }
 }
 

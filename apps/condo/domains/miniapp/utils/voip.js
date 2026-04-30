@@ -83,12 +83,12 @@ async function getCallStatus ({ b2cAppId, organizationId, propertyId, callId }) 
 
 function isCallStatusTokenEqual ({ callStatusToken, callStatus }) {
     if (!callStatus?.callStatusToken || !callStatusToken) return false
-
-    const innerToken = callStatus.callStatusToken
-    if (!innerToken) return false
-
+    
     const outerTokenBuffer = Buffer.from(callStatusToken)
-    const innerTokenBuffer = Buffer.from(innerToken)
+    const innerTokenBuffer = Buffer.from(callStatus.callStatusToken)
+
+    if (outerTokenBuffer.length !== innerTokenBuffer.length) return false
+
     return timingSafeEqual(outerTokenBuffer, innerTokenBuffer)
 }
 
