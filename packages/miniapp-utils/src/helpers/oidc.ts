@@ -54,7 +54,7 @@ type OnAuthSuccessHandler<UserInfo extends Record<string, unknown> = Record<stri
 type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<string, never>> = {
     getSession: SessionGetter
     oidcConfig: OIDCClientConfig
-    redirectUri: string
+    redirectUri: string | Array<string>
     onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     middlewareOptions?: MiddlewareOptions
     onError?: ErrorHandler
@@ -71,12 +71,13 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
     private static OIDC_REFRESH_TOKEN_KEY = 'oidcRefreshToken' as const
     private static OIDC_NEXT_URL_KEY = 'oidcNextUrl' as const
     private static OIDC_CHECKS_KEY = 'oidcChecks' as const
+    private static OIDC_REDIRECT_URI_KEY = 'oidcRedirectUri' as const
     private static CHECK_SCHEMA = z.object({ nonce: z.string(), state: z.string() })
 
     private readonly getSession: SessionGetter
     private readonly client: Client
     private readonly logger: LoggerType
-    private readonly redirectUri: string
+    private readonly redirectUris: Array<string>
     private readonly onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     private readonly onError?: ErrorHandler
     private readonly middlewareOptions: MiddlewareOptions | undefined
@@ -109,7 +110,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
             ...(issuerOptions || {}),
         })
 
-        this.redirectUri = redirectUri
+        this.redirectUris = Array.isArray(redirectUri) ? redirectUri : [redirectUri]
         this.middlewareOptions = middlewareOptions
         this.onAuthSuccess = onAuthSuccess
         this.onError = onError
@@ -118,7 +119,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         this.client = new issuer.Client({
             client_id: clientId,
             client_secret: clientSecret,
-            redirect_uris: [redirectUri],
+            redirect_uris: this.redirectUris,
             response_types: ['code'],
             token_endpoint_auth_method: 'client_secret_basic',
             ...(clientOptions || {}),
@@ -155,12 +156,14 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         const client = this.client
         const sendError = this.sendError
         const scope = this.scope
+        const redirectUris = this.redirectUris
 
         return async function authHandler (req, res, next) {
             const session = await sessionGetter(req, res)
 
             try {
                 const query = OIDCMiddleware.getQueryParams(req)
+                const queryRedirectUri = query.get('redirect_uri')
                 const next = query.get('next')
 
                 if (next && isSafeUrl(next)) {
@@ -169,12 +172,15 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
                     delete session[OIDCMiddleware.OIDC_NEXT_URL_KEY]
                 }
 
+                const redirectUri = redirectUris.find(uri => uri === queryRedirectUri) ?? redirectUris[0]
                 const checks = { nonce: generators.nonce(), state: generators.state() }
                 session[OIDCMiddleware.OIDC_CHECKS_KEY] = { ...checks }
+                session[OIDCMiddleware.OIDC_REDIRECT_URI_KEY] = redirectUri
                 await session.save()
 
                 const authUrl = client.authorizationUrl({
                     scope,
+                    redirect_uri: redirectUri,
                     ...checks,
                 })
 
@@ -194,8 +200,8 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         const sessionGetter = this.getSession
         const sendError = this.sendError
         const client = this.client
-        const redirectUri = this.redirectUri
         const onAuthSuccess = this.onAuthSuccess
+        const redirectUris = this.redirectUris
 
         return async function callbackHandler (req, res, next) {
             let session = await sessionGetter(req, res)
@@ -203,6 +209,11 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
             try {
                 const { success, data: checks } = OIDCMiddleware.CHECK_SCHEMA.safeParse(session[OIDCMiddleware.OIDC_CHECKS_KEY])
                 const nextUrl = session[OIDCMiddleware.OIDC_NEXT_URL_KEY]
+                const redirectUri = session[OIDCMiddleware.OIDC_REDIRECT_URI_KEY]
+
+                if (typeof redirectUri !== 'string' || !redirectUris.includes(redirectUri)) {
+                    return sendError(new Error('Invalid redirect URI'), req, res, next)
+                }
 
                 if (!success) {
                     return sendError(new Error('Invalid nonce or state'), req, res, next)
