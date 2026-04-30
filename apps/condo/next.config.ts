@@ -91,6 +91,9 @@ const nextConfig: NextConfig = {
             modifyVars: antGlobalVariables,
         },
     },
+    images: {
+        unoptimized: true,
+    },
     skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
