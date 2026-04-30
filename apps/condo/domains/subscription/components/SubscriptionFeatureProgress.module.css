@@ -5,6 +5,7 @@
 }
 
 .container:not(.expanded-content) {
+  min-width: 45px;
   max-height: 30px;
   margin: 0 -11px 24px;
   padding: 2px 8px;
