@@ -68,6 +68,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             ...task.cleanContext,
             locale: task.locale,
             aiSessionId: task.aiSessionId,
+            taskId: executionAIFlowTaskId,
         }
 
         const prediction = await adapter.execute(predictionUrl, fullContext)
