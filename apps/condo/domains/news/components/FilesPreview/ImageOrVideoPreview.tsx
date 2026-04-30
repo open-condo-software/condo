@@ -7,8 +7,57 @@ import styles from './ImageOrVideoPreview.module.css'
 import { UploadFileType } from '../FilesUploadList'
 
 
-const createVideoPreviewFromUrl = (url: string) => {
+const PREVIEW_CACHE = new Map<string, string>()
+export const getImagePreviewFromUrl = (url: string, id?: string) => {
     return new Promise<string>((resolve, reject) => {
+        if (id && PREVIEW_CACHE.has(id)) {
+            resolve(PREVIEW_CACHE.get(id))
+            return
+        }
+
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+
+            const WIDTH = 1280
+            const HEIGHT = 720
+
+            canvas.width = WIDTH
+            canvas.height = HEIGHT
+
+            const iw = img.width
+            const ih = img.height
+
+            const scale = Math.max(WIDTH / iw, HEIGHT / ih)
+
+            const drawWidth = iw * scale
+            const drawHeight = ih * scale
+
+            const offsetX = (WIDTH - drawWidth) / 2
+            const offsetY = (HEIGHT - drawHeight) / 2
+
+            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
+
+            const resultUrl = canvas.toDataURL('image/jpeg', 0.85)
+            PREVIEW_CACHE.set(id, resultUrl)
+            resolve(resultUrl)
+        }
+
+        img.onerror = reject
+        img.src = url
+    })
+}
+
+export const createVideoPreviewFromUrl = (url: string, id?: string) => {
+    return new Promise<string>((resolve, reject) => {
+        if (id && PREVIEW_CACHE.has(id)) {
+            resolve(PREVIEW_CACHE.get(id))
+            return
+        }
+
         const video = document.createElement('video')
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
@@ -43,7 +92,9 @@ const createVideoPreviewFromUrl = (url: string) => {
 
             ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight)
 
-            resolve(canvas.toDataURL('image/jpeg', 0.9))
+            const resultUrl = canvas.toDataURL('image/jpeg', 0.9)
+            PREVIEW_CACHE.set(id, resultUrl)
+            resolve(resultUrl)
         }
 
         video.onerror = reject
@@ -59,13 +110,14 @@ export const ImageOrVideoPreview: React.FC<ImageOrVideoPreviewProps> = ({ file }
     useDeepCompareEffect(() => {
         const process = async () => {
             const url = file?.response?.url || file?.url
+            const id = file?.response?.id || file?.uid
 
             let thumb = ''
             if (file.response?.mimetype?.startsWith('image/')) {
                 thumb = url
             }
             if (file.response?.mimetype?.startsWith('video/')) {
-                thumb = await createVideoPreviewFromUrl(url)
+                thumb = await createVideoPreviewFromUrl(url, id)
             }
 
             setPreview(thumb)

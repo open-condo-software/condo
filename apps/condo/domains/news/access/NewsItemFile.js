@@ -9,17 +9,24 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const { getEmployedOrRelatedOrganizationsByPermissions, checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 
-async function canReadNewsItemFiles ({ authentication: { item: user }, context }) {
+async function canReadNewsItemFiles (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         const residents = await getUserResidents(context, user)

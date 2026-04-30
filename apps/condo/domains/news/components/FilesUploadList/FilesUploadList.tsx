@@ -87,13 +87,21 @@ const iconRender = (file) => {
     return ''
 }
 
-async function tryCreateThumbnailFromUrl (type, url) {
+const THUMBNAIL_CACHE = new Map()
+async function tryCreateThumbnailFromUrl (type, url, id) {
+    if (id && THUMBNAIL_CACHE.has(id)) {
+        return THUMBNAIL_CACHE.get(id)
+    }
     try {
         if (type?.startsWith('image/')) {
-            return await createImageThumbnailFromUrl(url)
+            const thumbnail = await createImageThumbnailFromUrl(url)
+            THUMBNAIL_CACHE.set(id, thumbnail)
+            return thumbnail
         }
         if (type?.startsWith('video/')) {
-            return await createVideoThumbnailFromUrl(url)
+            const thumbnail = await createVideoThumbnailFromUrl(url)
+            THUMBNAIL_CACHE.set(id, thumbnail)
+            return thumbnail
         }
     } catch (error) {
         console.log('Cannot create thumbnail from url')
@@ -182,7 +190,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     if (file.thumbUrl) return file
 
                     try {
-                        const thumb = await tryCreateThumbnailFromUrl(file.response?.mimetype, file.url)
+                        const thumb = await tryCreateThumbnailFromUrl(file.response?.mimetype, file.url, file.id)
                         if (!thumb) return file
 
                         return {
@@ -243,7 +251,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
         try {
             const dbFile = await createAction({ file })
 
-            const thumbnail = (await tryCreateThumbnailFromUrl(file.type, dbFile?.file?.publicUrl)) || ''
+            const thumbnail = (await tryCreateThumbnailFromUrl(file.type, dbFile?.file?.publicUrl, dbFile?.id)) || ''
 
             updateFileList({ type: 'add', payload: dbFile })
 
