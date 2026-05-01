@@ -66,6 +66,7 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
+import { RentalUnitSelect } from '@condo/domains/resident/components/RentalUnitSelect'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
@@ -785,9 +786,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const initialTicketValues = useMemo(() => isPropertyChanged ? omit(initialValues, ['unitName', 'unitType']) : initialValues, [initialValues, isPropertyChanged])
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialTicketValues, 'unitName'))
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialTicketValues, 'unitType'))
+    const [selectedRentalUnitId, setSelectedRentalUnitId] = useState<string>(get(initialTicketValues, ['rentalUnit', 'id']) || get(initialTicketValues, 'rentalUnit'))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialTicketValues, 'sectionType'))
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
+    const selectedRentalUnitIdRef = useRef(selectedRentalUnitId)
     const selectedSectionTypeRef = useRef(selectedSectionType)
 
     useEffect(() => {
@@ -808,6 +811,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     useEffect(() => {
         selectedUnitTypeRef.current = selectedUnitType
     }, [selectedUnitType])
+
+    useEffect(() => {
+        selectedRentalUnitIdRef.current = selectedRentalUnitId
+    }, [selectedRentalUnitId])
 
     useEffect(() => {
         selectedSectionTypeRef.current = selectedSectionType
@@ -880,6 +887,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const formValuesToMutationDataPreprocessor = useCallback((values) => {
         values.property = selectPropertyIdRef.current
+        values.rentalUnit = selectedRentalUnitIdRef.current
         values.unitName = selectedUnitNameRef.current
         values.unitType = selectedUnitTypeRef.current
         values.sectionType = selectedSectionTypeRef.current
@@ -900,9 +908,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             sectionType: null,
             floorName: null,
             property: option.key,
+            rentalUnit: null,
         })
         setSelectedUnitName(null)
         setSelectedUnitType(null)
+        setSelectedRentalUnitId(null)
         setSelectedSectionType(null)
         setSelectedPropertyId(option.key)
     }, [])
@@ -916,11 +926,28 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             sectionType: null,
             floorName: null,
             property: null,
+            rentalUnit: null,
         })
         setSelectedUnitName(null)
         setSelectedUnitType(null)
+        setSelectedRentalUnitId(null)
         setSelectedSectionType(null)
         setSelectedPropertyId(null)
+    }, [])
+
+    const handleRentalUnitChange = useCallback((form) => (rentalUnitId, option) => {
+        const unitName = get(option, ['unit', 'name'], null)
+        const unitType = get(option, ['unit', 'unitType'], null)
+
+        setSelectedRentalUnitId(rentalUnitId || null)
+        setSelectedUnitName(unitName)
+        setSelectedUnitType(unitType)
+
+        form.setFieldsValue({
+            rentalUnit: rentalUnitId || null,
+            unitName,
+            unitType,
+        })
     }, [])
 
     const propertyInfoColSpan = !breakpoints.TABLET_LARGE ? 24 : 17
@@ -1040,19 +1067,36 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                             </TicketFormItem>
                                                                         </Col>
                                                                         {selectedPropertyId && (
-                                                                            <UnitInfo
-                                                                                property={property}
-                                                                                loading={organizationPropertiesLoading}
-                                                                                setSelectedUnitName={setSelectedUnitName}
-                                                                                setSelectedUnitType={setSelectedUnitType}
-                                                                                selectedUnitName={selectedUnitName}
-                                                                                setSelectedSectionType={setSelectedSectionType}
-                                                                                selectedSectionType={selectedSectionType}
-                                                                                mode={UnitInfoMode.All}
-                                                                                initialValues={initialTicketValues}
-                                                                                form={form}
-                                                                                disabled={!isEmpty(initialNotDraftInvoices)}
-                                                                            />
+                                                                            <>
+                                                                                <Col span={24} md={20} xl={18} xxl={16}>
+                                                                                    <TicketFormItem
+                                                                                        name='rentalUnit'
+                                                                                        label='Rental unit'
+                                                                                        initialValue={get(initialTicketValues, 'rentalUnit')}
+                                                                                    >
+                                                                                        <RentalUnitSelect
+                                                                                            propertyId={selectedPropertyId}
+                                                                                            organizationId={organizationId}
+                                                                                            rentableOnly
+                                                                                            disabled={!isEmpty(initialNotDraftInvoices)}
+                                                                                            onChange={handleRentalUnitChange(form)}
+                                                                                        />
+                                                                                    </TicketFormItem>
+                                                                                </Col>
+                                                                                <UnitInfo
+                                                                                    property={property}
+                                                                                    loading={organizationPropertiesLoading}
+                                                                                    setSelectedUnitName={setSelectedUnitName}
+                                                                                    setSelectedUnitType={setSelectedUnitType}
+                                                                                    selectedUnitName={selectedUnitName}
+                                                                                    setSelectedSectionType={setSelectedSectionType}
+                                                                                    selectedSectionType={selectedSectionType}
+                                                                                    mode={UnitInfoMode.All}
+                                                                                    initialValues={initialTicketValues}
+                                                                                    form={form}
+                                                                                    disabled
+                                                                                />
+                                                                            </>
                                                                         )}
                                                                     </Row>
                                                                 </Col>

@@ -74,6 +74,7 @@ const schemas = () => [
 const tasks = () => [
     require('@condo/domains/common/tasks'),
     require('@condo/domains/acquiring/tasks'),
+    require('@condo/domains/billing/tasks'),
     require('@condo/domains/notification/tasks'),
     require('@condo/domains/organization/tasks'),
     require('@condo/domains/ticket/tasks'),

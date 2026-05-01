@@ -18,7 +18,7 @@ import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
-const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
+const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier', 'rentalUnit']
 const DISCONNECT_ON_NULL = ['assignee', 'executor', 'contact']
 const IGNORE_FIELDS = ['invoices', 'existedInvoices', 'createdByType', 'initialNotDraftInvoices', 'invoicesInNotCanceledStatus']
 
@@ -40,6 +40,7 @@ export interface ITicketFormState {
     sectionName?: string
     floorName?: string
     unitName?: string
+    rentalUnit?: string
 }
 
 type TicketMutationType = TicketUpdateInput | TicketCreateInput

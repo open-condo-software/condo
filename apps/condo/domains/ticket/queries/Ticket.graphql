@@ -27,6 +27,11 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
         floorName
         unitType
         unitName
+        rentalUnit {
+            id
+            name
+            unitType
+        }
         details
         clientName
         clientPhone
@@ -122,6 +127,7 @@ query getTicketsForAIAssistant ($where: TicketWhereInput!, $sortBy: [SortTickets
         floorName
         unitType
         unitName
+        rentalUnit { id name unitType }
         details
         clientName
         clientPhone
@@ -163,6 +169,7 @@ query getTicketWithDetailsForAIAssistant ($id: ID!) {
         floorName
         unitType
         unitName
+        rentalUnit { id name unitType }
         details
         clientName
         clientPhone
@@ -227,6 +234,7 @@ query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsB
         floorName
         unitType
         unitName
+        rentalUnit { id name unitType }
         details
         clientName
         clientPhone
@@ -360,6 +368,7 @@ query getTicketById ($id: ID!) {
         completedAt
         unitType
         unitName
+        rentalUnit { id name unitType }
         sectionName
         sectionType
         floorName
@@ -547,6 +556,7 @@ mutation createTicket ($data: TicketCreateInput!) {
         }
         unitName
         unitType
+        rentalUnit { id name unitType }
     }
 }
 
@@ -556,6 +566,7 @@ mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
         clientPhone
         unitName
         unitType
+        rentalUnit { id name unitType }
     }
 }
 

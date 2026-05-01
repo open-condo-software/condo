@@ -11,6 +11,7 @@ import { getIconRender, getMoneyRender, getTextRender } from '@condo/domains/com
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getRentalUnitDisplayName } from '@condo/domains/resident/utils/clientSchema/rental'
 
 export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
@@ -23,7 +24,6 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
     const TooltipPDF = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
 
@@ -56,7 +56,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: UnitNameTitle } }),
                 width: '17%',
-                render: getTextRender(search),
+                render: (unitName, receipt) => getTextRender(search)(getRentalUnitDisplayName(intl, get(receipt, ['account', 'rentalUnit']), { unitName, unitType: get(receipt, ['account', 'unitType']) }) || unitName),
             },
             fullName: {
                 title: FullNameTitle,
@@ -162,8 +162,9 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
         ChargeTitle,
         CategoryTitle,
         filters,
+        filterMetas,
+        intl,
         sorterMap,
-        ShortFlatNumber,
         TooltipPDF,
         detailed,
         currencyCode,

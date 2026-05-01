@@ -30,6 +30,7 @@ import {
 import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+import { getRentalUnitDisplayName } from '@condo/domains/resident/utils/clientSchema/rental'
 import { TicketUserInfoField } from '@condo/domains/ticket/components/TicketId/TicketUserInfoField'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit.js'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
@@ -204,15 +205,17 @@ const AddressField = ({ invoice }) => {
 
     const unitName = get(invoice, 'unitName')
     const unitType = get(invoice, 'unitType')
+    const rentalUnit = get(invoice, 'rentalUnit')
     const addressMeta = get(property, 'addressMeta')
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` as FormatjsIntl.Message['ids'] })
     const addressDetails = getAddressDetails({ addressMeta })
     const streetPart = get(addressDetails, 'streetPart')
     const renderPostfix = get(addressDetails, 'renderPostfix')
-    const ticketUnitMessage = unitName ? `${UnitTypePrefix.toLowerCase()} ${invoice.unitName} ` : ''
-    const { sectionName, floorName, sectionType } = getSectionAndFloorByUnitName(property, unitName, unitType)
-    const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` as FormatjsIntl.Message['ids'] }).toLowerCase()
-    const SectionAndFloorMessage = `(${SectionTypeMessage} ${sectionName}, ${FloorNameMessage} ${floorName})`
+    const rentalUnitMessage = getRentalUnitDisplayName(intl, rentalUnit, invoice)
+    const ticketUnitMessage = rentalUnitMessage || (unitName ? `${UnitTypePrefix.toLowerCase()} ${invoice.unitName} ` : '')
+    const { sectionName, floorName, sectionType } = rentalUnit ? { sectionName: null, floorName: null, sectionType: null } : getSectionAndFloorByUnitName(property, unitName, unitType)
+    const SectionTypeMessage = sectionType ? intl.formatMessage({ id: `field.sectionType.${sectionType}` as FormatjsIntl.Message['ids'] }).toLowerCase() : null
+    const SectionAndFloorMessage = sectionName && floorName ? `(${SectionTypeMessage} ${sectionName}, ${FloorNameMessage} ${floorName})` : null
 
     return (
         <Space size={4} direction='vertical'>
@@ -225,7 +228,7 @@ const AddressField = ({ invoice }) => {
                 </Typography.Link>
             </Link>
             {
-                unitName && (
+                ticketUnitMessage && (
                     <Typography.Paragraph>
                         <Typography.Text>{ticketUnitMessage}</Typography.Text>
                         {
@@ -276,6 +279,10 @@ const PayerDataField = ({ invoice }) => {
     const PayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.payerData' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.address' })
     const ContactMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.contact' })
+    const rentCharge = get(invoice, 'rentCharge')
+    const rentChargeMessage = rentCharge
+        ? `${get(rentCharge, 'billingMonth')} · ${get(rentCharge, 'amount')} ${get(rentCharge, 'currencyCode')}`
+        : null
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -288,6 +295,11 @@ const PayerDataField = ({ invoice }) => {
             <PageFieldRow title={ContactMessage} ellipsis={ELLIPSIS_CONFIG}>
                 <ClientField invoice={invoice} />
             </PageFieldRow>
+            {rentChargeMessage && (
+                <PageFieldRow title='Rent charge' ellipsis={ELLIPSIS_CONFIG}>
+                    <Typography.Text>{rentChargeMessage}</Typography.Text>
+                </PageFieldRow>
+            )}
         </Row>
     )
 }

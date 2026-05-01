@@ -47,6 +47,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const EditPropertyTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyTitle' })
     const EditPropertyMapTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyMapTitle' })
+    const RentalWorkspaceTitle = 'Rentals'
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
     const TicketsTitle = intl.formatMessage({ id: 'pages.condo.property.id.ticketInformationTitle' })
     const PropertyInformationTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyInformationTitle' })
@@ -174,6 +175,10 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
         await push(`/property/${property?.id}/map/update`)
     }, [property?.id, push])
 
+    const handlePropertyRentalsClick = useCallback(async () => {
+        await push(`/property/${property?.id}/rentals`)
+    }, [property?.id, push])
+
     const handlePropertyDeleteClick = useCallback(() => softDeleteAction(property), [property])
 
     return (
@@ -235,6 +240,13 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                                         {EditPropertyMapTitle}
                                     </Button>
                                 ),
+                                <Button
+                                    key='propertyRentals'
+                                    type='secondary'
+                                    onClick={handlePropertyRentalsClick}
+                                >
+                                    {RentalWorkspaceTitle}
+                                </Button>,
                                 <DeleteButtonWithConfirmModal
                                     key='delete'
                                     title={ConfirmDeleteTitle}

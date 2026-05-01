@@ -27,6 +27,7 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import { ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
+import { getRecordRentalUnitType } from '@condo/domains/resident/utils/clientSchema/rental'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { useFavoriteTickets } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
@@ -250,24 +251,25 @@ export const getUnitRender = (intl, search: FilterValue) => {
     return function render (unit, ticket) {
         const sectionName = get(ticket, 'sectionName')
         const floorName = get(ticket, 'floorName')
-        const unitType = get(ticket, 'unitType', 'flat') || 'flat'
+        const unitType = getRecordRentalUnitType(ticket) || 'flat'
+        const unitName = get(ticket, ['rentalUnit', 'name']) || unit
 
         let unitNamePrefix = null
         const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${ticket.sectionName}` : ''
         const sectionType = ticket.sectionType
         const floorNameMessage = floorName ? `${ShortFloorNameMessage} ${ticket.floorName}` : ''
 
-        if (unit) {
+        if (unitName) {
             if (unitType !== 'flat') {
                 unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
             }
         }
 
-        const postfix = getUnitPostfix(unit, sectionNameMessage, floorNameMessage)
-        const extraTitle = getUnitExtraTitle(unit, unitType, sectionName, sectionType, floorName, intl)
-        const unitName = getUnitMessage(unit, unitNamePrefix, postfix)
+        const postfix = getUnitPostfix(unitName, sectionNameMessage, floorNameMessage)
+        const extraTitle = getUnitExtraTitle(unitName, unitType, sectionName, sectionType, floorName, intl)
+        const renderedUnitName = getUnitMessage(unitName, unitNamePrefix, postfix)
 
-        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS, extraTitle })(unitName)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS, extraTitle })(renderedUnitName)
     }
 }
 

@@ -25,6 +25,7 @@ import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
 import { getAddressDetails, ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
+import { getRecordRentalUnitDisplayName, getRecordRentalUnitType } from '@condo/domains/resident/utils/clientSchema/rental'
 
 
 export type RenderReturnType = string | React.ReactNode
@@ -249,24 +250,19 @@ export const getAddressRender = (property: ObjectWithAddressInfo, DeletedMessage
 }
 
 export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
-    let unitNamePrefix = null
+    const unitName = getRecordRentalUnitDisplayName(intl, record) || text
+    const unitType = getRecordRentalUnitType(record) || BuildingUnitSubType.Flat
     let extraTitle = null
-    const unitType = get(record, 'unitType', BuildingUnitSubType.Flat)
 
-    if (text) {
+    if (unitName) {
         extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
-        if (unitType !== BuildingUnitSubType.Flat) {
-            unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
-        }
     }
-
-    const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
 
     return getTableCellRenderer({ search, extraTitle })(unitName)
 }
 
 export const getUnitTypeRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
-    const unitType = get(record, 'unitType', BuildingUnitSubType.Flat)
+    const unitType = getRecordRentalUnitType(record) || get(record, 'unitType', BuildingUnitSubType.Flat)
     const renderUnitType = unitType ? intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` }) : null
     return getTableCellRenderer({ search, extraTitle: renderUnitType })(renderUnitType)
 }

@@ -1,3 +1,4 @@
+import { useQuery } from '@apollo/client'
 import {
     useGetContactByIdQuery,
     useUpdateContactMutation,
@@ -5,6 +6,7 @@ import {
 } from '@app/condo/gql'
 import { BuildingUnitSubType, Organization, CustomFieldModelNameType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
+import { gql } from 'graphql-tag'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -27,6 +29,19 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
 import { useCustomValues } from '@condo/domains/miniapp/hooks/useCustomFields'
+import { ResidentRentalDashboard } from '@condo/domains/resident/components/ResidentRentalDashboard'
+
+
+const GET_RESIDENT_BY_CONTACT_SCOPE_QUERY = gql`
+    query getResidentByContactScope ($propertyId: ID, $phone: String) {
+        residents: allResidents(
+            where: { property: { id: $propertyId }, user: { phone: $phone }, deletedAt: null }
+            first: 1
+        ) {
+            id
+        }
+    }
+`
 
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
@@ -86,6 +101,14 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const isVerified = useMemo(() => contact?.isVerified, [contact])
     const hasResident = useMemo(() => contact?.hasResident, [contact])
     const phonePrefix = useMemo(() => organizationPhonePrefix ?? '', [organizationPhonePrefix])
+    const { data: residentData } = useQuery(GET_RESIDENT_BY_CONTACT_SCOPE_QUERY, {
+        variables: {
+            propertyId: get(contact, ['property', 'id']),
+            phone: contactPhone,
+        },
+        skip: !get(contact, ['property', 'id']) || !contactPhone || !hasResident,
+    })
+    const residentId = get(residentData, ['residents', 0, 'id'])
 
     const { breakpoints } = useLayoutContext()
 
@@ -175,6 +198,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                     )}
                                 </Row>
                             </FrontLayerContainer>
+                            <ResidentRentalDashboard residentId={residentId} />
                             
                             {isContactEditable && breakpoints.DESKTOP_SMALL && (
                                 <Col span={16}>
