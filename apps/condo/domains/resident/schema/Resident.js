@@ -30,13 +30,14 @@ const {
     PAYMENT_CATEGORIES_FIELDS,
 } = require('@condo/domains/resident/gql')
 const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
-const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
+const { getActiveOccupancy, getActiveOccupancyByGraphQL } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT: RESIDENT_USER_TYPE  } = require('@condo/domains/user/constants/common')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 
 const { manageResidentToTicketClientConnections } = require('../tasks')
 
+const CURRENT_OCCUPANCY_FIELDS = 'id status startDate expectedEndDate actualEndDate monthlyRate billingFrequency rentalUnit { id name unitType } property { id name address addressKey }'
 
 
 const addressFieldHooks = {
@@ -223,15 +224,32 @@ const Resident = new GQLListSchema('Resident', {
         },
 
         unitName: {
-            schemaDoc: 'Unit of the property, in which this person resides',
+            schemaDoc: '@deprecated Use Occupancy.rentalUnit instead. Legacy unit of the property, kept only for migration compatibility.',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
         },
 
         unitType: {
             ...UNIT_TYPE_FIELD,
+            schemaDoc: '@deprecated Use Occupancy.rentalUnit.unitType instead.',
             hooks: {
                 resolveInput: getUnitTypeFieldResolveInput(),
+            },
+        },
+        occupancies: {
+            schemaDoc: 'Occupancy agreements for this tenant',
+            type: 'Relationship',
+            ref: 'Occupancy.tenant',
+            many: true,
+            access: { create: false, update: false },
+        },
+        currentOccupancy: {
+            schemaDoc: 'Current active occupancy for this tenant',
+            type: 'Virtual',
+            graphQLReturnType: 'Occupancy',
+            graphQLReturnFragment: `{ ${CURRENT_OCCUPANCY_FIELDS} }`,
+            resolver: async (item, _, context) => {
+                return await getActiveOccupancyByGraphQL(context, { tenantId: item.id }, CURRENT_OCCUPANCY_FIELDS)
             },
         },
         isVerifiedByManagingCompany: {
@@ -299,22 +317,13 @@ const Resident = new GQLListSchema('Resident', {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
             const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
             if (operation === 'create') {
-                const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
-                const [resident] = await ResidentAPI.getAll(context, {
-                    address_i: addressUpToBuilding,
-                    unitName_i: unitName,
-                    unitType,
-                    user: { id: userId },
-                    deletedAt: null,
-                }, 'id', {
-                    first: 1,
-                })
-                if (resident) {
-                    return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
+                const occupancy = await getActiveOccupancy({ userId })
+                if (occupancy) {
+                    return addValidationError('Cannot create resident, because another active occupancy already exists for current user')
                 }
             } else if (operation === 'update') {
-                if (address || addressMeta || unitName) {
-                    return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                if (address || addressMeta || unitName || unitType) {
+                    return addValidationError('Changing of address, addressMeta, unitName, unitType or property is not allowed for already existing Resident')
                 }
             }
         },

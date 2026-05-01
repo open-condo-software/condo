@@ -63,6 +63,11 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
         const item = await getById('Property', itemId)
         return get(item, 'address')
     },
+    'rentalUnit': async (itemId) => {
+        if (!itemId) return null
+        const item = await getById('RentalUnit', itemId)
+        return get(item, 'name')
+    },
     'status': async (itemId) => {
         if (!itemId) return null
         const item = await getById('TicketStatus', itemId)

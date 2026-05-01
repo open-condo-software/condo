@@ -24,6 +24,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const { PROPERTY_ALREADY_EXISTS } = require('@condo/domains/property/constants/errors')
+const { PROPERTY_TYPES } = require('@condo/domains/property/constants/rental')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
@@ -97,6 +98,26 @@ const Property = new GQLListSchema('Property', {
             type: 'Select',
             options: 'building,village',
             isRequired: true,
+        },
+
+        propertyType: {
+            schemaDoc: 'Rental-oriented property type',
+            type: 'Select',
+            options: PROPERTY_TYPES,
+            dataType: 'string',
+            isRequired: false,
+        },
+
+        ghanaPostGps: {
+            schemaDoc: 'GhanaPost GPS address code',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        classification: {
+            schemaDoc: 'Free-form descriptive classification, for example hostel, gated estate, compound house',
+            type: 'Text',
+            isRequired: false,
         },
 
         map: {

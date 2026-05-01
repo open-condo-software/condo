@@ -9,6 +9,7 @@ const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { getActiveOccupancy } = require('@condo/domains/resident/utils/serverSchema')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
@@ -124,8 +125,10 @@ function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus) {
 async function getOrCreateContactByClientData (context, resolvedData, existingItem) {
     const organizationId = get(resolvedData, 'organization', null) || get(existingItem, 'organization', null)
     const propertyId = get(resolvedData, 'property', null) || get(existingItem, 'property', null)
-    const unitName = get(resolvedData, 'unitName', null) || get(existingItem, 'unitName', null)
-    const unitType = get(resolvedData, 'unitType', null) || get(existingItem, 'unitType', null)
+    const rentalUnitId = get(resolvedData, 'rentalUnit', null) || get(existingItem, 'rentalUnit', null)
+    const rentalUnit = rentalUnitId ? await getById('RentalUnit', rentalUnitId) : null
+    const unitName = get(rentalUnit, 'name') || get(resolvedData, 'unitName', null) || get(existingItem, 'unitName', null)
+    const unitType = get(rentalUnit, 'unitType') || get(resolvedData, 'unitType', null) || get(existingItem, 'unitType', null)
     const clientPhone = get(resolvedData, 'clientPhone') || get(existingItem, 'clientPhone', null)
     const clientName = get(resolvedData, 'clientName') || get(existingItem, 'clientName', null)
     const clientEmail = get(resolvedData, 'clientEmail') || get(existingItem, 'clientEmail', null)
@@ -158,9 +161,15 @@ async function getOrCreateContactByClientData (context, resolvedData, existingIt
 }
 
 async function setSectionAndFloorFieldsByDataFromPropertyMap (context, resolvedData) {
-    const unitName = get(resolvedData, 'unitName', null)
+    const rentalUnitId = get(resolvedData, 'rentalUnit', null)
+    const rentalUnit = rentalUnitId ? await getById('RentalUnit', rentalUnitId) : null
+    const unitName = get(rentalUnit, 'name') || get(resolvedData, 'unitName', null)
     const propertyId = get(resolvedData, 'property', null)
-    const unitType = get(resolvedData, 'unitType', null)
+    const unitType = get(rentalUnit, 'unitType') || get(resolvedData, 'unitType', null)
+    if (rentalUnit) {
+        resolvedData.unitName = rentalUnit.name
+        resolvedData.unitType = rentalUnit.unitType
+    }
     const property = await Property.getOne(context, {
         id: propertyId,
     }, `id address map { ${PROPERTY_MAP_JSON_FIELDS} }`)
@@ -181,18 +190,13 @@ function setClientNamePhoneEmailFieldsByDataFromUser (user, resolvedData) {
 function overrideTicketFieldsForResidentUserType (context, resolvedData) {
     resolvedData.canReadByResident = true
     resolvedData.isResidentTicket = true
-    // set default unitType and sectionType values to tickets, created from older versions of the resident's mobile app where no unitType and sectionType is passed
-    if (resolvedData.unitName) {
-        resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
-    }
     const sectionTypeByUnitType = resolvedData.unitType === PARKING_UNIT_TYPE ? PARKING_SECTION_TYPE : SECTION_SECTION_TYPE
     resolvedData.sectionType = resolvedData.sectionType || sectionTypeByUnitType
 }
 
 async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (operation, resolvedData, existingItem) {
     let contactPhone
-    let ticketUnitName
-    let ticketUnitType
+    let ticketRentalUnitId
     let ticketPropertyId
 
     if (operation === 'create') {
@@ -201,8 +205,7 @@ async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (ope
 
         const contact = await getById('Contact', contactId)
         contactPhone = get(contact, 'phone')
-        ticketUnitName = get(resolvedData, 'unitName', null)
-        ticketUnitType = get(resolvedData, 'unitType', null)
+        ticketRentalUnitId = get(resolvedData, 'rentalUnit', null)
         ticketPropertyId = get(resolvedData, 'property', null)
     } else if (operation === 'update' && existingItem) {
         const contactId = get(resolvedData, 'contact') || existingItem.contact || null
@@ -210,19 +213,17 @@ async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (ope
 
         const contact = await getById('Contact', contactId)
         contactPhone = get(contact, 'phone')
-        ticketUnitName = get(resolvedData, 'unitName') || existingItem.unitName || null
-        ticketUnitType = get(resolvedData, 'unitType') || existingItem.unitType || null
+        ticketRentalUnitId = get(resolvedData, 'rentalUnit') || existingItem.rentalUnit || null
         ticketPropertyId = get(resolvedData, 'property') || existingItem.property || null
     }
 
-    const resident = await getByCondition('Resident', {
-        user: { phone: contactPhone },
-        property: { id: ticketPropertyId },
-        unitName: ticketUnitName,
-        unitType: ticketUnitType,
-        deletedAt: null,
+    const occupancy = await getActiveOccupancy({
+        userPhone: contactPhone,
+        propertyId: ticketPropertyId,
+        rentalUnitId: ticketRentalUnitId,
     })
 
+    const resident = occupancy && await getById('Resident', occupancy.tenant)
     const residentUserId = get(resident, 'user')
 
     if (residentUserId) {

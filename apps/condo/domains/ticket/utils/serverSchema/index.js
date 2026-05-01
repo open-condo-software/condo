@@ -94,7 +94,7 @@ const buildTicketsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) =
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
     return new GqlWithKnexLoadList({
         listKey: 'Ticket',
-        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPayable isWarranty details createdAt updatedAt deadline deferredUntil feedbackValue feedbackComment feedbackAdditionalOptions feedbackUpdatedAt qualityControlValue qualityControlComment qualityControlAdditionalOptions qualityControlUpdatedAt statusReopenedCounter propertyAddress ',
+        fields: 'id number rentalUnit { id name unitType } occupancy { id status } unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPayable isWarranty details createdAt updatedAt deadline deferredUntil feedbackValue feedbackComment feedbackAdditionalOptions feedbackUpdatedAt qualityControlValue qualityControlComment qualityControlAdditionalOptions qualityControlUpdatedAt statusReopenedCounter propertyAddress ',
         singleRelations: [
             ['User', 'createdBy', 'name'],
             ['User', 'operator', 'name'],
@@ -179,7 +179,7 @@ const loadClassifiersForExcelExport = async ({ classifierRuleIds = [] }) => {
 const loadTicketsForPdfExport = async ({ where = {}, sortBy = ['createdAt_DESC'], limit = 50 }) => {
     const ticketsLoader = new GqlWithKnexLoadList({
         listKey: 'Ticket',
-        fields: `id number createdAt clientName clientPhone details unitName floorName sectionName sectionType unitType propertyAddressMeta { data { ${Object.keys(AddressMetaDataFields).join(' ')} } }`,
+        fields: `id number createdAt clientName clientPhone details rentalUnit { id name unitType } occupancy { id status } unitName floorName sectionName sectionType unitType propertyAddressMeta { data { ${Object.keys(AddressMetaDataFields).join(' ')} } }`,
         singleRelations: [
             ['Organization', 'organization', 'name'],
             ['User', 'createdBy', 'name'],

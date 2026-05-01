@@ -24,6 +24,7 @@ const {
 } = require('@condo/domains/marketplace/constants')
 const { Invoice, MarketPriceScope, MarketSetting } = require('@condo/domains/marketplace/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterResidentInvoiceService')
+const { getActiveOccupancy } = require('@condo/domains/resident/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 const ERRORS = {
@@ -84,6 +85,10 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const resident = await getByCondition('Resident', { deletedAt: null, id: data.resident.id })
+                const occupancy = await getActiveOccupancy({ tenantId: resident.id })
+                if (!occupancy) {
+                    throw new GQLError(ERRORS.EMPTY_ROWS, context)
+                }
 
                 const [acquiringContext] = await find('AcquiringIntegrationContext', {
                     organization: { id: resident.organization },
@@ -164,8 +169,8 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     isResidentTicket: true,
                     canReadByResident: true,
                     property: { connect: { id: resident.property } },
-                    unitType: resident.unitType,
-                    unitName: resident.unitName,
+                    rentalUnit: { connect: { id: occupancy.rentalUnit } },
+                    occupancy: { connect: { id: occupancy.id } },
                     source: { connect: { id: MOBILE_APP_RESIDENT_TICKET_SOURCE_ID } },
                 })
                 const invoice = await Invoice.create(context, {
@@ -173,8 +178,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     sender,
                     organization: { connect: { id: resident.organization } },
                     property: { connect: { id: resident.property } },
-                    unitType: resident.unitType,
-                    unitName: resident.unitName,
+                    rentalUnit: { connect: { id: occupancy.rentalUnit } },
                     rows,
                     ticket: { connect: { id: ticket.id } },
                     status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,

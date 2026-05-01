@@ -9,7 +9,6 @@ const { gql } = require('graphql-tag')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const { INVOICE_FIELDS } = require('@condo/domains/marketplace/gql')
-const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -18,7 +17,8 @@ const RESIDENT_ORGANIZATION_FIELDS = 'id name country tin'
 const RESIDENT_PROPERTY_FIELDS = 'id name address'
 const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
 const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'
-const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
+const OCCUPANCY_FIELDS = 'id status startDate expectedEndDate actualEndDate monthlyRate billingFrequency rentalUnit { id name unitType } property { id name address addressKey }'
+const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType currentOccupancy { ${OCCUPANCY_FIELDS} } ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
@@ -71,6 +71,97 @@ const FIND_UNITS_BY_ADDRESS_QUERY = gql`
     }
 `
 
+const OCCUPANCY_LIFECYCLE_RENT_CHARGE_GENERATION_FIELDS = 'createdCount invoiceId'
+const OCCUPANCY_LIFECYCLE_ARREARS_FIELDS = 'amount currencyCode chargeCount'
+const RESERVE_RENTAL_UNIT_MUTATION = gql`
+    mutation reserveRentalUnit ($data: ReserveRentalUnitInput!) {
+        obj: reserveRentalUnit(data: $data) { ${OCCUPANCY_FIELDS} }
+    }
+`
+const CHECK_IN_OCCUPANCY_MUTATION = gql`
+    mutation checkInOccupancy ($data: CheckInOccupancyInput!) {
+        result: checkInOccupancy(data: $data) {
+            occupancy { ${OCCUPANCY_FIELDS} }
+            rentChargeGeneration { ${OCCUPANCY_LIFECYCLE_RENT_CHARGE_GENERATION_FIELDS} }
+        }
+    }
+`
+const RENEW_OCCUPANCY_MUTATION = gql`
+    mutation renewOccupancy ($data: RenewOccupancyInput!) {
+        obj: renewOccupancy(data: $data) { ${OCCUPANCY_FIELDS} }
+    }
+`
+const TRANSFER_OCCUPANCY_MUTATION = gql`
+    mutation transferOccupancy ($data: TransferOccupancyInput!) {
+        result: transferOccupancy(data: $data) {
+            previousOccupancy { ${OCCUPANCY_FIELDS} }
+            newOccupancy { ${OCCUPANCY_FIELDS} }
+            rentChargeGeneration { ${OCCUPANCY_LIFECYCLE_RENT_CHARGE_GENERATION_FIELDS} }
+            previousArrears { ${OCCUPANCY_LIFECYCLE_ARREARS_FIELDS} }
+        }
+    }
+`
+const CHECK_OUT_OCCUPANCY_MUTATION = gql`
+    mutation checkOutOccupancy ($data: CheckOutOccupancyInput!) {
+        result: checkOutOccupancy(data: $data) {
+            occupancy { ${OCCUPANCY_FIELDS} }
+            rentChargeGeneration { ${OCCUPANCY_LIFECYCLE_RENT_CHARGE_GENERATION_FIELDS} }
+            arrears { ${OCCUPANCY_LIFECYCLE_ARREARS_FIELDS} }
+        }
+    }
+`
+const CANCEL_OCCUPANCY_MUTATION = gql`
+    mutation cancelOccupancy ($data: CancelOccupancyInput!) {
+        obj: cancelOccupancy(data: $data) { ${OCCUPANCY_FIELDS} }
+    }
+`
+const RENTAL_UNIT_AVAILABILITY_FIELDS = 'rentalUnit { id name unitType capacity defaultMonthlyRate property { id name address addressKey } } capacity occupiedCount availableCapacity'
+const RENTAL_OCCUPANCY_SUMMARY_FIELDS = `occupancy { ${OCCUPANCY_FIELDS} } resident { id user { id name phone } } rentalUnit { id name unitType capacity } property { id name address addressKey }`
+const RENTAL_ARREARS_RESIDENT_FIELDS = `resident { id user { id name phone } } currentOccupancy { ${OCCUPANCY_FIELDS} } arrearsTotal currencyCode chargeCount`
+const RESIDENT_RENTAL_DASHBOARD_FIELDS = 'currentRentalUnit { id name unitType property { id name address addressKey } } occupancyStatus billingFrequency monthlyRate unpaidRentCharges { id billingMonth periodStart periodEnd dueDate amount currencyCode status invoice { id status } } linkedUnpaidInvoices { id status toPay currencyCode } arrearsTotal nextDueDate'
+const PROPERTY_OCCUPANCY_SUMMARY_FIELDS = 'totalRentableUnits occupiedUnits availableUnits totalCapacity occupiedCapacity availableCapacity'
+const ORGANIZATION_RENT_ARREARS_SUMMARY_FIELDS = 'rentChargedTotal arrearsTotal currencyCode residentsWithArrearsCount'
+const AVAILABLE_RENTAL_UNITS_QUERY = gql`
+    query availableRentalUnits ($data: RentalAvailabilityInput!) {
+        result: availableRentalUnits(data: $data) { items { ${RENTAL_UNIT_AVAILABILITY_FIELDS} } }
+    }
+`
+const AVAILABLE_HOSTEL_BEDS_QUERY = gql`
+    query availableHostelBeds ($data: RentalAvailabilityInput!) {
+        result: availableHostelBeds(data: $data) { items { ${RENTAL_UNIT_AVAILABILITY_FIELDS} } }
+    }
+`
+const OCCUPIED_RENTAL_UNITS_QUERY = gql`
+    query occupiedRentalUnits ($data: RentalOccupancyQueryInput!) {
+        result: occupiedRentalUnits(data: $data) { items { ${RENTAL_OCCUPANCY_SUMMARY_FIELDS} } }
+    }
+`
+const EXPIRING_OCCUPANCIES_QUERY = gql`
+    query expiringOccupancies ($data: ExpiringOccupanciesInput!) {
+        result: expiringOccupancies(data: $data) { items { ${RENTAL_OCCUPANCY_SUMMARY_FIELDS} } }
+    }
+`
+const OVERDUE_RENTAL_RESIDENTS_QUERY = gql`
+    query overdueRentalResidents ($data: RentalArrearsQueryInput!) {
+        result: overdueRentalResidents(data: $data) { items { ${RENTAL_ARREARS_RESIDENT_FIELDS} } }
+    }
+`
+const RESIDENT_RENTAL_DASHBOARD_QUERY = gql`
+    query residentRentalDashboard ($data: ResidentRentalDashboardInput!) {
+        result: residentRentalDashboard(data: $data) { ${RESIDENT_RENTAL_DASHBOARD_FIELDS} }
+    }
+`
+const PROPERTY_OCCUPANCY_SUMMARY_QUERY = gql`
+    query propertyOccupancySummary ($data: PropertyOccupancySummaryInput!) {
+        result: propertyOccupancySummary(data: $data) { ${PROPERTY_OCCUPANCY_SUMMARY_FIELDS} }
+    }
+`
+const ORGANIZATION_RENT_ARREARS_SUMMARY_QUERY = gql`
+    query organizationRentArrearsSummary ($data: OrganizationRentArrearsSummaryInput!) {
+        result: organizationRentArrearsSummary(data: $data) { ${ORGANIZATION_RENT_ARREARS_SUMMARY_FIELDS} }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
@@ -94,6 +185,7 @@ module.exports = {
     RESIDENT_PROPERTY_FIELDS,
     ORGANIZATION_FEATURES_FIELDS,
     PAYMENT_CATEGORIES_FIELDS,
+    OCCUPANCY_FIELDS,
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
     DISCOVER_SERVICE_CONSUMERS_MUTATION,
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
@@ -103,5 +195,25 @@ module.exports = {
     SUGGEST_SERVICE_PROVIDER_QUERY,
     SERVICE_CONSUMER_FIELDS,
     FIND_UNITS_BY_ADDRESS_QUERY,
+    RESERVE_RENTAL_UNIT_MUTATION,
+    CHECK_IN_OCCUPANCY_MUTATION,
+    RENEW_OCCUPANCY_MUTATION,
+    TRANSFER_OCCUPANCY_MUTATION,
+    CHECK_OUT_OCCUPANCY_MUTATION,
+    CANCEL_OCCUPANCY_MUTATION,
+    RENTAL_UNIT_AVAILABILITY_FIELDS,
+    RENTAL_OCCUPANCY_SUMMARY_FIELDS,
+    RENTAL_ARREARS_RESIDENT_FIELDS,
+    RESIDENT_RENTAL_DASHBOARD_FIELDS,
+    PROPERTY_OCCUPANCY_SUMMARY_FIELDS,
+    ORGANIZATION_RENT_ARREARS_SUMMARY_FIELDS,
+    AVAILABLE_RENTAL_UNITS_QUERY,
+    AVAILABLE_HOSTEL_BEDS_QUERY,
+    OCCUPIED_RENTAL_UNITS_QUERY,
+    EXPIRING_OCCUPANCIES_QUERY,
+    OVERDUE_RENTAL_RESIDENTS_QUERY,
+    RESIDENT_RENTAL_DASHBOARD_QUERY,
+    PROPERTY_OCCUPANCY_SUMMARY_QUERY,
+    ORGANIZATION_RENT_ARREARS_SUMMARY_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,6 +4,7 @@
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/resident/access/GetResidentExistenceByPhoneAndAddressService')
+const { findActiveOccupancies } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
@@ -11,7 +12,7 @@ const GetResidentExistenceByPhoneAndAddressService = new GQLCustomSchema('GetRes
     types: [
         {
             access: true,
-            type: 'input GetResidentExistenceByPhoneAndAddressInput { dv: Int!, sender: SenderFieldInput!, phone: String!, propertyId: ID!, unitName: String!, unitType: BuildingUnitSubType! }',
+            type: 'input GetResidentExistenceByPhoneAndAddressInput { dv: Int!, sender: SenderFieldInput!, phone: String!, propertyId: ID!, rentalUnit: ID!, unitName: String, unitType: BuildingUnitSubType }',
         },
         {
             access: true,
@@ -24,7 +25,7 @@ const GetResidentExistenceByPhoneAndAddressService = new GQLCustomSchema('GetRes
             access: access.canGetResidentExistenceByPhoneAndAddress,
             schema: 'getResidentExistenceByPhoneAndAddress (data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput',
             resolver: async (parent, args) => {
-                const { data: { phone, propertyId, unitName, unitType } } = args
+                const { data: { phone, propertyId, rentalUnit } } = args
 
                 const userResidents = await find('Resident', {
                     user: { phone, type: RESIDENT, deletedAt: null },
@@ -35,13 +36,14 @@ const GetResidentExistenceByPhoneAndAddressService = new GQLCustomSchema('GetRes
                     return { hasResident: false, hasResidentOnAddress: false }
                 }
 
-                const residentOnAddress = userResidents.find(resident =>
-                    resident.property === propertyId &&
-                    resident.unitName === unitName &&
-                    resident.unitType === unitType
-                )
+                const residentIds = userResidents.map(resident => resident.id)
+                const residentOnAddress = await findActiveOccupancies({
+                    tenantIds: residentIds,
+                    propertyId,
+                    rentalUnitId: rentalUnit,
+                })
 
-                return { hasResident: true, hasResidentOnAddress: Boolean(residentOnAddress) }
+                return { hasResident: true, hasResidentOnAddress: residentOnAddress.length > 0 }
             },
         },
     ],

@@ -20,6 +20,7 @@ const { removeKeysFromObjectDeep } = require('@condo/domains/billing/utils/gqlWh
 const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+const { getActiveOccupancy } = require('@condo/domains/resident/utils/serverSchema')
 
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
@@ -119,10 +120,12 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const processedReceipts = []
                 const receiptsQuery = []
                 for (const serviceConsumer of serviceConsumers) {
+                    const occupancy = await getActiveOccupancy({ tenantId: serviceConsumer.resident })
                     const receiptsQueryForConsumer = {
                         ...receiptsWhere,
                         account: {
                             number: serviceConsumer.accountNumber,
+                            ...(occupancy ? { rentalUnit: { id: occupancy.rentalUnit } } : {}),
                             deletedAt: null,
                         },
                         context: {

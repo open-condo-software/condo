@@ -62,6 +62,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             access: { read: access.canReadSensitiveBillingReceiptData },
         },
 
+        rentCharge: {
+            schemaDoc: 'Rent charge this billing receipt was generated from',
+            type: 'Relationship',
+            ref: 'RentCharge',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
         period: PERIOD_FIELD,
 
         // Refs migration: 20210823172647-0047_auto_20210823_1226.js

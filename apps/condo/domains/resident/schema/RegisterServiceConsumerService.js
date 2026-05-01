@@ -23,7 +23,7 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
 const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
-const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { getActiveOccupancy, ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
 const ERRORS = {
@@ -108,6 +108,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const resident = await Resident.getOne(context, { id, deletedAt: null }, 'id user { id } address addressKey')
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
+                const occupancy = await getActiveOccupancy({ tenantId: id })
+                if (!occupancy) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 await resetUserResidentCache(resident.user.id)
 
                 const propertyWhere = resident.addressKey
@@ -140,6 +142,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     }, 'id organization { id }')
                     const billingAccounts = await BillingAccount.getAll(context, {
                         context: { id_in: billingIntegrationContexts.map(context => context.id) },
+                        rentalUnit: { id: occupancy.rentalUnit },
                         deletedAt: null,
                         number_i: accountNumber,
                     }, 'id context { id organization { id } }')
@@ -227,6 +230,10 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
+                const occupancy = await getActiveOccupancy({ tenantId: residentId })
+                if (!occupancy) {
+                    throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
+                }
                 await resetUserResidentCache(resident.user)
                 const organization = await getById('Organization', organizationId)
                 if (!organization || organization.deletedAt) {
@@ -244,6 +251,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     const billingContextIds = billingContexts.map(({ id }) => id)
                     const [billingAccount] = await find('BillingAccount', {
                         context: { id_in: billingContextIds },
+                        rentalUnit: { id: occupancy.rentalUnit },
                         number_i: accountNumber,
                         deletedAt: null,
                     })

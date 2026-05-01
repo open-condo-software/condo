@@ -11,12 +11,14 @@ const { BillingIntegration } = require('./BillingIntegration')
 const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
 const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
 const { BillingIntegrationProblem } = require('./BillingIntegrationProblem')
+const { BillingPolicy } = require('./BillingPolicy')
 const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingReceiptFile } = require('./BillingReceiptFile')
 const { BillingRecipient } = require('./BillingRecipient')
 const { RegisterBillingReceiptFileService } = require('./RegisterBillingReceiptFileService')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
+const { RentCharge } = require('./RentCharge')
 const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBillingReceiptFilesNotificationsService')
 const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
 const { SumBillingReceiptsService } = require('./SumBillingReceiptsService')
@@ -28,9 +30,11 @@ module.exports = {
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
     BillingIntegrationProblem,
+    BillingPolicy,
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    RentCharge,
     AllResidentBillingReceiptsService,
     BillingRecipient,
     BillingCategory,

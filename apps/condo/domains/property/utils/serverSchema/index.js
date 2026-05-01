@@ -9,9 +9,11 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils('Property')
+const RentalUnit = generateServerUtils('RentalUnit')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
+    RentalUnit,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

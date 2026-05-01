@@ -4,8 +4,6 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { get } = require('lodash')
-
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -18,11 +16,40 @@ const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident
 const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
 const { FIND_ORGANIZATIONS_BY_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
 const { FIND_UNITS_BY_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
+const {
+    buildActiveOccupancyWhere,
+    findActiveOccupancies,
+    getActiveOccupancy,
+    getActiveOccupancyByGraphQL,
+} = require('./activeOccupancy')
+const {
+    cancelOccupancy,
+    checkInOccupancy,
+    checkOutOccupancy,
+    renewOccupancy,
+    reserveRentalUnit,
+    transferOccupancy,
+} = require('./occupancyLifecycle')
+const {
+    findActiveOccupancyByProperty,
+    findActiveOccupancyByRentalUnit,
+    findAvailableHostelBeds,
+    findAvailableRentalUnits,
+    findExpiringOccupancies,
+    findOccupiedRentalUnits,
+    findResidentsWithArrears,
+    getOrganizationRentArrearsSummary,
+    getPropertyOccupancySummary,
+    getResidentArrearsSummary,
+    getResidentCurrentOccupancySummary,
+} = require('./rentalOperations')
 
 const logger = getLogger()
 
 const Resident = generateServerUtils('Resident')
+const Occupancy = generateServerUtils('Occupancy')
 
 async function registerResident (context, data) {
     if (!context) throw new Error('no context')
@@ -152,6 +179,7 @@ async function findUnitsByAddress (context, data) {
 
 module.exports = {
     Resident,
+    Occupancy,
     registerResident,
     ServiceConsumer,
     registerConsumerService,
@@ -162,5 +190,26 @@ module.exports = {
     findOrganizationsByAddress,
     suggestServiceProvider,
     findUnitsByAddress,
+    buildActiveOccupancyWhere,
+    findActiveOccupancies,
+    getActiveOccupancy,
+    getActiveOccupancyByGraphQL,
+    reserveRentalUnit,
+    checkInOccupancy,
+    renewOccupancy,
+    transferOccupancy,
+    checkOutOccupancy,
+    cancelOccupancy,
+    findActiveOccupancyByProperty,
+    findActiveOccupancyByRentalUnit,
+    findAvailableHostelBeds,
+    findAvailableRentalUnits,
+    findExpiringOccupancies,
+    findOccupiedRentalUnits,
+    findResidentsWithArrears,
+    getOrganizationRentArrearsSummary,
+    getPropertyOccupancySummary,
+    getResidentArrearsSummary,
+    getResidentCurrentOccupancySummary,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

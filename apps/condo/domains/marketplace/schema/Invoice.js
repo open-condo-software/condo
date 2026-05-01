@@ -15,6 +15,7 @@ const omitBy = require('lodash/omitBy')
 const pick = require('lodash/pick')
 const pickBy = require('lodash/pickBy')
 const set = require('lodash/set')
+const sortBy = require('lodash/sortBy')
 
 const conf = require('@open-condo/config')
 const { userIsAdmin } = require('@open-condo/keystone/access')
@@ -66,20 +67,33 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { getActiveOccupancy } = require('@condo/domains/resident/utils/serverSchema')
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+function buildRentChargeInvoiceRow (rentCharge) {
+    return {
+        name: `Rent ${rentCharge.billingMonth}`,
+        toPay: rentCharge.amount,
+        count: 1,
+    }
+}
 
-const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context }) => {
-    if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
+function getRentChargeComparableRows (rows) {
+    return (rows || []).map(row => pick(row, ['name', 'toPay', 'count']))
+}
+
+function isRentChargeInvoiceRowsEqual (rows, rentCharges) {
+    const expectedRows = sortBy(rentCharges, ['billingMonth']).map(buildRentChargeInvoiceRow)
+
+    return isEqual(getRentChargeComparableRows(rows), expectedRows)
+}
+
+const sendPush = async ({ originalInput, userId, propertyId, rentalUnitId, updatedItem, context }) => {
+    if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && rentalUnitId) {
         const sender = { dv: 1, fingerprint: get(context, 'authedItem.sender.fingerprint', 'Invoice_afterChange') }
-        const resident = await getByCondition('Resident', {
-            user: { id: userId },
-            property: { id: propertyId },
-            unitName: unitName,
-            unitType: unitType,
-            deletedAt: null,
-        })
+        const occupancy = await getActiveOccupancy({ userId, propertyId, rentalUnitId })
+        const resident = occupancy && await getById('Resident', occupancy.tenant)
 
         const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
         const uniqKeyWithTicket = `marketplace_invoice_${updatedItem.id}_published_with_ticket_${updatedItem.ticket}`
@@ -247,6 +261,12 @@ const ERRORS = {
         message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
         messageForUser: 'api.marketplace.invoice.WEBHOOK_URL_NOT_IN_WHITELIST',
     },
+    RENT_CHARGE_SCOPE_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: 'INVOICE_RENT_CHARGE_SCOPE_MISMATCH',
+        message: 'Invoice property, rental unit and rows must match connected rent charge',
+        messageForUser: 'api.marketplace.invoice.RENT_CHARGE_SCOPE_MISMATCH',
+    },
 }
 
 const Invoice = new GQLListSchema('Invoice', {
@@ -267,6 +287,14 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Relationship',
             ref: 'Property',
             knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        rentalUnit: {
+            schemaDoc: 'The payer\'s rental unit',
+            type: 'Relationship',
+            ref: 'RentalUnit',
+            isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
@@ -299,6 +327,22 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Relationship',
             ref: 'Ticket',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        rentCharge: {
+            schemaDoc: 'Rent charge this invoice was generated from',
+            type: 'Relationship',
+            ref: 'RentCharge',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        rentCharges: {
+            schemaDoc: 'Rent charges this grouped invoice was generated from',
+            type: 'Relationship',
+            ref: 'RentCharge.invoice',
+            many: true,
+            access: { create: false, update: false },
         },
 
         contact: {
@@ -462,6 +506,37 @@ const Invoice = new GQLListSchema('Invoice', {
                 throw new GQLError(ERRORS.FORBID_UPDATE_TICKET, context)
             }
 
+            const rentChargeId = get(nextData, 'rentCharge')
+            if (rentChargeId) {
+                const rentCharge = await getById('RentCharge', rentChargeId)
+
+                if (
+                    get(nextData, 'property') !== rentCharge.property ||
+                    get(nextData, 'rentalUnit') !== rentCharge.rentalUnit ||
+                    !isEqual(getRentChargeComparableRows(get(nextData, 'rows')), [buildRentChargeInvoiceRow(rentCharge)])
+                ) {
+                    throw new GQLError(ERRORS.RENT_CHARGE_SCOPE_MISMATCH, context)
+                }
+            }
+
+            if (isUpdate && !rentChargeId) {
+                const linkedRentCharges = await find('RentCharge', {
+                    invoice: { id: get(existingItem, 'id') },
+                    deletedAt: null,
+                })
+
+                if (linkedRentCharges.length > 0) {
+                    const hasMismatchedScope = linkedRentCharges.some(rentCharge => (
+                        rentCharge.property !== get(nextData, 'property') ||
+                        rentCharge.rentalUnit !== get(nextData, 'rentalUnit')
+                    ))
+
+                    if (hasMismatchedScope || !isRentChargeInvoiceRowsEqual(get(nextData, 'rows'), linkedRentCharges)) {
+                        throw new GQLError(ERRORS.RENT_CHARGE_SCOPE_MISMATCH, context)
+                    }
+                }
+            }
+
             if (connectedTicketId && isConnectClientDataOp) {
                 const ticket = await getById('Ticket', connectedTicketId)
                 const notEmptyTicketClientData = pickBy(pick(ticket, CLIENT_DATA_FIELDS), Boolean)
@@ -548,17 +623,46 @@ const Invoice = new GQLListSchema('Invoice', {
             const userId = get(user, 'id')
             const resolvedContact = get(resolvedData, 'contact')
             const resolvedTicket = get(resolvedData, 'ticket')
+            const resolvedRentCharge = get(resolvedData, 'rentCharge')
+
+            if (resolvedRentCharge && get(existingItem, 'rentCharge') !== resolvedRentCharge) {
+                const rentCharge = await getById('RentCharge', resolvedRentCharge)
+                const occupancy = await getById('Occupancy', rentCharge.occupancy)
+                const tenant = occupancy && await getById('Resident', occupancy.tenant)
+                const tenantUser = tenant && await getById('User', tenant.user)
+                const rentalUnit = await getById('RentalUnit', rentCharge.rentalUnit)
+
+                resolvedData.organization = rentCharge.organization
+                resolvedData.property = rentCharge.property
+                resolvedData.rentalUnit = rentCharge.rentalUnit
+                resolvedData.unitName = rentalUnit.name
+                resolvedData.unitType = rentalUnit.unitType
+                resolvedData.client = get(tenant, 'user')
+                resolvedData.clientName = get(tenantUser, 'name')
+                resolvedData.clientPhone = get(tenantUser, 'phone')
+                resolvedData.rows = [{
+                    ...buildRentChargeInvoiceRow(rentCharge),
+                }]
+            }
 
             // Set client data from connected ticket
             if (resolvedTicket && get(existingItem, 'ticket') !== resolvedTicket) {
                 const ticketWithInvoice = await getById('Ticket', resolvedTicket)
 
                 resolvedData['property'] = ticketWithInvoice.property
+                resolvedData['rentalUnit'] = ticketWithInvoice.rentalUnit
                 resolvedData['unitName'] = ticketWithInvoice.unitName
                 resolvedData['unitType'] = ticketWithInvoice.unitType
                 resolvedData['clientName'] = ticketWithInvoice.clientName
                 resolvedData['clientPhone'] = ticketWithInvoice.clientPhone
                 resolvedData['contact'] = ticketWithInvoice.contact
+            }
+
+            if (resolvedData.rentalUnit) {
+                const rentalUnit = await getById('RentalUnit', resolvedData.rentalUnit)
+                resolvedData.property = rentalUnit.property
+                resolvedData.unitName = rentalUnit.name
+                resolvedData.unitType = rentalUnit.unitType
             }
 
             // Set contact by passed client data
@@ -614,16 +718,14 @@ const Invoice = new GQLListSchema('Invoice', {
                     const contact = await getById('Contact', nextContactId)
                     if (contact) {
                         const nextProperty = get(nextData, 'property')
-                        const nextUnitType = get(nextData, 'unitType')
-                        const nextUnitName = get(nextData, 'unitName')
+                        const nextRentalUnit = get(nextData, 'rentalUnit')
 
-                        const resident = await getByCondition('Resident', {
-                            user: { phone: contact.phone },
-                            property: { id: nextProperty },
-                            unitType: nextUnitType,
-                            unitName: nextUnitName,
-                            deletedAt: null,
+                        const occupancy = await getActiveOccupancy({
+                            userPhone: contact.phone,
+                            propertyId: nextProperty,
+                            rentalUnitId: nextRentalUnit,
                         })
+                        const resident = occupancy && await getById('Resident', occupancy.tenant)
 
                         set(resolvedData, 'client', get(resident, 'user', null))
                     }
@@ -673,8 +775,8 @@ const Invoice = new GQLListSchema('Invoice', {
         },
         afterChange: async (args) => {
             const { context, originalInput, updatedItem } = args
-            const { client: userId, property: propertyId, unitName, unitType } = updatedItem
-            await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
+            const { client: userId, property: propertyId, rentalUnit: rentalUnitId } = updatedItem
+            await sendPush({ originalInput, userId, propertyId, rentalUnitId, updatedItem, context })
         },
     },
     plugins: [

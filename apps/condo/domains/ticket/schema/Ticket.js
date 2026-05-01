@@ -48,6 +48,7 @@ const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED, 
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
+const { getActiveOccupancy } = require('@condo/domains/resident/utils/serverSchema')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
@@ -574,6 +575,20 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
+        rentalUnit: {
+            schemaDoc: 'Rental unit related to the Ticket',
+            type: 'Relationship',
+            ref: 'RentalUnit',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+        occupancy: {
+            schemaDoc: 'Occupancy related to the Ticket',
+            type: 'Relationship',
+            ref: 'Occupancy',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
         propertyAddress: {
             schemaDoc: 'Address of property, which synced with property and displayed, if property is deleted',
             type: 'Text',
@@ -792,10 +807,26 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (userType === RESIDENT && isCreateOperation) {
+                const occupancy = await getActiveOccupancy({ userId })
+                if (!occupancy) {
+                    throw new Error('Cannot create resident ticket without active occupancy')
+                }
+                const rentalUnit = await getById('RentalUnit', occupancy.rentalUnit)
+                resolvedData.occupancy = occupancy.id
+                resolvedData.rentalUnit = rentalUnit.id
+                resolvedData.property = rentalUnit.property
+                resolvedData.unitName = rentalUnit.name
+                resolvedData.unitType = rentalUnit.unitType
                 overrideTicketFieldsForResidentUserType(context, resolvedData)
                 await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
                 setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
                 await setDeadline(resolvedData)
+            } else if (resolvedData.rentalUnit) {
+                const rentalUnit = await getById('RentalUnit', resolvedData.rentalUnit)
+                resolvedData.property = rentalUnit.property
+                resolvedData.unitName = rentalUnit.name
+                resolvedData.unitType = rentalUnit.unitType
+                await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
             }
 
             calculateIsCompletedAfterDeadline(resolvedData, existingItem)
@@ -808,14 +839,14 @@ const Ticket = new GQLListSchema('Ticket', {
             if (userType !== RESIDENT && isNull(resolvedClient)) {
                 const contactId = get(resolvedData, 'contact', null)
                 const propertyId = get(resolvedData, 'property', null)
-                const unitName = get(resolvedData, 'unitName', null)
+                const rentalUnitId = get(resolvedData, 'rentalUnit', null)
 
-                if (!isNull(contactId) || !isNull(propertyId) || !isNull(unitName)) {
+                if (!isNull(contactId) || !isNull(propertyId) || !isNull(rentalUnitId)) {
                     await setClientIfContactPhoneAndTicketAddressMatchesResidentFields(operation, resolvedData, existingItem)
                 }
             }
 
-            const propertyId = get(newItem, 'property', null)
+            const propertyId = get(resolvedData, 'property', null) || get(newItem, 'property', null)
             if (!propertyId) {
                 throw new Error(`${PROPERTY_REQUIRED_ERROR}] empty property for ticket`)
             }
@@ -922,7 +953,7 @@ const Ticket = new GQLListSchema('Ticket', {
              * 👉 When a new "single" or "many" relation field will be added to Ticket,
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
-            const { property, unitName, sectionName, sectionType, unitType, floorName, classifier } = Ticket.schema.fields
+            const { property, rentalUnit, occupancy, unitName, sectionName, sectionType, unitType, floorName, classifier } = Ticket.schema.fields
 
             const [requestData] = args
 
@@ -931,7 +962,7 @@ const Ticket = new GQLListSchema('Ticket', {
             if (operation === 'update') {
                 const ticketId = updatedItem.id
                 const isPropertyChanged = existingItem.property !== updatedItem.property
-                const isUnitChanged = existingItem.unitName !== updatedItem.unitName || existingItem.unitType !== updatedItem.unitType
+                const isUnitChanged = existingItem.rentalUnit !== updatedItem.rentalUnit
                 const isClientInfoChanged = existingItem.clientName !== updatedItem.clientName || existingItem.clientPhone !== updatedItem.clientPhone
                 const isTicketCanceled = existingItem.status !== STATUS_IDS.DECLINED && updatedItem.status === STATUS_IDS.DECLINED
 
@@ -947,6 +978,7 @@ const Ticket = new GQLListSchema('Ticket', {
                         updateInvoicePayload['property'] = { connect: { id: updatedItem.property } }
                     }
                     if (isUnitChanged) {
+                        updateInvoicePayload['rentalUnit'] = updatedItem.rentalUnit ? { connect: { id: updatedItem.rentalUnit } } : null
                         updateInvoicePayload['unitName'] = updatedItem.unitName
                         updateInvoicePayload['unitType'] = updatedItem.unitType
                     }
@@ -983,7 +1015,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers,
                 [
-                    { property, unitName, sectionName, sectionType, unitType, floorName },
+                    { property, rentalUnit, occupancy, unitName, sectionName, sectionType, unitType, floorName },
                     { classifier },
                 ]
             )(...args)

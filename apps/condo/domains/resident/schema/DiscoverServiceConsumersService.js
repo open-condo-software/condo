@@ -17,11 +17,11 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
-const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { buildActiveOccupancyWhere, Occupancy, Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 
 const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
-const BILLING_ACCOUNT_FIELDS = 'id unitName unitType number '
+const BILLING_ACCOUNT_FIELDS = 'id unitName unitType number rentalUnit { id } '
     + 'context { id organization { id type } } property { id address addressKey }'
 const logger = getLogger()
 
@@ -34,6 +34,7 @@ const logger = getLogger()
  * @property {string} addressKey
  * @property {string} unitType
  * @property {string} unitName
+ * @property {string} rentalUnitId
  * @property {string} number
  * @property {string} billingContextId
  */
@@ -50,6 +51,7 @@ function extractDataFromBillingAccount (billingAccount) {
     const addressKey = billingAccount?.property?.addressKey ?? null
     const unitType = billingAccount?.unitType ?? null
     const unitName = billingAccount?.unitName ?? null
+    const rentalUnitId = billingAccount?.rentalUnit?.id ?? null
     const number = billingAccount?.number
     const billingContextId = billingAccount?.context?.id ?? null
 
@@ -61,6 +63,7 @@ function extractDataFromBillingAccount (billingAccount) {
         addressKey,
         unitType,
         unitName,
+        rentalUnitId,
         number,
         billingContextId,
     }
@@ -179,6 +182,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 billingAccountItemsData = billingAccountItemsData.filter((item) => !!organizationsToAcquiringContextsMap[item.organizationId])
 
+                billingAccountItemsData = billingAccountItemsData.filter((item) => !!item.rentalUnitId)
+
                 // Filter by property
                 // Make sure that organization has the property
                 const organizationsIdsWithProperties = new Set()
@@ -213,7 +218,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 })
 
                 // Before filtering duplicates we must load additional billing accounts that may not be included into arguments of this mutation
-                // Filter duplicates (same address, unitType, and unitName) of each billing account
+                // Filter duplicates (same rentalUnit) of each billing account
 
                 /**
                      * @type {BillingAccountData[]}
@@ -232,9 +237,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                                     OR: [
                                         {
                                             AND: [
-                                                { property: { address: item.address } },
-                                                { unitType: item.unitType },
-                                                { unitName: item.unitName },
+                                                { rentalUnit: { id: item.rentalUnitId } },
                                             ],
                                         },
                                         {
@@ -315,7 +318,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     billingAccountItemsData: [...billingAccountItemsData],
                 })
 
-                // Filter out billing accounts that have the same address, unitType, and unitName,
+                // Filter out billing accounts that have the same rentalUnit,
                 // and one of two last receipts have the same category as the receipt for the 2nd account
                 // with the same period
 
@@ -344,8 +347,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                                 { property: { address: item.address } },
                                 { property: { addressKey: item.addressKey } },
                             ],
-                            unitType: item.unitType,
-                            unitName: item.unitName,
+                            rentalUnit: { id: item.rentalUnitId },
                             number: item.number,
                         },
                     },
@@ -357,7 +359,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         billingAccountsWithoutReceipts.add(item.id)
                     } else {
                         for (const receipt of receipts) {
-                            const theKey = `${item.address}_${item.unitType}_${item.unitName}_${receipt.category.id}`
+                            const theKey = `${item.rentalUnitId}_${receipt.category.id}`
                             /** @type {Set<string>} */
                             const current = billingAccountsByAddressAndCategoryAndPeriod[theKey] || new Set()
                             current.add(item.id)
@@ -400,42 +402,28 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     additionalBillingAccountIds,
                 })
 
-                const residentsWhere = {
-                    deletedAt: null,
-                    OR: billingAccountItemsData.map(({ address, addressKey, unitType, unitName }) => ({
-                        AND: [{ OR: [{ address_i: address }, { addressKey }] }, { unitType }, { unitName }],
-                    })),
-                }
+                const occupanciesWhere = buildActiveOccupancyWhere({
+                    rentalUnitIds: billingAccountItemsData.map(({ rentalUnitId }) => rentalUnitId),
+                })
                 const residentsFilter = filters?.residentsIds
                 if (residentsFilter) {
-                    residentsWhere.id_in = residentsFilter
+                    occupanciesWhere.tenant = { id_in: residentsFilter }
                 }
 
-                discoveringSteps.push({ name: 'searching residents', residentsWhere })
+                discoveringSteps.push({ name: 'searching occupancies', occupanciesWhere })
 
                 let residentsCount = 0
                 const combinations = []
                 await loadListByChunks({
                     context,
-                    list: Resident,
+                    list: Occupancy,
                     chunkSize: 50,
-                    where: residentsWhere,
-                    fields: 'id address addressKey unitType unitName property { id } user { id }',
-                    chunkProcessor: (/** @type {Resident[]} */ chunk) => {
-                        const chunkCombinations = flatMap(chunk, (resident) => billingAccountItemsData.map((billingAccountItemData) => {
-                            if (
-                                (
-                                    resident.address === billingAccountItemData.address
-                                    || (
-                                        !!resident.addressKey
-                                        && !!billingAccountItemData.addressKey
-                                        && resident.addressKey === billingAccountItemData.addressKey
-                                    )
-                                )
-                                && resident.unitType === billingAccountItemData.unitType
-                                && resident.unitName === billingAccountItemData.unitName
-                            ) {
-                                return [resident, billingAccountItemData]
+                    where: occupanciesWhere,
+                    fields: 'id rentalUnit { id } property { id } tenant { id property { id } user { id } }',
+                    chunkProcessor: (/** @type {Occupancy[]} */ chunk) => {
+                        const chunkCombinations = flatMap(chunk, (occupancy) => billingAccountItemsData.map((billingAccountItemData) => {
+                            if (occupancy.rentalUnit?.id === billingAccountItemData.rentalUnitId) {
+                                return [occupancy, billingAccountItemData]
                             }
                         }))
 
@@ -449,10 +437,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 const definedCombinations = combinations.filter(Boolean)
 
-                let serviceConsumersData = definedCombinations.map(([resident, account]) => {
+                let serviceConsumersData = definedCombinations.map(([occupancy, account]) => {
                     const organizationId = account?.organizationId ?? null
                     const billingContextId = account?.billingContextId ?? null
                     const [acquiringContextId] = organizationsToAcquiringContextsMap[organizationId] ?? [null]
+                    const resident = occupancy.tenant
 
                     return {
                         dv,
@@ -462,7 +451,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         organization: organizationId,
                         billingIntegrationContext: billingContextId || null,
                         acquiringIntegrationContext: acquiringContextId || null,
-                        property: resident?.property?.id,
+                        property: occupancy?.property?.id || resident?.property?.id,
                         user: resident?.user?.id,
                     }
                 })

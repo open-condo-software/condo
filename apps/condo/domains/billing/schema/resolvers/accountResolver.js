@@ -50,7 +50,7 @@ class AccountResolver extends Resolver {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             let { unitName, unitType } = receipt.addressResolve
             let { accountNumber, accountMeta = {} } = receipt
-            let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
+            let { globalId, importId, fullName, isClosed, ownerType, rentalUnit, rentalUnitId } = accountMeta
             if (fullName && isNil(ownerType)) {
                 ownerType = isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
             }
@@ -59,11 +59,15 @@ class AccountResolver extends Resolver {
                 globalId = null
             }
             let existingAccount
+            rentalUnit = rentalUnitId || rentalUnit || null
             if (receipt.importId && this.accountsByReceiptByImportId[receipt.importId]) {
                 existingAccount = await this.getBillingAccount({ id: this.accountsByReceiptByImportId[receipt.importId] })
             }
             if (!existingAccount) {
-                existingAccount = await this.getBillingAccount( { number: accountNumber, property: { id: receipt.property } })
+                existingAccount = await this.getBillingAccount({
+                    number: accountNumber,
+                    ...(rentalUnit ? { rentalUnit: { id: rentalUnit } } : { property: { id: receipt.property } }),
+                })
             }
             if (!existingAccount) {
                 const sameNumberAccount = await this.getBillingAccount( { number: accountNumber })
@@ -85,9 +89,9 @@ class AccountResolver extends Resolver {
             }
             if (existingAccount) {
                 const updateInput = this.buildUpdateInput({
-                    number: accountNumber, unitName, unitType, property: receipt.property,
+                    number: accountNumber, unitName, unitType, rentalUnit, property: receipt.property,
                     globalId, importId,
-                    fullName, isClosed, ownerType }, existingAccount, ['property'])
+                    fullName, isClosed, ownerType }, existingAccount, ['property', 'rentalUnit'])
                 if (!isEmpty(updateInput)) {
                     try {
                         await BillingAccount.update(this.context, existingAccount.id, updateInput)
@@ -99,10 +103,10 @@ class AccountResolver extends Resolver {
             } else {
                 try {
                     const { id }  = await BillingAccount.create(this.context, this.buildCreateInput({
-                        number: accountNumber, unitName, unitType, context: this.billingContext.id, property: receipt.property,
+                        number: accountNumber, unitName, unitType, rentalUnit, context: this.billingContext.id, property: receipt.property,
                         globalId, importId,
                         fullName, isClosed, ownerType,
-                    }, ['context', 'property']))
+                    }, ['context', 'property', 'rentalUnit']))
                     receiptIndex[index].account = id
                 } catch (error) {
                     receiptIndex[index].error = this.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error)

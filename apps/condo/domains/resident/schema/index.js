@@ -7,9 +7,12 @@ const { DiscoverServiceConsumersService } = require('./DiscoverServiceConsumersS
 const { FindOrganizationsByAddressService } = require('./FindOrganizationsByAddressService')
 const { FindUnitsByAddressService } = require('./FindUnitsByAddressService')
 const { GetResidentExistenceByPhoneAndAddressService } = require('./GetResidentExistenceByPhoneAndAddressService')
+const { Occupancy } = require('./Occupancy')
+const { OccupancyLifecycleService } = require('./OccupancyLifecycleService')
 const { RegisterResidentInvoiceService } = require('./RegisterResidentInvoiceService')
 const { RegisterResidentService } = require('./RegisterResidentService')
 const { RegisterServiceConsumerService } = require('./RegisterServiceConsumerService')
+const { RentalOperationsService } = require('./RentalOperationsService')
 const { Resident } = require('./Resident')
 const { SendMessageToResidentScopesService } = require('./SendMessageToResidentScopesService')
 const { ServiceConsumer } = require('./ServiceConsumer')
@@ -18,6 +21,9 @@ const { SuggestServiceProviderService } = require('./SuggestServiceProviderServi
 
 module.exports = {
     Resident,
+    Occupancy,
+    OccupancyLifecycleService,
+    RentalOperationsService,
     RegisterResidentService,
     ServiceConsumer,
     RegisterServiceConsumerService,

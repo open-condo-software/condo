@@ -22,6 +22,7 @@ const { resetOrganizationEmployeesCache } = require('@condo/domains/organization
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
+const OWNER_TYPES = ['individual', 'organisation']
 
 const ERRORS = {
     NAME_IS_EMPTY: {
@@ -92,6 +93,13 @@ const Organization = new GQLListSchema('Organization', {
                 update: userAccess.userIsAdminOrIsSupport,
             },
         },
+        ownerType: {
+            schemaDoc: 'Property owner type for landlord and property-company contexts',
+            type: 'Select',
+            options: OWNER_TYPES,
+            dataType: 'string',
+            isRequired: false,
+        },
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
         tin: {
@@ -122,6 +130,18 @@ const Organization = new GQLListSchema('Organization', {
                     }
                 },
             },
+        },
+        ghanaCardId: {
+            schemaDoc: 'Ghana Card or personal identity number for individual property owners',
+            type: 'Text',
+            isRequired: false,
+            kmigratorOptions: { null: true },
+        },
+        registrationNumber: {
+            schemaDoc: 'Company registration number for organizational property owners',
+            type: 'Text',
+            isRequired: false,
+            kmigratorOptions: { null: true },
         },
         description: {
             schemaDoc: 'Customer-friendly description. Friendly text for employee and resident users',

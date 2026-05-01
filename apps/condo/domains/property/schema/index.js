@@ -5,10 +5,12 @@
 
 const { ExportPropertiesToExcelService } = require('./ExportPropertiesToExcelService')
 const { Property } = require('./Property')
+const { RentalUnit } = require('./RentalUnit')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Property,
+    RentalUnit,
     ExportPropertiesToExcelService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

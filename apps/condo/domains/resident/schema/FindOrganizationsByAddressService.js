@@ -16,6 +16,7 @@ const {
     getOrganizationIdsWithAcquiring,
     getOrganizationIdsWithMeters,
     findOrganizationByAddressKeyTinAccountNumber,
+    findOrganizationByAddressKeyRentalUnit,
     findOrganizationByAddressKeyUnitNameUnitType,
     findOrganizationByAddressKey,
 } = require('@condo/domains/resident/utils/serverSchema/findOrganizationsByAddress')
@@ -37,7 +38,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
     types: [
         {
             access: true,
-            type: 'input FindOrganizationsByAddressInput { addressKey: String!, unitName: String, unitType: String, tin: String, accountNumber: String }',
+            type: 'input FindOrganizationsByAddressInput { addressKey: String!, rentalUnit: ID, unitName: String, unitType: String, tin: String, accountNumber: String }',
         },
         {
             access: true,
@@ -62,7 +63,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
             schema: 'findOrganizationsByAddress (data: FindOrganizationsByAddressInput!): [FindOrganizationByAddressOutput]',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { addressKey, unitName, unitType, tin, accountNumber } = data
+                const { addressKey, rentalUnit, unitName, unitType, tin, accountNumber } = data
 
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id, context)
@@ -114,6 +115,8 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                         const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
 
                         return org.meters.length || org.receipts.length ? org : null
+                    } else if (rentalUnit) {
+                        return findOrganizationByAddressKeyRentalUnit(organization, data, context, properties)
                     } else if (unitName && unitType) {
                         return findOrganizationByAddressKeyUnitNameUnitType(organization, data, context, properties)
                     } else {

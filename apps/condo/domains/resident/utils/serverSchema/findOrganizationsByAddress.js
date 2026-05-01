@@ -1,7 +1,7 @@
 const { get } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { find } = require('@open-condo/keystone/schema')
+const { find, getById } = require('@open-condo/keystone/schema')
 
 const {
     CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
@@ -66,6 +66,51 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
     }
 
     const meters = await getOrganizationMeters(organization, addressKey, properties, { unitName, unitType })
+
+    return {
+        id: organization.id,
+        name: organization.name,
+        tin: organization.tin,
+        type: organization.type,
+        receipts,
+        meters,
+        subscription: organization.subscription || null,
+    }
+}
+
+async function findOrganizationByAddressKeyRentalUnit (organization, { addressKey, rentalUnit }, context, properties) {
+    const isInBlackList = await featureToggleManager.isFeatureEnabled(
+        context,
+        DISABLE_DISCOVER_SERVICE_CONSUMERS,
+        { organization: organization.id }
+    )
+
+    if (isInBlackList) {
+        return findOrganizationByAddressKey(organization, { addressKey })
+    }
+
+    const rentalUnitItem = await getById('RentalUnit', rentalUnit)
+    if (!rentalUnitItem || rentalUnitItem.organization !== organization.id) {
+        return null
+    }
+
+    const billingContexts = await getOrganizationBillingContexts(organization)
+    let receipts = await getOrganizationReceipts(billingContexts, addressKey, { rentalUnit: { id: rentalUnit } })
+    if (receipts.length) {
+        receipts = Object.values(
+            receipts.reduce((acc, receipt) => {
+                acc[receipt.category] = acc[receipt.category] ? { category: receipt.category } : receipt
+                return acc
+            }, {})
+        )
+    } else {
+        receipts = []
+    }
+
+    const meters = await getOrganizationMeters(organization, addressKey, properties, {
+        unitName: rentalUnitItem.name,
+        unitType: rentalUnitItem.unitType,
+    })
 
     return {
         id: organization.id,
@@ -243,6 +288,7 @@ module.exports = {
     getOrganizationIdsWithMeters,
     getOrganizationIdsWithAcquiring,
     findOrganizationByAddressKeyTinAccountNumber,
+    findOrganizationByAddressKeyRentalUnit,
     findOrganizationByAddressKeyUnitNameUnitType,
     findOrganizationByAddressKey,
 }

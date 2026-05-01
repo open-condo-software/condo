@@ -3,7 +3,7 @@
  */
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingAccount')
 const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
@@ -29,6 +29,14 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
 
         property: BILLING_PROPERTY_FIELD,
 
+        rentalUnit: {
+            schemaDoc: 'Canonical rental unit for this billing account',
+            type: 'Relationship',
+            ref: 'RentalUnit',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
         globalId: {
             schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. ' +
                 'Example: for Russia, the dom.gosuslugi.ru account number is used',
@@ -47,14 +55,15 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
 
         // TODO(pahaz): make a link to property domain fields
         unitName: {
-            schemaDoc: 'Flat number / door number of an apartment building (property)',
+            schemaDoc: '@deprecated Use rentalUnit.name. Legacy display text only.',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
         },
 
         unitType: {
             ...UNIT_TYPE_FIELD,
-            isRequired: true,
+            schemaDoc: '@deprecated Use rentalUnit.unitType. Legacy display text only.',
+            isRequired: false,
         },
 
         fullName: {
@@ -116,14 +125,43 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         ],
     },
     hooks: {
+        resolveInput: async ({ resolvedData, existingItem }) => {
+            const rentalUnitId = resolvedData.rentalUnit || (existingItem && existingItem.rentalUnit)
+            if (rentalUnitId) {
+                const rentalUnit = await getById('RentalUnit', rentalUnitId)
+                if (rentalUnit) {
+                    resolvedData.unitName = rentalUnit.name
+                    resolvedData.unitType = rentalUnit.unitType
+                }
+            }
+
+            return resolvedData
+        },
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            const { context: accountContextId, property: propertyId } = newItem
+            const { context: accountContextId, property: propertyId, rentalUnit: rentalUnitId } = newItem
 
             const property = await getById('BillingProperty', propertyId)
             const { context: propertyContextId } = property
             if (accountContextId !== propertyContextId) {
                 return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+            }
+
+            if (rentalUnitId) {
+                const billingContext = await getById('BillingIntegrationOrganizationContext', accountContextId)
+                const rentalUnit = await getById('RentalUnit', rentalUnitId)
+                const [organizationProperty] = await find('Property', {
+                    id: rentalUnit.property,
+                    organization: { id: billingContext.organization },
+                    deletedAt: null,
+                })
+
+                if (!organizationProperty) {
+                    return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:rentalUnit:organization] RentalUnit is not in billing account organization`)
+                }
+                if (property.addressKey && organizationProperty.addressKey !== property.addressKey) {
+                    return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:rentalUnit:property] RentalUnit is not in billing account property`)
+                }
             }
         },
     },

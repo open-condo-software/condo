@@ -18,14 +18,35 @@ const { REGISTER_BILLING_RECEIPT_FILE_MUTATION } = require('@condo/domains/billi
 const { SUM_BILLING_RECEIPTS_QUERY } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
+const {
+    calculateArrearsByRentChargeWhere,
+    calculateOccupancyArrears,
+    calculateOrganizationArrears,
+    calculatePropertyArrears,
+    calculateRentChargeOutstandingAmount,
+    calculateRentalUnitArrears,
+    calculateResidentArrears,
+} = require('./arrears')
+const {
+    buildPeriodData,
+    buildRentChargeInvoiceRow,
+    calculateRentChargeAmount,
+    createGroupedAnnualInvoice,
+    generateRentCharges,
+    generateRentChargesForOccupancy,
+    getBillingMonthsToGenerate,
+    getDueDate,
+} = require('./rentChargeGeneration')
 
 const BillingIntegration = generateServerUtils('BillingIntegration')
 const BillingIntegrationAccessRight = generateServerUtils('BillingIntegrationAccessRight')
 const BillingIntegrationOrganizationContext = generateServerUtils('BillingIntegrationOrganizationContext')
 const BillingIntegrationProblem = generateServerUtils('BillingIntegrationProblem')
+const BillingPolicy = generateServerUtils('BillingPolicy')
 const BillingProperty = generateServerUtils('BillingProperty')
 const BillingAccount = generateServerUtils('BillingAccount')
 const BillingReceipt = generateServerUtils('BillingReceipt')
+const RentCharge = generateServerUtils('RentCharge')
 const BillingRecipient = generateServerUtils('BillingRecipient')
 const BillingCategory = generateServerUtils('BillingCategory')
 const BillingReceiptFile = generateServerUtils('BillingReceiptFile')
@@ -185,9 +206,11 @@ module.exports = {
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
     BillingIntegrationProblem,
+    BillingPolicy,
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    RentCharge,
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,
@@ -199,5 +222,20 @@ module.exports = {
     sendNewBillingReceiptFilesNotifications,
     sumBillingReceipts,
     registerBillingReceiptFile,
+    calculateArrearsByRentChargeWhere,
+    calculateOccupancyArrears,
+    calculateOrganizationArrears,
+    calculatePropertyArrears,
+    calculateRentChargeOutstandingAmount,
+    calculateRentalUnitArrears,
+    calculateResidentArrears,
+    buildPeriodData,
+    buildRentChargeInvoiceRow,
+    calculateRentChargeAmount,
+    createGroupedAnnualInvoice,
+    generateRentCharges,
+    generateRentChargesForOccupancy,
+    getBillingMonthsToGenerate,
+    getDueDate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
