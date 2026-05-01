@@ -300,6 +300,7 @@ const Invoice = new GQLListSchema('Invoice', {
 
         unitType: {
             ...UNIT_TYPE_FIELD,
+            schemaDoc: '@deprecated Use rentalUnit.unitType. Legacy display snapshot only.',
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
             defaultValue: null,
@@ -309,7 +310,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         unitName: {
-            schemaDoc: 'The payer\'s unitName',
+            schemaDoc: '@deprecated Use rentalUnit.name. Legacy display snapshot only.',
             type: 'Text',
         },
 

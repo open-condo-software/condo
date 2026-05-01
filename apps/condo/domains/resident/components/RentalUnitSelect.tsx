@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import Select from '@condo/domains/common/components/antd/Select'
+import { buildRentalUnitSelectWhere } from '@condo/domains/resident/utils/clientSchema/rental'
 
 
 const GET_RENTAL_UNITS_FOR_SELECT_QUERY = gql`
@@ -41,12 +42,7 @@ export const RentalUnitSelect: React.FC<RentalUnitSelectProps> = ({
     onChange,
     allowClear = true,
 }) => {
-    const where = useMemo(() => ({
-        deletedAt: null,
-        ...(propertyId ? { property: { id: propertyId } } : {}),
-        ...(organizationId ? { organization: { id: organizationId } } : {}),
-        ...(rentableOnly ? { rentable: true } : {}),
-    }), [organizationId, propertyId, rentableOnly])
+    const where = useMemo(() => buildRentalUnitSelectWhere({ propertyId, organizationId, rentableOnly }), [organizationId, propertyId, rentableOnly])
 
     const { data, loading } = useQuery(GET_RENTAL_UNITS_FOR_SELECT_QUERY, {
         variables: { where },

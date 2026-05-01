@@ -22,7 +22,7 @@ const PropertyRentalsPage: PageComponentType = () => {
     const PropertyNotFoundMessage = intl.formatMessage({ id: 'pages.condo.property.id.NotFound.Message' })
 
     const { query: { id } } = useRouter()
-    const { organization } = useOrganization()
+    const { link, organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
 
     const { loading, obj: property, error } = Property.useObject({
@@ -47,7 +47,7 @@ const PropertyRentalsPage: PageComponentType = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <RentalsPageContent property={property} organizationId={organizationId as string} />
+                    <RentalsPageContent property={property} organizationId={organizationId as string} role={link?.role} />
                 </PageContent>
             </PageWrapper>
         </>

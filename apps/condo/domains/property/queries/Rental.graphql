@@ -1,0 +1,130 @@
+fragment RentalUnitForWorkspace on RentalUnit {
+    id
+    dv
+    name
+    unitType
+    rentable
+    capacity
+    defaultMonthlyRate
+    parent { id name unitType }
+    property { id address addressKey }
+}
+
+fragment OccupancyForWorkspace on Occupancy {
+    id
+    status
+    startDate
+    expectedEndDate
+    actualEndDate
+    monthlyRate
+    billingFrequency
+    tenant { id user { id name phone } unitName unitType }
+    rentalUnit { id name unitType capacity defaultMonthlyRate }
+    property { id address addressKey }
+}
+
+query getRentalWorkspace ($propertyId: ID!, $organizationId: ID) {
+    rentalUnits: allRentalUnits(
+        where: { property: { id: $propertyId }, organization: { id: $organizationId }, deletedAt: null }
+        sortBy: [name_ASC]
+        first: 200
+    ) {
+        ...RentalUnitForWorkspace
+    }
+    residents: allResidents(
+        where: { property: { id: $propertyId }, organization: { id: $organizationId }, deletedAt: null }
+        sortBy: [createdAt_DESC]
+        first: 200
+    ) {
+        id
+        unitName
+        unitType
+        user { id name phone }
+        currentOccupancy { id status rentalUnit { id name unitType } }
+    }
+    summary: propertyOccupancySummary(data: { propertyId: $propertyId, organizationId: $organizationId }) {
+        totalRentableUnits
+        occupiedUnits
+        availableUnits
+        totalCapacity
+        occupiedCapacity
+        availableCapacity
+    }
+    available: availableRentalUnits(data: { propertyId: $propertyId, organizationId: $organizationId }) {
+        items {
+            rentalUnit { ...RentalUnitForWorkspace }
+            capacity
+            occupiedCount
+            availableCapacity
+        }
+    }
+    hostelBeds: availableHostelBeds(data: { propertyId: $propertyId, organizationId: $organizationId }) {
+        items {
+            rentalUnit { ...RentalUnitForWorkspace }
+            capacity
+            occupiedCount
+            availableCapacity
+        }
+    }
+    occupied: occupiedRentalUnits(data: { propertyId: $propertyId, organizationId: $organizationId }) {
+        items {
+            occupancy { ...OccupancyForWorkspace }
+            resident { id user { id name phone } unitName unitType }
+            rentalUnit { id name unitType capacity defaultMonthlyRate }
+            property { id address addressKey }
+        }
+    }
+    arrears: overdueRentalResidents(data: { propertyId: $propertyId, organizationId: $organizationId }) {
+        items {
+            resident { id user { id name phone } unitName unitType }
+            currentOccupancy { ...OccupancyForWorkspace }
+            arrearsTotal
+            currencyCode
+            chargeCount
+        }
+    }
+}
+
+mutation createRentalUnitFromWorkspace ($data: RentalUnitCreateInput) {
+    obj: createRentalUnit(data: $data) { ...RentalUnitForWorkspace }
+}
+
+mutation updateRentalUnitFromWorkspace ($id: ID!, $data: RentalUnitUpdateInput) {
+    obj: updateRentalUnit(id: $id, data: $data) { ...RentalUnitForWorkspace }
+}
+
+mutation reserveRentalUnitFromWorkspace ($data: ReserveRentalUnitInput!) {
+    obj: reserveRentalUnit(data: $data) { ...OccupancyForWorkspace }
+}
+
+mutation checkInOccupancyFromWorkspace ($data: CheckInOccupancyInput!) {
+    result: checkInOccupancy(data: $data) {
+        occupancy { ...OccupancyForWorkspace }
+        rentChargeGeneration { createdCount invoiceId }
+    }
+}
+
+mutation renewOccupancyFromWorkspace ($data: RenewOccupancyInput!) {
+    obj: renewOccupancy(data: $data) { ...OccupancyForWorkspace }
+}
+
+mutation transferOccupancyFromWorkspace ($data: TransferOccupancyInput!) {
+    result: transferOccupancy(data: $data) {
+        previousOccupancy { ...OccupancyForWorkspace }
+        newOccupancy { ...OccupancyForWorkspace }
+        rentChargeGeneration { createdCount invoiceId }
+        previousArrears { amount currencyCode chargeCount }
+    }
+}
+
+mutation checkOutOccupancyFromWorkspace ($data: CheckOutOccupancyInput!) {
+    result: checkOutOccupancy(data: $data) {
+        occupancy { ...OccupancyForWorkspace }
+        rentChargeGeneration { createdCount invoiceId }
+        arrears { amount currencyCode chargeCount }
+    }
+}
+
+mutation cancelOccupancyFromWorkspace ($data: CancelOccupancyInput!) {
+    obj: cancelOccupancy(data: $data) { ...OccupancyForWorkspace }
+}

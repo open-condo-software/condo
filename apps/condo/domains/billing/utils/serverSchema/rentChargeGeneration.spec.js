@@ -146,6 +146,15 @@ describe('rentChargeGeneration', () => {
             return charge
         })
         mockInvoiceCreate.mockResolvedValue({ id: 'invoice-1' })
+        mockRentChargeUpdate.mockImplementation(async (context, id, data) => {
+            const charge = charges.find(charge => charge.id === id)
+            if (charge) {
+                charge.invoice = data.invoice.connect.id
+                charge.status = data.status
+            }
+
+            return charge
+        })
 
         const result = await generateRentChargesForOccupancy({}, annualOccupancy, { cutoffDate: '2026-03-01' })
 
@@ -158,6 +167,28 @@ describe('rentChargeGeneration', () => {
             ],
         }))
         expect(mockRentChargeUpdate).toHaveBeenCalledTimes(3)
+        expect(mockRentChargeUpdate).toHaveBeenNthCalledWith(1, {}, 'charge-1', expect.objectContaining({
+            invoice: { connect: { id: 'invoice-1' } },
+            status: 'invoiced',
+        }))
+        expect(mockRentChargeUpdate).toHaveBeenNthCalledWith(2, {}, 'charge-2', expect.objectContaining({
+            invoice: { connect: { id: 'invoice-1' } },
+            status: 'invoiced',
+        }))
+        expect(mockRentChargeUpdate).toHaveBeenNthCalledWith(3, {}, 'charge-3', expect.objectContaining({
+            invoice: { connect: { id: 'invoice-1' } },
+            status: 'invoiced',
+        }))
+        expect(charges.map(charge => ({
+            id: charge.id,
+            billingMonth: charge.billingMonth,
+            invoice: charge.invoice,
+            status: charge.status,
+        }))).toEqual([
+            { id: 'charge-1', billingMonth: '2026-01-01', invoice: 'invoice-1', status: 'invoiced' },
+            { id: 'charge-2', billingMonth: '2026-02-01', invoice: 'invoice-1', status: 'invoiced' },
+            { id: 'charge-3', billingMonth: '2026-03-01', invoice: 'invoice-1', status: 'invoiced' },
+        ])
     })
 
     test('inactive occupancies are ignored by batch generation', async () => {

@@ -6,7 +6,7 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { List, Typography } from '@open-condo/ui'
 
-import { getRentalUnitDisplayName } from '@condo/domains/resident/utils/clientSchema/rental'
+import { buildResidentRentalDashboardDataSource } from '@condo/domains/resident/utils/clientSchema/rental'
 
 
 const GET_RESIDENT_RENTAL_DASHBOARD_QUERY = gql`
@@ -37,20 +37,7 @@ export const ResidentRentalDashboard: React.FC<ResidentRentalDashboardProps> = (
 
     const dashboard = get(data, 'result')
 
-    const dataSource = useMemo(() => {
-        if (!dashboard) return []
-
-        return [
-            { label: 'Rental unit', value: getRentalUnitDisplayName(intl, get(dashboard, 'currentRentalUnit')) || '—' },
-            { label: 'Occupancy status', value: get(dashboard, 'occupancyStatus') || '—' },
-            { label: 'Billing frequency', value: get(dashboard, 'billingFrequency') || '—' },
-            { label: 'Monthly rate', value: get(dashboard, 'monthlyRate') || '—' },
-            { label: 'Arrears', value: get(dashboard, 'arrearsTotal') || '0' },
-            { label: 'Next due date', value: get(dashboard, 'nextDueDate') || '—' },
-            { label: 'Unpaid rent charges', value: get(dashboard, 'unpaidRentCharges', []).length },
-            { label: 'Linked unpaid invoices', value: get(dashboard, 'linkedUnpaidInvoices', []).length },
-        ]
-    }, [dashboard, intl])
+    const dataSource = useMemo(() => buildResidentRentalDashboardDataSource(intl, dashboard), [dashboard, intl])
 
     if (!residentId || error) return null
 

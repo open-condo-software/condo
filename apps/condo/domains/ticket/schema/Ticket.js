@@ -627,11 +627,12 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         // TODO(pahaz): make a link to property domain fields
         unitName: {
-            schemaDoc: 'Flat number / door number of an apartment building (property). You need to take from Property.map',
+            schemaDoc: '@deprecated Use rentalUnit.name. Legacy display snapshot only.',
             type: 'Text',
         },
         unitType: {
             ...UNIT_TYPE_FIELD,
+            schemaDoc: '@deprecated Use rentalUnit.unitType. Legacy display snapshot only.',
             // Allow to set unitType to null
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },

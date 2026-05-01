@@ -1,0 +1,24 @@
+query getRentalUnitsForSelect ($where: RentalUnitWhereInput) {
+    rentalUnits: allRentalUnits(where: $where, sortBy: [name_ASC], first: 200) {
+        id
+        name
+        unitType
+        rentable
+        capacity
+        defaultMonthlyRate
+        parent { id name unitType }
+    }
+}
+
+query getResidentRentalDashboard ($residentId: ID!) {
+    result: residentRentalDashboard(data: { residentId: $residentId }) {
+        currentRentalUnit { id name unitType property { id address addressKey } }
+        occupancyStatus
+        billingFrequency
+        monthlyRate
+        arrearsTotal
+        nextDueDate
+        unpaidRentCharges { id billingMonth periodStart periodEnd dueDate amount currencyCode status invoice { id status } }
+        linkedUnpaidInvoices { id status toPay currencyCode }
+    }
+}

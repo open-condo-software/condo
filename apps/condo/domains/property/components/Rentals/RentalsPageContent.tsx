@@ -12,6 +12,8 @@ import { ActionBar, Button, List, Space, Tabs, Typography } from '@open-condo/ui
 import { RentalUnitSelect } from '@condo/domains/resident/components/RentalUnitSelect'
 import { getRentalUnitDisplayName } from '@condo/domains/resident/utils/clientSchema/rental'
 
+import { getOccupancyLifecycleActions, getRentalWorkspaceActions } from './utils'
+
 
 const RENTAL_UNIT_FIELDS = `
     id
@@ -169,6 +171,9 @@ type RentalsPageContentProps = {
         organization?: { id: string }
     }
     organizationId: string
+    role?: {
+        canManageProperties?: boolean | null
+    } | null
 }
 
 type RentalUnitModalState = {
@@ -188,8 +193,9 @@ const BILLING_FREQUENCY_OPTIONS = ['monthly', 'annual'].map(value => ({ value, l
 
 const formatDate = (value) => value ? dayjs(value).format('YYYY-MM-DD') : undefined
 
-export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property, organizationId }) => {
+export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property, organizationId, role }) => {
     const intl = useIntl()
+    const canManageProperties = !!get(role, 'canManageProperties', false)
     const [unitForm] = Form.useForm()
     const [lifecycleForm] = Form.useForm()
     const [unitModal, setUnitModal] = useState<RentalUnitModalState>(null)
@@ -275,6 +281,8 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
     }, [refetch, variables])
 
     const handleUnitSubmit = useCallback(async () => {
+        if (!canManageProperties) return
+
         const values = await unitForm.validateFields()
         const sender = getClientSideSenderInfo()
         const data = {
@@ -304,9 +312,11 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
 
         setUnitModal(null)
         await refetchWorkspace()
-    }, [createRentalUnit, organizationId, property.id, refetchWorkspace, unitForm, unitModal, updateRentalUnit])
+    }, [canManageProperties, createRentalUnit, organizationId, property.id, refetchWorkspace, unitForm, unitModal, updateRentalUnit])
 
     const handleLifecycleSubmit = useCallback(async () => {
+        if (!canManageProperties) return
+
         if (lifecycleModal?.action === 'cancel') {
             await cancelOccupancy({
                 variables: {
@@ -414,7 +424,7 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
         notification.success({ message: 'Rental operation completed' })
         setLifecycleModal(null)
         await refetchWorkspace()
-    }, [cancelOccupancy, checkInOccupancy, checkOutOccupancy, lifecycleForm, lifecycleModal, organizationId, property.id, refetchWorkspace, renewOccupancy, reserveRentalUnit, transferOccupancy])
+    }, [canManageProperties, cancelOccupancy, checkInOccupancy, checkOutOccupancy, lifecycleForm, lifecycleModal, organizationId, property.id, refetchWorkspace, renewOccupancy, reserveRentalUnit, transferOccupancy])
 
     const summaryData = useMemo(() => [
         { label: 'Rentable units', value: get(summary, 'totalRentableUnits', 0) },
@@ -440,7 +450,7 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
             render: (value) => value ? 'Yes' : 'No',
         },
         { title: 'Monthly rate', dataIndex: 'defaultMonthlyRate', key: 'defaultMonthlyRate' },
-        {
+        canManageProperties && {
             title: 'Actions',
             key: 'actions',
             render: (_, unit) => (
@@ -451,7 +461,7 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
                 </AntSpace>
             ),
         },
-    ], [intl])
+    ].filter(Boolean), [canManageProperties, intl])
 
     const availabilityColumns = useMemo(() => [
         {
@@ -462,14 +472,14 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
         { title: 'Capacity', dataIndex: 'capacity', key: 'capacity' },
         { title: 'Occupied', dataIndex: 'occupiedCount', key: 'occupiedCount' },
         { title: 'Available', dataIndex: 'availableCapacity', key: 'availableCapacity' },
-        {
+        canManageProperties && {
             title: 'Actions',
             key: 'actions',
             render: (_, item) => (
                 <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'reserve', rentalUnit: item.rentalUnit })}>Reserve</Button>
             ),
         },
-    ], [intl])
+    ].filter(Boolean), [canManageProperties, intl])
 
     const occupancyColumns = useMemo(() => [
         {
@@ -486,20 +496,24 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
         { title: 'Start', dataIndex: ['occupancy', 'startDate'], key: 'startDate' },
         { title: 'Expected end', dataIndex: ['occupancy', 'expectedEndDate'], key: 'expectedEndDate' },
         { title: 'Rate', dataIndex: ['occupancy', 'monthlyRate'], key: 'monthlyRate' },
-        {
+        canManageProperties && {
             title: 'Actions',
             key: 'actions',
-            render: (_, item) => (
-                <AntSpace wrap>
-                    {get(item, ['occupancy', 'status']) === 'planned' && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'checkIn', occupancy: item.occupancy })}>Check in</Button>}
-                    <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'renew', occupancy: item.occupancy })}>Renew</Button>
-                    <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'transfer', occupancy: item.occupancy })}>Transfer</Button>
-                    <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'checkOut', occupancy: item.occupancy })}>Check out</Button>
-                    {get(item, ['occupancy', 'status']) === 'planned' && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'cancel', occupancy: item.occupancy })}>Cancel</Button>}
-                </AntSpace>
-            ),
+            render: (_, item) => {
+                const actions = getOccupancyLifecycleActions(get(item, ['occupancy', 'status']), canManageProperties)
+
+                return (
+                    <AntSpace wrap>
+                        {actions.includes('checkIn') && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'checkIn', occupancy: item.occupancy })}>Check in</Button>}
+                        {actions.includes('renew') && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'renew', occupancy: item.occupancy })}>Renew</Button>}
+                        {actions.includes('transfer') && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'transfer', occupancy: item.occupancy })}>Transfer</Button>}
+                        {actions.includes('checkOut') && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'checkOut', occupancy: item.occupancy })}>Check out</Button>}
+                        {actions.includes('cancel') && <Button size='small' type='secondary' onClick={() => setLifecycleModal({ action: 'cancel', occupancy: item.occupancy })}>Cancel</Button>}
+                    </AntSpace>
+                )
+            },
         },
-    ], [intl])
+    ].filter(Boolean), [canManageProperties, intl])
 
     const arrearsColumns = useMemo(() => [
         {
@@ -561,14 +575,19 @@ export const RentalsPageContent: React.FC<RentalsPageContentProps> = ({ property
             <Col span={24}>
                 <List title='Occupancy summary' dataSource={summaryData} />
             </Col>
-            <Col span={24}>
-                <ActionBar
-                    actions={[
-                        <Button key='createUnit' type='primary' onClick={() => setUnitModal({ mode: 'create' })}>Create rental unit</Button>,
-                        <Button key='checkIn' type='secondary' onClick={() => setLifecycleModal({ action: 'checkIn' })}>Check in</Button>,
-                    ]}
-                />
-            </Col>
+            {canManageProperties && (
+                <Col span={24}>
+                    <ActionBar
+                        actions={getRentalWorkspaceActions(canManageProperties).map(action => {
+                            if (action === 'createUnit') {
+                                return <Button key='createUnit' type='primary' onClick={() => setUnitModal({ mode: 'create' })}>Create rental unit</Button>
+                            }
+
+                            return <Button key='checkIn' type='secondary' onClick={() => setLifecycleModal({ action: 'checkIn' })}>Check in</Button>
+                        }) as [React.ReactElement, ...React.ReactElement[]]}
+                    />
+                </Col>
+            )}
             <Col span={24}>
                 <Tabs items={tabs} destroyInactiveTabPane />
             </Col>
