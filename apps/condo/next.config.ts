@@ -92,7 +92,7 @@ const nextConfig: NextConfig = {
         },
     },
     images: {
-        unoptimized: true,
+        maximumDiskCacheSize: 0,
     },
     skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
@@ -201,5 +201,4 @@ const nextConfig: NextConfig = {
         return nextCamelCaseCSSModulesTransform(config)
     },
 }
-
 export default withLess(nextConfig)
