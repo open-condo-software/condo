@@ -34,6 +34,7 @@ const {
 } = require("@dev-portal-api/domains/user/constants");
 const dayjs = require("dayjs");
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
+const { gql } = require('graphql-tag')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -44,7 +45,24 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || '+79068888888'
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
 
-const CondoUser = generateGQLTestUtils(generateGqlQueries('User', '{ type name email meta deletedAt }'))
+const CondoUserGQL = generateGqlQueries('User', '{ type name email meta deletedAt }')
+const CondoUser = generateGQLTestUtils(CondoUserGQL)
+
+const CONDO_AUTH_BY_PHONE_MUTATION = gql`
+    mutation authByPhone($data: AuthenticateUserWithPhoneAndPasswordInput!) {
+        auth: authenticateUserWithPhoneAndPassword(data: $data) {
+            item {
+                id
+                isAdmin
+                isSupport
+            }
+        }
+    }
+`
+const PORTAL_USER_QUERY = {
+
+}
+const OIDC_CONDO_CLIENT_CONFIG = JSON.parse(conf.OIDC_CONDO_CLIENT_CONFIG ?? 'null')
 
 function createTestPhone () {
     const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
@@ -260,7 +278,7 @@ async function registerNewTestUser (userAttrs = {}, client) {
     return [user, userAttrs]
 }
 
-async function makeLoggedInAdminClient () {
+async function makeLoggedInLocalAdminClient (attrs = {}, serverUrl = conf['DEV_PORTAL_DOMAIN']) {
     return await makeLoggedInClient({ phone: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET, })
 }
 
@@ -271,24 +289,89 @@ async function makeLoggedInCondoAdminClient () {
     return await makeLoggedInClient({ email, password }, serverUrl)
 }
 
-async function makeRegisteredAndLoggedInUser () {
-    const client = await makeClient()
-    const [user, userAttrs] = await registerNewTestUser({}, client)
-    Object.assign(user, userAttrs)
-    client.user = user
-    await authenticateUserWithPhoneAndPasswordByTestClient(client, {
-        phone: userAttrs.phone,
-        password: userAttrs.password,
+async function makeLoggedInCondoClient() {
+    // STEP 1. Create condo user from condo admin
+    // NOTE: we can use register user mutations to be honest, but it will require admin to read confirm actions anyway
+    const condoAdmin = await makeLoggedInCondoAdminClient()
+
+    const userAttrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+        phone: createTestPhone(),
+        isPhoneVerified: true,
+        password: faker.internet.password(32),
+        name: faker.name.firstName(),
+        type: 'staff',
+
+    }
+
+    await condoAdmin.mutate(CondoUserGQL.CREATE_OBJ_MUTATION, {
+        data: userAttrs,
     })
+
+    // STEP 2: Authenticate condo user
+    const condoClient = await makeClient({ generateIP: true, serverUrl: conf['CONDO_DOMAIN'] })
+    const response = await condoClient.mutate(CONDO_AUTH_BY_PHONE_MUTATION, {
+        data: {
+            dv: 1,
+            sender: userAttrs.sender,
+            userType: 'staff',
+            phone: userAttrs.phone,
+            password: userAttrs.password,
+        }
+    })
+
+    expect(response).toHaveProperty(['data', 'auth', 'item', 'id'])
+
+    condoClient.user = {
+        ...userAttrs,
+        id: response.data.auth.item.id,
+    }
+
+    return condoClient
+}
+
+async function makeRegisteredAndLoggedInUser () {
+    if (!OIDC_CONDO_CLIENT_CONFIG) throw new Error('no OIDC_CONDO_CLIENT_CONFIG is found, make sure to prepare app before running tests')
+
+    // NOTE: this is apollo client pointing to condo
+    const condoClient = await makeLoggedInCondoClient()
+    const condoUrl = condoClient.serverUrl
+    const condoCookieHeader = condoClient.getCookie()
+
+    // NOTE: now we create another client pointing to dev-portal-api and set cookies on condo domain
+    // TODO: figure out a way to use the same GQL-client for multiple domains
+    const client = await makeClient({ generateIP: true })
+    client.setCookie(condoCookieHeader, condoUrl)
+
+    const oidcStartUrl = new URL(`${client.serverUrl}/api/oidc/auth`)
+    oidcStartUrl.searchParams.set('redirect_uri', `${client.serverUrl}/api/oidc/callback`)
+
+    const res = await client.fetch(oidcStartUrl.toString())
+
+    // NOTE: after successful callback we should be redirected to /, but we don't have it on API
+    expect(res.status).toBe(404)
+    expect(res.url).toBe(`${client.serverUrl}/`)
+    client.user = condoClient.user
 
     return client
 }
 
 async function makeLoggedInSupportClient () {
-    const admin = await makeLoggedInAdminClient()
+    const localAdmin = await makeLoggedInLocalAdminClient()
     const client = await makeRegisteredAndLoggedInUser()
-    await updateTestUser(admin, client.user.id, {
+    await updateTestUser(localAdmin, client.user.id, {
         isSupport: true
+    })
+
+    return client
+}
+
+async function makeLoggedInAdminClient () {
+    const localAdmin = await makeLoggedInLocalAdminClient()
+    const client = await makeRegisteredAndLoggedInUser()
+    await updateTestUser(localAdmin, client.user.id, {
+        isAdmin: true
     })
 
     return client

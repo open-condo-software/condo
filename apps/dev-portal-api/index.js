@@ -5,6 +5,7 @@ const { GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/error
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getExpressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
+const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
 const { OIDCMiddleware } = require('@open-condo/miniapp-utils/helpers/oidc')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
@@ -31,7 +32,10 @@ const apps = () => {
                 return  req.session
             },
             oidcConfig,
-            redirectUri: `${conf['DEV_PORTAL_WEB_DOMAIN']}/api/oidc/callback`,
+            redirectUri: [
+                `${conf['DEV_PORTAL_WEB_DOMAIN']}/api/oidc/callback`,
+                conf['ENABLE_DIRECT_OIDC'] === 'true' ? `${conf['DEV_PORTAL_API_DOMAIN']}/api/oidc/callback` : null,
+            ].filter(nonNull),
             middlewareOptions: {
                 app: express(),
             },

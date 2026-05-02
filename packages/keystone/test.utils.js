@@ -35,6 +35,7 @@ const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const REDIRECT_STATUS_CODES = new Set([301, 302, 303, 307, 308])
 
 const API_PATH = '/admin/api'
 const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY
@@ -414,32 +415,95 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
 /**
  * @param {string} serverUrl
  * @param {{customHeaders?: Record<string, string>, logRequestResponse?: boolean}} opts
- * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
+ * @returns {{
+ * client: ApolloClient,
+ * serverUrl: string,
+ * getCookie: () => string,
+ * setCookie: (cookieHeader: string, domain?: string) => void,
+ * setHeaders: ({object}) => void,
+ * fetch: (uri: string, options: RequestInit) => Promise<Response>,
+ * query: (query: string, variables?: Record<string, unknown>) => Promise<any>,
+ * mutate: (query: string, variables?: Record<string, unknown>) => Promise<any>,
+ * }}
  */
 const makeApolloClient = (serverUrl, opts = {}) => {
+    /** @type {Record<string, Record<string, string>>} */
     let cookiesObj = {}
     let customHeaders = opts.hasOwnProperty('customHeaders') ? opts.customHeaders : {}
     let logRequestResponse = Boolean(opts.logRequestResponse)
 
-    /**
-     * @returns {string}
-     */
-    const restoreCookies = () => {
-        return Object.entries(cookiesObj).map(([key, value]) => `${key}=${value}`).join(';')
+    function saveCookies (setCookieHeader, domain) {
+        // NOTE: we use host instead of hostname to treat localhost:8000 and localhost:3000 as different domains
+        const resolvedHost = new URL(domain ?? serverUrl).host
+        cookiesObj[resolvedHost] ??= {}
+
+        const setCookie = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader]
+
+        for (const header of setCookie) {
+            const [rawCookie] = header.split(';')
+            const separatorIndex = rawCookie.indexOf('=')
+            if (separatorIndex === -1) continue
+            const key = rawCookie.slice(0, separatorIndex)
+            const value = rawCookie.slice(separatorIndex + 1)
+            cookiesObj[resolvedHost][key] = value
+        }
+
     }
 
-    /**
-     * @param {string[]} cookiesToSave
-     */
-    const saveCookies = (cookiesToSave) => {
-        cookiesObj = {
-            ...cookiesObj,
-            ...cookiesToSave.reduce((shapedCookies, cookieString) => {
-                const [rawCookie] = cookieString.split('; ')
-                const [cookieName, value] = rawCookie.split('=')
-                return { ...shapedCookies, [cookieName]: value }
-            }, {}),
+    function getCookieHeader (domain) {
+        // NOTE: we use host instead of hostname to treat localhost:8000 and localhost:3000 as different domains
+        const resolvedHost = new URL(domain ?? serverUrl).host
+        const hostCookies = cookiesObj[resolvedHost] ?? {}
+        if (!Object.keys(hostCookies).length) return undefined
+
+        return Object.entries(hostCookies).map(([key, value]) => `${key}=${value}`).join('; ')
+    }
+
+    async function fetchWithCookies (uri, options = {}) {
+        const redirectPolicy = options.redirect ?? 'follow'
+
+        const jarCookie = getCookieHeader(uri)
+        const loweredHeaders = Object.fromEntries(Object.entries(options.headers ?? {}).map(([key, value]) => [key.toLowerCase(), value]))
+        const explicitCookie = loweredHeaders.cookie
+
+        const response = await fetch(uri, {
+            ...options,
+            headers: {
+                ...loweredHeaders,
+                cookie: explicitCookie ?? jarCookie,
+            },
+            redirect: 'manual',
+        })
+
+        const setCookieHeader = response.headers.raw()['set-cookie']
+        if (setCookieHeader) {
+            saveCookies(setCookieHeader, uri)
         }
+
+        if (!REDIRECT_STATUS_CODES.has(response.status) || redirectPolicy === 'manual') {
+            return response
+        }
+
+        if (redirectPolicy === 'error') {
+            throw new TypeError(`URI requested responded with a redirect and redirect mode is set to error: ${response.url}`)
+        }
+
+        const locationUrl = response.headers.get('location')
+        const requestUrl = response.url
+        const redirectUrl = new URL(locationUrl, requestUrl).toString()
+
+        const maxRedirects = options.maxRedirects ?? 10
+        const redirectsCount = (options.redirectsCount ?? 0) + 1
+
+        if (redirectsCount > maxRedirects) {
+            throw new TypeError(`Reached maximum redirect of ${maxRedirects} for URL: ${requestUrl}`)
+        }
+
+        const newOptions = { ...options, redirectsCount, maxRedirects, method: 'GET' }
+        delete newOptions.body
+
+
+        return fetchWithCookies(redirectUrl, newOptions)
     }
 
     // test apollo client with disabled tls
@@ -472,21 +536,10 @@ const makeApolloClient = (serverUrl, opts = {}) => {
                 ...options.headers,
                 'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders,
             }
-            if (cookiesObj && Object.keys(cookiesObj).length > 0) {
-                options.headers = { ...options.headers, cookie: restoreCookies() }
-            }
 
             if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
 
-            return fetch(uri, options)
-                .then((response) => {
-                    const setCookieHeader = response.headers.raw()['set-cookie']
-                    if (setCookieHeader) {
-                        // accumulate cookies received from the server
-                        saveCookies(setCookieHeader)
-                    }
-                    return response
-                })
+            return fetchWithCookies(uri, options)
         },
     }))
 
@@ -501,7 +554,10 @@ const makeApolloClient = (serverUrl, opts = {}) => {
     return {
         client,
         serverUrl,
-        getCookie: () => restoreCookies(),
+        getCookie: () => getCookieHeader(),
+        setCookie: (cookieHeader, domain) => {
+            saveCookies(cookieHeader.split('; '), domain)
+        },
         setHeaders: (headers) => {
             customHeaders = { ...customHeaders, ...headers }
         },
@@ -511,6 +567,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
         query: async (query, variables = {}) => {
             return doGqlRequest(client.query, { query, variables }, logRequestResponse)
         },
+        fetch: fetchWithCookies,
     }
 }
 

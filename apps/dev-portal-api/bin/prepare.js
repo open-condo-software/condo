@@ -84,9 +84,12 @@ async function main () {
 
     // STEP 4. Register OIDC client
     const portalWebDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_WEB_DOMAIN')
-    const redirectUrl = `${portalWebDomain}/api/oidc/callback`
-    const oidcConf = await prepareCondoAppOidcConfig(APP_NAME, { redirectUrl })
+    const portalApiDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_API_DOMAIN')
+    const webRedirectUrl = `${portalWebDomain}/api/oidc/callback`
+    const apiRedirectUrl = `${portalApiDomain}/api/oidc/callback`
+    const oidcConf = await prepareCondoAppOidcConfig(APP_NAME, { redirectUrl: [webRedirectUrl, apiRedirectUrl] })
     await updateAppEnvFile(APP_NAME, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify({ ...oidcConf, scope: 'openid phone' }))
+    await updateAppEnvFile(APP_NAME, 'ENABLE_DIRECT_OIDC', 'true')
 }
 
 main().then(() => {
