@@ -441,7 +441,10 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
         for (const header of setCookie) {
             const [rawCookie] = header.split(';')
-            const [key, value] = rawCookie.split('=')
+            const separatorIndex = rawCookie.indexOf('=')
+            if (separatorIndex === -1) continue
+            const key = rawCookie.slice(0, separatorIndex)
+            const value = rawCookie.slice(separatorIndex + 1)
             cookiesObj[resolvedHost][key] = value
         }
 
@@ -458,11 +461,16 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
     async function fetchWithCookies (uri, options = {}) {
         const redirectPolicy = options.redirect ?? 'follow'
+
+        const jarCookie = getCookieHeader(uri)
+        const loweredHeaders = Object.fromEntries(Object.entries(options.headers ?? {}).map(([key, value]) => [key.toLowerCase(), value]))
+        const explicitCookie = loweredHeaders.cookie
+
         const response = await fetch(uri, {
             ...options,
             headers: {
-                ...options.headers,
-                cookie: getCookieHeader(uri),
+                ...loweredHeaders,
+                cookie: explicitCookie ?? jarCookie,
             },
             redirect: 'manual',
         })
@@ -484,7 +492,18 @@ const makeApolloClient = (serverUrl, opts = {}) => {
         const requestUrl = response.url
         const redirectUrl = new URL(locationUrl, requestUrl).toString()
 
-        return fetchWithCookies(redirectUrl, options)
+        const maxRedirects = options.maxRedirects ?? 10
+        const redirectsCount = (options.redirectsCount ?? 0) + 1
+
+        if (redirectsCount > maxRedirects) {
+            throw new TypeError(`Reached maximum redirect of ${maxRedirects} for URL: ${requestUrl}`)
+        }
+
+        const newOptions = { ...options, redirectsCount, maxRedirects, method: 'GET' }
+        delete newOptions.body
+
+
+        return fetchWithCookies(redirectUrl, newOptions)
     }
 
     // test apollo client with disabled tls

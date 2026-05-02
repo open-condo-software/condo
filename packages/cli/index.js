@@ -246,8 +246,8 @@ async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedi
     const callbackUrl = redirectUrl
         ? Array.isArray(redirectUrl)
             ? `'${JSON.stringify(redirectUrl)}'`
-            : redirectUrl
-        : await getAppServerUrl(appName) + '/oidc/callback'
+            : `'${redirectUrl}'`
+        : `'${await getAppServerUrl(appName)}/oidc/callback'`
     let command = `yarn workspace @app/condo node ./bin/create-oidc-client.js ${appName} ${clientSecret} ${callbackUrl}`
     if (postLogoutRedirectUrl) {
         command += ` ${postLogoutRedirectUrl}`

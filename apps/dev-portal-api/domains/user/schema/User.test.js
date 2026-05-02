@@ -73,7 +73,9 @@ describe('User', () => {
                 test('Self with sensitive fields', async () => {
                     const readUser = await User.getOne(user, { id: user.user.id })
                     expect(readUser).toHaveProperty('id')
-                    expect(readUser.phone).not.toBeNull()
+                    expect(readUser.name).not.toBeNull()
+                    // NOTE: since OIDC users do not have phone
+                    expect(readUser.phone).toBeNull()
                     expect(readUser.user).not.toBeNull()
                 })
                 test('No access to sensitive fields of others', async () => {

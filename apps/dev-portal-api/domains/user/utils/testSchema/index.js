@@ -278,7 +278,7 @@ async function registerNewTestUser (userAttrs = {}, client) {
     return [user, userAttrs]
 }
 
-async function makeLoggedInAdminClient () {
+async function makeLoggedInLocalAdminClient (attrs = {}, serverUrl = conf['DEV_PORTAL_DOMAIN']) {
     return await makeLoggedInClient({ phone: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET, })
 }
 
@@ -358,10 +358,20 @@ async function makeRegisteredAndLoggedInUser () {
 }
 
 async function makeLoggedInSupportClient () {
-    const admin = await makeLoggedInAdminClient()
+    const localAdmin = await makeLoggedInLocalAdminClient()
     const client = await makeRegisteredAndLoggedInUser()
-    await updateTestUser(admin, client.user.id, {
+    await updateTestUser(localAdmin, client.user.id, {
         isSupport: true
+    })
+
+    return client
+}
+
+async function makeLoggedInAdminClient () {
+    const localAdmin = await makeLoggedInLocalAdminClient()
+    const client = await makeRegisteredAndLoggedInUser()
+    await updateTestUser(localAdmin, client.user.id, {
+        isAdmin: true
     })
 
     return client
