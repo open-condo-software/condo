@@ -57,6 +57,60 @@ export const AddressMetaForTableAddressFragmentDoc = gql`
   }
 }
     `;
+export const RentalUnitForWorkspaceFragmentDoc = gql`
+    fragment RentalUnitForWorkspace on RentalUnit {
+  id
+  dv
+  name
+  unitType
+  rentable
+  capacity
+  defaultMonthlyRate
+  parent {
+    id
+    name
+    unitType
+  }
+  property {
+    id
+    address
+    addressKey
+  }
+}
+    `;
+export const OccupancyForWorkspaceFragmentDoc = gql`
+    fragment OccupancyForWorkspace on Occupancy {
+  id
+  status
+  startDate
+  expectedEndDate
+  actualEndDate
+  monthlyRate
+  billingFrequency
+  tenant {
+    id
+    user {
+      id
+      name
+      phone
+    }
+    unitName
+    unitType
+  }
+  rentalUnit {
+    id
+    name
+    unitType
+    capacity
+    defaultMonthlyRate
+  }
+  property {
+    id
+    address
+    addressKey
+  }
+}
+    `;
 export const GetB2BAppContextWithPosIntegrationConfigDocument = gql`
     query getB2BAppContextWithPosIntegrationConfig($organizationId: ID!) {
   contexts: allB2BAppContexts(
@@ -5325,6 +5379,591 @@ export type GetPropertiesQueryHookResult = ReturnType<typeof useGetPropertiesQue
 export type GetPropertiesLazyQueryHookResult = ReturnType<typeof useGetPropertiesLazyQuery>;
 export type GetPropertiesSuspenseQueryHookResult = ReturnType<typeof useGetPropertiesSuspenseQuery>;
 export type GetPropertiesQueryResult = Apollo.QueryResult<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>;
+export const GetRentalWorkspaceDocument = gql`
+    query getRentalWorkspace($propertyId: ID!, $organizationId: ID) {
+  rentalUnits: allRentalUnits(
+    where: {property: {id: $propertyId}, organization: {id: $organizationId}, deletedAt: null}
+    sortBy: [name_ASC]
+    first: 200
+  ) {
+    ...RentalUnitForWorkspace
+  }
+  residents: allResidents(
+    where: {property: {id: $propertyId}, organization: {id: $organizationId}, deletedAt: null}
+    sortBy: [createdAt_DESC]
+    first: 200
+  ) {
+    id
+    unitName
+    unitType
+    user {
+      id
+      name
+      phone
+    }
+    currentOccupancy {
+      id
+      status
+      rentalUnit {
+        id
+        name
+        unitType
+      }
+    }
+  }
+  summary: propertyOccupancySummary(
+    data: {propertyId: $propertyId, organizationId: $organizationId}
+  ) {
+    totalRentableUnits
+    occupiedUnits
+    availableUnits
+    totalCapacity
+    occupiedCapacity
+    availableCapacity
+  }
+  available: availableRentalUnits(
+    data: {propertyId: $propertyId, organizationId: $organizationId}
+  ) {
+    items {
+      rentalUnit {
+        ...RentalUnitForWorkspace
+      }
+      capacity
+      occupiedCount
+      availableCapacity
+    }
+  }
+  hostelBeds: availableHostelBeds(
+    data: {propertyId: $propertyId, organizationId: $organizationId}
+  ) {
+    items {
+      rentalUnit {
+        ...RentalUnitForWorkspace
+      }
+      capacity
+      occupiedCount
+      availableCapacity
+    }
+  }
+  occupied: occupiedRentalUnits(
+    data: {propertyId: $propertyId, organizationId: $organizationId}
+  ) {
+    items {
+      occupancy {
+        ...OccupancyForWorkspace
+      }
+      resident {
+        id
+        user {
+          id
+          name
+          phone
+        }
+        unitName
+        unitType
+      }
+      rentalUnit {
+        id
+        name
+        unitType
+        capacity
+        defaultMonthlyRate
+      }
+      property {
+        id
+        address
+        addressKey
+      }
+    }
+  }
+  arrears: overdueRentalResidents(
+    data: {propertyId: $propertyId, organizationId: $organizationId}
+  ) {
+    items {
+      resident {
+        id
+        user {
+          id
+          name
+          phone
+        }
+        unitName
+        unitType
+      }
+      currentOccupancy {
+        ...OccupancyForWorkspace
+      }
+      arrearsTotal
+      currencyCode
+      chargeCount
+    }
+  }
+}
+    ${RentalUnitForWorkspaceFragmentDoc}
+${OccupancyForWorkspaceFragmentDoc}`;
+
+/**
+ * __useGetRentalWorkspaceQuery__
+ *
+ * To run a query within a React component, call `useGetRentalWorkspaceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRentalWorkspaceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRentalWorkspaceQuery({
+ *   variables: {
+ *      propertyId: // value for 'propertyId'
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetRentalWorkspaceQuery(baseOptions: Apollo.QueryHookOptions<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables> & ({ variables: Types.GetRentalWorkspaceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>(GetRentalWorkspaceDocument, options);
+      }
+export function useGetRentalWorkspaceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>(GetRentalWorkspaceDocument, options);
+        }
+// @ts-ignore
+export function useGetRentalWorkspaceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>;
+export function useGetRentalWorkspaceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetRentalWorkspaceQuery | undefined, Types.GetRentalWorkspaceQueryVariables>;
+export function useGetRentalWorkspaceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>(GetRentalWorkspaceDocument, options);
+        }
+export type GetRentalWorkspaceQueryHookResult = ReturnType<typeof useGetRentalWorkspaceQuery>;
+export type GetRentalWorkspaceLazyQueryHookResult = ReturnType<typeof useGetRentalWorkspaceLazyQuery>;
+export type GetRentalWorkspaceSuspenseQueryHookResult = ReturnType<typeof useGetRentalWorkspaceSuspenseQuery>;
+export type GetRentalWorkspaceQueryResult = Apollo.QueryResult<Types.GetRentalWorkspaceQuery, Types.GetRentalWorkspaceQueryVariables>;
+export const CreateRentalUnitFromWorkspaceDocument = gql`
+    mutation createRentalUnitFromWorkspace($data: RentalUnitCreateInput) {
+  obj: createRentalUnit(data: $data) {
+    ...RentalUnitForWorkspace
+  }
+}
+    ${RentalUnitForWorkspaceFragmentDoc}`;
+export type CreateRentalUnitFromWorkspaceMutationFn = Apollo.MutationFunction<Types.CreateRentalUnitFromWorkspaceMutation, Types.CreateRentalUnitFromWorkspaceMutationVariables>;
+
+/**
+ * __useCreateRentalUnitFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useCreateRentalUnitFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRentalUnitFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRentalUnitFromWorkspaceMutation, { data, loading, error }] = useCreateRentalUnitFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateRentalUnitFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateRentalUnitFromWorkspaceMutation, Types.CreateRentalUnitFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateRentalUnitFromWorkspaceMutation, Types.CreateRentalUnitFromWorkspaceMutationVariables>(CreateRentalUnitFromWorkspaceDocument, options);
+      }
+export type CreateRentalUnitFromWorkspaceMutationHookResult = ReturnType<typeof useCreateRentalUnitFromWorkspaceMutation>;
+export type CreateRentalUnitFromWorkspaceMutationResult = Apollo.MutationResult<Types.CreateRentalUnitFromWorkspaceMutation>;
+export type CreateRentalUnitFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.CreateRentalUnitFromWorkspaceMutation, Types.CreateRentalUnitFromWorkspaceMutationVariables>;
+export const UpdateRentalUnitFromWorkspaceDocument = gql`
+    mutation updateRentalUnitFromWorkspace($id: ID!, $data: RentalUnitUpdateInput) {
+  obj: updateRentalUnit(id: $id, data: $data) {
+    ...RentalUnitForWorkspace
+  }
+}
+    ${RentalUnitForWorkspaceFragmentDoc}`;
+export type UpdateRentalUnitFromWorkspaceMutationFn = Apollo.MutationFunction<Types.UpdateRentalUnitFromWorkspaceMutation, Types.UpdateRentalUnitFromWorkspaceMutationVariables>;
+
+/**
+ * __useUpdateRentalUnitFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useUpdateRentalUnitFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRentalUnitFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRentalUnitFromWorkspaceMutation, { data, loading, error }] = useUpdateRentalUnitFromWorkspaceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateRentalUnitFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateRentalUnitFromWorkspaceMutation, Types.UpdateRentalUnitFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateRentalUnitFromWorkspaceMutation, Types.UpdateRentalUnitFromWorkspaceMutationVariables>(UpdateRentalUnitFromWorkspaceDocument, options);
+      }
+export type UpdateRentalUnitFromWorkspaceMutationHookResult = ReturnType<typeof useUpdateRentalUnitFromWorkspaceMutation>;
+export type UpdateRentalUnitFromWorkspaceMutationResult = Apollo.MutationResult<Types.UpdateRentalUnitFromWorkspaceMutation>;
+export type UpdateRentalUnitFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.UpdateRentalUnitFromWorkspaceMutation, Types.UpdateRentalUnitFromWorkspaceMutationVariables>;
+export const ReserveRentalUnitFromWorkspaceDocument = gql`
+    mutation reserveRentalUnitFromWorkspace($data: ReserveRentalUnitInput!) {
+  obj: reserveRentalUnit(data: $data) {
+    ...OccupancyForWorkspace
+  }
+}
+    ${OccupancyForWorkspaceFragmentDoc}`;
+export type ReserveRentalUnitFromWorkspaceMutationFn = Apollo.MutationFunction<Types.ReserveRentalUnitFromWorkspaceMutation, Types.ReserveRentalUnitFromWorkspaceMutationVariables>;
+
+/**
+ * __useReserveRentalUnitFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useReserveRentalUnitFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReserveRentalUnitFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [reserveRentalUnitFromWorkspaceMutation, { data, loading, error }] = useReserveRentalUnitFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useReserveRentalUnitFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.ReserveRentalUnitFromWorkspaceMutation, Types.ReserveRentalUnitFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ReserveRentalUnitFromWorkspaceMutation, Types.ReserveRentalUnitFromWorkspaceMutationVariables>(ReserveRentalUnitFromWorkspaceDocument, options);
+      }
+export type ReserveRentalUnitFromWorkspaceMutationHookResult = ReturnType<typeof useReserveRentalUnitFromWorkspaceMutation>;
+export type ReserveRentalUnitFromWorkspaceMutationResult = Apollo.MutationResult<Types.ReserveRentalUnitFromWorkspaceMutation>;
+export type ReserveRentalUnitFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.ReserveRentalUnitFromWorkspaceMutation, Types.ReserveRentalUnitFromWorkspaceMutationVariables>;
+export const CheckInOccupancyFromWorkspaceDocument = gql`
+    mutation checkInOccupancyFromWorkspace($data: CheckInOccupancyInput!) {
+  result: checkInOccupancy(data: $data) {
+    occupancy {
+      ...OccupancyForWorkspace
+    }
+    rentChargeGeneration {
+      createdCount
+      invoiceId
+    }
+  }
+}
+    ${OccupancyForWorkspaceFragmentDoc}`;
+export type CheckInOccupancyFromWorkspaceMutationFn = Apollo.MutationFunction<Types.CheckInOccupancyFromWorkspaceMutation, Types.CheckInOccupancyFromWorkspaceMutationVariables>;
+
+/**
+ * __useCheckInOccupancyFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useCheckInOccupancyFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCheckInOccupancyFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [checkInOccupancyFromWorkspaceMutation, { data, loading, error }] = useCheckInOccupancyFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCheckInOccupancyFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.CheckInOccupancyFromWorkspaceMutation, Types.CheckInOccupancyFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CheckInOccupancyFromWorkspaceMutation, Types.CheckInOccupancyFromWorkspaceMutationVariables>(CheckInOccupancyFromWorkspaceDocument, options);
+      }
+export type CheckInOccupancyFromWorkspaceMutationHookResult = ReturnType<typeof useCheckInOccupancyFromWorkspaceMutation>;
+export type CheckInOccupancyFromWorkspaceMutationResult = Apollo.MutationResult<Types.CheckInOccupancyFromWorkspaceMutation>;
+export type CheckInOccupancyFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.CheckInOccupancyFromWorkspaceMutation, Types.CheckInOccupancyFromWorkspaceMutationVariables>;
+export const RenewOccupancyFromWorkspaceDocument = gql`
+    mutation renewOccupancyFromWorkspace($data: RenewOccupancyInput!) {
+  obj: renewOccupancy(data: $data) {
+    ...OccupancyForWorkspace
+  }
+}
+    ${OccupancyForWorkspaceFragmentDoc}`;
+export type RenewOccupancyFromWorkspaceMutationFn = Apollo.MutationFunction<Types.RenewOccupancyFromWorkspaceMutation, Types.RenewOccupancyFromWorkspaceMutationVariables>;
+
+/**
+ * __useRenewOccupancyFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useRenewOccupancyFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRenewOccupancyFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [renewOccupancyFromWorkspaceMutation, { data, loading, error }] = useRenewOccupancyFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRenewOccupancyFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.RenewOccupancyFromWorkspaceMutation, Types.RenewOccupancyFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.RenewOccupancyFromWorkspaceMutation, Types.RenewOccupancyFromWorkspaceMutationVariables>(RenewOccupancyFromWorkspaceDocument, options);
+      }
+export type RenewOccupancyFromWorkspaceMutationHookResult = ReturnType<typeof useRenewOccupancyFromWorkspaceMutation>;
+export type RenewOccupancyFromWorkspaceMutationResult = Apollo.MutationResult<Types.RenewOccupancyFromWorkspaceMutation>;
+export type RenewOccupancyFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.RenewOccupancyFromWorkspaceMutation, Types.RenewOccupancyFromWorkspaceMutationVariables>;
+export const TransferOccupancyFromWorkspaceDocument = gql`
+    mutation transferOccupancyFromWorkspace($data: TransferOccupancyInput!) {
+  result: transferOccupancy(data: $data) {
+    previousOccupancy {
+      ...OccupancyForWorkspace
+    }
+    newOccupancy {
+      ...OccupancyForWorkspace
+    }
+    rentChargeGeneration {
+      createdCount
+      invoiceId
+    }
+    previousArrears {
+      amount
+      currencyCode
+      chargeCount
+    }
+  }
+}
+    ${OccupancyForWorkspaceFragmentDoc}`;
+export type TransferOccupancyFromWorkspaceMutationFn = Apollo.MutationFunction<Types.TransferOccupancyFromWorkspaceMutation, Types.TransferOccupancyFromWorkspaceMutationVariables>;
+
+/**
+ * __useTransferOccupancyFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useTransferOccupancyFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTransferOccupancyFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [transferOccupancyFromWorkspaceMutation, { data, loading, error }] = useTransferOccupancyFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useTransferOccupancyFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.TransferOccupancyFromWorkspaceMutation, Types.TransferOccupancyFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.TransferOccupancyFromWorkspaceMutation, Types.TransferOccupancyFromWorkspaceMutationVariables>(TransferOccupancyFromWorkspaceDocument, options);
+      }
+export type TransferOccupancyFromWorkspaceMutationHookResult = ReturnType<typeof useTransferOccupancyFromWorkspaceMutation>;
+export type TransferOccupancyFromWorkspaceMutationResult = Apollo.MutationResult<Types.TransferOccupancyFromWorkspaceMutation>;
+export type TransferOccupancyFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.TransferOccupancyFromWorkspaceMutation, Types.TransferOccupancyFromWorkspaceMutationVariables>;
+export const CheckOutOccupancyFromWorkspaceDocument = gql`
+    mutation checkOutOccupancyFromWorkspace($data: CheckOutOccupancyInput!) {
+  result: checkOutOccupancy(data: $data) {
+    occupancy {
+      ...OccupancyForWorkspace
+    }
+    rentChargeGeneration {
+      createdCount
+      invoiceId
+    }
+    arrears {
+      amount
+      currencyCode
+      chargeCount
+    }
+  }
+}
+    ${OccupancyForWorkspaceFragmentDoc}`;
+export type CheckOutOccupancyFromWorkspaceMutationFn = Apollo.MutationFunction<Types.CheckOutOccupancyFromWorkspaceMutation, Types.CheckOutOccupancyFromWorkspaceMutationVariables>;
+
+/**
+ * __useCheckOutOccupancyFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useCheckOutOccupancyFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCheckOutOccupancyFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [checkOutOccupancyFromWorkspaceMutation, { data, loading, error }] = useCheckOutOccupancyFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCheckOutOccupancyFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.CheckOutOccupancyFromWorkspaceMutation, Types.CheckOutOccupancyFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CheckOutOccupancyFromWorkspaceMutation, Types.CheckOutOccupancyFromWorkspaceMutationVariables>(CheckOutOccupancyFromWorkspaceDocument, options);
+      }
+export type CheckOutOccupancyFromWorkspaceMutationHookResult = ReturnType<typeof useCheckOutOccupancyFromWorkspaceMutation>;
+export type CheckOutOccupancyFromWorkspaceMutationResult = Apollo.MutationResult<Types.CheckOutOccupancyFromWorkspaceMutation>;
+export type CheckOutOccupancyFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.CheckOutOccupancyFromWorkspaceMutation, Types.CheckOutOccupancyFromWorkspaceMutationVariables>;
+export const CancelOccupancyFromWorkspaceDocument = gql`
+    mutation cancelOccupancyFromWorkspace($data: CancelOccupancyInput!) {
+  obj: cancelOccupancy(data: $data) {
+    ...OccupancyForWorkspace
+  }
+}
+    ${OccupancyForWorkspaceFragmentDoc}`;
+export type CancelOccupancyFromWorkspaceMutationFn = Apollo.MutationFunction<Types.CancelOccupancyFromWorkspaceMutation, Types.CancelOccupancyFromWorkspaceMutationVariables>;
+
+/**
+ * __useCancelOccupancyFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useCancelOccupancyFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelOccupancyFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelOccupancyFromWorkspaceMutation, { data, loading, error }] = useCancelOccupancyFromWorkspaceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCancelOccupancyFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<Types.CancelOccupancyFromWorkspaceMutation, Types.CancelOccupancyFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CancelOccupancyFromWorkspaceMutation, Types.CancelOccupancyFromWorkspaceMutationVariables>(CancelOccupancyFromWorkspaceDocument, options);
+      }
+export type CancelOccupancyFromWorkspaceMutationHookResult = ReturnType<typeof useCancelOccupancyFromWorkspaceMutation>;
+export type CancelOccupancyFromWorkspaceMutationResult = Apollo.MutationResult<Types.CancelOccupancyFromWorkspaceMutation>;
+export type CancelOccupancyFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<Types.CancelOccupancyFromWorkspaceMutation, Types.CancelOccupancyFromWorkspaceMutationVariables>;
+export const GetRentalUnitsForSelectDocument = gql`
+    query getRentalUnitsForSelect($where: RentalUnitWhereInput) {
+  rentalUnits: allRentalUnits(where: $where, sortBy: [name_ASC], first: 200) {
+    id
+    name
+    unitType
+    rentable
+    capacity
+    defaultMonthlyRate
+    parent {
+      id
+      name
+      unitType
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRentalUnitsForSelectQuery__
+ *
+ * To run a query within a React component, call `useGetRentalUnitsForSelectQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRentalUnitsForSelectQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRentalUnitsForSelectQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetRentalUnitsForSelectQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>(GetRentalUnitsForSelectDocument, options);
+      }
+export function useGetRentalUnitsForSelectLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>(GetRentalUnitsForSelectDocument, options);
+        }
+// @ts-ignore
+export function useGetRentalUnitsForSelectSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>;
+export function useGetRentalUnitsForSelectSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetRentalUnitsForSelectQuery | undefined, Types.GetRentalUnitsForSelectQueryVariables>;
+export function useGetRentalUnitsForSelectSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>(GetRentalUnitsForSelectDocument, options);
+        }
+export type GetRentalUnitsForSelectQueryHookResult = ReturnType<typeof useGetRentalUnitsForSelectQuery>;
+export type GetRentalUnitsForSelectLazyQueryHookResult = ReturnType<typeof useGetRentalUnitsForSelectLazyQuery>;
+export type GetRentalUnitsForSelectSuspenseQueryHookResult = ReturnType<typeof useGetRentalUnitsForSelectSuspenseQuery>;
+export type GetRentalUnitsForSelectQueryResult = Apollo.QueryResult<Types.GetRentalUnitsForSelectQuery, Types.GetRentalUnitsForSelectQueryVariables>;
+export const GetResidentRentalDashboardDocument = gql`
+    query getResidentRentalDashboard($residentId: ID!) {
+  result: residentRentalDashboard(data: {residentId: $residentId}) {
+    currentRentalUnit {
+      id
+      name
+      unitType
+      property {
+        id
+        address
+        addressKey
+      }
+    }
+    occupancyStatus
+    billingFrequency
+    monthlyRate
+    arrearsTotal
+    nextDueDate
+    unpaidRentCharges {
+      id
+      billingMonth
+      periodStart
+      periodEnd
+      dueDate
+      amount
+      currencyCode
+      status
+      invoice {
+        id
+        status
+      }
+    }
+    linkedUnpaidInvoices {
+      id
+      status
+      toPay
+      currencyCode
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetResidentRentalDashboardQuery__
+ *
+ * To run a query within a React component, call `useGetResidentRentalDashboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetResidentRentalDashboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetResidentRentalDashboardQuery({
+ *   variables: {
+ *      residentId: // value for 'residentId'
+ *   },
+ * });
+ */
+export function useGetResidentRentalDashboardQuery(baseOptions: Apollo.QueryHookOptions<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables> & ({ variables: Types.GetResidentRentalDashboardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>(GetResidentRentalDashboardDocument, options);
+      }
+export function useGetResidentRentalDashboardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>(GetResidentRentalDashboardDocument, options);
+        }
+// @ts-ignore
+export function useGetResidentRentalDashboardSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>;
+export function useGetResidentRentalDashboardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetResidentRentalDashboardQuery | undefined, Types.GetResidentRentalDashboardQueryVariables>;
+export function useGetResidentRentalDashboardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>(GetResidentRentalDashboardDocument, options);
+        }
+export type GetResidentRentalDashboardQueryHookResult = ReturnType<typeof useGetResidentRentalDashboardQuery>;
+export type GetResidentRentalDashboardLazyQueryHookResult = ReturnType<typeof useGetResidentRentalDashboardLazyQuery>;
+export type GetResidentRentalDashboardSuspenseQueryHookResult = ReturnType<typeof useGetResidentRentalDashboardSuspenseQuery>;
+export type GetResidentRentalDashboardQueryResult = Apollo.QueryResult<Types.GetResidentRentalDashboardQuery, Types.GetResidentRentalDashboardQueryVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   propertyScopeProperty: allPropertyScopeProperties(
@@ -7126,6 +7765,11 @@ export const GetTicketsDocument = gql`
     floorName
     unitType
     unitName
+    rentalUnit {
+      id
+      name
+      unitType
+    }
     details
     clientName
     clientPhone
@@ -7257,6 +7901,11 @@ export const GetTicketsForAiAssistantDocument = gql`
     floorName
     unitType
     unitName
+    rentalUnit {
+      id
+      name
+      unitType
+    }
     details
     clientName
     clientPhone
@@ -7355,6 +8004,11 @@ export const GetTicketWithDetailsForAiAssistantDocument = gql`
     floorName
     unitType
     unitName
+    rentalUnit {
+      id
+      name
+      unitType
+    }
     details
     clientName
     clientPhone
@@ -7484,6 +8138,11 @@ export const GetTicketsForClientCardDocument = gql`
     floorName
     unitType
     unitName
+    rentalUnit {
+      id
+      name
+      unitType
+    }
     details
     clientName
     clientPhone
@@ -7766,6 +8425,11 @@ export const GetTicketByIdDocument = gql`
     completedAt
     unitType
     unitName
+    rentalUnit {
+      id
+      name
+      unitType
+    }
     sectionName
     sectionType
     floorName
@@ -8189,6 +8853,11 @@ export const CreateTicketDocument = gql`
     }
     unitName
     unitType
+    rentalUnit {
+      id
+      name
+      unitType
+    }
   }
 }
     `;
@@ -8225,6 +8894,11 @@ export const UpdateTicketDocument = gql`
     clientPhone
     unitName
     unitType
+    rentalUnit {
+      id
+      name
+      unitType
+    }
   }
 }
     `;

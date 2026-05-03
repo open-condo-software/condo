@@ -14,23 +14,23 @@ const OccupancyLifecycleService = new GQLCustomSchema('OccupancyLifecycleService
     types: [
         {
             access: true,
-            type: 'input ReserveRentalUnitInput { dv: Int!, sender: SenderFieldInput!, organizationId: ID, propertyId: ID, tenantId: ID!, rentalUnitId: ID!, startDate: CalendarDay!, expectedEndDate: CalendarDay, monthlyRate: String, billingFrequency: String }',
+            type: 'input ReserveRentalUnitInput { dv: Int!, sender: SenderFieldInput!, organizationId: ID, propertyId: ID, tenantId: ID!, rentalUnitId: ID!, startDate: String!, expectedEndDate: String, monthlyRate: String, billingFrequency: String }',
         },
         {
             access: true,
-            type: 'input CheckInOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID, organizationId: ID, propertyId: ID, tenantId: ID, rentalUnitId: ID, startDate: CalendarDay, expectedEndDate: CalendarDay, monthlyRate: String, billingFrequency: String, allowConcurrentOccupancy: Boolean }',
+            type: 'input CheckInOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID, organizationId: ID, propertyId: ID, tenantId: ID, rentalUnitId: ID, startDate: String, expectedEndDate: String, monthlyRate: String, billingFrequency: String, allowConcurrentOccupancy: Boolean }',
         },
         {
             access: true,
-            type: 'input RenewOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID!, expectedEndDate: CalendarDay!, monthlyRate: String, billingFrequency: String }',
+            type: 'input RenewOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID!, expectedEndDate: String!, monthlyRate: String, billingFrequency: String }',
         },
         {
             access: true,
-            type: 'input CheckOutOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID!, actualEndDate: CalendarDay!, createFinalCharges: Boolean }',
+            type: 'input CheckOutOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID!, actualEndDate: String!, createFinalCharges: Boolean }',
         },
         {
             access: true,
-            type: 'input TransferOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID!, targetRentalUnitId: ID!, transferDate: CalendarDay!, expectedEndDate: CalendarDay, monthlyRate: String, billingFrequency: String, createFinalCharges: Boolean }',
+            type: 'input TransferOccupancyInput { dv: Int!, sender: SenderFieldInput!, occupancyId: ID!, targetRentalUnitId: ID!, transferDate: String!, expectedEndDate: String, monthlyRate: String, billingFrequency: String, createFinalCharges: Boolean }',
         },
         {
             access: true,

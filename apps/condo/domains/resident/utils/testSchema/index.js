@@ -4,12 +4,14 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { gql } = require('graphql-tag')
 const { get } = require('lodash')
 
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FIND_UNITS_BY_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -18,7 +20,8 @@ const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { RENTAL_UNIT_TYPE_APARTMENT } = require('@condo/domains/property/constants/rental')
+const { Property, createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     Resident: ResidentGQL,
@@ -39,7 +42,117 @@ const { makeClientWithResidentUser } = require(
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
 
+const CREATE_RENTAL_UNIT_MUTATION = gql`
+    mutation createRentalUnit ($data: RentalUnitCreateInput) {
+        obj: createRentalUnit(data: $data) {
+            id
+            name
+            unitType
+            property { id }
+            organization { id }
+        }
+    }
+`
+
+const CREATE_BILLING_POLICY_MUTATION = gql`
+    mutation createBillingPolicy ($data: BillingPolicyCreateInput) {
+        obj: createBillingPolicy(data: $data) {
+            id
+        }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
+
+function getRelateToOneId (value) {
+    if (!value) return null
+    if (typeof value === 'string') return value
+    return get(value, 'connect.id') || get(value, 'id') || null
+}
+
+async function mutate (client, query, data) {
+    const { data: result, errors } = await client.mutate(query, { data })
+    throwIfError(result, errors)
+    return result.obj
+}
+
+async function createTestRentalUnit (client, organization, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!property || !property.id) throw new Error('no property.id')
+
+    return await mutate(client, CREATE_RENTAL_UNIT_MUTATION, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+        name: faker.random.alphaNumeric(8),
+        capacity: 1,
+        ...extraAttrs,
+    })
+}
+
+async function createTestBillingPolicy (client, organization, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!property || !property.id) throw new Error('no property.id')
+
+    return await mutate(client, CREATE_BILLING_POLICY_MUTATION, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    })
+}
+
+async function ensureResidentRegistrationRentalUnit (client, extraAttrs = {}) {
+    const rentalUnitId = getRelateToOneId(extraAttrs.rentalUnit)
+    if (rentalUnitId) {
+        return {
+            property: extraAttrs.property || client.property || null,
+            rentalUnit: {
+                id: rentalUnitId,
+                name: extraAttrs.unitName || null,
+                unitType: extraAttrs.unitType || null,
+            },
+        }
+    }
+
+    const adminClient = await makeLoggedInAdminClient()
+    let property = extraAttrs.property || client.property || null
+    const requestedAddress = extraAttrs.address || get(property, 'address')
+    const requestedAddressMeta = extraAttrs.addressMeta || get(property, 'addressMeta')
+
+    if (!property && requestedAddress) {
+        const [existingProperty] = await Property.getAll(adminClient, {
+            address: requestedAddress,
+            deletedAt: null,
+        })
+        property = existingProperty || null
+    }
+
+    if (!property) {
+        const [organization] = await createTestOrganization(adminClient)
+        const [createdProperty] = await createTestProperty(adminClient, organization, {
+            ...(requestedAddress ? { address: requestedAddress } : {}),
+            ...(requestedAddressMeta ? { addressMeta: requestedAddressMeta } : {}),
+        })
+        property = createdProperty
+    }
+
+    const organization = get(property, 'organization') || client.organization || null
+    if (organization && organization.id) {
+        await createTestBillingPolicy(adminClient, organization, property)
+    }
+
+    const rentalUnit = await createTestRentalUnit(adminClient, organization, property, {
+        name: extraAttrs.unitName || faker.random.alphaNumeric(3),
+        unitType: RENTAL_UNIT_TYPE_APARTMENT,
+    })
+
+    return { property, rentalUnit }
+}
 
 async function createTestResident (client, user, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -84,16 +197,28 @@ async function registerResidentByTestClient (client, extraAttrs = {}, withFlat =
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const { address, addressMeta } = buildFakeAddressAndMeta(withFlat)
-    const unitName = faker.random.alphaNumeric(3)
+    const {
+        property: unusedProperty,
+        rentalUnit: unusedRentalUnit,
+        unitType: extraUnitType,
+        ...residentExtraAttrs
+    } = extraAttrs
+    const { property, rentalUnit } = await ensureResidentRegistrationRentalUnit(client, extraAttrs)
+
+    const generatedAddress = buildFakeAddressAndMeta(withFlat)
+    const address = residentExtraAttrs.address || get(property, 'address') || generatedAddress.address
+    const addressMeta = residentExtraAttrs.addressMeta || get(property, 'addressMeta') || generatedAddress.addressMeta
+    const unitName = residentExtraAttrs.unitName || rentalUnit.name || faker.random.alphaNumeric(3)
 
     const attrs = {
         dv: 1,
         sender,
         address,
         addressMeta,
+        rentalUnit: rentalUnit.id,
         unitName,
-        ...extraAttrs,
+        unitType: extraUnitType || rentalUnit.unitType || FLAT_UNIT_TYPE,
+        ...residentExtraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_RESIDENT_MUTATION, { data: attrs })
     throwIfError(data, errors)
@@ -280,6 +405,7 @@ async function suggestServiceProviderByTestClient(client, attrs = {}) {
 
 module.exports = {
     Resident, createTestResident, updateTestResident,
+    createTestRentalUnit, createTestBillingPolicy,
     registerResidentByTestClient, makeClientWithResident,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
     makeClientWithServiceConsumer,

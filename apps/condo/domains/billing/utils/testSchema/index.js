@@ -41,10 +41,11 @@ const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = r
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 /* AUTOGENERATE MARKER <IMPORT> */
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { RENTAL_UNIT_TYPE_APARTMENT } = require('@condo/domains/property/constants/rental')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestRentalUnit, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -297,6 +298,30 @@ async function updateTestBillingProperties (client, attrsArray) {
 async function createTestBillingAccount (client, context, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const { rentalUnit: ignoredRentalUnit, ...accountExtraAttrs } = extraAttrs
+
+    let rentalUnit = get(extraAttrs, 'rentalUnit')
+    if (!rentalUnit) {
+        const adminClient = await makeLoggedInAdminClient()
+        const organization = get(property, 'context.organization')
+        let linkedProperty = get(property, 'property')
+
+        if (!linkedProperty && organization && organization.id) {
+            const [createdProperty] = await createTestProperty(adminClient, organization, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
+            linkedProperty = createdProperty
+        }
+
+        if (organization && organization.id && linkedProperty && linkedProperty.id) {
+            const createdRentalUnit = await createTestRentalUnit(adminClient, organization, linkedProperty, {
+                name: accountExtraAttrs.unitName || faker.random.alphaNumeric(8),
+                unitType: RENTAL_UNIT_TYPE_APARTMENT,
+            })
+            rentalUnit = { connect: { id: createdRentalUnit.id } }
+        }
+    }
 
     const attrs = {
         dv: 1,
@@ -311,7 +336,8 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
             dv: 1,
             test: 123,
         },
-        ...extraAttrs,
+        ...accountExtraAttrs,
+        ...(rentalUnit ? { rentalUnit } : {}),
     }
     const obj = await BillingAccount.create(client, attrs)
     return [obj, attrs]
@@ -327,6 +353,32 @@ async function createTestBillingAccounts (client, contexts, properties, extraAtt
     const attrsArray = []
 
     for (let i = 0; i < contexts.length; i++) {
+        const rawExtraAttrs = get(extraAttrsArray, `${i}`, {})
+        const { rentalUnit: ignoredRentalUnit, ...accountExtraAttrs } = rawExtraAttrs
+        let rentalUnit = get(rawExtraAttrs, 'rentalUnit')
+
+        if (!rentalUnit) {
+            const adminClient = await makeLoggedInAdminClient()
+            const organization = get(properties[i], 'context.organization')
+            let linkedProperty = get(properties[i], 'property')
+
+            if (!linkedProperty && organization && organization.id) {
+                const [createdProperty] = await createTestProperty(adminClient, organization, {
+                    address: properties[i].address,
+                    addressMeta: properties[i].addressMeta,
+                })
+                linkedProperty = createdProperty
+            }
+
+            if (organization && organization.id && linkedProperty && linkedProperty.id) {
+                const createdRentalUnit = await createTestRentalUnit(adminClient, organization, linkedProperty, {
+                    name: accountExtraAttrs.unitName || faker.random.alphaNumeric(8),
+                    unitType: RENTAL_UNIT_TYPE_APARTMENT,
+                })
+                rentalUnit = { connect: { id: createdRentalUnit.id } }
+            }
+        }
+
         attrsArray.push({
             data: {
                 dv: 1,
@@ -341,7 +393,8 @@ async function createTestBillingAccounts (client, contexts, properties, extraAtt
                     dv: 1,
                     test: 123,
                 },
-                ...get(extraAttrsArray, `${i}`, {}),
+                ...accountExtraAttrs,
+                ...(rentalUnit ? { rentalUnit } : {}),
             },
         })
     }
@@ -960,5 +1013,4 @@ module.exports = {
     registerBillingReceiptFileByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
-
 

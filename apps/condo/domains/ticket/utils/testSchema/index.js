@@ -5,6 +5,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const { gql } = require('graphql-tag')
 const { get } = require('lodash')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
@@ -13,7 +14,10 @@ const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { EXCEL } = require('@condo/domains/common/constants/export')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { RENTAL_UNIT_TYPE_APARTMENT } = require('@condo/domains/property/constants/rental')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { OCCUPANCY_STATUS_ACTIVE } = require('@condo/domains/resident/constants/occupancy')
+const { createTestBillingPolicy, createTestRentalUnit, Resident } = require('@condo/domains/resident/utils/testSchema')
 const { Ticket: TicketGQL, EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
@@ -47,11 +51,28 @@ const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ti
 const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketAutoAssignment: TicketAutoAssignmentGQL } = require('@condo/domains/ticket/gql')
 const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskGQL } = require('@condo/domains/ticket/gql')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
 const { TicketObserver: TicketObserverGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
+
+const CREATE_OCCUPANCY_MUTATION = gql`
+    mutation createOccupancy ($data: OccupancyCreateInput) {
+        obj: createOccupancy(data: $data) {
+            id
+        }
+    }
+`
+
+const GET_ACTIVE_OCCUPANCIES_QUERY = gql`
+    query getActiveOccupancies ($tenantId: ID!) {
+        allOccupancies(where: { tenant: { id: $tenantId }, status: active, deletedAt: null }, first: 1) {
+            id
+        }
+    }
+`
 
 const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
@@ -88,13 +109,55 @@ const TicketDocumentGenerationTask = generateGQLTestUtils(TicketDocumentGenerati
 const TicketObserver = generateGQLTestUtils(TicketObserverGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+async function ensureActiveOccupancyForResidentTicket (client, organization, property, unitName) {
+    if (get(client, 'user.type') !== RESIDENT) return
+
+    const adminClient = await makeLoggedInAdminClient()
+    const [resident] = await Resident.getAll(adminClient, {
+        user: { id: client.user.id },
+        property: { id: property.id },
+        deletedAt: null,
+    })
+
+    if (!resident) return
+
+    const { data: activeOccupancyData, errors: activeOccupancyErrors } = await adminClient.query(GET_ACTIVE_OCCUPANCIES_QUERY, {
+        tenantId: resident.id,
+    })
+    throwIfError(activeOccupancyData, activeOccupancyErrors)
+
+    if (get(activeOccupancyData, 'allOccupancies.length')) return
+
+    await createTestBillingPolicy(adminClient, organization, property)
+    const rentalUnit = await createTestRentalUnit(adminClient, organization, property, {
+        name: unitName,
+        unitType: RENTAL_UNIT_TYPE_APARTMENT,
+    })
+    const { data, errors } = await adminClient.mutate(CREATE_OCCUPANCY_MUTATION, {
+        data: {
+            dv: 1,
+            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+            organization: { connect: { id: organization.id } },
+            tenant: { connect: { id: resident.id } },
+            property: { connect: { id: property.id } },
+            rentalUnit: { connect: { id: rentalUnit.id } },
+            startDate: new Date().toISOString().slice(0, 10),
+            monthlyRate: '100',
+            status: OCCUPANCY_STATUS_ACTIVE,
+        },
+    })
+    throwIfError(data, errors)
+}
+
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const details = faker.random.alphaNumeric(10)
-    const unitName = faker.random.alphaNumeric(5)
+    const unitName = extraAttrs.unitName || faker.random.alphaNumeric(5)
+
+    await ensureActiveOccupancyForResidentTicket(client, organization, property, unitName)
 
     const attrs = {
         dv: 1,

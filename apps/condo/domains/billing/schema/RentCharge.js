@@ -109,7 +109,7 @@ const RentCharge = new GQLListSchema('RentCharge', {
         invoice: {
             schemaDoc: 'Marketplace invoice generated from this rent charge',
             type: 'Relationship',
-            ref: 'Invoice',
+            ref: 'Invoice.rentCharges',
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },

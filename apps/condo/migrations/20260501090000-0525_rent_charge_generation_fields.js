@@ -28,6 +28,8 @@ ALTER TABLE "RentChargeHistoryRecord" ADD COLUMN IF NOT EXISTS "periodEnd" date 
 ALTER TABLE "RentChargeHistoryRecord" ADD COLUMN IF NOT EXISTS "dueDate" date NULL;
 ALTER TABLE "RentChargeHistoryRecord" ADD COLUMN IF NOT EXISTS "currencyCode" text NULL;
 
+DROP VIEW IF EXISTS "analytics"."RentCharge";
+
 CREATE OR REPLACE VIEW "analytics"."RentCharge" AS (
     SELECT
         "amount", "billingMonth", "billingReceipt", "createdAt", "createdBy",
@@ -45,6 +47,8 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
 BEGIN;
+
+DROP VIEW IF EXISTS "analytics"."RentCharge";
 
 CREATE OR REPLACE VIEW "analytics"."RentCharge" AS (
     SELECT

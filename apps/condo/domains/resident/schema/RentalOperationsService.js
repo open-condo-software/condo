@@ -16,7 +16,7 @@ const RentalOperationsService = new GQLCustomSchema('RentalOperationsService', {
     types: [
         {
             access: true,
-            type: 'input RentalAvailabilityInput { organizationId: ID, propertyId: ID!, startDate: CalendarDay, expectedEndDate: CalendarDay, unitType: String }',
+            type: 'input RentalAvailabilityInput { organizationId: ID, propertyId: ID!, startDate: String, expectedEndDate: String, unitType: String }',
         },
         {
             access: true,
@@ -24,7 +24,7 @@ const RentalOperationsService = new GQLCustomSchema('RentalOperationsService', {
         },
         {
             access: true,
-            type: 'input ExpiringOccupanciesInput { organizationId: ID, propertyId: ID, dateFrom: CalendarDay, dateTo: CalendarDay }',
+            type: 'input ExpiringOccupanciesInput { organizationId: ID, propertyId: ID, dateFrom: String, dateTo: String }',
         },
         {
             access: true,
@@ -68,7 +68,7 @@ const RentalOperationsService = new GQLCustomSchema('RentalOperationsService', {
         },
         {
             access: true,
-            type: 'type ResidentRentalDashboard { currentRentalUnit: RentalUnit, occupancyStatus: String, billingFrequency: String, monthlyRate: String, unpaidRentCharges: [RentCharge!]!, linkedUnpaidInvoices: [Invoice!]!, arrearsTotal: String!, nextDueDate: CalendarDay }',
+            type: 'type ResidentRentalDashboard { currentRentalUnit: RentalUnit, occupancyStatus: String, billingFrequency: String, monthlyRate: String, unpaidRentCharges: [RentCharge!]!, linkedUnpaidInvoices: [Invoice!]!, arrearsTotal: String!, nextDueDate: String }',
         },
         {
             access: true,

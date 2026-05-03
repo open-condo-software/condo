@@ -70,7 +70,7 @@ async function getActiveOccupancy (params = {}) {
 
 async function getActiveOccupancyByGraphQL (context, { tenantId }, fields) {
     const today = getToday()
-    const [occupancy] = await context.executeGraphQL({
+    const result = await Promise.resolve(context.executeGraphQL({
         context,
         query: `query ($tenantId: ID!, $today: CalendarDay) {
             occupancies(
@@ -91,7 +91,9 @@ async function getActiveOccupancyByGraphQL (context, { tenantId }, fields) {
             }
         }`,
         variables: { tenantId, today },
-    }).then(result => result.data.occupancies)
+    }))
+    const data = result.data || result || {}
+    const [occupancy] = data.occupancies || []
 
     return occupancy || null
 }
