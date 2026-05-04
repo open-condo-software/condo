@@ -1,31 +1,47 @@
 const get = require('lodash/get')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
+const { NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
-const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
+const { NewsItemSharing, NewsItemFile } = require('@condo/domains/news/utils/serverSchema')
 
 
 const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishNewsItemSharing' } }
 
-const DEFAULT_TIMEOUT = 20 * 1000
+const DEFAULT_TIMEOUT_IN_MS = 30 * 1000
+const DEFAULT_TIMEOUT_BY_FILE_IN_MS = 5 * 60 * 1000
+const MAX_FILES_BY_NEWS_ITEM = 10
 
+
+async function getTimeout (files) {
+    if (!Array.isArray(files)) return DEFAULT_TIMEOUT_IN_MS
+
+    const timeoutInSecondsByFileInMsFromFeatureFlag = await featureToggleManager.getFeatureValue(
+        null, NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM, DEFAULT_TIMEOUT_BY_FILE_IN_MS
+    ) || DEFAULT_TIMEOUT_BY_FILE_IN_MS
+    const timeoutInSecondsByFileInMs = Math.max(timeoutInSecondsByFileInMsFromFeatureFlag, DEFAULT_TIMEOUT_BY_FILE_IN_MS)
+
+    // NOTE: Files can take a long time to load, so we give each file more time to load
+    return DEFAULT_TIMEOUT_IN_MS + (files.length * timeoutInSecondsByFileInMs)
+}
 
 async function _publishNewsItemSharing (newsItem, newsItemSharing){
-    const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
+    const { keystone: keystoneContext } = getSchemaCtx('NewsItemSharing')
 
     if (!newsItem || !newsItemSharing) {
         throw new Error('no news item or news item sharing')
     }
 
     if (newsItemSharing.status !== STATUSES.SCHEDULED) return
-    await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+    await NewsItemSharing.update(keystoneContext, newsItemSharing.id, {
         ...DV_SENDER,
         status: STATUSES.PROCESSING,
     })
@@ -89,6 +105,13 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
         })
 
         const properties = await find('Property', { organization: { id: organizationId }, deletedAt: null })
+        const files = await NewsItemFile.getAll(keystoneContext, {
+            newsItem: { id: newsItem.id, deletedAt: null },
+            deletedAt: null,
+        }, 'id file { publicUrl originalFilename mimetype }', {
+            sortBy: ['createdAt_ASC'],
+            first: MAX_FILES_BY_NEWS_ITEM,
+        })
 
         const publishData = {
             newsItem: {
@@ -113,6 +136,8 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
                 addressMeta: property.addressMeta,
             })),
 
+            files,
+
             organization: {
                 tin: organization.tin,
                 id: organizationId,
@@ -120,20 +145,22 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
             },
         }
 
+        const timeout = await getTimeout(files)
+
         const response = await fetch(publishUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(publishData),
-            abortRequestTimeout: DEFAULT_TIMEOUT,
+            abortRequestTimeout: timeout,
         })
 
         if (response.status !== 200) {
             const parsedResponse = await response.json()
 
             logger.error({ msg: 'newsSharing error: tried to publish, but failed', data: { parsedResponse } })
-            await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+            await NewsItemSharing.update(keystoneContext, newsItemSharing.id, {
                 ...DV_SENDER,
                 status: STATUSES.ERROR,
                 lastPostRequest: parsedResponse,
@@ -141,14 +168,14 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
         }
 
         if (response.status === 200) {
-            await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+            await NewsItemSharing.update(keystoneContext, newsItemSharing.id, {
                 ...DV_SENDER,
                 status: STATUSES.PUBLISHED,
             })
         }
     } catch (err) {
         logger.error({ msg: 'newsSharing error: could not publish shared news item', err  })
-        await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+        await NewsItemSharing.update(keystoneContext, newsItemSharing.id, {
             ...DV_SENDER,
             status: STATUSES.ERROR,
             lastPostRequest: err.message,
@@ -162,7 +189,6 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
  * @returns {Promise<void>}
  */
 async function publishNewsItemSharing (newsItemSharingId) {
-
     const newsItemSharing = await getById('NewsItemSharing', newsItemSharingId)
     const newsItem = await getById('NewsItem', newsItemSharing.newsItem)
 

@@ -87,13 +87,31 @@ const iconRender = (file) => {
     return ''
 }
 
-async function tryCreateThumbnailFromUrl (type, url) {
+const THUMBNAIL_CACHE = new Map()
+
+/**
+ * The function attempts to generate a thumbnail for a photo or video, or returns a cached one
+ * @param mimetype Mimetype
+ * @param url Url to file
+ * @param id Used as a key for thumbnail caching
+ */
+async function tryCreateThumbnailFromUrl (mimetype?: string, url?: string, id?: string) {
+    if (!mimetype || !url) return
+
+    if (id && THUMBNAIL_CACHE.has(id)) {
+        return THUMBNAIL_CACHE.get(id)
+    }
+
     try {
-        if (type?.startsWith('image/')) {
-            return await createImageThumbnailFromUrl(url)
+        if (mimetype?.startsWith('image/')) {
+            const thumbnail = await createImageThumbnailFromUrl(url)
+            if (thumbnail) THUMBNAIL_CACHE.set(id, thumbnail)
+            return thumbnail
         }
-        if (type?.startsWith('video/')) {
-            return await createVideoThumbnailFromUrl(url)
+        if (mimetype?.startsWith('video/')) {
+            const thumbnail = await createVideoThumbnailFromUrl(url)
+            if (thumbnail) THUMBNAIL_CACHE.set(id, thumbnail)
+            return thumbnail
         }
     } catch (error) {
         console.log('Cannot create thumbnail from url')
@@ -182,7 +200,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
                     if (file.thumbUrl) return file
 
                     try {
-                        const thumb = await tryCreateThumbnailFromUrl(file.response?.mimetype, file.url)
+                        const thumb = await tryCreateThumbnailFromUrl(file.response?.mimetype, file.url, file.id)
                         if (!thumb) return file
 
                         return {
@@ -243,7 +261,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
         try {
             const dbFile = await createAction({ file })
 
-            const thumbnail = (await tryCreateThumbnailFromUrl(file.type, dbFile?.file?.publicUrl)) || ''
+            const thumbnail = (await tryCreateThumbnailFromUrl(file.type, dbFile?.file?.publicUrl, dbFile?.id)) || ''
 
             updateFileList({ type: 'add', payload: dbFile })
 

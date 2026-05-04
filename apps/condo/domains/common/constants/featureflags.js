@@ -49,6 +49,7 @@ const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
 const TWO_FACTOR_SETTING = 'two-factor-setting'
 const NEWS_ITEM_FILES = 'news-item-files'
+const NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM = 'news-item-file-publishing-timeout-by-news-item'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -102,4 +103,5 @@ module.exports = {
     TWO_FACTOR_SETTING,
     AI_STREAMING,
     NEWS_ITEM_FILES,
+    NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM,
 }

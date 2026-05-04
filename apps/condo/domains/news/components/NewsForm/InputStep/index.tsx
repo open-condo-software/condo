@@ -14,6 +14,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { createVideoPreviewFromUrl, getImagePreviewFromUrl } from '@condo/domains/news/components/FilesPreview/ImageOrVideoPreview'
 import { Action, convertFilesToUploadType, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import {
     getTypeAndNameByKey,
@@ -99,7 +100,7 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     initialFormValues: Record<string, unknown> & Properties
 }
 
-const debouncedPostMessage = debounce((iframeRef, url, title, body, scope) => {
+const debouncedPostMessage = debounce((iframeRef, url, title, body, scope, previewFiles) => {
     if (!iframeRef.current) return
 
     iframeRef.current.contentWindow.postMessage({
@@ -107,6 +108,7 @@ const debouncedPostMessage = debounce((iframeRef, url, title, body, scope) => {
         title,
         body,
         scope: JSON.stringify(scope),
+        previewFiles,
     }, url)
 }, 300)
 
@@ -242,11 +244,54 @@ export const InputStep: React.FC<InputStepProps> = ({
         setSharingAppFormValues(processedInitialValues)
     }, [processedInitialValues])
 
+    const [filesWithPreviews, setFilesWithPreviews] = useState(null)
+    useEffect(() => {
+        const process = async () => {
+            const filesWithPreviews = await Promise.all(
+                (files).map(async (file) => {
+                    try {
+                        let preview = ''
+                        if (file.response?.mimetype?.startsWith('image/')) {
+                            preview = await getImagePreviewFromUrl(file.url, file.response.id || file.uid)
+                        }
+                        if (file.response?.mimetype?.startsWith('video/')) {
+                            preview = await createVideoPreviewFromUrl(file.url, file.response.id || file.uid)
+                        }
+
+                        if (!preview) return file
+
+                        return {
+                            ...file,
+                            preview,
+                        }
+                    } catch (e) {
+                        console.error(e)
+                        return file
+                    }
+                })
+            )
+
+            setFilesWithPreviews(filesWithPreviews)
+        }
+
+        process()
+    }, [files])
+
     const handleSharingAppIFrameFormMessage = useCallback((event) => {
         const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
 
         if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventCtxId) {
             setSharingAppFormValues(prev => ({ ...prev, formValues, preview, isValid }))
+        }
+        if (handler === 'handleSharingAppIFrameInitPreviewMessage' && sharingAppId === eventCtxId) {
+            const preparedFiles = filesWithPreviews?.map(fileWithPreview => ({
+                id: fileWithPreview.id || fileWithPreview.response?.id || fileWithPreview.uid,
+                previewUrl: fileWithPreview.preview,
+                mimetype: fileWithPreview.response?.mimetype,
+                name: fileWithPreview.name || fileWithPreview.response?.originalName,
+            }))
+
+            debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope, preparedFiles)
         }
     }, [sharingAppId])
 
@@ -282,13 +327,20 @@ export const InputStep: React.FC<InputStepProps> = ({
         const title = sharingAppFormValues?.preview.renderedTitle || selectedTitle
         const body = sharingAppFormValues?.preview.renderedBody || selectedBody
         const scope = sharingAppFormValues?.scope
+        const preparedFiles = filesWithPreviews?.map(fileWithPreview => ({
+            id: fileWithPreview.id || fileWithPreview.response?.id || fileWithPreview.uid,
+            name: fileWithPreview.name || fileWithPreview.response?.originalName,
+            url: fileWithPreview.url || fileWithPreview.response?.url,
+            previewUrl: fileWithPreview.preview,
+            mimetype: fileWithPreview.response?.mimetype,
+        }))
 
-        debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope)
+        debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope, preparedFiles)
 
         return () => {
             debouncedPostMessage.cancel()
         }
-    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep])
+    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep, filesWithPreviews])
 
     useEffect(() => {
         if (!isCustomForm && !isCustomPreview) return
