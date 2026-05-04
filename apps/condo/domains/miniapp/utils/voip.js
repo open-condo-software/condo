@@ -1,8 +1,10 @@
-const { randomBytes, timingSafeEqual } = require('crypto')
+const { timingSafeEqual } = require('crypto')
+
 
 const { z } = require('zod')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils/helpers/uuid')
 const KEY_PREFIX = 'voipCallStatus'
 const kv = getKVClient(KEY_PREFIX)
 const CALL_STATUS_TTL_IN_SECONDS = 60 * 3 // 3 minutes
@@ -48,7 +50,7 @@ function buildKey (b2cAppId, organizationId, propertyId, callId) {
 }
 
 function generateCallStatusToken () {
-    return randomBytes(32).toString('base64')
+    return generateUUIDv4()
 }
 
 // NOTE(YEgorLu): startingMessagesIdsByUserIds present for older mobile apps compatibility, as they use this to cancel calls.
@@ -64,8 +66,8 @@ async function setCallStatus ({ callStatusToken, b2cAppId, organizationId, prope
     )
 }
 
-async function getCallStatus ({ callStatusToken, b2cAppId, organizationId, propertyId, callId }) {
-    if (!callStatusToken || !isCallIdValid(callId)) return null
+async function getCallStatus ({ b2cAppId, organizationId, propertyId, callId }) {
+    if (!isCallIdValid(callId)) return null
     const res = await kv.get(buildKey(b2cAppId, organizationId, propertyId, callId))
     if (!res) return null
     try {
@@ -73,23 +75,27 @@ async function getCallStatus ({ callStatusToken, b2cAppId, organizationId, prope
         const { success, data } = CALL_STATUS_SCHEMA.safeParse(parsedJSON)
 
         if (!success) return null
-
-        const innerToken = data.callStatusToken
-        if (!innerToken) return null
-
-        const outerTokenBuffer = Buffer.from(callStatusToken, 'base64')
-        const innerTokenBuffer = Buffer.from(innerToken, 'base64')
-        const isEqual = timingSafeEqual(outerTokenBuffer, innerTokenBuffer)
-        if (isEqual) return data
+        return data
     } catch {
         return null
     }
-    return null
+}
+
+function isCallStatusTokenEqual ({ callStatusToken, callStatus }) {
+    if (!callStatus?.callStatusToken || !callStatusToken) return false
+    
+    const outerTokenBuffer = Buffer.from(callStatusToken)
+    const innerTokenBuffer = Buffer.from(callStatus.callStatusToken)
+
+    if (outerTokenBuffer.length !== innerTokenBuffer.length) return false
+
+    return timingSafeEqual(outerTokenBuffer, innerTokenBuffer)
 }
 
 module.exports = {
     isCallIdValid,
     isCallMetaValid,
+    isCallStatusTokenEqual,
 
     setCallStatus,
     getCallStatus,

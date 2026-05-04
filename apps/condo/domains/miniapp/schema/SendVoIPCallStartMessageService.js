@@ -1,41 +1,34 @@
-const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, find, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendVoIPCallStartMessageService')
 const {
     PROPERTY_NOT_FOUND_ERROR,
-    DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
-    DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     CALL_DATA_NOT_PROVIDED_ERROR,
-    NATIVE_VOIP_TYPE,
-    B2C_APP_VOIP_TYPE,
     INVALID_CALL_ID_ERROR,
     INVALID_CALL_META_ERROR,
 } = require('@condo/domains/miniapp/constants')
-const { B2CAppProperty, CustomValue } = require('@condo/domains/miniapp/utils/serverSchema')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
 const {
-    MESSAGE_META,
-    VOIP_INCOMING_CALL_MESSAGE_TYPE, MESSAGE_SENDING_STATUS,
-} = require('@condo/domains/notification/constants/constants')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+    RejectCallError,
+    checkLimits,
+    getAppInfo,
+    getCustomVoIPValuesByContacts,
+    getInitialLogContext,
+    getLogInfoFn,
+    getVerifiedResidentsWithContacts,
+    parseSendMessageResults,
+    sendMessageToUser,
+} = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
+const { setCallStatus, generateCallStatusToken, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
+const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
-const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema') 
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const CACHE_TTL = {
-    DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
-    [VOIP_INCOMING_CALL_MESSAGE_TYPE]: 2,
-}
-
-const POSSIBLE_CUSTOM_FIELD_NAMES = Object.keys(get(MESSAGE_META[VOIP_INCOMING_CALL_MESSAGE_TYPE], 'data', {})).filter(key => key.startsWith('voip'))
 const redisGuard = new RedisGuard()
 
 const logger = getLogger()
@@ -51,7 +44,7 @@ const ERRORS = {
     },
     CALL_DATA_NOT_PROVIDED: {
         mutation: SERVICE_NAME,
-        variable: ['data, callData'],
+        variable: ['data', 'callData'],
         type: CALL_DATA_NOT_PROVIDED_ERROR,
         code: BAD_USER_INPUT,
         message: '"b2cAppCallData" or "nativeCallData" or both should be provided',
@@ -80,294 +73,7 @@ const ERRORS = {
     },
 }
 
-class RejectCallError extends Error {
-    constructor (returnData) {
-        super('Mutation has no reason to go further')
-        this.returnData = returnData
-    }
-}
-
-function logInfo ({ b2cAppId, callId, stats, err }) {
-    logger.info({ msg: `${SERVICE_NAME} stats`, entityName: 'B2CApp', entityId: b2cAppId, data: { callId, stats }, err: err })
-}
-
-async function checkLimits ({ context, b2cAppId, logContext }) {
-    const appSettings = await getByCondition('AppMessageSetting', {
-        b2cApp: { id: b2cAppId }, 
-        type: VOIP_INCOMING_CALL_MESSAGE_TYPE, 
-        deletedAt: null, 
-    })
-                
-    const searchKey = `${VOIP_INCOMING_CALL_MESSAGE_TYPE}-${b2cAppId}`
-    const ttl = CACHE_TTL[VOIP_INCOMING_CALL_MESSAGE_TYPE] || CACHE_TTL['DEFAULT']
-
-    try {
-        await redisGuard.checkCustomLimitCounters(
-            `${SERVICE_NAME}-${searchKey}`,
-            appSettings?.notificationWindowSize ?? ttl,
-            appSettings?.numberOfNotificationInWindow ?? DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
-            context,
-        )
-    } catch (err) {
-        logContext.logInfoStats.step = 'check limits'
-        logContext.err = err
-        throw err
-    }
-}
-
-function getInitialLogContext ({ addressKey, unitName, unitType, app, callData }) {
-    return {
-        logInfoStats: {
-            step: 'init',
-            addressKey,
-            unitName,
-            unitType,
-            verifiedContactsCount: 0,
-            residentsCount: 0,
-            verifiedResidentsCount: 0,
-            createdMessagesCount: 0,
-            erroredMessagesCount: 0,
-            createMessageErrors: [],
-            isStatusCached: false,
-            isPropertyFound: false,
-            isAppFound: false,
-        },
-        b2cAppId: app.id,
-        callId: callData.callId,
-    }
-}
-
-async function sendMessageToUser ({ 
-    context, resident, contact, user, property,
-    customVoIPValuesByContactId,
-    sender, dv, b2cApp: { id: b2cAppId, name: b2cAppName }, 
-    callData, callStatusToken,
-}) {
-    const customVoIPValues = customVoIPValuesByContactId[contact.id] || {}
-
-    // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
-    let preparedDataArgs = {
-        B2CAppId: b2cAppId,
-        B2CAppName: b2cAppName,
-        residentId: resident.id,
-        callId: callData.callId,
-        organizationId: contact.organization,
-        propertyId: property.id,
-        callStatusToken,
-    }
-
-    const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
-    const isB2CAppCallDataProvidedAndPreferredByCustomValue = !!callData.b2cAppCallData && customVoIPValues.voipType === B2C_APP_VOIP_TYPE
-    const needToPasteB2CAppCallData = isB2CAppCallDataIsOnlyOption || isB2CAppCallDataProvidedAndPreferredByCustomValue
-
-    if (!needToPasteB2CAppCallData) {
-        let voipType = customVoIPValues.voipType || NATIVE_VOIP_TYPE
-        
-        const customValuePrefersB2CAppDataButHasOnlyNativeData = customVoIPValues.voipType === B2C_APP_VOIP_TYPE && !callData.b2cAppCallData
-        // CustomValue says to use B2C_APP_VOIP_TYPE, but we have no b2cAppCallData
-        if (customValuePrefersB2CAppDataButHasOnlyNativeData) {
-            voipType = NATIVE_VOIP_TYPE
-        }
-
-        preparedDataArgs = {
-            ...preparedDataArgs,
-            voipType: voipType,
-            voipAddress: callData.nativeCallData.voipAddress,
-            voipLogin: callData.nativeCallData.voipLogin,
-            voipPassword: callData.nativeCallData.voipPassword,
-            voipDtfmCommand: callData.nativeCallData.voipPanels?.[0]?.dtmfCommand,
-            voipPanels: callData.nativeCallData.voipPanels,
-            stunServers: callData.nativeCallData.stunServers,
-            stun: callData.nativeCallData.stunServers?.[0],
-            codec: callData.nativeCallData.codec,
-            ...omit(customVoIPValues, 'voipType'),
-        }
-    } else {
-        preparedDataArgs = {
-            ...preparedDataArgs,
-            B2CAppContext: callData.b2cAppCallData.B2CAppContext,
-        }
-    }
-
-    const requiredMetaData = get(MESSAGE_META[VOIP_INCOMING_CALL_MESSAGE_TYPE], 'data', {})
-    const metaData = Object.fromEntries(
-        Object.keys(requiredMetaData).map((key) => [key, preparedDataArgs[key]])
-    )
-
-    const messageAttrs = {
-        sender,
-        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
-        to: { user: { id: user.id } },
-        meta: {
-            dv,
-            title: '', // NOTE(YEgorLu): title and body are rewritten by translations for push type
-            body: '',
-            data: metaData,
-        },
-    }
-
-    const result = await sendMessage(context, messageAttrs)
-    return { resident, contact, user, result }
-}
-
-async function getVerifiedResidentsWithContacts ({ context, logContext, addressKey, unitName, unitType }) {
-    let verifiedResidentsWithContacts = []
-
-    const oldestProperty = await getOldestNonDeletedProperty({ addressKey })
-    logContext.logInfoStats.step = 'find property'
-    logContext.logInfoStats.propertyFound = !!oldestProperty
-
-    if (!oldestProperty?.id) {
-        throw new RejectCallError({
-            verifiedContactsCount: 0,
-            createdMessagesCount: 0,
-            erroredMessagesCount: 0,
-        })
-    }
-
-    const allVerifiedContactsOnUnit = await find('Contact', {
-        property: { id: oldestProperty.id, deletedAt: null },
-        unitName_i: unitName,
-        unitType: unitType,
-        isVerified: true,
-        deletedAt: null,
-    })
-    logContext.logInfoStats.step = 'find contacts'
-    logContext.logInfoStats.contactsCount = allVerifiedContactsOnUnit.length
-
-    if (!allVerifiedContactsOnUnit.length) {
-        throw new RejectCallError({
-            verifiedContactsCount: 0,
-            createdMessagesCount: 0,
-            erroredMessagesCount: 0,
-        })
-    }
-
-    const allResidentsOnUnit = await Resident.getAll(context, {
-        addressKey,
-        unitName_i: unitName,
-        unitType,
-        deletedAt: null,
-    }, 'id user { id phone }')
-    logContext.logInfoStats.step = 'find residents'
-    logContext.logInfoStats.residentsCount = allResidentsOnUnit.length
-
-    if (!allResidentsOnUnit.length) {
-        throw new RejectCallError({
-            verifiedContactsCount: allVerifiedContactsOnUnit.length,
-            createdMessagesCount: 0,
-            erroredMessagesCount: 0,
-        })
-    }
-
-    const verifiedResidentsWithContactsByPhone = {}
-
-    for (const contact of allVerifiedContactsOnUnit) {
-        if (!contact.phone) continue
-
-        const verifiedResidentWithContact = { contact, resident: null, user: null }
-        verifiedResidentsWithContacts.push(verifiedResidentWithContact)
-        verifiedResidentsWithContactsByPhone[verifiedResidentWithContact.contact.phone] = verifiedResidentWithContact
-    }
-
-    for (const resident of allResidentsOnUnit) {
-        const phone = resident.user.phone
-        if (!phone || !verifiedResidentsWithContactsByPhone[phone]) continue
-        verifiedResidentsWithContactsByPhone[phone].resident = resident
-        verifiedResidentsWithContactsByPhone[phone].user = resident.user
-    }
-
-    verifiedResidentsWithContacts = verifiedResidentsWithContacts.filter(({ resident, user, contact }) => !!resident && !!contact && !!user)
-
-    logContext.logInfoStats.step = 'find verified residents'
-    logContext.logInfoStats.contactsCount = verifiedResidentsWithContacts.length
-
-    if (!verifiedResidentsWithContacts.length) {
-        throw new RejectCallError({
-            verifiedContactsCount: allVerifiedContactsOnUnit.length,
-            createdMessagesCount: 0,
-            erroredMessagesCount: 0,
-        })
-    }
-   
-    return {
-        verifiedResidentsWithContacts,
-        allVerifiedContactsOnUnit,
-        property: oldestProperty,
-        organization: { id: oldestProperty.organization },
-    }
-}
-
-async function getAppInfo ({ context, logContext, addressKey, app }) {
-    const b2cAppId = app.id
-
-    const b2cAppProperty = await B2CAppProperty.getOne(context, { 
-        app: { id: b2cAppId, deletedAt: null },
-        addressKey: addressKey,
-        deletedAt: null,
-    }, 'id app { id name }')
-
-    if (!b2cAppProperty) {
-        logContext.logInfoStats.step = 'find property'
-        throw new GQLError(ERRORS.PROPERTY_NOT_FOUND, context)
-    }
-    logContext.logInfoStats.isPropertyFound = true
-    logContext.logInfoStats.isAppFound = true
-
-    return { b2cAppId, b2cAppName: b2cAppProperty.app.name }
-}
-
-async function getCustomVoIPValuesByContacts ({ context, contactIds }) {
-    const customVoIPValues = await CustomValue.getAll(context, {
-        customField: { 
-            name_in: POSSIBLE_CUSTOM_FIELD_NAMES, 
-            modelName: 'Contact', 
-            deletedAt: null,
-        },
-        itemId_in: contactIds,
-        deletedAt: null,
-    }, 'id itemId data customField { name }')
-    return customVoIPValues.reduce((byContactId, customValue) => {
-        if (!byContactId[customValue.itemId]) byContactId[customValue.itemId] = {}
-        byContactId[customValue.itemId][customValue.customField.name] = customValue.data
-        return byContactId
-    }, {})
-}
-
-function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
-    const sendMessageStats = sendMessagePromisesResults.map(promiseResult => {
-        if (promiseResult.status === 'rejected') {
-            logContext.logInfoStats.erroredMessagesCount++
-            logContext.logInfoStats.createMessageErrors.push(promiseResult.reason)
-            return { error: promiseResult.reason }
-        } 
-        const { resident, result } = promiseResult.value
-
-        if (result.isDuplicateMessage) {
-            logContext.logInfoStats.erroredMessagesCount++
-            logContext.logInfoStats.createMessageErrors.push(`${resident.id} duplicate message`)
-            return { error: `${resident.id} duplicate message` }
-        }
-        if (result.status !== MESSAGE_SENDING_STATUS) {
-            logContext.logInfoStats.erroredMessagesCount++
-            logContext.logInfoStats.createMessageErrors.push(`${resident.id} invalid status for some reason`)
-            return { error: `${resident.id} invalid status for some reason` }
-        }
-        logContext.logInfoStats.createdMessagesCount++
-        return result
-    })
-
-    for (const messageStat of sendMessageStats) {
-        if (messageStat.error) {
-            logContext.logInfoStats.erroredMessagesCount++
-            logContext.logInfoStats.createMessageErrors.push(messageStat.error)
-            continue
-        }
-        logContext.logInfoStats.createdMessagesCount++
-    }
-
-    return sendMessageStats
-}
+const logInfo = getLogInfoFn({ logger, serviceName: SERVICE_NAME })
 
 function parseStartingMessagesIdsByUserIdsByMessageResults ({ sendMessagePromisesResults }) {
     const startingMessagesIdsByUserIds = {}
@@ -543,7 +249,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     validateInput({ context, logContext, args })
 
                     // 1) Check B2CApp and B2CAppProperty
-                    const { b2cAppId, b2cAppName } = await getAppInfo({ context, logContext, addressKey, app }) 
+                    const { b2cAppId, b2cAppName } = await getAppInfo({ propertyNotFoundError: ERRORS.PROPERTY_NOT_FOUND, context, logContext, addressKey, app }) 
 
                     // 2) Get verified residents
                     const { 
@@ -554,9 +260,9 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     } = await getVerifiedResidentsWithContacts({ context, logContext, addressKey, unitName, unitType })
 
                     // 3) Check limits
-                    await checkLimits({ context, logContext, b2cAppId })
+                    await checkLimits({ redisGuard, serviceName: SERVICE_NAME, voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, logContext, b2cAppId, addressKey, unitName, unitType })
 
-                    const customVoIPValuesByContactId = await getCustomVoIPValuesByContacts({ context, contactIds: [...new Set(verifiedResidentsWithContacts.map(({ contact }) => contact.id))] })
+                    const customVoIPValuesByContactId = await getCustomVoIPValuesByContacts({ voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, contactIds: [...new Set(verifiedResidentsWithContacts.map(({ contact }) => contact.id))] })
                 
                     const callStatusToken = generateCallStatusToken()
 
@@ -565,7 +271,8 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     const sendMessagePromises = verifiedResidentsWithContacts
                         .map(({ resident, contact, user }) => {
                             return sendMessageToUser({ 
-                                context, resident, contact, user, property, customVoIPValuesByContactId,
+                                voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                                context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
                                 callStatusToken,
                             })
@@ -617,5 +324,4 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
 module.exports = {
     SendVoIPCallStartMessageService,
     ERRORS,
-    CACHE_TTL,
 }

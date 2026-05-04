@@ -83488,6 +83488,7 @@ type B2CAppAccessRightSetHistoryRecord {
   _label_: String
   app: String
   canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -83512,6 +83513,8 @@ input B2CAppAccessRightSetHistoryRecordWhereInput {
   app_not_in: [String]
   canExecuteSendVoIPCallStartMessage: Boolean
   canExecuteSendVoIPCallStartMessage_not: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83597,6 +83600,8 @@ input B2CAppAccessRightSetHistoryRecordWhereUniqueInput {
 enum SortB2CAppAccessRightSetHistoryRecordsBy {
   canExecuteSendVoIPCallStartMessage_ASC
   canExecuteSendVoIPCallStartMessage_DESC
+  canExecuteSendVoIPCallCancelMessage_ASC
+  canExecuteSendVoIPCallCancelMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83618,6 +83623,7 @@ enum SortB2CAppAccessRightSetHistoryRecordsBy {
 input B2CAppAccessRightSetHistoryRecordUpdateInput {
   app: String
   canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83640,6 +83646,7 @@ input B2CAppAccessRightSetHistoryRecordsUpdateInput {
 input B2CAppAccessRightSetHistoryRecordCreateInput {
   app: String
   canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83675,6 +83682,7 @@ type B2CAppAccessRightSet {
   """ Link to B2CApp """
   app: B2CApp
   canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -83705,6 +83713,8 @@ input B2CAppAccessRightSetWhereInput {
   app_is_null: Boolean
   canExecuteSendVoIPCallStartMessage: Boolean
   canExecuteSendVoIPCallStartMessage_not: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83772,6 +83782,8 @@ enum SortB2CAppAccessRightSetsBy {
   app_DESC
   canExecuteSendVoIPCallStartMessage_ASC
   canExecuteSendVoIPCallStartMessage_DESC
+  canExecuteSendVoIPCallCancelMessage_ASC
+  canExecuteSendVoIPCallCancelMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83793,6 +83805,7 @@ enum SortB2CAppAccessRightSetsBy {
 input B2CAppAccessRightSetUpdateInput {
   app: B2CAppRelateToOneInput
   canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -83812,6 +83825,7 @@ input B2CAppAccessRightSetsUpdateInput {
 input B2CAppAccessRightSetCreateInput {
   app: B2CAppRelateToOneInput
   canExecuteSendVoIPCallStartMessage: Boolean
+  canExecuteSendVoIPCallCancelMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -94023,6 +94037,67 @@ type SendVoIPCallStartMessageOutput {
 }
 
 enum SendVoIPCallStartMessageUnitType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
+enum SendVoIPCallCancelMessageCancelReason {
+  """
+  Call was answered on one of the devices, so call session is still active
+  """
+  answered
+
+  """Whole call was already ended"""
+  ended
+}
+
+input SendVoIPCallCancelMessageData {
+  """
+  Unique value for each call session between panel and resident (means same for different devices also).
+  Must be provided for correct work with multiple devices that use same voip call.
+  F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
+  callId: String!
+
+  """Reason why call was canceled"""
+  reason: SendVoIPCallCancelMessageCancelReason!
+}
+
+input SendVoIPCallCancelMessageInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+
+  """
+  Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+  """
+  addressKey: String!
+
+  """Name of unit, same as in Property map"""
+  unitName: String!
+
+  """Type of unit, same as in Property map"""
+  unitType: SendVoIPCallCancelMessageUnitType!
+  callData: SendVoIPCallCancelMessageData!
+}
+
+type SendVoIPCallCancelMessageOutput {
+  """
+  Count of all Organization Contacts, which we possibly could've sent messages to
+  """
+  verifiedContactsCount: Int
+
+  """Count of Messages that will be sent, one for each verified Resident"""
+  createdMessagesCount: Int
+
+  """Count of Messages which was not created due to some internal error"""
+  erroredMessagesCount: Int
+}
+
+enum SendVoIPCallCancelMessageUnitType {
   parking
   flat
   apartment
@@ -108449,6 +108524,29 @@ type Mutation {
   }`
   """
   sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput
+
+  """
+  Mutation sends CANCELED_CALL_MESSAGE Messages to each verified resident on address + unit. This push rejects incoming calls, if they werent answered yet.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PROPERTY_NOT_FOUND",
+    "message": "Unable to find Property or B2CAppProperty by provided addressKey"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_CALL_ID",
+    "message": "\"callId\" contains invalid characters or does not has length between 1 and 300"
+  }`
+  """
+  sendVoIPCallCancelMessage(data: SendVoIPCallCancelMessageInput!): SendVoIPCallCancelMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

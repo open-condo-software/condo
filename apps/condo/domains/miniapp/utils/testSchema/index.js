@@ -19,6 +19,7 @@ const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
     SEND_VOIP_CALL_START_MESSAGE_MUTATION,
+    SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION,
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
@@ -402,6 +403,28 @@ async function sendVoIPCallStartMessageByTestClient (client, extraAttrs = {}) {
     const { data, errors } = await client.mutate(SEND_VOIP_CALL_START_MESSAGE_MUTATION, { data: attrs })
 
     throwIfError(data, errors, { query: SEND_VOIP_CALL_START_MESSAGE_MUTATION, variables: { data: attrs } })
+
+    return [data.result, attrs]
+}
+
+async function sendVoIPCallCancelMessageByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const callData = {
+        reason: 'answered',
+        ...extraAttrs.callData,
+    }
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+        callData,
+    }
+    const { data, errors } = await client.mutate(SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION, { data: attrs })
+
+    throwIfError(data, errors, { query: SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION, variables: { data: attrs } })
 
     return [data.result, attrs]
 }
@@ -852,6 +875,6 @@ module.exports = {
     AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
-    sendVoIPCallStartMessageByTestClient,
+    sendVoIPCallStartMessageByTestClient, sendVoIPCallCancelMessageByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
