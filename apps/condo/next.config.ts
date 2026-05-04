@@ -82,6 +82,10 @@ const nextConfig: NextConfig = {
         '@condo/domains',
     ],
     experimental: {},
+    images: {
+        // disable image/cache directory creation
+        maximumDiskCacheSize: 0,
+    },
     compiler: {
         emotion: true,
     },
