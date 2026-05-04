@@ -66,6 +66,7 @@ type ImagesUploadListProps = {
     createAction?: ({ file }: { file: UploadRequestOption['file'] }) => Promise<DBFile>
     updateFileList: React.Dispatch<Action>
     maxCount?: number
+    setIsFilesLoading: React.Dispatch<boolean>
 }
 
 const iconRender = (file) => {
@@ -108,6 +109,7 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     fileList,
     createAction,
     updateFileList,
+    setIsFilesLoading,
     maxCount = 10,
 }) => {
     const intl = useIntl()
@@ -261,8 +263,13 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     }, [FileTooBigErrorMessage, UploadFailedErrorMessage, createAction, updateFileList])
     const queueRef = useRef(new Queue(customRequestProcessor))
     const customRequest = useCallback(async (options) => {
+        setIsFilesLoading(true)
         await queueRef.current.add(options)
-    }, [])
+
+        if (!queueRef.current.isBusy) {
+            setIsFilesLoading(false)
+        }
+    }, [setIsFilesLoading])
 
     if (!isReady) return null
 

@@ -30,6 +30,7 @@ type InputStepFilesSelectorProps = {
     newsSharingConfig: B2BAppNewsSharingConfig
     isSharingStep: boolean
     isLoaded?: boolean
+    setIsFilesLoading: React.Dispatch<boolean>
 }
 
 export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
@@ -39,6 +40,7 @@ export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
     newsSharingConfig,
     isSharingStep,
     isLoaded,
+    setIsFilesLoading,
 }) => {
     const intl = useIntl()
 
@@ -125,7 +127,7 @@ export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
                                 fileList={files}
                                 updateFileList={modifyFiles}
                                 createAction={createFile}
-
+                                setIsFilesLoading={setIsFilesLoading}
                             />
                         </Col>
                         <Col span={24}>

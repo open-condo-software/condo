@@ -477,6 +477,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     })
 
     const [files, setFiles] = useState<Array<UploadFileType>>(() => get(initialValues, 'files', []))
+    const [isFilesLoading, setIsFilesLoading] = useState<boolean>(false)
 
     const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false)
 
@@ -1173,6 +1174,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         files={files}
                                         setFiles={setFiles}
                                         modifyFiles={modifyFiles}
+                                        setIsFilesLoading={setIsFilesLoading}
                                         newsItemIdForReuploadFiles={currentNewsItem?.id}
                                         templates={templates}
                                         isSharingStep={isSharingAppStep}
@@ -1382,6 +1384,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     key='submit'
                                                     type='primary'
                                                     children={NextStepMessage}
+                                                    disabled={currentStep === 1 && isFilesLoading}
                                                     onClick={() => handleNextStep({ form })}
                                                 />,
                                             ]}

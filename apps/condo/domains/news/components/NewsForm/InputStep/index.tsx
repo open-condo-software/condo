@@ -88,6 +88,7 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     files: Array<UploadFileType>
     setFiles: React.Dispatch<React.SetStateAction<Array<UploadFileType>>>
     modifyFiles: React.Dispatch<Action>
+    setIsFilesLoading: React.Dispatch<boolean>
     newsItemIdForReuploadFiles?: string
     isSharingStep: boolean
     selectedProperty: {
@@ -130,6 +131,7 @@ export const InputStep: React.FC<InputStepProps> = ({
     setFiles,
     modifyFiles,
     newsItemIdForReuploadFiles,
+    setIsFilesLoading,
 }
 ) => {
     const intl = useIntl()
@@ -318,6 +320,8 @@ export const InputStep: React.FC<InputStepProps> = ({
         if (!newsItemIdForReuploadFiles) return
         if (isLoading) return
 
+        setIsFilesLoading(true)
+
         const tryReuploadFiles = async () => {
             const reuploadedNewsItemFiles = await reuploadFiles(newsItemIdForReuploadFiles)
 
@@ -329,6 +333,7 @@ export const InputStep: React.FC<InputStepProps> = ({
             reuploadedNewsItemFiles.forEach((newsItemFile) => {
                 modifyFiles({ type: 'add', payload: newsItemFile })
             })
+            setIsFilesLoading(false)
         }
         tryReuploadFiles()
     }, [newsItemIdForReuploadFiles, isLoading])
@@ -363,6 +368,7 @@ export const InputStep: React.FC<InputStepProps> = ({
                         }}
                         files={files}
                         modifyFiles={modifyFiles}
+                        setIsFilesLoading={setIsFilesLoading}
                         isSharingStep={isSharingStep}
                         newsSharingConfig={newsSharingConfig}
                         isLoaded={!newsItemIdForReuploadFiles || (newsItemIdForReuploadFiles && !isLoading)}

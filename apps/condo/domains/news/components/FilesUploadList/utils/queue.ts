@@ -18,6 +18,10 @@ export class Queue<T> {
         })
     }
 
+    get isBusy (): boolean {
+        return this.busy || this.tasks.length > 0
+    }
+
     private async next () {
         if (this.busy || this.tasks.length === 0) return
 
