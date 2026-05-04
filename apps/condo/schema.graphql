@@ -94054,11 +94054,6 @@ enum SendVoIPCallCancelMessageCancelReason {
   ended
 }
 
-input SendVoIPCallCancelMessageDataForCallHandlingByB2CApp {
-  """Data that will be provided to B2CApp. May be stringified JSON"""
-  B2CAppContext: String!
-}
-
 input SendVoIPCallCancelMessageData {
   """
   Unique value for each call session between panel and resident (means same for different devices also).
@@ -94069,11 +94064,6 @@ input SendVoIPCallCancelMessageData {
 
   """Reason why call was canceled"""
   reason: SendVoIPCallCancelMessageCancelReason!
-
-  """
-  If you want your B2CApp to handle incoming message, provide this argument.
-  """
-  b2cAppCallData: SendVoIPCallCancelMessageDataForCallHandlingByB2CApp
 }
 
 input SendVoIPCallCancelMessageInput {
@@ -108536,7 +108526,7 @@ type Mutation {
   sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput
 
   """
-  Mutation sends VOIP_INCOMING_CALL Messages to each verified resident on address + unit. Also caches calls, so mobile app can properly react to cancel calls. You can either provide all data.* arguments so mobile app will use it's own app to answer call, or provide just B2CAppContext + callId to use your B2CApp's calling app
+  Mutation sends CANCELED_CALL_MESSAGE Messages to each verified resident on address + unit. This push rejects incoming calls, if they werent answered yet.
   
   
   
