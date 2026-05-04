@@ -105,12 +105,12 @@ async function tryCreateThumbnailFromUrl (mimetype?: string, url?: string, id?: 
     try {
         if (mimetype?.startsWith('image/')) {
             const thumbnail = await createImageThumbnailFromUrl(url)
-            THUMBNAIL_CACHE.set(id, thumbnail)
+            if (thumbnail) THUMBNAIL_CACHE.set(id, thumbnail)
             return thumbnail
         }
         if (mimetype?.startsWith('video/')) {
             const thumbnail = await createVideoThumbnailFromUrl(url)
-            THUMBNAIL_CACHE.set(id, thumbnail)
+            if (thumbnail) THUMBNAIL_CACHE.set(id, thumbnail)
             return thumbnail
         }
     } catch (error) {
