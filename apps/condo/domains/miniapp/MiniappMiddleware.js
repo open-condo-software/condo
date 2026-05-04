@@ -1,5 +1,7 @@
 const express = require('express')
 
+const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
+
 const { sendDTMFToB2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 
 
@@ -11,23 +13,32 @@ class MiniappMiddleware {
     }
 
     async handleSendDTMFToB2CApp (req, res, next) {
-        const { callStatusToken, propertyId, organizationId, callId, b2cAppId, dtmfCode } = req.query
+        const { callStatusToken, propertyId, organizationId, callId, appId, dtmfCode } = req.query
+        let { sender, dv } = req.query
+
         const context = this.keystone.createContext()
+
+        try {
+            sender = JSON.parse(sender)
+            dv = parseInt(dv)
+        } catch { /* */ }
 
         try {
             const result = await sendDTMFToB2CApp(context, {
                 callId,
-                app: { id: b2cAppId },
+                app: { id: appId },
                 property: { id: propertyId },
                 organization: { id: organizationId },
                 callStatusToken,
                 data: {
                     dtmfCode,
                 },
+                dv,
+                sender,
             })
             return res.json(result)
         } catch (err) {
-            next(err) 
+            next(err)
         }
     }
 
@@ -38,6 +49,8 @@ class MiniappMiddleware {
         const app = express()
 
         app.get('/api/sendDTMFToB2CApp', this.handleSendDTMFToB2CApp)
+
+        app.use(expressErrorHandler)
 
         return app
     }

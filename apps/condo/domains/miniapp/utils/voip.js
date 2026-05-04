@@ -159,4 +159,6 @@ module.exports = {
     MIN_CALL_ID_LENGTH,
     MAX_CALL_ID_LENGTH,
     MAX_CALL_META_LENGTH,
+
+    CALL_STATUS_TTL_IN_SECONDS,
 }

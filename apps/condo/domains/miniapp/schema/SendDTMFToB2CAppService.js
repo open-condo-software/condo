@@ -7,11 +7,11 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const access = require('@condo/domains/miniapp/access/SendDTMFToB2CAppService')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const { getCallStatus, CALL_STATUS_ENDED } = require('@condo/domains/miniapp/utils/voip')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-const { encryptionManager } = require('../../common/utils/encryption')
 
 const logger = getLogger()
 

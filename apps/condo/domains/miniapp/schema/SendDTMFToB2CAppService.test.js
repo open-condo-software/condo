@@ -52,7 +52,7 @@ describe('SendDTMFToB2CAppService', () => {
     let contact
     let resident
 
-    async function makeStartCallRequest (app = b2cApp) {
+    async function makeStartCallRequest (app = b2cApp, type = 'b2c') {
         const callId = faker.datatype.uuid()
         await sendVoIPCallStartMessageByTestClient(serviceUser, {
             app: { id: app.id },
@@ -61,12 +61,20 @@ describe('SendDTMFToB2CAppService', () => {
             unitType: resident.unitType,
             callData: {
                 callId,
-                b2cAppCallData: { B2CAppContext: '' },
+                ...type === 'b2c' 
+                    ? { b2cAppCallData: { B2CAppContext: '' } }
+                    : { nativeCallData: {
+                        voipAddress: faker.internet.ipv4(),
+                        voipPassword: faker.internet.password(), 
+                        voipLogin: faker.internet.userName(),
+                        voipPanels: [{ dtmfCommand: faker.random.alphaNumeric(4) }],
+                    } }
+                ,
             },
         })
         const [msg] = await Message.getAll(admin, { user: { id: user.id }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
         const { callStatusToken, propertyId, organizationId } = msg.meta.data
-        return { callId, callStatusToken, propertyId, organizationId }
+        return { callId, callStatusToken, propertyId, organizationId, msg }
     }
 
     beforeAll(async () => {
@@ -211,23 +219,49 @@ describe('SendDTMFToB2CAppService', () => {
 
     describe('express route', () => {
         test('works', async () => {
+            const { callId, propertyId, organizationId, callStatusToken } = await makeStartCallRequest()
+            const { serverUrl } = await makeClient()
+
             const args = {
-                callId: faker.datatype.uuid(),
+                callId,
                 dtmfCode: '#',
                 appId: b2cApp.id,
-                propertyId: faker.datatype.uuid(),
-                organizationId: faker.datatype.uuid(),
-                callStatusToken: faker.random.alphaNumeric(8),
+                propertyId,
+                organizationId,
+                callStatusToken,
+                dv: 1,
+                sender: JSON.stringify({ dv: 1, fingerprint: faker.random.alphaNumeric(8) }),
             }
-            const url = new URL(`${SERVER_URL}/api/sendDTMFToB2CApp`)
+            const url = new URL(`${serverUrl}/api/sendDTMFToB2CApp`)
             for (const key in args) {
                 url.searchParams.set(key, args[key])
             }
-            const result = await fetch(url.toString(), {
-                method: 'GET',
-            })
+            const result = await fetch(url.toString())
             expect(result).toBeDefined()
-            const resultJSON = await result.json()
+            const resultText = await result.text()
+            const resultJSON = JSON.parse(resultText)
+            expect(resultJSON).toHaveProperty('status', 'OK')
+        })
+
+        test('link and timeout are delivered with native voip push', async () => {
+            const { msg } = await makeStartCallRequest(b2cApp, 'native')
+            const { serverUrl } = await makeClient()
+
+            const voipPanels = JSON.parse(msg.meta.data.voipPanels)
+            expect(voipPanels).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    dtmfCommand: expect.any(String),
+                    sendDTMFUrl: expect.stringMatching(new RegExp(`^${SERVER_URL}/api/sendDTMF`)),
+                }),
+            ]))
+            expect(msg.meta.data.sendDTMFTimeout).toEqual(expect.any(String))
+            expect(msg.meta.data.sendDTMFTimeout).toEqual(new Date(msg.meta.data.sendDTMFTimeout).toISOString())
+
+            const url = voipPanels[0].sendDTMFUrl.replace(SERVER_URL, serverUrl)
+            const result = await fetch(url)
+            expect(result).toBeDefined()
+            const resultText = await result.text()
+            const resultJSON = JSON.parse(resultText)
             expect(resultJSON).toHaveProperty('status', 'OK')
         })
     })
