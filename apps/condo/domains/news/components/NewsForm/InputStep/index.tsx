@@ -284,7 +284,7 @@ export const InputStep: React.FC<InputStepProps> = ({
             setSharingAppFormValues(prev => ({ ...prev, formValues, preview, isValid }))
         }
         if (handler === 'handleSharingAppIFrameInitPreviewMessage' && sharingAppId === eventCtxId) {
-            const preparedFiles = filesWithPreviews.map(fileWithPreview => ({
+            const preparedFiles = filesWithPreviews?.map(fileWithPreview => ({
                 id: fileWithPreview.id || fileWithPreview.response?.id || fileWithPreview.uid,
                 previewUrl: fileWithPreview.preview,
                 mimetype: fileWithPreview.response?.mimetype,
@@ -327,7 +327,7 @@ export const InputStep: React.FC<InputStepProps> = ({
         const title = sharingAppFormValues?.preview.renderedTitle || selectedTitle
         const body = sharingAppFormValues?.preview.renderedBody || selectedBody
         const scope = sharingAppFormValues?.scope
-        const preparedFiles = filesWithPreviews.map(fileWithPreview => ({
+        const preparedFiles = filesWithPreviews?.map(fileWithPreview => ({
             id: fileWithPreview.id || fileWithPreview.response?.id || fileWithPreview.uid,
             name: fileWithPreview.name || fileWithPreview.response?.originalName,
             url: fileWithPreview.url || fileWithPreview.response?.url,
