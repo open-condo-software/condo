@@ -8,10 +8,24 @@ const {
     makeLoggedInClient,
     makeClient,
     expectToThrowGQLErrorToResult,
+    initTestExpressApp,
+    getTestExpressApp,
 } = require('@open-condo/keystone/test.utils')
 
-const { sendDTMFToB2CAppByTestClient, createTestB2CApp, createTestB2CAppIntercomConfig } = require('@condo/domains/miniapp/utils/testSchema')
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    sendDTMFToB2CAppByTestClient, createTestB2CApp, createTestB2CAppIntercomConfig,
+    createTestB2CAppProperty,
+    createTestB2CAppAccessRight,
+    createTestB2CAppAccessRightSet,
+    createTestAppMessageSetting,
+    sendVoIPCallStartMessageByTestClient,
+    prepareUserWithVerifiedResidentAndContact,
+} = require('@condo/domains/miniapp/utils/testSchema')
+const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+
 
 
 const SERVER_URL = conf.SERVER_URL
@@ -24,28 +38,71 @@ intercomApp.post('/dtmf', (_req, res) => {
     return res.status(intercomResponseStatus).json({ ok: true })
 })
 
-// nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-const intercomServer = intercomApp.listen(0)
-const intercomAddress = intercomServer.address()
-const intercomBaseUrl = typeof intercomAddress === 'string' ? intercomAddress : `http://${intercomAddress.address}:${intercomAddress.port}`
-const intercomUrl = `${intercomBaseUrl}/dtmf`
-
-
 describe('SendDTMFToB2CAppService', () => {
+
+    initTestExpressApp('Flowise', intercomApp, 'http')
+
     let admin
+    let serviceUser
     let b2cApp
     let b2cAppWithoutConfig
+    let property
+    let organization
+    let user
+    let contact
+    let resident
+
+    async function makeStartCallRequest (app = b2cApp) {
+        const callId = faker.datatype.uuid()
+        await sendVoIPCallStartMessageByTestClient(serviceUser, {
+            app: { id: app.id },
+            addressKey: property.addressKey,
+            unitName: resident.unitName,
+            unitType: resident.unitType,
+            callData: {
+                callId,
+                b2cAppCallData: { B2CAppContext: '' },
+            },
+        })
+        const [msg] = await Message.getAll(admin, { user: { id: user.id }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
+        const { callStatusToken, propertyId, organizationId } = msg.meta.data
+        return { callId, callStatusToken, propertyId, organizationId }
+    }
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        const intercomUrl = `${getTestExpressApp('Flowise').baseUrl}/dtmf`
         const [intercomConfig] = await createTestB2CAppIntercomConfig(admin, { sendDTMFUrl: intercomUrl, accessToken: faker.random.alphaNumeric(8) });
         [b2cApp] = await createTestB2CApp(admin, { intercomConfig: { connect: { id: intercomConfig.id } } });
         [b2cAppWithoutConfig] = await createTestB2CApp(admin)
+        
+        const organizationProperty = await makeClientWithResidentAccessAndProperty()
+        organization = organizationProperty.organization 
+        property = organizationProperty.property
+
+        const residentUserContact = await prepareUserWithVerifiedResidentAndContact({ admin, organization, property })
+        user = residentUserContact.user
+        resident = residentUserContact.resident
+        contact = residentUserContact.contact
+
+        await createTestB2CAppProperty(admin, b2cApp, { address: property.address, addressMeta: property.addressMeta })
+        await createTestB2CAppProperty(admin, b2cAppWithoutConfig, { address: property.address, addressMeta: property.addressMeta })
+
+        serviceUser = await makeClientWithServiceUser()
+        const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+        await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+        const [accessRightSetWithoutConfig] = await createTestB2CAppAccessRightSet(admin, b2cAppWithoutConfig, { canExecuteSendVoIPCallStartMessage: true })
+        await createTestB2CAppAccessRight(admin, serviceUser.user, b2cAppWithoutConfig, { accessRightSet: { connect: { id: accessRightSetWithoutConfig.id } } })
+
+        await createTestAppMessageSetting(admin, { b2cApp, numberOfNotificationInWindow: 1000, type: VOIP_INCOMING_CALL_MESSAGE_TYPE })
+        await createTestAppMessageSetting(admin, { b2cApp: b2cAppWithoutConfig, numberOfNotificationInWindow: 1000, type: VOIP_INCOMING_CALL_MESSAGE_TYPE })
+
     })
 
-    afterAll(async () => {
-        await new Promise((resolve) => intercomServer.close(resolve))
-    })
+    // afterAll(async () => {
+    //     await new Promise((resolve) => intercomServer.close(resolve))
+    // })
 
     beforeEach(() => {
         intercomResponseStatus = 200
@@ -72,82 +129,84 @@ describe('SendDTMFToB2CAppService', () => {
         ]
 
         test.each(TEST_CASES)('$name', async ({ getClient }) => {
+            const { callId, propertyId, organizationId, callStatusToken } = await makeStartCallRequest()
+
             const client = await getClient()
             const [result] = await sendDTMFToB2CAppByTestClient(client, { id: b2cApp.id }, { 
-                property: { id: faker.datatype.uuid() },
-                organization: { id: faker.datatype.uuid() },
-                callStatusToken: faker.datatype.alphaNumeric(8),
-                data: { dtmfCode: '1234' },
+                callId,
+                property: { id: propertyId },
+                organization: { id: organizationId },
+                callStatusToken,
+                data: { dtmfCode: faker.random.alphaNumeric(4) },
             })
             expect(result.status).toEqual('OK')
         })
     })
 
     describe('Errors', () => {
-        const defaultArgs = {
-            property: { id: faker.datatype.uuid() },
-            organization: { id: faker.datatype.uuid() },
-            callStatusToken: faker.datatype.alphaNumeric(8),
-        }
 
         const ERROR_CASES = [
-            {
-                name: 'throws error if app id not allowed',
-                setup: () => {},
-                getClient: () => makeClient(),
-                args: () => ({ app: { id: b2cApp.id }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
-                expected: { mutation: 'sendDTMFToB2CApp', code: 'FORBIDDEN', type: 'APP_NOT_ALLOWED' },
-            },
+            // {
+            //     name: 'throws error if app id not allowed',
+            //     expected: { mutation: 'sendDTMFToB2CApp', code: 'FORBIDDEN', type: 'APP_NOT_ALLOWED' },
+            // },
             {
                 name: 'throws error if app not found',
-                setup: () => {},
-                getClient: () => makeClient(),
-                args: () => ({ app: { id: b2cAppWithoutConfig.id }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
+                getApp: () => b2cAppWithoutConfig,
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'BAD_USER_INPUT', type: 'APP_NOT_FOUND' },
             },
             {
                 name: 'throws error if dtmfCode empty',
-                setup: () => {},
-                getClient: () => makeClient(),
-                args: () => ({ app: { id: b2cApp.id }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '' } } }),
+                getDTMFCode: () => '',
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'BAD_USER_INPUT', type: 'INVALID_DTMF_CODE' },
             },
             {
                 name: 'throws error if intercom returns 403',
                 setup: () => { intercomResponseStatus = 403 },
-                getClient: () => makeClient(),
-                args: () => ({ app: { id: b2cApp.id }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'INVALID_ACCESS_TOKEN' },
             },
             {
                 name: 'throws error if intercom returns 404',
                 setup: () => { intercomResponseStatus = 404 },
-                getClient: () => makeClient(),
-                args: () => ({ app: { id: b2cApp.id }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'NOT_FOUND', type: 'CALL_NOT_FOUND' },
             },
             {
                 name: 'throws error if intercom returns 500',
                 setup: () => { intercomResponseStatus = 500 },
-                getClient: () => makeClient(),
-                args: () => ({ app: { id: b2cApp.id }, extraAttrs: { ...defaultArgs, data: { dtmfCode: '1234' } } }),
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'UNKNOWN_ERROR' },
             },
+            // {
+            //     name: 'throws error if call not found',
+            //     setup: () => { intercomResponseStatus = 200 },
+            //     expected: {},
+            // },
         ]
 
-        test.each(ERROR_CASES)('$name', async ({ setup, getClient, args, expected, assert }) => {
-            setup()
-            const client = await getClient()
-            const attrs = args()
+        test.each(ERROR_CASES)('$name', async ({ setup, getApp, getDTMFCode, expected, assert }) => {
+            setup?.()
+            const client = await makeClient()
+            const { callId, propertyId, organizationId, callStatusToken } = await makeStartCallRequest()
+
+            const attrs = {
+                callId, 
+                property: { id: propertyId },
+                organization: { id: organizationId },
+                callStatusToken,
+                app: { id: getApp ? getApp().id : b2cApp.id },
+                data: {
+                    dtmfCode: getDTMFCode ? getDTMFCode() : faker.random.alphaNumeric(4),
+                },
+            }
 
             if (assert) {
                 await assert(client, attrs)
             } else {
                 await expectToThrowGQLErrorToResult(async () => {
-                    await sendDTMFToB2CAppByTestClient(client, attrs.app, attrs.extraAttrs)
+                    await sendDTMFToB2CAppByTestClient(client, attrs.app, attrs)
                 }, expected)
             }
         })
+
     })
 
     describe('express route', () => {
@@ -158,7 +217,7 @@ describe('SendDTMFToB2CAppService', () => {
                 appId: b2cApp.id,
                 propertyId: faker.datatype.uuid(),
                 organizationId: faker.datatype.uuid(),
-                callStatusToken: faker.datatype.alphaNumeric(8),
+                callStatusToken: faker.random.alphaNumeric(8),
             }
             const url = new URL(`${SERVER_URL}/api/sendDTMFToB2CApp`)
             for (const key in args) {

@@ -74756,6 +74756,7 @@ type B2CAppHistoryRecord {
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
+  intercomConfig: String
   id: ID!
   v: Int
   createdAt: String
@@ -74892,6 +74893,10 @@ input B2CAppHistoryRecordWhereInput {
   isBleCentralBgAllowed_not: Boolean
   isBlePeripheralBgAllowed: Boolean
   isBlePeripheralBgAllowed_not: Boolean
+  intercomConfig: String
+  intercomConfig_not: String
+  intercomConfig_in: [String]
+  intercomConfig_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75082,6 +75087,7 @@ input B2CAppHistoryRecordUpdateInput {
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
+  intercomConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -75124,6 +75130,7 @@ input B2CAppHistoryRecordCreateInput {
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
+  intercomConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -75165,6 +75172,13 @@ input B2CAppAccessRightRelateToManyInput {
   create: [B2CAppAccessRightCreateInput]
   connect: [B2CAppAccessRightWhereUniqueInput]
   disconnect: [B2CAppAccessRightWhereUniqueInput]
+  disconnectAll: Boolean
+}
+
+input B2CAppIntercomConfigRelateToOneInput {
+  create: B2CAppIntercomConfigCreateInput
+  connect: B2CAppIntercomConfigWhereUniqueInput
+  disconnect: B2CAppIntercomConfigWhereUniqueInput
   disconnectAll: Boolean
 }
 
@@ -75263,6 +75277,9 @@ type B2CApp {
   """ Controls whether the mini-app can use “ble peripheral bg” device permission 
   """
   isBlePeripheralBgAllowed: Boolean
+
+  """ Configuration for intercom related api, supported by b2c app """
+  intercomConfig: B2CAppIntercomConfig
   id: ID!
   v: Int
   createdAt: String
@@ -75416,6 +75433,8 @@ input B2CAppWhereInput {
   isBleCentralBgAllowed_not: Boolean
   isBlePeripheralBgAllowed: Boolean
   isBlePeripheralBgAllowed_not: Boolean
+  intercomConfig: B2CAppIntercomConfigWhereInput
+  intercomConfig_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75549,6 +75568,8 @@ enum SortB2CAppsBy {
   isBleCentralBgAllowed_DESC
   isBlePeripheralBgAllowed_ASC
   isBlePeripheralBgAllowed_DESC
+  intercomConfig_ASC
+  intercomConfig_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75593,6 +75614,7 @@ input B2CAppUpdateInput {
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
+  intercomConfig: B2CAppIntercomConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -75633,6 +75655,7 @@ input B2CAppCreateInput {
   isBleBeaconBgAllowed: Boolean
   isBleCentralBgAllowed: Boolean
   isBlePeripheralBgAllowed: Boolean
+  intercomConfig: B2CAppIntercomConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -84682,6 +84705,411 @@ input B2BAppBillingEmbeddingConfigCreateInput {
 
 input B2BAppBillingEmbeddingConfigsCreateInput {
   data: B2BAppBillingEmbeddingConfigCreateInput
+}
+
+enum B2CAppIntercomConfigHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2CAppIntercomConfigHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2CAppIntercomConfigHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2CAppIntercomConfigHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2CAppIntercomConfigHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2CAppIntercomConfigHistoryRecord List.
+  """
+  _label_: String
+  sendDTMFUrl: String
+  accessToken: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2CAppIntercomConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2CAppIntercomConfigHistoryRecordWhereInput {
+  AND: [B2CAppIntercomConfigHistoryRecordWhereInput]
+  OR: [B2CAppIntercomConfigHistoryRecordWhereInput]
+  sendDTMFUrl: String
+  sendDTMFUrl_not: String
+  sendDTMFUrl_contains: String
+  sendDTMFUrl_not_contains: String
+  sendDTMFUrl_starts_with: String
+  sendDTMFUrl_not_starts_with: String
+  sendDTMFUrl_ends_with: String
+  sendDTMFUrl_not_ends_with: String
+  sendDTMFUrl_i: String
+  sendDTMFUrl_not_i: String
+  sendDTMFUrl_contains_i: String
+  sendDTMFUrl_not_contains_i: String
+  sendDTMFUrl_starts_with_i: String
+  sendDTMFUrl_not_starts_with_i: String
+  sendDTMFUrl_ends_with_i: String
+  sendDTMFUrl_not_ends_with_i: String
+  sendDTMFUrl_in: [String]
+  sendDTMFUrl_not_in: [String]
+  accessToken: JSON
+  accessToken_not: JSON
+  accessToken_in: [JSON]
+  accessToken_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2CAppIntercomConfigHistoryRecordHistoryActionType
+  history_action_not: B2CAppIntercomConfigHistoryRecordHistoryActionType
+  history_action_in: [B2CAppIntercomConfigHistoryRecordHistoryActionType]
+  history_action_not_in: [B2CAppIntercomConfigHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2CAppIntercomConfigHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2CAppIntercomConfigHistoryRecordsBy {
+  sendDTMFUrl_ASC
+  sendDTMFUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2CAppIntercomConfigHistoryRecordUpdateInput {
+  sendDTMFUrl: String
+  accessToken: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2CAppIntercomConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2CAppIntercomConfigHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2CAppIntercomConfigHistoryRecordUpdateInput
+}
+
+input B2CAppIntercomConfigHistoryRecordCreateInput {
+  sendDTMFUrl: String
+  accessToken: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2CAppIntercomConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2CAppIntercomConfigHistoryRecordsCreateInput {
+  data: B2CAppIntercomConfigHistoryRecordCreateInput
+}
+
+""" B2CAppIntercomConfig """
+type B2CAppIntercomConfig {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2CAppIntercomConfig List config, or
+   2. As an alias to the field set on 'labelField' in the B2CAppIntercomConfig List config, or
+   3. As an alias to a 'name' field on the B2CAppIntercomConfig List (if one exists), or
+   4. As an alias to the 'id' field on the B2CAppIntercomConfig List.
+  """
+  _label_: String
+
+  """ Url to send dtmf code for intercom. CallId and meta information are sent. 
+  """
+  sendDTMFUrl: String
+
+  """ Bearer token to include in requests. """
+  accessToken: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2CAppIntercomConfigWhereInput {
+  AND: [B2CAppIntercomConfigWhereInput]
+  OR: [B2CAppIntercomConfigWhereInput]
+  sendDTMFUrl: String
+  sendDTMFUrl_not: String
+  sendDTMFUrl_contains: String
+  sendDTMFUrl_not_contains: String
+  sendDTMFUrl_starts_with: String
+  sendDTMFUrl_not_starts_with: String
+  sendDTMFUrl_ends_with: String
+  sendDTMFUrl_not_ends_with: String
+  sendDTMFUrl_i: String
+  sendDTMFUrl_not_i: String
+  sendDTMFUrl_contains_i: String
+  sendDTMFUrl_not_contains_i: String
+  sendDTMFUrl_starts_with_i: String
+  sendDTMFUrl_not_starts_with_i: String
+  sendDTMFUrl_ends_with_i: String
+  sendDTMFUrl_not_ends_with_i: String
+  sendDTMFUrl_in: [String]
+  sendDTMFUrl_not_in: [String]
+  accessToken: String
+  accessToken_not: String
+  accessToken_contains: String
+  accessToken_not_contains: String
+  accessToken_starts_with: String
+  accessToken_not_starts_with: String
+  accessToken_ends_with: String
+  accessToken_not_ends_with: String
+  accessToken_i: String
+  accessToken_not_i: String
+  accessToken_contains_i: String
+  accessToken_not_contains_i: String
+  accessToken_starts_with_i: String
+  accessToken_not_starts_with_i: String
+  accessToken_ends_with_i: String
+  accessToken_not_ends_with_i: String
+  accessToken_in: [String]
+  accessToken_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2CAppIntercomConfigWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2CAppIntercomConfigsBy {
+  sendDTMFUrl_ASC
+  sendDTMFUrl_DESC
+  accessToken_ASC
+  accessToken_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2CAppIntercomConfigUpdateInput {
+  sendDTMFUrl: String
+  accessToken: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2CAppIntercomConfigsUpdateInput {
+  id: ID!
+  data: B2CAppIntercomConfigUpdateInput
+}
+
+input B2CAppIntercomConfigCreateInput {
+  sendDTMFUrl: String
+  accessToken: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2CAppIntercomConfigsCreateInput {
+  data: B2CAppIntercomConfigCreateInput
 }
 
 enum MobileFeatureConfigHistoryRecordHistoryActionType {
@@ -94784,7 +95212,107 @@ input SendB2BAppPushMessageInput {
 
 type SendB2BAppPushMessageOutput {
   status: String!
-  id: String
+  id: String!
+}
+
+input SendVoIPCallStartMessageVoIPPanelParameters {
+  """Dtmf command used to open the panel"""
+  dtmfCommand: String!
+
+  """Name of a panel to be displayed"""
+  name: String
+}
+
+input SendVoIPCallStartMessageDataForCallHandlingByB2CApp {
+  """Data that will be provided to B2CApp. May be stringified JSON"""
+  B2CAppContext: String!
+}
+
+input SendVoIPCallStartMessageDataForCallHandlingByNative {
+  """Address of sip server, which device should connect to"""
+  voipAddress: String!
+
+  """Login for connection to sip server"""
+  voipLogin: String!
+
+  """Password for connection to sip server"""
+  voipPassword: String!
+
+  """
+  Panels and their commands to open. First one must be the main one. Multiple panels are in testing stage right now and may change
+  """
+  voipPanels: [SendVoIPCallStartMessageVoIPPanelParameters!]!
+
+  """
+  Stun server urls. Are used to determine device public ip for media streams
+  """
+  stunServers: [String!]
+
+  """Preferred codec (usually vp8)"""
+  codec: String
+}
+
+input SendVoIPCallStartMessageData {
+  """
+  Unique value for each call session between panel and resident (means same for different devices also).
+  Must be provided for correct work with multiple devices that use same voip call.
+  F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
+  callId: String!
+
+  """
+  Meta information which helps you identify call. Not used right now. Will be sent to you server on answer button press.
+  """
+  callMeta: JSON
+
+  """
+  If you want your B2CApp to handle incoming VoIP call, provide this argument.
+  """
+  b2cAppCallData: SendVoIPCallStartMessageDataForCallHandlingByB2CApp
+
+  """
+  If you want mobile app to handle call (without your B2CApp), provide this argument. If "b2cAppCallData" and "nativeCallData" are provided together, native call is prioritized. 
+  """
+  nativeCallData: SendVoIPCallStartMessageDataForCallHandlingByNative
+}
+
+input SendVoIPCallStartMessageInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+
+  """
+  Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+  """
+  addressKey: String!
+
+  """Name of unit, same as in Property map"""
+  unitName: String!
+
+  """Type of unit, same as in Property map"""
+  unitType: SendVoIPCallStartMessageUnitType!
+  callData: SendVoIPCallStartMessageData!
+}
+
+type SendVoIPCallStartMessageOutput {
+  """
+  Count of all Organization Contacts, which we possibly could've sent messages to
+  """
+  verifiedContactsCount: Int
+
+  """Count of Messages that will be sent, one for each verified Resident"""
+  createdMessagesCount: Int
+
+  """Count of Messages which was not created due to some internal error"""
+  erroredMessagesCount: Int
+}
+
+enum SendVoIPCallStartMessageUnitType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
 }
 
 input SendDTMFToB2CAppData {
@@ -94799,6 +95327,11 @@ input SendDTMFToB2CAppInput {
 
   """Same "callId" which been sent in sendVoIPStartMessage"""
   callId: String!
+
+  """Token which was received in push"""
+  callStatusToken: String!
+  property: PropertyWhereUniqueInput!
+  organization: OrganizationWhereUniqueInput!
   data: SendDTMFToB2CAppData!
 }
 
@@ -98858,36 +99391,35 @@ type Query {
   """ Retrieve the meta-data for the B2CAppAccessRightSet list. """
   _B2CAppAccessRightSetsMeta: _ListMeta
 
-  """ Search for all B2BAppBillingEmbeddingConfigHistoryRecord items which match the where clause. 
+  """ Search for all B2CAppIntercomConfigHistoryRecord items which match the where clause. 
   """
-  allB2BAppBillingEmbeddingConfigHistoryRecords(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbeddingConfigHistoryRecord]
+  allB2CAppIntercomConfigHistoryRecords(where: B2CAppIntercomConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppIntercomConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2CAppIntercomConfigHistoryRecord]
 
-  """ Search for the B2BAppBillingEmbeddingConfigHistoryRecord item with the matching ID. 
+  """ Search for the B2CAppIntercomConfigHistoryRecord item with the matching ID. 
   """
-  B2BAppBillingEmbeddingConfigHistoryRecord(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereUniqueInput!): B2BAppBillingEmbeddingConfigHistoryRecord
+  B2CAppIntercomConfigHistoryRecord(where: B2CAppIntercomConfigHistoryRecordWhereUniqueInput!): B2CAppIntercomConfigHistoryRecord
 
-  """ Perform a meta-query on all B2BAppBillingEmbeddingConfigHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all B2CAppIntercomConfigHistoryRecord items which match the where clause. 
   """
-  _allB2BAppBillingEmbeddingConfigHistoryRecordsMeta(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allB2CAppIntercomConfigHistoryRecordsMeta(where: B2CAppIntercomConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppIntercomConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the B2BAppBillingEmbeddingConfigHistoryRecord list. 
+  """ Retrieve the meta-data for the B2CAppIntercomConfigHistoryRecord list. 
   """
-  _B2BAppBillingEmbeddingConfigHistoryRecordsMeta: _ListMeta
+  _B2CAppIntercomConfigHistoryRecordsMeta: _ListMeta
 
-  """ Search for all B2BAppBillingEmbeddingConfig items which match the where clause. 
+  """ Search for all B2CAppIntercomConfig items which match the where clause. 
   """
-  allB2BAppBillingEmbeddingConfigs(where: B2BAppBillingEmbeddingConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbeddingConfig]
+  allB2CAppIntercomConfigs(where: B2CAppIntercomConfigWhereInput, search: String, sortBy: [SortB2CAppIntercomConfigsBy!], orderBy: String, first: Int, skip: Int): [B2CAppIntercomConfig]
 
-  """ Search for the B2BAppBillingEmbeddingConfig item with the matching ID. 
+  """ Search for the B2CAppIntercomConfig item with the matching ID. """
+  B2CAppIntercomConfig(where: B2CAppIntercomConfigWhereUniqueInput!): B2CAppIntercomConfig
+
+  """ Perform a meta-query on all B2CAppIntercomConfig items which match the where clause. 
   """
-  B2BAppBillingEmbeddingConfig(where: B2BAppBillingEmbeddingConfigWhereUniqueInput!): B2BAppBillingEmbeddingConfig
+  _allB2CAppIntercomConfigsMeta(where: B2CAppIntercomConfigWhereInput, search: String, sortBy: [SortB2CAppIntercomConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Perform a meta-query on all B2BAppBillingEmbeddingConfig items which match the where clause. 
-  """
-  _allB2BAppBillingEmbeddingConfigsMeta(where: B2BAppBillingEmbeddingConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the B2BAppBillingEmbeddingConfig list. """
-  _B2BAppBillingEmbeddingConfigsMeta: _ListMeta
+  """ Retrieve the meta-data for the B2CAppIntercomConfig list. """
+  _B2CAppIntercomConfigsMeta: _ListMeta
 
   """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
   """
@@ -104699,45 +105231,41 @@ type Mutation {
   """ Delete multiple B2CAppAccessRightSet items by ID. """
   deleteB2CAppAccessRightSets(ids: [ID!]): [B2CAppAccessRightSet]
 
-  """ Create a single B2BAppBillingEmbeddingConfigHistoryRecord item. """
-  createB2BAppBillingEmbeddingConfigHistoryRecord(data: B2BAppBillingEmbeddingConfigHistoryRecordCreateInput): B2BAppBillingEmbeddingConfigHistoryRecord
+  """ Create a single B2CAppIntercomConfigHistoryRecord item. """
+  createB2CAppIntercomConfigHistoryRecord(data: B2CAppIntercomConfigHistoryRecordCreateInput): B2CAppIntercomConfigHistoryRecord
 
-  """ Create multiple B2BAppBillingEmbeddingConfigHistoryRecord items. """
-  createB2BAppBillingEmbeddingConfigHistoryRecords(data: [B2BAppBillingEmbeddingConfigHistoryRecordsCreateInput]): [B2BAppBillingEmbeddingConfigHistoryRecord]
+  """ Create multiple B2CAppIntercomConfigHistoryRecord items. """
+  createB2CAppIntercomConfigHistoryRecords(data: [B2CAppIntercomConfigHistoryRecordsCreateInput]): [B2CAppIntercomConfigHistoryRecord]
 
-  """ Update a single B2BAppBillingEmbeddingConfigHistoryRecord item by ID. 
-  """
-  updateB2BAppBillingEmbeddingConfigHistoryRecord(id: ID!, data: B2BAppBillingEmbeddingConfigHistoryRecordUpdateInput): B2BAppBillingEmbeddingConfigHistoryRecord
+  """ Update a single B2CAppIntercomConfigHistoryRecord item by ID. """
+  updateB2CAppIntercomConfigHistoryRecord(id: ID!, data: B2CAppIntercomConfigHistoryRecordUpdateInput): B2CAppIntercomConfigHistoryRecord
 
-  """ Update multiple B2BAppBillingEmbeddingConfigHistoryRecord items by ID. 
-  """
-  updateB2BAppBillingEmbeddingConfigHistoryRecords(data: [B2BAppBillingEmbeddingConfigHistoryRecordsUpdateInput]): [B2BAppBillingEmbeddingConfigHistoryRecord]
+  """ Update multiple B2CAppIntercomConfigHistoryRecord items by ID. """
+  updateB2CAppIntercomConfigHistoryRecords(data: [B2CAppIntercomConfigHistoryRecordsUpdateInput]): [B2CAppIntercomConfigHistoryRecord]
 
-  """ Delete a single B2BAppBillingEmbeddingConfigHistoryRecord item by ID. 
-  """
-  deleteB2BAppBillingEmbeddingConfigHistoryRecord(id: ID!): B2BAppBillingEmbeddingConfigHistoryRecord
+  """ Delete a single B2CAppIntercomConfigHistoryRecord item by ID. """
+  deleteB2CAppIntercomConfigHistoryRecord(id: ID!): B2CAppIntercomConfigHistoryRecord
 
-  """ Delete multiple B2BAppBillingEmbeddingConfigHistoryRecord items by ID. 
-  """
-  deleteB2BAppBillingEmbeddingConfigHistoryRecords(ids: [ID!]): [B2BAppBillingEmbeddingConfigHistoryRecord]
+  """ Delete multiple B2CAppIntercomConfigHistoryRecord items by ID. """
+  deleteB2CAppIntercomConfigHistoryRecords(ids: [ID!]): [B2CAppIntercomConfigHistoryRecord]
 
-  """ Create a single B2BAppBillingEmbeddingConfig item. """
-  createB2BAppBillingEmbeddingConfig(data: B2BAppBillingEmbeddingConfigCreateInput): B2BAppBillingEmbeddingConfig
+  """ Create a single B2CAppIntercomConfig item. """
+  createB2CAppIntercomConfig(data: B2CAppIntercomConfigCreateInput): B2CAppIntercomConfig
 
-  """ Create multiple B2BAppBillingEmbeddingConfig items. """
-  createB2BAppBillingEmbeddingConfigs(data: [B2BAppBillingEmbeddingConfigsCreateInput]): [B2BAppBillingEmbeddingConfig]
+  """ Create multiple B2CAppIntercomConfig items. """
+  createB2CAppIntercomConfigs(data: [B2CAppIntercomConfigsCreateInput]): [B2CAppIntercomConfig]
 
-  """ Update a single B2BAppBillingEmbeddingConfig item by ID. """
-  updateB2BAppBillingEmbeddingConfig(id: ID!, data: B2BAppBillingEmbeddingConfigUpdateInput): B2BAppBillingEmbeddingConfig
+  """ Update a single B2CAppIntercomConfig item by ID. """
+  updateB2CAppIntercomConfig(id: ID!, data: B2CAppIntercomConfigUpdateInput): B2CAppIntercomConfig
 
-  """ Update multiple B2BAppBillingEmbeddingConfig items by ID. """
-  updateB2BAppBillingEmbeddingConfigs(data: [B2BAppBillingEmbeddingConfigsUpdateInput]): [B2BAppBillingEmbeddingConfig]
+  """ Update multiple B2CAppIntercomConfig items by ID. """
+  updateB2CAppIntercomConfigs(data: [B2CAppIntercomConfigsUpdateInput]): [B2CAppIntercomConfig]
 
-  """ Delete a single B2BAppBillingEmbeddingConfig item by ID. """
-  deleteB2BAppBillingEmbeddingConfig(id: ID!): B2BAppBillingEmbeddingConfig
+  """ Delete a single B2CAppIntercomConfig item by ID. """
+  deleteB2CAppIntercomConfig(id: ID!): B2CAppIntercomConfig
 
-  """ Delete multiple B2BAppBillingEmbeddingConfig items by ID. """
-  deleteB2BAppBillingEmbeddingConfigs(ids: [ID!]): [B2BAppBillingEmbeddingConfig]
+  """ Delete multiple B2CAppIntercomConfig items by ID. """
+  deleteB2CAppIntercomConfigs(ids: [ID!]): [B2CAppIntercomConfig]
 
   """ Create a single MobileFeatureConfigHistoryRecord item. """
   createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
@@ -109458,7 +109986,6 @@ type Mutation {
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
-  sendDTMFToB2CApp(data: SendDTMFToB2CAppInput!): SendDTMFToB2CAppOutput
 
   """
   Mutation sends VOIP_INCOMING_CALL Messages to each verified resident on address + unit. Also caches calls, so mobile app can properly react to cancel calls. You can either provide all data.* arguments so mobile app will use it's own app to answer call, or provide just B2CAppContext + callId to use your B2CApp's calling app
@@ -109494,6 +110021,7 @@ type Mutation {
   }`
   """
   sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput
+  sendDTMFToB2CApp(data: SendDTMFToB2CAppInput!): SendDTMFToB2CAppOutput
 
   """
   Mutation sends CANCELED_CALL_MESSAGE Messages to each verified resident on address + unit. This push rejects incoming calls, if they werent answered yet.

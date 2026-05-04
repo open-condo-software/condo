@@ -55,6 +55,15 @@ const {
     B2CAppIntercomConfig: B2CAppIntercomConfigGQL,
     B2CAppIntercomConfigAdmin: B2CAppIntercomConfigAdminGQL,
  } = require('@condo/domains/miniapp/gql')
+
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+
+const { createTestPhone, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -962,8 +971,8 @@ async function sendDTMFToB2CAppByTestClient (client, app, extraAttrs = {}) {
         dv: 1,
         sender,
         app: { id: app.id },
-        ...extraAttrs,
         callId: faker.random.alphaNumeric(8),
+        ...extraAttrs,
         data: {
             dtmfCode: faker.random.alphaNumeric(8),
             ...extraData
@@ -1004,6 +1013,31 @@ async function updateTestB2CAppIntercomConfig (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function prepareUserWithVerifiedResidentAndContact ({ admin, organization, property, unitName, unitType }) {
+    if (!admin) admin = await makeLoggedInAdminClient()
+    if (!unitName) unitName = faker.random.alphaNumeric(8)
+    if (!unitType) unitType = FLAT_UNIT_TYPE
+    
+    const phone = createTestPhone()
+    const userClient = await makeClientWithResidentUser({}, { phone })
+    const [contact] = await createTestContact(admin, organization, property, {
+        unitName: unitName,
+        unitType: unitType,
+        isVerified: true,
+        phone: phone,
+    })
+    const [resident] = await createTestResident(admin, userClient.user, property, {
+        unitName: unitName,
+        unitType: unitType,
+    })
+
+    return {
+        user: userClient.user,
+        contact,
+        resident,
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -1039,5 +1073,6 @@ module.exports = {
     getVoIPCallStatusByTestClient,
     prepareVoIPUser,
     B2CAppIntercomConfig, B2CAppIntercomConfigAdmin, createTestB2CAppIntercomConfig, updateTestB2CAppIntercomConfig,
+    prepareUserWithVerifiedResidentAndContact,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

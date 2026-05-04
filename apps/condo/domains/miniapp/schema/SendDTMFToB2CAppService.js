@@ -9,7 +9,9 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendDTMFToB2CAppService')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
+const { getCallStatus, CALL_STATUS_ENDED } = require('@condo/domains/miniapp/utils/voip')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const { encryptionManager } = require('../../common/utils/encryption')
 
 const logger = getLogger()
 
@@ -76,17 +78,12 @@ const ERRORS = {
     },
 }
 
-// there will be an util function after DOMA-12905
-async function getCallStatus (args) {
-    return { status: 'active' }
-}
-
-async function sendDTMFCode ({ context, url, dtmfCode, accessToken }) {
+async function sendDTMFCode ({ context, url, callId, dtmfCode, accessToken }) {
     if (!dtmfCode) {
         throw new GQLError(ERRORS.INVALID_DTMF_CODE, context)
     }
 
-    if (!url.trimg()) {
+    if (!url.trim()) {
         throw new GQLError(ERRORS.INVALID_CONFIG, context)
     }
 
@@ -100,6 +97,9 @@ async function sendDTMFCode ({ context, url, dtmfCode, accessToken }) {
             headers: {
                 ...accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
             },
+            body: JSON.stringify({
+                callId, dtmfCode,
+            }),
         })
 
         responseJSON = await response.json()
@@ -195,7 +195,7 @@ const SendDTMFToB2CAppService = new GQLCustomSchema('SendDTMFToB2CAppService', {
 
                 const callStatus = await getCallStatus({ callStatusToken, b2cAppId: app.id, propertyId: property.id, organizationId: organization.id, callId })
 
-                if (!callStatus) {
+                if (!callStatus || callStatus.status === CALL_STATUS_ENDED) {
                     throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
                 }
 
@@ -211,11 +211,16 @@ const SendDTMFToB2CAppService = new GQLCustomSchema('SendDTMFToB2CAppService', {
                     throw new GQLError(ERRORS.APP_NOT_ALLOWED, context)
                 }
 
+                let accessToken = null
+                if (b2cApp.intercomConfig.accessToken) {
+                    accessToken = encryptionManager.decrypt(b2cApp.intercomConfig.accessToken)
+                }
+
                 await sendDTMFCode({
                     context,
                     url: b2cApp.intercomConfig.sendDTMFUrl, 
-                    accessToken: b2cApp.intercomConfig.accessToken, 
-                    dtmfCode,
+                    accessToken: accessToken, 
+                    dtmfCode, callId,
                 })
 
                 return {
