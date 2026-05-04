@@ -42,7 +42,7 @@ export const getImagePreviewFromUrl = (url: string, id?: string) => {
             ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
 
             const resultUrl = canvas.toDataURL('image/jpeg', 0.85)
-            PREVIEW_CACHE.set(id, resultUrl)
+            if (resultUrl) PREVIEW_CACHE.set(id, resultUrl)
             resolve(resultUrl)
         }
 
@@ -90,7 +90,7 @@ export const createVideoPreviewFromUrl = (url: string, id?: string) => {
             ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight)
 
             const resultUrl = canvas.toDataURL('image/jpeg', 0.9)
-            PREVIEW_CACHE.set(id, resultUrl)
+            if (resultUrl) PREVIEW_CACHE.set(id, resultUrl)
             resolve(resultUrl)
         }
 
