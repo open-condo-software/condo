@@ -21,14 +21,14 @@ export function useMiniappRouter () {
         return bridge.send('CondoWebAppPushHistoryState', {
             title: title ?? document.title,
             state: { url },
-        }).catch(() => router.push(href))
+        }).catch(() => router.push(url))
     }, [router])
 
     const replace = useCallback(async (url: string, title?: string) => {
         return bridge.send('CondoWebAppReplaceHistoryState', {
             title: title ?? document.title,
             state: { url },
-        }).catch(() => router.replace(href))
+        }).catch(() => router.replace(url))
     }, [router])
 
     return { ...router, push, replace }
