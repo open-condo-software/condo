@@ -260,7 +260,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     } = await getVerifiedResidentsWithContacts({ context, logContext, addressKey, unitName, unitType })
 
                     // 3) Check limits
-                    await checkLimits({ redisGuard, serviceName: SERVICE_NAME, voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, logContext, b2cAppId, propertyId: property.id })
+                    await checkLimits({ redisGuard, serviceName: SERVICE_NAME, voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, logContext, b2cAppId, addressKey, unitName, unitType })
 
                     const customVoIPValuesByContactId = await getCustomVoIPValuesByContacts({ voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, contactIds: [...new Set(verifiedResidentsWithContacts.map(({ contact }) => contact.id))] })
                 

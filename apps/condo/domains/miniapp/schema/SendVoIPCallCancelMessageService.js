@@ -95,15 +95,6 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
         },
         {
             access: true,
-            type: `input SendVoIPCallCancelMessageDataForCallHandlingByB2CApp {
-                """
-                Data that will be provided to B2CApp. May be stringified JSON
-                """
-                B2CAppContext: String!,
-            }`,
-        },
-        {
-            access: true,
             type: `input SendVoIPCallCancelMessageData {
                 """
                 Unique value for each call session between panel and resident (means same for different devices also).
@@ -115,10 +106,6 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                 Reason why call was canceled
                 """
                 reason: SendVoIPCallCancelMessageCancelReason!
-                """
-                If you want your B2CApp to handle incoming message, provide this argument.
-                """
-                b2cAppCallData: SendVoIPCallCancelMessageDataForCallHandlingByB2CApp,
             }`,
         },
         {
@@ -170,8 +157,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
             access: access.canSendVoIPCallCancelMessage,
             schema: 'sendVoIPCallCancelMessage(data: SendVoIPCallCancelMessageInput!): SendVoIPCallCancelMessageOutput',
             doc: {
-                summary: 'Mutation sends VOIP_INCOMING_CALL Messages to each verified resident on address + unit. Also caches calls, so mobile app can properly react to cancel calls. ' +
-                         'You can either provide all data.* arguments so mobile app will use it\'s own app to answer call, or provide just B2CAppContext + callId to use your B2CApp\'s calling app',
+                summary: 'Mutation sends CANCELED_CALL_MESSAGE Messages to each verified resident on address + unit. This push rejects incoming calls, if they werent answered yet.',
                 errors: omit(ERRORS, 'DV_VERSION_MISMATCH', 'WRONG_SENDER_FORMAT'),
             },
             resolver: async (parent, args, context) => {
@@ -195,7 +181,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                     } = await getVerifiedResidentsWithContacts({ context, logContext, addressKey, unitName, unitType })
 
                     // 3) Check limits
-                    await checkLimits({ context, logContext, b2cAppId, propertyId: property.id, redisGuard, serviceName: SERVICE_NAME, voipMessageType: CANCELED_CALL_MESSAGE_PUSH_TYPE })
+                    await checkLimits({ context, logContext, b2cAppId, addressKey, unitName, unitType, redisGuard, serviceName: SERVICE_NAME, voipMessageType: CANCELED_CALL_MESSAGE_PUSH_TYPE })
                 
                     const callStatus = await getCallStatus({ b2cAppId, callId: callData.callId, organizationId: organization.id, propertyId: property.id })
 

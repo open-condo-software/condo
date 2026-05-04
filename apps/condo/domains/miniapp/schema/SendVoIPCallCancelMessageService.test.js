@@ -9,7 +9,6 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { NATIVE_VOIP_TYPE, B2C_APP_VOIP_TYPE } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     sendVoIPCallCancelMessageByTestClient,
@@ -18,20 +17,13 @@ const {
     createTestB2CAppAccessRight,
     createTestB2CAppAccessRightSet,
     updateTestB2CAppAccessRight,
-    createTestB2BApp,
-    createTestB2BAppContext,
-    createTestB2BAppAccessRightSet,
-    createTestB2BAppAccessRight,
-    createTestCustomValue,
     createTestAppMessageSetting,
-    createTestCustomField,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, CALL_STATUS_STARTED, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH, CALL_STATUS_ANSWERED, setCallStatus } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, CALL_STATUS_STARTED, MAX_CALL_ID_LENGTH, CALL_STATUS_ANSWERED, setCallStatus } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
@@ -118,7 +110,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                 unitType: FLAT_UNIT_TYPE,
                 callData: {
                     callId: faker.datatype.uuid(),
-                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
             if (expectError) {
@@ -144,7 +135,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                     unitType: FLAT_UNIT_TYPE,
                     callData: {
                         callId: faker.datatype.uuid(),
-                        b2cAppCallData: { B2CAppContext: '' },
                     },
                 })
             }, ERRORS.PROPERTY_NOT_FOUND)
@@ -161,7 +151,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                     unitType: FLAT_UNIT_TYPE,
                     callData: {
                         callId: faker.datatype.uuid(),
-                        b2cAppCallData: { B2CAppContext: '' },
                     },
                 })
             }, ERRORS.PROPERTY_NOT_FOUND)
@@ -205,9 +194,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                         app: { id: b2cApp.id },
                         callData: {
                             callId,
-                            b2cAppCallData: {
-                                B2CAppContext: '',
-                            },
                         },
                     })
                 }, ERRORS.INVALID_CALL_ID)
@@ -302,7 +288,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                 unitType: unitType,
                 callData: {
                     callId,
-                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -345,7 +330,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                 unitType: unitType,
                 callData: {
                     callId,
-                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -388,7 +372,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                 unitType: unitType,
                 callData: {
                     callId,
-                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -429,7 +412,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                 unitType: FLAT_UNIT_TYPE,
                 callData: {
                     callId,
-                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
             expect(result.verifiedContactsCount).toBe(1)
@@ -476,7 +458,7 @@ describe('SendVoIPCallCancelMessageService', () => {
                     addressKey: property.addressKey,
                     unitName: unitName,
                     unitType: unitType,
-                    callData: { callId, b2cAppCallData: { B2CAppContext: '' } },
+                    callData: { callId },
                 })
                 expect(result.verifiedContactsCount).toBe(residentsCount)
                 expect(result.createdMessagesCount).toBe(residentsCount)
@@ -519,7 +501,6 @@ describe('SendVoIPCallCancelMessageService', () => {
                     unitType: FLAT_UNIT_TYPE,
                     callData: {
                         callId,
-                        b2cAppCallData: { B2CAppContext: '' },
                     },
                 })
                 expect(result.verifiedContactsCount).toBe(0)

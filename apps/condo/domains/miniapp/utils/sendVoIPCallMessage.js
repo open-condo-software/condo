@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 
+const conf = require('@open-condo/config')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getByCondition, find } = require('@open-condo/keystone/schema')
 
@@ -18,7 +19,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema') 
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const VOIP_MESSAGE_TYPES = [
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
@@ -38,7 +39,21 @@ const VOIP_MESSAGE_DATA_PREPARERS = {
 const CACHE_TTL = {
     DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     [VOIP_INCOMING_CALL_MESSAGE_TYPE]: 2,
+    [CANCELED_CALL_MESSAGE_PUSH_TYPE]: 2,
 }
+
+const GLOBAL_SEND_VOIP_MESSAGE_WINDOW_IN_SECODS = 60 * 60 // 1 minute
+// 1 intercom ~ 1 call per 15 seconds (judged by call span) ~ 4 calls per minute max
+// 1 house ~ 1 - 10 intercoms max
+// 1 house with closed area ~ 4 gates with intercoms max
+// 1 house ~ 14 intercoms = 56 calls per minute max
+// B2CApp has connection to N block of houses with M houses in each. Lets think that block of houses ~ 4 houses, and miniapp has 20 blocks 
+// And multiply by 2 for error margin
+// NOTE(YEgorLu): maybe need to add global field for AppMessageSetting
+const DEFAULT_GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC = 4 * (10 + 4) * 4 * 20 * 2 // 8960
+const GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID = JSON.parse(conf.GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID || '{}')
+
+const MAX_UNIT_NAME_LANEGTH = 100
 
 class RejectCallError extends Error {
     constructor (returnData) {
@@ -322,32 +337,17 @@ async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessage
 function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
     const sendMessageStats = sendMessagePromisesResults.map(promiseResult => {
         if (promiseResult.status === 'rejected') {
-            if (logContext) {
-                logContext.logInfoStats.erroredMessagesCount++
-                logContext.logInfoStats.createMessageErrors.push(promiseResult.reason)
-            }
             return { error: promiseResult.reason }
         } 
         const { resident, result } = promiseResult.value
 
         if (result.isDuplicateMessage) {
-            if (logContext) {
-                logContext.logInfoStats.erroredMessagesCount++
-                logContext.logInfoStats.createMessageErrors.push(`${resident.id} duplicate message`)
-            }
             return { error: `${resident.id} duplicate message` }
         }
         if (result.status !== MESSAGE_SENDING_STATUS) {
-            if (logContext) {
-                logContext.logInfoStats.erroredMessagesCount++
-                logContext.logInfoStats.createMessageErrors.push(`${resident.id} invalid status for some reason`)
-            }
             return { error: `${resident.id} invalid status for some reason` }
         }
-        if (logContext) {
-            logContext.logInfoStats.createdMessagesCount++
-        }
-        return result
+        return promiseResult
     })
 
     for (const messageStat of sendMessageStats) {
@@ -372,24 +372,60 @@ function getLogInfoFn ({ logger, serviceName }) {
     }
 }
 
-async function checkLimits ({ voipMessageType, redisGuard, serviceName, context, b2cAppId, propertyId, logContext }) {
+async function checkGlobalLimit ({ voipMessageType, redisGuard, serviceName, context, b2cAppId }) {
+
+    const searchKey = `${voipMessageType}-${b2cAppId}`
+
+    const callsInWindow = typeof GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID[b2cAppId] === 'number' 
+        ? GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID[b2cAppId]
+        : DEFAULT_GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC
+
+    await redisGuard.checkCustomLimitCounters(
+        `${serviceName}-${searchKey}`,
+        GLOBAL_SEND_VOIP_MESSAGE_WINDOW_IN_SECODS,
+        callsInWindow,
+        context,
+    )
+}
+
+async function checkUnitLimit ({ voipMessageType, redisGuard, serviceName, context, b2cAppId, addressKey, unitName, unitType }) {
     const appSettings = await getByCondition('AppMessageSetting', {
-        b2cApp: { id: b2cAppId }, 
-        type: voipMessageType, 
-        deletedAt: null, 
+        b2cApp: { id: b2cAppId },
+        type: voipMessageType,
+        deletedAt: null,
     })
+
+    if (unitName.length > MAX_UNIT_NAME_LANEGTH) {
+        unitName = unitName.slice(0, MAX_UNIT_NAME_LANEGTH)
+    }
                 
-    const searchKey = `${voipMessageType}-${b2cAppId}-${propertyId}`
+    const searchKey = `${voipMessageType}-${b2cAppId}-${addressKey}-${unitName}-${unitType}`
     const ttl = CACHE_TTL[voipMessageType] || CACHE_TTL['DEFAULT']
 
-    try {
-        await redisGuard.checkCustomLimitCounters(
-            `${serviceName}-${searchKey}`,
-            appSettings?.notificationWindowSize ?? ttl,
-            appSettings?.numberOfNotificationInWindow ?? DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
-            context,
-        )
-    } catch (err) {
+    await redisGuard.checkCustomLimitCounters(
+        `${serviceName}-${searchKey}`,
+        appSettings?.notificationWindowSize ?? ttl,
+        appSettings?.numberOfNotificationInWindow ?? DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
+        context,
+    )
+}
+
+/**
+ * 
+ * @param {{ voipMessageType, redisGuard, serviceName, context, b2cAppId, addressKey, unitName, unitType, logContext }} mutationCallContext 
+ */
+async function checkLimits (mutationCallContext) {
+    const { logContext } = mutationCallContext
+
+    const limitsPromises = await Promise.allSettled([
+        checkGlobalLimit(mutationCallContext),
+        checkUnitLimit(mutationCallContext),
+    ])
+
+    const rejectedPromises = limitsPromises.filter(p => p.status === 'rejected')
+
+    if (rejectedPromises.length) {
+        const err = new AggregateError(rejectedPromises.map(p => p.reason))
         if (logContext) {
             logContext.logInfoStats.step = 'check limits'
             logContext.err = err
