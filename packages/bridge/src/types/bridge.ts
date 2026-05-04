@@ -37,7 +37,10 @@ export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName>
 export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData & RequestId>
 export type CondoBridgeResponseEvent<Method extends AnyResponseMethodName> = CondoBridgeResultResponseEvent<Method> | CondoBridgeErrorResponseEvent<Method>
 export type CondoBridgeIncomingEvent<Event extends AnyIncomingEventName> = BaseIncomingEvent<IncomingEventName<Event>, IncomingEventData<Event>>
-export type CondoBridgeSubscriptionEvent = CondoBridgeResponseEvent<AnyResponseMethodName> | CondoBridgeIncomingEvent<AnyIncomingEventName>
+export type CondoBridgeSubscriptionEvent =
+    | { [Method in AnyResponseMethodName]: CondoBridgeResultResponseEvent<Method> }[AnyResponseMethodName]
+    | { [Method in AnyResponseMethodName]: CondoBridgeErrorResponseEvent<Method> }[AnyResponseMethodName]
+    | { [Event in AnyIncomingEventName]: CondoBridgeIncomingEvent<Event> }[AnyIncomingEventName]
 export type CondoBridgeSubscriptionListener = (event: CondoBridgeSubscriptionEvent) => void
 
 export type WebBridge = {
