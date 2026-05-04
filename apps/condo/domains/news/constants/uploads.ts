@@ -9,6 +9,6 @@ export const SIZE_LIMIT_BY_FILE_TYPE = {
     },
     documents: {
         extensions: ['PDF', 'TXT', 'DOC', 'EXEL', 'ZIP'],
-        limitSizeInMb: 10,
+        limitSizeInMb: 50,
     },
 }
