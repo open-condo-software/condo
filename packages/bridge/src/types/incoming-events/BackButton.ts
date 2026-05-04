@@ -1,0 +1,1 @@
+export type BackButtonData = Record<string, never>

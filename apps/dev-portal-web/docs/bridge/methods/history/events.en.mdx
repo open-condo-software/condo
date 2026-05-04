@@ -1,0 +1,60 @@
+On some Condo surfaces, a mini-app can manage its state and navigation using an API similar to the browser's [window.history](https://developer.mozilla.org/en-US/docs/Web/API/Window/history)
+
+Three methods are available for navigation: [PushHistoryState](/docs/bridge/methods/history/push-history-state), [ReplaceHistoryState](/docs/bridge/methods/history/replace-history-state) and [PopHistoryState](/docs/bridge/methods/history/pop-history-state).
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Events
+
+During navigation, a mini-app can receive two incoming events.
+
+### CondoWebAppHistoryPopStateEvent
+
+This event contains the current navigation state — the title and an arbitrary state previously passed by the mini-app.
+
+The event is fired in the following cases:
+- after calling [PushHistoryState](/docs/bridge/methods/history/push-history-state), [ReplaceHistoryState](/docs/bridge/methods/history/replace-history-state) or [PopHistoryState](/docs/bridge/methods/history/pop-history-state)
+- when the Back navigation button is triggered (since it automatically calls [PopHistoryState](/docs/bridge/methods/history/pop-history-state))
+
+**Event data:**
+
+| Field | Type           | Description                                                        |
+|-------|----------------|--------------------------------------------------------------------|
+| title | string \| null | Title of the current navigation state                              |
+| state | unknown        | Arbitrary state passed by the mini-app during push/replace         |
+
+**Subscription example:**
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.subscribe((event) => {
+    if (event.type === 'CondoWebAppHistoryPopStateEvent') {
+        const { title, state } = event.data
+        console.log('Current navigation state:', title, state)
+    }
+})
+```
+
+### CondoWebAppBackButtonEvent
+
+This event is fired when the user taps the Back navigation button.
+
+<Alert type='info'>
+    If the mini-app navigation stack is not empty, `CondoWebAppHistoryPopStateEvent` is automatically fired alongside `CondoWebAppBackButtonEvent` with the state at the top of the stack.
+</Alert>
+
+The event carries no additional data.
+
+**Subscription example:**
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.subscribe((event) => {
+    if (event.type === 'CondoWebAppBackButtonEvent') {
+        console.log('User tapped the Back button')
+    }
+})
+```

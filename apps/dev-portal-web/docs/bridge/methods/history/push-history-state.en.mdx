@@ -1,0 +1,57 @@
+This method adds a new entry to the mini-app navigation stack — the equivalent of `window.history.pushState`.
+After successful processing, Condo will send the mini-app a [`CondoWebAppHistoryPopState`](/docs/bridge/methods/history/events) event with the provided state.
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Method params
+
+| Parameter name | Parameter type | Required | Parameter description                              |
+|----------------|----------------|----------|----------------------------------------------------|
+| title          | string \| null | no       | Title of the new navigation state                  |
+| state          | unknown        | no       | Arbitrary state associated with this entry         |
+
+## Return value
+
+If successful, the method will return a JSON object containing a single `success` field:
+```json
+{ "success": true }
+```
+
+## Usage examples
+
+### Basic — updating the title on navigation
+
+If all you need is to update the displayed title when navigating inside the mini-app, you can pass only `title`:
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+await bridge.send('CondoWebAppPushHistoryState', {
+    title: 'Profile settings',
+})
+```
+
+### Advanced — passing arbitrary state
+
+In addition to a title, you can attach arbitrary state (any serializable object) to each stack entry.
+When the user presses Back, a `CondoWebAppHistoryPopStateEvent` will arrive and you can restore any data you need:
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.subscribe((event) => {
+    if (event.type === 'CondoWebAppHistoryPopStateEvent') {
+        const { step, formData } = event.data.state as { step: number, formData: Record<string, unknown> }
+        setCurrentStep(step)
+        setFormData(formData)
+    }
+})
+
+async function goToStep (step: number, formData: Record<string, unknown>) {
+    await bridge.send('CondoWebAppPushHistoryState', {
+        title: `Step ${step}`,
+        state: { step, formData },
+    })
+}
+```

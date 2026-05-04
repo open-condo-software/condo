@@ -1,0 +1,60 @@
+На некоторых поверхностях Condo мини-приложение может управлять своим состоянием и навигацией с помощью API, схожего с браузерным [window.history](https://developer.mozilla.org/ru/docs/Web/API/Window/history)
+
+Для управления навигацией в condo вам доступны три метода: [PushHistoryState](/docs/bridge/methods/history/push-history-state), [ReplaceHistoryState](/docs/bridge/methods/history/replace-history-state) и [PopHistoryState](/docs/bridge/methods/history/pop-history-state).
+
+## Платформы
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## События
+
+В процессе работы с навигацией мини-приложение может получать два входящих события.
+
+### CondoWebAppHistoryPopStateEvent
+
+Событие содержит текущее состояние навигации — заголовок и произвольный стейт, переданный мини-приложением ранее.
+
+Событие вызывается в следующих случаях:
+- после вызова методов [PushHistoryState](/docs/bridge/methods/history/push-history-state), [ReplaceHistoryState](/docs/bridge/methods/history/replace-history-state) или [PopHistoryState](/docs/bridge/methods/history/pop-history-state)
+- при срабатывании навигационной кнопки «Назад» (т.к. она автоматически вызывает [PopHistoryState](/docs/bridge/methods/history/pop-history-state))
+
+**Данные события:**
+
+| Поле  | Тип                    | Описание                                                     |
+|-------|------------------------|--------------------------------------------------------------|
+| title | string \| null         | Заголовок текущего состояния навигации                       |
+| state | unknown                | Произвольный стейт, переданный мини-приложением при push/replace |
+
+**Пример подписки:**
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.subscribe((event) => {
+    if (event.type === 'CondoWebAppHistoryPopStateEvent') {
+        const { title, state } = event.data
+        console.log('Текущий стейт навигации:', title, state)
+    }
+})
+```
+
+### CondoWebAppBackButton
+
+Событие отправляется при нажатии пользователем навигационной кнопки «Назад».
+
+<Alert type='info'>
+    Если стек навигации мини-приложения не пуст, вместе с `CondoWebAppBackButton` автоматически вызывается `CondoWebAppHistoryPopState` с актуальным состоянием на вершине стека.
+</Alert>
+
+Событие не содержит дополнительных данных.
+
+**Пример подписки:**
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.subscribe((event) => {
+    if (event.type === 'CondoWebAppBackButtonEvent') {
+        console.log('Пользователь нажал кнопку «Назад»')
+    }
+})
+```

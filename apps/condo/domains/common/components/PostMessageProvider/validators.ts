@@ -177,7 +177,7 @@ export const CondoWebAppSetPageActionsSchema = {
 }
 
 
-export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
+export type ValidatorsType = Partial<{ [Method in AllRequestMethods]: RequestParamValidator<Method> }>
 
 export const validators: ValidatorsType = {
     CondoWebSetActiveCall: ajv.compile(CondoWebSetActiveCallParamsSchema),

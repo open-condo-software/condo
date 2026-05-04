@@ -1,0 +1,7 @@
+{
+  "events": "Navigation events",
+  "push-history-state": "CondoWebAppPushHistoryState",
+  "replace-history-state": "CondoWebAppReplaceHistoryState",
+  "pop-history-state": "CondoWebAppPopHistoryState",
+  "example": "Navigation example"
+}

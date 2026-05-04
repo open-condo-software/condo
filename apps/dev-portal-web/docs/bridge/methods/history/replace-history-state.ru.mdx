@@ -1,0 +1,31 @@
+Данный метод заменяет текущую запись в стеке навигации мини-приложения — аналог `window.history.replaceState`.
+В отличие от [PushHistoryState](/docs/bridge/methods/history/push-history-state), новая запись не добавляется: изменяется только верхняя запись стека.
+После успешной обработки Condo отправит мини-приложению  событие [`CondoWebAppHistoryPopState`](/docs/bridge/methods/history/events) с обновлённым состоянием.
+
+## Платформы
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Параметры метода
+
+| Имя параметра | Тип параметра  | Обязательный | Описание параметра                                 |
+|---------------|----------------|--------------|-----------------------------------------------------|
+| title         | string \| null | нет          | Новый заголовок текущего состояния навигации        |
+| state         | unknown        | нет          | Произвольный стейт, которым заменяется текущий      |
+
+## Возвращаемое значение
+
+При успешном выполнении метод вернет назад JSON-объект, содержащий единственное поле `success`:
+```json
+{ "success": true }
+```
+
+## Пример использования
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+await bridge.send('CondoWebAppReplaceHistoryState', {
+    title: 'Шаг 1 (обновлён)',
+    state: { step: 1, formData: { name: 'Jane' } },
+})
+```

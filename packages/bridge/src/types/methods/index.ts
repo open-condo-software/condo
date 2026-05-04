@@ -1,30 +1,36 @@
 // Imports for usage here
-import type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalWindow'
-import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './GetActiveProgressBars'
 import type { GetFragmentParams, GetFragmentData } from './GetFragment'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+import type { PopHistoryStateParams, PopHistoryStateData } from './historical/PopHistoryState'
+import type { PushHistoryStateParams, PushHistoryStateData } from './historical/PushHistoryState'
+import type { ReplaceHistoryStateParams, ReplaceHistoryStateData } from './historical/ReplaceHistoryState'
+import type { CloseModalWindowParams, CloseModalWindowData } from './modals/CloseModalWindow'
+import type { ShowModalWindowParams, ShowModalWindowData } from './modals/ShowModalWindow'
+import type { UpdateModalWindowParams, UpdateModalWindowData } from './modals/UpdateModalWindow'
+import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './progress-bars/GetActiveProgressBars'
+import type { ShowProgressBarParams, ShowProgressBarData } from './progress-bars/ShowProgressBar'
+import type { UpdateProgressBarParams, UpdateProgressBarData } from './progress-bars/UpdateProgressBar'
 import type { RedirectData, RedirectParams } from './Redirect'
 import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
-import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
-import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
-import type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
-import type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 // Reexports for accessibility from outside
-export type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalWindow'
-export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './GetActiveProgressBars'
+export type { CloseModalWindowParams, CloseModalWindowData } from './modals/CloseModalWindow'
+export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './progress-bars/GetActiveProgressBars'
 export type { GetFragmentParams, GetFragmentData } from './GetFragment'
 export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+export type { PopHistoryStateParams, PopHistoryStateData } from './historical/PopHistoryState'
+export type { PushHistoryStateParams, PushHistoryStateData } from './historical/PushHistoryState'
 export type { RedirectData, RedirectParams } from './Redirect'
+export type { ReplaceHistoryStateParams, ReplaceHistoryStateData } from './historical/ReplaceHistoryState'
 export type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
-export type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
+export type { ShowModalWindowParams, ShowModalWindowData } from './modals/ShowModalWindow'
 export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
-export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
-export type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
-export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
+export type { ShowProgressBarParams, ShowProgressBarData } from './progress-bars/ShowProgressBar'
+export type { UpdateModalWindowParams, UpdateModalWindowData } from './modals/UpdateModalWindow'
+export type { UpdateProgressBarParams, UpdateProgressBarData } from './progress-bars/UpdateProgressBar'
 export type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
 
 /**
@@ -35,7 +41,10 @@ export type RequestMethodsParamsMap = {
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
     CondoWebAppGetFragment: GetFragmentParams
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
+    CondoWebAppPopHistoryState: PopHistoryStateParams
+    CondoWebAppPushHistoryState: PushHistoryStateParams
     CondoWebAppRedirect: RedirectParams
+    CondoWebAppReplaceHistoryState: ReplaceHistoryStateParams
     CondoWebAppRequestAuth: RequestAuthParams
     CondoWebAppResizeWindow: ResizeWindowParams
     CondoWebAppSetPageActions: SetPageActionsParams
@@ -54,8 +63,11 @@ export type ResultResponseDataMap = {
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
     CondoWebAppGetFragment: GetFragmentData
     CondoWebAppGetLaunchParams: GetLaunchParamsData
+    CondoWebAppPopHistoryState: PopHistoryStateData
+    CondoWebAppPushHistoryState: PushHistoryStateData
     CondoWebAppRequestAuth: RequestAuthData
     CondoWebAppRedirect: RedirectData
+    CondoWebAppReplaceHistoryState: ReplaceHistoryStateData
     CondoWebAppResizeWindow: ResizeWindowData
     CondoWebAppSetPageActions: SetPageActionsData
     CondoWebAppShowModalWindow: ShowModalWindowData
