@@ -16,7 +16,7 @@ const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquir
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
-const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { CLIENT_PHONE_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { addOrganizationFieldPlugin } = require(
@@ -262,6 +262,40 @@ const Resident = new GQLListSchema('Resident', {
                 return await getActiveOccupancyByGraphQL(context, { tenantId: item.id }, CURRENT_OCCUPANCY_FIELDS)
             },
         },
+        ghanaCardNumber: {
+            schemaDoc: 'Ghana Card number for tenant identity checks',
+            type: 'Text',
+            isRequired: false,
+        },
+        emergencyContactName: {
+            schemaDoc: 'Tenant emergency contact name',
+            type: 'Text',
+            isRequired: false,
+        },
+        emergencyContactPhone: {
+            ...CLIENT_PHONE_FIELD,
+            schemaDoc: 'Tenant emergency contact phone',
+        },
+        institutionName: {
+            schemaDoc: 'Tenant institution name for student accommodation',
+            type: 'Text',
+            isRequired: false,
+        },
+        studentIdNumber: {
+            schemaDoc: 'Tenant student ID number',
+            type: 'Text',
+            isRequired: false,
+        },
+        programme: {
+            schemaDoc: 'Tenant academic programme',
+            type: 'Text',
+            isRequired: false,
+        },
+        level: {
+            schemaDoc: 'Tenant academic level',
+            type: 'Text',
+            isRequired: false,
+        },
         isVerifiedByManagingCompany: {
             schema: 'Verification status of the relevant contact of the managing company to which the resident is linked',
             type: 'Virtual',
@@ -337,7 +371,7 @@ const Resident = new GQLListSchema('Resident', {
             residentServiceConsumerIdsToCleanup.set(existingItem.id, serviceConsumerIds)
         },
         validateInput: async ({ resolvedData, operation, addValidationError, context, originalInput }) => {
-            const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
+            const { address, addressMeta, unitName, user: userId } = resolvedData
             if (operation === 'create') {
                 if (userId && address && unitName) {
                     const sameUserResidents = await find('Resident', {

@@ -3,11 +3,14 @@
  */
 
 const mockFind = jest.fn()
-const mockGetById = jest.fn()
+const mockGetRentChargeOutstandingAmountFromAllocations = jest.fn()
 
 jest.mock('@open-condo/keystone/schema', () => ({
     find: mockFind,
-    getById: mockGetById,
+}))
+
+jest.mock('./paymentAllocation', () => ({
+    getRentChargeOutstandingAmountFromAllocations: mockGetRentChargeOutstandingAmountFromAllocations,
 }))
 
 const {
@@ -22,53 +25,35 @@ const {
 describe('arrears helpers', () => {
     beforeEach(() => {
         jest.clearAllMocks()
+        mockFind.mockResolvedValue([])
+        mockGetRentChargeOutstandingAmountFromAllocations.mockResolvedValue({ toFixed: () => '100.00000000' })
     })
 
-    test('calculates unpaid charge amount', async () => {
+    test('calculates unpaid charge amount from allocations', async () => {
         const amount = await calculateRentChargeOutstandingAmount({ amount: '100' })
 
         expect(amount.toFixed(8)).toBe('100.00000000')
-    })
-
-    test('returns zero for paid linked invoice', async () => {
-        mockGetById.mockResolvedValue({ id: 'invoice', status: 'paid' })
-
-        const amount = await calculateRentChargeOutstandingAmount({ amount: '100', invoice: 'invoice' })
-
-        expect(amount.toFixed(8)).toBe('0.00000000')
-    })
-
-    test('subtracts successful invoice payments for partially paid invoice', async () => {
-        mockGetById.mockResolvedValue({ id: 'invoice', status: 'published' })
-        mockFind.mockResolvedValue([{ amount: '25' }])
-
-        const amount = await calculateRentChargeOutstandingAmount({ amount: '100', invoice: 'invoice' })
-
-        expect(amount.toFixed(8)).toBe('75.00000000')
-        expect(mockFind).toHaveBeenCalledWith('Payment', expect.objectContaining({
-            invoice: { id: 'invoice' },
-            status_in: ['DONE', 'WITHDRAWN'],
-            deletedAt: null,
-        }))
-    })
-
-    test('calculates from linked billing receipt balance', async () => {
-        mockGetById.mockResolvedValue({ id: 'receipt', toPay: '100', paid: '40' })
-
-        const amount = await calculateRentChargeOutstandingAmount({ amount: '100', billingReceipt: 'receipt' })
-
-        expect(amount.toFixed(8)).toBe('60.00000000')
+        expect(mockGetRentChargeOutstandingAmountFromAllocations).toHaveBeenCalledWith({ amount: '100' })
     })
 
     test('uses resident scope isolation', async () => {
-        mockFind.mockResolvedValue([{ amount: '100' }])
+        mockFind.mockImplementation(async (listKey) => {
+            if (listKey === 'RentCharge') return [{ amount: '100' }]
+            if (listKey === 'LedgerEntry') return [{ amount: '100', direction: 'debit' }]
+            return []
+        })
 
         const result = await calculateResidentArrears('resident')
 
-        expect(result).toEqual({ amount: '100.00000000', currencyCode: 'RUB', chargeCount: 1 })
+        expect(result).toEqual({ amount: '100.00000000', currencyCode: 'GHS', chargeCount: 1 })
         expect(mockFind).toHaveBeenCalledWith('RentCharge', {
             occupancy: { tenant: { id: 'resident' } },
             status_not: 'canceled',
+            deletedAt: null,
+        })
+        expect(mockFind).toHaveBeenCalledWith('LedgerEntry', {
+            tenant: { id: 'resident' },
+            postingStatus: 'posted',
             deletedAt: null,
         })
     })
@@ -84,13 +69,13 @@ describe('arrears helpers', () => {
         expect(mockFind).toHaveBeenNthCalledWith(1, 'RentCharge', expect.objectContaining({
             occupancy: { id: 'occupancy' },
         }))
-        expect(mockFind).toHaveBeenNthCalledWith(2, 'RentCharge', expect.objectContaining({
+        expect(mockFind).toHaveBeenNthCalledWith(3, 'RentCharge', expect.objectContaining({
             rentalUnit: { id: 'rental-unit' },
         }))
-        expect(mockFind).toHaveBeenNthCalledWith(3, 'RentCharge', expect.objectContaining({
+        expect(mockFind).toHaveBeenNthCalledWith(5, 'RentCharge', expect.objectContaining({
             property: { id: 'property' },
         }))
-        expect(mockFind).toHaveBeenNthCalledWith(4, 'RentCharge', expect.objectContaining({
+        expect(mockFind).toHaveBeenNthCalledWith(7, 'RentCharge', expect.objectContaining({
             organization: { id: 'organization' },
         }))
     })

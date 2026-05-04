@@ -3,6 +3,10 @@ const { RU_LOCALE, EN_LOCALE, ES_LOCALE, DEFAULT_LOCALE } = require('./locale')
 const DEFAULT_ENGLISH_COUNTRY = 'en'
 const RUSSIA_COUNTRY = 'ru'
 const SPAIN_COUNTRY = 'es'
+const GHANA_COUNTRY = 'gh'
+const GHANA_COUNTRY_CODE = 'GH'
+const GHANA_PHONE_COUNTRY_CODE = '+233'
+const GHANA_TIMEZONE = 'Africa/Accra'
 
 const COUNTRIES = {
     [DEFAULT_ENGLISH_COUNTRY]: {
@@ -34,12 +38,34 @@ const COUNTRIES = {
         phonePattern: /^[+]34[0-9-. ()]{7,}[0-9]$/gi,
         locale: ES_LOCALE,
     },
+    [GHANA_COUNTRY]: {
+        'role.admin.name': 'Admin',
+        'role.dispatcher.name': 'Dispatcher',
+        'role.manager.name': 'Manager',
+        'role.foreman.name': 'Foreman',
+        'role.technician.name' : 'Technician',
+        phonePattern: /^[+]233[0-9-. ()]{7,}[0-9]$/gi,
+        locale: EN_LOCALE,
+        countryCode: GHANA_COUNTRY_CODE,
+        currencyCode: 'GHS',
+        currencySymbol: '₵',
+        timezone: GHANA_TIMEZONE,
+        phoneCountryCode: GHANA_PHONE_COUNTRY_CODE,
+        supportsGhanaPostGps: true,
+        momoEnabled: true,
+        smsEnabled: true,
+        whatsappEnabled: true,
+    },
 }
 
 module.exports = {
     DEFAULT_ENGLISH_COUNTRY,
     RUSSIA_COUNTRY,
     SPAIN_COUNTRY,
+    GHANA_COUNTRY,
+    GHANA_COUNTRY_CODE,
+    GHANA_PHONE_COUNTRY_CODE,
+    GHANA_TIMEZONE,
     COUNTRIES,
     DEFAULT_LOCALE,
     EN_LOCALE,

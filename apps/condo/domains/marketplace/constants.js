@@ -73,7 +73,7 @@ const INITIAL_ROWS_VALUE = [{ name: '', count: 1, toPay: '0', measure: undefined
 
 const DAYS_TO_CANCEL_PUBLISHED_INVOICES = 60
 
-const DEFAULT_INVOICE_CURRENCY_CODE = 'RUB'
+const DEFAULT_INVOICE_CURRENCY_CODE = 'GHS'
 
 const MIN_PRICE_VALUE = 10
 

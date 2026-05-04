@@ -25,7 +25,12 @@ async function canReadPayments (args) {
     if (hasDirectAccess) return {}
 
     if (user.type === RESIDENT) {
-        return { multiPayment: { user: { id: user.id } } }
+        return {
+            OR: [
+                { multiPayment: { user: { id: user.id } } },
+                { tenant: { user: { id: user.id } } },
+            ],
+        }
     }
 
     if (user.type === STAFF) {

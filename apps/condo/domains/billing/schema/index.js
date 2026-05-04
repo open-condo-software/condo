@@ -16,12 +16,16 @@ const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingReceiptFile } = require('./BillingReceiptFile')
 const { BillingRecipient } = require('./BillingRecipient')
+const { LedgerEntry } = require('./LedgerEntry')
+const { PaymentAllocation } = require('./PaymentAllocation')
+const { PaymentReceipt } = require('./PaymentReceipt')
 const { RegisterBillingReceiptFileService } = require('./RegisterBillingReceiptFileService')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
 const { RentCharge } = require('./RentCharge')
 const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBillingReceiptFilesNotificationsService')
 const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
 const { SumBillingReceiptsService } = require('./SumBillingReceiptsService')
+const { TenantLedger } = require('./TenantLedger')
 const { ValidateQRCodeService } = require('./ValidateQRCodeService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -34,6 +38,10 @@ module.exports = {
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    TenantLedger,
+    LedgerEntry,
+    PaymentAllocation,
+    PaymentReceipt,
     RentCharge,
     AllResidentBillingReceiptsService,
     BillingRecipient,

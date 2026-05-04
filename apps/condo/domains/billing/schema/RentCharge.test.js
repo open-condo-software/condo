@@ -1,3 +1,14 @@
+/**
+ * Integration spec note:
+ * - This file uses makeLoggedInAdminClient from @open-condo/keystone/test.utils.
+ * - In real-client mode it sends requests to ${SERVER_URL}/admin/api.
+ * - apps/condo/.env sets SERVER_URL=http://localhost:4009 for local development.
+ * - Start the API in a separate terminal before running this spec, for example:
+ *   cd /workspaces/Kondo/apps/condo && SERVER_URL=http://localhost:4009 DISABLE_NEXT_APP=true NODE_ENV=development node ../../bin/run-keystone-app.js
+ * - Then run the spec from the repo root:
+ *   yarn workspace @app/condo test domains/billing/schema/RentCharge.test.js --runInBand
+ */
+
 const { faker } = require('@faker-js/faker')
 const { gql } = require('graphql-tag')
 
@@ -21,6 +32,14 @@ const CREATE_OCCUPANCY_MUTATION = gql`
             id
             property { id }
             rentalUnit { id }
+        }
+    }
+`
+
+const CREATE_BILLING_POLICY_MUTATION = gql`
+    mutation createBillingPolicy ($data: BillingPolicyCreateInput) {
+        obj: createBillingPolicy(data: $data) {
+            id
         }
     }
 `
@@ -67,6 +86,15 @@ async function createOccupancy (client, organization, resident, property, rental
     })
 }
 
+async function createBillingPolicy (client, organization, property) {
+    return await mutate(client, CREATE_BILLING_POLICY_MUTATION, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+    })
+}
+
 async function createRentCharge (client, organization, occupancy, billingMonth = '2026-04-01') {
     return await mutate(client, CREATE_RENT_CHARGE_MUTATION, {
         dv: 1,
@@ -100,6 +128,7 @@ describe('RentCharge invariants', () => {
         const residentClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const residentResult = await createTestResident(admin, residentClient.user, property)
         resident = residentResult[0]
+        await createBillingPolicy(admin, organization, property)
         const rentalUnit = await createRentalUnit(admin, organization, property)
         occupancy = await createOccupancy(admin, organization, resident, property, rentalUnit)
     })

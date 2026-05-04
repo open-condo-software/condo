@@ -37,6 +37,15 @@ const RentCharge = new GQLListSchema('RentCharge', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
+        tenant: {
+            schemaDoc: 'Tenant charged for this billing period',
+            type: 'Relationship',
+            ref: 'Resident',
+            isRequired: true,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
         rentalUnit: {
             schemaDoc: 'Rental unit charged for this period',
             type: 'Relationship',
@@ -121,6 +130,22 @@ const RentCharge = new GQLListSchema('RentCharge', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+
+        ledgerEntries: {
+            schemaDoc: 'Ledger entries posted for this rent charge',
+            type: 'Relationship',
+            ref: 'LedgerEntry.rentCharge',
+            many: true,
+            access: { create: false, update: false },
+        },
+
+        allocations: {
+            schemaDoc: 'Payment allocations applied to this rent charge',
+            type: 'Relationship',
+            ref: 'PaymentAllocation.rentCharge',
+            many: true,
+            access: { create: false, update: false },
+        },
     },
     hooks: {
         resolveInput: async ({ resolvedData, existingItem }) => {
@@ -133,6 +158,7 @@ const RentCharge = new GQLListSchema('RentCharge', {
                     resolvedData.organization = occupancy.organization
                     resolvedData.property = occupancy.property
                     resolvedData.rentalUnit = occupancy.rentalUnit
+                    resolvedData.tenant = occupancy.tenant
                 }
             }
 
@@ -157,7 +183,8 @@ const RentCharge = new GQLListSchema('RentCharge', {
             if (
                 occupancy.organization !== get(item, 'organization') ||
                 occupancy.property !== get(item, 'property') ||
-                occupancy.rentalUnit !== get(item, 'rentalUnit')
+                occupancy.rentalUnit !== get(item, 'rentalUnit') ||
+                occupancy.tenant !== get(item, 'tenant')
             ) {
                 throw new GQLError(ERRORS.SCOPE_MISMATCH, context)
             }

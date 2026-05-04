@@ -1,63 +1,51 @@
 const Big = require('big.js')
 const get = require('lodash/get')
 
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
-const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { LEDGER_ENTRY_STATUS_POSTED } = require('@condo/domains/billing/constants/ledger')
 const {
     DEFAULT_RENT_CHARGE_CURRENCY_CODE,
     RENT_CHARGE_STATUS_CANCELED,
 } = require('@condo/domains/billing/constants/rent')
-const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
-
-function getRelationId (value) {
-    return get(value, 'id') || value
-}
+const { getRentChargeOutstandingAmountFromAllocations } = require('@condo/domains/billing/utils/serverSchema/paymentAllocation')
 
 function toMoney (amount) {
     return Big(amount || 0).toFixed(8)
 }
 
-async function getInvoicePaymentsAmount (invoiceId) {
-    const payments = await find('Payment', {
-        invoice: { id: invoiceId },
-        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+async function calculateRentChargeOutstandingAmount (rentCharge) {
+    return await getRentChargeOutstandingAmountFromAllocations(rentCharge)
+}
+
+function buildLedgerWhereFromRentChargeWhere (where) {
+    const ledgerWhere = {}
+    const organizationId = get(where, ['organization', 'id'])
+    const tenantId = get(where, ['occupancy', 'tenant', 'id'])
+    const occupancyId = get(where, ['occupancy', 'id'])
+    const propertyId = get(where, ['property', 'id'])
+    const rentalUnitId = get(where, ['rentalUnit', 'id'])
+
+    if (organizationId) ledgerWhere.organization = { id: organizationId }
+    if (tenantId) ledgerWhere.tenant = { id: tenantId }
+    if (occupancyId) ledgerWhere.occupancy = { id: occupancyId }
+    if (propertyId) ledgerWhere.property = { id: propertyId }
+    if (rentalUnitId) ledgerWhere.rentalUnit = { id: rentalUnitId }
+
+    return ledgerWhere
+}
+
+async function calculateLedgerBalanceByWhere (where) {
+    const entries = await find('LedgerEntry', {
+        ...where,
+        postingStatus: LEDGER_ENTRY_STATUS_POSTED,
         deletedAt: null,
     })
 
-    return payments.reduce((total, payment) => total.plus(payment.amount || 0), Big(0))
-}
-
-async function calculateRentChargeOutstandingAmount (rentCharge) {
-    const invoiceId = getRelationId(rentCharge.invoice)
-
-    if (invoiceId) {
-        const invoice = await getById('Invoice', invoiceId)
-
-        if (get(invoice, 'status') === INVOICE_STATUS_PAID) {
-            return Big(0)
-        }
-    }
-
-    const billingReceiptId = getRelationId(rentCharge.billingReceipt)
-
-    if (billingReceiptId) {
-        const billingReceipt = await getById('BillingReceipt', billingReceiptId)
-        const outstanding = Big(get(billingReceipt, 'toPay') || 0).minus(get(billingReceipt, 'paid') || 0)
-
-        return outstanding.gt(0) ? outstanding : Big(0)
-    }
-
-    const chargedAmount = Big(get(rentCharge, 'amount') || 0)
-
-    if (invoiceId) {
-        const paidAmount = await getInvoicePaymentsAmount(invoiceId)
-        const outstanding = chargedAmount.minus(paidAmount)
-
-        return outstanding.gt(0) ? outstanding : Big(0)
-    }
-
-    return chargedAmount
+    return entries.reduce((total, entry) => {
+        const amount = Big(get(entry, 'amount') || 0)
+        return get(entry, 'direction') === 'debit' ? total.plus(amount) : total.minus(amount)
+    }, Big(0))
 }
 
 async function calculateArrearsByRentChargeWhere (where) {
@@ -67,11 +55,8 @@ async function calculateArrearsByRentChargeWhere (where) {
         deletedAt: null,
     })
 
-    let amount = Big(0)
-
-    for (const rentCharge of rentCharges) {
-        amount = amount.plus(await calculateRentChargeOutstandingAmount(rentCharge))
-    }
+    const balance = await calculateLedgerBalanceByWhere(buildLedgerWhereFromRentChargeWhere(where))
+    const amount = balance.gt(0) ? balance : Big(0)
 
     return {
         amount: toMoney(amount),
@@ -118,4 +103,5 @@ module.exports = {
     calculateRentChargeOutstandingAmount,
     calculateRentalUnitArrears,
     calculateResidentArrears,
+    calculateLedgerBalanceByWhere,
 }

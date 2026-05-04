@@ -1,3 +1,4 @@
+const { GHANA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE, EN_LOCALE, ES_LOCALE } = require('@condo/domains/common/constants/locale')
 const STATUS_IDS = {
     OPEN: '6ef3abc4-022f-481b-90fb-8430345ebfc2',
@@ -21,6 +22,7 @@ const COUNTRY_RELATED_STATUS_TRANSITIONS = {
     [RU_LOCALE]: DEFAULT_STATUS_TRANSITIONS,
     [EN_LOCALE]: DEFAULT_STATUS_TRANSITIONS,
     [ES_LOCALE]: DEFAULT_STATUS_TRANSITIONS,
+    [GHANA_COUNTRY]: DEFAULT_STATUS_TRANSITIONS,
 }
 
 const TICKET_ORDER_BY_STATUS = {

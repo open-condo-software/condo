@@ -113,6 +113,26 @@ const Property = new GQLListSchema('Property', {
             type: 'Text',
             isRequired: false,
         },
+        region: {
+            schemaDoc: 'Ghana administrative region',
+            type: 'Text',
+            isRequired: false,
+        },
+        district: {
+            schemaDoc: 'Ghana administrative district',
+            type: 'Text',
+            isRequired: false,
+        },
+        areaSuburb: {
+            schemaDoc: 'Property area or suburb',
+            type: 'Text',
+            isRequired: false,
+        },
+        landmark: {
+            schemaDoc: 'Nearby property landmark',
+            type: 'Text',
+            isRequired: false,
+        },
 
         classification: {
             schemaDoc: 'Free-form descriptive classification, for example hostel, gated estate, compound house',

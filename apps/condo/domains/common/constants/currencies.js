@@ -185,13 +185,14 @@ const ISO_CODES = [
 const CURRENCY_SYMBOLS = {
     CNY: '¥',
     EUR: '€',
+    GHS: '₵',
     INR: 'र',
     JPY: '¥',
     RUB: '₽',
     USD: '$',
 }
 
-const DEFAULT_CURRENCY_CODE = 'RUB'
+const DEFAULT_CURRENCY_CODE = 'GHS'
 
 module.exports = {
     ISO_CODES,

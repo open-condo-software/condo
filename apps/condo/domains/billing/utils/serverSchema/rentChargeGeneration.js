@@ -20,6 +20,8 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { BILLING_FREQUENCY_ANNUAL } = require('@condo/domains/resident/constants/occupancy')
 const { findActiveOccupancies } = require('@condo/domains/resident/utils/serverSchema')
 
+const { postRentChargeLedgerEntry } = require('./paymentAllocation')
+
 const TASK_SENDER = { dv: 1, fingerprint: 'generateRentChargesTask' }
 const RentCharge = generateServerUtils('RentCharge')
 
@@ -130,11 +132,14 @@ async function createRentChargeIfMissing (context, occupancy, periodData, sender
             dv: 1,
             sender,
             occupancy: { connect: { id: occupancy.id } },
+            tenant: { connect: { id: occupancy.tenant } },
             organization: { connect: { id: occupancy.organization } },
             property: { connect: { id: occupancy.property } },
             rentalUnit: { connect: { id: occupancy.rentalUnit } },
             ...periodData,
         })
+
+        await postRentChargeLedgerEntry(context, rentCharge, { sender })
 
         return { rentCharge, created: true }
     } catch (err) {

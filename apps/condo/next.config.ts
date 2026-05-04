@@ -56,7 +56,11 @@ const proxyName = conf['API_PROXY_NAME'] || 'Next'
 const posthogApiHost = conf['POSTHOG_API_HOST']
 const posthogApiKey = conf['POSTHOG_API_KEY']
 const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_APP_INFO']) : {}
-const defaultCurrencyCode = conf['DEFAULT_CURRENCY_CODE'] || 'RUB'
+const defaultCurrencyCode = conf['DEFAULT_CURRENCY_CODE'] || 'GHS'
+const defaultCountryCode = conf['DEFAULT_COUNTRY_CODE'] || 'GH'
+const defaultCurrencySymbol = conf['DEFAULT_CURRENCY_SYMBOL'] || '₵'
+const defaultPhoneCountryCode = conf['DEFAULT_PHONE_COUNTRY_CODE'] || '+233'
+const defaultTimezone = conf['DEFAULT_TIMEZONE'] || 'Africa/Accra'
 const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
@@ -138,6 +142,10 @@ const nextConfig: NextConfig = {
         posthogApiKey,
         residentAppInfo,
         defaultCurrencyCode,
+        defaultCountryCode,
+        defaultCurrencySymbol,
+        defaultPhoneCountryCode,
+        defaultTimezone,
         aiEnabled,
         contactPageResidentAnalytics,
         displayTicketInfoOnShare,

@@ -17,6 +17,7 @@ const { SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION } = require('@cond
 const { REGISTER_BILLING_RECEIPT_FILE_MUTATION } = require('@condo/domains/billing/gql')
 const { SUM_BILLING_RECEIPTS_QUERY } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 const {
     calculateArrearsByRentChargeWhere,
@@ -27,6 +28,19 @@ const {
     calculateRentalUnitArrears,
     calculateResidentArrears,
 } = require('./arrears')
+const {
+    allocatePaymentToOldestCharges,
+    calculateLedgerBalance,
+    createPaymentReceipt,
+    createReversalEntry,
+    getChargeAllocatedAmount,
+    getOrCreateTenantLedger,
+    getPaymentAllocatedAmount,
+    getRentChargeOutstandingAmountFromAllocations,
+    postPaymentLedgerEntry,
+    postRentChargeLedgerEntry,
+    processConfirmedRentPayment,
+} = require('./paymentAllocation')
 const {
     buildPeriodData,
     buildRentChargeInvoiceRow,
@@ -46,6 +60,10 @@ const BillingPolicy = generateServerUtils('BillingPolicy')
 const BillingProperty = generateServerUtils('BillingProperty')
 const BillingAccount = generateServerUtils('BillingAccount')
 const BillingReceipt = generateServerUtils('BillingReceipt')
+const TenantLedger = generateServerUtils('TenantLedger')
+const LedgerEntry = generateServerUtils('LedgerEntry')
+const PaymentAllocation = generateServerUtils('PaymentAllocation')
+const PaymentReceipt = generateServerUtils('PaymentReceipt')
 const RentCharge = generateServerUtils('RentCharge')
 const BillingRecipient = generateServerUtils('BillingRecipient')
 const BillingCategory = generateServerUtils('BillingCategory')
@@ -210,6 +228,10 @@ module.exports = {
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    TenantLedger,
+    LedgerEntry,
+    PaymentAllocation,
+    PaymentReceipt,
     RentCharge,
     BillingRecipient,
     BillingCategory,
@@ -229,6 +251,17 @@ module.exports = {
     calculateRentChargeOutstandingAmount,
     calculateRentalUnitArrears,
     calculateResidentArrears,
+    allocatePaymentToOldestCharges,
+    calculateLedgerBalance,
+    createPaymentReceipt,
+    createReversalEntry,
+    getChargeAllocatedAmount,
+    getOrCreateTenantLedger,
+    getPaymentAllocatedAmount,
+    getRentChargeOutstandingAmountFromAllocations,
+    postPaymentLedgerEntry,
+    postRentChargeLedgerEntry,
+    processConfirmedRentPayment,
     buildPeriodData,
     buildRentChargeInvoiceRow,
     calculateRentChargeAmount,

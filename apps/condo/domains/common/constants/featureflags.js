@@ -47,6 +47,10 @@ const TICKET_OBSERVERS = 'ticket-observers'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
 const TWO_FACTOR_SETTING = 'two-factor-setting'
+const GHANA_POST_GPS_ENABLED = 'ghana-post-gps-enabled'
+const GHANA_MOMO_ENABLED = 'ghana-momo-enabled'
+const GHANA_SMS_ENABLED = 'ghana-sms-enabled'
+const GHANA_WHATSAPP_ENABLED = 'ghana-whatsapp-enabled'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -98,4 +102,8 @@ module.exports = {
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
     SUBSCRIPTION_PAYMENT_MODAL,
     TWO_FACTOR_SETTING,
+    GHANA_POST_GPS_ENABLED,
+    GHANA_MOMO_ENABLED,
+    GHANA_SMS_ENABLED,
+    GHANA_WHATSAPP_ENABLED,
 }

@@ -7,6 +7,7 @@ const mockRentChargeUpdate = jest.fn()
 const mockInvoiceCreate = jest.fn()
 const mockFind = jest.fn()
 const mockFindActiveOccupancies = jest.fn()
+const mockPostRentChargeLedgerEntry = jest.fn()
 
 jest.mock('@open-condo/codegen/generate.server.utils', () => ({
     generateServerUtils: jest.fn(() => ({
@@ -30,6 +31,10 @@ jest.mock('@condo/domains/resident/utils/serverSchema', () => ({
     findActiveOccupancies: mockFindActiveOccupancies,
 }))
 
+jest.mock('./paymentAllocation', () => ({
+    postRentChargeLedgerEntry: mockPostRentChargeLedgerEntry,
+}))
+
 const {
     generateRentCharges,
     generateRentChargesForOccupancy,
@@ -43,6 +48,7 @@ const occupancy = {
     organization: organizationId,
     property: propertyId,
     rentalUnit: rentalUnitId,
+    tenant: 'tenant',
     startDate: '2026-01-10',
     monthlyRate: '100',
     billingFrequency: 'monthly',
@@ -83,6 +89,7 @@ describe('rentChargeGeneration', () => {
             const charge = {
                 id: `charge-${charges.length + 1}`,
                 occupancy: data.occupancy.connect.id,
+                tenant: data.tenant.connect.id,
                 property: data.property.connect.id,
                 rentalUnit: data.rentalUnit.connect.id,
                 status: 'draft',
@@ -101,8 +108,9 @@ describe('rentChargeGeneration', () => {
             periodEnd: '2026-01-31',
             dueDate: '2026-01-01',
             amount: '100',
-            currencyCode: 'RUB',
+            currencyCode: 'GHS',
         }))
+        expect(mockPostRentChargeLedgerEntry).toHaveBeenCalledWith({}, expect.objectContaining({ id: 'charge-1' }), expect.any(Object))
     })
 
     test('re-running generation does not duplicate charges', async () => {
@@ -135,6 +143,7 @@ describe('rentChargeGeneration', () => {
             const charge = {
                 id: `charge-${charges.length + 1}`,
                 occupancy: data.occupancy.connect.id,
+                tenant: data.tenant.connect.id,
                 property: data.property.connect.id,
                 rentalUnit: data.rentalUnit.connect.id,
                 billingMonth: data.billingMonth,

@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
-const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES, GHANA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { EMAIL_REGEX, URL_WITH_CYRILLIC_REGEX } = require('@condo/domains/common/constants/regexps')
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/Organization')
@@ -51,6 +51,8 @@ const Organization = new GQLListSchema('Organization', {
             isRequired: true,
             type: 'Select',
             options: Object.keys(COUNTRIES).join(','),
+            defaultValue: GHANA_COUNTRY,
+            kmigratorOptions: { null: false, default: `'${GHANA_COUNTRY}'` },
         },
         name: {
             schemaDoc: 'Customer-friendly name',
@@ -139,6 +141,24 @@ const Organization = new GQLListSchema('Organization', {
         },
         registrationNumber: {
             schemaDoc: 'Company registration number for organizational property owners',
+            type: 'Text',
+            isRequired: false,
+            kmigratorOptions: { null: true },
+        },
+        businessRegistrationNumber: {
+            schemaDoc: 'Business registration number for Ghana organizations',
+            type: 'Text',
+            isRequired: false,
+            kmigratorOptions: { null: true },
+        },
+        momoMerchantNumber: {
+            schemaDoc: 'Mobile money merchant number for Ghana payments',
+            type: 'Text',
+            isRequired: false,
+            kmigratorOptions: { null: true },
+        },
+        receiptCode: {
+            schemaDoc: 'Short organization code used in receipt numbers',
             type: 'Text',
             isRequired: false,
             kmigratorOptions: { null: true },

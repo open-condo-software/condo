@@ -39,12 +39,14 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { RENT_PAYMENT_METHODS, RENT_PAYMENT_PROVIDERS } = require('@condo/domains/acquiring/constants/rentPayment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { sendPaymentStatusChangeWebhook } = require('@condo/domains/acquiring/tasks')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { processConfirmedRentPayment } = require('@condo/domains/billing/utils/serverSchema/paymentAllocation')
 const {
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
@@ -202,6 +204,82 @@ const Payment = new GQLListSchema('Payment', {
                     }
                 },
             },
+        },
+
+        tenant: {
+            schemaDoc: 'Tenant whose rent ledger receives this payment',
+            type: 'Relationship',
+            ref: 'Resident',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        occupancy: {
+            schemaDoc: 'Occupancy this rent payment relates to',
+            type: 'Relationship',
+            ref: 'Occupancy',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        property: {
+            schemaDoc: 'Property this rent payment relates to',
+            type: 'Relationship',
+            ref: 'Property',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        rentalUnit: {
+            schemaDoc: 'Rental unit this rent payment relates to',
+            type: 'Relationship',
+            ref: 'RentalUnit',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        paymentMethod: {
+            schemaDoc: 'Rent payment method',
+            type: 'Select',
+            options: RENT_PAYMENT_METHODS,
+            dataType: 'string',
+            isRequired: false,
+        },
+
+        provider: {
+            schemaDoc: 'Rent payment provider',
+            type: 'Select',
+            options: RENT_PAYMENT_PROVIDERS,
+            dataType: 'string',
+            isRequired: false,
+        },
+
+        externalTransactionId: {
+            schemaDoc: 'External provider transaction id for rent payment reconciliation',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        confirmedAt: {
+            schemaDoc: 'Time when rent payment was confirmed by provider or manually',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
+        allocations: {
+            schemaDoc: 'Rent charge allocations created from this payment',
+            type: 'Relationship',
+            ref: 'PaymentAllocation.payment',
+            many: true,
+            access: { create: false, update: false },
+        },
+
+        ledgerEntries: {
+            schemaDoc: 'Ledger entries posted from this payment',
+            type: 'Relationship',
+            ref: 'LedgerEntry.payment',
+            many: true,
+            access: { create: false, update: false },
         },
 
         frozenInvoice: {
@@ -367,6 +445,10 @@ const Payment = new GQLListSchema('Payment', {
             }
             if (isCreate) {
                 resolvedData['rawAddress'] = get(resolvedData, ['frozenReceipt', 'data', 'raw', 'address'])
+            }
+
+            if (resolvedData['status'] === PAYMENT_DONE_STATUS && resolvedData['tenant'] && !resolvedData['confirmedAt']) {
+                resolvedData['confirmedAt'] = resolvedData['advancedAt'] || new Date().toISOString()
             }
 
             // Calculate splits if distribution was set
@@ -560,6 +642,14 @@ const Payment = new GQLListSchema('Payment', {
                         status: INVOICE_STATUS_PAID,
                     })
                 }
+            }
+
+            const isRentPaymentConfirmed = get(updatedItem, 'tenant')
+                && get(updatedItem, 'status') === PAYMENT_DONE_STATUS
+                && (operation === 'create' || statusChanged)
+
+            if (isRentPaymentConfirmed) {
+                await processConfirmedRentPayment(context, updatedItem)
             }
         },
     },

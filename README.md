@@ -24,6 +24,24 @@ making it an ideal platform for property management companies and those servicin
 
 ## Getting started
 
+### Container quick path
+
+If you are running this repository inside the provided development container, the shortest reproducible local workflow for `apps/condo` is the following single command sequence:
+
+```bash
+docker compose up -d postgresdb redis nats
+yarn install --immutable
+python3 -m pip install Django==5.2 psycopg2-binary==2.9.10
+yarn turbo build --filter=@app/condo^...
+node bin/prepare -f condo
+cd apps/condo && NODE_OPTIONS="--max_old_space_size=6144" NODE_ENV=development node ../../bin/run-keystone-app.js
+```
+
+Notes:
+- In this container, `yarn workspace @app/condo dev` may fail with `turbo: command not found` even after a successful install. The direct `node ../../bin/run-keystone-app.js` command above is the reproducible workaround.
+- `node bin/prepare -f condo` assigns the app port automatically. Check `apps/condo/.env` for `SERVER_URL` and `PORT` after prepare completes.
+- Open the generated `SERVER_URL` in the browser. The admin sign-in page is available at `<SERVER_URL>/admin/signin`.
+
 ### 1. Databases setup
 
 We use [Postgres 16.4](https://www.postgresql.org) to store most of the information, 
