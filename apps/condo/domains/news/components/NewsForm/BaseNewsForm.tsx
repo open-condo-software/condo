@@ -673,7 +673,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const { added, deleted } = modifiedFiles
 
         for (const file of added) {
-            const newsItemFileId = file.id
+            const newsItemFileId: string = file?.id || (file as any)?.response?.id
+            if (!newsItemFileId) continue
             await updateNewsItemFile({
                 variables: {
                     id: newsItemFileId,
@@ -686,7 +687,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         for (const file of deleted) {
-            const newsItemFileId = file.id
+            const newsItemFileId: string = file?.id || (file as any)?.response?.id
+            if (!newsItemFileId) continue
             await updateNewsItemFile({
                 variables: {
                     id: newsItemFileId,
@@ -872,7 +874,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         } else {
             await router.push('/news')
         }
-    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
+    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router, modifiedFiles])
 
     const ErrorToFormFieldMsgMapping = useMemo(() => ({
         [PROFANITY_TITLE_DETECTED_MOT_ERF_KER]: {
