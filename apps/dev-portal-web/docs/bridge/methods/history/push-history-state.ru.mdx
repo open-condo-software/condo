@@ -1,0 +1,57 @@
+Данный метод добавляет новую запись в стек навигации мини-приложения — аналог `window.history.pushState`.
+После успешной обработки Condo отправит мини-приложению  событие [`CondoWebAppHistoryPopState`](/docs/bridge/methods/history/events) с переданным состоянием.
+
+## Платформы
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Параметры метода
+
+| Имя параметра | Тип параметра  | Обязательный | Описание параметра                              |
+|---------------|----------------|--------------|--------------------------------------------------|
+| title         | string \| null | нет          | Заголовок нового состояния навигации             |
+| state         | unknown        | нет          | Произвольный стейт, связанный с данной записью   |
+
+## Возвращаемое значение
+
+При успешном выполнении метод вернет назад JSON-объект, содержащий единственное поле `success`:
+```json
+{ "success": true }
+```
+
+## Примеры использования
+
+### Базовый — обновление заголовка при переходе
+
+Если вам достаточно обновить отображаемый заголовок при навигации внутри мини-приложения, то можно передать только `title`:
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+await bridge.send('CondoWebAppPushHistoryState', {
+    title: 'Настройки профиля',
+})
+```
+
+### Продвинутый — передача произвольного состояния
+
+Помимо заголовка, каждой записи в стеке можно прикрепить произвольное состояние (любой сериализуемый объект).
+При нажатии «Назад» придёт событие `CondoWebAppHistoryPopStateEvent`, из которого можно восстановить любые нужные данные:
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.subscribe((event) => {
+    if (event.type === 'CondoWebAppHistoryPopStateEvent') {
+        const { step, formData } = event.data.state as { step: number, formData: Record<string, unknown> }
+        setCurrentStep(step)
+        setFormData(formData)
+    }
+})
+
+async function goToStep (step: number, formData: Record<string, unknown>) {
+    await bridge.send('CondoWebAppPushHistoryState', {
+        title: `Шаг ${step}`,
+        state: { step, formData },
+    })
+}
+```

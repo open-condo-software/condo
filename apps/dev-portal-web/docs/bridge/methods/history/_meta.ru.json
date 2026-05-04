@@ -1,0 +1,7 @@
+{
+  "events": "События навигации",
+  "push-history-state": "CondoWebAppPushHistoryState",
+  "replace-history-state": "CondoWebAppReplaceHistoryState",
+  "pop-history-state": "CondoWebAppPopHistoryState",
+  "example": "Пример реализации навигации"
+}

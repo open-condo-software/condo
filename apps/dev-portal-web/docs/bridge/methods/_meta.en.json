@@ -5,5 +5,6 @@
   "redirect": "CondoWebAppRedirect",
   "set-page-actions": "CondoWebAppSetPageActions",
   "notifications": "Notifications",
-  "modals": "Modals"
+  "modals": "Modals",
+  "history": "History and navigation"
 }
