@@ -111,7 +111,6 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
     maxCount = 10,
 }) => {
     const intl = useIntl()
-    // TODO(Doma-13015): increase MAX_UPLOAD_FILE_SIZE
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
 
@@ -229,11 +228,11 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
 
         onProgress({ percent: 50 })
 
-        let maxFileSize = SIZE_LIMIT_BY_FILE_TYPE.documents.limitSizeInMb * (1024 * 1024)
-        if (file.type?.startsWith('image/')) maxFileSize = SIZE_LIMIT_BY_FILE_TYPE.image.limitSizeInMb * (1024 * 1024)
-        if (file.type?.startsWith('video/')) maxFileSize = SIZE_LIMIT_BY_FILE_TYPE.video.limitSizeInMb * (1024 * 1024)
-        if (file.size > maxFileSize) {
-            const errorMsg = FileTooBigErrorMessage.replace('{maxSizeInMb}', String(maxFileSize))
+        let maxFileSizeInMb = SIZE_LIMIT_BY_FILE_TYPE.documents.limitSizeInMb
+        if (file.type?.startsWith('image/')) maxFileSizeInMb = SIZE_LIMIT_BY_FILE_TYPE.image.limitSizeInMb
+        if (file.type?.startsWith('video/')) maxFileSizeInMb = SIZE_LIMIT_BY_FILE_TYPE.video.limitSizeInMb
+        if (file.size > maxFileSizeInMb * (1024 * 1024)) {
+            const errorMsg = FileTooBigErrorMessage.replace('{maxSizeInMb}', String(maxFileSizeInMb))
             const error = new Error(errorMsg)
             onError(error)
             return
