@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Typography } from '@open-condo/ui'
 
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 
@@ -46,7 +47,29 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     const [aiSessionId, setAiSessionId] = useState<string | null>(null)
 
+    const openedAtRef = useRef<number | null>(null)
+    const prevOpenRef = useRef(open)
+
+    useEffect(() => {
+        const location = typeof window !== 'undefined' ? window.location.href : ''
+        const prevOpen = prevOpenRef.current
+
+        if (open && !prevOpen) {
+            openedAtRef.current = Date.now()
+            void analytics.track('ai_assistant_overlay_open', { location })
+        }
+        if (!open && prevOpen) {
+            const duration_ms = openedAtRef.current != null ? Date.now() - openedAtRef.current : 0
+            void analytics.track('ai_assistant_close', { duration_ms, location })
+            openedAtRef.current = null
+        }
+        prevOpenRef.current = open
+    }, [open])
+
     const handleResetHistory = () => {
+        void analytics.track('ai_assistant_reset_history', {
+            location: typeof window !== 'undefined' ? window.location.href : '',
+        })
         const newSessionId = uuidV4()
         const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
         if (organization) {

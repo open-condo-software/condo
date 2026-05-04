@@ -2,14 +2,17 @@ import { useApolloClient } from '@apollo/client'
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Input, Space, Typography } from '@open-condo/ui'
+import { Button, Input, Markdown, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
+import { AI_CHAT_BUTTON_CONFIG } from '@condo/domains/common/constants/featureflags'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 import styles from './AIChat.module.css'
@@ -24,6 +27,51 @@ const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
 
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
 
+type AiChatScenarioButton = {
+    button_id: string
+    button_name: string
+    button_description: string
+}
+
+type AiChatButtonConfig = {
+    welcomeMessage: string
+    buttons: AiChatScenarioButton[]
+}
+
+function parseAiChatButtonConfigFromFlag (raw: unknown): AiChatButtonConfig | null {
+    let value = raw
+    if (typeof raw === 'string') {
+        try {
+            value = JSON.parse(raw)
+        } catch {
+            return null
+        }
+    }
+    if (!value || typeof value !== 'object') {
+        return null
+    }
+    const obj = value as Record<string, unknown>
+    const welcomeMessage = typeof obj.welcome_message === 'string' ? obj.welcome_message.trim() : ''
+
+    const buttonsRaw = Array.isArray(obj.buttons) ? obj.buttons : []
+    const buttons: AiChatScenarioButton[] = buttonsRaw
+        .map((item: unknown) => {
+            const row = item as Record<string, unknown>
+            const buttonId = row?.button_id !== undefined && row?.button_id !== null
+                ? String(row.button_id).trim()
+                : ''
+            const buttonName = typeof row?.button_name === 'string' ? row.button_name.trim() : ''
+            const buttonDescription = typeof row?.button_description === 'string' ? row.button_description.trim() : ''
+            return { button_id: buttonId, button_name: buttonName, button_description: buttonDescription }
+        })
+        .filter((b) => b.button_id && b.button_name)
+
+    if (!welcomeMessage && buttons.length === 0) {
+        return null
+    }
+    return { welcomeMessage, buttons }
+}
+
 export type MessageContent = {
     text: string
 }
@@ -35,6 +83,8 @@ export type Message = {
     timestamp: Date
     status?: 'sending' | 'sent' | 'error'
     executionAIFlowTaskId?: string
+    /** If true, show «Копировать». Omitted/false: do not show (safe default for old localStorage). */
+    copyable?: boolean
 }
 
 type AIChatProps = {
@@ -59,6 +109,12 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const { useFlagValue } = useFeatureFlags()
+    const chatButtonConfigRaw = useFlagValue<Record<string, unknown>>(AI_CHAT_BUTTON_CONFIG)
+    const chatButtonConfig = useMemo(
+        () => parseAiChatButtonConfigFromFlag(chatButtonConfigRaw),
+        [chatButtonConfigRaw],
+    )
 
     const client = useApolloClient()
 
@@ -200,8 +256,14 @@ export const AIChat: React.FC<AIChatProps> = ({
         }, 100)
     }, [])
 
-    const executeAIMessage = useCallback(async (userInput: string, additionalContext?: any, toolCallDepth = 0, messageId = null) => {
-        console.info('executeAIMessage called:', { userInput, additionalContext, toolCallDepth, messageId })
+    const executeAIMessage = useCallback(async (
+        userInput: string,
+        additionalContext?: any,
+        toolCallDepth = 0,
+        messageId: string | null = null,
+        scenarioButtonId?: string | null,
+    ) => {
+        console.info('executeAIMessage called:', { userInput, additionalContext, toolCallDepth, messageId, scenarioButtonId })
 
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
             addMessage({
@@ -229,11 +291,15 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         try {
-            const result = await execute({ userInput, userData: {
-                userId: user.id,
-                organizationId: organization?.id,
-                ...additionalContext,
-            } })
+            const result = await execute({
+                userInput,
+                userData: {
+                    userId: user.id,
+                    organizationId: organization?.id,
+                    ...additionalContext,
+                },
+                ...(scenarioButtonId ? { button_id: scenarioButtonId } : {}),
+            })
 
             // If no data returned or there's an error - show error and return
             if (!result.data || result.error) {
@@ -245,11 +311,12 @@ export const AIChat: React.FC<AIChatProps> = ({
                 return
             }
 
-            // Data is received - show answer
+            // Data is received - show answer (copyable: model reply after successful execute)
             changeMessage(assistantMessage.id, {
                 ...assistantMessage,
                 content: { text: result.data.result?.answer ?? noResponseMessage },
                 status: 'sent',
+                copyable: true,
             })
 
             // If had toolcalls -> add message about toolcalls and start executing toolcalls
@@ -311,7 +378,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                         }))
 
                     if (allToolCallResults.length > 0) {
-                        await executeAIMessage('toolCalls:', { toolCalls: allToolCallResults }, toolCallDepth + 1, messageId = toolExecutionMessage.id)
+                        await executeAIMessage('toolCalls:', { toolCalls: allToolCallResults }, toolCallDepth + 1, toolExecutionMessage.id)
                     }
                 } catch (error) {
                     changeMessage(toolExecutionMessage.id, {
@@ -331,10 +398,17 @@ export const AIChat: React.FC<AIChatProps> = ({
                 status: 'sent',
             })
         }
-    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute])
+    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute, toolDepthExceededMessage, noResponseMessage, executingToolsMessage, errorExecutingToolsMessage])
 
     const handleSendMessage = async () => {
         if (!inputValue.trim() || loading || !user) return
+
+        const isFirstInSession = !messages.some((msg) => msg.role === 'user')
+        void analytics.track('ai_assistant_message_send', {
+            source: 'typed',
+            is_first_in_session: isFirstInSession,
+            location: typeof window !== 'undefined' ? window.location.href : '',
+        })
 
         const userMessage: Message = {
             id: Date.now().toString(),
@@ -342,6 +416,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             role: 'user',
             timestamp: new Date(),
             status: 'sent',
+            copyable: true,
         }
 
         addMessage(userMessage)
@@ -351,6 +426,31 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         await executeAIMessage(currentInput)
     }
+
+    const handleScenarioButtonClick = useCallback(async (buttonId: string, buttonName: string) => {
+        if (!buttonName.trim() || loading || !user || !canExecuteAIFlow) return
+
+        const isFirstInSession = !messages.some((msg) => msg.role === 'user')
+        void analytics.track('ai_assistant_message_send', {
+            source: 'scenario_button',
+            is_first_in_session: isFirstInSession,
+            location: typeof window !== 'undefined' ? window.location.href : '',
+            button_id: buttonId,
+            button_name: buttonName,
+        })
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            content: { text: buttonName },
+            role: 'user',
+            timestamp: new Date(),
+            status: 'sent',
+            copyable: true,
+        }
+
+        addMessage(userMessage)
+        await executeAIMessage(buttonName, undefined, 0, null, buttonId)
+    }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -363,13 +463,56 @@ export const AIChat: React.FC<AIChatProps> = ({
         <div className={styles.chatContainer}>
             <div className={`${styles.messagesContainer} comment-body`}>
                 {messages.length === 0 ? (
-                    <div className={`${styles.welcomeMessage} empty-container`}>
-                        <Space direction='vertical' align='center' size={16}>
-                            <Typography.Text type='secondary'>
-                                {welcomeMessage}
-                            </Typography.Text>
-                        </Space>
-                    </div>
+                    chatButtonConfig ? (
+                        <div className={`${styles.welcomeMessage} ${styles.welcomeMessageConfigured} empty-container`}>
+                            <Space direction='vertical' size={16} align='start'>
+                                <div className={`${styles.messageWrapper} ${styles.assistantMessage}`}>
+                                    <div className={styles.assistantMessageContainer}>
+                                        {chatButtonConfig.welcomeMessage ? (
+                                            <div className={styles.assistantMarkdown}>
+                                                <Markdown type='inline'>{chatButtonConfig.welcomeMessage}</Markdown>
+                                            </div>
+                                        ) : (
+                                            <Typography.Text type='secondary'>{welcomeMessage}</Typography.Text>
+                                        )}
+                                    </div>
+                                </div>
+                                {chatButtonConfig.buttons.length > 0 && (
+                                    <Space wrap size={8}>
+                                        {chatButtonConfig.buttons.map((btn) => {
+                                            const scenarioButton = (
+                                                <Button
+                                                    type='secondary'
+                                                    size='medium'
+                                                    disabled={!canExecuteAIFlow}
+                                                    onClick={() => void handleScenarioButtonClick(btn.button_id, btn.button_name)}
+                                                >
+                                                    {btn.button_name}
+                                                </Button>
+                                            )
+                                            return btn.button_description ? (
+                                                <Tooltip key={btn.button_id} title={btn.button_description}>
+                                                    <span className={styles.scenarioButtonTooltipWrap}>
+                                                        {scenarioButton}
+                                                    </span>
+                                                </Tooltip>
+                                            ) : (
+                                                <React.Fragment key={btn.button_id}>{scenarioButton}</React.Fragment>
+                                            )
+                                        })}
+                                    </Space>
+                                )}
+                            </Space>
+                        </div>
+                    ) : (
+                        <div className={`${styles.welcomeMessage} ${styles.welcomeMessageLegacy} empty-container`}>
+                            <Space direction='vertical' align='center' size={16}>
+                                <Typography.Text type='secondary'>
+                                    {welcomeMessage}
+                                </Typography.Text>
+                            </Space>
+                        </div>
+                    )
                 ) : (
                     messages.map((message) => (
                         <AIChatMessage key={message.id} message={message} />

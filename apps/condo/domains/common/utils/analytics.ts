@@ -71,6 +71,14 @@ type TicketExportToPdfEventData = {
     mode: 'single' | 'multiple' | null
 }
 
+type AiAssistantMessageSendEventData = {
+    source: 'typed' | 'scenario_button'
+    is_first_in_session: boolean
+    location: string
+    button_id?: string
+    button_name?: string
+}
+
 export type EventsData = {
     'click': ButtonClickEventData | MenuItemClickEventData
     'change': GQLInputChangeEventData | DateRangeChangeEventData | TabsChangeEventData | SelectChangeEventData
@@ -93,6 +101,11 @@ export type EventsData = {
     'confirm_phone_registration': Record<string, never>
     'confirm_email_registration': Record<string, never>
     'register_user': { userId: string }
+    'ai_assistant_close': { duration_ms: number, location: string }
+    'ai_assistant_header_open_click': { location: string }
+    'ai_assistant_message_send': AiAssistantMessageSendEventData
+    'ai_assistant_overlay_open': { location: string }
+    'ai_assistant_reset_history': { location: string }
 }
 
 type UserData = {
