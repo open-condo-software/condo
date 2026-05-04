@@ -7,6 +7,13 @@ const SUPPORTED_PG_OPERATIONS = new Set(['insert', 'select', 'update', 'delete',
 
 const parser = new Parser()
 
+function _normalizeTableName (tableName) {
+    if (!tableName || typeof tableName !== 'string') return tableName
+    const withoutQuotes = tableName.replace(/"/g, '')
+    const parts = withoutQuotes.split('.')
+    return parts[parts.length - 1]
+}
+
 /**
  * Helper util to extract tableName by "from" argument in node-sql-parser's AST
  * Used in "SELECT FROM <Table>" and "DELETE FROM <Table>" queries
@@ -27,7 +34,7 @@ function _extractTableByFromArgument (sqlString, ast) {
 
     // "SELECT * FROM t1 JOIN t2 ..." case
     if (nonJoinedItem.table) {
-        return nonJoinedItem.table
+        return _normalizeTableName(nonJoinedItem.table)
     }
 
     // "SELECT COUNT(*) FROM (SELECT ...)" case
@@ -52,7 +59,7 @@ function _extractTableByTableArgument (sqlString, ast) {
     const tables = get(ast, 'table', [])
 
     if (!Array.isArray(tables)) {
-        return tables.table
+        return _normalizeTableName(tables.table)
     }
 
     if (tables.length !== 1) {
@@ -60,7 +67,7 @@ function _extractTableByTableArgument (sqlString, ast) {
         throw new Error(`Unexpected table argument length. ${JSON.stringify({ sqlString, tables })}`)
     }
 
-    return tables[0].table
+    return _normalizeTableName(tables[0].table)
 }
 
 /**
@@ -110,8 +117,37 @@ function extractCRUDQueryData (sqlString) {
     return { sqlOperationName, tableName }
 }
 
+function getFkJoinMetadata (sqlString) {
+    if (!sqlString || typeof sqlString !== 'string') return null
+
+    const baseMatch = sqlString.match(/from\s+"[^"]+"\."([^"]+)"\s+as\s+"([^"]+)"/i)
+    if (!baseMatch) return null
+    const [, baseTable, baseAlias] = baseMatch
+
+    const joinRe = /left\s+outer\s+join\s+"[^"]+"\."([^"]+)"\s+as\s+"([^"]+)"\s+on\s+"\2"\."id"\s*=\s*"([^"]+)"\."([^"]+)"/ig
+    const joins = []
+    let joinMatch = null
+    while ((joinMatch = joinRe.exec(sqlString)) !== null) {
+        const [, joinTable, alias, sourceAlias, sourceField] = joinMatch
+        if (sourceAlias !== baseAlias) continue
+        joins.push({
+            alias,
+            joinTable: _normalizeTableName(joinTable),
+            sourceAlias,
+            sourceField,
+            fkExpression: `"${sourceAlias}"."${sourceField}"`,
+        })
+    }
+
+    return {
+        baseTable: _normalizeTableName(baseTable),
+        baseAlias,
+        joins,
+    }
+}
 
 module.exports = {
     SUPPORTED_PG_OPERATIONS,
     extractCRUDQueryData,
+    getFkJoinMetadata,
 }
