@@ -14,8 +14,14 @@ const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishNewsItemSharing' } }
 
-const DEFAULT_TIMEOUT = 120 * 1000
+const DEFAULT_TIMEOUT = 2 * 60 * 1000
 
+
+function getTimeout (files) {
+    if (!Array.isArray(files)) return DEFAULT_TIMEOUT
+    // NOTE: Files can take a long time to load, so we give each file more time to load
+    return DEFAULT_TIMEOUT + (files.length * (3 * 60 * 1000))
+}
 
 async function _publishNewsItemSharing (newsItem, newsItemSharing){
     const { keystone: keystoneContext } = getSchemaCtx('NewsItemSharing')
@@ -129,13 +135,15 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
             },
         }
 
+        const timeout = getTimeout(files)
+
         const response = await fetch(publishUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(publishData),
-            abortRequestTimeout: DEFAULT_TIMEOUT,
+            abortRequestTimeout: timeout,
         })
 
         if (response.status !== 200) {
