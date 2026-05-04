@@ -1,0 +1,31 @@
+This method replaces the current entry in the mini-app navigation stack — the equivalent of `window.history.replaceState`.
+Unlike [PushHistoryState](/docs/bridge/methods/history/push-history-state), no new entry is added: only the top entry of the stack is modified.
+After successful processing, Condo will send the mini-app a [`CondoWebAppHistoryPopState`](/docs/bridge/methods/history/events) event with the updated state.
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Method params
+
+| Parameter name | Parameter type | Required | Parameter description                              |
+|----------------|----------------|----------|----------------------------------------------------|
+| title          | string \| null | no       | New title for the current navigation state         |
+| state          | unknown        | no       | Arbitrary state to replace the current one with    |
+
+## Return value
+
+If successful, the method will return a JSON object containing a single `success` field:
+```json
+{ "success": true }
+```
+
+## Usage example
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+await bridge.send('CondoWebAppReplaceHistoryState', {
+    title: 'Step 1 (updated)',
+    state: { step: 1, formData: { name: 'Jane' } },
+})
+```

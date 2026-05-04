@@ -1,0 +1,9 @@
+.table {
+  display: table !important;
+  width: 100% !important;
+  table-layout: fixed;
+}
+
+.center-cell {
+  text-align: center;
+}

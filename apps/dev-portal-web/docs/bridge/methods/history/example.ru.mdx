@@ -1,0 +1,70 @@
+В этой статье рассмотрим, как реализовать базовую навигацию в мини-приложении на Next.js с использованием истории Condo Bridge.
+
+Общая идея заключается в следующем:
+1. Оборачиваем `next/router` в хук `useMiniappRouter`, который при переходах сохраняет текущий URL в стеке Condo.
+2. А в `_app.tsx` подписываемся на событие `CondoWebAppHistoryPopStateEvent` и при его получении восстанавливаем URL через `router.replace`.
+
+## Шаг 1. Хук useMiniappRouter
+
+Создайте файл `hooks/useMiniappRouter.ts`. Хук оборачивает `push` и `replace` из `next/router`: вместо того чтобы сразу менять URL, он сначала вызывает соответствующий метод Bridge, передавая целевой URL в поле `state`. Сам переход по URL при этом тоже происходит — через оригинальный метод роутера.
+
+```typescript
+import { useCallback } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { useRouter } from 'next/router'
+
+export function useMiniappRouter () {
+    const router = useRouter()
+
+    const push = useCallback(async (url: string, title?: string) => {
+        return bridge.send('CondoWebAppPushHistoryState', {
+            title: title ?? document.title,
+            state: { url },
+        }).catch(() => router.push(url))
+    }, [router])
+
+    const replace = useCallback(async (url: string, title?: string) => {
+        return bridge.send('CondoWebAppReplaceHistoryState', {
+            title: title ?? document.title,
+            state: { url },
+        }).catch(() => router.replace(url))
+    }, [router])
+
+    return { ...router, push, replace }
+}
+```
+
+Используйте `useMiniappRouter` везде в мини-приложении вместо `useRouter` из `next/router`.
+
+## Шаг 2. Подписка в _app.tsx
+
+В `_app.tsx` добавьте подписку на `CondoWebAppHistoryPopStateEvent`. Когда Condo отправляет это событие (после нажатия кнопки «Назад»), из стейта извлекается сохранённый URL и вызывается `router.replace` — без добавления новой записи в историю.
+
+```typescript jsx
+import React, { useEffect } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { useRouter } from 'next/router'
+import type { AppProps } from 'next/app'
+
+export default function App ({ Component, pageProps }: AppProps) {
+    const router = useRouter()
+
+    useEffect(() => {
+        const listener = (event: { type: string, data: unknown }) => {
+            if (event.type === 'CondoWebAppHistoryPopStateEvent') {
+                const { state } = event.data as { state?: { url?: string } }
+                if (state?.url && state.url !== router.asPath) {
+                    router.replace(state.url)
+                }
+            }
+        }
+
+        bridge.subscribe(listener)
+        return () => bridge.unsubscribe(listener)
+    }, [router])
+
+    return <Component {...pageProps} />
+}
+```

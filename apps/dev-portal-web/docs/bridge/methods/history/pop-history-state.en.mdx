@@ -1,0 +1,30 @@
+This method removes one or more entries from the mini-app navigation stack — the equivalent of `window.history.go(-n)`.
+After the call, Condo will send a [`CondoWebAppHistoryPopState`](/docs/bridge/methods/history/events) event with the state that ended up at the top of the stack.
+
+<Alert type={'warning'}>
+   Unlike `window.history.go`, mini-app navigation does not support moving forward. Keep this in mind when designing your mini-app logic.
+</Alert>
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Method params
+
+| Parameter name | Parameter type | Required | Parameter description                                        |
+|----------------|----------------|----------|--------------------------------------------------------------|
+| amount         | number         | no       | Number of entries to remove from the stack. Defaults to `1` |
+
+## Return value
+
+If successful, the method will return a JSON object containing a single `success` field:
+```json
+{ "success": true }
+```
+
+## Usage example
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+await bridge.send('CondoWebAppPopHistoryState')
+```
