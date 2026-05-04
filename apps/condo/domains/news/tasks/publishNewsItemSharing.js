@@ -1,10 +1,12 @@
 const get = require('lodash/get')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
+const { NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
 const { NewsItemSharing, NewsItemFile } = require('@condo/domains/news/utils/serverSchema')
@@ -14,13 +16,21 @@ const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishNewsItemSharing' } }
 
-const DEFAULT_TIMEOUT = 2 * 60 * 1000
+const DEFAULT_TIMEOUT_IN_MS = 30 * 1000
+const DEFAULT_TIMEOUT_BY_FILE_IN_MS = 5 * 60 * 1000
+const MAX_FILES_BY_NEWS_ITEM = 10
 
 
-function getTimeout (files) {
-    if (!Array.isArray(files)) return DEFAULT_TIMEOUT
+async function getTimeout (files) {
+    if (!Array.isArray(files)) return DEFAULT_TIMEOUT_IN_MS
+
+    const timeoutInSecondsByFileInMsFromFeatureFlag = await featureToggleManager.getFeatureValue(
+        null, NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM, DEFAULT_TIMEOUT_BY_FILE_IN_MS
+    ) || DEFAULT_TIMEOUT_BY_FILE_IN_MS
+    const timeoutInSecondsByFileInMs = Math.max(timeoutInSecondsByFileInMsFromFeatureFlag, DEFAULT_TIMEOUT_BY_FILE_IN_MS)
+
     // NOTE: Files can take a long time to load, so we give each file more time to load
-    return DEFAULT_TIMEOUT + (files.length * (3 * 60 * 1000))
+    return DEFAULT_TIMEOUT_IN_MS + (files.length * timeoutInSecondsByFileInMs)
 }
 
 async function _publishNewsItemSharing (newsItem, newsItemSharing){
@@ -135,7 +145,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
             },
         }
 
-        const timeout = getTimeout(files)
+        const timeout = await getTimeout(files)
 
         const response = await fetch(publishUrl, {
             method: 'POST',
