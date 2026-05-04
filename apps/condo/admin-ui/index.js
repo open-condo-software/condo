@@ -1,3 +1,5 @@
+/* global KEYSTONE_ADMIN_META */
+
 import { MobileOutlined, UserSwitchOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, gql } from '@apollo/client'
 import { ItemId, AddNewItem } from '@open-keystone/app-admin-ui/components'
@@ -84,7 +86,14 @@ function SignInAsResident () {
 export default {
     pages: () => {
         window.React = React
-        return []
+        // Remove HistoryRecords from left menu. Pages are still available through the Dashboard
+        const lists = Object.entries(KEYSTONE_ADMIN_META.lists)
+            .filter(([listKey]) => listKey.indexOf('HistoryRecord') === -1)
+            .sort(([, { label: labelA }], [, { label: labelB }]) => labelA.localeCompare(labelB))
+            .map(([listKey, { label }]) => ({ listKey, label }))
+        return [
+            ...lists,
+        ]
     },
     itemHeaderActions: () => {
         return (
