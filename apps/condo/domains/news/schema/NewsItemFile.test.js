@@ -21,7 +21,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     DATETIME_RE,
     expectToThrowValidationFailureError,
-    expectToThrowGQLError,
+    expectToThrowGQLError, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
@@ -391,12 +391,11 @@ describe('NewsItemFile', () => {
                 })
             })
 
-            it('admin can not', async () => {
-                const [item] = await createTestNewsItemFile(admin, newsItem, organization)
-                const [otherNewsItem] = await createTestNewsItem(admin, organization)
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(admin, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
-                })
+            it('admin can', async () => {
+                const [item] = await createTestNewsItemFile(admin, null, organization)
+                expect(item.newsItem).toBeNull()
+                const [updatedItem] = await updateTestNewsItemFile(admin, item.id, { newsItem: { connect: { id: newsItem.id } } })
+                expect(updatedItem.newsItem.id).toBe(newsItem.id)
             })
 
             it('support can not', async () => {
@@ -407,12 +406,11 @@ describe('NewsItemFile', () => {
                 })
             })
 
-            it('staff with canManageNewsItems can not', async () => {
-                const [item] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-                const [otherNewsItem] = await createTestNewsItem(admin, organization)
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemFile(staffWithPermissions, item.id, { newsItem: { connect: { id: otherNewsItem.id } } })
-                })
+            it('staff with canManageNewsItems can', async () => {
+                const [item] = await createTestNewsItemFile(staffWithPermissions, null, organization)
+                expect(item.newsItem).toBeNull()
+                const [updatedItem] = await updateTestNewsItemFile(staffWithPermissions, item.id, { newsItem: { connect: { id: newsItem.id } } })
+                expect(updatedItem.newsItem.id).toBe(newsItem.id)
             })
 
             it('staff without canManageNewsItems can not', async () => {
@@ -479,39 +477,6 @@ describe('NewsItemFile', () => {
                 expect(deletedFile.deletedAt).toMatch(DATETIME_RE)
             })
 
-            it('staff with canManageNewsItems can use bulk operations', async () => {
-                const [item] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-                const [item2] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-                const [item3] = await createTestNewsItemFile(staffWithPermissions, newsItem, organization)
-
-                const data = {
-                    dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                    deletedAt: new Date().toISOString(),
-                }
-                const updatePayload = [
-                    { id: item.id, data },
-                    { id: item2.id, data },
-                    { id: item3.id, data },
-                ]
-                const deletedFiles = await NewsItemFile.updateMany(staffWithPermissions, updatePayload)
-                expect(deletedFiles).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            id: item.id,
-                            deletedAt: expect.stringMatching(DATETIME_RE),
-                        }),
-                        expect.objectContaining({
-                            id: item2.id,
-                            deletedAt: expect.stringMatching(DATETIME_RE),
-                        }),
-                        expect.objectContaining({
-                            id: item3.id,
-                            deletedAt: expect.stringMatching(DATETIME_RE),
-                        }),
-                    ])
-                )
-            })
-
             it('staff without canManageNewsItems can not', async () => {
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -566,8 +531,70 @@ describe('NewsItemFile', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBIDDEN_FILE_TYPE',
-                message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: image/webp`,
+                message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: "image/webp"`,
             })
+        })
+
+        it('file cannot be updated', async () => {
+            const fileMeta = {
+                user: { id: admin.user.id },
+                fileClientId: 'condo',
+                modelNames: ['NewsItemFile'],
+                dv: 1, sender: { dv: 1, fingerprint: 'test-utils' },
+            }
+            const file1 = await getUploadingFile(TEST_FILE, fileMeta, admin)
+
+            const [item] = await createTestNewsItemFile(admin, newsItem, organization, { file: file1 })
+            expect(item.file).toBeDefined()
+            expect(item.file).not.toBeNull()
+
+            const file2 = await getUploadingFile(TEST_FILE, fileMeta, admin)
+
+            await catchErrorFrom(async () => {
+                await updateTestNewsItemFile(admin, item.id, { file: file2 })
+            }, (e) => {
+                expect(e.errors[0].message).toContain('Field "file" is not defined by type "NewsItemFileUpdateInput"')
+            })
+        })
+
+        it('newsItem cannot be updated if it is set already', async () => {
+            const [item] = await createTestNewsItemFile(admin, null, organization)
+            expect(item.newsItem).toBeNull()
+            expect(item.organization).toBeNull()
+
+            const [updatedItem] = await updateTestNewsItemFile(admin, item.id, { newsItem: { connect: { id: newsItem.id } } })
+            expect(updatedItem.newsItem.id).toBe(newsItem.id)
+            expect(updatedItem.organization.id).toBe(organization.id)
+
+            const [createdNewsItem] = await createTestNewsItem(admin, organization)
+            await createTestNewsItemScope(admin, createdNewsItem)
+            const [newsItemPublished] = await publishTestNewsItem(admin, createdNewsItem.id)
+
+            await expectToThrowGQLError(async () => {
+                await updateTestNewsItemFile(admin, item.id, { newsItem: { connect: { id: newsItemPublished.id } } })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'NEWS_ITEM_CANNOT_BE_UPDATED',
+                message: 'News item cannot be updated',
+            })
+        })
+    })
+
+    describe('Real cases', () => {
+        test('Upload the file and then specify the news item', async () => {
+            const [newsFile] = await createTestNewsItemFile(staffWithPermissions, null, organization)
+
+            expect(newsFile.organization).toBeNull()
+            expect(newsFile.newsItem).toBeNull()
+            expect(newsFile.file).toBeDefined()
+            expect(newsFile.file).not.toBeNull()
+
+            const [newsFileWithNewsItem] = await updateTestNewsItemFile(staffWithPermissions, newsFile.id, {
+                newsItem: { connect: { id: newsItem.id } },
+            })
+
+            expect(newsFileWithNewsItem.organization.id).toBe(organization.id)
+            expect(newsFileWithNewsItem.newsItem.id).toBe(newsItem.id)
         })
     })
 })

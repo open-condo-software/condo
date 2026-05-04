@@ -17,7 +17,6 @@ import {
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FLOW_TYPES } from '@condo/domains/ai/constants'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { UI_NEWS_MARKDOWN } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
@@ -364,10 +363,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
 
     const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
 
-    const { breakpoints } = useLayoutContext()
-
-    const isMediumWindow = !breakpoints.DESKTOP_SMALL
-    const formFieldsColSpan = isMediumWindow ? 24 : 14
+    const formFieldsColSpan = 24
 
     const titleRule = useMemo(() => {
         return [{
@@ -385,7 +381,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     }, [BodyErrorMessage, TemplateBlanksNotFilledErrorMessage])
 
     const commonTemplates = useMemo(() => {
-        return Object.entries(templates).reduce((result, [key, value]) => {
+        return Object.entries(templates || {}).reduce((result, [key, value]) => {
             if (value.type === NEWS_TYPE_COMMON || value.type === null) {
                 result[key] = value
             }
@@ -394,7 +390,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     }, [templates])
 
     const emergencyTemplates = useMemo(() => {
-        return Object.entries(templates).reduce((result, [key, value]) => {
+        return Object.entries(templates || {}).reduce((result, [key, value]) => {
             if (value.type === NEWS_TYPE_EMERGENCY || value.type === null) {
                 result[key] = value
             }

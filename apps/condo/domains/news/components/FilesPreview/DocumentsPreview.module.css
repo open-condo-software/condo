@@ -1,0 +1,11 @@
+.documents-preview-full-width {
+  width: 100%;
+}
+
+.documents-preview-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  text-decoration: underline;
+}

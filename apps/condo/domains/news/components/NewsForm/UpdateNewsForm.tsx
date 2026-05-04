@@ -1,3 +1,4 @@
+import { useGetNewsItemFilesQuery } from '@app/condo/gql'
 import { B2BAppContextStatusType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -6,15 +7,19 @@ import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
+import { convertFilesToUploadType } from '@condo/domains/news/components/FilesUploadList'
 import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { SendPeriodType, BaseNewsFormProps, BaseNewsForm } from './BaseNewsForm'
+
+
 export interface IUpdateNewsForm {
     id: string
 }
@@ -48,6 +53,8 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     
     const router = useRouter()
 
+    const { persistor } = useCachePersistor()
+
     const {
         loading: newsItemLoading,
         obj: newsItem,
@@ -75,6 +82,23 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         where: { id_in: selectedPropertiesId },
     })
 
+    const {
+        loading: newsItemFilesLoading,
+        data: newsItemFilesData,
+    } = useGetNewsItemFilesQuery({
+        variables: {
+            where: {
+                newsItem: {
+                    id: id,
+                },
+            },
+        },
+        skip: !persistor || !id,
+    })
+
+    const files = useMemo(() => newsItemFilesData?.newsItemFiles?.filter(Boolean), [newsItemFilesData])
+
+
     const updateNewsItem = NewsItem.useUpdate({})
     const action: BaseNewsFormProps['newsItemAction'] = useCallback(
         async (values) => {
@@ -97,10 +121,11 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         newsItemScopes: newsItemScopes,
         hasAllProperties: hasAllProperties,
         properties: properties,
+        files: Array.isArray(files) ? convertFilesToUploadType(files) : files,
         sendPeriod: sendPeriod,
         sendAt: sendAt ? sendAt : null,
         validBefore: validBefore ? validBefore : null,
-    }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore])
+    }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore, files])
 
     const organizationId = useMemo(() => get(newsItem, 'organization.id', null), [newsItem])
 
@@ -166,8 +191,8 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError || totalPropertiesError || sharingAppContextsError,
         [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError])
     const loading = useMemo(
-        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || isSharingAppContextsFetching,
-        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading, isSharingAppContextsFetching])
+        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || isSharingAppContextsFetching || newsItemFilesLoading,
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading, isSharingAppContextsFetching, newsItemFilesLoading])
 
     if (loading || error) {
         return (

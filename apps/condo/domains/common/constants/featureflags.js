@@ -48,6 +48,7 @@ const TICKET_OBSERVERS = 'ticket-observers'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
 const TWO_FACTOR_SETTING = 'two-factor-setting'
+const NEWS_ITEM_FILES = 'news-item-files'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -100,4 +101,5 @@ module.exports = {
     SUBSCRIPTION_PAYMENT_MODAL,
     TWO_FACTOR_SETTING,
     AI_STREAMING,
+    NEWS_ITEM_FILES,
 }

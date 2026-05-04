@@ -6,7 +6,6 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Space } from '@open-condo/ui'
 
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { HiddenBlock } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { Counter, MemoizedNewsSharingRecipientCounter, MemoizedRecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
@@ -33,12 +32,6 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const StatisticsTitle = intl.formatMessage({ id: 'pages.condo.news.steps.statistics' })
     const SubscribersLabel = intl.formatMessage({ id: 'pages.condo.news.steps.subscribers' })
     const ChannelsLabel = intl.formatMessage({ id: 'pages.condo.news.steps.channels' })
-
-    const { breakpoints } = useLayoutContext()
-
-    const isMediumWindow = !breakpoints.DESKTOP_SMALL
-    const formFieldsColSpan = isMediumWindow ? 24 : 14
-    const formInfoColSpan = 24 - formFieldsColSpan
 
     const parsedNewsSharingScope = useMemo(() => newsSharingScope?.map(scope =>
         typeof scope === 'string' ? JSON.parse(scope)?.value : scope) || [],
@@ -88,7 +81,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     )
 
     return (
-        <Col span={formInfoColSpan} className={styles.recipientCounter}>
+        <Col span={24} className={styles.recipientCounter}>
             {
                 isSharingStep
                     ? newsSharingRecipientCounter
