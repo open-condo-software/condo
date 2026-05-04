@@ -7,6 +7,7 @@ import { Alert } from '@/domains/docs/components/Alert'
 import { CardLink } from '@/domains/docs/components/CardLink'
 import { Grid } from '@/domains/docs/components/Grid'
 import { Link } from '@/domains/docs/components/Link'
+import { SupportedPlatforms } from '@/domains/docs/components/SupportedPlatforms'
 import { Tabs } from '@/domains/docs/components/Tabs'
 import { AmountDistributionCalculator } from '@/domains/docs/components/widgets/AmountDistributionCalculator'
 
@@ -27,5 +28,6 @@ export const MDXMapping: MDXComponents = {
     Tabs,
     Grid,
     CardLink,
+    SupportedPlatforms,
     AmountDistributionCalculator,
 }
