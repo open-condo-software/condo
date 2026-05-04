@@ -88,17 +88,27 @@ const iconRender = (file) => {
 }
 
 const THUMBNAIL_CACHE = new Map()
-async function tryCreateThumbnailFromUrl (type, url, id) {
+
+/**
+ * The function attempts to generate a thumbnail for a photo or video, or returns a cached one
+ * @param mimetype Mimetype
+ * @param url Url to file
+ * @param id Used as a key for thumbnail caching
+ */
+async function tryCreateThumbnailFromUrl (mimetype?: string, url?: string, id?: string) {
+    if (!mimetype || !url) return
+
     if (id && THUMBNAIL_CACHE.has(id)) {
         return THUMBNAIL_CACHE.get(id)
     }
+
     try {
-        if (type?.startsWith('image/')) {
+        if (mimetype?.startsWith('image/')) {
             const thumbnail = await createImageThumbnailFromUrl(url)
             THUMBNAIL_CACHE.set(id, thumbnail)
             return thumbnail
         }
-        if (type?.startsWith('video/')) {
+        if (mimetype?.startsWith('video/')) {
             const thumbnail = await createVideoThumbnailFromUrl(url)
             THUMBNAIL_CACHE.set(id, thumbnail)
             return thumbnail

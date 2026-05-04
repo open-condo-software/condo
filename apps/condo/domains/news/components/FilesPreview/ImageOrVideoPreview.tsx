@@ -7,6 +7,9 @@ import styles from './ImageOrVideoPreview.module.css'
 import { UploadFileType } from '../FilesUploadList'
 
 
+const PREVIEW_WIDTH = 1280
+const PREVIEW_HEIGHT = 720
+
 const PREVIEW_CACHE = new Map<string, string>()
 export const getImagePreviewFromUrl = (url: string, id?: string) => {
     return new Promise<string>((resolve, reject) => {
@@ -22,22 +25,19 @@ export const getImagePreviewFromUrl = (url: string, id?: string) => {
             const canvas = document.createElement('canvas')
             const ctx = canvas.getContext('2d')
 
-            const WIDTH = 1280
-            const HEIGHT = 720
-
-            canvas.width = WIDTH
-            canvas.height = HEIGHT
+            canvas.width = PREVIEW_WIDTH
+            canvas.height = PREVIEW_HEIGHT
 
             const iw = img.width
             const ih = img.height
 
-            const scale = Math.max(WIDTH / iw, HEIGHT / ih)
+            const scale = Math.max(PREVIEW_WIDTH / iw, PREVIEW_HEIGHT / ih)
 
             const drawWidth = iw * scale
             const drawHeight = ih * scale
 
-            const offsetX = (WIDTH - drawWidth) / 2
-            const offsetY = (HEIGHT - drawHeight) / 2
+            const offsetX = (PREVIEW_WIDTH - drawWidth) / 2
+            const offsetY = (PREVIEW_HEIGHT - drawHeight) / 2
 
             ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight)
 
@@ -73,22 +73,19 @@ export const createVideoPreviewFromUrl = (url: string, id?: string) => {
         }
 
         video.onseeked = () => {
-            const WIDTH = 1280
-            const HEIGHT = 720
-
-            canvas.width = WIDTH
-            canvas.height = HEIGHT
+            canvas.width = PREVIEW_WIDTH
+            canvas.height = PREVIEW_HEIGHT
 
             const vw = video.videoWidth
             const vh = video.videoHeight
 
-            const scale = Math.max(WIDTH / vw, HEIGHT / vh)
+            const scale = Math.max(PREVIEW_WIDTH / vw, PREVIEW_HEIGHT / vh)
 
             const drawWidth = vw * scale
             const drawHeight = vh * scale
 
-            const offsetX = (WIDTH - drawWidth) / 2
-            const offsetY = (HEIGHT - drawHeight) / 2
+            const offsetX = (PREVIEW_WIDTH - drawWidth) / 2
+            const offsetY = (PREVIEW_HEIGHT - drawHeight) / 2
 
             ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight)
 

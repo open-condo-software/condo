@@ -100,7 +100,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
             deletedAt: null,
         }, 'id file { publicUrl originalFilename mimetype }', {
             sortBy: ['createdAt_ASC'],
-            first: 10,
+            first: MAX_FILES_BY_NEWS_ITEM,
         })
 
         const publishData = {
@@ -126,7 +126,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
                 addressMeta: property.addressMeta,
             })),
 
-            files: files,
+            files,
 
             organization: {
                 tin: organization.tin,
