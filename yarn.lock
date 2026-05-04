@@ -1722,6 +1722,7 @@ __metadata:
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
     uuid: ^8.0.3
+    yet-another-react-lightbox: ^3.31.0
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
@@ -49974,6 +49975,23 @@ __metadata:
   dependencies:
     buffer-crc32: ~0.2.3
   checksum: daec5154b5485d8621bfea359e905ddca0b2f068430a4aa0a802bf5d67391157a383e0c2767acccbf5964264851da643bc740155a9458e2d8dce55b94c1cc2ed
+  languageName: node
+  linkType: hard
+
+"yet-another-react-lightbox@npm:^3.31.0":
+  version: 3.32.0
+  resolution: "yet-another-react-lightbox@npm:3.32.0"
+  peerDependencies:
+    "@types/react": ^16 || ^17 || ^18 || ^19
+    "@types/react-dom": ^16 || ^17 || ^18 || ^19
+    react: ^16.8.0 || ^17 || ^18 || ^19
+    react-dom: ^16.8.0 || ^17 || ^18 || ^19
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 9a94065e04d17a169db3f042d3e31bd48b8a2fcb0572cbbaa64d448e5f06fd86046f9d890babef08b096d5fffcf17fa8ec64d10c8bd11b8677ee708988b1e34a
   languageName: node
   linkType: hard
 
