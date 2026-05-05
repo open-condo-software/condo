@@ -42,6 +42,24 @@ const getKVPrefix = () => {
 
 const PREFIX = getKVPrefix()
 
+async function closeKVClients () {
+    const clients = Object.entries(KV_CLIENTS)
+
+    await Promise.all(clients.map(async ([clientKey, client]) => {
+        if (!client) return
+
+        logger.info({ msg: 'disconnect', entity: 'IORedis', entityId: clientKey })
+
+        try {
+            await client.disconnect()
+        } catch (err) {
+            logger.error({ msg: 'disconnectError', entity: 'IORedis', entityId: clientKey, err })
+        } finally {
+            delete KV_CLIENTS[clientKey]
+        }
+    }))
+}
+
 /**
  * If you really need to use key-value storage client then you should use this function!
  *
@@ -113,6 +131,7 @@ async function checkMinimalKVDataVersion (version) {
 }
 
 module.exports = {
+    closeKVClients,
     getKVClient,
     getKVPrefix,
     checkMinimalKVDataVersion,

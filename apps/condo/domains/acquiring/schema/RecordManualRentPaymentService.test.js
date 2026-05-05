@@ -1,7 +1,8 @@
 const { gql } = require('graphql-tag')
 
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { catchErrorFrom, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { closeKVClients } = require('@open-condo/keystone/kv')
+const { catchErrorFrom, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const {
     RENT_PAYMENT_METHOD_BANK_TRANSFER,
@@ -21,6 +22,33 @@ const {
     createTestResident,
 } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
+function initManualRentPaymentSchemaTestMode () {
+    try {
+        const index = require('@app/condo/index')
+        setFakeClientMode(index)
+
+        return { enabled: true, reason: null }
+    } catch (error) {
+        void closeKVClients()
+
+        return {
+            enabled: false,
+            reason: [
+                'RecordManualRentPaymentService.test.js requires either an in-process Condo Keystone test app',
+                'or a prepared schema-test environment.',
+                `In-process bootstrap failed: ${error.message}`,
+            ].join(' '),
+        }
+    }
+}
+
+const manualRentPaymentSchemaTestMode = initManualRentPaymentSchemaTestMode()
+const describeManualRentPaymentService = manualRentPaymentSchemaTestMode.enabled ? describe : describe.skip
+
+if (!manualRentPaymentSchemaTestMode.enabled) {
+    test.skip(manualRentPaymentSchemaTestMode.reason, () => {})
+}
 
 const CREATE_OCCUPANCY_MUTATION = gql`
     mutation createOccupancy ($data: OccupancyCreateInput) {
@@ -248,7 +276,7 @@ function buildReversalData (fixture, payment, extraAttrs = {}) {
     }
 }
 
-describe('RecordManualRentPaymentService', () => {
+describeManualRentPaymentService('RecordManualRentPaymentService', () => {
     test('records manual cash payment without reference', async () => {
         const fixture = await makeFixture({ chargeAmounts: ['100'] })
 

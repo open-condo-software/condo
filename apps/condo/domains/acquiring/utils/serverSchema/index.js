@@ -166,7 +166,7 @@ async function recordManualRentPayment (context, data) {
     } = data
 
     const provider = getPaymentProvider()
-    const confirmation = await provider.confirmPayment({ paymentMethod, reference, confirmedAt })
+    const confirmation = await provider.verifyPayment({ paymentMethod, reference, confirmedAt })
     const occupancyId = occupancy && occupancy.id
     const occupancyRecord = occupancyId ? await getById('Occupancy', occupancyId) : null
     const propertyId = property && property.id ? property.id : occupancyRecord && occupancyRecord.property
