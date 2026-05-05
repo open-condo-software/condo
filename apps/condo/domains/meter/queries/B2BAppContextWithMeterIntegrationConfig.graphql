@@ -1,0 +1,13 @@
+query getB2BAppContextWithMeterIntegrationConfig ($organizationId: ID!) {
+    contexts: allB2BAppContexts (
+        where: {
+            status: Finished,
+            organization: { id: $organizationId, deletedAt: null },
+            app: { meterIntegrationConfig_is_null: false, deletedAt: null },
+            deletedAt: null,
+        },
+        first: 1,
+    ) {
+        id
+    }
+}

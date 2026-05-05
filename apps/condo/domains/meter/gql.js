@@ -28,7 +28,7 @@ const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_F
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 const MeterReadingForOrganization = generateGqlQueries('MeterReading', `{
-        id value1 value2 value3 value4 date clientName clientEmail clientPhone accountNumber
+        id value1 value2 value3 value4 date clientName clientEmail clientPhone accountNumber billingStatus billingStatusText
         meter { id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate archiveDate accountNumber organization { id } property { id addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } }
         organization { id name }
         client { id }

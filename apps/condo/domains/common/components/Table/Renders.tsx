@@ -12,7 +12,7 @@ import getConfig from 'next/config'
 import React from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
-import { IconProps } from '@open-condo/icons'
+import { AlertCircle, IconProps } from '@open-condo/icons'
 import { Space, Tag, TypographyLinkProps, Tooltip, TooltipProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
@@ -290,15 +290,25 @@ export const getTextRender = (search?: FilterValue | string) => {
     }
 }
 
-export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
+export const renderMeterReading = (values: string[], resourceId: string, measure: string, tooltipTitle?: string) => {
+    let content
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
-        const formatMeter = (value, index) => !value ? null : <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></>
-        return values.map(formatMeter)
+        content = values.map((value, index) => value ? <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></> : null).filter(Boolean)
     }
 
     // other resource 1-tariff meter
-    if (get(values, '0')) return `${Number(values[0])} ${measure}`
+    if (get(values, '0')) content = `${Number(values[0])} ${measure}`
+
+    if (content) {
+        return (
+            <>
+                {tooltipTitle && <Tooltip title={tooltipTitle} placement='left'><span style={{ verticalAlign: 'middle', display: 'inline-flex' }}><AlertCircle size='small' color={colors.red[5]} /></span> </Tooltip>}
+                {content}
+            </>
+        )
+    }
+
     return null
 }
 

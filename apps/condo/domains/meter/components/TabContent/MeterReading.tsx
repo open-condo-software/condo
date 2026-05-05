@@ -36,6 +36,8 @@ import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Inde
 import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
+import { METER_READING_BILLING_STATUS_DECLINED } from '@condo/domains/meter/constants/constants'
+import { useMeterIntegrationConfig } from '@condo/domains/meter/hooks/useMeterIntegrationConfig'
 import { useMeterReadingExportToExcelTask } from '@condo/domains/meter/hooks/useMeterReadingExportToExcelTask'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
@@ -99,8 +101,13 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
+    const { hasMeterIntegration, loading: meterIntegrationLoading } = useMeterIntegrationConfig()
 
-    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
+    const baseSortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
+    const sortBy = useMemo(() => {
+        if (!hasMeterIntegration) return baseSortBy
+        return [SortMeterReadingsBy.BillingStatusDesc, ...baseSortBy]
+    }, [baseSortBy, hasMeterIntegration])
 
     const [dateRange] = useDateRangeSearch('date')
     const dateFilterValue = dateRange || null
@@ -128,8 +135,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const tableColumnsForSingleMeter = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit, true, meterReadings)
-    const tableColumnsForMeterReadings = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit as MeterTypes)
+    const tableColumnsForSingleMeter = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit, true, meterReadings, hasMeterIntegration)
+    const tableColumnsForMeterReadings = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit as MeterTypes, false, undefined, hasMeterIntegration)
 
     const { ExportButton } = useMeterReadingExportToExcelTask({
         where: searchMeterReadingsQuery,
@@ -151,9 +158,16 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }, [])
 
     const processedMeterReadings = useMemo(() => {
-        const filteredMeterReading = [...meterReadings].sort((a, b) => (a.date < b.date ? 1 : -1))
+        const filteredMeterReading = [...meterReadings].sort((a, b) => {
+            if (hasMeterIntegration) {
+                const aDeclined = a?.billingStatus === METER_READING_BILLING_STATUS_DECLINED
+                const bDeclined = b?.billingStatus === METER_READING_BILLING_STATUS_DECLINED
+                if (aDeclined !== bDeclined) return aDeclined ? -1 : 1
+            }
+            return a.date < b.date ? 1 : -1
+        })
         return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
-    }, [meterReadings])
+    }, [meterReadings, hasMeterIntegration])
 
     const readingsToFilter = meter ? meterReadings : processedMeterReadings
 
@@ -282,7 +296,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                         )}
                         <Table
                             totalRows={total}
-                            loading={meterReadingsLoading || loading}
+                            loading={meterReadingsLoading || meterIntegrationLoading || loading}
                             dataSource={meter ? meterReadings : processedMeterReadings}
                             columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
                             rowSelection={rowSelection}

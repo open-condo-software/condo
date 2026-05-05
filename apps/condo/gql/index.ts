@@ -2326,6 +2326,52 @@ export function useUpdateMarketItemsMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateMarketItemsMutationHookResult = ReturnType<typeof useUpdateMarketItemsMutation>;
 export type UpdateMarketItemsMutationResult = Apollo.MutationResult<Types.UpdateMarketItemsMutation>;
 export type UpdateMarketItemsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMarketItemsMutation, Types.UpdateMarketItemsMutationVariables>;
+export const GetB2BAppContextWithMeterIntegrationConfigDocument = gql`
+    query getB2BAppContextWithMeterIntegrationConfig($organizationId: ID!) {
+  contexts: allB2BAppContexts(
+    where: {status: Finished, organization: {id: $organizationId, deletedAt: null}, app: {meterIntegrationConfig_is_null: false, deletedAt: null}, deletedAt: null}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppContextWithMeterIntegrationConfigQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppContextWithMeterIntegrationConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppContextWithMeterIntegrationConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppContextWithMeterIntegrationConfigQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetB2BAppContextWithMeterIntegrationConfigQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables> & ({ variables: Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>(GetB2BAppContextWithMeterIntegrationConfigDocument, options);
+      }
+export function useGetB2BAppContextWithMeterIntegrationConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>(GetB2BAppContextWithMeterIntegrationConfigDocument, options);
+        }
+// @ts-ignore
+export function useGetB2BAppContextWithMeterIntegrationConfigSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>;
+export function useGetB2BAppContextWithMeterIntegrationConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetB2BAppContextWithMeterIntegrationConfigQuery | undefined, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>;
+export function useGetB2BAppContextWithMeterIntegrationConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>(GetB2BAppContextWithMeterIntegrationConfigDocument, options);
+        }
+export type GetB2BAppContextWithMeterIntegrationConfigQueryHookResult = ReturnType<typeof useGetB2BAppContextWithMeterIntegrationConfigQuery>;
+export type GetB2BAppContextWithMeterIntegrationConfigLazyQueryHookResult = ReturnType<typeof useGetB2BAppContextWithMeterIntegrationConfigLazyQuery>;
+export type GetB2BAppContextWithMeterIntegrationConfigSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppContextWithMeterIntegrationConfigSuspenseQuery>;
+export type GetB2BAppContextWithMeterIntegrationConfigQueryResult = Apollo.QueryResult<Types.GetB2BAppContextWithMeterIntegrationConfigQuery, Types.GetB2BAppContextWithMeterIntegrationConfigQueryVariables>;
 export const UpdateMetersDocument = gql`
     mutation updateMeters($data: [MetersUpdateInput!]!) {
   meters: updateMeters(data: $data) {
