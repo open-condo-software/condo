@@ -6,6 +6,8 @@ class ManualPaymentProvider extends PaymentProvider {
     async createPayment (paymentData) {
         return {
             provider: RENT_PAYMENT_PROVIDER_MANUAL,
+            paymentMethod: paymentData.paymentMethod,
+            externalTransactionId: paymentData.reference || paymentData.externalTransactionId || null,
             paymentData,
         }
     }
@@ -14,6 +16,9 @@ class ManualPaymentProvider extends PaymentProvider {
         return {
             provider: RENT_PAYMENT_PROVIDER_MANUAL,
             confirmed: true,
+            confirmedAt: paymentData.confirmedAt || new Date().toISOString(),
+            paymentMethod: paymentData.paymentMethod,
+            externalTransactionId: paymentData.reference || paymentData.externalTransactionId || null,
             paymentData,
         }
     }

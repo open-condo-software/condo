@@ -90,6 +90,16 @@ const PaymentReceipt = new GQLListSchema('PaymentReceipt', {
             dataType: 'string',
             isRequired: false,
         },
+        reference: {
+            schemaDoc: 'Manual or provider payment reference shown on receipt',
+            type: 'Text',
+            isRequired: false,
+        },
+        balanceAfterPayment: {
+            ...MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Tenant ledger balance after this payment was applied',
+            isRequired: false,
+        },
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {

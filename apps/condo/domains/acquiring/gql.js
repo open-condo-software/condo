@@ -32,7 +32,7 @@ const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 const MultiPaymentWithPayerInfo = generateGqlQueries('MultiPayment', MULTI_PAYMENT_WITH_PAYER_INFO)
 const MultiPaymentAdmin = generateGqlQueries('MultiPayment', MULTI_PAYMENT_ADMIN_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount rawAddress frozenDistribution frozenSplits posReceiptUrl }`
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } tenant { id } occupancy { id } property { id } rentalUnit { id } paymentMethod provider externalTransactionId confirmedAt reversalReason reversedAt reversedBy { id } reversalLedgerEntry { id } recipientBic recipientBankAccount rawAddress frozenDistribution frozenSplits posReceiptUrl }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
@@ -103,6 +103,83 @@ const SET_PAYMENT_POS_RECEIPT_URL_MUTATION = gql`
     }
 `
 
+const RECORD_MANUAL_RENT_PAYMENT_MUTATION = gql`
+    mutation recordManualRentPayment ($data: RecordManualRentPaymentInput!) {
+        result: recordManualRentPayment(data: $data) {
+            payment {
+                id
+                amount
+                status
+                provider
+                paymentMethod
+                externalTransactionId
+                confirmedAt
+                organization { id }
+                tenant { id }
+                occupancy { id }
+                property { id }
+                rentalUnit { id }
+                posReceiptUrl
+            }
+            allocations {
+                id
+                amount
+                currencyCode
+                rentCharge { id status }
+            }
+            receipt {
+                id
+                number
+                amount
+                currencyCode
+                issuedAt
+                paymentMethod
+                provider
+                reference
+                balanceAfterPayment
+                tenant { id }
+            }
+            ledgerBalance
+        }
+    }
+`
+
+const REVERSE_MANUAL_RENT_PAYMENT_MUTATION = gql`
+    mutation reverseManualRentPayment ($data: ReverseManualRentPaymentInput!) {
+        result: reverseManualRentPayment(data: $data) {
+            payment {
+                id
+                amount
+                status
+                reversalReason
+                reversedAt
+                reversedBy { id }
+                reversalLedgerEntry { id }
+                organization { id }
+            }
+            ledgerEntry {
+                id
+                entryType
+                direction
+                amount
+                reversesEntry { id }
+            }
+            allocations {
+                id
+                amount
+                currencyCode
+                rentCharge { id status }
+                ledgerEntry { id }
+            }
+            rentCharges {
+                id
+                status
+            }
+            ledgerBalance
+        }
+    }
+`
+
 const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS = `{ name url isEnabled description organization { id name } ${COMMON_FIELDS} }`
 const PaymentStatusChangeWebhookUrl = generateGqlQueries('PaymentStatusChangeWebhookUrl', PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS)
 
@@ -136,6 +213,8 @@ module.exports = {
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
     PaymentsFile,
     SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
+    RECORD_MANUAL_RENT_PAYMENT_MUTATION,
+    REVERSE_MANUAL_RENT_PAYMENT_MUTATION,
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS,
     PaymentStatusChangeWebhookUrl,
 /* AUTOGENERATE MARKER <EXPORTS> */

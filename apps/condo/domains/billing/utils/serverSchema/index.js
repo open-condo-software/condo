@@ -37,9 +37,11 @@ const {
     getOrCreateTenantLedger,
     getPaymentAllocatedAmount,
     getRentChargeOutstandingAmountFromAllocations,
+    getRentChargeStatusFromOutstanding,
     postPaymentLedgerEntry,
     postRentChargeLedgerEntry,
     processConfirmedRentPayment,
+    reverseConfirmedRentPayment,
 } = require('./paymentAllocation')
 const {
     buildPeriodData,
@@ -259,9 +261,11 @@ module.exports = {
     getOrCreateTenantLedger,
     getPaymentAllocatedAmount,
     getRentChargeOutstandingAmountFromAllocations,
+    getRentChargeStatusFromOutstanding,
     postPaymentLedgerEntry,
     postRentChargeLedgerEntry,
     processConfirmedRentPayment,
+    reverseConfirmedRentPayment,
     buildPeriodData,
     buildRentChargeInvoiceRow,
     calculateRentChargeAmount,

@@ -9,7 +9,7 @@ const { split } = require('@open-condo/billing/utils/paymentSplitter')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const access = require('@condo/domains/acquiring/access/Payment')
@@ -37,9 +37,18 @@ const {
     PAYMENT_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELDS,
     PAYMENT_DONE_STATUS,
+    PAYMENT_REVERSED_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
-const { RENT_PAYMENT_METHODS, RENT_PAYMENT_PROVIDERS } = require('@condo/domains/acquiring/constants/rentPayment')
+const {
+    RENT_PAYMENT_METHOD_BANK_TRANSFER,
+    RENT_PAYMENT_METHOD_CASH,
+    RENT_PAYMENT_METHOD_CARD,
+    RENT_PAYMENT_METHOD_MOMO,
+    RENT_PAYMENT_METHODS,
+    RENT_PAYMENT_PROVIDER_MANUAL,
+    RENT_PAYMENT_PROVIDERS,
+} = require('@condo/domains/acquiring/constants/rentPayment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { sendPaymentStatusChangeWebhook } = require('@condo/domains/acquiring/tasks')
@@ -73,6 +82,128 @@ const ERRORS = {
         type: PAYMENT_RECEIPT_WITHOUT_ACCOUNT_NUMBER,
         message: 'Input is containing "receipt", but "accountNumber" is not specified',
     },
+    MANUAL_REFERENCE_REQUIRED: {
+        code: BAD_USER_INPUT,
+        type: 'PAYMENT_MANUAL_REFERENCE_REQUIRED',
+        message: 'Manual payments by mobile money or bank transfer must include a reference',
+        messageForUser: 'api.acquiring.payment.MANUAL_REFERENCE_REQUIRED',
+    },
+    MANUAL_REFERENCE_DUPLICATE: {
+        code: BAD_USER_INPUT,
+        type: 'PAYMENT_MANUAL_REFERENCE_DUPLICATE',
+        message: 'Manual payment reference must be unique within organization, provider and payment method',
+        messageForUser: 'api.acquiring.payment.MANUAL_REFERENCE_DUPLICATE',
+    },
+    RENT_PAYMENT_SCOPE_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: 'PAYMENT_RENT_PAYMENT_SCOPE_MISMATCH',
+        message: 'Tenant, organization, occupancy, property and rental unit must match for rent payments',
+        messageForUser: 'api.acquiring.payment.RENT_PAYMENT_SCOPE_MISMATCH',
+    },
+    REVERSAL_METADATA_REQUIRES_REVERSED_STATUS: {
+        code: BAD_USER_INPUT,
+        type: 'PAYMENT_REVERSAL_METADATA_REQUIRES_REVERSED_STATUS',
+        message: 'Reversal metadata can only be set when payment status is REVERSED',
+        messageForUser: 'api.acquiring.payment.REVERSAL_METADATA_REQUIRES_REVERSED_STATUS',
+    },
+    REVERSED_PAYMENT_IMMUTABLE: {
+        code: BAD_USER_INPUT,
+        type: 'PAYMENT_REVERSED_PAYMENT_IMMUTABLE',
+        message: 'Reversed payment metadata cannot be changed',
+        messageForUser: 'api.acquiring.payment.REVERSED_PAYMENT_IMMUTABLE',
+    },
+}
+
+const MANUAL_REFERENCE_REQUIRED_METHODS = [RENT_PAYMENT_METHOD_BANK_TRANSFER, RENT_PAYMENT_METHOD_MOMO]
+const MANUAL_PAYMENT_METHODS = [RENT_PAYMENT_METHOD_BANK_TRANSFER, RENT_PAYMENT_METHOD_CASH, RENT_PAYMENT_METHOD_CARD, RENT_PAYMENT_METHOD_MOMO]
+
+function getRelationId (value) {
+    return get(value, 'id') || value
+}
+
+function isRentPaymentData (item) {
+    return !!(item.tenant || item.occupancy || item.property || item.rentalUnit)
+}
+
+async function validateRentPaymentScope (context, item) {
+    const organizationId = getRelationId(item.organization)
+    const tenantId = getRelationId(item.tenant)
+    const occupancyId = getRelationId(item.occupancy)
+    const propertyId = getRelationId(item.property)
+    const rentalUnitId = getRelationId(item.rentalUnit)
+
+    if (!organizationId) return
+
+    if (propertyId) {
+        const property = await getById('Property', propertyId)
+
+        if (!property || property.organization !== organizationId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+    }
+
+    if (rentalUnitId) {
+        const rentalUnit = await getById('RentalUnit', rentalUnitId)
+
+        if (!rentalUnit || rentalUnit.organization !== organizationId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+
+        if (propertyId && rentalUnit.property !== propertyId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+    }
+
+    if (occupancyId) {
+        const occupancy = await getById('Occupancy', occupancyId)
+
+        if (!occupancy || occupancy.organization !== organizationId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+
+        if (tenantId && occupancy.tenant !== tenantId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+
+        if (propertyId && occupancy.property !== propertyId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+
+        if (rentalUnitId && occupancy.rentalUnit !== rentalUnitId) {
+            throw new GQLError(ERRORS.RENT_PAYMENT_SCOPE_MISMATCH, context)
+        }
+    }
+}
+
+async function validateManualPaymentReference (context, item, existingItemId = null) {
+    const provider = item.provider
+    const paymentMethod = item.paymentMethod
+    const reference = item.externalTransactionId
+    const organizationId = getRelationId(item.organization)
+
+    if (provider !== RENT_PAYMENT_PROVIDER_MANUAL || !MANUAL_PAYMENT_METHODS.includes(paymentMethod)) {
+        return
+    }
+
+    if (MANUAL_REFERENCE_REQUIRED_METHODS.includes(paymentMethod) && !reference) {
+        throw new GQLError(ERRORS.MANUAL_REFERENCE_REQUIRED, context)
+    }
+
+    if (!reference || !organizationId) {
+        return
+    }
+
+    const duplicates = await find('Payment', {
+        organization: { id: organizationId },
+        provider,
+        paymentMethod,
+        externalTransactionId: reference,
+        deletedAt: null,
+    })
+
+    if (duplicates.some(payment => payment.id !== existingItemId)) {
+        throw new GQLError(ERRORS.MANUAL_REFERENCE_DUPLICATE, context)
+    }
 }
 
 const Payment = new GQLListSchema('Payment', {
@@ -266,6 +397,34 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
         },
 
+        reversalReason: {
+            schemaDoc: 'Reason why a confirmed manual payment was reversed',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        reversedAt: {
+            schemaDoc: 'Time when payment was reversed',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
+        reversedBy: {
+            schemaDoc: 'User who reversed the payment',
+            type: 'Relationship',
+            ref: 'User',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        reversalLedgerEntry: {
+            schemaDoc: 'Compensating ledger entry created for payment reversal',
+            type: 'Relationship',
+            ref: 'LedgerEntry',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
         allocations: {
             schemaDoc: 'Rent charge allocations created from this payment',
             type: 'Relationship',
@@ -425,6 +584,16 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'provider', 'paymentMethod', 'externalTransactionId'],
+                condition: `Q(deletedAt__isnull=True) & Q(externalTransactionId__isnull=False) & Q(provider='${RENT_PAYMENT_PROVIDER_MANUAL}')`,
+                name: 'payment_unique_manual_reference_per_scope',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadPayments,
@@ -436,6 +605,16 @@ const Payment = new GQLListSchema('Payment', {
     hooks: {
         resolveInput: async ({ operation, context, resolvedData }) => {
             const isCreate = operation === 'create'
+
+            if (typeof resolvedData['externalTransactionId'] === 'string') {
+                const trimmedReference = resolvedData['externalTransactionId'].trim()
+                resolvedData['externalTransactionId'] = trimmedReference || null
+            }
+
+            if (typeof resolvedData['reversalReason'] === 'string') {
+                const trimmedReason = resolvedData['reversalReason'].trim()
+                resolvedData['reversalReason'] = trimmedReason || null
+            }
 
             if (resolvedData['explicitFee'] && !resolvedData['explicitServiceCharge']) {
                 resolvedData['explicitServiceCharge'] = '0'
@@ -510,6 +689,14 @@ const Payment = new GQLListSchema('Payment', {
             originalInput,
         }) => {
             if (operation === 'create') {
+                const createItem = { ...resolvedData }
+
+                if (isRentPaymentData(createItem)) {
+                    await validateRentPaymentScope(context, createItem)
+                }
+
+                await validateManualPaymentReference(context, createItem)
+
                 if (resolvedData['receipt']) {
                     if (!resolvedData['context']) {
                         return addValidationError(PAYMENT_NO_PAIRED_CONTEXT)
@@ -535,15 +722,33 @@ const Payment = new GQLListSchema('Payment', {
             } else if (operation === 'update') {
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
+                const newItem = {
+                    ...existingItem,
+                    ...resolvedData,
+                }
+
+                if (isRentPaymentData(newItem)) {
+                    await validateRentPaymentScope(context, newItem)
+                }
+
+                await validateManualPaymentReference(context, newItem, existingItem.id)
+
+                const hasReversalMetadata = ['reversalReason', 'reversedAt', 'reversedBy', 'reversalLedgerEntry']
+                    .some(field => Object.prototype.hasOwnProperty.call(resolvedData, field))
+
+                if (hasReversalMetadata && newStatus !== PAYMENT_REVERSED_STATUS) {
+                    throw new GQLError(ERRORS.REVERSAL_METADATA_REQUIRES_REVERSED_STATUS, context)
+                }
+
+                if (oldStatus === PAYMENT_REVERSED_STATUS && hasReversalMetadata) {
+                    throw new GQLError(ERRORS.REVERSED_PAYMENT_IMMUTABLE, context)
+                }
+
                 // we can not use resolvedData.hasOwnProperty('status') check here as adminUi sends status if it is not changed
                 if (oldStatus !== newStatus) {
                     if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
                         return addValidationError(`${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
                     }
-                }
-                const newItem = {
-                    ...existingItem,
-                    ...resolvedData,
                 }
                 const requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
                 let requiredMissing = false

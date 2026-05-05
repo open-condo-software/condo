@@ -4,8 +4,15 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const dayjs = require('dayjs')
+const get = require('lodash/get')
 
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { find, getById } = require('@open-condo/keystone/schema')
+
+const { PAYMENT_DONE_STATUS, PAYMENT_REVERSED_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { RENT_PAYMENT_PROVIDER_MANUAL } = require('@condo/domains/acquiring/constants/rentPayment')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const {
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
@@ -16,6 +23,9 @@ const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
+const { getPaymentProvider } = require('@condo/domains/acquiring/utils/serverSchema/paymentProviders')
+const { DEFAULT_RENT_CHARGE_CURRENCY_CODE } = require('@condo/domains/billing/constants/rent')
+const { calculateLedgerBalance, reverseConfirmedRentPayment } = require('@condo/domains/billing/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils('AcquiringIntegration')
@@ -133,6 +143,169 @@ async function setPaymentPosReceiptUrl (context, data) {
     })
 }
 
+async function recordManualRentPayment (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    const {
+        dv = 1,
+        sender,
+        organization,
+        tenant,
+        occupancy,
+        property,
+        rentalUnit,
+        amount,
+        paymentMethod,
+        reference,
+        depositedDate,
+        confirmedAt,
+        purpose,
+        posReceiptUrl,
+    } = data
+
+    const provider = getPaymentProvider()
+    const confirmation = await provider.confirmPayment({ paymentMethod, reference, confirmedAt })
+    const occupancyId = occupancy && occupancy.id
+    const occupancyRecord = occupancyId ? await getById('Occupancy', occupancyId) : null
+    const propertyId = property && property.id ? property.id : occupancyRecord && occupancyRecord.property
+    const rentalUnitId = rentalUnit && rentalUnit.id ? rentalUnit.id : occupancyRecord && occupancyRecord.rentalUnit
+    const paymentDate = depositedDate || confirmation.confirmedAt || new Date().toISOString()
+    const paymentPeriod = dayjs(paymentDate).startOf('month').format('YYYY-MM-DD')
+
+    const payment = await Payment.create(context, {
+        dv,
+        sender,
+        organization: { connect: { id: organization.id } },
+        tenant: { connect: { id: tenant.id } },
+        ...(occupancyId ? { occupancy: { connect: { id: occupancyId } } } : {}),
+        ...(propertyId ? { property: { connect: { id: propertyId } } } : {}),
+        ...(rentalUnitId ? { rentalUnit: { connect: { id: rentalUnitId } } } : {}),
+        amount,
+        currencyCode: DEFAULT_RENT_CHARGE_CURRENCY_CODE,
+        period: paymentPeriod,
+        purpose: purpose || 'Manual rent payment',
+        recipientBic: 'MANUAL',
+        recipientBankAccount: 'MANUAL',
+        paymentMethod,
+        provider: confirmation.provider,
+        externalTransactionId: confirmation.externalTransactionId,
+        depositedDate: paymentDate,
+        confirmedAt: confirmation.confirmedAt,
+        status: PAYMENT_DONE_STATUS,
+        ...(posReceiptUrl ? { posReceiptUrl } : {}),
+    })
+
+    const [receipt] = await find('PaymentReceipt', {
+        payment: { id: payment.id },
+        deletedAt: null,
+    })
+    if (!receipt) throw new Error('manual rent payment receipt was not generated')
+    const allocations = await find('PaymentAllocation', {
+        payment: { id: payment.id },
+        deletedAt: null,
+    })
+    const ledgerBalance = await calculateLedgerBalance({ ledger: { id: receipt.ledger } })
+
+    return {
+        payment: await getById('Payment', payment.id),
+        allocations,
+        receipt: await getById('PaymentReceipt', receipt.id),
+        ledgerBalance,
+    }
+}
+
+async function reverseManualRentPayment (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    const REVERSE_ERRORS = {
+        REQUIRED_PAYMENT: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'REQUIRED', message: 'Payment is required for manual rent payment reversal' },
+        REQUIRED_REASON: { mutation: 'reverseManualRentPayment', variable: ['data', 'reason'], code: 'BAD_USER_INPUT', type: 'REQUIRED', message: 'Reason is required for manual rent payment reversal' },
+        PAYMENT_NOT_FOUND: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'PAYMENT_NOT_FOUND', message: 'Manual rent payment not found' },
+        ORGANIZATION_MISMATCH: { mutation: 'reverseManualRentPayment', variable: ['data', 'organization'], code: 'BAD_USER_INPUT', type: 'PAYMENT_ORGANIZATION_MISMATCH', message: 'Manual rent payment organization mismatch' },
+        NOT_MANUAL_PROVIDER: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'PAYMENT_NOT_MANUAL_PROVIDER', message: 'Only manual rent payments can be reversed' },
+        NOT_TENANT_PAYMENT: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'PAYMENT_NOT_TENANT_SCOPED', message: 'Only tenant-scoped rent payments can be reversed' },
+        ALREADY_REVERSED: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'PAYMENT_ALREADY_REVERSED', message: 'Manual rent payment is already reversed' },
+        NOT_CONFIRMED: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'PAYMENT_NOT_CONFIRMED', message: 'only confirmed manual rent payments can be reversed' },
+        LEDGER_INCONSISTENT: { mutation: 'reverseManualRentPayment', variable: ['data', 'payment'], code: 'BAD_USER_INPUT', type: 'PAYMENT_LEDGER_INCONSISTENT', message: 'Manual rent payment must have exactly one posted payment ledger entry' },
+    }
+
+    const {
+        dv = 1,
+        sender,
+        organization,
+        payment: paymentInput,
+        reason,
+    } = data
+
+    const paymentId = paymentInput && paymentInput.id
+    const organizationId = organization && organization.id
+    const reversedAt = new Date().toISOString()
+    const reversedById = get(context, ['authedItem', 'id']) || get(context, ['authentication', 'item', 'id'])
+    const trimmedReason = reason && String(reason).trim()
+
+    if (!paymentId) throw new GQLError(REVERSE_ERRORS.REQUIRED_PAYMENT, context)
+    if (!organizationId) throw new GQLError(REVERSE_ERRORS.ORGANIZATION_MISMATCH, context)
+    if (!trimmedReason) throw new GQLError(REVERSE_ERRORS.REQUIRED_REASON, context)
+    if (!reversedById) throw new Error('manual rent payment reversal requires authenticated user')
+
+    const payment = await getById('Payment', paymentId)
+
+    if (!payment) throw new GQLError(REVERSE_ERRORS.PAYMENT_NOT_FOUND, context)
+    if (String(payment.organization) !== String(organizationId)) {
+        throw new GQLError(REVERSE_ERRORS.ORGANIZATION_MISMATCH, context)
+    }
+    if (payment.provider !== RENT_PAYMENT_PROVIDER_MANUAL) {
+        throw new GQLError(REVERSE_ERRORS.NOT_MANUAL_PROVIDER, context)
+    }
+    if (!payment.tenant) {
+        throw new GQLError(REVERSE_ERRORS.NOT_TENANT_PAYMENT, context)
+    }
+    if (payment.status !== PAYMENT_DONE_STATUS) {
+        if (payment.status === PAYMENT_REVERSED_STATUS) {
+            throw new GQLError(REVERSE_ERRORS.ALREADY_REVERSED, context)
+        }
+        throw new GQLError(REVERSE_ERRORS.NOT_CONFIRMED, context)
+    }
+
+    let reversalResult
+    try {
+        reversalResult = await reverseConfirmedRentPayment(context, payment, { sender })
+    } catch (err) {
+        if (err && typeof err.message === 'string' && err.message.includes('exactly one posted payment ledger entry')) {
+            throw new GQLError(REVERSE_ERRORS.LEDGER_INCONSISTENT, context)
+        }
+        throw err
+    }
+
+    const updatedPayment = await Payment.update(context, payment.id, {
+        dv,
+        sender,
+        status: PAYMENT_REVERSED_STATUS,
+        reversalReason: trimmedReason,
+        reversedAt,
+        reversedBy: { connect: { id: reversedById } },
+        reversalLedgerEntry: { connect: { id: reversalResult.reversalEntry.id } },
+    })
+
+    const reversalEntry = await getById('LedgerEntry', reversalResult.reversalEntry.id)
+    const reversalAllocations = await find('PaymentAllocation', {
+        ledgerEntry: { id: reversalResult.reversalEntry.id },
+        deletedAt: null,
+    })
+
+    return {
+        payment: await getById('Payment', updatedPayment.id),
+        ledgerEntry: reversalEntry,
+        allocations: reversalAllocations,
+        rentCharges: reversalResult.rentCharges,
+        ledgerBalance: reversalResult.ledgerBalance,
+    }
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -153,5 +326,7 @@ module.exports = {
     calculateFeeForReceipt,
     PaymentsFile,
     setPaymentPosReceiptUrl,
+    recordManualRentPayment,
+    reverseManualRentPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

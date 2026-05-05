@@ -67,6 +67,8 @@ const path = require("path");
 const conf = require("@open-condo/config");
 const { PAYMENTS_FILE_NEW_STATUS } = require("@condo/domains/acquiring/constants/constants");
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
+const { RECORD_MANUAL_RENT_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
+const { REVERSE_MANUAL_RENT_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const {
     PaymentStatusChangeWebhookUrl: PaymentStatusChangeWebhookUrlGQL,
 } = require('@condo/domains/acquiring/gql')
@@ -620,6 +622,34 @@ async function setPaymentPosReceiptUrlByTestClient (client, payment, extraAttrs 
     return [data.result, attrs]
 }
 
+async function recordManualRentPaymentByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RECORD_MANUAL_RENT_PAYMENT_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: RECORD_MANUAL_RENT_PAYMENT_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
+async function reverseManualRentPaymentByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REVERSE_MANUAL_RENT_PAYMENT_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: REVERSE_MANUAL_RENT_PAYMENT_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
 async function createTestPaymentStatusChangeWebhookUrl (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -949,6 +979,8 @@ module.exports = {
     generateQRCode,
     PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
     setPaymentPosReceiptUrlByTestClient,
+    recordManualRentPaymentByTestClient,
+    reverseManualRentPaymentByTestClient,
     WebhookPayload, createTestWebhookPayload, updateTestWebhookPayload,
     PaymentStatusChangeWebhookUrl, createTestPaymentStatusChangeWebhookUrl, updateTestPaymentStatusChangeWebhookUrl,
     /* AUTOGENERATE MARKER <EXPORTS> */

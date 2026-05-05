@@ -14,7 +14,13 @@ const {
     LEDGER_ENTRY_TYPE_REVERSAL,
     TENANT_LEDGER_STATUS_ACTIVE,
 } = require('@condo/domains/billing/constants/ledger')
-const { DEFAULT_RENT_CHARGE_CURRENCY_CODE, RENT_CHARGE_STATUS_CANCELED, RENT_CHARGE_STATUS_PAID, RENT_CHARGE_STATUS_PARTIALLY_PAID } = require('@condo/domains/billing/constants/rent')
+const {
+    DEFAULT_RENT_CHARGE_CURRENCY_CODE,
+    RENT_CHARGE_STATUS_CANCELED,
+    RENT_CHARGE_STATUS_INVOICED,
+    RENT_CHARGE_STATUS_PAID,
+    RENT_CHARGE_STATUS_PARTIALLY_PAID,
+} = require('@condo/domains/billing/constants/rent')
 
 const LedgerEntry = generateServerUtils('LedgerEntry')
 const PaymentAllocation = generateServerUtils('PaymentAllocation')
@@ -156,7 +162,8 @@ async function createPaymentReceipt (context, payment, ledger, options = {}) {
 
     if (existingReceipt) return existingReceipt
 
-    const issuedAt = payment.confirmedAt || payment.advancedAt || new Date().toISOString()
+    const rawIssuedAt = payment.confirmedAt || payment.advancedAt || new Date().toISOString()
+    const issuedAt = rawIssuedAt instanceof Date ? rawIssuedAt.toISOString() : String(rawIssuedAt)
     const year = new Date(issuedAt).getUTCFullYear()
     const organizationId = getRelationId(payment.organization)
     const organization = await getById('Organization', organizationId)
@@ -185,6 +192,21 @@ async function createPaymentReceipt (context, payment, ledger, options = {}) {
         issuedAt,
         ...(payment.paymentMethod ? { paymentMethod: payment.paymentMethod } : {}),
         ...(payment.provider ? { provider: payment.provider } : {}),
+        ...(payment.externalTransactionId ? { reference: payment.externalTransactionId } : {}),
+    })
+}
+
+async function updatePaymentReceiptBalance (context, receipt, balanceAfterPayment, options = {}) {
+    const sender = options.sender || getSender(receipt)
+
+    if (receipt.balanceAfterPayment === balanceAfterPayment) {
+        return receipt
+    }
+
+    return await PaymentReceipt.update(context, receipt.id, {
+        dv: 1,
+        sender,
+        balanceAfterPayment,
     })
 }
 
@@ -221,13 +243,7 @@ async function postPaymentLedgerEntry (context, payment, ledger, receipt, option
 }
 
 async function updateRentChargeStatus (context, rentCharge, outstandingAmount, sender) {
-    let status = rentCharge.status
-
-    if (outstandingAmount.eq(0)) {
-        status = RENT_CHARGE_STATUS_PAID
-    } else if (outstandingAmount.lt(rentCharge.amount || 0)) {
-        status = RENT_CHARGE_STATUS_PARTIALLY_PAID
-    }
+    const status = getRentChargeStatusFromOutstanding(rentCharge, outstandingAmount)
 
     if (status !== rentCharge.status) {
         await RentCharge.update(context, rentCharge.id, {
@@ -236,6 +252,22 @@ async function updateRentChargeStatus (context, rentCharge, outstandingAmount, s
             status,
         })
     }
+}
+
+function getRentChargeStatusFromOutstanding (rentCharge, outstandingAmount) {
+    if (rentCharge.status === RENT_CHARGE_STATUS_CANCELED) {
+        return rentCharge.status
+    }
+
+    if (outstandingAmount.eq(0)) {
+        return RENT_CHARGE_STATUS_PAID
+    }
+
+    if (outstandingAmount.lt(rentCharge.amount || 0)) {
+        return RENT_CHARGE_STATUS_PARTIALLY_PAID
+    }
+
+    return RENT_CHARGE_STATUS_INVOICED
 }
 
 async function allocatePaymentToOldestCharges (context, payment, ledger, paymentLedgerEntry, options = {}) {
@@ -299,15 +331,126 @@ async function processConfirmedRentPayment (context, payment, options = {}) {
     if (!organizationId || !tenantId) return null
 
     const ledger = await getOrCreateTenantLedger(context, { organizationId, tenantId, currencyCode, sender })
-    const receipt = await createPaymentReceipt(context, payment, ledger, { sender })
+    let receipt = await createPaymentReceipt(context, payment, ledger, { sender })
     const paymentLedgerEntry = await postPaymentLedgerEntry(context, payment, ledger, receipt, { sender })
     const allocationResult = await allocatePaymentToOldestCharges(context, payment, ledger, paymentLedgerEntry, { sender })
+    const ledgerBalance = await calculateLedgerBalance({ ledger: { id: ledger.id } })
+
+    receipt = await updatePaymentReceiptBalance(context, receipt, ledgerBalance, { sender })
 
     return {
         ledger,
         receipt,
         paymentLedgerEntry,
+        ledgerBalance,
         ...allocationResult,
+    }
+}
+
+async function reverseConfirmedRentPayment (context, payment, options = {}) {
+    const sender = options.sender || getSender(payment)
+    const paymentId = getRelationId(payment.id || payment)
+
+    const paymentLedgerEntries = await find('LedgerEntry', {
+        payment: { id: paymentId },
+        entryType: LEDGER_ENTRY_TYPE_PAYMENT,
+        postingStatus: LEDGER_ENTRY_STATUS_POSTED,
+        deletedAt: null,
+    })
+
+    if (paymentLedgerEntries.length !== 1) {
+        throw new Error('manual rent payment must have exactly one posted payment ledger entry')
+    }
+
+    const [paymentLedgerEntry] = paymentLedgerEntries
+    const reversalEntries = await find('LedgerEntry', {
+        reversesEntry: { id: paymentLedgerEntry.id },
+        deletedAt: null,
+    })
+
+    if (reversalEntries.length) {
+        throw new Error('manual rent payment ledger entry is already reversed')
+    }
+
+    const receipts = await find('PaymentReceipt', {
+        payment: { id: paymentId },
+        deletedAt: null,
+    })
+
+    if (receipts.length > 1) {
+        throw new Error('manual rent payment has inconsistent receipt linkage')
+    }
+
+    const [receipt] = receipts
+
+    if (receipt && (receipt.payment !== paymentId || receipt.ledger !== paymentLedgerEntry.ledger)) {
+        throw new Error('manual rent payment receipt is inconsistent with ledger')
+    }
+
+    const originalAllocations = await find('PaymentAllocation', {
+        payment: { id: paymentId },
+        deletedAt: null,
+    })
+
+    const totalAllocated = originalAllocations.reduce((total, allocation) => total.plus(allocation.amount || 0), Big(0))
+    const paymentAmount = Big(payment.amount || 0)
+
+    if (totalAllocated.lt(0) || totalAllocated.gt(paymentAmount)) {
+        throw new Error('manual rent payment allocations are inconsistent with payment amount')
+    }
+
+    if (String(paymentLedgerEntry.organization) !== String(getRelationId(payment.organization))) {
+        throw new Error('manual rent payment ledger entry scope is inconsistent')
+    }
+
+    for (const allocation of originalAllocations) {
+        if (String(allocation.organization) !== String(getRelationId(payment.organization))
+            || String(allocation.payment) !== String(paymentId)
+            || String(allocation.ledger) !== String(paymentLedgerEntry.ledger)
+        ) {
+            throw new Error('manual rent payment allocation scope is inconsistent')
+        }
+    }
+
+    const reversalEntry = await createReversalEntry(context, paymentLedgerEntry.id, { sender })
+    const reversalAllocations = []
+    const affectedRentChargeIds = [...new Set(originalAllocations.map(allocation => allocation.rentCharge).filter(Boolean))]
+
+    for (const allocation of originalAllocations) {
+        const reversalAllocation = await PaymentAllocation.create(context, {
+            dv: 1,
+            sender,
+            organization: { connect: { id: allocation.organization } },
+            payment: { connect: { id: paymentId } },
+            rentCharge: { connect: { id: allocation.rentCharge } },
+            ledger: { connect: { id: allocation.ledger } },
+            ledgerEntry: { connect: { id: reversalEntry.id } },
+            amount: Big(0).minus(allocation.amount || 0).toString(),
+            currencyCode: allocation.currencyCode || payment.currencyCode || DEFAULT_RENT_CHARGE_CURRENCY_CODE,
+        })
+        reversalAllocations.push(reversalAllocation)
+    }
+
+    const rentCharges = []
+    for (const rentChargeId of affectedRentChargeIds) {
+        const rentCharge = await getById('RentCharge', rentChargeId)
+        if (!rentCharge) {
+            throw new Error('manual rent payment allocation references missing rent charge')
+        }
+        const outstandingAmount = await getRentChargeOutstandingAmountFromAllocations(rentCharge)
+        await updateRentChargeStatus(context, rentCharge, outstandingAmount, sender)
+        rentCharges.push(await getById('RentCharge', rentChargeId))
+    }
+
+    const ledgerBalance = await calculateLedgerBalance({ ledger: { id: paymentLedgerEntry.ledger } })
+
+    return {
+        receipt,
+        paymentLedgerEntry,
+        reversalEntry,
+        allocations: reversalAllocations,
+        rentCharges,
+        ledgerBalance,
     }
 }
 
@@ -356,6 +499,7 @@ module.exports = {
     calculateLedgerBalance,
     createPaymentReceipt,
     createReversalEntry,
+    getRentChargeStatusFromOutstanding,
     getChargeAllocatedAmount,
     getOrCreateTenantLedger,
     getPaymentAllocatedAmount,
@@ -363,4 +507,5 @@ module.exports = {
     postPaymentLedgerEntry,
     postRentChargeLedgerEntry,
     processConfirmedRentPayment,
+    reverseConfirmedRentPayment,
 }

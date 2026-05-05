@@ -15,12 +15,14 @@ const { Payment } = require('./Payment')
 const { PaymentsFile } = require('./PaymentsFile')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { PaymentStatusChangeWebhookUrl } = require('./PaymentStatusChangeWebhookUrl')
+const { RecordManualRentPaymentService } = require('./RecordManualRentPaymentService')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
 const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPaymentForInvoicesService')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
+const { ReverseManualRentPaymentService } = require('./ReverseManualRentPaymentService')
 const { SetPaymentPosReceiptUrlService } = require('./SetPaymentPosReceiptUrlService')
 const { SumPaymentsService } = require('./SumPaymentsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
@@ -32,6 +34,8 @@ module.exports = {
     MultiPayment,
     Payment,
     PaymentStatusChangeWebhookUrl,
+    RecordManualRentPaymentService,
+    ReverseManualRentPaymentService,
     RegisterMultiPaymentService,
     ExportPaymentsService,
     PaymentsFilterTemplate,

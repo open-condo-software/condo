@@ -69,6 +69,7 @@ const {
     createReversalEntry,
     postRentChargeLedgerEntry,
     processConfirmedRentPayment,
+    reverseConfirmedRentPayment,
 } = require('./paymentAllocation')
 
 const organizationId = 'organization'
@@ -203,5 +204,42 @@ describe('paymentAllocation', () => {
         expect(reversal.entryType).toBe('reversal')
         expect(reversal.direction).toBe('credit')
         expect(reversal.reversesEntry).toBe(originalEntry.id)
+    })
+
+    test('creates compensating allocations and restores charge status on reversal', async () => {
+        const context = {}
+        const charge = addRentCharge({})
+        await postCharges(context, [charge])
+
+        await processConfirmedRentPayment(context, buildPayment('100'))
+        const reversal = await reverseConfirmedRentPayment(context, buildPayment('100'))
+
+        expect(reversal.reversalEntry.entryType).toBe('reversal')
+        expect(reversal.reversalEntry.direction).toBe('debit')
+        expect(reversal.allocations).toEqual([
+            expect.objectContaining({
+                amount: '-100',
+                rentCharge: charge.id,
+            }),
+        ])
+        expect(stores.RentCharge.find(item => item.id === charge.id).status).toBe('invoiced')
+        expect(reversal.ledgerBalance).toBe('100.00000000')
+    })
+
+    test('restores pre-payment ledger balance after reversing overpayment', async () => {
+        const context = {}
+        const charge = addRentCharge({})
+        await postCharges(context, [charge])
+
+        await processConfirmedRentPayment(context, buildPayment('150'))
+        const reversal = await reverseConfirmedRentPayment(context, buildPayment('150'))
+
+        expect(reversal.allocations).toEqual([
+            expect.objectContaining({
+                amount: '-100',
+                rentCharge: charge.id,
+            }),
+        ])
+        expect(reversal.ledgerBalance).toBe('100.00000000')
     })
 })

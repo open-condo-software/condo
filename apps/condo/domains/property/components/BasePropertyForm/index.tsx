@@ -9,7 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Tour, Input, Typography, Alert } from '@open-condo/ui'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FormWithAction, ValidationError } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -56,6 +56,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
@@ -94,29 +95,32 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
             : null
         // TODO (DOMA-1725) Replace it with better parsing
         const area = formData.area ? formData.area.replace(',', '.') : null
+        const cleanedFormData = omitRecursively(formData, '__typename')
 
         if (isAddressFieldTouched) {
             try {
                 const cachedAddress = addressApi.getRawAddress(formData.address)
                 const { value: address } = JSON.parse(cachedAddress)
-                return { ...formData, address, yearOfConstruction, area }
+                return { ...cleanedFormData, address, yearOfConstruction, area }
             } catch (e) {
+                if (isCreateMode) {
+                    return { ...cleanedFormData, yearOfConstruction, area }
+                }
+
                 notification.error({
                     message: ServerErrorMsg,
                     description: AddressMetaError,
                 })
-
                 console.error(e)
-                return
+                throw new ValidationError(AddressNotSelected, 'address')
             }
         }
 
         // Requested fields of Property of JSON-type, mapped to GraphQL, containing `__typename` field in each typed node.
         // It seems, like we cannot control it.
         // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
-        const cleanedFormData = omitRecursively(formData, '__typename')
         return { ...cleanedFormData, yearOfConstruction, area }
-    }, [initialValues])
+    }, [AddressMetaError, AddressNotSelected, ServerErrorMsg, addressApi, isCreateMode])
 
     const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
     const { addressValidator, yearOfConstructionValidator } = usePropertyValidations({
