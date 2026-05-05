@@ -184,16 +184,6 @@ export const MainContent: React.FC<MainContentProps> = ({
 
             const tabKey = `${EXTENSION_TAB_KEY}-${id}`
             const isBlocked = hasSubscriptionsFeature && !isB2BAppEnabled(id)
-            const tourStep = tourStepsConfig[id]
-            const iconEl = renderTabIcon(iconUrl)
-            const tabIcon = tourStep ? (
-                <>
-                    {iconEl}
-                    <BillingTabTourStep id={id} title={tourStep.title} message={tourStep.message}>
-                        <span />
-                    </BillingTabTourStep>
-                </>
-            ) : iconEl
 
             result.push({
                 label,
@@ -203,20 +193,28 @@ export const MainContent: React.FC<MainContentProps> = ({
                 ) : (
                     <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={initialHeight || 400}/>
                 ),
-                icon: tabIcon,
+                icon: renderTabIcon(iconUrl),
             })
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon, hasSubscriptionsFeature, isB2BAppEnabled, tourStepsConfig])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon, hasSubscriptionsFeature, isB2BAppEnabled])
 
     return (
-        <Tabs
-            activeKey={currentTab}
-            onChange={onTabChange}
-            items={items}
-            destroyInactiveTabPane
-            tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
-        />
+        <>
+            <Tabs
+                id='billing-tabs'
+                activeKey={currentTab}
+                onChange={onTabChange}
+                items={items}
+                destroyInactiveTabPane
+                tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
+            />
+            {extensionAppTabs.map(({ id }) => {
+                const tourStep = tourStepsConfig[id]
+                if (!tourStep) return null
+                return <BillingTabTourStep key={id} id={id} tabsId='billing-tabs' title={tourStep.title} message={tourStep.message} />
+            })}
+        </>
     )
 }
