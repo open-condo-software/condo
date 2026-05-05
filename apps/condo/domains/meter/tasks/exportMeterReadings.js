@@ -34,6 +34,9 @@ const meterReadingToRow = async ({ task, meterReading }) => {
     const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
     const status = i18n(`pages.condo.meter.Meter.${meterReading.status ? 'outOfOrder' : 'isActive'}`, { locale })
     const nextVerificationDate = meterReading.nextVerificationDate ? formatDate(meterReading.nextVerificationDate, timeZone) : ''
+    const billingStatus = meterReading.billingStatus
+        ? i18n(`excelExport.headers.meters.billingStatus.${meterReading.billingStatus}`, { locale })
+        : ''
     return {
         date: formatDate(meterReading.date, timeZone),
         address: meterReading.address,
@@ -51,6 +54,8 @@ const meterReadingToRow = async ({ task, meterReading }) => {
         source: meterReading.source,
         nextVerificationDate,
         status,
+        billingStatus,
+        billingStatusText: meterReading.billingStatusText || '',
     }
 }
 
