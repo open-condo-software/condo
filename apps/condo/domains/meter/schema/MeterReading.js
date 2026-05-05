@@ -421,6 +421,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             // If validation was performed (not skipped) and passed, set billingStatus to approved
             if (wasValidated) {
                 resolvedData.billingStatus = METER_READING_BILLING_STATUS_APPROVED
+                resolvedData.billingStatusText = null
             }
 
             return resolvedData
