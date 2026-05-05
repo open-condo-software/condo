@@ -3049,6 +3049,7 @@ export const GetB2BAppsWithBillingTabEmbeddingConfigDocument = gql`
   ) {
     id
     name
+    shortDescription
     billingEmbeddingConfig {
       tabUrl
     }

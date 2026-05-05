@@ -1,7 +1,6 @@
 import { useGetB2BAppsWithBillingTabEmbeddingConfigQuery } from '@app/condo/gql'
 import { Image } from 'antd'
 import get from 'lodash/get'
-import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 'react'
 
@@ -13,14 +12,18 @@ import type { TabItem } from '@open-condo/ui'
 
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
+import { BillingTabTourStep } from '@condo/domains/billing/components/BillingPageContent/BillingTabTourStep'
+import { BlockedB2BAppTab } from '@condo/domains/billing/components/BillingPageContent/BlockedB2BAppTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
-import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY, DEBT_CLAIMS_TAB_KEY } from '@condo/domains/billing/constants/constants'
+import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
 import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
+import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 
 type PaymentTypeSwitchProps = {
@@ -88,6 +91,8 @@ type ExtensionTabType = {
     appUrl: string
     label: string
     iconUrl?: string
+    initialHeight?: string | number
+    shortDescription?: string | null
 }
 
 export const MainContent: React.FC<MainContentProps> = ({
@@ -101,6 +106,8 @@ export const MainContent: React.FC<MainContentProps> = ({
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
+    const { isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
+
     const { billingContexts } = useBillingAndAcquiringContexts()
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         return billingContexts
@@ -108,7 +115,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             .map(context => {
                 return {
                     id: context.id,
-                    label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
+                    label: get(context, ['integration', 'billingPageTitle']) || get(context, ['integration', 'name'], ''),
                     appUrl: get(context, ['integration', 'appUrl'], '') || '',
                     iconUrl: get(context, ['integration', 'billingPageIcon', 'publicUrl'], null),
                 }
@@ -124,6 +131,8 @@ export const MainContent: React.FC<MainContentProps> = ({
                 id: b2bApp.id,
                 label: b2bApp.name,
                 appUrl: b2bApp?.billingEmbeddingConfig?.tabUrl,
+                shortDescription: b2bApp?.shortDescription,
+                initialHeight: '100%',
             }
         })
     }, [data?.b2bApps])
@@ -137,6 +146,7 @@ export const MainContent: React.FC<MainContentProps> = ({
 
     const { useFlag } = useFeatureFlags()
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
+    const tourStepsConfig = useTourStepsConfig()
 
     const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
     const renderTabIcon = useCallback((iconUrl: string | null) => {
@@ -169,20 +179,36 @@ export const MainContent: React.FC<MainContentProps> = ({
         ]
 
         extensionAppTabs.forEach((extensionAppTab) => {
-            const { appUrl, id, label, iconUrl } = extensionAppTab
+            const { appUrl, id, label, iconUrl, initialHeight, shortDescription } = extensionAppTab
             if (!appUrl) return
 
             const tabKey = `${EXTENSION_TAB_KEY}-${id}`
+            const isBlocked = hasSubscriptionsFeature && !isB2BAppEnabled(id)
+            const tourStep = tourStepsConfig[id]
+            const iconEl = renderTabIcon(iconUrl)
+            const tabIcon = tourStep ? (
+                <>
+                    {iconEl}
+                    <BillingTabTourStep id={id} title={tourStep.title} message={tourStep.message}>
+                        <span />
+                    </BillingTabTourStep>
+                </>
+            ) : iconEl
+
             result.push({
                 label,
                 key: tabKey,
-                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>,
-                icon: renderTabIcon(iconUrl),
+                children: isBlocked ? (
+                    <BlockedB2BAppTab appId={id} shortDescription={shortDescription} />
+                ) : (
+                    <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={initialHeight || 400}/>
+                ),
+                icon: tabIcon,
             })
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon, hasSubscriptionsFeature, isB2BAppEnabled, tourStepsConfig])
 
     return (
         <Tabs
