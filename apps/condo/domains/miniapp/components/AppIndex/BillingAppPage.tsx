@@ -34,6 +34,8 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) 
     const appUrl = get(context, ['integration', 'appUrl'], null)
     const appName = get(context, ['integration', 'name'], null)
 
+    console.log('BillingAppPage context', context, loading, error, appUrl)
+
     // NOTE 1: Page visiting is valid if context exist and app has appUrl
     // NOTE 2: If condition is not met, user will be redirected to self-billing flow
     useEffect(() => {
