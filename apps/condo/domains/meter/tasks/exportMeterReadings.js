@@ -15,6 +15,7 @@ const { getHeadersTranslations } = require('@condo/domains/common/utils/exportTo
 const { EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExcel')
 const { exportRecordsAsXlsxFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
+const { METER_READING_BILLING_STATUSES } = require('@condo/domains/meter/constants/constants')
 const { MeterReadingExportTask, MeterReading, loadMetersForExcelExport } = require('@condo/domains/meter/utils/serverSchema')
 const { loadMeterReadingsForExcelExport, MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/serverSchema')
 
@@ -34,6 +35,12 @@ const meterReadingToRow = async ({ task, meterReading }) => {
     const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
     const status = i18n(`pages.condo.meter.Meter.${meterReading.status ? 'outOfOrder' : 'isActive'}`, { locale })
     const nextVerificationDate = meterReading.nextVerificationDate ? formatDate(meterReading.nextVerificationDate, timeZone) : ''
+    let billingStatus = ''
+    if (meterReading.billingStatus) {
+        billingStatus = METER_READING_BILLING_STATUSES.includes(meterReading.billingStatus)
+            ? i18n(`excelExport.headers.meters.billingStatus.${meterReading.billingStatus}`, { locale })
+            : meterReading.billingStatus
+    }
     return {
         date: formatDate(meterReading.date, timeZone),
         address: meterReading.address,
@@ -51,6 +58,8 @@ const meterReadingToRow = async ({ task, meterReading }) => {
         source: meterReading.source,
         nextVerificationDate,
         status,
+        billingStatus,
+        billingStatusText: meterReading.billingStatusText || '',
     }
 }
 
