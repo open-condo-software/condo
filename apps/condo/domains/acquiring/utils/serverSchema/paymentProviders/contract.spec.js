@@ -3,7 +3,6 @@ const {
     PAYMENT_ERROR_STATUS,
     PAYMENT_INIT_STATUS,
     PAYMENT_PROCESSING_STATUS,
-    PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     RENT_PAYMENT_METHOD_CASH,
@@ -15,7 +14,6 @@ const { HubtelPaymentProvider } = require('./HubtelPaymentProvider')
 const { ManualPaymentProvider } = require('./ManualPaymentProvider')
 const {
     PaymentProvider,
-    PaymentProviderUnsupportedOperationError,
     PROVIDER_CONTRACT_METHODS,
     ensurePaymentProviderContract,
 } = require('./PaymentProvider')
@@ -63,7 +61,8 @@ describe('payment provider contract', () => {
         expect(provider.normaliseProviderStatus('pending')).toBe(PAYMENT_PROCESSING_STATUS)
         expect(provider.normaliseProviderStatus('success')).toBe(PAYMENT_DONE_STATUS)
         expect(provider.normaliseProviderStatus('failed')).toBe(PAYMENT_ERROR_STATUS)
-        expect(provider.normaliseProviderStatus('abandoned')).toBe(PAYMENT_WITHDRAWN_STATUS)
+        expect(provider.normaliseProviderStatus('abandoned')).toBe(PAYMENT_PROCESSING_STATUS)
+        expect(provider.normaliseProviderStatus('ongoing')).toBe(PAYMENT_PROCESSING_STATUS)
         expect(provider.normaliseProviderStatus('unknown')).toBeNull()
     })
 
@@ -87,16 +86,59 @@ describe('payment provider contract', () => {
         expect(paystackProvider.mapProviderReference('paystack-raw-ref')).toBe('paystack-raw-ref')
     })
 
-    test('unsupported provider operations fail safely', async () => {
+    test('stubbed verification still fails explicitly when provider credentials are missing', async () => {
         const provider = new PaystackPaymentProvider()
 
-        await expect(provider.initializePayment({ amount: '100.00' })).rejects.toMatchObject({
-            name: 'PaymentProviderUnsupportedOperationError',
-            code: 'PAYMENT_PROVIDER_OPERATION_NOT_SUPPORTED',
+        await expect(provider.initializePayment({
+            amount: '100.00',
+            currency: 'NGN',
+            payer: {
+                email: 'resident@example.com',
+            },
+            organization: {
+                id: 'organization-1',
+            },
+        })).rejects.toMatchObject({
+            name: 'PaymentProviderConfigurationError',
+            code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
             provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
-            operation: 'initializePayment',
         })
-        await expect(provider.verifyPayment({ reference: 'paystack-ref-001' })).rejects.toBeInstanceOf(PaymentProviderUnsupportedOperationError)
+        await expect(provider.verifyPayment({ reference: 'paystack-ref-001' })).rejects.toMatchObject({
+            name: 'PaymentProviderConfigurationError',
+            code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
+            provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
+        })
+    })
+
+    test('stubbed verification returns a stable confirmed response shape', async () => {
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+
+        const result = await provider.verifyPayment({
+            paymentMethod: 'card',
+            reference: 'paystack-ref-001',
+            providerStatus: 'success',
+            confirmedAt: '2026-05-05T00:00:00.000Z',
+        })
+
+        expect(result).toEqual({
+            provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
+            confirmed: true,
+            confirmedAt: '2026-05-05T00:00:00.000Z',
+            status: PAYMENT_DONE_STATUS,
+            internalStatus: 'confirmed',
+            providerStatus: 'success',
+            paymentMethod: 'card',
+            externalTransactionId: 'paystack-ref-001',
+            paymentData: {
+                paymentMethod: 'card',
+                reference: 'paystack-ref-001',
+                providerStatus: 'success',
+                confirmedAt: '2026-05-05T00:00:00.000Z',
+            },
+            metadata: {
+                stub: true,
+            },
+        })
     })
 
     test('webhook handling returns a stable response structure', async () => {
@@ -121,6 +163,39 @@ describe('payment provider contract', () => {
             payload,
             metadata: {
                 event: 'charge.success',
+                internalStatus: 'confirmed',
+                signatureVerified: false,
+                stub: true,
+            },
+            error: null,
+        })
+    })
+
+    test('unknown webhook statuses stay pending with explicit rationale', async () => {
+        const provider = new PaystackPaymentProvider()
+        const payload = {
+            event: 'charge.dispute.create',
+            data: {
+                status: 'unknown',
+                reference: 'paystack-ref-002',
+            },
+        }
+
+        const result = await provider.handleWebhook(payload)
+
+        expect(result).toEqual({
+            provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
+            acknowledged: true,
+            processed: false,
+            providerStatus: 'unknown',
+            status: PAYMENT_PROCESSING_STATUS,
+            externalTransactionId: 'paystack-ref-002',
+            payload,
+            metadata: {
+                event: 'charge.dispute.create',
+                internalStatus: 'pending',
+                rationale: 'Unknown Paystack status "unknown" is treated as pending in stub mode',
+                signatureVerified: false,
                 stub: true,
             },
             error: null,
