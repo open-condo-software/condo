@@ -15,7 +15,6 @@ const B2BAppMeterIntegrationConfig = new GQLListSchema('B2BAppMeterIntegrationCo
         validateMeterReadingUrl: {
             schemaDoc: 'The URL to validate meter reading data from miniapp. Used to validate meter readings. Validation skipped if there is an network error.',
             type: 'Url',
-            sensitive: true,
             isRequired: true,
         },
 
