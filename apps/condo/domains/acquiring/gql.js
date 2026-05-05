@@ -32,7 +32,7 @@ const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 const MultiPaymentWithPayerInfo = generateGqlQueries('MultiPayment', MULTI_PAYMENT_WITH_PAYER_INFO)
 const MultiPaymentAdmin = generateGqlQueries('MultiPayment', MULTI_PAYMENT_ADMIN_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } tenant { id } occupancy { id } property { id } rentalUnit { id } paymentMethod provider externalTransactionId confirmedAt reversalReason reversedAt reversedBy { id } reversalLedgerEntry { id } recipientBic recipientBankAccount rawAddress frozenDistribution frozenSplits posReceiptUrl }`
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } tenant { id } occupancy { id } property { id } rentalUnit { id } paymentMethod provider providerReference externalTransactionId confirmedAt reversalReason reversedAt reversedBy { id } reversalLedgerEntry { id } recipientBic recipientBankAccount rawAddress frozenDistribution frozenSplits posReceiptUrl }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
@@ -144,6 +144,47 @@ const RECORD_MANUAL_RENT_PAYMENT_MUTATION = gql`
     }
 `
 
+const CONFIRM_PAYMENT_MUTATION = gql`
+    mutation confirmPayment ($data: ConfirmPaymentInput!) {
+        result: confirmPayment(data: $data) {
+            payment {
+                id
+                amount
+                currencyCode
+                status
+                provider
+                providerReference
+                externalTransactionId
+                confirmedAt
+                organization { id }
+                tenant { id }
+                occupancy { id }
+                property { id }
+                rentalUnit { id }
+            }
+            allocations {
+                id
+                amount
+                currencyCode
+                rentCharge { id status }
+            }
+            receipt {
+                id
+                number
+                amount
+                currencyCode
+                issuedAt
+                paymentMethod
+                provider
+                reference
+                balanceAfterPayment
+                tenant { id }
+            }
+            ledgerBalance
+        }
+    }
+`
+
 const REVERSE_MANUAL_RENT_PAYMENT_MUTATION = gql`
     mutation reverseManualRentPayment ($data: ReverseManualRentPaymentInput!) {
         result: reverseManualRentPayment(data: $data) {
@@ -214,6 +255,7 @@ module.exports = {
     PaymentsFile,
     SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
     RECORD_MANUAL_RENT_PAYMENT_MUTATION,
+    CONFIRM_PAYMENT_MUTATION,
     REVERSE_MANUAL_RENT_PAYMENT_MUTATION,
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS,
     PaymentStatusChangeWebhookUrl,

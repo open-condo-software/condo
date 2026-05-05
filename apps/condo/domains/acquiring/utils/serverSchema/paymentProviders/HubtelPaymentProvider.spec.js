@@ -276,6 +276,16 @@ describe('HubtelPaymentProvider.verifyPayment', () => {
 })
 
 describe('HubtelPaymentProvider.handleWebhook', () => {
+    test('returns an explicit unimplemented verification result', async () => {
+        const provider = new HubtelPaymentProvider({ secretKey: 'hubtel_test_secret' })
+
+        await expect(provider.verifyWebhookSignature({}, {})).resolves.toEqual({
+            signatureVerified: false,
+            signatureVerificationRequired: false,
+            signatureVerificationReason: 'Hubtel webhook signature verification is not implemented yet',
+        })
+    })
+
     test('returns a stable webhook response shape for success events', async () => {
         const provider = new HubtelPaymentProvider()
         const payload = {
@@ -293,11 +303,14 @@ describe('HubtelPaymentProvider.handleWebhook', () => {
             processed: false,
             providerStatus: 'Successful',
             status: PAYMENT_DONE_STATUS,
+            internalStatus: 'confirmed',
             externalTransactionId: 'hubtel-ref-001',
             payload,
             metadata: {
                 internalStatus: 'confirmed',
                 signatureVerified: false,
+                signatureVerificationRequired: false,
+                signatureVerificationReason: 'Hubtel webhook signature verification is not implemented yet',
                 stub: true,
             },
             error: null,
@@ -321,12 +334,15 @@ describe('HubtelPaymentProvider.handleWebhook', () => {
             processed: false,
             providerStatus: 'mystery_state',
             status: PAYMENT_PROCESSING_STATUS,
+            internalStatus: 'pending',
             externalTransactionId: 'hubtel-ref-002',
             payload,
             metadata: {
                 internalStatus: 'pending',
                 rationale: 'Unknown Hubtel status "mystery_state" is treated as pending in stub mode',
                 signatureVerified: false,
+                signatureVerificationRequired: false,
+                signatureVerificationReason: 'Hubtel webhook signature verification is not implemented yet',
                 stub: true,
             },
             error: null,

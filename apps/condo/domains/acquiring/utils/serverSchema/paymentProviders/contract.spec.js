@@ -29,6 +29,7 @@ describe('payment provider contract', () => {
         expect(PROVIDER_CONTRACT_METHODS).toEqual([
             'initializePayment',
             'verifyPayment',
+            'verifyWebhookSignature',
             'handleWebhook',
             'normaliseProviderStatus',
             'mapProviderReference',
@@ -123,13 +124,24 @@ describe('payment provider contract', () => {
     })
 
     test('stubbed verification returns a stable confirmed response shape', async () => {
-        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch: jest.fn().mockResolvedValue({
+                ok: true,
+                status: 200,
+                json: jest.fn().mockResolvedValue({
+                    status: true,
+                    data: {
+                        status: 'success',
+                        paid_at: '2026-05-05T00:00:00.000Z',
+                    },
+                }),
+            }),
+        })
 
         const result = await provider.verifyPayment({
             paymentMethod: 'card',
             reference: 'paystack-ref-001',
-            providerStatus: 'success',
-            confirmedAt: '2026-05-05T00:00:00.000Z',
         })
 
         expect(result).toEqual({
@@ -144,17 +156,17 @@ describe('payment provider contract', () => {
             paymentData: {
                 paymentMethod: 'card',
                 reference: 'paystack-ref-001',
-                providerStatus: 'success',
-                confirmedAt: '2026-05-05T00:00:00.000Z',
             },
             metadata: {
-                stub: true,
+                verification: {
+                    endpoint: '/transaction/verify/:reference',
+                },
             },
         })
     })
 
     test('webhook handling returns a stable response structure', async () => {
-        const provider = new PaystackPaymentProvider()
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
         const payload = {
             event: 'charge.success',
             data: {
@@ -171,12 +183,15 @@ describe('payment provider contract', () => {
             processed: false,
             providerStatus: 'success',
             status: PAYMENT_DONE_STATUS,
+            internalStatus: 'confirmed',
             externalTransactionId: 'paystack-ref-001',
             payload,
             metadata: {
                 event: 'charge.success',
                 internalStatus: 'confirmed',
                 signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack signature header is missing',
                 stub: true,
             },
             error: null,
@@ -184,7 +199,7 @@ describe('payment provider contract', () => {
     })
 
     test('unknown webhook statuses stay pending with explicit rationale', async () => {
-        const provider = new PaystackPaymentProvider()
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
         const payload = {
             event: 'charge.dispute.create',
             data: {
@@ -201,6 +216,7 @@ describe('payment provider contract', () => {
             processed: false,
             providerStatus: 'unknown',
             status: PAYMENT_PROCESSING_STATUS,
+            internalStatus: 'pending',
             externalTransactionId: 'paystack-ref-002',
             payload,
             metadata: {
@@ -208,6 +224,8 @@ describe('payment provider contract', () => {
                 internalStatus: 'pending',
                 rationale: 'Unknown Paystack status "unknown" is treated as pending in stub mode',
                 signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack signature header is missing',
                 stub: true,
             },
             error: null,
@@ -242,10 +260,14 @@ describe('payment provider contract', () => {
             processed: false,
             providerStatus: null,
             status: null,
+            internalStatus: null,
             externalTransactionId: 'webhook-1',
             payload: { id: 'webhook-1' },
             metadata: {
                 unsupported: true,
+                signatureVerified: false,
+                signatureVerificationRequired: false,
+                signatureVerificationReason: 'Signature verification is not implemented for this provider',
             },
             error: null,
         })

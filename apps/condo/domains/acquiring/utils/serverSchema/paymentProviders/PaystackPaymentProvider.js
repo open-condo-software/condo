@@ -1,35 +1,31 @@
+const crypto = require('crypto')
+
 const { RENT_PAYMENT_PROVIDER_PAYSTACK } = require('@condo/domains/acquiring/constants/rentPayment')
 const {
     PAYMENT_DONE_STATUS,
-    PAYMENT_ERROR_STATUS,
     PAYMENT_INIT_STATUS,
     PAYMENT_PROCESSING_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 
 const { PaymentProvider } = require('./PaymentProvider')
-
-class PaymentProviderConfigurationError extends Error {
-    constructor (provider, message = `${provider} provider is not configured`) {
-        super(message)
-        this.name = 'PaymentProviderConfigurationError'
-        this.code = 'PAYMENT_PROVIDER_NOT_CONFIGURED'
-        this.provider = provider
-    }
-}
-
-class PaymentProviderValidationError extends Error {
-    constructor (provider, field, message) {
-        super(message)
-        this.name = 'PaymentProviderValidationError'
-        this.code = 'PAYMENT_PROVIDER_INVALID_PAYMENT_DATA'
-        this.provider = provider
-        this.field = field
-    }
-}
+const {
+    convertMajorAmountToPaystackSubunits,
+    createPaystackVerificationClient,
+    getVerificationOutcome,
+    normalizeCurrencyCode,
+} = require('./PaystackVerificationClient')
+const {
+    PaymentProviderConfigurationError,
+    PaymentProviderValidationError,
+} = require('./paymentProviderErrors')
 
 class PaystackPaymentProvider extends PaymentProvider {
     get provider () {
         return RENT_PAYMENT_PROVIDER_PAYSTACK
+    }
+
+    isConfigured () {
+        return Boolean(this.getSecretKey())
     }
 
     getStatusMap () {
@@ -42,43 +38,7 @@ class PaystackPaymentProvider extends PaymentProvider {
     }
 
     getVerificationOutcome (providerStatus) {
-        const statusKey = providerStatus ? String(providerStatus).trim().toLowerCase() : ''
-
-        if (statusKey === 'success' || statusKey === 'charge_success') {
-            return {
-                internalStatus: 'confirmed',
-                status: PAYMENT_DONE_STATUS,
-                confirmed: true,
-                rationale: null,
-            }
-        }
-
-        if (statusKey === 'failed') {
-            return {
-                internalStatus: 'failed',
-                status: PAYMENT_ERROR_STATUS,
-                confirmed: false,
-                rationale: null,
-            }
-        }
-
-        if (['abandoned', 'ongoing', 'pending'].includes(statusKey)) {
-            return {
-                internalStatus: 'pending',
-                status: PAYMENT_PROCESSING_STATUS,
-                confirmed: false,
-                rationale: null,
-            }
-        }
-
-        return {
-            internalStatus: 'pending',
-            status: PAYMENT_PROCESSING_STATUS,
-            confirmed: false,
-            rationale: statusKey
-                ? `Unknown Paystack status "${statusKey}" is treated as pending in stub mode`
-                : 'Missing Paystack status is treated as pending in stub mode',
-        }
+        return getVerificationOutcome(providerStatus)
     }
 
     resolveProviderStatus (payload = {}) {
@@ -108,6 +68,85 @@ class PaystackPaymentProvider extends PaymentProvider {
             (this.options.credentials && this.options.credentials.secretKey) ||
             process.env.PAYSTACK_SECRET_KEY ||
             null
+    }
+
+    getWebhookSignatureHeader (requestMetadata = {}) {
+        if (!requestMetadata || typeof requestMetadata !== 'object') return null
+
+        const headers = requestMetadata.headers && typeof requestMetadata.headers === 'object'
+            ? requestMetadata.headers
+            : requestMetadata
+
+        return headers['x-paystack-signature'] ||
+            headers['X-Paystack-Signature'] ||
+            null
+    }
+
+    getWebhookRawBody (payload, requestMetadata = {}) {
+        if (requestMetadata && Buffer.isBuffer(requestMetadata.rawBody)) return requestMetadata.rawBody
+        if (requestMetadata && typeof requestMetadata.rawBody === 'string') return requestMetadata.rawBody
+        if (requestMetadata && Buffer.isBuffer(requestMetadata.body)) return requestMetadata.body
+        if (requestMetadata && typeof requestMetadata.body === 'string') return requestMetadata.body
+        if (typeof payload === 'string' || Buffer.isBuffer(payload)) return payload
+
+        return null
+    }
+
+    async verifyWebhookSignature (payload, requestMetadata = {}) {
+        const secretKey = this.getSecretKey()
+        const signature = this.getWebhookSignatureHeader(requestMetadata)
+        const rawBody = this.getWebhookRawBody(payload, requestMetadata)
+
+        if (!secretKey) {
+            return {
+                signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack webhook signature verification secret is not configured',
+            }
+        }
+
+        if (!signature) {
+            return {
+                signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack signature header is missing',
+            }
+        }
+
+        if (!rawBody) {
+            return {
+                signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack webhook raw body is unavailable for signature verification',
+            }
+        }
+
+        const digest = crypto
+            .createHmac('sha512', secretKey)
+            .update(rawBody)
+            .digest('hex')
+        const normalizedSignature = String(signature).trim().toLowerCase()
+
+        if (digest.length !== normalizedSignature.length) {
+            return {
+                signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack signature does not match the webhook payload',
+            }
+        }
+
+        const matches = crypto.timingSafeEqual(
+            Buffer.from(digest, 'utf8'),
+            Buffer.from(normalizedSignature, 'utf8')
+        )
+
+        return {
+            signatureVerified: matches,
+            signatureVerificationRequired: true,
+            signatureVerificationReason: matches
+                ? 'Paystack signature verified successfully'
+                : 'Paystack signature does not match the webhook payload',
+        }
     }
 
     validatePaymentData (paymentData = {}) {
@@ -152,43 +191,43 @@ class PaystackPaymentProvider extends PaymentProvider {
             provider: this.provider,
             status: PAYMENT_INIT_STATUS,
             providerStatus: 'initialized',
+            authorizationUrl: null,
             paymentUrl: null,
             externalTransactionId: this.mapProviderReference(paymentData),
             paymentData,
             metadata: {
+                amountConvention: {
+                    internal: {
+                        amount: String(paymentData.amount),
+                        unit: 'major',
+                    },
+                    provider: {
+                        amount: convertMajorAmountToPaystackSubunits(paymentData.amount, paymentData.currency || paymentData.currencyCode),
+                        unit: 'subunit',
+                    },
+                },
                 stub: true,
             },
         }
     }
 
     async verifyPayment (paymentData = {}) {
-        if (!this.getSecretKey()) {
-            throw new PaymentProviderConfigurationError(this.provider)
-        }
+        const client = createPaystackVerificationClient(this.options)
+        const providerReference = paymentData.providerReference || this.mapProviderReference(paymentData)
 
-        const providerStatus = this.resolveProviderStatus(paymentData)
-        const outcome = this.getVerificationOutcome(providerStatus)
-
-        return {
-            provider: this.provider,
-            confirmed: outcome.confirmed,
-            confirmedAt: outcome.confirmed ? (paymentData.confirmedAt || new Date().toISOString()) : null,
-            status: outcome.status,
-            internalStatus: outcome.internalStatus,
-            providerStatus,
+        return client.verifyTransaction({
+            providerReference,
+            secretKey: this.getSecretKey(),
             paymentMethod: paymentData.paymentMethod,
-            externalTransactionId: this.mapProviderReference(paymentData),
+            confirmedAt: paymentData.confirmedAt,
             paymentData,
-            metadata: {
-                stub: true,
-                ...(outcome.rationale ? { rationale: outcome.rationale } : {}),
-            },
-        }
+        })
     }
 
-    async handleWebhook (payload) {
+    async handleWebhook (payload, requestMetadata = {}) {
         const providerStatus = this.resolveProviderStatus(payload)
         const outcome = this.getVerificationOutcome(providerStatus)
+        const signatureMetadata = await this.resolveWebhookSignatureMetadata(payload, requestMetadata)
 
         return this.buildWebhookResponse({
             acknowledged: true,
@@ -196,12 +235,24 @@ class PaystackPaymentProvider extends PaymentProvider {
             payload,
             providerStatus,
             status: outcome.status,
+            internalStatus: outcome.internalStatus,
             metadata: {
                 event: payload && payload.event ? payload.event : null,
                 internalStatus: outcome.internalStatus,
                 ...(outcome.rationale ? { rationale: outcome.rationale } : {}),
-                signatureVerified: false,
+                amountConvention: {
+                    internalUnit: 'major',
+                    providerUnit: 'subunit',
+                    providerCurrency: normalizeCurrencyCode(
+                        payload && payload.data && payload.data.currency
+                            ? payload.data.currency
+                            : payload && payload.data && payload.data.currencyCode
+                                ? payload.data.currencyCode
+                                : null
+                    ),
+                },
                 stub: true,
+                ...signatureMetadata,
             },
         })
     }

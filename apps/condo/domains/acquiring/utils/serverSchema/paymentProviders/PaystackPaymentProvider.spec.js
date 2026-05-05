@@ -1,4 +1,5 @@
 const https = require('https')
+const crypto = require('crypto')
 
 const {
     PAYMENT_DONE_STATUS,
@@ -41,10 +42,21 @@ describe('PaystackPaymentProvider.initializePayment', () => {
             provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
             status: PAYMENT_INIT_STATUS,
             providerStatus: 'initialized',
+            authorizationUrl: null,
             paymentUrl: null,
             externalTransactionId: 'paystack-ref-001',
             paymentData: VALID_PAYMENT_DATA,
             metadata: {
+                amountConvention: {
+                    internal: {
+                        amount: '100.00',
+                        unit: 'major',
+                    },
+                    provider: {
+                        amount: '10000',
+                        unit: 'subunit',
+                    },
+                },
                 stub: true,
             },
         })
@@ -154,22 +166,41 @@ describe('PaystackPaymentProvider.initializePayment', () => {
 })
 
 describe('PaystackPaymentProvider.verifyPayment', () => {
-    test('returns a confirmed stub verification result for success without network requests', async () => {
-        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
-        const fetchSpy = jest.spyOn(global, 'fetch')
-        const httpsRequestSpy = jest.spyOn(https, 'request')
+    function createJsonResponse (payload, overrides = {}) {
+        return {
+            ok: true,
+            status: 200,
+            json: jest.fn().mockResolvedValue(payload),
+            ...overrides,
+        }
+    }
 
+    test('verifies a paystack transaction reference through the verification client and maps success to confirmed', async () => {
+        const fetch = jest.fn().mockResolvedValue(createJsonResponse({
+            status: true,
+            data: {
+                status: 'success',
+                amount: '10000',
+                currency: 'NGN',
+                paid_at: '2026-05-05T00:00:00.000Z',
+                reference: 'paystack-ref-001',
+            },
+        }))
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch,
+        })
         const result = await provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
             paymentMethod: 'card',
-            providerStatus: 'success',
-            confirmedAt: '2026-05-05T00:00:00.000Z',
         })
 
         expect(result).toEqual({
             provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
             confirmed: true,
             confirmedAt: '2026-05-05T00:00:00.000Z',
+            amount: '100.00',
+            currencyCode: 'NGN',
             status: PAYMENT_DONE_STATUS,
             internalStatus: 'confirmed',
             providerStatus: 'success',
@@ -178,23 +209,38 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
             paymentData: {
                 ...VALID_PAYMENT_DATA,
                 paymentMethod: 'card',
-                providerStatus: 'success',
-                confirmedAt: '2026-05-05T00:00:00.000Z',
             },
             metadata: {
-                stub: true,
+                verification: {
+                    endpoint: '/transaction/verify/:reference',
+                },
             },
         })
-        expect(fetchSpy).not.toHaveBeenCalled()
-        expect(httpsRequestSpy).not.toHaveBeenCalled()
+        expect(fetch).toHaveBeenCalledWith(
+            'https://api.paystack.co/transaction/verify/paystack-ref-001',
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer sk_test_paystack',
+                    Accept: 'application/json',
+                },
+            }
+        )
     })
 
     test('maps failed verification into a stable failed contract', async () => {
-        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch: jest.fn().mockResolvedValue(createJsonResponse({
+                status: true,
+                data: {
+                    status: 'failed',
+                },
+            })),
+        })
 
         const result = await provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
-            providerStatus: 'failed',
         })
 
         expect(result).toMatchObject({
@@ -209,11 +255,32 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
     })
 
     test('maps abandoned pending and ongoing verification states into pending', async () => {
-        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+        const fetch = jest.fn()
+            .mockResolvedValueOnce(createJsonResponse({
+                status: true,
+                data: {
+                    status: 'abandoned',
+                },
+            }))
+            .mockResolvedValueOnce(createJsonResponse({
+                status: true,
+                data: {
+                    status: 'pending',
+                },
+            }))
+            .mockResolvedValueOnce(createJsonResponse({
+                status: true,
+                data: {
+                    status: 'ongoing',
+                },
+            }))
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch,
+        })
 
         await expect(provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
-            providerStatus: 'abandoned',
         })).resolves.toMatchObject({
             status: PAYMENT_PROCESSING_STATUS,
             internalStatus: 'pending',
@@ -222,7 +289,6 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
 
         await expect(provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
-            providerStatus: 'pending',
         })).resolves.toMatchObject({
             status: PAYMENT_PROCESSING_STATUS,
             internalStatus: 'pending',
@@ -231,7 +297,6 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
 
         await expect(provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
-            providerStatus: 'ongoing',
         })).resolves.toMatchObject({
             status: PAYMENT_PROCESSING_STATUS,
             internalStatus: 'pending',
@@ -240,11 +305,18 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
     })
 
     test('treats unknown verification status as pending with explicit rationale', async () => {
-        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch: jest.fn().mockResolvedValue(createJsonResponse({
+                status: true,
+                data: {
+                    status: 'mystery_state',
+                },
+            })),
+        })
 
         const result = await provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
-            providerStatus: 'mystery_state',
         })
 
         expect(result).toMatchObject({
@@ -255,9 +327,63 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
             internalStatus: 'pending',
             providerStatus: 'mystery_state',
             metadata: {
-                stub: true,
+                verification: {
+                    endpoint: '/transaction/verify/:reference',
+                },
                 rationale: 'Unknown Paystack status "mystery_state" is treated as pending in stub mode',
             },
+        })
+    })
+
+    test('fails typed when the provider reference is missing', async () => {
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch: jest.fn(),
+        })
+
+        await expect(provider.verifyPayment({
+            ...VALID_PAYMENT_DATA,
+            reference: '',
+        })).rejects.toMatchObject({
+            name: 'PaymentProviderValidationError',
+            code: 'PAYMENT_PROVIDER_INVALID_PAYMENT_DATA',
+            provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
+            field: 'providerReference',
+        })
+    })
+
+    test('fails typed when the verification request fails', async () => {
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch: jest.fn().mockRejectedValue(new Error('network down')),
+        })
+
+        await expect(provider.verifyPayment({
+            ...VALID_PAYMENT_DATA,
+        })).rejects.toMatchObject({
+            name: 'PaymentProviderRequestError',
+            code: 'PAYMENT_PROVIDER_REQUEST_FAILED',
+            provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
+            operation: 'verifyTransaction',
+        })
+    })
+
+    test('fails typed when the verification response is malformed', async () => {
+        const provider = new PaystackPaymentProvider({
+            secretKey: 'sk_test_paystack',
+            fetch: jest.fn().mockResolvedValue(createJsonResponse({
+                status: true,
+                message: 'ok',
+            })),
+        })
+
+        await expect(provider.verifyPayment({
+            ...VALID_PAYMENT_DATA,
+        })).rejects.toMatchObject({
+            name: 'PaymentProviderResponseError',
+            code: 'PAYMENT_PROVIDER_MALFORMED_RESPONSE',
+            provider: RENT_PAYMENT_PROVIDER_PAYSTACK,
+            operation: 'verifyTransaction',
         })
     })
 
@@ -266,7 +392,6 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
 
         await expect(provider.verifyPayment({
             ...VALID_PAYMENT_DATA,
-            providerStatus: 'success',
         })).rejects.toMatchObject({
             name: 'PaymentProviderConfigurationError',
             code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
@@ -276,8 +401,92 @@ describe('PaystackPaymentProvider.verifyPayment', () => {
 })
 
 describe('PaystackPaymentProvider.handleWebhook', () => {
+    test('verifies a valid Paystack webhook signature from raw body and headers', async () => {
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+        const rawBody = JSON.stringify({
+            event: 'charge.success',
+            data: {
+                status: 'success',
+                reference: 'paystack-ref-001',
+            },
+        })
+        const signature = crypto
+            .createHmac('sha512', 'sk_test_paystack')
+            .update(rawBody)
+            .digest('hex')
+
+        const result = await provider.verifyWebhookSignature(JSON.parse(rawBody), {
+            rawBody,
+            headers: {
+                'x-paystack-signature': signature,
+            },
+        })
+
+        expect(result).toEqual({
+            signatureVerified: true,
+            signatureVerificationRequired: true,
+            signatureVerificationReason: 'Paystack signature verified successfully',
+        })
+    })
+
+    test('marks invalid Paystack webhook signatures as unverified', async () => {
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+
+        const result = await provider.verifyWebhookSignature({
+            event: 'charge.success',
+            data: {
+                status: 'success',
+                reference: 'paystack-ref-001',
+            },
+        }, {
+            rawBody: JSON.stringify({
+                event: 'charge.success',
+                data: {
+                    status: 'success',
+                    reference: 'paystack-ref-001',
+                },
+            }),
+            headers: {
+                'x-paystack-signature': 'invalid-signature',
+            },
+        })
+
+        expect(result).toEqual({
+            signatureVerified: false,
+            signatureVerificationRequired: true,
+            signatureVerificationReason: 'Paystack signature does not match the webhook payload',
+        })
+    })
+
+    test('marks missing Paystack webhook signatures as unverified', async () => {
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
+
+        const result = await provider.verifyWebhookSignature({
+            event: 'charge.success',
+            data: {
+                status: 'success',
+                reference: 'paystack-ref-001',
+            },
+        }, {
+            rawBody: JSON.stringify({
+                event: 'charge.success',
+                data: {
+                    status: 'success',
+                    reference: 'paystack-ref-001',
+                },
+            }),
+            headers: {},
+        })
+
+        expect(result).toEqual({
+            signatureVerified: false,
+            signatureVerificationRequired: true,
+            signatureVerificationReason: 'Paystack signature header is missing',
+        })
+    })
+
     test('returns a stable webhook response shape for success events', async () => {
-        const provider = new PaystackPaymentProvider()
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
         const payload = {
             event: 'charge.success',
             data: {
@@ -294,12 +503,20 @@ describe('PaystackPaymentProvider.handleWebhook', () => {
             processed: false,
             providerStatus: 'success',
             status: PAYMENT_DONE_STATUS,
+            internalStatus: 'confirmed',
             externalTransactionId: 'paystack-ref-001',
             payload,
             metadata: {
                 event: 'charge.success',
+                amountConvention: {
+                    internalUnit: 'major',
+                    providerUnit: 'subunit',
+                    providerCurrency: null,
+                },
                 internalStatus: 'confirmed',
                 signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack signature header is missing',
                 stub: true,
             },
             error: null,
@@ -307,7 +524,7 @@ describe('PaystackPaymentProvider.handleWebhook', () => {
     })
 
     test('returns pending webhook responses for unknown statuses with rationale', async () => {
-        const provider = new PaystackPaymentProvider()
+        const provider = new PaystackPaymentProvider({ secretKey: 'sk_test_paystack' })
         const payload = {
             event: 'charge.dispute.create',
             data: {
@@ -324,13 +541,21 @@ describe('PaystackPaymentProvider.handleWebhook', () => {
             processed: false,
             providerStatus: 'mystery_state',
             status: PAYMENT_PROCESSING_STATUS,
+            internalStatus: 'pending',
             externalTransactionId: 'paystack-ref-002',
             payload,
             metadata: {
                 event: 'charge.dispute.create',
+                amountConvention: {
+                    internalUnit: 'major',
+                    providerUnit: 'subunit',
+                    providerCurrency: null,
+                },
                 internalStatus: 'pending',
                 rationale: 'Unknown Paystack status "mystery_state" is treated as pending in stub mode',
                 signatureVerified: false,
+                signatureVerificationRequired: true,
+                signatureVerificationReason: 'Paystack signature header is missing',
                 stub: true,
             },
             error: null,

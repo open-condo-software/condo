@@ -7,9 +7,12 @@ const { AcquiringIntegration } = require('./AcquiringIntegration')
 const { AcquiringIntegrationAccessRight } = require('./AcquiringIntegrationAccessRight')
 const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
 const { CalculateFeeForReceiptService } = require('./CalculateFeeForReceiptService')
+const { ConfirmPaymentService } = require('./ConfirmPaymentService')
 const { CreatePaymentByLinkService } = require('./CreatePaymentByLinkService')
 const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
+const { HandleProviderWebhookIngressService } = require('./HandleProviderWebhookIngressService')
+const { InitiateRentPaymentService } = require('./InitiateRentPaymentService')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
 const { PaymentsFile } = require('./PaymentsFile')
@@ -25,15 +28,19 @@ const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 const { ReverseManualRentPaymentService } = require('./ReverseManualRentPaymentService')
 const { SetPaymentPosReceiptUrlService } = require('./SetPaymentPosReceiptUrlService')
 const { SumPaymentsService } = require('./SumPaymentsService')
+const { VerifyPendingPaymentService } = require('./VerifyPendingPaymentService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     AcquiringIntegration,
     AcquiringIntegrationAccessRight,
     AcquiringIntegrationContext,
+    ConfirmPaymentService,
+    HandleProviderWebhookIngressService,
     MultiPayment,
     Payment,
     PaymentStatusChangeWebhookUrl,
+    InitiateRentPaymentService,
     RecordManualRentPaymentService,
     ReverseManualRentPaymentService,
     RegisterMultiPaymentService,
@@ -50,5 +57,6 @@ module.exports = {
     CalculateFeeForReceiptService,
     PaymentsFile,
     SetPaymentPosReceiptUrlService,
+    VerifyPendingPaymentService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

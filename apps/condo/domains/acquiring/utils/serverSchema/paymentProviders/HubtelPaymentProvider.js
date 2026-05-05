@@ -17,6 +17,10 @@ class HubtelPaymentProvider extends PaymentProvider {
         return RENT_PAYMENT_PROVIDER_HUBTEL
     }
 
+    isConfigured () {
+        return Boolean(this.getSecretKey())
+    }
+
     getStatusMap () {
         return {
             ...super.getStatusMap(),
@@ -115,6 +119,14 @@ class HubtelPaymentProvider extends PaymentProvider {
             null
     }
 
+    async verifyWebhookSignature () {
+        return {
+            signatureVerified: false,
+            signatureVerificationRequired: false,
+            signatureVerificationReason: 'Hubtel webhook signature verification is not implemented yet',
+        }
+    }
+
     validatePaymentData (paymentData = {}) {
         const amount = paymentData.amount
         const currency = paymentData.currency || paymentData.currencyCode
@@ -191,9 +203,10 @@ class HubtelPaymentProvider extends PaymentProvider {
         }
     }
 
-    async handleWebhook (payload) {
+    async handleWebhook (payload, requestMetadata = {}) {
         const providerStatus = this.resolveProviderStatus(payload)
         const outcome = this.getVerificationOutcome(providerStatus)
+        const signatureMetadata = await this.resolveWebhookSignatureMetadata(payload, requestMetadata)
 
         return this.buildWebhookResponse({
             acknowledged: true,
@@ -201,11 +214,12 @@ class HubtelPaymentProvider extends PaymentProvider {
             payload,
             providerStatus,
             status: outcome.status,
+            internalStatus: outcome.internalStatus,
             metadata: {
                 internalStatus: outcome.internalStatus,
-                signatureVerified: false,
                 stub: true,
                 ...(outcome.rationale ? { rationale: outcome.rationale } : {}),
+                ...signatureMetadata,
             },
         })
     }

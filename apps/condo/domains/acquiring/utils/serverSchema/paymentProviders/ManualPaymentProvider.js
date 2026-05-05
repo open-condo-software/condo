@@ -11,6 +11,14 @@ class ManualPaymentProvider extends PaymentProvider {
         return RENT_PAYMENT_PROVIDER_MANUAL
     }
 
+    getCapabilities () {
+        return {
+            ...super.getCapabilities(),
+            canHandleWebhook: false,
+            isManual: true,
+        }
+    }
+
     getStatusMap () {
         return {
             ...super.getStatusMap(),

@@ -10,6 +10,7 @@ const {
 const PROVIDER_CONTRACT_METHODS = [
     'initializePayment',
     'verifyPayment',
+    'verifyWebhookSignature',
     'handleWebhook',
     'normaliseProviderStatus',
     'mapProviderReference',
@@ -65,6 +66,19 @@ class PaymentProvider {
         throw new PaymentProviderUnsupportedOperationError(this.provider, operation)
     }
 
+    isConfigured () {
+        return true
+    }
+
+    getCapabilities () {
+        return {
+            canInitializePayment: true,
+            canVerifyPayment: true,
+            canHandleWebhook: true,
+            isManual: false,
+        }
+    }
+
     getStatusMap () {
         return DEFAULT_STATUS_MAP
     }
@@ -101,6 +115,7 @@ class PaymentProvider {
         payload = null,
         providerStatus = null,
         status = null,
+        internalStatus = null,
         externalTransactionId = null,
         metadata = null,
         error = null,
@@ -111,6 +126,7 @@ class PaymentProvider {
             processed,
             providerStatus,
             status: status || this.normaliseProviderStatus(providerStatus),
+            internalStatus,
             externalTransactionId: externalTransactionId || this.mapProviderReference(payload),
             payload,
             metadata,
@@ -126,13 +142,36 @@ class PaymentProvider {
         this.unsupportedOperation('verifyPayment')
     }
 
-    async handleWebhook (payload) {
+    async verifyWebhookSignature () {
+        return {
+            signatureVerified: false,
+            signatureVerificationRequired: false,
+            signatureVerificationReason: 'Signature verification is not implemented for this provider',
+        }
+    }
+
+    async resolveWebhookSignatureMetadata (payload, requestMetadata = {}) {
+        const signatureVerification = requestMetadata && requestMetadata.signatureVerification
+            ? requestMetadata.signatureVerification
+            : await this.verifyWebhookSignature(payload, requestMetadata)
+
+        return {
+            signatureVerified: signatureVerification.signatureVerified === true,
+            signatureVerificationRequired: signatureVerification.signatureVerificationRequired === true,
+            signatureVerificationReason: signatureVerification.signatureVerificationReason || null,
+        }
+    }
+
+    async handleWebhook (payload, requestMetadata = {}) {
+        const signatureMetadata = await this.resolveWebhookSignatureMetadata(payload, requestMetadata)
+
         return this.buildWebhookResponse({
             acknowledged: true,
             processed: false,
             payload,
             metadata: {
                 unsupported: true,
+                ...signatureMetadata,
             },
         })
     }

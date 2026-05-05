@@ -3,7 +3,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
 
-async function canRecordManualRentPayment ({ args: { data }, authentication: { item: user }, context, gqlName }) {
+async function canAccessOrganizationScopedRentPaymentService ({ args: { data } = {}, authentication: { item: user }, context, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -17,8 +17,16 @@ async function canRecordManualRentPayment ({ args: { data }, authentication: { i
     return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadPayments')
 }
 
+async function canAccessRentPaymentSystemService ({ authentication: { item: user }, gqlName }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
+    return await canDirectlyExecuteService(user, gqlName)
+}
+
 module.exports = {
-    canRecordManualRentPayment,
-    canConfirmPayment: canRecordManualRentPayment,
-    canReverseManualRentPayment: canRecordManualRentPayment,
+    canInitiateRentPayment: canAccessOrganizationScopedRentPaymentService,
+    canVerifyPendingPayment: canAccessRentPaymentSystemService,
+    canHandleProviderWebhookIngress: canAccessRentPaymentSystemService,
 }

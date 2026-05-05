@@ -68,6 +68,7 @@ const conf = require("@open-condo/config");
 const { PAYMENTS_FILE_NEW_STATUS } = require("@condo/domains/acquiring/constants/constants");
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
 const { RECORD_MANUAL_RENT_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
+const { CONFIRM_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REVERSE_MANUAL_RENT_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const {
     PaymentStatusChangeWebhookUrl: PaymentStatusChangeWebhookUrlGQL,
@@ -650,6 +651,20 @@ async function reverseManualRentPaymentByTestClient (client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function confirmPaymentByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CONFIRM_PAYMENT_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: CONFIRM_PAYMENT_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
 async function createTestPaymentStatusChangeWebhookUrl (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -980,6 +995,7 @@ module.exports = {
     PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
     setPaymentPosReceiptUrlByTestClient,
     recordManualRentPaymentByTestClient,
+    confirmPaymentByTestClient,
     reverseManualRentPaymentByTestClient,
     WebhookPayload, createTestWebhookPayload, updateTestWebhookPayload,
     PaymentStatusChangeWebhookUrl, createTestPaymentStatusChangeWebhookUrl, updateTestPaymentStatusChangeWebhookUrl,

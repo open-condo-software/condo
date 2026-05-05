@@ -391,6 +391,20 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
         },
 
+        providerReference: {
+            schemaDoc: 'Provider-side initiation reference used for idempotent pending online payment intents',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        providerInitResponse: {
+            schemaDoc: 'Raw provider initialization response stored for pending online rent payment intents',
+            type: 'Json',
+            sensitive: true,
+            isRequired: false,
+            access: { read: false },
+        },
+
         confirmedAt: {
             schemaDoc: 'Time when rent payment was confirmed by provider or manually',
             type: 'DateTimeUtc',
@@ -588,6 +602,12 @@ const Payment = new GQLListSchema('Payment', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
+                fields: ['organization', 'provider', 'providerReference'],
+                condition: 'Q(deletedAt__isnull=True) & Q(providerReference__isnull=False)',
+                name: 'payment_unique_provider_reference_per_scope',
+            },
+            {
+                type: 'models.UniqueConstraint',
                 fields: ['organization', 'provider', 'paymentMethod', 'externalTransactionId'],
                 condition: `Q(deletedAt__isnull=True) & Q(externalTransactionId__isnull=False) & Q(provider='${RENT_PAYMENT_PROVIDER_MANUAL}')`,
                 name: 'payment_unique_manual_reference_per_scope',
@@ -609,6 +629,11 @@ const Payment = new GQLListSchema('Payment', {
             if (typeof resolvedData['externalTransactionId'] === 'string') {
                 const trimmedReference = resolvedData['externalTransactionId'].trim()
                 resolvedData['externalTransactionId'] = trimmedReference || null
+            }
+
+            if (typeof resolvedData['providerReference'] === 'string') {
+                const trimmedProviderReference = resolvedData['providerReference'].trim()
+                resolvedData['providerReference'] = trimmedProviderReference || null
             }
 
             if (typeof resolvedData['reversalReason'] === 'string') {
