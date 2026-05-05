@@ -312,7 +312,24 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
 
-        if (usePaymentModal && !isCustomPrice) {
+        if (isCustomPrice) {
+            setActivateLoading(true)
+            try {
+                await registerSubscriptionContext({
+                    priceId: price.id,
+                    isTrial: false,
+                    planName: plan.name,
+                    trialDays: plan.trialDays,
+                    isCustomPrice: true,
+                    paymentType: 'userHelpRequest',
+                })
+            } finally {
+                setActivateLoading(false)
+            }
+            return
+        }
+
+        if (usePaymentModal) {
             openPaymentModal()
             return
         }
@@ -324,7 +341,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                 isTrial: false,
                 planName: plan.name,
                 trialDays: plan.trialDays,
-                isCustomPrice,
+                isCustomPrice: false,
             })
         } finally {
             setActivateLoading(false)
