@@ -650,9 +650,9 @@ describe('SendVoIPCallStartMessageService', () => {
                     voipLogin: dataAttrs.nativeCallData.voipLogin,
                     voipPassword: dataAttrs.nativeCallData.voipPassword,
                     voipDtfmCommand: dataAttrs.nativeCallData.voipPanels[0].dtmfCommand,
-                    voipPanels: dataAttrs.nativeCallData.voipPanels,
+                    voipPanels: JSON.stringify(dataAttrs.nativeCallData.voipPanels),
                     stun: dataAttrs.nativeCallData.stunServers[0],
-                    stunServers: dataAttrs.nativeCallData.stunServers,
+                    stunServers: JSON.stringify(dataAttrs.nativeCallData.stunServers),
                     codec: dataAttrs.nativeCallData.codec,
                 }
         

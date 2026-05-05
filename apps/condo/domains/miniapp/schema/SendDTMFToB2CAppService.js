@@ -10,7 +10,7 @@ const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/con
 const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const access = require('@condo/domains/miniapp/access/SendDTMFToB2CAppService')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
-const { getCallStatus, CALL_STATUS_ENDED } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, CALL_STATUS_ENDED, isCallStatusTokenEqual } = require('@condo/domains/miniapp/utils/voip')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const logger = getLogger()
@@ -193,7 +193,10 @@ const SendDTMFToB2CAppService = new GQLCustomSchema('SendDTMFToB2CAppService', {
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                const callStatus = await getCallStatus({ callStatusToken, b2cAppId: app.id, propertyId: property.id, organizationId: organization.id, callId })
+                const callStatus = await getCallStatus({ b2cAppId: app.id, propertyId: property.id, organizationId: organization.id, callId })
+                if (!isCallStatusTokenEqual({ callStatus, callStatusToken })) {
+                    throw new GQLError(ERRORS.CALL_NOT_FOUND)
+                }
 
                 if (!callStatus || callStatus.status === CALL_STATUS_ENDED) {
                     throw new GQLError(ERRORS.CALL_NOT_FOUND, context)

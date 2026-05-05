@@ -7,8 +7,13 @@ const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils/helpers/uuid')
-
-const { CALL_STATUSES, CALL_STATUS_TTL_IN_SECONDS } = require('@condo/domains/miniapp/constants')
+const { 
+    CALL_STATUS_STARTED,
+    CALL_STATUS_ENDED,
+    CALL_STATUS_ANSWERED,
+    CALL_STATUSES,
+    CALL_STATUS_TTL_IN_SECONDS,
+} = require('@condo/domains/miniapp/constants')
 const KEY_PREFIX = 'voipCallStatus'
 const kv = getKVClient(KEY_PREFIX)
 const logger = getLogger()

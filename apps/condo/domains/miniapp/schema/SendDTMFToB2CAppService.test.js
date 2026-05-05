@@ -20,11 +20,14 @@ const {
     createTestAppMessageSetting,
     sendVoIPCallStartMessageByTestClient,
     prepareUserWithVerifiedResidentAndContact,
+    updateTestB2CAppIntercomConfig,
+    sendVoIPCallCancelMessageByTestClient,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { VOIP_INCOMING_CALL_MESSAGE_TYPE, CANCELED_CALL_MESSAGE_PUSH_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED } = require('../constants')
 
 
 
@@ -51,9 +54,11 @@ describe('SendDTMFToB2CAppService', () => {
     let user
     let contact
     let resident
+    let intercomConfig
 
     async function makeStartCallRequest (app = b2cApp, type = 'b2c') {
         const callId = faker.datatype.uuid()
+        const dtmfCommand = faker.random.alphaNumeric(4)
         await sendVoIPCallStartMessageByTestClient(serviceUser, {
             app: { id: app.id },
             addressKey: property.addressKey,
@@ -67,20 +72,20 @@ describe('SendDTMFToB2CAppService', () => {
                         voipAddress: faker.internet.ipv4(),
                         voipPassword: faker.internet.password(), 
                         voipLogin: faker.internet.userName(),
-                        voipPanels: [{ dtmfCommand: faker.random.alphaNumeric(4) }],
+                        voipPanels: [{ dtmfCommand }],
                     } }
                 ,
             },
         })
         const [msg] = await Message.getAll(admin, { user: { id: user.id }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
-        const { callStatusToken, propertyId, organizationId } = msg.meta.data
-        return { callId, callStatusToken, propertyId, organizationId, msg }
+        const { callStatusToken } = msg.meta.data
+        return { callId, callStatusToken, propertyId: property.id, organizationId: organization.id, msg, dtmfCommand }
     }
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        const intercomUrl = `${getTestExpressApp('Flowise').baseUrl}/dtmf`
-        const [intercomConfig] = await createTestB2CAppIntercomConfig(admin, { sendDTMFUrl: intercomUrl, accessToken: faker.random.alphaNumeric(8) });
+        const intercomUrl = `${getTestExpressApp('Flowise').baseUrl}/dtmf`;
+        [intercomConfig] = await createTestB2CAppIntercomConfig(admin, { sendDTMFUrl: intercomUrl, accessToken: faker.random.alphaNumeric(8) });
         [b2cApp] = await createTestB2CApp(admin, { intercomConfig: { connect: { id: intercomConfig.id } } });
         [b2cAppWithoutConfig] = await createTestB2CApp(admin)
         
@@ -97,7 +102,7 @@ describe('SendDTMFToB2CAppService', () => {
         await createTestB2CAppProperty(admin, b2cAppWithoutConfig, { address: property.address, addressMeta: property.addressMeta })
 
         serviceUser = await makeClientWithServiceUser()
-        const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+        const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true, canExecuteSendVoIPCallCancelMessage: true })
         await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
         const [accessRightSetWithoutConfig] = await createTestB2CAppAccessRightSet(admin, b2cAppWithoutConfig, { canExecuteSendVoIPCallStartMessage: true })
@@ -107,10 +112,6 @@ describe('SendDTMFToB2CAppService', () => {
         await createTestAppMessageSetting(admin, { b2cApp: b2cAppWithoutConfig, numberOfNotificationInWindow: 1000, type: VOIP_INCOMING_CALL_MESSAGE_TYPE })
 
     })
-
-    // afterAll(async () => {
-    //     await new Promise((resolve) => intercomServer.close(resolve))
-    // })
 
     beforeEach(() => {
         intercomResponseStatus = 200
@@ -153,15 +154,15 @@ describe('SendDTMFToB2CAppService', () => {
 
     describe('Errors', () => {
 
+        afterAll(async () => {
+            await updateTestB2CAppIntercomConfig(admin, intercomConfig.id, { deletedAt: null })
+        })
+
         const ERROR_CASES = [
-            // {
-            //     name: 'throws error if app id not allowed',
-            //     expected: { mutation: 'sendDTMFToB2CApp', code: 'FORBIDDEN', type: 'APP_NOT_ALLOWED' },
-            // },
             {
-                name: 'throws error if app not found',
+                name: 'throws error if call not found',
                 getApp: () => b2cAppWithoutConfig,
-                expected: { mutation: 'sendDTMFToB2CApp', code: 'BAD_USER_INPUT', type: 'APP_NOT_FOUND' },
+                expected: { mutation: 'sendDTMFToB2CApp', code: 'NOT_FOUND', type: 'CALL_NOT_FOUND' },
             },
             {
                 name: 'throws error if dtmfCode empty',
@@ -183,11 +184,17 @@ describe('SendDTMFToB2CAppService', () => {
                 setup: () => { intercomResponseStatus = 500 },
                 expected: { mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'UNKNOWN_ERROR' },
             },
-            // {
-            //     name: 'throws error if call not found',
-            //     setup: () => { intercomResponseStatus = 200 },
-            //     expected: {},
-            // },
+            {
+                name: 'throws error if app has no intercom config',
+                setup: () => { intercomResponseStatus = 200 },
+                assert: async (client, attrs) => {
+                    await updateTestB2CAppIntercomConfig(admin, intercomConfig.id, { deletedAt: new Date().toISOString() })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await sendDTMFToB2CAppByTestClient(client, attrs.app, attrs)
+                    }, { mutation: 'sendDTMFToB2CApp', code: 'FORBIDDEN', type: 'APP_NOT_ALLOWED' })
+                    
+                },
+            },
         ]
 
         test.each(ERROR_CASES)('$name', async ({ setup, getApp, getDTMFCode, expected, assert }) => {
@@ -244,7 +251,7 @@ describe('SendDTMFToB2CAppService', () => {
         })
 
         test('link and timeout are delivered with native voip push', async () => {
-            const { msg } = await makeStartCallRequest(b2cApp, 'native')
+            const { callId, msg } = await makeStartCallRequest(b2cApp, 'native')
             const { serverUrl } = await makeClient()
 
             const voipPanels = JSON.parse(msg.meta.data.voipPanels)
@@ -263,6 +270,19 @@ describe('SendDTMFToB2CAppService', () => {
             const resultText = await result.text()
             const resultJSON = JSON.parse(resultText)
             expect(resultJSON).toHaveProperty('status', 'OK')
+
+            await sendVoIPCallCancelMessageByTestClient(serviceUser, {
+                app: { id: b2cApp.id },
+                addressKey: property.addressKey,
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+                callData: {
+                    callId,
+                    reason: SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED,
+                },
+            })
+            const [cancelMsg] = await Message.getAll(admin, { user: { id: user.id }, type: CANCELED_CALL_MESSAGE_PUSH_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'], first: 1 } )
+            expect(cancelMsg.meta.data.sendDTMFTimeout).toEqual(expect.any(String))
         })
     })
 })

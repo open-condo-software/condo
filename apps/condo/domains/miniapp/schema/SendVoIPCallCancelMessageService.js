@@ -164,7 +164,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                     validateInput({ context, logContext, args })
 
                     // 1) Check B2CApp and B2CAppProperty
-                    const { b2cAppId, b2cAppName } = await getAppInfo({ context, propertyNotFoundError: ERRORS.PROPERTY_NOT_FOUND, logContext, addressKey, app }) 
+                    const { b2cAppId, b2cAppName, hasSendDTMFUrl } = await getAppInfo({ context, propertyNotFoundError: ERRORS.PROPERTY_NOT_FOUND, logContext, addressKey, app }) 
 
                     // 2) Get verified residents
                     const { 
@@ -198,6 +198,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                                 context, resident, contact, user, property,
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
                                 voipIncomingCallId: callStatus.startingMessagesIdsByUserIds[user.id],
+                                hasSendDTMFUrl,
                             })
                         })
                 
