@@ -57,6 +57,7 @@ describe('payment provider contract', () => {
 
     test('provider statuses normalise into internal payment statuses', () => {
         const provider = new PaystackPaymentProvider()
+        const hubtelProvider = new HubtelPaymentProvider()
 
         expect(provider.normaliseProviderStatus('pending')).toBe(PAYMENT_PROCESSING_STATUS)
         expect(provider.normaliseProviderStatus('success')).toBe(PAYMENT_DONE_STATUS)
@@ -64,11 +65,16 @@ describe('payment provider contract', () => {
         expect(provider.normaliseProviderStatus('abandoned')).toBe(PAYMENT_PROCESSING_STATUS)
         expect(provider.normaliseProviderStatus('ongoing')).toBe(PAYMENT_PROCESSING_STATUS)
         expect(provider.normaliseProviderStatus('unknown')).toBeNull()
+        expect(hubtelProvider.normaliseProviderStatus('pending')).toBe(PAYMENT_PROCESSING_STATUS)
+        expect(hubtelProvider.normaliseProviderStatus('successful')).toBe(PAYMENT_DONE_STATUS)
+        expect(hubtelProvider.normaliseProviderStatus('rejected')).toBeNull()
+        expect(hubtelProvider.normaliseProviderStatus('queued')).toBe(PAYMENT_PROCESSING_STATUS)
     })
 
     test('provider references map consistently', () => {
         const manualProvider = new ManualPaymentProvider()
         const paystackProvider = new PaystackPaymentProvider()
+        const hubtelProvider = new HubtelPaymentProvider()
 
         expect(manualProvider.mapProviderReference({
             reference: 'manual-priority-ref',
@@ -83,6 +89,12 @@ describe('payment provider contract', () => {
                 id: 42,
             },
         })).toBe('paystack-ref-001')
+        expect(hubtelProvider.mapProviderReference({
+            data: {
+                checkoutId: 'hubtel-ref-001',
+                id: 77,
+            },
+        })).toBe('hubtel-ref-001')
         expect(paystackProvider.mapProviderReference('paystack-raw-ref')).toBe('paystack-raw-ref')
     })
 
