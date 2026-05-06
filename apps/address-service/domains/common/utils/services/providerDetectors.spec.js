@@ -80,6 +80,46 @@ describe('Provider detector', () => {
         })
     })
 
+    describe('detects correct search provider from explicit args.provider', () => {
+        const cases = [
+            // [<args.provider>, <provider's class>]
+            [DADATA_PROVIDER, DadataSearchProvider],
+            [GOOGLE_PROVIDER, GoogleSearchProvider],
+            [PULLENTI_PROVIDER, PullentiSearchProvider],
+        ]
+
+        test.each(cases)('when args.provider is %p', (providerName, expected) => {
+            process.env = {
+                ...process.env,
+                ...providersEligibleConfigs[providerName],
+            }
+
+            expect(getSearchProvider({ provider: providerName })).toBeInstanceOf(expected)
+        })
+
+        test('args.provider takes priority over req.query.provider', () => {
+            process.env = {
+                ...process.env,
+                ...providersEligibleConfigs[DADATA_PROVIDER],
+                ...providersEligibleConfigs[PULLENTI_PROVIDER],
+            }
+
+            const req = { id: 'some-uuid', query: { provider: PULLENTI_PROVIDER } }
+            expect(getSearchProvider({ provider: DADATA_PROVIDER, req })).toBeInstanceOf(DadataSearchProvider)
+        })
+
+        test('args.provider takes priority over conf.PROVIDER', () => {
+            process.env = {
+                ...process.env,
+                PROVIDER: GOOGLE_PROVIDER,
+                ...providersEligibleConfigs[GOOGLE_PROVIDER],
+                ...providersEligibleConfigs[DADATA_PROVIDER],
+            }
+
+            expect(getSearchProvider({ provider: DADATA_PROVIDER })).toBeInstanceOf(DadataSearchProvider)
+        })
+    })
+
     describe('detects correct search provider from POST body', () => {
         const cases = [
             // [<provider name in req.body>, <provider's class>]

@@ -15,11 +15,11 @@ const {
     PullentiSuggestionProvider,
 } = require('@address-service/domains/common/utils/services/suggest/providers')
 
-const logger = getLogger()
 
 /**
  * @typedef {Object} ProviderDetectorArgs
  * @property {IncomingMessage & {id: String}} [req] Express request object
+ * @property {string} [provider] Explicit provider name, takes priority over req and conf
  */
 
 /**
@@ -27,7 +27,7 @@ const logger = getLogger()
  * @returns {AbstractSearchProvider|undefined}
  */
 function getSearchProvider (args) {
-    const provider = args?.req?.query?.provider || args?.req?.body?.provider || get(conf, 'PROVIDER')
+    const provider = args?.provider || args?.req?.query?.provider || args?.req?.body?.provider || get(conf, 'PROVIDER')
 
     /** @type {AbstractSearchProvider|undefined} */
     let searchProvider
