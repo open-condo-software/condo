@@ -1012,5 +1012,86 @@ describe('CustomValue', () => {
             })
             expect(staffUserCustomValues2).toHaveLength(2)
         })
+
+        test('Unique per object custom field values are updatable', async () => {
+            const [customField] = await createTestCustomField(support, {
+                modelName: 'Property',
+                name: 'Special building id',
+                type: 'String',
+                isUniquePerObject: true,
+            })
+
+            const orgEmployeeClient = await makeEmployeeUserClientWithAbilities({
+                canManageB2BApps: true,
+                canManageRoles: true,
+            })
+
+            const organization = orgEmployeeClient.organization
+            const [property1] = await createTestProperty(support, organization)
+
+            const b2bApp1serviceUserClient = await makeClientWithServiceUser()
+            const b2bApp1serviceUser = b2bApp1serviceUserClient.user
+
+            const [b2bApp1] = await createTestB2BApp(support)
+
+            const [b2bApp1accessRightSet] = await createTestB2BAppAccessRightSet(support, b2bApp1, { canReadOrganizations: true, canReadCustomValues: true, canManageCustomValues: true })
+            await createTestB2BAppAccessRight(support, b2bApp1serviceUser, b2bApp1, b2bApp1accessRightSet)
+
+            await createTestB2BAppContext(support, b2bApp1, organization, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            const [customValue] = await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
+                itemId: property1.id,
+                sourceType: B2B_APP_SOURCE_TYPE,
+                sourceId: b2bApp1.id,
+                data: faker.random.alphaNumeric(8),
+                addressKey: property1.addressKey,
+                unitName: '1',
+                unitType: APARTMENT_UNIT_TYPE,
+            })
+            expect(customValue).toHaveProperty('isUniquePerObject', true)
+            
+            const [updatedCustomValue] = await updateTestCustomValue(b2bApp1serviceUserClient, customValue.id, {
+                data: faker.random.alphaNumeric(8),
+            })
+            expect(updatedCustomValue.data).not.toEqual(customValue.data)
+
+            // still can't create many for one item
+            await expectToThrowGQLError(async () => {
+                await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
+                    itemId: property1.id,
+                    sourceType: B2B_APP_SOURCE_TYPE,
+                    sourceId: b2bApp1.id,
+                    data: faker.random.alphaNumeric(8),
+                    addressKey: property1.addressKey,
+                    unitName: '1',
+                    unitType: APARTMENT_UNIT_TYPE,
+                })
+            }, ERRORS.ALREADY_EXISTS_OBJECT_ID)
+
+            await updateTestCustomValue(b2bApp1serviceUserClient, customValue.id, {
+                deletedAt: new Date().toISOString(),
+            })
+
+            // custom value is deleted, now can create a new one
+            const [anotherCustomValue] = await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
+                itemId: property1.id,
+                sourceType: B2B_APP_SOURCE_TYPE,
+                sourceId: b2bApp1.id,
+                data: faker.random.alphaNumeric(8),
+                addressKey: property1.addressKey,
+                unitName: '1',
+                unitType: APARTMENT_UNIT_TYPE,
+            })
+            expect(anotherCustomValue).toBeDefined()
+
+            // can't recover if already have custom value on item
+            await expectToThrowGQLError(async () => {
+                await updateTestCustomValue(b2bApp1serviceUserClient, customValue.id, {
+                    deletedAt: null,
+                })
+            }, ERRORS.ALREADY_EXISTS_OBJECT_ID)
+        })
     })
 })
