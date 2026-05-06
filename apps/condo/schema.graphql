@@ -73428,11 +73428,10 @@ type B2BApp {
   """
   posIntegrationConfig: B2BAppPosIntegrationConfig
 
-<<<<<<< HEAD
   """ Configuration for Meter Integration feature. If specified, then this B2BApp supports Meter Integration API for validating meter readings 
   """
   meterIntegrationConfig: B2BAppMeterIntegrationConfig
-=======
+
   """ Configuration for Billing page embedding. If specified, then this B2BApp will be available as an iframe tab on the /billing page 
   """
   billingEmbeddingConfig: B2BAppBillingEmbeddingConfig

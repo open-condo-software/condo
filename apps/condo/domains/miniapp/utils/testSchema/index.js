@@ -45,10 +45,7 @@ const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
-<<<<<<< HEAD
-=======
 const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
->>>>>>> 73c491a755 (fix(condo): DOMA-13105 rename billingEmbedConfig to billingEmbeddingConfig)
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -90,10 +87,7 @@ const CustomValue = generateGQLTestUtils(CustomValueGQL)
 
 const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConfigGQL)
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
-<<<<<<< HEAD
-=======
 const B2BAppBillingEmbeddingConfig = generateGQLTestUtils(B2BAppBillingEmbeddingConfigGQL)
->>>>>>> 73c491a755 (fix(condo): DOMA-13105 rename billingEmbedConfig to billingEmbeddingConfig)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
