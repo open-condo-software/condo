@@ -1,10 +1,9 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getById } = require('@open-condo/keystone/schema')
 
+const { ensureCoordinateHeuristic } = require('@address-service/domains/address/utils/ensureCoordinateHeuristic')
 const { Address, AddressHeuristic, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { HEURISTIC_TYPE_COORDINATES } = require('@address-service/domains/common/constants/heuristicTypes')
-const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
-const { parseCoordinates } = require('@address-service/domains/common/utils/services/search/heuristicMatcher')
 
 const logger = getLogger('mergeAddresses')
 
@@ -69,35 +68,8 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
     }
 
     // Ensure winner has a coordinate heuristic.
-    // If it already has one, do nothing. Otherwise, extract from winner.meta using
-    // provider-specific quality rules (e.g. qc_geo=0 for Dadata) and create it.
-    const winnerCoordHeuristic = await find('AddressHeuristic', {
-        address: { id: winnerId },
-        type: HEURISTIC_TYPE_COORDINATES,
-        deletedAt: null,
-    })
-
-    if (winnerCoordHeuristic.length === 0 && winner && winner.meta) {
-        const providerName = winner.meta?.provider?.name
-        const searchProvider = getSearchProvider({ provider: providerName })
-        const extracted = searchProvider
-            ? searchProvider.extractHeuristics(winner.meta).find((h) => h.type === HEURISTIC_TYPE_COORDINATES) ?? null
-            : null
-        if (extracted) {
-            const coords = parseCoordinates(extracted.value)
-            await AddressHeuristic.create(context, {
-                ...dvSender,
-                address: { connect: { id: winnerId } },
-                type: HEURISTIC_TYPE_COORDINATES,
-                value: extracted.value,
-                reliability: extracted.reliability,
-                provider: winner.meta?.provider?.name,
-                meta: extracted.meta || null,
-                enabled: true,
-                ...(coords ? { latitude: String(coords.latitude), longitude: String(coords.longitude) } : {}),
-            })
-        }
-    }
+    // ensureCoordinateHeuristic is a no-op if one already exists.
+    await ensureCoordinateHeuristic(context, winner, dvSender)
 
     // Soft-delete the loser
     await Address.update(context, loserId, {

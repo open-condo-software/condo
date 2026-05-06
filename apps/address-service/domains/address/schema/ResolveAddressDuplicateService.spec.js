@@ -235,6 +235,45 @@ describe('ResolveAddressDuplicateService', () => {
             expect(winnerAfterDismiss).toBeDefined()
         })
 
+        test('dismiss creates coordinate heuristic for dismissed address from its meta when it has none', async () => {
+            const geoLat = faker.address.latitude()
+            const geoLon = faker.address.longitude()
+            const dadataMeta = {
+                provider: { name: DADATA_PROVIDER, rawData: {} },
+                value: 'Russia, Moscow, Lenina st, 1',
+                unrestricted_value: 'Russia, Moscow, Lenina st, 1',
+                data: {
+                    geo_lat: geoLat,
+                    geo_lon: geoLon,
+                    qc_geo: '0',
+                },
+            }
+
+            const [target] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [dismissed] = await createTestAddress(adminClient, {
+                key: `fias_id:${faker.datatype.uuid()}`,
+                meta: dadataMeta,
+            })
+
+            await updateTestAddress(adminClient, dismissed.id, {
+                possibleDuplicateOf: { connect: { id: target.id } },
+            })
+
+            await resolveAddressDuplicateByTestClient(adminClient, {
+                addressId: dismissed.id,
+                action: 'dismiss',
+            })
+
+            const coordHeuristics = await AddressHeuristic.getAll(adminClient, {
+                address: { id: dismissed.id },
+                type: HEURISTIC_TYPE_COORDINATES,
+                deletedAt: null,
+            })
+            expect(coordHeuristics).toHaveLength(1)
+            expect(coordHeuristics[0].value).toEqual(`${geoLat},${geoLon}`)
+            expect(coordHeuristics[0].provider).toEqual(DADATA_PROVIDER)
+        })
+
         test('merge soft-deletes loser and keeps winner', async () => {
             const { winner, duplicate } = await createLinkedAddresses(adminClient)
 
