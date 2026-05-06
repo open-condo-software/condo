@@ -1,7 +1,7 @@
 const { AddressHeuristic } = require('@address-service/domains/address/utils/serverSchema')
 const { HEURISTIC_TYPE_COORDINATES } = require('@address-service/domains/common/constants/heuristicTypes')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
-const { parseCoordinates } = require('@address-service/domains/common/utils/services/search/heuristicMatcher')
+const { CoordinateHeuristicStrategy } = require('@address-service/domains/common/utils/services/search/heuristicStrategies')
 
 /**
  * Ensure the given address has an active coordinate heuristic.
@@ -35,17 +35,11 @@ async function ensureCoordinateHeuristic (context, address, dvSender) {
         return
     }
 
-    const conflict = await AddressHeuristic.getAll(context, {
-        type: HEURISTIC_TYPE_COORDINATES,
-        value: extracted.value,
-        deletedAt: null,
-    })
-
-    if (conflict.length > 0) {
+    const conflicts = await new CoordinateHeuristicStrategy().findConflicts(extracted.value)
+    if (conflicts.length > 0) {
         return
     }
 
-    const coords = parseCoordinates(extracted.value)
     await AddressHeuristic.create(context, {
         ...dvSender,
         address: { connect: { id: address.id } },
@@ -55,7 +49,7 @@ async function ensureCoordinateHeuristic (context, address, dvSender) {
         provider: providerName,
         meta: extracted.meta || null,
         enabled: true,
-        ...(coords ? { latitude: String(coords.latitude), longitude: String(coords.longitude) } : {}),
+        ...new CoordinateHeuristicStrategy().buildExtraFields(extracted.value),
     })
 }
 

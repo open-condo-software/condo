@@ -5,59 +5,14 @@ const {
     Address: AddressServerUtils,
     AddressHeuristic: AddressHeuristicServerUtils,
 } = require('@address-service/domains/address/utils/serverSchema')
-const { HEURISTIC_TYPE_COORDINATES } = require('@address-service/domains/common/constants/heuristicTypes')
+const {
+    COORDINATE_TOLERANCE,
+    parseCoordinates,
+    CoordinateHeuristicStrategy,
+    getHeuristicStrategy,
+} = require('@address-service/domains/common/utils/services/search/heuristicStrategies')
 
 const logger = getLogger('heuristicMatcher')
-
-// Configurable tolerance for coordinate matching (~1.1m at equator)
-const COORDINATE_TOLERANCE = 0.00001
-
-/**
- * Parse a "lat,lon" string into { latitude, longitude } numbers.
- * Returns null if the string is invalid.
- * @param {string} coordString - "lat,lon"
- * @returns {{latitude: number, longitude: number}|null}
- */
-function parseCoordinates (coordString) {
-    if (!coordString || typeof coordString !== 'string') return null
-    const [lat, lon] = coordString.trim().split(',').map(parseFloat)
-    if (isNaN(lat) || isNaN(lon)) return null
-    return { latitude: lat, longitude: lon }
-}
-
-/**
- * @param {{ type: string, value: string }} heuristic
- * @returns {Promise<Array>}
- */
-async function findExistingHeuristicsForConflict (heuristic) {
-    if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
-        const coords = parseCoordinates(heuristic.value)
-        if (!coords) return []
-        return await findCoordinateHeuristicsInRange(coords.latitude, coords.longitude)
-    }
-
-    return await find('AddressHeuristic', {
-        type: heuristic.type,
-        value: heuristic.value,
-        deletedAt: null,
-        enabled: true,
-    })
-}
-
-/**
- * @param {Error & { code?: string, originalError?: { code?: string }, nativeError?: { code?: string } }} err
- * @returns {boolean}
- */
-function isAddressHeuristicUniqueViolation (err) {
-    const errorCode = err?.code || err?.originalError?.code || err?.nativeError?.code
-    const message = String(err?.message || '')
-
-    // PostgreSQL SQLSTATE 23505 = unique_violation.
-    // We also match by our partial unique index name
-    // "addressheuristic_type_value_unique" on (type, value) where deletedAt is null
-    // in case the driver wraps/normalizes error codes.
-    return errorCode === '23505' || message.includes('addressheuristic_type_value_unique')
-}
 
 /**
  * Check if two coordinate strings are within tolerance
@@ -83,57 +38,28 @@ function coordinatesMatch (coord1, coord2, tolerance = COORDINATE_TOLERANCE) {
  * @returns {Promise<Array>}
  */
 async function findCoordinateHeuristicsInRange (lat, lon, tolerance = COORDINATE_TOLERANCE) {
-    return await find('AddressHeuristic', {
-        type: HEURISTIC_TYPE_COORDINATES,
-        enabled: true,
-        deletedAt: null,
-        latitude_gte: String(lat - tolerance),
-        latitude_lte: String(lat + tolerance),
-        longitude_gte: String(lon - tolerance),
-        longitude_lte: String(lon + tolerance),
-    })
+    return await new CoordinateHeuristicStrategy().findConflicts(`${lat},${lon}`, tolerance)
 }
 
 /**
- * Check whether a coordinate conflict between two addresses should be ignored because
- * a higher-reliability heuristic among the incoming set disagrees with the corresponding
- * heuristic on the existing address. In that case the coordinate match is a provider
- * inaccuracy — the addresses are genuinely distinct buildings.
- *
- * @param {string} existingAddressId - address that owns the conflicting coordinate heuristic
- * @param {{type: string, value: string, reliability: number}} coordinateHeuristic - the coordinate heuristic causing the conflict
- * @param {Array<{type: string, value: string, reliability: number}>} incomingHeuristics - all heuristics being upserted
- * @returns {Promise<boolean>} true if the conflict should be ignored
+ * @param {Error & { code?: string, originalError?: { code?: string }, nativeError?: { code?: string } }} err
+ * @returns {boolean}
  */
-async function isCoordinateConflictVetoed (existingAddressId, coordinateHeuristic, incomingHeuristics) {
-    const higherReliability = incomingHeuristics.filter(
-        (h) => h.type !== HEURISTIC_TYPE_COORDINATES && h.reliability > coordinateHeuristic.reliability
-    )
-    if (higherReliability.length === 0) return false
+function isAddressHeuristicUniqueViolation (err) {
+    const errorCode = err?.code || err?.originalError?.code || err?.nativeError?.code
+    const message = String(err?.message || '')
 
-    for (const incoming of higherReliability) {
-        // Does the existing address already have a heuristic of this higher-reliability type
-        // with a different value than what is coming in? If so, the two addresses are
-        // genuinely distinct — the coordinate overlap is a provider inaccuracy.
-        const existingRecords = await find('AddressHeuristic', {
-            address: { id: existingAddressId },
-            type: incoming.type,
-            deletedAt: null,
-            enabled: true,
-        })
-
-        if (existingRecords.some((r) => r.value !== incoming.value)) {
-            return true
-        }
-    }
-
-    return false
+    // PostgreSQL SQLSTATE 23505 = unique_violation.
+    // We also match by our partial unique index name
+    // "addressheuristic_type_value_unique" on (type, value) where deletedAt is null
+    // in case the driver wraps/normalizes error codes.
+    return errorCode === '23505' || message.includes('addressheuristic_type_value_unique')
 }
 
 /**
  * Find an existing Address by matching any of the provided heuristics.
  * Searches heuristics sorted by reliability (highest first).
- * For coordinates, uses fuzzy matching within tolerance.
+ * Each heuristic type delegates conflict detection to its strategy.
  *
  * @param {Array<{type: string, value: string, reliability: number, meta?: object}>} heuristics
  * @returns {Promise<{addressId: string, matchedHeuristic: {type: string, value: string}}|null>}
@@ -142,20 +68,8 @@ async function findAddressByHeuristics (heuristics) {
     const sorted = [...heuristics].sort((a, b) => b.reliability - a.reliability)
 
     for (const heuristic of sorted) {
-        let matches = []
-
-        if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
-            const coords = parseCoordinates(heuristic.value)
-            if (!coords) continue
-            matches = await findCoordinateHeuristicsInRange(coords.latitude, coords.longitude)
-        } else {
-            matches = await find('AddressHeuristic', {
-                type: heuristic.type,
-                value: heuristic.value,
-                enabled: true,
-                deletedAt: null,
-            })
-        }
+        const strategy = getHeuristicStrategy(heuristic.type)
+        const matches = await strategy.findConflicts(heuristic.value)
 
         if (matches.length > 0) {
             return {
@@ -224,11 +138,11 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
     const toCreate = []
 
     for (const heuristic of heuristics) {
-        const existingRecords = await findExistingHeuristicsForConflict(heuristic)
+        const strategy = getHeuristicStrategy(heuristic.type)
+        const existingRecords = await strategy.findConflicts(heuristic.value)
 
         if (existingRecords.length > 0) {
-            const existingRecord = existingRecords[0]
-            const existingAddressId = existingRecord.address
+            const existingAddressId = existingRecords[0].address
 
             if (existingAddressId === addressId) {
                 // Same address — skip
@@ -236,19 +150,15 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
             }
 
             // Different address — potential conflict.
-            // For coordinate heuristics: if the incoming set contains a higher-reliability
-            // heuristic that conflicts with the existing address, the coordinate overlap is
-            // a provider inaccuracy — treat addresses as genuinely distinct.
-            if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
-                const vetoed = await isCoordinateConflictVetoed(existingAddressId, heuristic, heuristics)
-                if (vetoed) {
-                    logger.info({
-                        msg: 'Coordinate conflict vetoed by higher-reliability heuristic disagreement — addresses are distinct',
-                        data: { existingAddressId, newAddressId: addressId, coordinateHeuristic: heuristic, incomingHeuristics: heuristics },
-                    })
-                    toCreate.push(heuristic)
-                    continue
-                }
+            // Delegate veto logic to the strategy (only coordinate heuristics may be vetoed).
+            const vetoed = await strategy.isConflictVetoed(existingAddressId, heuristic, heuristics)
+            if (vetoed) {
+                logger.info({
+                    msg: 'Conflict vetoed by higher-reliability heuristic disagreement — addresses are distinct',
+                    data: { existingAddressId, newAddressId: addressId, heuristic, incomingHeuristics: heuristics },
+                })
+                toCreate.push(heuristic)
+                continue
             }
 
             logger.warn({
@@ -276,6 +186,7 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
     let bestCreatePhaseConflict = null
 
     for (const heuristic of toCreate) {
+        const strategy = getHeuristicStrategy(heuristic.type)
         const createData = {
             ...dvSender,
             address: { connect: { id: addressId } },
@@ -285,14 +196,7 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
             provider: providerName,
             meta: heuristic.meta || null,
             enabled: true,
-        }
-
-        if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
-            const coords = parseCoordinates(heuristic.value)
-            if (coords) {
-                createData.latitude = String(coords.latitude)
-                createData.longitude = String(coords.longitude)
-            }
+            ...strategy.buildExtraFields(heuristic.value),
         }
 
         try {
@@ -304,7 +208,7 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
                 throw err
             }
 
-            const existingRecords = await findExistingHeuristicsForConflict(heuristic)
+            const existingRecords = await strategy.findConflicts(heuristic.value)
             if (existingRecords.length === 0) {
                 throw err
             }
@@ -356,11 +260,8 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
 }
 
 module.exports = {
-    COORDINATE_TOLERANCE,
-    parseCoordinates,
     coordinatesMatch,
     findCoordinateHeuristicsInRange,
-    isCoordinateConflictVetoed,
     findAddressByHeuristics,
     findRootAddress,
     upsertHeuristics,
