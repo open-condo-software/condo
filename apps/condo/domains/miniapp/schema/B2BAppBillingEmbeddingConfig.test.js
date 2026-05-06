@@ -7,9 +7,9 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig } = require('@condo/domains/miniapp/utils/testSchema')
 
 describe('B2BAppBillingEmbeddingConfig', () => {
     let admin

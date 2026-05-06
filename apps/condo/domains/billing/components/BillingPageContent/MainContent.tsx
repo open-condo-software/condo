@@ -12,7 +12,7 @@ import type { TabItem } from '@open-condo/ui'
 
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
-import { BlockedB2BAppTab } from '@condo/domains/billing/components/BillingPageContent/BlockedB2BAppTab'
+import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
@@ -21,7 +21,6 @@ import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
 import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 
 type PaymentTypeSwitchProps = {
@@ -91,6 +90,7 @@ type ExtensionTabType = {
     iconUrl?: string
     initialHeight?: string | number
     shortDescription?: string | null
+    isB2BApp?: boolean
 }
 
 export const MainContent: React.FC<MainContentProps> = ({
@@ -103,8 +103,6 @@ export const MainContent: React.FC<MainContentProps> = ({
     const userOrganization = useOrganization()
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
-
-    const { isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
 
     const { billingContexts } = useBillingAndAcquiringContexts()
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
@@ -131,6 +129,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 appUrl: b2bApp?.billingEmbeddingConfig?.tabUrl,
                 shortDescription: b2bApp?.shortDescription,
                 initialHeight: '100%',
+                isB2BApp: true,
             }
         })
     }, [data?.b2bApps])
@@ -175,17 +174,14 @@ export const MainContent: React.FC<MainContentProps> = ({
         ]
 
         extensionAppTabs.forEach((extensionAppTab) => {
-            const { appUrl, id, label, iconUrl, initialHeight, shortDescription } = extensionAppTab
+            const { appUrl, id, label, iconUrl, initialHeight, shortDescription, isB2BApp } = extensionAppTab
             if (!appUrl) return
-
-            const tabKey = `${EXTENSION_TAB_KEY}-${id}`
-            const isBlocked = hasSubscriptionsFeature && !isB2BAppEnabled(id)
 
             result.push({
                 label,
-                key: tabKey,
-                children: isBlocked ? (
-                    <BlockedB2BAppTab appId={id} shortDescription={shortDescription} />
+                key: `${EXTENSION_TAB_KEY}-${id}`,
+                children: isB2BApp ? (
+                    <B2BAppBillingTab appId={id} appUrl={appUrl} shortDescription={shortDescription} />
                 ) : (
                     <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={initialHeight || 400}/>
                 ),
@@ -194,7 +190,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon, hasSubscriptionsFeature, isB2BAppEnabled])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
 
     return (
         <>
