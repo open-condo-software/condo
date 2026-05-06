@@ -52,7 +52,6 @@ const TWO_FACTOR_SETTING = 'two-factor-setting'
 const NEWS_ITEM_FILES = 'news-item-files'
 const NEWS_ITEM_FILES_MINIAPPS = 'news-item-files-miniapps'
 const NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM = 'news-item-file-publishing-timeout-by-news-item'
-const CUSTOM_TOUR_STEPS = 'custom-tour-steps'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -109,5 +108,4 @@ module.exports = {
     NEWS_ITEM_FILES,
     NEWS_ITEM_FILES_MINIAPPS,
     NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM,
-    CUSTOM_TOUR_STEPS,
 }
