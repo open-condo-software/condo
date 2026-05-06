@@ -11,6 +11,7 @@ const {
     parseCoordinates,
     coordinatesMatch,
     COORDINATE_TOLERANCE,
+    isCoordinateConflictVetoed,
     findRootAddress,
     upsertHeuristics,
 } = require('./heuristicMatcher')
@@ -178,6 +179,60 @@ describe('heuristicMatcher', () => {
         })
     })
 
+    describe('isCoordinateConflictVetoed', () => {
+        const coordHeuristic = { type: 'coordinates', value: '55.0,37.0', reliability: 90 }
+
+        it('returns false when no incoming heuristic has higher reliability than the coordinate heuristic', async () => {
+            const result = await isCoordinateConflictVetoed(
+                faker.datatype.uuid(),
+                coordHeuristic,
+                [coordHeuristic, { type: 'fallback', value: 'x', reliability: 50 }]
+            )
+            expect(result).toBe(false)
+            expect(find).not.toHaveBeenCalled()
+        })
+
+        it('returns false when existing address has no heuristic of the higher-reliability type', async () => {
+            const existingAddressId = faker.datatype.uuid()
+
+            find.mockResolvedValueOnce([]) // existing address has no fias_id
+
+            const result = await isCoordinateConflictVetoed(
+                existingAddressId,
+                coordHeuristic,
+                [coordHeuristic, { type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }]
+            )
+            expect(result).toBe(false)
+        })
+
+        it('returns false when existing and incoming higher-reliability values are the same', async () => {
+            const existingAddressId = faker.datatype.uuid()
+            const sharedFiasId = faker.datatype.uuid()
+
+            find.mockResolvedValueOnce([{ value: sharedFiasId }])
+
+            const result = await isCoordinateConflictVetoed(
+                existingAddressId,
+                coordHeuristic,
+                [coordHeuristic, { type: 'fias_id', value: sharedFiasId, reliability: 95 }]
+            )
+            expect(result).toBe(false)
+        })
+
+        it('returns true when existing and incoming higher-reliability values differ', async () => {
+            const existingAddressId = faker.datatype.uuid()
+
+            find.mockResolvedValueOnce([{ value: faker.datatype.uuid() }]) // different value
+
+            const result = await isCoordinateConflictVetoed(
+                existingAddressId,
+                coordHeuristic,
+                [coordHeuristic, { type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }]
+            )
+            expect(result).toBe(true)
+        })
+    })
+
     describe('upsertHeuristics', () => {
         it('should set possibleDuplicateOf when create hits unique conflict race', async () => {
             const context = {}
@@ -232,6 +287,44 @@ describe('heuristicMatcher', () => {
             await expect(upsertHeuristics(context, addressId, [heuristic], 'dadata', dvSender))
                 .rejects
                 .toThrow('network failure')
+        })
+
+        it('should not set possibleDuplicateOf when coordinate conflict is vetoed by differing FIAS IDs', async () => {
+            const context = {}
+            const dvSender = { dv: 1, sender: { dv: 1, fingerprint: 'test' } }
+            const addressId = faker.datatype.uuid()
+            const existingAddressId = faker.datatype.uuid()
+            const incomingFiasId = faker.datatype.uuid()
+            const existingFiasId = faker.datatype.uuid() // different!
+
+            const heuristics = [
+                { type: 'coordinates', value: '55.751244,37.618423', reliability: 90 },
+                { type: 'fias_id', value: incomingFiasId, reliability: 95 },
+            ]
+
+            find.mockImplementation(async (modelName, where) => {
+                if (modelName === 'AddressHeuristic') {
+                    if (where.type === 'coordinates') {
+                        // coordinate conflict: existing address has same coords
+                        return [{ address: existingAddressId, value: '55.751244,37.618423' }]
+                    }
+                    if (where.type === 'fias_id' && where.address) {
+                        // existing address has a different fias_id → veto applies
+                        return [{ value: existingFiasId }]
+                    }
+                    // incoming fias_id: no conflict
+                    return []
+                }
+                return []
+            })
+
+            AddressHeuristicServerUtils.create.mockResolvedValue({})
+
+            await upsertHeuristics(context, addressId, heuristics, 'dadata', dvSender)
+
+            expect(AddressServerUtils.update).not.toHaveBeenCalled()
+            // Both heuristics are created for the new address
+            expect(AddressHeuristicServerUtils.create).toHaveBeenCalledTimes(2)
         })
     })
 })

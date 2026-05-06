@@ -95,6 +95,42 @@ async function findCoordinateHeuristicsInRange (lat, lon, tolerance = COORDINATE
 }
 
 /**
+ * Check whether a coordinate conflict between two addresses should be ignored because
+ * a higher-reliability heuristic among the incoming set disagrees with the corresponding
+ * heuristic on the existing address. In that case the coordinate match is a provider
+ * inaccuracy — the addresses are genuinely distinct buildings.
+ *
+ * @param {string} existingAddressId - address that owns the conflicting coordinate heuristic
+ * @param {{type: string, value: string, reliability: number}} coordinateHeuristic - the coordinate heuristic causing the conflict
+ * @param {Array<{type: string, value: string, reliability: number}>} incomingHeuristics - all heuristics being upserted
+ * @returns {Promise<boolean>} true if the conflict should be ignored
+ */
+async function isCoordinateConflictVetoed (existingAddressId, coordinateHeuristic, incomingHeuristics) {
+    const higherReliability = incomingHeuristics.filter(
+        (h) => h.type !== HEURISTIC_TYPE_COORDINATES && h.reliability > coordinateHeuristic.reliability
+    )
+    if (higherReliability.length === 0) return false
+
+    for (const incoming of higherReliability) {
+        // Does the existing address already have a heuristic of this higher-reliability type
+        // with a different value than what is coming in? If so, the two addresses are
+        // genuinely distinct — the coordinate overlap is a provider inaccuracy.
+        const existingRecords = await find('AddressHeuristic', {
+            address: { id: existingAddressId },
+            type: incoming.type,
+            deletedAt: null,
+            enabled: true,
+        })
+
+        if (existingRecords.some((r) => r.value !== incoming.value)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+/**
  * Find an existing Address by matching any of the provided heuristics.
  * Searches heuristics sorted by reliability (highest first).
  * For coordinates, uses fuzzy matching within tolerance.
@@ -199,7 +235,22 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
                 continue
             }
 
-            // Different address — conflict
+            // Different address — potential conflict.
+            // For coordinate heuristics: if the incoming set contains a higher-reliability
+            // heuristic that conflicts with the existing address, the coordinate overlap is
+            // a provider inaccuracy — treat addresses as genuinely distinct.
+            if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
+                const vetoed = await isCoordinateConflictVetoed(existingAddressId, heuristic, heuristics)
+                if (vetoed) {
+                    logger.info({
+                        msg: 'Coordinate conflict vetoed by higher-reliability heuristic disagreement — addresses are distinct',
+                        data: { existingAddressId, newAddressId: addressId, coordinateHeuristic: heuristic, incomingHeuristics: heuristics },
+                    })
+                    toCreate.push(heuristic)
+                    continue
+                }
+            }
+
             logger.warn({
                 msg: 'Heuristic conflict detected',
                 data: {
@@ -309,6 +360,7 @@ module.exports = {
     parseCoordinates,
     coordinatesMatch,
     findCoordinateHeuristicsInRange,
+    isCoordinateConflictVetoed,
     findAddressByHeuristics,
     findRootAddress,
     upsertHeuristics,
