@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import React from 'react'
 
 import { Space, Typography } from '@open-condo/ui'
@@ -21,7 +22,7 @@ export const SubscriptionBlockedContent: React.FC<SubscriptionBlockedContentProp
     <div className={styles.container}>
         <div className={styles.contentWrapper}>
             <Space direction='vertical' align='center' size={24}>
-                <img src='/mascot/upgradePlan.png' style={{ height: '240px' }} alt='' />
+                <Image src='/mascot/upgradePlan.png' alt='' width={240} height={240} className={styles.mascot} />
                 <Space size={16} direction='vertical'>
                     <Typography.Title level={3}>{title}</Typography.Title>
                     <Typography.Paragraph type='secondary'>{description}</Typography.Paragraph>

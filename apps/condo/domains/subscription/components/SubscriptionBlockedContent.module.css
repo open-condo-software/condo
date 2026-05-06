@@ -9,6 +9,11 @@
   border-radius: 8px;
 }
 
+.mascot {
+  height: 240px;
+  width: auto;
+}
+
 .contentWrapper {
   width: 100%;
   max-width: 400px;

@@ -55,14 +55,6 @@ async function packVariablesRecursively (rawVariables, prefix = ['variables'], m
                 file,
             })
             variables[key] = null
-        } else if (isPromise((rawVariables[key] || {}).promise)) {
-            // graphql-upload Upload instance: not itself a Promise but wraps one
-            const file = await rawVariables[key].promise
-            maps.push({
-                key: path,
-                file,
-            })
-            variables[key] = null
         } else if (Array.isArray(rawVariables[key])) {
             variables[key] = []
             for (let i = 0; i < rawVariables[key].length; i++) {

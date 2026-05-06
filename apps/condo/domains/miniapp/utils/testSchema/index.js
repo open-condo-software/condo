@@ -896,6 +896,20 @@ async function createTestB2BAppBillingEmbeddingConfig (client, extraAttrs = {}) 
     return [obj, attrs]
 }
 
+async function updateTestB2BAppBillingEmbeddingConfig (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppBillingEmbeddingConfig.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
