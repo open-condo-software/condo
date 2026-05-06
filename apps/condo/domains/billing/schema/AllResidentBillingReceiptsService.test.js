@@ -808,7 +808,7 @@ describe('AllResidentBillingReceiptsService', () => {
         })
     })
 
-    test('Should use not deleted resident in service consumer', async () => {
+    test('Should not use service consumer with deleted resident', async () => {
         const accountNumber = faker.random.alphaNumeric(12)
         const jsonReceipt = utils.createJSONReceipt({ accountNumber })
         const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
