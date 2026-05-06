@@ -38,6 +38,49 @@ type AiChatButtonConfig = {
     buttons: AiChatScenarioButton[]
 }
 
+const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
+
+type ParsedAssistantAnswer = {
+    text: string
+    suggestions: string[]
+    suggestionsFailureReason?: 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
+}
+
+function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
+    if (!answer || typeof answer !== 'string') {
+        return { text: '', suggestions: [], suggestionsFailureReason: 'missing_block' }
+    }
+
+    const match = answer.match(SUGGESTIONS_BLOCK_REGEX)
+    if (!match) {
+        const hasSuggestionMarkers = answer.includes('[[SUGGESTIONS') || answer.includes('[[/SUGGESTIONS')
+        return {
+            text: answer.trim(),
+            suggestions: [],
+            suggestionsFailureReason: hasSuggestionMarkers ? 'service_text_leaked' : 'missing_block',
+        }
+    }
+
+    const suggestions = match[1]
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.startsWith('& '))
+        .map((line) => line.slice(2).trim())
+        .filter(Boolean)
+
+    const textWithoutSuggestions = answer.replace(SUGGESTIONS_BLOCK_REGEX, '').trim()
+    const hasLeakedServiceText = textWithoutSuggestions.includes('[[SUGGESTIONS') || textWithoutSuggestions.includes('[[/SUGGESTIONS')
+    const parsedSuggestions = suggestions.slice(0, 3)
+
+    return {
+        text: textWithoutSuggestions,
+        suggestions: parsedSuggestions,
+        suggestionsFailureReason: hasLeakedServiceText
+            ? 'service_text_leaked'
+            : (parsedSuggestions.length === 0 ? 'empty_after_parse' : undefined),
+    }
+}
+
 function parseAiChatButtonConfigFromFlag (raw: unknown): AiChatButtonConfig | null {
     let value = raw
     if (typeof raw === 'string') {
@@ -74,6 +117,7 @@ function parseAiChatButtonConfigFromFlag (raw: unknown): AiChatButtonConfig | nu
 
 export type MessageContent = {
     text: string
+    suggestions?: string[]
 }
 
 export type Message = {
@@ -311,16 +355,31 @@ export const AIChat: React.FC<AIChatProps> = ({
                 return
             }
 
-            // Data is received - show answer (copyable: model reply after successful execute)
+            const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(result.data.result?.answer ?? noResponseMessage)
+            if (suggestionsFailureReason) {
+                void analytics.track('ai_suggestions_failure', {
+                    reason: suggestionsFailureReason,
+                    session_id: aiSessionId,
+                    message_id: assistantMessage.id,
+                    suggestions_count_parsed: suggestions.length,
+                })
+            }
+            const hasToolCalls = Boolean(result.data?.result?.toolCalls?.length)
+            const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED && !hasToolCalls
+
+            // Show copy button only for final assistant replies, not intermediate statuses.
             changeMessage(assistantMessage.id, {
                 ...assistantMessage,
-                content: { text: result.data.result?.answer ?? noResponseMessage },
+                content: {
+                    text: assistantAnswerText,
+                    suggestions,
+                },
                 status: 'sent',
-                copyable: true,
+                copyable: isFinalAssistantReply,
             })
 
             // If had toolcalls -> add message about toolcalls and start executing toolcalls
-            if (result.data?.status === TASK_STATUSES.COMPLETED && result.data?.result?.toolCalls) {
+            if (result.data?.status === TASK_STATUSES.COMPLETED && hasToolCalls) {
                 const toolCalls = result.data.result.toolCalls
 
                 // Create new message for tool execution
@@ -452,6 +511,31 @@ export const AIChat: React.FC<AIChatProps> = ({
         await executeAIMessage(buttonName, undefined, 0, null, buttonId)
     }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
 
+    const handleSuggestionButtonClick = useCallback(async (suggestedText: string) => {
+        if (!suggestedText.trim() || loading || !user || !canExecuteAIFlow) return
+
+        const isFirstInSession = !messages.some((msg) => msg.role === 'user')
+        void analytics.track('ai_assistant_message_send', {
+            source: 'scenario_button',
+            is_first_in_session: isFirstInSession,
+            location: typeof window !== 'undefined' ? window.location.href : '',
+            button_id: 'reply_suggestion',
+            button_name: suggestedText,
+        })
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            content: { text: suggestedText },
+            role: 'user',
+            timestamp: new Date(),
+            status: 'sent',
+            copyable: true,
+        }
+
+        addMessage(userMessage)
+        await executeAIMessage(suggestedText)
+    }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
@@ -515,7 +599,12 @@ export const AIChat: React.FC<AIChatProps> = ({
                     )
                 ) : (
                     messages.map((message) => (
-                        <AIChatMessage key={message.id} message={message} />
+                        <AIChatMessage
+                            key={message.id}
+                            message={message}
+                            onSuggestionClick={handleSuggestionButtonClick}
+                            canExecuteAIFlow={canExecuteAIFlow}
+                        />
                     ))
                 )}
                 <div ref={messagesEndRef} />
