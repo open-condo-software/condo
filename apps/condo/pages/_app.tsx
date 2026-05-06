@@ -165,7 +165,7 @@ const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
-    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isSPPOrg = false //useFlag(SERVICE_PROVIDER_PROFILE)
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
