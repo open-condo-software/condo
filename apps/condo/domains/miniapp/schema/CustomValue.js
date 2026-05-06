@@ -252,6 +252,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
             if (customFieldIsUniquePerObject) {
                 const existingCustomValues = await itemsQuery('CustomValue', {
                     where: {
+                        ...resultObject?.id ? { id_not: resultObject.id } : {},
                         itemId: resultObject.itemId,
                         organization: { id: resultObject.organization },
                         customField: { id: resultObject.customField },

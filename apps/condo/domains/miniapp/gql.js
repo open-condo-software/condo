@@ -115,7 +115,7 @@ const SEND_B2B_APP_PUSH_MESSAGE_MUTATION = gql`
 const CUSTOM_FIELD_FIELDS = `{ locale name priority modelName type validationRules isVisible ${COMMON_FIELDS} }`
 const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
 
-const CUSTOM_VALUE_FIELDS = `{ itemId data customField { id name priority modelName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
+const CUSTOM_VALUE_FIELDS = `{ itemId data customField { id name priority modelName type validationRules isVisible } filterDataString sourceType sourceId organization { id } isUniquePerObject ${COMMON_FIELDS} }`
 const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
 
 const B2C_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
