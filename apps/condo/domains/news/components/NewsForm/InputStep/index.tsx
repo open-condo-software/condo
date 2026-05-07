@@ -10,10 +10,12 @@ import debounce from 'lodash/debounce'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { NEWS_ITEM_FILES_MINIAPPS } from '@condo/domains/common/constants/featureflags'
 import { createVideoPreviewFromUrl, getImagePreviewFromUrl } from '@condo/domains/news/components/FilesPreview/ImageOrVideoPreview'
 import { Action, convertFilesToUploadType, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import {
@@ -140,6 +142,9 @@ export const InputStep: React.FC<InputStepProps> = ({
     const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
     const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
     const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
+
+    const { useFlag } = useFeatureFlags()
+    const isNewsItemFilesMiniappsEnabled = useFlag(NEWS_ITEM_FILES_MINIAPPS)
 
     const { app: sharingApp, id: sharingAppId } = sharingAppData ?? { id: null, app: null }
     const { newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
@@ -291,7 +296,7 @@ export const InputStep: React.FC<InputStepProps> = ({
                 name: fileWithPreview.name || fileWithPreview.response?.originalName,
             }))
 
-            debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope, preparedFiles)
+            debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope, isNewsItemFilesMiniappsEnabled ? preparedFiles : null)
         }
     }, [sharingAppId])
 
@@ -335,12 +340,12 @@ export const InputStep: React.FC<InputStepProps> = ({
             mimetype: fileWithPreview.response?.mimetype,
         }))
 
-        debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope, preparedFiles)
+        debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope, isNewsItemFilesMiniappsEnabled ? preparedFiles : null)
 
         return () => {
             debouncedPostMessage.cancel()
         }
-    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep, filesWithPreviews])
+    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep, filesWithPreviews, isNewsItemFilesMiniappsEnabled])
 
     useEffect(() => {
         if (!isCustomForm && !isCustomPreview) return
