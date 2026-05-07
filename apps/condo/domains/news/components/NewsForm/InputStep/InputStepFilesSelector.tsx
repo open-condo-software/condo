@@ -110,6 +110,8 @@ export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
 
     if (isCustomForm) return null
 
+    if (isSharingStep && (!Array.isArray(files) || files.length < 1)) return null
+
     if (!isLoaded) return <Loader />
 
     return (

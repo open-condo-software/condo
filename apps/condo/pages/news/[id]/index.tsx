@@ -14,6 +14,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -30,6 +31,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { NEWS_ITEM_FILES } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
 import {
     convertFilesToUploadType,
@@ -102,6 +104,9 @@ const NewsItemCard: React.FC = () => {
     const SendingMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.sending' })
     const ErrorMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.error' })
     const SentMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.success' })
+
+    const { useFlag } = useFeatureFlags()
+    const isNewsItemFilesEnabled = useFlag(NEWS_ITEM_FILES)
 
     const { user } = useAuth()
     const { query, push } = useRouter()
@@ -360,19 +365,23 @@ const NewsItemCard: React.FC = () => {
                                         fieldValue={newsItem.body}
                                         renderFieldValue={renderBodyFieldValue}
                                     />
-                                    <FieldPairRow
-                                        fieldTitle={FilesLabel}
-                                        fieldValue={files}
-                                        renderFieldValue={(files) => {
-                                            return (
-                                                <FilesUploadList
-                                                    type='view'
-                                                    fileList={convertFilesToUploadType(files)}
-                                                    updateFileList={modifyFiles}
-                                                />
-                                            )
-                                        }}
-                                    />
+                                    {
+                                        (isNewsItemFilesEnabled || files?.length > 0) && (
+                                            <FieldPairRow
+                                                fieldTitle={FilesLabel}
+                                                fieldValue={files}
+                                                renderFieldValue={(files) => {
+                                                    return (
+                                                        <FilesUploadList
+                                                            type='view'
+                                                            fileList={convertFilesToUploadType(files)}
+                                                            updateFileList={modifyFiles}
+                                                        />
+                                                    )
+                                                }}
+                                            />
+                                        )
+                                    }
                                 </Row>
                             </FrontLayerContainer>
                         </Col>
