@@ -69,7 +69,7 @@ class SberCloudObsAcl {
     generateUrl ({ filename, ttl = 300, originalFilename, mimetype }) { // obs default
         const isSafeInline = SAFE_INLINE_MIMETYPES.includes(mimetype)
         const encodedOriginalFilename = originalFilename ? encodeURIComponent(originalFilename) : null
-        const extraParams = (!isSafeInline && originalFilename) ? {
+        const extraParams = (!isSafeInline && encodedOriginalFilename) ? {
             QueryParams: {
                 'response-content-disposition': `attachment; filename="${encodedOriginalFilename}"; filename*=UTF-8''${encodedOriginalFilename}`,
             },
