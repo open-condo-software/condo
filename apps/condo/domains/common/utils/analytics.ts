@@ -101,10 +101,9 @@ export type EventsData = {
     'confirm_phone_registration': Record<string, never>
     'confirm_email_registration': Record<string, never>
     'register_user': { userId: string }
-    'ai_assistant_close': { duration_ms: number, location: string }
-    'ai_assistant_header_open_click': { location: string }
+    'ai_assistant_close': { location: string }
+    'ai_assistant_open_click': { location: string }
     'ai_assistant_message_send': AiAssistantMessageSendEventData
-    'ai_assistant_overlay_open': { location: string }
     'ai_assistant_reset_history': { location: string }
 }
 

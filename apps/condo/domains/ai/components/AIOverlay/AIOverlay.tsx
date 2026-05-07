@@ -47,23 +47,10 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     const [aiSessionId, setAiSessionId] = useState<string | null>(null)
 
-    const openedAtRef = useRef<number | null>(null)
-    const prevOpenRef = useRef(open)
+    const openRef = useRef(open)
 
     useEffect(() => {
-        const location = typeof window !== 'undefined' ? window.location.href : ''
-        const prevOpen = prevOpenRef.current
-
-        if (open && !prevOpen) {
-            openedAtRef.current = Date.now()
-            void analytics.track('ai_assistant_overlay_open', { location })
-        }
-        if (!open && prevOpen) {
-            const duration_ms = openedAtRef.current != null ? Date.now() - openedAtRef.current : 0
-            void analytics.track('ai_assistant_close', { duration_ms, location })
-            openedAtRef.current = null
-        }
-        prevOpenRef.current = open
+        openRef.current = open
     }, [open])
 
     const handleResetHistory = () => {
@@ -133,6 +120,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         }
 
         const handleMouseUp = () => {
+            if (!openRef.current) void analytics.track('ai_assistant_close', { location: window.location.href })
             setIsResizing(false)
             setDragDirection(null)
             dragDirectionRef.current = null
@@ -160,6 +148,11 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         setIsResizing(true)
         startXRef.current = e.clientX
         startWidthRef.current = aiOverlayWidth
+    }
+
+    const handleCloseButtonClick = () => {
+        void analytics.track('ai_assistant_close', { location: window.location.href })
+        onClose()
     }
 
     return (
@@ -193,7 +186,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         size='medium'
                         compact
                         minimal
-                        onClick={onClose}
+                        onClick={handleCloseButtonClick}
                         icon={<Close size='small' />}
                         title={closeLabel}
                     />
