@@ -61,7 +61,8 @@ class AwsS3Acl {
             Expires: ttl,
         }
         if (!isNil(originalFilename)) {
-            params.ResponseContentDisposition = `attachment; filename="${encodeURIComponent(originalFilename)}"`
+            const encodedOriginalFilename = encodeURIComponent(originalFilename)
+            params.ResponseContentDisposition = `attachment; filename="${encodedOriginalFilename}"; filename*=UTF-8''${encodedOriginalFilename}`
         }
         return this.s3.getSignedUrl('getObject', params)
     }
@@ -173,8 +174,8 @@ class AwsFileAdapter {
 
         const searchParams = new URLSearchParams({
         // propagate original filename for an indirect url
-            ...((isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(folder))
-          && { original_filename: encodeURIComponent(originalFilename) }),
+            ...(!isNil(originalFilename) && !NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(folder)
+          && { original_filename: originalFilename }),
             ...(sign && { sign }),
         }).toString()
 
