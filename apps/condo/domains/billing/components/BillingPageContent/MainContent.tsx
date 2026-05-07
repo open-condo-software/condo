@@ -13,12 +13,14 @@ import type { TabItem } from '@open-condo/ui'
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
+import { BillingTabTourStep } from '@condo/domains/billing/components/BillingPageContent/BillingTabTourStep'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
 import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
+import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
@@ -143,6 +145,8 @@ export const MainContent: React.FC<MainContentProps> = ({
 
     const { useFlag } = useFeatureFlags()
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
+    const tourStepsConfig = useTourStepsConfig()
+
     const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
     const renderTabIcon = useCallback((iconUrl: string | null) => {
         if (!iconUrl) return null
@@ -202,6 +206,11 @@ export const MainContent: React.FC<MainContentProps> = ({
                 destroyInactiveTabPane
                 tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
             />
+            {extensionAppTabs.map(({ id }) => {
+                const tourStep = tourStepsConfig[id]
+                if (!tourStep) return null
+                return <BillingTabTourStep key={id} id={id} tabsId='billing-tabs' title={tourStep.title} message={tourStep.message} />
+            })}
         </>
     )
 }

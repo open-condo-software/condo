@@ -57,13 +57,13 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
         )
     }
 
-    if (billingContexts.length && acquiringContexts.length) {
-        return (
-            <BillingAndAcquiringContext.Provider value={providerValue}>
-                <BillingPageContent/>
-            </BillingAndAcquiringContext.Provider>
-        )
-    }
+    // if (billingContexts.length && acquiringContexts.length) {
+    return (
+        <BillingAndAcquiringContext.Provider value={providerValue}>
+            <BillingPageContent/>
+        </BillingAndAcquiringContext.Provider>
+    )
+    // }
 
     const withVerification = (onlineProcessingAcquiringContext && onlineProcessingAcquiringContext.status === CONTEXT_VERIFICATION_STATUS) ||
         orgType === SERVICE_PROVIDER_TYPE
