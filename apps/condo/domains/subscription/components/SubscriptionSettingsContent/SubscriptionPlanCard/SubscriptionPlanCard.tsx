@@ -20,6 +20,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from '@condo/domains/common/constants/featureflags'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { SubscriptionPaymentErrorAlert } from '@condo/domains/subscription/components/SubscriptionPaymentErrorAlert'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
@@ -272,6 +273,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     const registerSubscriptionContextForModal = useCallback(async ({ paymentType }: { paymentType: PaymentType }) => {
         if (!price?.id) return
+
+        analytics.track('subscription_purchase_click', {
+            paymentMethod: paymentType,
+            planName: plan.name,
+            priceAmount: price.price !== null && price.price !== undefined ? Number(price.price) : null,
+            currencyCode: price.currencyCode ?? null,
+            period: price.period ?? null,
+        })
 
         setActivateLoading(true)
         try {
