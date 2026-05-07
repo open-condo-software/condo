@@ -1,6 +1,6 @@
 import { useGetB2BAppContextsByOrgQuery, useCreateB2BAppContextMutation } from '@app/condo/gql'
 import get from 'lodash/get'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useOrganization } from '@open-condo/next/organization'
@@ -32,6 +32,7 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
 
     const contextExists = (data?.contexts || []).some(c => c?.app?.id === appId)
     const creatingRef = useRef(false)
+    const [createError, setCreateError] = useState<Error | null>(null)
 
     const [createB2BAppContext] = useCreateB2BAppContextMutation()
 
@@ -39,6 +40,7 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
         if (isBlocked || contextExists || creatingRef.current || !organizationId || data === undefined) return
 
         creatingRef.current = true
+        setCreateError(null)
         createB2BAppContext({
             variables: {
                 data: {
@@ -50,11 +52,18 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
             },
         })
             .then(() => refetch())
-            .catch(console.error)
+            .catch((err) => {
+                creatingRef.current = false
+                setCreateError(err)
+            })
     }, [isBlocked, contextExists, organizationId, appId, createB2BAppContext, data, refetch])
 
     if (isBlocked) {
         return <BlockedB2BAppTab appId={appId} shortDescription={shortDescription} />
+    }
+
+    if (createError) {
+        return null
     }
 
     if (loading || !contextExists) {
