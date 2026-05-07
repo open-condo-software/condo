@@ -95,6 +95,7 @@ async function sendDTMFCode ({ context, url, callId, dtmfCode, accessToken }) {
         response = await fetch(url, {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 ...accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
             },
             body: JSON.stringify({
@@ -189,16 +190,15 @@ const SendDTMFToB2CAppService = new GQLCustomSchema('SendDTMFToB2CAppService', {
                 const { data: argsData } = args
                 const { app, property, organization, callStatusToken, callId, data: { dtmfCode } } = argsData
 
-                checkLimits({ appId: app.id, propertyId: property.id, organizationId: organization.id, callId })
+                await checkLimits({ appId: app.id, propertyId: property.id, organizationId: organization.id, callId })
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 const callStatus = await getCallStatus({ b2cAppId: app.id, propertyId: property.id, organizationId: organization.id, callId })
-                if (!isCallStatusTokenEqual({ callStatus, callStatusToken })) {
-                    throw new GQLError(ERRORS.CALL_NOT_FOUND)
-                }
-
                 if (!callStatus || callStatus.status === CALL_STATUS_ENDED) {
+                    throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
+                }
+                if (!isCallStatusTokenEqual({ callStatus, callStatusToken })) {
                     throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
                 }
 

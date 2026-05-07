@@ -9,7 +9,7 @@ async function canReadB2CAppIntercomConfigs ({ authentication: { item: user } })
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return {}
+    return false
 }
 
 async function canManageB2CAppIntercomConfigs ({ authentication: { item: user }, listKey, originalInput, operation }) {
