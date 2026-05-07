@@ -10,11 +10,11 @@
 }
 
 .mascot {
-  height: 240px;
   width: auto;
+  height: 240px;
 }
 
-.contentWrapper {
+.content-wrapper {
   width: 100%;
   max-width: 400px;
   text-align: center;
