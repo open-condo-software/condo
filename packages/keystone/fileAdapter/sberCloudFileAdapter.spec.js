@@ -248,7 +248,7 @@ describe('SberCloudFileAdapter', () => {
             })
         })
 
-        it('should return indirect URL with original_filename when originalFilename is provided (BUG FIX TEST)', () => {
+        it('should return indirect URL with original_filename when originalFilename is provided', () => {
             const adapter = new SberCloudFileAdapter(config)
             const fileId = faker.datatype.uuid()
 
@@ -259,10 +259,10 @@ describe('SberCloudFileAdapter', () => {
             })
 
             expect(result).toContain('original_filename=')
-            // Note: The implementation double-encodes (encodeURIComponent + URLSearchParams encoding)
-            const doubleEncoded = encodeURIComponent(encodeURIComponent('my document.pdf'))
-            expect(result).toContain(doubleEncoded)
-            expect(result).toBe(`https://example.com/api/files/test-folder/test.pdf?original_filename=${doubleEncoded}`)
+            const encodedOriginalFilename = new URLSearchParams({ original_filename: 'my document.pdf' }).toString()
+            const url = new URL(result)
+            expect(url.searchParams.get('original_filename')).toBe('my document.pdf')
+            expect(result).toBe(`https://example.com/api/files/test-folder/test.pdf?${encodedOriginalFilename}`)
         })
 
         it('should return indirect URL without original_filename when originalFilename is null', () => {
@@ -303,8 +303,10 @@ describe('SberCloudFileAdapter', () => {
             })
 
             expect(result).toContain('original_filename=')
-            // The implementation double-encodes (encodeURIComponent + URLSearchParams encoding)
-            expect(result).toContain(encodeURIComponent(encodeURIComponent('файл с пробелами & символами.pdf')))
+            const encodedOriginalFilename = new URLSearchParams({ original_filename: 'файл с пробелами & символами.pdf' }).toString()
+            const url = new URL(result)
+            expect(url.searchParams.get('original_filename')).toBe('файл с пробелами & символами.pdf')
+            expect(result).toBe(`https://example.com/api/files/test-folder/test.pdf?${encodedOriginalFilename}`)
         })
 
         it('should add sign parameter for app files', () => {
