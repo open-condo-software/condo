@@ -125,7 +125,9 @@ export type EventsData = {
 type UserData = {
     name?: string | null
     type?: string | null
+    role?: string | null
     'organization.id'?: string | null
+    'organization.spp': boolean
 }
 
 type AppGroups =

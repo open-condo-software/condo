@@ -1,3 +1,4 @@
+import { OrganizationFeature } from '@app/condo/schema'
 import { Router } from 'next/router'
 import { useCallback, useEffect } from 'react'
 
@@ -5,14 +6,12 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { clearPostHogInlineStyles, injectPostHogSurveyStyles, createSurveyBackdrop } from '@condo/domains/common/utils/posthogSurveyStyles'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import { usePostMessageContext } from './PostMessageProvider'
 
 import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'
-
 
 export const CondoAppEventsHandler: FC = () => {
     const { isLoading: userLoading, user } = useAuth()
@@ -27,13 +26,15 @@ export const CondoAppEventsHandler: FC = () => {
                 analytics.identify(user.id, {
                     name: user?.name,
                     type: user?.type || STAFF,
+                    role: employee?.role?.nameNonLocalized,
+                    'organization.spp': employee.organization.features.includes(OrganizationFeature.Spp),
                     'organization.id': employee?.organization?.id,
                 })
             } else {
                 analytics.reset()
             }
         }
-    }, [userLoading, user, employee?.organization?.id])
+    }, [userLoading, user, employee.organization?.id, employee?.role?.nameNonLocalized, employee.organization.features])
 
     // Routing tracking
     useEffect(() => {
@@ -81,26 +82,6 @@ export const CondoAppEventsHandler: FC = () => {
             analytics.removeGroup('employee.role')
         }
     }, [employee])
-
-    useEffect(() => {
-        const overrideSurveyStyles = () => {
-            clearPostHogInlineStyles()
-            injectPostHogSurveyStyles()
-            createSurveyBackdrop()
-        }
-
-        const surveyObserver = new MutationObserver(() => {
-            overrideSurveyStyles()
-        })
-
-        surveyObserver.observe(document.body, {
-            childList: true,
-        })
-
-        return () => {
-            surveyObserver?.disconnect()
-        }
-    }, [])
 
     return null
 }

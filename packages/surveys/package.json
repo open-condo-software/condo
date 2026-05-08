@@ -1,0 +1,18 @@
+{
+  "name": "@open-condo/surveys",
+  "version": "1.0.0",
+  "dependencies": {
+    "@open-condo/config": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
+    "@open-condo/ui": "workspace:^"
+  },
+  "exports": {
+    ".": "./index.ts"
+  },
+  "peerDependencies": {
+    "next": ">=15",
+    "posthog-js": "*",
+    "react": ">=18.3.1"
+  },
+  "repository": "https://github.com/open-condo-software/condo/tree/main/packages/featureflags"
+}
