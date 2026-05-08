@@ -610,43 +610,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
   dependencies:
-    "@maxhub/max-bot-api": ^0.2.2
     "@types/node": ^22
     dotenv: ^16.4.7
-    https-proxy-agent: ^6
     node-telegram-bot-api: ^0.66.0
-    socks-proxy-agent: ^8
     ts-node: ^10.9.2
     ts-node-dev: ^1.0.0-pre.63
     typescript: ^5.8.3
     yana: ^1.2.3
-  languageName: unknown
-  linkType: soft
-
-"@app/b2b-payments-gateway@workspace:apps/b2b-payments-gateway":
-  version: 0.0.0-use.local
-  resolution: "@app/b2b-payments-gateway@workspace:apps/b2b-payments-gateway"
-  dependencies:
-    "@b2b-payments-gateway/domains": "link:./domains"
-    "@faker-js/faker": ^7.6.0
-    "@graphql-tools/graphql-file-loader": ^7.5.17
-    "@graphql-tools/load": ^8.1.0
-    "@open-condo/apollo-server-client": "workspace:^"
-    "@open-condo/cli": "workspace:^"
-    "@open-condo/config": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
-    "@types/react": ^18.3.1
-    cross-env: ^7.0.3
-    express: ^4.17.1
-    graphql: ^16.10.0
-    graphql-tag: ^2.12.6
-    jest: ^29.7.0
-    lodash: ^4.17.21
-    mkdirp: ^3.0.1
-    openid-client: 5.7.1
-    pluralize: ^8.0.0
-    react: ^18.3.1
-    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -1011,11 +981,10 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/node": ^22
-    axios: ^1.15.0
+    axios: ^1.11.0
     commander: 14.0.1
     express: ^4.17.1
     graphql: ^16.10.0
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
@@ -1023,7 +992,6 @@ __metadata:
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
-    socks-proxy-agent: ^8.0.3
   languageName: unknown
   linkType: soft
 
@@ -1060,7 +1028,7 @@ __metadata:
     "@open-keystone/app-next": ^9.0.1
     "@types/node": ^22
     "@types/react": ^18.3.1
-    ajv: 8.11.0
+    "@xmldom/xmldom": ^0.8.13
     antd: ^4.24.12
     big.js: ^6.2.2
     classnames: ^2.5.1
@@ -1079,6 +1047,7 @@ __metadata:
     nanoid: ^3.3.4
     next: ^15.5.7
     next-with-less: ^3.0.1
+    nunjucks: ^3.2.4
     react: ^18.3.1
     react-dom: ^18.3.1
     react-router-dom: 5.2.0
@@ -1291,14 +1260,11 @@ __metadata:
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
-    form-data: ^4.0.4
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     markdown-it: ^14.1.1
     openid-client: 5.7.1
-    socks-proxy-agent: ^8.0.3
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -1697,7 +1663,6 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     jsonwebtoken: ^9.0.0
@@ -1715,7 +1680,6 @@ __metadata:
     react-intl: ^7.1.11
     react-number-format: ^5.4.4
     serwist: ^9.0.0
-    socks-proxy-agent: ^8.0.3
     swr: ^2.3.6
     telegraf: ^4.16.3
     telegraf-i18n: ^6.6.0
@@ -1724,7 +1688,6 @@ __metadata:
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
     uuid: ^8.0.3
-    yet-another-react-lightbox: ^3.31.0
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
@@ -1792,27 +1755,24 @@ __metadata:
     "@faker-js/faker": ^7.6.0
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
-    "@maxhub/max-bot-api": ^0.2.2
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
     "@types/node": ^22
+    axios: ^1.11.0
     commander: 14.0.1
     cross-env: ^7.0.3
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
-    https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
-    node-telegram-bot-api: ^0.66.0
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
-    socks-proxy-agent: ^8.0.3
   languageName: unknown
   linkType: soft
 
@@ -1837,12 +1797,6 @@ __metadata:
   checksum: af39bdfb4c2b35bd2c6acc540a5e302730dae17e73d3a18cd1a4aa50c1c741cb1869dffdef1379c491da5ad2e3cfa2bf3a8064e6046c12b46c6a97f54f100a8d
   languageName: node
   linkType: hard
-
-"@b2b-payments-gateway/domains@link:./domains::locator=%40app%2Fb2b-payments-gateway%40workspace%3Aapps%2Fb2b-payments-gateway":
-  version: 0.0.0-use.local
-  resolution: "@b2b-payments-gateway/domains@link:./domains::locator=%40app%2Fb2b-payments-gateway%40workspace%3Aapps%2Fb2b-payments-gateway"
-  languageName: node
-  linkType: soft
 
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.18.6":
   version: 7.18.6
@@ -10608,16 +10562,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@maxhub/max-bot-api@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@maxhub/max-bot-api@npm:0.2.2"
-  dependencies:
-    debug: ^4.3.7
-    vcf: ^2.1.2
-  checksum: a97102e7b832f30c5461485c72ec3b33d959cfd4b4cfc112707f7456a7a5a8166d79adc5c90ae6cd2acd29eb769cfd32379ea5c3b0faf9d80fede6c7f2015d4b
-  languageName: node
-  linkType: hard
-
 "@mdx-js/mdx@npm:^2.2.1":
   version: 2.3.0
   resolution: "@mdx-js/mdx@npm:2.3.0"
@@ -17914,7 +17858,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agent-base@npm:^7.0.2, agent-base@npm:^7.1.0, agent-base@npm:^7.1.2":
+"agent-base@npm:^7.1.0, agent-base@npm:^7.1.2":
   version: 7.1.4
   resolution: "agent-base@npm:7.1.4"
   checksum: 86a7f542af277cfbd77dd61e7df8422f90bac512953709003a1c530171a9d019d072e2400eab2b59f84b49ab9dd237be44315ca663ac73e82b3922d10ea5eafa
@@ -19217,6 +19161,17 @@ __metadata:
     axios: ">=0.20.0"
     tough-cookie: ">=4.0.0"
   checksum: d08f252b325ed6221e7daca9c1009100ac14eefa3681674c7bad43fae4f74f146236a704c8bef3d49c461f03586f82aef461746a5beb9d70db1b4b9126a85378
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.11.0":
+  version: 1.16.0
+  resolution: "axios@npm:1.16.0"
+  dependencies:
+    follow-redirects: ^1.16.0
+    form-data: ^4.0.5
+    proxy-from-env: ^2.1.0
+  checksum: 93e810968167fea59750d28f458e6860973a573c14bd60fe57ee07b5241f4c16991b149ae9ce65d79765081e3004743c9e158c438edba75af6f4612197e6834b
   languageName: node
   linkType: hard
 
@@ -20722,7 +20677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"camelcase@npm:^5.0.0, camelcase@npm:^5.3.1":
+"camelcase@npm:^5.3.1":
   version: 5.3.1
   resolution: "camelcase@npm:5.3.1"
   checksum: e6effce26b9404e3c0f301498184f243811c30dfe6d0b9051863bd8e4034d09c8c2923794f280d6827e5aa055f6c434115ff97864a16a963366fb35fd673024b
@@ -26716,13 +26671,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"foldline@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "foldline@npm:1.1.0"
-  checksum: e434cf5268a2b580be0252b8a17657a36318e027ea9d0d24e5222d4d1038b994505e927ee48cbed8e0d7393eac608260561170a63cd9f8fabfe8237d0cd5b2c1
-  languageName: node
-  linkType: hard
-
 "follow-redirects@npm:^1.0.0":
   version: 1.15.9
   resolution: "follow-redirects@npm:1.15.9"
@@ -26740,6 +26688,16 @@ __metadata:
     debug:
       optional: true
   checksum: 20bf55e9504f59e6cc3743ba27edb2ebf41edea1baab34799408f2c050f73f0c612728db21c691276296d2795ea8a812dc532a98e8793619fcab91abe06d017f
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.16.0":
+  version: 1.16.0
+  resolution: "follow-redirects@npm:1.16.0"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: e90dce4607b1f6b8b9883287f912585573c19088209ad82341d550a795b4ba514522b73b1b340cf618279df27975cd46504d09149be60291ba6767384c1fd8f8
   languageName: node
   linkType: hard
 
@@ -28947,16 +28905,6 @@ __metadata:
     agent-base: 6
     debug: 4
   checksum: 571fccdf38184f05943e12d37d6ce38197becdd69e58d03f43637f7fa1269cf303a7d228aa27e5b27bbd3af8f09fd938e1c91dcfefff2df7ba77c20ed8dfc765
-  languageName: node
-  linkType: hard
-
-"https-proxy-agent@npm:^6":
-  version: 6.2.1
-  resolution: "https-proxy-agent@npm:6.2.1"
-  dependencies:
-    agent-base: ^7.0.2
-    debug: 4
-  checksum: d0615fb6ae69241d6faaeb9fe51e071d093fba504e5111cb64ede40e8d701b3ddc762525c96f594e7df266b00dfeb3822bd8abbda33ab6f050a3f679062d74c4
   languageName: node
   linkType: hard
 
@@ -44396,7 +44344,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socks-proxy-agent@npm:^8, socks-proxy-agent@npm:^8.0.3":
+"socks-proxy-agent@npm:^8.0.3":
   version: 8.0.5
   resolution: "socks-proxy-agent@npm:8.0.5"
   dependencies:
@@ -48674,16 +48622,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vcf@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "vcf@npm:2.1.2"
-  dependencies:
-    camelcase: ^5.0.0
-    foldline: ^1.1.0
-  checksum: d224b2378766ed524654d84cdf1c1ae1e1bea3ff5330be90bf51bec82c86f5d0a479dc525a69901fc40ddc1a11ecc15ec1c6b20d7f6d29130f72c768d7b06dcc
-  languageName: node
-  linkType: hard
-
 "verror@npm:1.10.0":
   version: 1.10.0
   resolution: "verror@npm:1.10.0"
@@ -49977,23 +49915,6 @@ __metadata:
   dependencies:
     buffer-crc32: ~0.2.3
   checksum: daec5154b5485d8621bfea359e905ddca0b2f068430a4aa0a802bf5d67391157a383e0c2767acccbf5964264851da643bc740155a9458e2d8dce55b94c1cc2ed
-  languageName: node
-  linkType: hard
-
-"yet-another-react-lightbox@npm:^3.31.0":
-  version: 3.32.0
-  resolution: "yet-another-react-lightbox@npm:3.32.0"
-  peerDependencies:
-    "@types/react": ^16 || ^17 || ^18 || ^19
-    "@types/react-dom": ^16 || ^17 || ^18 || ^19
-    react: ^16.8.0 || ^17 || ^18 || ^19
-    react-dom: ^16.8.0 || ^17 || ^18 || ^19
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-  checksum: 9a94065e04d17a169db3f042d3e31bd48b8a2fcb0572cbbaa64d448e5f06fd86046f9d890babef08b096d5fffcf17fa8ec64d10c8bd11b8677ee708988b1e34a
   languageName: node
   linkType: hard
 
