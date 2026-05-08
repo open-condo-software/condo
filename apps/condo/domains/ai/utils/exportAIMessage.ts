@@ -1,6 +1,10 @@
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 
 export type ExportAIMessageFormat = 'txt' | 'pdf' | 'docx'
+const AI_EXPORT_FILE_NAME_PREFIX = 'ai-answer'
+const PLAIN_TEXT_MIME = 'text/plain;charset=utf-8'
+const DOCX_LINE_BREAK = '\n'
+const EMPTY_DOCX_LINE_PLACEHOLDER = ' '
 
 export type ExportAIMessageTxtOptions = {
     format: 'txt'
@@ -27,7 +31,7 @@ export type ExportAIMessageOptions =
 
 function createFileNameBase (): string {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    return `ai-answer-${timestamp}`
+    return `${AI_EXPORT_FILE_NAME_PREFIX}-${timestamp}`
 }
 
 function downloadBlob (blob: Blob, fileName: string): void {
@@ -42,18 +46,18 @@ function downloadBlob (blob: Blob, fileName: string): void {
 }
 
 async function exportPlainText (text: string, fileNameBase: string): Promise<void> {
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([text], { type: PLAIN_TEXT_MIME })
     downloadBlob(blob, `${fileNameBase}.txt`)
 }
 
 async function exportDocx (text: string, fileNameBase: string): Promise<void> {
     const { Document, Packer, Paragraph, TextRun } = await import('docx')
-    const lines = text.split('\n')
+    const lines = text.split(DOCX_LINE_BREAK)
     const paragraphs: InstanceType<typeof Paragraph>[] = []
 
     lines.forEach((line) => {
         paragraphs.push(new Paragraph({
-            children: [new TextRun({ text: line || ' ' })],
+            children: [new TextRun({ text: line || EMPTY_DOCX_LINE_PLACEHOLDER })],
         }))
     })
 

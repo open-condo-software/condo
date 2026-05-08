@@ -10,6 +10,9 @@ import styles from './AIChat.module.css'
 
 import type { Message } from './AIChat'
 
+const COPY_RESET_TIMEOUT_MS = 2000
+const EXPORT_MENU_FORMATS: ExportAIMessageFormat[] = ['docx', 'pdf', 'txt']
+
 export type AIChatMessageProps = {
     message: Message
     onSuggestionClick?: (suggestion: string) => void
@@ -33,6 +36,10 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
     const copyLabel = intl.formatMessage({ id: 'Copy' })
     const copiedLabel = intl.formatMessage({ id: 'Copied' })
     const downloadLabel = intl.formatMessage({ id: 'Download' })
+    const exportMenuItems = EXPORT_MENU_FORMATS.map((format) => ({
+        key: format,
+        label: `${downloadLabel} ${format.toUpperCase()}`,
+    }))
 
     const handleCopy = useCallback(async () => {
         if (copied) return
@@ -41,7 +48,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
             await navigator.clipboard.writeText(message.content.text)
             setCopied(true)
 
-            setTimeout(() => setCopied(false), 2000)
+            setTimeout(() => setCopied(false), COPY_RESET_TIMEOUT_MS)
         } catch (e) {
             console.error('Unable to copy to clipboard', e)
         }
@@ -93,11 +100,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
         <Dropdown
             trigger={['click']}
             menu={{
-                items: [
-                    { key: 'docx', label: `${downloadLabel} DOCX` },
-                    { key: 'pdf', label: `${downloadLabel} PDF` },
-                    { key: 'txt', label: `${downloadLabel} TXT` },
-                ],
+                items: exportMenuItems,
                 onClick: ({ key }) => void handleExport(key as ExportAIMessageFormat),
             }}
             disabled={isExporting}

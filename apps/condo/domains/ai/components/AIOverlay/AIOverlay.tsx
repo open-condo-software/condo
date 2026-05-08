@@ -25,6 +25,7 @@ const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
 const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
+const EMPTY_AI_SESSION_ID = ''
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
@@ -55,7 +56,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     const handleResetHistory = () => {
         void analytics.track('ai_assistant_reset_history', {
-            aiSessionId: aiSessionId ?? '',
+            aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID,
         })
         const newSessionId = uuidV4()
         const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
@@ -121,7 +122,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
         const handleMouseUp = () => {
             if (!openRef.current) {
-                void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? '' })
+                void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID })
             }
             setIsResizing(false)
             setDragDirection(null)
@@ -153,7 +154,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     }
 
     const handleCloseButtonClick = () => {
-        void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? '' })
+        void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID })
         onClose()
     }
 
