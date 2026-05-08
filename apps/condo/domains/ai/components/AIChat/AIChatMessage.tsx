@@ -1,11 +1,12 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 
 import { Check, Copy, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Dropdown, Markdown, Tooltip, Typography } from '@open-condo/ui'
 
+import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
+
 import styles from './AIChat.module.css'
-import { exportAIChatMessage } from './exportAIChatMessage'
 
 import type { Message } from './AIChat'
 
@@ -21,9 +22,10 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
     canExecuteAIFlow = true,
 }) => {
     const intl = useIntl()
+    const assistantMarkdownRef = useRef<HTMLDivElement>(null)
     const [copied, setCopied] = useState(false)
-    const [exportLoadingByFormat, setExportLoadingByFormat] = useState<Record<'md' | 'pdf' | 'docx', boolean>>({
-        md: false,
+    const [exportLoadingByFormat, setExportLoadingByFormat] = useState<Record<ExportAIMessageFormat, boolean>>({
+        txt: false,
         pdf: false,
         docx: false,
     })
@@ -45,16 +47,24 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
         }
     }, [copied, message.content.text])
 
-    const handleExport = useCallback(async (format: 'md' | 'pdf' | 'docx') => {
+    const handleExport = useCallback(async (format: ExportAIMessageFormat) => {
         if (exportLoadingByFormat[format]) return
 
         setExportLoadingByFormat((prev) => ({ ...prev, [format]: true }))
 
         try {
-            await exportAIChatMessage({
-                format,
-                text: message.content.text,
-            })
+            let payload: ExportAIMessageOptions
+            if (format === 'pdf') {
+                const el = assistantMarkdownRef.current
+                if (!el) {
+                    console.error('Unable to export PDF: markdown root is not mounted')
+                    return
+                }
+                payload = { format: 'pdf', pdfSourceElement: el }
+            } else {
+                payload = { format, text: message.content.text }
+            }
+            await exportAIMessage(payload)
         } catch (e) {
             console.error(`Unable to export message to ${format}`, e)
         } finally {
@@ -62,7 +72,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
         }
     }, [exportLoadingByFormat, message.content.text])
 
-    const isExporting = exportLoadingByFormat.md || exportLoadingByFormat.pdf || exportLoadingByFormat.docx
+    const isExporting = exportLoadingByFormat.txt || exportLoadingByFormat.pdf || exportLoadingByFormat.docx
 
     const copyButton = (
         <Tooltip title={copied ? copiedLabel : copyLabel}>
@@ -84,11 +94,11 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
             trigger={['click']}
             menu={{
                 items: [
-                    { key: 'md', label: `${downloadLabel} MD` },
-                    { key: 'pdf', label: `${downloadLabel} PDF` },
                     { key: 'docx', label: `${downloadLabel} DOCX` },
+                    { key: 'pdf', label: `${downloadLabel} PDF` },
+                    { key: 'txt', label: `${downloadLabel} TXT` },
                 ],
-                onClick: ({ key }) => void handleExport(key as 'md' | 'pdf' | 'docx'),
+                onClick: ({ key }) => void handleExport(key as ExportAIMessageFormat),
             }}
             disabled={isExporting}
             placement='bottomLeft'
@@ -120,7 +130,9 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
                 </div>
             ) : (
                 <div className={styles.assistantMessageContainer}>
-                    <Markdown type='inline'>{message.content.text}</Markdown>
+                    <div ref={assistantMarkdownRef} className={styles.assistantMarkdown}>
+                        <Markdown type='inline'>{message.content.text}</Markdown>
+                    </div>
                     {message.copyable === true && message.status !== 'sending' && (
                         <div className={styles.assistantMessageActions}>
                             {copyButton}

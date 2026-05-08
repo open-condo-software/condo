@@ -55,7 +55,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     const handleResetHistory = () => {
         void analytics.track('ai_assistant_reset_history', {
-            location: typeof window !== 'undefined' ? window.location.href : '',
+            aiSessionId: aiSessionId ?? '',
         })
         const newSessionId = uuidV4()
         const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
@@ -120,7 +120,9 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         }
 
         const handleMouseUp = () => {
-            if (!openRef.current) void analytics.track('ai_assistant_close', { location: window.location.href })
+            if (!openRef.current) {
+                void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? '' })
+            }
             setIsResizing(false)
             setDragDirection(null)
             dragDirectionRef.current = null
@@ -151,7 +153,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     }
 
     const handleCloseButtonClick = () => {
-        void analytics.track('ai_assistant_close', { location: window.location.href })
+        void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? '' })
         onClose()
     }
 

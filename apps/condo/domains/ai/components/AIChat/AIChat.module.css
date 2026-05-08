@@ -79,9 +79,9 @@
 
 .user-message-container {
   display: flex;
+  gap: 4px;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
   max-width: 100%;
 }
 
@@ -112,9 +112,9 @@
 .assistant-message-container {
   display: flex;
   flex-direction: column;
+  gap: 10px;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 10px;
   max-width: 100%;
 }
 

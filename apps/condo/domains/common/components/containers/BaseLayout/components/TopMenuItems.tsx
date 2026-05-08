@@ -76,7 +76,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 { isAIChatEnabled && !isAIOverlayOpen && (
                     <AIFlowButton
                         onClick={() => {
-                            void analytics.track('ai_assistant_open_click', { location: window.location.href })
+                            void analytics.track('ai_assistant_open_click', {})
                             openAIOverlay()
                         }}
                     />

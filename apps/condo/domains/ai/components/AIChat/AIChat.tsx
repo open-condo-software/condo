@@ -127,7 +127,6 @@ export type Message = {
     timestamp: Date
     status?: 'sending' | 'sent' | 'error'
     executionAIFlowTaskId?: string
-    /** If true, show «Копировать». Omitted/false: do not show (safe default for old localStorage). */
     copyable?: boolean
 }
 
