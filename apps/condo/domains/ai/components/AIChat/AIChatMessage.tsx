@@ -66,7 +66,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
             }
             await exportAIMessage(payload)
         } catch (e) {
-            console.error(`Unable to export message to ${format}`, e)
+            console.error('Unable to export message', { format, error: e })
         } finally {
             setExportLoadingByFormat((prev) => ({ ...prev, [format]: false }))
         }
