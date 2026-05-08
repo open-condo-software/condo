@@ -12,6 +12,7 @@ const {
     CALL_DATA_NOT_PROVIDED_ERROR,
     INVALID_CALL_ID_ERROR,
     INVALID_CALL_META_ERROR,
+    CALL_STATUS_STARTED,
 } = require('@condo/domains/miniapp/constants')
 const {
     RejectCallError,
@@ -24,7 +25,7 @@ const {
     parseSendMessageResults,
     sendMessageToUser,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, generateCallStatusToken, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -288,7 +289,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
                             callStatusToken,
                             b2cAppId,
-                            propertyId: property.id,
+                            propertyId: property.addressKey, // TODO ! will be changed based on another pr
                             organizationId: organization.id,
                             callId: callData.callId,
                             status: CALL_STATUS_STARTED,

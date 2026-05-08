@@ -3,11 +3,13 @@ const { timingSafeEqual } = require('crypto')
 
 const { z } = require('zod')
 
+
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils/helpers/uuid')
+
+const { CALL_STATUSES, CALL_STATUS_TTL_IN_SECONDS } = require('@condo/domains/miniapp/constants')
 const KEY_PREFIX = 'voipCallStatus'
 const kv = getKVClient(KEY_PREFIX)
-const CALL_STATUS_TTL_IN_SECONDS = 60 * 3 // 3 minutes
 
 const MIN_CALL_ID_LENGTH = 1
 const MAX_CALL_ID_LENGTH = 300
@@ -15,15 +17,6 @@ const MAX_CALL_ID_LENGTH = 300
 const MAX_CALL_META_LENGTH = 1000
 
 const CALL_ID_NOT_ALLOWED_CHARACTERS_REGEX = /[^a-zA-Z0-9\\/.,?_^&$\-+*]/
-
-const CALL_STATUS_STARTED = 'CALL_STATUS_STARTED'
-const CALL_STATUS_ENDED = 'CALL_STATUS_ENDED'
-const CALL_STATUS_ANSWERED = 'CALL_STATUS_ANSWERED'
-const CALL_STATUSES = {
-    [CALL_STATUS_STARTED]: CALL_STATUS_STARTED,
-    [CALL_STATUS_ENDED]: CALL_STATUS_ENDED,
-    [CALL_STATUS_ANSWERED]: CALL_STATUS_ANSWERED,
-}
 
 const CALL_STATUS_SCHEMA = z.object({
     status: z.union(Object.values(CALL_STATUSES).map(v => z.literal(v))),
@@ -101,11 +94,6 @@ module.exports = {
     getCallStatus,
 
     generateCallStatusToken,
-
-    CALL_STATUSES,
-    CALL_STATUS_STARTED,
-    CALL_STATUS_ENDED,
-    CALL_STATUS_ANSWERED,
 
     MIN_CALL_ID_LENGTH,
     MAX_CALL_ID_LENGTH,

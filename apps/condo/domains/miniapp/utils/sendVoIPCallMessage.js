@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 
@@ -10,7 +11,9 @@ const {
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     NATIVE_VOIP_TYPE,
     B2C_APP_VOIP_TYPE,
+    CALL_STATUS_TTL_IN_SECONDS,
 } = require('@condo/domains/miniapp/constants')
+const { GET_VOIP_CALL_STATUS_URL_PATH } = require('@condo/domains/miniapp/MiniappMiddleware')
 const { B2CAppProperty, CustomValue } = require('@condo/domains/miniapp/utils/serverSchema')
 const {
     MESSAGE_META,
@@ -20,6 +23,9 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+
+
+const SERVER_URL = conf.SERVER_URL
 
 const VOIP_MESSAGE_TYPES = [
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
@@ -55,11 +61,28 @@ const GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID = JSON.parse(conf.GLOB
 
 const MAX_UNIT_NAME_LANEGTH = 100
 
+const URL_QUERY_PARAMS_TO_STRINGIFY = new Set(['dv', 'sender'])
+
 class RejectCallError extends Error {
     constructor (returnData) {
         super('Code has no reason to go further')
         this.returnData = returnData
     }
+}
+
+function getGetVoIPCallStatusUrl ({ dv, sender, addressKey, organizationId, appId, callStatusToken, callId }) {
+    const url = new URL(`${SERVER_URL}${GET_VOIP_CALL_STATUS_URL_PATH}`)
+    const queryParams = { dv, sender, addressKey, organizationId, appId, callStatusToken, callId }
+    for (const paramKey in queryParams) {
+        let paramValue = queryParams[paramKey]
+        if (URL_QUERY_PARAMS_TO_STRINGIFY.has(paramKey)) paramValue = JSON.stringify(paramValue)
+        url.searchParams.set(paramKey, paramValue)
+    }
+    return url.toString()
+}
+
+function getGetVoIPCallStatusTimeout () {
+    return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
 }
 
 function prepareVoIPCallStartMessageData ({ 
@@ -68,6 +91,7 @@ function prepareVoIPCallStartMessageData ({
     resident, contact, property,
     callStatusToken,
     customVoIPValues,
+    sender,
 }) {
     // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
     let preparedDataArgs = {
@@ -79,6 +103,8 @@ function prepareVoIPCallStartMessageData ({
         propertyId: property.id,
         callStatusToken,
         address: resident.address,
+        getVoIPCallStatusUrl: getGetVoIPCallStatusUrl({ dv: 1, sender, addressKey: property.addressKey, organizationId: contact.organization, appId: b2cAppId, callStatusToken, callId: callData.callId }),
+        getVoIPCallStatusTimeout: getGetVoIPCallStatusTimeout(),
     }
 
     const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
@@ -133,6 +159,7 @@ function prepareVoIPCallCancelMessageData ({
         reason: callData.reason,
         voipIncomingCallId,
         address: resident.address,
+        getVoIPCallStatusTimeout: getGetVoIPCallStatusTimeout(),
     }
 
     if (callData.b2cAppCallData?.B2CAppContext) {
@@ -165,7 +192,7 @@ function prepareVoIPCallCancelMessageData ({
  * @returns 
  */
 async function sendMessageToUser (args) {
-    const { 
+    const {
         voipMessageType,
         context, resident, contact, user,
         sender, dv,

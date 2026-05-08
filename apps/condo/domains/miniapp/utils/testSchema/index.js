@@ -42,11 +42,11 @@ const { AppMessageSetting: AppMessageSettingGQL } = require('@condo/domains/mini
 const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 const { CustomField: CustomFieldGQL } = require('@condo/domains/miniapp/gql')
 const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
-
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
+const { GET_VOIP_CALL_STATUS_QUERY } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -426,6 +426,7 @@ async function sendVoIPCallCancelMessageByTestClient (client, extraAttrs = {}) {
         ...extraAttrs,
         callData,
     }
+    console.error('attrs', JSON.stringify(attrs, null, 2))
     const { data, errors } = await client.mutate(SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION, { data: attrs })
 
     throwIfError(data, errors, { query: SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION, variables: { data: attrs } })
@@ -906,6 +907,19 @@ async function updateTestB2BAppBillingEmbeddingConfig (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
+async function getVoIPCallStatusByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        ...extraAttrs
+    }
+
+    const { data, errors } = await client.query(GET_VOIP_CALL_STATUS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -937,5 +951,6 @@ module.exports = {
     sendVoIPCallStartMessageByTestClient, sendVoIPCallCancelMessageByTestClient,
     B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
     B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
+    getVoIPCallStatusByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

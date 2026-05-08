@@ -94931,6 +94931,31 @@ enum SendVoIPCallCancelMessageUnitType {
   warehouse
 }
 
+input GetVoIPCallStatusInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+
+  """
+  Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+  """
+  addressKey: String!
+  callId: String!
+  organization: OrganizationWhereUniqueInput!
+  callStatusToken: String!
+}
+
+enum GetVoIPCallStatusCallStatus {
+  CALL_STATUS_STARTED
+  CALL_STATUS_ENDED
+  CALL_STATUS_ANSWERED
+}
+
+type GetVoIPCallStatusOutput {
+  """Status of call or null if status not found"""
+  status: GetVoIPCallStatusCallStatus!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -99680,6 +99705,29 @@ type Query {
   getNewsSharingRecipients(data: GetNewsSharingRecipientsInput!): [GetNewsSharingRecipientsOutput]
   getNewsSharingRecipientsCounters(data: GetNewsSharingRecipientsCountersInput!): GetNewsSharingRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
+
+  """
+  Mutation to get status of call status. Cancel push message might not come / take a long time.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_CALL_ID",
+    "message": "\"callId\" contains invalid characters or does not has length between 1 and 300"
+  }`
+  
+  `{
+    "code": "NOT_FOUND",
+    "type": "CALL_NOT_FOUND",
+    "message": "Call not found or expired"
+  }`
+  """
+  getVoIPCallStatus(data: GetVoIPCallStatusInput!): GetVoIPCallStatusOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String
