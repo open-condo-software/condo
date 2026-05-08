@@ -1060,7 +1060,7 @@ __metadata:
     "@open-keystone/app-next": ^9.0.1
     "@types/node": ^22
     "@types/react": ^18.3.1
-    "@xmldom/xmldom": ^0.8.13
+    ajv: 8.11.0
     antd: ^4.24.12
     big.js: ^6.2.2
     classnames: ^2.5.1
@@ -1079,7 +1079,6 @@ __metadata:
     nanoid: ^3.3.4
     next: ^15.5.7
     next-with-less: ^3.0.1
-    nunjucks: ^3.2.4
     react: ^18.3.1
     react-dom: ^18.3.1
     react-router-dom: 5.2.0
@@ -1179,6 +1178,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/react": ^18.3.1
+    commander: 14.0.1
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
