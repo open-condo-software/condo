@@ -42,6 +42,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { Resident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
@@ -805,6 +806,25 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(Big(receiptAfterBankInfoChange.paid).toFixed(2)).toEqual(Big(total).toFixed(2))
             expect(receiptAfterBankInfoChange.isPayable).toBeTruthy()
         })
+    })
+
+    test('Should not use service consumer with deleted resident', async () => {
+        const accountNumber = faker.random.alphaNumeric(12)
+        const jsonReceipt = utils.createJSONReceipt({ accountNumber })
+        const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
+        const resident = await utils.createResident()
+        await utils.createServiceConsumer(resident, accountNumber)
+        await Resident.update(utils.clients.admin, resident.id, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'test-test-test' },
+            deletedAt: new Date(),
+        })
+
+        const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+            id: receiptId,
+        })
+
+        expect(receipts).toHaveLength(0)
     })
 
 })

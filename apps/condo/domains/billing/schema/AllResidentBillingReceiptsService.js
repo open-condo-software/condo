@@ -106,11 +106,13 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
 
                 // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
-                if (!serviceConsumerWhere.resident) {
-                    serviceConsumerWhere.resident = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE
-                } else {
+                if (serviceConsumerWhere.resident) {
                     serviceConsumerWhere.resident.user = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE.user
+                } else {
+                    serviceConsumerWhere.resident = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE
                 }
+
+                serviceConsumerWhere.resident = { ...serviceConsumerWhere.resident, deletedAt: null }
                 const serviceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
 
                 if (!serviceConsumers.length) {
