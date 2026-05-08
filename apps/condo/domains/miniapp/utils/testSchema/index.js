@@ -45,6 +45,7 @@ const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -87,6 +88,7 @@ const CustomValue = generateGQLTestUtils(CustomValueGQL)
 
 const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConfigGQL)
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
+const B2BAppMeterIntegrationConfig = generateGQLTestUtils(B2BAppMeterIntegrationConfigGQL)
 const B2BAppBillingEmbeddingConfig = generateGQLTestUtils(B2BAppBillingEmbeddingConfigGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -933,6 +935,7 @@ module.exports = {
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
     sendVoIPCallStartMessageByTestClient, sendVoIPCallCancelMessageByTestClient,
+    B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
     B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
