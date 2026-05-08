@@ -14,7 +14,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
-import { NEWS_ITEM_FILES } from '@condo/domains/common/constants/featureflags'
+import { NEWS_ITEM_FILES, NEWS_ITEM_FILES_MINIAPPS } from '@condo/domains/common/constants/featureflags'
 import { Action, DBFile, FilesUploadList, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import { SIZE_LIMIT_BY_FILE_TYPE } from '@condo/domains/news/constants/uploads'
 
@@ -58,6 +58,7 @@ export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
 
     const { useFlag } = useFeatureFlags()
     const isNewsItemFilesEnabled = useFlag(NEWS_ITEM_FILES)
+    const isNewsItemFilesMiniappsEnabled = useFlag(NEWS_ITEM_FILES_MINIAPPS)
 
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -111,6 +112,10 @@ export const InputStepFilesSelector: React.FC<InputStepFilesSelectorProps> = ({
     if (isCustomForm) return null
 
     if (!isLoaded) return <Loader />
+
+    if (isSharingStep && (!Array.isArray(files) || files.length < 1)) return null
+
+    if (isSharingStep && !isNewsItemFilesMiniappsEnabled) return null
 
     return (
         <Col span={24}>
