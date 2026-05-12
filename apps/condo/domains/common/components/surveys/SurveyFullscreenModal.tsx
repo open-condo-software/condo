@@ -50,9 +50,9 @@ export const SurveyFullscreenModal: React.FC<PostHogSurveyFullscreenModalProps> 
     useEffect(() => {
         if (!isReady || !open || !surveyId) return
 
-        getSurveyById(surveyId, (foundSurvey) => {
-            setSurvey(foundSurvey)
-        })
+        const survey = getSurveyById(surveyId)
+
+        setSurvey(survey)
     }, [isReady, open, surveyId, getSurveyById])
 
     useEffect(() => {

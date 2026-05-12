@@ -1,4 +1,3 @@
-import { OrganizationFeature } from '@app/condo/schema'
 import { Router } from 'next/router'
 import { useCallback, useEffect } from 'react'
 

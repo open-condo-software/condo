@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Checkbox, Input, Markdown, Radio, Space } from '@open-condo/ui'
 
@@ -62,6 +62,14 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
         }
     }, [currentValue, isValid, onStateChange])
 
+    const setCheckBoxValue = useCallback((e, choice)=> {
+        if (e.target.checked) {
+            setMultipleChoiceValues([...multipleChoiceValues, choice])
+        } else {
+            setMultipleChoiceValues(multipleChoiceValues.filter((v) => v !== choice))
+        }
+    }, [multipleChoiceValues])
+
     const questionContent = useMemo(() => {
         switch (question.type) {
             case 'single_choice':
@@ -84,13 +92,7 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
                             <Checkbox
                                 key={choice}
                                 checked={multipleChoiceValues.includes(choice)}
-                                onChange={(e) => {
-                                    if (e.target.checked) {
-                                        setMultipleChoiceValues([...multipleChoiceValues, choice])
-                                    } else {
-                                        setMultipleChoiceValues(multipleChoiceValues.filter((v) => v !== choice))
-                                    }
-                                }}
+                                onChange={e => setCheckBoxValue(e, choice)}
                             >
                                 {choice}
                             </Checkbox>
@@ -125,7 +127,7 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
             default:
                 return null
         }
-    }, [question, singleChoiceValue, multipleChoiceValues, openTextValue, ratingValue])
+    }, [question, singleChoiceValue, openTextValue, ratingValue, multipleChoiceValues, setCheckBoxValue])
 
     return (
         <Space direction='vertical' size={24} width='100%'>

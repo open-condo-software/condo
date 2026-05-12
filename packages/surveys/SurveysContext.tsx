@@ -1,8 +1,6 @@
 import posthog from 'posthog-js'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-import { isSSR } from '@open-condo/miniapp-utils'
-
 import type { Survey } from 'posthog-js'
 
 export type SurveyResponse = {
@@ -17,19 +15,19 @@ export type SurveyFeatureFlagPayload = {
 
 type PostHogSurveysContextValue = {
     isReady: boolean
-    getSurveys: (callback: (surveys: Survey[]) => void) => void
-    getSurveyById: (surveyId: string, callback: (survey: Survey | null) => void) => void
+    getSurveys: () => Array<Survey> | null
+    getSurveyById: (surveyId: string) => Survey | null
     getSurveysLinkedFlagValue: (survey: Survey) => any
-    getActiveMatchingSurveys: (callback: (surveys: Survey[]) => void) => void
+    getActiveMatchingSurveys: () => Array<Survey> | null
 }
 
 const SurveysContext = createContext<PostHogSurveysContextValue | null>(null)
 
 export const SurveysProvider = ({ children }) => {
-    const [isReady, setIsReady] = useState<boolean>(() => !isSSR() && Boolean(posthog?.__loaded))
+    const [isReady, setIsReady] = useState<boolean>(Boolean(posthog?.__loaded))
 
     useEffect(() => {
-        if (isSSR() || isReady) return
+        if (isReady) return
 
         let checkInterval: ReturnType<typeof setInterval> | null = null
 
@@ -51,24 +49,37 @@ export const SurveysProvider = ({ children }) => {
         }
     }, [isReady])
 
-    const getSurveys = useCallback((callback: (surveys: Survey[]) => void) => {
+    const getSurveys = useCallback(() => {
         if (!isReady || !posthog?.__loaded) return
-        posthog.getSurveys(callback)
-    }, [isReady])
+        let surveys = []
 
-    const getActiveMatchingSurveys = useCallback((callback: (surveys: Survey[]) => void) => {
-        if (!isReady || !posthog?.__loaded) return
-        posthog.getActiveMatchingSurveys(callback)
-    }, [isReady])
-
-    const getSurveyById = useCallback((surveyId: string, callback: (survey: Survey | null) => void) => {
-        if (!isReady || !posthog?.__loaded) {
-            callback(null)
-            return
-        }
-        posthog.getSurveys((surveys) => {
-            callback(surveys.find((s) => s.id === surveyId) ?? null)
+        posthog.getSurveys(callbackSurveys => {
+            if (callbackSurveys && callbackSurveys.length) surveys = callbackSurveys
         })
+
+        return surveys
+    }, [isReady])
+
+    const getActiveMatchingSurveys = useCallback(() => {
+        if (!isReady || !posthog?.__loaded) return
+        let surveys = []
+
+        posthog.getActiveMatchingSurveys(callbackSurveys => {
+            if (callbackSurveys && callbackSurveys.length) surveys = callbackSurveys
+        })
+
+        return surveys
+    }, [isReady])
+
+    const getSurveyById = useCallback((surveyId: string) => {
+        if (!isReady || !posthog?.__loaded) return
+        let surveys = []
+
+        posthog.getSurveys(callbackSurveys => {
+            if (callbackSurveys && callbackSurveys.length) surveys = callbackSurveys
+        })
+
+        return surveys.find((s) => s.id === surveyId) ?? null
     }, [isReady])
 
     const getSurveysLinkedFlagValue = useCallback((survey: Survey) => {
