@@ -25,7 +25,7 @@ export const EmptySubSectionView: React.FC<EmptySubSectionViewProps> = ({
     return (
         <Empty
             image={
-                <Image src={`/dino/${dino}@2x.png`} alt='Dinosaur waiting' width={IMG_SIZE} height={IMG_SIZE} draggable={false} className={styles.image}/>
+                <Image src={`/mascot/${dino}.webp`} alt='Mascot' width={IMG_SIZE} height={IMG_SIZE} draggable={false} className={styles.image}/>
             }
             imageStyle={IMAGE_STYLES}
             description={null}
