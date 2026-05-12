@@ -8,8 +8,9 @@ const { HEURISTIC_TYPE_COORDINATES } = require('@address-service/domains/common/
 const logger = getLogger('mergeAddresses')
 
 /**
- * Merge two addresses: move all AddressSource and AddressHeuristic records
- * from the loser to the winner, then soft-delete the loser.
+ * Merge two addresses: move all AddressSource and non-coordinate AddressHeuristic
+ * records from the loser to the winner, soft-delete coordinate heuristics on the
+ * loser (the winner's coordinates are re-derived from its own meta), then soft-delete the loser.
  *
  * @param {Object} context - Keystone context
  * @param {string} winnerId - The address that survives
@@ -86,7 +87,8 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
         })
     }
 
-    logger.info({ msg: 'Merged addresses', data: { winnerId, loserId, movedSources: loserSources.length, movedHeuristics: loserHeuristics.length } })
+    const movedHeuristics = loserHeuristics.filter((h) => h.type !== HEURISTIC_TYPE_COORDINATES).length
+    logger.info({ msg: 'Merged addresses', data: { winnerId, loserId, movedSources: loserSources, movedHeuristics } })
 }
 
 module.exports = {
