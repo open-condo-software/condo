@@ -23,3 +23,7 @@
   max-width: 600px;
   padding: 40px;
 }
+
+.action-button-wrapper {
+  width: 100%;
+}

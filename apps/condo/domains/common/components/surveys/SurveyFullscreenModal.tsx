@@ -184,7 +184,7 @@ export const SurveyFullscreenModal: React.FC<PostHogSurveyFullscreenModalProps> 
                     />
                 )}
 
-                <div style={{ width: '100%' }}>
+                <div className={styles.actionButtonWrapper}>
                     <ActionBar
                         actions={[
                             <>
