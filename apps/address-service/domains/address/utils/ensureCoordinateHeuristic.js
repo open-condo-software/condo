@@ -46,7 +46,7 @@ async function ensureCoordinateHeuristic (context, address, dvSender) {
         type: HEURISTIC_TYPE_COORDINATES,
         value: extracted.value,
         reliability: extracted.reliability,
-        provider: providerName,
+        provider: providerName || null,
         meta: extracted.meta || null,
         enabled: true,
         ...new CoordinateHeuristicStrategy().buildExtraFields(extracted.value),
