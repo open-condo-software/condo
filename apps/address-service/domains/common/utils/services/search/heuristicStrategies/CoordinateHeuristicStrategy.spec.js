@@ -25,6 +25,22 @@ describe('parseCoordinates', () => {
         expect(parseCoordinates('abc,def')).toBeNull()
         expect(parseCoordinates('55.751244')).toBeNull()
     })
+
+    it('should return null for partial-parse values', () => {
+        expect(parseCoordinates('55.7abc,37.6')).toBeNull()
+        expect(parseCoordinates('55.7,37.6xyz')).toBeNull()
+    })
+
+    it('should return null for more than two parts', () => {
+        expect(parseCoordinates('55,37,1')).toBeNull()
+    })
+
+    it('should return null for out-of-range coordinates', () => {
+        expect(parseCoordinates('91,0')).toBeNull()
+        expect(parseCoordinates('-91,0')).toBeNull()
+        expect(parseCoordinates('0,181')).toBeNull()
+        expect(parseCoordinates('0,-181')).toBeNull()
+    })
 })
 
 describe('CoordinateHeuristicStrategy', () => {

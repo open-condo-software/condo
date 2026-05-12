@@ -12,10 +12,17 @@ const COORDINATE_TOLERANCE = 0.00001
  * @param {string} coordString - "lat,lon"
  * @returns {{latitude: number, longitude: number}|null}
  */
+const NUMERIC_RE = /^-?\d+(\.\d+)?$/
+
 function parseCoordinates (coordString) {
     if (!coordString || typeof coordString !== 'string') return null
-    const [lat, lon] = coordString.trim().split(',').map(parseFloat)
-    if (isNaN(lat) || isNaN(lon)) return null
+    const parts = coordString.trim().split(',')
+    if (parts.length !== 2) return null
+    const [rawLat, rawLon] = parts
+    if (!NUMERIC_RE.test(rawLat) || !NUMERIC_RE.test(rawLon)) return null
+    const lat = Number(rawLat)
+    const lon = Number(rawLon)
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null
     return { latitude: lat, longitude: lon }
 }
 
