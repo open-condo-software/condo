@@ -215,20 +215,28 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
 
             const existingAddressId = existingRecords[0].address
             if (existingAddressId !== addressId) {
-                logger.warn({
-                    msg: 'Heuristic conflict detected during create (race)',
-                    data: {
-                        type: heuristic.type,
-                        value: heuristic.value,
-                        existingAddressId,
-                        newAddressId: addressId,
-                    },
-                })
+                const vetoed = await strategy.isConflictVetoed(existingAddressId, heuristic, heuristics)
+                if (vetoed) {
+                    logger.info({
+                        msg: 'Race conflict vetoed by higher-reliability heuristic disagreement — addresses are distinct',
+                        data: { existingAddressId, newAddressId: addressId, heuristic, incomingHeuristics: heuristics },
+                    })
+                } else {
+                    logger.warn({
+                        msg: 'Heuristic conflict detected during create (race)',
+                        data: {
+                            type: heuristic.type,
+                            value: heuristic.value,
+                            existingAddressId,
+                            newAddressId: addressId,
+                        },
+                    })
 
-                // We track the highest reliability conflict found during this race
-                // to ensure we link to the strongest possible root address.
-                if (!bestCreatePhaseConflict || heuristic.reliability > bestCreatePhaseConflict.reliability) {
-                    bestCreatePhaseConflict = { existingAddressId, reliability: heuristic.reliability }
+                    // We track the highest reliability conflict found during this race
+                    // to ensure we link to the strongest possible root address.
+                    if (!bestCreatePhaseConflict || heuristic.reliability > bestCreatePhaseConflict.reliability) {
+                        bestCreatePhaseConflict = { existingAddressId, reliability: heuristic.reliability }
+                    }
                 }
             }
         }
