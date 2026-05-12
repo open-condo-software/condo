@@ -12,7 +12,7 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 
 
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
-const FailureSrc = { main: '/404Poster.webp' }
+const FailureSrc = { main: '/mascot/fail.webp' }
 
 const FailurePage: PageComponentType = () => {
     const intl = useIntl()

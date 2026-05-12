@@ -72,7 +72,7 @@ export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
                             <PropertiesTable id={id} environment={selectedEnvironment}/>
                         ) : (
                             <EmptySubSectionView
-                                dino='waiting'
+                                mascot='waiting'
                                 title={ManagementNotAvailableTitle}
                                 description={ManagementNotAvailableText}
                             />

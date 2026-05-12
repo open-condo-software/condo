@@ -8,7 +8,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
-const SrcUnsubscribe = { main: '/successDino.webp' }
+const SrcUnsubscribe = { main: '/mascot/success.webp' }
 
 const Unsubscribe: PageComponentType = () => {
     const intl = useIntl()

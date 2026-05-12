@@ -7,7 +7,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
-const Src429 = { main: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
+const Src429 = { main: '/mascot/fail.webp' }
 
 type Custom429Props = {
     resetTime: number

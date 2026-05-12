@@ -10,7 +10,7 @@ import { PosterLayout } from '@condo/domains/user/components/containers/PosterLa
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
-const Src404 = { main: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
+const Src404 = { main: '/mascot/fail.webp' }
 
 const Custom404: PageComponentType = () => {
     const intl = useIntl()

@@ -260,7 +260,6 @@ const TlsPagePoster: React.FC = (): JSX.Element => (
     <PosterWrapper>
         <Poster
             src='/mascot/searching.webp'
-            placeholderSrc='/404PosterPlaceholder.jpg'
             imageStyle={IMAGE_STYLE}
             imageWrapperStyle={IMAGE_WRAPPER_STYLE}
             posterContentStyle={POSTER_CONTENT_STYLE}

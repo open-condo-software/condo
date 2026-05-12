@@ -193,7 +193,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                 <StyledFocusContainer>
                     <Row gutter={[0, 32]} justify='center' align='middle'>
                         <Col>
-                            <img alt='progress-image' src='/progressDino.png' />
+                            <img alt='progress-image' src='/mascot/processing.webp' width={240} height={240} />
                         </Col>
                         <Col>
                             <Space size={16} direction='vertical'>
@@ -264,7 +264,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                 }
             >
                 <StyledFocusContainer>
-                    <img alt='success-image' src='/successDino.webp' />
+                    <img alt='success-image' src='/mascot/success.webp' width={240} height={240} />
                 </StyledFocusContainer>
             </SuccessModal>
             <ImportHelpModal />
