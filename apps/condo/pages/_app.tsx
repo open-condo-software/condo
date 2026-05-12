@@ -576,7 +576,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                             <ConnectedAppsWithIconsContextProvider>
                                                                 <CondoAppEventsHandler/>
                                                                 <SurveysProvider>
-                                                                    <SurveysQueue logo={<Logo />}/>
+                                                                    <SurveysQueue/>
                                                                     <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                         <RequiredAccess>
                                                                             <SubscriptionAccessGuard skipGuard={Component.isError}>
