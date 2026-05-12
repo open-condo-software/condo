@@ -29,8 +29,10 @@ export const CondoAppEventsHandler: FC = () => {
                         name: user?.name,
                         type: user?.type || STAFF,
                         role: employee?.role?.nameNonLocalized,
-                        'organization.features': employee?.organization?.features,
-                        'organization.id': employee?.organization?.id,
+                        organization: {
+                            id: employee?.organization?.id,
+                            features: employee?.organization?.features,
+                        },
                     }))
             } else {
                 analytics.reset()
