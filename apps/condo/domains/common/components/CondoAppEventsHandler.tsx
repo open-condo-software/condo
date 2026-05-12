@@ -10,6 +10,8 @@ import { STAFF } from '@condo/domains/user/constants/common'
 
 import { usePostMessageContext } from './PostMessageProvider'
 
+import { flattenObject } from '../utils/flattenObject'
+
 import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'
 
@@ -23,18 +25,19 @@ export const CondoAppEventsHandler: FC = () => {
         if (!userLoading) {
             if (user) {
                 // TODO DOMA-13100 get user data from props
-                analytics.identify(user.id, {
-                    name: user?.name,
-                    type: user?.type || STAFF,
-                    role: employee?.role?.nameNonLocalized,
-                    'organization.spp': employee.organization.features.includes(OrganizationFeature.Spp),
-                    'organization.id': employee?.organization?.id,
-                })
+                analytics.identify(user.id,
+                    flattenObject({
+                        name: user?.name,
+                        type: user?.type || STAFF,
+                        role: employee?.role?.nameNonLocalized,
+                        'organization.features': employee?.organization?.features,
+                        'organization.id': employee?.organization?.id,
+                    }))
             } else {
                 analytics.reset()
             }
         }
-    }, [userLoading, user, employee.organization?.id, employee?.role?.nameNonLocalized, employee.organization.features])
+    }, [userLoading, user, employee?.organization?.id, employee?.role?.nameNonLocalized, employee?.organization?.features])
 
     // Routing tracking
     useEffect(() => {

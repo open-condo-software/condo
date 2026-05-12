@@ -1,16 +1,17 @@
 import posthog, { type Survey } from 'posthog-js'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useSurveys } from '@open-condo/surveys'
+
 import { SurveyFullscreenModal } from './SurveyFullscreenModal'
 import { SurveyModal } from './SurveyModal'
-import { useSurveys } from './SurveysContext'
 
 
 type PostHogSurveysQueueProps = {
     logo?: React.ReactNode
 }
 
-export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = ({ logo }) => {
+export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
     const { isReady, getActiveMatchingSurveys, getSurveysLinkedFlagValue } = useSurveys()
 
     const [currentSurvey, setCurrentSurvey] = useState<Survey | null>(null)
@@ -80,7 +81,6 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = ({ logo }) => {
                 surveyId={currentSurvey.id}
                 open={true}
                 onClose={handleClose}
-                logo={logo}
             />
         )
     }

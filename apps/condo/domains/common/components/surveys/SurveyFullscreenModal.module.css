@@ -1,4 +1,4 @@
-.posthog-survey-fullscreen-overlay {
+.survey-fullscreen-overlay {
   position: fixed;
   top: 0;
   right: 0;
@@ -13,13 +13,13 @@
   background: #fff;
 }
 
-.posthog-survey-fullscreen-logo {
+.survey-fullscreen-logo {
   position: absolute;
   top: 24px;
   left: 24px;
 }
 
-.posthog-survey-fullscreen-modal {
+.survey-fullscreen-modal {
   max-width: 600px;
   padding: 40px;
 }

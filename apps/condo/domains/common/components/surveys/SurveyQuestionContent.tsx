@@ -17,8 +17,6 @@ type SurveyQuestionContentProps = {
 }
 
 export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ question, onStateChange }) => {
-    const OpenAnswerPlaceholder = 'Open answer'
-
     const [singleChoiceValue, setSingleChoiceValue] = useState<string>('')
     const [multipleChoiceValues, setMultipleChoiceValues] = useState<string[]>([])
     const [openTextValue, setOpenTextValue] = useState<string>('')
@@ -104,7 +102,6 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
                     <Input.TextArea
                         value={openTextValue}
                         onChange={(e) => setOpenTextValue(e.target.value)}
-                        placeholder={OpenAnswerPlaceholder}
                         rows={4}
                     />
                 )
@@ -128,7 +125,7 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
             default:
                 return null
         }
-    }, [question, singleChoiceValue, multipleChoiceValues, openTextValue, ratingValue, OpenAnswerPlaceholder])
+    }, [question, singleChoiceValue, multipleChoiceValues, openTextValue, ratingValue])
 
     return (
         <Space direction='vertical' size={24} width='100%'>

@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+import  { type SurveyResponse, useSurveys } from '@open-condo/surveys'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
 
 import { getSurveyQuestionValue, SurveyQuestionContent } from './SurveyQuestionContent'
-import { useSurveys } from './SurveysContext'
+import { useSurveyEvents } from './useSurveyEvents'
 
 import type { SurveyQuestionState } from './SurveyQuestionContent'
-import type { SurveyResponse } from './SurveysContext'
 import type { Survey } from 'posthog-js'
 
 type PostHogSurveyModalProps = {
@@ -22,13 +23,18 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
     onClose,
     extraEventData = {},
 }) => {
+    const intl = useIntl()
+    const BackButtonLabel = intl.formatMessage({ id: 'surveys.button.back' })
     const {
         isReady,
         getSurveyById,
+    } = useSurveys()
+
+    const {
         captureSurveyShown,
         captureSurveySent,
         captureSurveyDismissed,
-    } = useSurveys()
+    } = useSurveyEvents()
 
     const [survey, setSurvey] = useState<Survey | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -152,7 +158,7 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
                         type='secondary'
                         onClick={goToPreviousQuestion}
                     >
-                        Назад
+                        {BackButtonLabel}
                     </Button>
                 )}
                 <Button
@@ -160,11 +166,11 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
                     onClick={handleSubmit}
                     disabled={!questionState.isValid}
                 >
-                    {currentQuestion.buttonText || 'Отправить'}
+                    {currentQuestion.buttonText}
                 </Button>
             </Space>
         )
-    }, [currentQuestion, canGoBack, goToPreviousQuestion, handleSubmit, questionState.isValid])
+    }, [currentQuestion, canGoBack, goToPreviousQuestion, handleSubmit, questionState.isValid, BackButtonLabel])
 
     return (
         <Modal
@@ -177,7 +183,10 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
         >
             {survey && survey.questions.length > 1 && currentQuestionIndex !== 0 && (
                 <Typography.Paragraph type='secondary'>
-                    Вопрос {currentQuestionIndex + 1} из {survey.questions.length}
+                    {intl.formatMessage({ id: 'surveys.questionProgress' }, {
+                        current: currentQuestionIndex + 1,
+                        total: survey.questions.length,
+                    })}
                 </Typography.Paragraph>
             )}
 

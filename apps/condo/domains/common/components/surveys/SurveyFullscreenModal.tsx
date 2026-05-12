@@ -1,22 +1,24 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+import { type SurveyResponse, useSurveys } from '@open-condo/surveys'
 import { ActionBar, Button, Space, Typography } from '@open-condo/ui'
 
+import { Logo } from '@condo/domains/common/components/Logo'
+
+import styles from './SurveyFullscreenModal.module.css'
 import { getSurveyQuestionValue, SurveyQuestionContent } from './SurveyQuestionContent'
-import { useSurveys } from './SurveysContext'
+import { useSurveyEvents } from './useSurveyEvents'
 
 import type { SurveyQuestionState } from './SurveyQuestionContent'
-import type { SurveyResponse } from './SurveysContext'
 import type { Survey } from 'posthog-js'
 
-import './SurveyFullscreenModal.css'
 
 type PostHogSurveyFullscreenModalProps = {
     surveyId: string
     open: boolean
     onClose: () => void
     extraEventData?: Record<string, unknown>
-    logo?: React.ReactNode
 }
 
 export const SurveyFullscreenModal: React.FC<PostHogSurveyFullscreenModalProps> = ({
@@ -24,15 +26,20 @@ export const SurveyFullscreenModal: React.FC<PostHogSurveyFullscreenModalProps> 
     open,
     onClose,
     extraEventData = {},
-    logo,
 }) => {
+    const intl = useIntl()
+    const BackButtonLabel = intl.formatMessage({ id: 'surveys.button.back' })
+
     const {
         isReady,
         getSurveyById,
+    } = useSurveys()
+
+    const {
         captureSurveyShown,
         captureSurveySent,
         captureSurveyDismissed,
-    } = useSurveys()
+    } = useSurveyEvents()
 
     const [survey, setSurvey] = useState<Survey | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -151,19 +158,21 @@ export const SurveyFullscreenModal: React.FC<PostHogSurveyFullscreenModalProps> 
     if (!open) return null
 
     return (
-        <div className='posthog-survey-fullscreen-overlay'>
-            {logo && (
-                <div className='posthog-survey-fullscreen-logo'>
-                    {logo}
-                </div>
-            )}
-            <Space size={40} width='auto' direction='vertical' className='posthog-survey-fullscreen-modal'>
+        <div className={styles.surveyFullscreenOverlay}>
+            <div className={styles.surveyFullscreenLogo}>
+                <Logo/>
+            </div>
+            
+            <Space size={40} width='auto' direction='vertical' className={styles.surveyFullscreenModal}>
                 <Space size={24} direction='vertical'>
                     <Typography.Title level={2}>{modalTitle}</Typography.Title>
 
                     {survey && survey.questions.length > 1 && currentQuestionIndex !== 0 && (
                         <Typography.Paragraph type='secondary'>
-                            Вопрос {currentQuestionIndex + 1} из {survey.questions.length}
+                            {intl.formatMessage({ id: 'surveys.questionProgress' }, {
+                                current: currentQuestionIndex + 1,
+                                total: survey.questions.length,
+                            })}
                         </Typography.Paragraph>
                     )}
                 </Space>
@@ -184,7 +193,7 @@ export const SurveyFullscreenModal: React.FC<PostHogSurveyFullscreenModalProps> 
                                         type='secondary'
                                         onClick={goToPreviousQuestion}
                                     >
-                                        Назад
+                                        {BackButtonLabel}
                                     </Button>
                                 )}
                                 <Button
