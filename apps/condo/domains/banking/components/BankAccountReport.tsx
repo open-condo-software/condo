@@ -285,7 +285,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         })
     }, [chartData, intl, currencyCode, onMouseLeave, onMouseOver])
     const emptyPlaceholder = useMemo(() => (
-        <BasicEmptyListView image='/dino/searching@2x.png'>
+        <BasicEmptyListView image='/mascot/searching.webp'>
             <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
         </BasicEmptyListView>
     ), [NoDataTitle])
@@ -431,7 +431,7 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
             <Col span={24}>
                 {isEmpty(sortedBankAccountReports)
                     ? (
-                        <BasicEmptyListView image='/dino/searching@2x.png'>
+                        <BasicEmptyListView image='/mascot/searching.webp'>
                             <Space size={16} direction='vertical'>
                                 <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
                                 {canManageBankAccountReportTasks && (

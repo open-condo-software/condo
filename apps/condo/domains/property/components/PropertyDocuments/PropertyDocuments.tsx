@@ -181,7 +181,7 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
                             {AddDocumentMessage}
                         </Button>
                     )}
-                    image='/dino/searching@2x.png'
+                    image='/mascot/searching.webp'
                 />
                 <UploadDocumentsModal
                     initialCreateDocumentValue={initialCreateDocumentValue}

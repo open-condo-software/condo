@@ -9,7 +9,7 @@ import styles from './styles.module.css'
 import { PosterLayout } from '../containers/PosterLayout'
 
 
-const SUCCESSFUL_IMAGE_SRC = { main: '/dino/success@2x.png', placeholder: '/dino/success.png' }
+const SUCCESSFUL_IMAGE_SRC = { main: '/mascot/success.webp' }
 
 type SuccessfulEmailVerificationPosterProps = {
     onContinueClick: () => Promise<void>

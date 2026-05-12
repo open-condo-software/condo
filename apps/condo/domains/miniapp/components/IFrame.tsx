@@ -23,7 +23,7 @@ const DEFAULT_FRAME_HEIGHT = 700
 
 const EMPTY_LIST_PROPS: IBasicEmptyListProps = {
     spaceSize: 16,
-    image: '/dino/waiting@2x.png',
+    image: '/mascot/waiting.webp',
     imageStyle: { marginBottom: 20 },
 }
 

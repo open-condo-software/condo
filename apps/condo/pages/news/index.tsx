@@ -165,7 +165,7 @@ const NewsPageContent = ({
     if (propertiesCount === 0 && newsWithoutFiltersCount === 0) {
         return (
             <EmptyListContent
-                image='/dino/playing@2x.png'
+                image='/mascot/playing.webp'
                 label={PropertyGateLabel}
                 message={PropertyGateMessage}
                 createRoute='/property/create?next=/news&skipTourModal=true'

@@ -61,7 +61,7 @@ export const UserMessagesList: React.FC<UserMessagesListProps> = ({ disabled, Me
     useNewMessageTitleNotification(unreadMessages?.length, unreadMessages?.[0]?.createdAt)
 
     const emptyPlaceholder = useMemo(() => (
-        <BasicEmptyListView image='/dino/searching@2x.png'>
+        <BasicEmptyListView image='/mascot/searching.webp'>
             <Typography.Title level={5}>{EmptyListMessage}</Typography.Title>
         </BasicEmptyListView>
     ), [EmptyListMessage])
