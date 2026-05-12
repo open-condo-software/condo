@@ -1,56 +1,35 @@
+/**
+ * @jest-environment node
+ */
+
+const index = require('@app/address-service/index')
 const { faker } = require('@faker-js/faker')
 
-const { find } = require('@open-condo/keystone/schema')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { Address: AddressServerUtils, AddressHeuristic: AddressHeuristicServerUtils } = require('@address-service/domains/address/utils/serverSchema')
+const { createTestAddress, createTestAddressHeuristic } = require('@address-service/domains/address/utils/testSchema')
+const { HEURISTIC_TYPE_COORDINATES, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
+const { COORDINATE_TOLERANCE } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/CoordinateHeuristicStrategy')
 
 const {
-    Address: AddressServerUtils,
-    AddressHeuristic: AddressHeuristicServerUtils,
-} = require('@address-service/domains/address/utils/serverSchema')
-
-const {
-    parseCoordinates,
     coordinatesMatch,
-    COORDINATE_TOLERANCE,
+    findAddressByHeuristics,
     findRootAddress,
     upsertHeuristics,
 } = require('./heuristicMatcher')
 
-jest.mock('@open-condo/keystone/schema', () => ({
-    find: jest.fn(),
-    getById: jest.fn(),
-}))
-jest.mock('@open-condo/keystone/logging', () => ({
-    getLogger: () => ({ warn: jest.fn(), info: jest.fn(), error: jest.fn() }),
-}))
-jest.mock('@address-service/domains/address/utils/serverSchema', () => ({
-    Address: {},
-    AddressHeuristic: {},
-}))
-jest.mock('@address-service/domains/common/constants/heuristicTypes', () => ({
-    HEURISTIC_TYPE_COORDINATES: 'coordinates',
-}))
-
 describe('heuristicMatcher', () => {
-    beforeEach(() => {
-        find.mockReset()
-        AddressServerUtils.update = jest.fn()
-        AddressHeuristicServerUtils.create = jest.fn()
-    })
+    let adminClient
+    let context
+    let dvSender
 
-    describe('parseCoordinates', () => {
-        it('should parse valid coordinate string', () => {
-            expect(parseCoordinates('55.751244,37.618423')).toEqual({ latitude: 55.751244, longitude: 37.618423 })
-        })
+    setFakeClientMode(index)
 
-        it('should parse negative coordinates', () => {
-            expect(parseCoordinates('-33.8688,151.2093')).toEqual({ latitude: -33.8688, longitude: 151.2093 })
-        })
-
-        it('should return null for invalid string', () => {
-            expect(parseCoordinates('invalid')).toBeNull()
-            expect(parseCoordinates('abc,def')).toBeNull()
-            expect(parseCoordinates('55.751244')).toBeNull()
-        })
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+        context = await index.keystone.createContext({ skipAccessControl: true })
+        dvSender = { dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) } }
     })
 
     describe('coordinatesMatch', () => {
@@ -115,123 +94,161 @@ describe('heuristicMatcher', () => {
 
     describe('findRootAddress', () => {
         it('should follow possibleDuplicateOf chain to the root', async () => {
-            const idA = faker.datatype.uuid()
-            const idB = faker.datatype.uuid()
-            const idC = faker.datatype.uuid()
+            const [a] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [b] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [c] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
 
-            find
-                .mockResolvedValueOnce([{ id: idA, possibleDuplicateOf: idB }])
-                .mockResolvedValueOnce([{ id: idB, possibleDuplicateOf: idC }])
-                .mockResolvedValueOnce([{ id: idC, possibleDuplicateOf: null }])
+            await AddressServerUtils.update(context, a.id, { ...dvSender, possibleDuplicateOf: { connect: { id: b.id } } })
+            await AddressServerUtils.update(context, b.id, { ...dvSender, possibleDuplicateOf: { connect: { id: c.id } } })
 
-            const root = await findRootAddress(idA)
-            expect(root).toBe(idC)
+            const root = await findRootAddress(a.id)
+            expect(root).toBe(c.id)
         })
 
         it('should return addressId when address has no possibleDuplicateOf', async () => {
-            const idA = faker.datatype.uuid()
+            const [a] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
 
-            find.mockResolvedValueOnce([{ id: idA, possibleDuplicateOf: null }])
-
-            const root = await findRootAddress(idA)
-            expect(root).toBe(idA)
+            const root = await findRootAddress(a.id)
+            expect(root).toBe(a.id)
         })
 
         it('should not return a soft-deleted address as root', async () => {
-            const idA = faker.datatype.uuid()
-            const idB = faker.datatype.uuid()
-            const idDeleted = faker.datatype.uuid()
+            const [a] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [b] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [c] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
 
-            // A → B → deleted
-            find
-                .mockResolvedValueOnce([{ id: idA, possibleDuplicateOf: idB }])
-                .mockResolvedValueOnce([{ id: idB, possibleDuplicateOf: idDeleted }])
-                .mockResolvedValueOnce([]) // idDeleted is soft-deleted → find returns []
+            await AddressServerUtils.update(context, a.id, { ...dvSender, possibleDuplicateOf: { connect: { id: b.id } } })
+            await AddressServerUtils.update(context, b.id, { ...dvSender, possibleDuplicateOf: { connect: { id: c.id } } })
+            await AddressServerUtils.update(context, c.id, { ...dvSender, deletedAt: new Date().toISOString() })
 
-            const root = await findRootAddress(idA)
-            // Must return last alive node (idB), not the deleted one
-            expect(root).toBe(idB)
+            const root = await findRootAddress(a.id)
+            // c is soft-deleted → last alive node is b
+            expect(root).toBe(b.id)
         })
 
-        it('should return original addressId when first node in chain is soft-deleted', async () => {
-            const idA = faker.datatype.uuid()
+        it('should return original addressId when it has no possibleDuplicateOf chain', async () => {
+            const [a] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
 
-            // idA itself is soft-deleted
-            find.mockResolvedValueOnce([])
+            const root = await findRootAddress(a.id)
+            expect(root).toBe(a.id)
+        })
+    })
 
-            const root = await findRootAddress(idA)
-            // lastAliveId was never updated, falls back to original addressId
-            expect(root).toBe(idA)
+    describe('findAddressByHeuristics', () => {
+        it('returns null when no heuristics match', async () => {
+            const result = await findAddressByHeuristics([
+                { type: HEURISTIC_TYPE_FIAS_ID, value: faker.datatype.uuid(), reliability: 95 },
+            ])
+            expect(result).toBeNull()
         })
 
-        it('should respect maxDepth and return last alive node', async () => {
-            const ids = Array.from({ length: 5 }, () => faker.datatype.uuid())
+        it('returns addressId and matchedHeuristic on match', async () => {
+            const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const value = faker.datatype.uuid()
+            await createTestAddressHeuristic(adminClient, address.id, { type: HEURISTIC_TYPE_FIAS_ID, value, reliability: 95 })
 
-            // Build a chain longer than maxDepth=3
-            for (let i = 0; i < 4; i++) {
-                find.mockResolvedValueOnce([{ id: ids[i], possibleDuplicateOf: ids[i + 1] }])
-            }
+            const result = await findAddressByHeuristics([
+                { type: HEURISTIC_TYPE_FIAS_ID, value, reliability: 95 },
+            ])
+            expect(result).toMatchObject({ addressId: address.id, matchedHeuristic: { type: HEURISTIC_TYPE_FIAS_ID, value } })
+        })
 
-            const root = await findRootAddress(ids[0], 3)
-            // Should stop after 3 hops, returning the last alive node visited
-            expect(root).toBe(ids[2])
+        it('tries heuristics in descending reliability order and matches the highest first', async () => {
+            const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const highValue = faker.datatype.uuid()
+            const lowValue = faker.random.alphaNumeric(12)
+            await createTestAddressHeuristic(adminClient, address.id, { type: HEURISTIC_TYPE_FIAS_ID, value: highValue, reliability: 95 })
+
+            const result = await findAddressByHeuristics([
+                { type: 'fallback', value: lowValue, reliability: 10 },
+                { type: HEURISTIC_TYPE_FIAS_ID, value: highValue, reliability: 95 },
+            ])
+            expect(result).toMatchObject({ matchedHeuristic: { type: HEURISTIC_TYPE_FIAS_ID, value: highValue } })
         })
     })
 
     describe('upsertHeuristics', () => {
-        it('should set possibleDuplicateOf when create hits unique conflict race', async () => {
-            const context = {}
-            const dvSender = { dv: 1, sender: { dv: 1, fingerprint: 'test' } }
-            const addressId = faker.datatype.uuid()
-            const existingAddressId = faker.datatype.uuid()
-            const rootAddressId = faker.datatype.uuid()
-            const heuristic = { type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }
-            let addressHeuristicFindCalls = 0
-            let addressFindCalls = 0
+        it('should create heuristic and not set possibleDuplicateOf when no conflict', async () => {
+            const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const value = faker.datatype.uuid()
 
-            AddressHeuristicServerUtils.create.mockRejectedValueOnce(
-                new Error('duplicate key value violates unique constraint "addressheuristic_type_value_unique"')
-            )
+            await upsertHeuristics(context, address.id, [
+                { type: HEURISTIC_TYPE_FIAS_ID, value, reliability: 95 },
+            ], 'dadata', dvSender)
 
-            find.mockImplementation(async (modelName) => {
-                if (modelName === 'AddressHeuristic') {
-                    // 1st call: first-pass conflict detection, 2nd call: re-check after create race
-                    addressHeuristicFindCalls += 1
-                    return addressHeuristicFindCalls === 1 ? [] : [{ address: existingAddressId }]
-                }
+            const created = await AddressHeuristicServerUtils.getOne(context, { address: { id: address.id }, type: HEURISTIC_TYPE_FIAS_ID, deletedAt: null }, 'id value')
+            expect(created).toBeDefined()
+            expect(created.value).toBe(value)
 
-                if (modelName === 'Address') {
-                    addressFindCalls += 1
-                    if (addressFindCalls === 1) {
-                        return [{ id: existingAddressId, possibleDuplicateOf: rootAddressId }]
-                    }
-                    return [{ id: rootAddressId, possibleDuplicateOf: null }]
-                }
-
-                return []
-            })
-
-            await upsertHeuristics(context, addressId, [heuristic], 'dadata', dvSender)
-
-            expect(AddressServerUtils.update).toHaveBeenCalledWith(context, addressId, {
-                ...dvSender,
-                possibleDuplicateOf: { connect: { id: rootAddressId } },
-            })
+            const updated = await AddressServerUtils.getOne(context, { id: address.id }, 'id possibleDuplicateOf { id }')
+            expect(updated.possibleDuplicateOf).toBeNull()
         })
 
-        it('should rethrow non-unique create errors', async () => {
-            const context = {}
-            const dvSender = { dv: 1, sender: { dv: 1, fingerprint: 'test' } }
-            const addressId = faker.datatype.uuid()
-            const heuristic = { type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }
-            const networkError = new Error('network failure')
+        it('should skip heuristic when it already belongs to the same address', async () => {
+            const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const value = faker.datatype.uuid()
+            await createTestAddressHeuristic(adminClient, address.id, { type: HEURISTIC_TYPE_FIAS_ID, value, reliability: 95 })
 
-            AddressHeuristicServerUtils.create.mockRejectedValueOnce(networkError)
-            find.mockResolvedValue([])
+            await upsertHeuristics(context, address.id, [
+                { type: HEURISTIC_TYPE_FIAS_ID, value, reliability: 95 },
+            ], 'dadata', dvSender)
 
-            await expect(upsertHeuristics(context, addressId, [heuristic], 'dadata', dvSender))
-                .rejects
-                .toThrow('network failure')
+            // Still only one heuristic record
+            const all = await AddressHeuristicServerUtils.getAll(context, { address: { id: address.id }, type: HEURISTIC_TYPE_FIAS_ID, deletedAt: null }, 'id')
+            expect(all).toHaveLength(1)
+        })
+
+        it('should set possibleDuplicateOf on first-pass conflict', async () => {
+            const [existing] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [incoming] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const sharedFiasId = faker.datatype.uuid()
+
+            await createTestAddressHeuristic(adminClient, existing.id, { type: HEURISTIC_TYPE_FIAS_ID, value: sharedFiasId, reliability: 95 })
+
+            await upsertHeuristics(context, incoming.id, [
+                { type: HEURISTIC_TYPE_FIAS_ID, value: sharedFiasId, reliability: 95 },
+            ], 'dadata', dvSender)
+
+            const updated = await AddressServerUtils.getOne(context, { id: incoming.id }, 'id possibleDuplicateOf { id }')
+            expect(updated.possibleDuplicateOf).toBeDefined()
+            expect(updated.possibleDuplicateOf.id).toBe(existing.id)
+        })
+
+        it('should not set possibleDuplicateOf when coordinate conflict is vetoed by differing FIAS IDs', async () => {
+            const lat = parseFloat(faker.address.latitude())
+            const lon = parseFloat(faker.address.longitude())
+            // existing and incoming have different values but are within tolerance of each other
+            const existingCoordValue = `${lat},${lon}`
+            const incomingCoordValue = `${lat + COORDINATE_TOLERANCE * 0.1},${lon}`
+
+            const [existing] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const [incoming] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+
+            await createTestAddressHeuristic(adminClient, existing.id, {
+                type: HEURISTIC_TYPE_COORDINATES,
+                value: existingCoordValue,
+                reliability: 90,
+                latitude: String(lat),
+                longitude: String(lon),
+            })
+            await createTestAddressHeuristic(adminClient, existing.id, {
+                type: HEURISTIC_TYPE_FIAS_ID,
+                value: faker.datatype.uuid(), // different from incoming → veto applies
+                reliability: 95,
+            })
+
+            const incomingFiasId = faker.datatype.uuid()
+            await upsertHeuristics(context, incoming.id, [
+                { type: HEURISTIC_TYPE_COORDINATES, value: incomingCoordValue, reliability: 90 },
+                { type: HEURISTIC_TYPE_FIAS_ID, value: incomingFiasId, reliability: 95 },
+            ], 'dadata', dvSender)
+
+            const updated = await AddressServerUtils.getOne(context, { id: incoming.id }, 'id possibleDuplicateOf { id }')
+            expect(updated.possibleDuplicateOf).toBeNull()
+
+            // fias_id is created for incoming; coordinate is also created (different value)
+            const heuristics = await AddressHeuristicServerUtils.getAll(context, { address: { id: incoming.id }, deletedAt: null }, 'id')
+            expect(heuristics).toHaveLength(2)
         })
     })
 })

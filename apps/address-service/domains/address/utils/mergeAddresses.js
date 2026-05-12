@@ -1,13 +1,16 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getById } = require('@open-condo/keystone/schema')
 
+const { ensureCoordinateHeuristic } = require('@address-service/domains/address/utils/ensureCoordinateHeuristic')
 const { Address, AddressHeuristic, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { HEURISTIC_TYPE_COORDINATES } = require('@address-service/domains/common/constants/heuristicTypes')
 
 const logger = getLogger('mergeAddresses')
 
 /**
- * Merge two addresses: move all AddressSource and AddressHeuristic records
- * from the loser to the winner, then soft-delete the loser.
+ * Merge two addresses: move all AddressSource and non-coordinate AddressHeuristic
+ * records from the loser to the winner, soft-delete coordinate heuristics on the
+ * loser (the winner's coordinates are re-derived from its own meta), then soft-delete the loser.
  *
  * @param {Object} context - Keystone context
  * @param {string} winnerId - The address that survives
@@ -42,15 +45,32 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
     }
 
     // Move AddressHeuristic records from loser → winner.
-    // The unique constraint on (type, value) WHERE deletedAt IS NULL guarantees
-    // no other non-deleted row exists with the same pair, so reconnect is always safe.
+    // Coordinate heuristics are handled separately: instead of blindly moving the loser's
+    // coordinates, we ensure the winner ends up with coordinates derived from its own
+    // provider data (applying the same quality rules used at ingestion time).
     const loserHeuristics = await find('AddressHeuristic', { address: { id: loserId }, deletedAt: null })
+    const winner = await getById('Address', winnerId)
+
     for (const heuristic of loserHeuristics) {
+        if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
+            // Always soft-delete the loser's coordinate heuristic — the winner gets
+            // a fresh one extracted from its own meta (see below), or already has one.
+            await AddressHeuristic.update(context, heuristic.id, {
+                ...dvSender,
+                deletedAt: new Date().toISOString(),
+            })
+            continue
+        }
+
         await AddressHeuristic.update(context, heuristic.id, {
             ...dvSender,
             address: { connect: { id: winnerId } },
         })
     }
+
+    // Ensure winner has a coordinate heuristic.
+    // ensureCoordinateHeuristic is a no-op if one already exists.
+    await ensureCoordinateHeuristic(context, winner, dvSender)
 
     // Soft-delete the loser
     await Address.update(context, loserId, {
@@ -60,7 +80,6 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
     })
 
     // Clear possibleDuplicateOf on the winner (if set)
-    const winner = await getById('Address', winnerId)
     if (winner && winner.possibleDuplicateOf) {
         await Address.update(context, winnerId, {
             ...dvSender,
@@ -68,7 +87,8 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
         })
     }
 
-    logger.info({ msg: 'Merged addresses', data: { winnerId, loserId, movedSources: loserSources.length, movedHeuristics: loserHeuristics.length } })
+    const movedHeuristics = loserHeuristics.filter((h) => h.type !== HEURISTIC_TYPE_COORDINATES).length
+    logger.info({ msg: 'Merged addresses', data: { winnerId, loserId, movedSources: loserSources, movedHeuristics } })
 }
 
 module.exports = {

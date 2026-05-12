@@ -11,13 +11,16 @@ const {
     generateGQLTestUtils, throwIfError,
 } = require('@open-condo/codegen/generate.test.utils')
 
-const { Address: AddressGQL } = require('@address-service/domains/address/gql')
-const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
-const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const {
+    Address: AddressGQL,
+    AddressHeuristic: AddressHeuristicGQL,
+    AddressInjection: AddressInjectionGQL,
     AddressSource: AddressSourceGQL,
     ACTUALIZE_ADDRESSES_MUTATION,
 } = require('@address-service/domains/address/gql')
+const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
+const { HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
+const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 if (conf.DEFAULT_LOCALE) {
@@ -25,6 +28,7 @@ if (conf.DEFAULT_LOCALE) {
 }
 
 const Address = generateGQLTestUtils(AddressGQL)
+const AddressHeuristic = generateGQLTestUtils(AddressHeuristicGQL)
 const AddressInjection = generateGQLTestUtils(AddressInjectionGQL)
 const AddressSource = generateGQLTestUtils(AddressSourceGQL)
 
@@ -207,12 +211,33 @@ function buildAddressModelData (searchResult, addressKey, searchProviderName, ra
     }
 }
 
+async function createTestAddressHeuristic (client, addressId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        address: { connect: { id: addressId } },
+        type: HEURISTIC_TYPE_FIAS_ID,
+        value: faker.datatype.uuid(),
+        reliability: 95,
+        provider: DADATA_PROVIDER,
+        enabled: true,
+        ...extraAttrs,
+    }
+    const obj = await AddressHeuristic.create(client, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Address,
     createTestAddress,
     updateTestAddress,
+    AddressHeuristic,
+    createTestAddressHeuristic,
     AddressInjection,
     createTestAddressInjection,
     updateTestAddressInjection,

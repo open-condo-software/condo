@@ -3,6 +3,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/ResolveAddressDuplicateService')
+const { ensureCoordinateHeuristic } = require('@address-service/domains/address/utils/ensureCoordinateHeuristic')
 const { mergeAddresses } = require('@address-service/domains/address/utils/mergeAddresses')
 const { Address } = require('@address-service/domains/address/utils/serverSchema')
 
@@ -100,6 +101,10 @@ const ResolveAddressDuplicateService = new GQLCustomSchema('ResolveAddressDuplic
                         ...dvSender,
                         possibleDuplicateOf: { disconnectAll: true },
                     })
+
+                    // The dismissed address may have been missing heuristics (flagged as
+                    // a duplicate before they were created). Re-derive them from its meta.
+                    await ensureCoordinateHeuristic(context, address, dvSender)
 
                     logger.info({ msg: 'Dismissed duplicate', data: { addressId } })
                     return { status: 'dismissed' }
