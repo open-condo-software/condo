@@ -1,8 +1,12 @@
 const { HEURISTIC_TYPE_COORDINATES } = require('@address-service/domains/common/constants/heuristicTypes')
-const { getHeuristicStrategy } = require('@address-service/domains/common/utils/services/search/heuristicStrategies')
-const { AbstractHeuristicStrategy } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/AbstractHeuristicStrategy')
-const { CoordinateHeuristicStrategy, COORDINATE_TOLERANCE, parseCoordinates } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/CoordinateHeuristicStrategy')
-const { ExactHeuristicStrategy } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/ExactHeuristicStrategy')
+const {
+    getHeuristicStrategy,
+    AbstractHeuristicStrategy,
+    CoordinateHeuristicStrategy,
+    ExactHeuristicStrategy,
+    COORDINATE_TOLERANCE,
+    parseCoordinates,
+} = require('@address-service/domains/common/utils/services/search/heuristicStrategies')
 
 describe('heuristicStrategies/index', () => {
 
