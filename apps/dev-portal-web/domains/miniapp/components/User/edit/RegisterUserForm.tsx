@@ -33,7 +33,7 @@ export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environm
     return (
         <>
             <EmptySubSectionView
-                dino='searching'
+                image='/mascot/searching.webp'
                 title={NoUserMessage}
                 description={NoUserDescription}
                 actions={[

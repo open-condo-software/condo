@@ -9,7 +9,7 @@ import { EmptyListContent } from '@condo/domains/common/components/EmptyListCont
 import { Loader } from '@condo/domains/common/components/Loader'
 
 
-const SEARCHING_DINO_IMG = '/dino/searching@2x.png'
+const SEARCHING_DINO_IMG = '/mascot/searching.webp'
 
 const PaymentsFiles = (): JSX.Element => {
     const intl = useIntl()

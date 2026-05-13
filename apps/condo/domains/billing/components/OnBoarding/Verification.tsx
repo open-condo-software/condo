@@ -86,7 +86,7 @@ export const Verification: React.FC = () => {
 
     return (
         <BasicEmptyListView
-            image='/dino/processing@2x.png'
+            image='/mascot/processing.webp'
             spaceSize={16}
             imageStyle={IMAGE_STYLES}
         >

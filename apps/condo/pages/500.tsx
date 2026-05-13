@@ -8,7 +8,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
-const Src500 = { main: '/500Poster.webp', placeholder: '/500PosterPlaceholder.jpg' }
+const Src500 = { main: '/mascot/fail.webp' }
 
 const Custom500: PageComponentType = () => {
     const intl = useIntl()

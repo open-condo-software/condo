@@ -15,7 +15,7 @@ type EmptyViewProps = {
 export const EmptyView: React.FC<EmptyViewProps> = ({ title, description, actionLabel, onAction }) => {
     return (
         <Empty
-            image='/dino/searching@2x.png'
+            image='/mascot/searching.webp'
             className={styles.emptyView}
             description={null}
         >

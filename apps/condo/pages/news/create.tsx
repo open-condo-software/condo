@@ -41,7 +41,7 @@ const CreateNewsPageContent: React.FC<ICreateNewsPageContentProps> = ({ properti
                         <NewsForm actionName='create'/>
                         :
                         <EmptyListContent
-                            image='/dino/playing@2x.png'
+                            image='/mascot/playing.webp'
                             label={PropertyGateLabel}
                             message={PropertyGateMessage}
                             createRoute='/property/create?next=/news/create&skipTourModal=true'

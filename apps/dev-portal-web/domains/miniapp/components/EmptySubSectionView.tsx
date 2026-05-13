@@ -10,14 +10,14 @@ const IMG_SIZE = 160
 const IMAGE_STYLES: CSSProperties = { height: IMG_SIZE }
 
 type EmptySubSectionViewProps = {
-    dino: 'waiting' | 'searching'
+    image: string
     title?: string
     description?: string
     actions?: Array<React.ReactElement>
 }
 
 export const EmptySubSectionView: React.FC<EmptySubSectionViewProps> = ({
-    dino,
+    image,
     title,
     description,
     actions,
@@ -25,7 +25,7 @@ export const EmptySubSectionView: React.FC<EmptySubSectionViewProps> = ({
     return (
         <Empty
             image={
-                <Image src={`/dino/${dino}@2x.png`} alt='Dinosaur waiting' width={IMG_SIZE} height={IMG_SIZE} draggable={false} className={styles.image}/>
+                <Image src={image} alt='Mascot' width={IMG_SIZE} height={IMG_SIZE} draggable={false} className={styles.image}/>
             }
             imageStyle={IMAGE_STYLES}
             description={null}

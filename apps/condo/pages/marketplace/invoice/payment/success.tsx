@@ -10,7 +10,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
-const SuccessSrc = { main: '/successDino.webp' }
+const SuccessSrc = { main: '/mascot/success.webp' }
 
 const { publicRuntimeConfig:{ condoRBDomain } } = getConfig()
 

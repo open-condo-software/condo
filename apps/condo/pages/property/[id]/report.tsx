@@ -75,8 +75,8 @@ const DATE_DISPLAY_FORMAT: FormatDateOptions = {
     minute: 'numeric',
 }
 const SBBOL_SYNC_CALLBACK_QUERY = 'sbbol-sync-callback'
-const EMPTY_IMAGE_PATH = '/dino/searching@2x.png'
-const PROCESSING_IMAGE_PATH = '/dino/processing@2x.png'
+const EMPTY_IMAGE_PATH = '/mascot/searching.webp'
+const PROCESSING_IMAGE_PATH = '/mascot/processing.webp'
 
 type BaseBankReportProps = {
     bankAccount: BankAccountType

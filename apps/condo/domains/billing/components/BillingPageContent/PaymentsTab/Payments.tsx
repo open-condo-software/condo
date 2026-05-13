@@ -10,7 +10,7 @@ import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-const SEARCHING_DINO_IMG = '/dino/searching@2x.png'
+const SEARCHING_DINO_IMG = '/mascot/searching.webp'
 
 const Payments = (): JSX.Element => {
     const intl = useIntl()

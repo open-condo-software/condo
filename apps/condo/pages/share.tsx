@@ -211,7 +211,7 @@ export const getServerSideProps = ({ query, res }) => {
     }
 }
 
-const SrcAuthPoster = { main: '/authPoster.webp', placeholder: '/authPosterPlaceholder.jpg' }
+const SrcAuthPoster = { main: '/mascot/welcome.webp' }
 
 const ShareLayout = (props): React.ReactElement => <PosterLayout
     {...props}

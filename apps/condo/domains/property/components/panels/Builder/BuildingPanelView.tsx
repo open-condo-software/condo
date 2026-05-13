@@ -105,7 +105,7 @@ const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading,
                 </Col>
             )}
             {(!contactsLoading && Array.isArray(contacts) && contacts.length === 0) && (
-                <BasicEmptyListView spaceSize={16} image='/dino/searching@2x.png'>
+                <BasicEmptyListView spaceSize={16} image='/mascot/searching.webp'>
                     <Space align='center' direction='vertical' size={8}>
                         <Typography.Title level={3}>{NoContactsTitleMessage}</Typography.Title>
                         <Typography.Text type='secondary'>{NoContactsSubtitleMessage}</Typography.Text>

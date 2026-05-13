@@ -14,8 +14,8 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 
 const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16
-const ERROR_DINO_IMG = '/dino/fail@2x.png'
-const SEARCHING_DINO_IMG = '/dino/searching@2x.png'
+const ERROR_MASCOT_IMG = '/mascot/fail.webp'
+const SEARCHING_MASCOT_IMG = '/mascot/searching.webp'
 const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 
 type EmptyContentProps = {
@@ -41,14 +41,14 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
 
     const title = currentProblem ? get(currentProblem, 'title', '') : NoReceiptsTitle
     const message = currentProblem ? get(currentProblem, 'message', '') : connectedMessage
-    const dinoImg = currentProblem ? ERROR_DINO_IMG : SEARCHING_DINO_IMG
+    const mascotImg = currentProblem ? ERROR_MASCOT_IMG : SEARCHING_MASCOT_IMG
 
     if (connectedUrl && !connectedMessage) {
         return <IFrame src={connectedUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>
     }
 
     return (
-        <BasicEmptyListView spaceSize={BLOCK_GAP} image={dinoImg} imageStyle={IMG_STYLES}>
+        <BasicEmptyListView spaceSize={BLOCK_GAP} image={mascotImg} imageStyle={IMG_STYLES}>
             <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
                 <Typography.Title level={3}>{title}</Typography.Title>
                 {Boolean(message) && (

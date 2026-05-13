@@ -24,7 +24,7 @@ const Poster: React.FC<PosterProps> = ({ Footer, Header, image }) => {
             <div className={styles.commonLayoutImage}>
                 {/* TODO: migrate to something more up to date */}
                 {/* @ts-expect-error children is not defined in package type defs*/}
-                <ProgressiveImage src={image.main} placeholder={image?.placeholder}>
+                <ProgressiveImage src={image.main} placeholder={image?.placeholder ?? image.main}>
                     {(src) => (
                         <Image src={src} preview={false} />
                     )}
