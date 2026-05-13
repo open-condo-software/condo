@@ -25,10 +25,26 @@
 .welcome-message {
   display: flex;
   flex: 1;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.welcome-message-legacy {
   align-items: center;
   justify-content: center;
-  min-height: 200px;
   text-align: center;
+}
+
+.welcome-message-configured {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 4px;
+  text-align: left;
+}
+
+.scenario-button-tooltip-wrap {
+  display: inline-block;
+  max-width: 100%;
 }
 
 .message-wrapper {
@@ -63,8 +79,19 @@
 
 .user-message-container {
   display: flex;
+  gap: 4px;
+  align-items: center;
   justify-content: flex-end;
   max-width: 100%;
+}
+
+.user-message-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.message-wrapper:hover .user-message-actions {
+  opacity: 1;
 }
 
 .user-message-bubble {
@@ -84,8 +111,23 @@
 
 .assistant-message-container {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
   justify-content: flex-start;
   max-width: 100%;
+}
+
+.assistant-message-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.assistant-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .assistant-markdown {

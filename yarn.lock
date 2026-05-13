@@ -821,6 +821,7 @@ __metadata:
     cross-env: ^7.0.3
     csv-stringify: ^6.2.0
     dayjs: ^1.11.10
+    docx: ^9.6.1
     echarts: ^5.1.2
     echarts-for-react: 3.0.2
     encoding: ^0.1.0
@@ -16611,6 +16612,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^25.2.3":
+  version: 25.6.0
+  resolution: "@types/node@npm:25.6.0"
+  dependencies:
+    undici-types: ~7.19.0
+  checksum: 98945eb59909a08868ccac203022f122b5549448ef8628de9eac3fe20481467cd6ec32af819fd432695f67ac21ebbbc69c8a141de6c6455edaf6e717e2cb89c9
+  languageName: node
+  linkType: hard
+
 "@types/normalize-package-data@npm:^2.4.0":
   version: 2.4.1
   resolution: "@types/normalize-package-data@npm:2.4.1"
@@ -23721,6 +23731,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"docx@npm:^9.6.1":
+  version: 9.6.1
+  resolution: "docx@npm:9.6.1"
+  dependencies:
+    "@types/node": ^25.2.3
+    hash.js: ^1.1.7
+    jszip: ^3.10.1
+    nanoid: ^5.1.3
+    xml: ^1.0.1
+    xml-js: ^1.6.8
+  checksum: af9f5b3d8f4974d6d629dfe7848a7ba3e4fe3e334ed727cfe5f4f8ae6a34501a4d5e9c8a150ed7c0324daaa83bd5cfc2232a2d5af18b9119df1d0f5de7105c22
+  languageName: node
+  linkType: hard
+
 "dom-accessibility-api@npm:^0.6.3":
   version: 0.6.3
   resolution: "dom-accessibility-api@npm:0.6.3"
@@ -28370,6 +28394,16 @@ __metadata:
   version: 6.0.1
   resolution: "hash-it@npm:6.0.1"
   checksum: b919283cf6511ebf9a589f53ce9686edff8ba45723b785036a049989ebe7dd48bdc4cc9e3df79789e7d04c1c45dc7be32f6d7713b076898971396811d4496fa0
+  languageName: node
+  linkType: hard
+
+"hash.js@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "hash.js@npm:1.1.7"
+  dependencies:
+    inherits: ^2.0.3
+    minimalistic-assert: ^1.0.1
+  checksum: e350096e659c62422b85fa508e4b3669017311aa4c49b74f19f8e1bc7f3a54a584fdfd45326d4964d6011f2b2d882e38bea775a96046f2a61b7779a979629d8f
   languageName: node
   linkType: hard
 
@@ -34471,6 +34505,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimalistic-assert@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "minimalistic-assert@npm:1.0.1"
+  checksum: cc7974a9268fbf130fb055aff76700d7e2d8be5f761fb5c60318d0ed010d839ab3661a533ad29a5d37653133385204c503bfac995aaa4236f4e847461ea32ba7
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:4.2.5":
   version: 4.2.5
   resolution: "minimatch@npm:4.2.5"
@@ -35441,6 +35482,15 @@ __metadata:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:^5.1.3":
+  version: 5.1.11
+  resolution: "nanoid@npm:5.1.11"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: d5971a1d39f68bd9845565c70a27733c832ba1bd73caad3c7b999a366c0355b6fcc65064f3b0179bca6cd36b50cacd5747d4482c303f026b58d62ebe31df9868
   languageName: node
   linkType: hard
 
@@ -47672,6 +47722,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"undici-types@npm:~7.19.0":
+  version: 7.19.2
+  resolution: "undici-types@npm:7.19.2"
+  checksum: f721026160e1f068a982401d0272b872819c335a2f64783c235ddd37a65ccd94327ec24489cee4556d57c77c14bd68ced60efa5def11cf11e3991f5ebf5e0e72
+  languageName: node
+  linkType: hard
+
 "undici@npm:^5.8.0":
   version: 5.9.1
   resolution: "undici@npm:5.9.1"
@@ -49686,7 +49743,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml-js@npm:^1.6.11":
+"xml-js@npm:^1.6.11, xml-js@npm:^1.6.8":
   version: 1.6.11
   resolution: "xml-js@npm:1.6.11"
   dependencies:
@@ -49724,6 +49781,13 @@ __metadata:
     sax: ">=0.6.0"
     xmlbuilder: ~11.0.0
   checksum: 1aa71d62e5bc2d89138e3929b9ea46459157727759cbc62ef99484b778641c0cd21fb637696c052d901a22f82d092a3e740a16b4ce218e81ac59b933535124ea
+  languageName: node
+  linkType: hard
+
+"xml@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "xml@npm:1.0.1"
+  checksum: 11b5545ef3f8fec3fa29ce251f50ad7b6c97c103ed4d851306ec23366f5fa4699dd6a942262df52313a0cd1840ab26256da253c023bad3309d8ce46fe6020ca0
   languageName: node
   linkType: hard
 
