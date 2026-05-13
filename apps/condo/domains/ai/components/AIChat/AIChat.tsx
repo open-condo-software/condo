@@ -306,8 +306,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         messageId: string | null = null,
         scenarioButtonId?: string | null,
     ) => {
-        console.info('executeAIMessage called:', { userInput, additionalContext, toolCallDepth, messageId, scenarioButtonId })
-
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
             addMessage({
                 id: `depth-error-${Date.now()}`,
@@ -515,10 +513,9 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const isFirstInSession = !messages.some((msg) => msg.role === 'user')
         void analytics.track('ai_assistant_message_send', {
-            source: 'scenario_button',
+            source: 'suggestion',
             is_first_in_session: isFirstInSession,
             location: typeof window !== 'undefined' ? window.location.href : '',
-            button_id: 'reply_suggestion',
             button_name: suggestedText,
         })
 

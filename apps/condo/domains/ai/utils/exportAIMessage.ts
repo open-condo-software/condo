@@ -1,3 +1,5 @@
+import { Document, Packer, Paragraph, TextRun } from 'docx'
+
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 
 export type ExportAIMessageFormat = 'txt' | 'pdf' | 'docx'
@@ -51,7 +53,6 @@ async function exportPlainText (text: string, fileNameBase: string): Promise<voi
 }
 
 async function exportDocx (text: string, fileNameBase: string): Promise<void> {
-    const { Document, Packer, Paragraph, TextRun } = await import('docx')
     const lines = text.split(DOCX_LINE_BREAK)
     const paragraphs: InstanceType<typeof Paragraph>[] = []
 

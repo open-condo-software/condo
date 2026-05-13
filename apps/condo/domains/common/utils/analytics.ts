@@ -72,7 +72,7 @@ type TicketExportToPdfEventData = {
 }
 
 type AiAssistantMessageSendEventData = {
-    source: 'typed' | 'scenario_button'
+    source: 'typed' | 'scenario_button' | 'suggestion'
     is_first_in_session: boolean
     location: string
     button_id?: string
