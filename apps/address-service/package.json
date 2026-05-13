@@ -28,7 +28,7 @@
     "@open-condo/icons": "workspace:^",
     "@open-condo/keystone": "workspace:^",
     "@open-condo/ui": "workspace:^",
-    "@open-keystone/app-admin-ui": "^9.0.5",
+    "@open-keystone/app-admin-ui": "^9.0.7",
     "express": "^4.17.1",
     "fast-xml-parser": "^5.4.0",
     "graphql": "^16.10.0",
