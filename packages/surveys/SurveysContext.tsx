@@ -17,7 +17,7 @@ type PostHogSurveysContextValue = {
     isReady: boolean
     getSurveys: () => Array<Survey> | null
     getSurveyById: (surveyId: string) => Survey | null
-    getSurveysLinkedValue: (survey: Survey) => any
+    getSurveysLinkedValue: (survey: Survey) => SurveyLinkedValue
     getActiveSurveys: () => Array<Survey> | null
 }
 
