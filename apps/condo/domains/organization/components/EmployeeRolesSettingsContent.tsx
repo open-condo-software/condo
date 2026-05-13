@@ -554,7 +554,7 @@ export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
     })
 
     const connectedB2BApps = useMemo(() =>
-        uniqBy(b2bAppContexts.map(context => get(context, 'app')), 'id').filter(Boolean)
+        uniqBy(b2bAppContexts.map(context => get(context, 'app')), 'id')
     , [b2bAppContexts])
 
     const {

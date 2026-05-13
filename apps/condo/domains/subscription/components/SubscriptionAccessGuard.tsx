@@ -213,8 +213,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                 <img
                                     src='/mascot/searching.webp'
                                     alt='Access denied'
-                                    width={200}
-                                    height={200}
+                                    width={240}
+                                    height={240}
                                 />
 
                                 <Space size={16} direction='vertical'>
