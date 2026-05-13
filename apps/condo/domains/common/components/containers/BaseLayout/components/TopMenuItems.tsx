@@ -9,6 +9,7 @@ import { Space, Typography } from '@open-condo/ui'
 import { useAIContext } from '@condo/domains/ai/components/AIContext'
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { UI_AI_CHAT_WITH_CONDO } from '@condo/domains/common/constants/featureflags'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
@@ -29,7 +30,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { organization } = useOrganization()
     const { hasSubscription } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
-    const { isAIOverlayOpen, openAIOverlay, closeAIOverlay } = useAIContext()
+    const { isAIOverlayOpen, openAIOverlay } = useAIContext()
     const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
 
     const PaymentHistoryLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
@@ -72,7 +73,14 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 <div style={{ maxHeight: '24px' }}>
                     <UserMessagesList disabled={!hasSubscription} />
                 </div>
-                { isAIChatEnabled && !isAIOverlayOpen && <AIFlowButton onClick={openAIOverlay} /> }
+                { isAIChatEnabled && !isAIOverlayOpen && (
+                    <AIFlowButton
+                        onClick={() => {
+                            void analytics.track('ai_assistant_open_click', {})
+                            openAIOverlay()
+                        }}
+                    />
+                ) }
             </Space>
         </>
     )

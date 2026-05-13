@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Typography } from '@open-condo/ui'
 
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 
@@ -24,6 +25,7 @@ const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
 const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
+const EMPTY_AI_SESSION_ID = ''
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
@@ -46,7 +48,16 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
 
     const [aiSessionId, setAiSessionId] = useState<string | null>(null)
 
+    const openRef = useRef(open)
+
+    useEffect(() => {
+        openRef.current = open
+    }, [open])
+
     const handleResetHistory = () => {
+        void analytics.track('ai_assistant_reset_history', {
+            aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID,
+        })
         const newSessionId = uuidV4()
         const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
         if (organization) {
@@ -110,6 +121,9 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         }
 
         const handleMouseUp = () => {
+            if (!openRef.current) {
+                void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID })
+            }
             setIsResizing(false)
             setDragDirection(null)
             dragDirectionRef.current = null
@@ -137,6 +151,11 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         setIsResizing(true)
         startXRef.current = e.clientX
         startWidthRef.current = aiOverlayWidth
+    }
+
+    const handleCloseButtonClick = () => {
+        void analytics.track('ai_assistant_close', { aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID })
+        onClose()
     }
 
     return (
@@ -170,7 +189,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         size='medium'
                         compact
                         minimal
-                        onClick={onClose}
+                        onClick={handleCloseButtonClick}
                         icon={<Close size='small' />}
                         title={closeLabel}
                     />
