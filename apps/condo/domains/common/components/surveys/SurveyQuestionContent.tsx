@@ -62,6 +62,13 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
         }
     }, [currentValue, isValid, onStateChange])
 
+    useEffect(() => {
+        setSingleChoiceValue('')
+        setMultipleChoiceValues([])
+        setOpenTextValue('')
+        setRatingValue(null)
+    }, [question])
+
     const setCheckBoxValue = useCallback((e, choice)=> {
         if (e.target.checked) {
             setMultipleChoiceValues([...multipleChoiceValues, choice])

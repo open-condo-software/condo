@@ -98,11 +98,11 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
         setQuestionState(state)
     }, [])
 
-    const goToNextQuestion = useCallback(() => {
+    const goToNextQuestion = useCallback((nextResponses: SurveyResponse[] = responses) => {
         if (!survey) return
 
         const currentQuestion = survey.questions[currentQuestionIndex]
-        const currentResponse = responses.find((r) => r.questionId === currentQuestion.id)
+        const currentResponse = nextResponses.find((r) => r.questionId === currentQuestion.id)
 
         if (currentQuestion.branching?.type === 'response_based' && currentResponse) {
             const responseValues = currentQuestion.branching.responseValues
@@ -111,6 +111,7 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
                 if (choiceIndex !== undefined && choiceIndex >= 0) {
                     const nextQuestionIndex = responseValues[choiceIndex]
                     if (nextQuestionIndex !== undefined) {
+                        handleQuestionStateChange({ isValid: false, value: null })
                         setCurrentQuestionIndex(nextQuestionIndex)
                         return
                     }
@@ -120,14 +121,14 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
 
         handleQuestionStateChange({ isValid: false, value: null })
         if (currentQuestion.branching?.type === 'end') {
-            completeSurvey()
+            completeSurvey(nextResponses)
             return
         }
 
         if (currentQuestionIndex < survey.questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1)
         } else {
-            completeSurvey()
+            completeSurvey(nextResponses)
         }
     }, [survey, currentQuestionIndex, responses, completeSurvey])
 
@@ -143,15 +144,14 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
         const value = getSurveyQuestionValue(currentQuestion, questionState)
         const questionId = currentQuestion.id
 
-        setResponses((prev) => {
-            const existingIndex = prev.findIndex((r) => r.questionId === questionId)
-            return existingIndex >= 0
-                ? prev.map((r, i) => i === existingIndex ? { questionId, value } : r)
-                : [...prev, { questionId, value }]
-        })
+        const existingIndex = responses.findIndex((r) => r.questionId === questionId)
+        const nextResponses = existingIndex >= 0
+            ? responses.map((r, i) => i === existingIndex ? { questionId, value } : r)
+            : [...responses, { questionId, value }]
 
-        goToNextQuestion()
-    }, [survey, currentQuestion, questionState, goToNextQuestion])
+        setResponses(nextResponses)
+        goToNextQuestion(nextResponses)
+    }, [survey, currentQuestion, questionState, responses, goToNextQuestion])
 
     const modalTitle = useMemo(() => {
         return currentQuestion?.question || ''
