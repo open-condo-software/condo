@@ -93,7 +93,7 @@ export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environm
     return (
         <>
             <EmptySubSectionView
-                mascot='searching'
+                image='/mascot/searching.webp'
                 title={NoClientMessage}
                 description={NoClientDescription}
                 actions={[

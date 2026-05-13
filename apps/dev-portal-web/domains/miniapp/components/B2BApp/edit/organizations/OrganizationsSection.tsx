@@ -71,7 +71,7 @@ export const OrganizationsSection: React.FC<{ id: string }> = ({ id }) => {
                             <OrganizationsTable id={id} environment={selectedEnvironment}/>
                         ) : (
                             <EmptySubSectionView
-                                mascot='waiting'
+                                image='/mascot/waiting.webp'
                                 title={ManagementNotAvailableTitle}
                                 description={ManagementNotAvailableText}
                             />
