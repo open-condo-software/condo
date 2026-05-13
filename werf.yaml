@@ -94,7 +94,6 @@ shell:
   - "yarn workspace @app/condo next telemetry disable"
   - "yarn workspace @app/condo build:deps"
   - "yarn workspace @app/condo build:static"
-  - "yarn workspace @app/condo node ./bin/generate-prisma-client.js"
   - "yarn workspace @app/condo build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
@@ -1281,4 +1280,3 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
-    
