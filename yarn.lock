@@ -1039,15 +1039,15 @@ __metadata:
     "@emotion/styled": ^11.11.0
     "@eps/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
-    "@open-arch-ui/button": ^1.0.0
-    "@open-arch-ui/color-utils": ^1.0.0
-    "@open-arch-ui/common": ^1.0.0
-    "@open-arch-ui/confirm": ^1.0.0
-    "@open-arch-ui/controls": ^1.0.0
-    "@open-arch-ui/layout": ^1.0.0
-    "@open-arch-ui/select": ^1.0.0
-    "@open-arch-ui/theme": ^1.0.0
-    "@open-arch-ui/typography": ^1.0.0
+    "@open-arch-ui/button": ^1.0.1
+    "@open-arch-ui/color-utils": ^1.0.1
+    "@open-arch-ui/common": ^1.0.1
+    "@open-arch-ui/confirm": ^1.0.1
+    "@open-arch-ui/controls": ^1.0.1
+    "@open-arch-ui/layout": ^1.0.1
+    "@open-arch-ui/select": ^1.0.1
+    "@open-arch-ui/theme": ^1.0.1
+    "@open-arch-ui/typography": ^1.0.1
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -1055,9 +1055,9 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-admin-ui": ^9.0.5
-    "@open-keystone/app-graphql": ^7.0.2
-    "@open-keystone/app-next": ^9.0.1
+    "@open-keystone/app-admin-ui": ^9.0.6
+    "@open-keystone/app-graphql": ^7.0.4
+    "@open-keystone/app-next": ^9.0.3
     "@types/node": ^22
     "@types/react": ^18.3.1
     ajv: 8.11.0
@@ -11306,7 +11306,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-arch-ui/button@npm:^1.0.0, @open-arch-ui/button@npm:^1.0.1":
+"@open-arch-ui/button@npm:^1.0.1":
   version: 1.0.1
   resolution: "@open-arch-ui/button@npm:1.0.1"
   dependencies:
@@ -11370,7 +11370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-arch-ui/confirm@npm:^1.0.0, @open-arch-ui/confirm@npm:^1.0.1":
+"@open-arch-ui/confirm@npm:^1.0.1":
   version: 1.0.1
   resolution: "@open-arch-ui/confirm@npm:1.0.1"
   dependencies:
@@ -11593,7 +11593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-arch-ui/layout@npm:^1.0.0, @open-arch-ui/layout@npm:^1.0.1":
+"@open-arch-ui/layout@npm:^1.0.1":
   version: 1.0.1
   resolution: "@open-arch-ui/layout@npm:1.0.1"
   dependencies:
@@ -11820,7 +11820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-arch-ui/typography@npm:^1.0.0, @open-arch-ui/typography@npm:^1.0.1":
+"@open-arch-ui/typography@npm:^1.0.1":
   version: 1.0.1
   resolution: "@open-arch-ui/typography@npm:1.0.1"
   dependencies:
@@ -12552,6 +12552,83 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/app-admin-ui@npm:^9.0.6":
+  version: 9.0.6
+  resolution: "@open-keystone/app-admin-ui@npm:9.0.6"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@babel/core": ^7.14.6
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-arch-ui/alert": ^1.0.1
+    "@open-arch-ui/badge": ^1.0.1
+    "@open-arch-ui/button": ^1.0.1
+    "@open-arch-ui/card": ^1.0.1
+    "@open-arch-ui/color-utils": ^1.0.1
+    "@open-arch-ui/common": ^1.0.1
+    "@open-arch-ui/confirm": ^1.0.1
+    "@open-arch-ui/controls": ^1.0.1
+    "@open-arch-ui/dialog": ^1.0.1
+    "@open-arch-ui/drawer": ^1.0.1
+    "@open-arch-ui/dropdown": ^1.0.1
+    "@open-arch-ui/fields": ^4.0.1
+    "@open-arch-ui/hooks": ^1.0.1
+    "@open-arch-ui/input": ^1.0.1
+    "@open-arch-ui/layout": ^1.0.1
+    "@open-arch-ui/loading": ^1.0.1
+    "@open-arch-ui/lozenge": ^1.0.1
+    "@open-arch-ui/navbar": ^1.0.1
+    "@open-arch-ui/options": ^1.0.1
+    "@open-arch-ui/pagination": ^1.0.1
+    "@open-arch-ui/pill": ^1.0.1
+    "@open-arch-ui/popout": ^1.0.1
+    "@open-arch-ui/select": ^1.0.1
+    "@open-arch-ui/theme": ^1.0.1
+    "@open-arch-ui/tooltip": ^1.0.1
+    "@open-arch-ui/typography": ^1.0.1
+    "@open-keystone/field-views-loader": ^7.0.2
+    "@open-keystone/session": ^8.4.2
+    "@open-keystone/utils": ^6.1.5
+    "@primer/octicons-react": ^11.3.0
+    "@types/react": ^18.3.1
+    apollo-upload-client: ^17.0.0
+    apply-ref: ^1.0.0
+    babel-loader: ^10.0.0
+    babel-plugin-emotion: ^10.2.2
+    babel-preset-react-app: ^10.0.0
+    clipboard-copy: ^4.0.1
+    compression: ^1.7.4
+    cross-fetch: ^3.1.4
+    css-loader: ^7.1.2
+    express: ^4.17.1
+    express-history-api-fallback: ^2.2.1
+    falsey: ^1.0.0
+    file-loader: ^6.2.0
+    graphql: ^16.10.0
+    html-webpack-plugin: ^5.6.3
+    lodash: ^4.17.21
+    memoize-one: ^5.2.1
+    prop-types: ^15.7.2
+    raf-schd: ^4.0.3
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    react-prop-toggle: ^1.0.2
+    react-pseudo-state: ^2.2.2
+    react-router-dom: 5.2.0
+    react-select: ^3.2.0
+    react-toast-notifications: ^2.4.4
+    react-transition-group: ^4.4.2
+    react-uid: ^2.3.1
+    resize-observer-polyfill: ^1.5.1
+    style-loader: ^4.0.0
+    use-resize-observer: ^6.1.0
+    webpack: ^5.99.9
+    webpack-dev-middleware: ^7.4.2
+    webpack-hot-middleware: ^2.26.1
+  checksum: 5ed72e714ddbfa7daf75dbb53572e3e800d0cf3b17ef5af08f1c001be37892bd87bd60c6a063b3fe15963bb03a187ffba004447092525de1dc3732e18f0f0526
+  languageName: node
+  linkType: hard
+
 "@open-keystone/app-graphql-playground@npm:^6.0.2":
   version: 6.0.2
   resolution: "@open-keystone/app-graphql-playground@npm:6.0.2"
@@ -12572,6 +12649,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/app-graphql-playground@npm:^6.0.4":
+  version: 6.0.4
+  resolution: "@open-keystone/app-graphql-playground@npm:6.0.4"
+  dependencies:
+    "@apollographql/graphql-playground-html": ^1.6.29
+    "@apollographql/graphql-playground-react": ^1.7.41
+    "@open-keystone/session": ^8.4.2
+    "@open-keystone/utils": ^6.1.5
+    body-parser: ^1.19.0
+    chalk: ^4.1.1
+    falsey: ^1.0.0
+    graphql-tag: ^2.11.0
+    object-hash: ^2.2.0
+    terminal-link: ^2.1.1
+  peerDependencies:
+    express: ^4.17.1
+  checksum: 4910c13880081f5dc4afed86db627d4eddcb4ec379d7ea5de6cd6d0ce9fffcefb0d339fc81412d0c725c19d4b58eb93ce7b3dde0bba90dfb80683562655a058c
+  languageName: node
+  linkType: hard
+
 "@open-keystone/app-graphql@npm:^7.0.2":
   version: 7.0.2
   resolution: "@open-keystone/app-graphql@npm:7.0.2"
@@ -12588,6 +12685,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/app-graphql@npm:^7.0.4":
+  version: 7.0.4
+  resolution: "@open-keystone/app-graphql@npm:7.0.4"
+  dependencies:
+    "@open-keystone/app-graphql-playground": ^6.0.4
+    "@open-keystone/session": ^8.4.2
+    "@open-keystone/utils": ^6.1.5
+    graphql: ^16.10.0
+    graphql-upload: ^15.0.2
+    nanoassert: ^2.0.0
+  peerDependencies:
+    express: ^4.17.1
+  checksum: d7c7ba08ee84104d329b9b65a32ba1227ac5524064b48d6e59e710b15c7e47a042c79785e9b2dec1a5eeb0fa3f092786fd2be8d4035678bf9457c585f0c89d42
+  languageName: node
+  linkType: hard
+
 "@open-keystone/app-next@npm:^9.0.1":
   version: 9.0.1
   resolution: "@open-keystone/app-next@npm:9.0.1"
@@ -12596,6 +12709,17 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
   checksum: 7499b7e9032a77945e6ff9d2b3cc5745e66dbfae84cd705f3cd92c6d1732dfe05d7dff70f5541b09659789877d26819ca44cb01c618d864ec6d865db5ceebfc4
+  languageName: node
+  linkType: hard
+
+"@open-keystone/app-next@npm:^9.0.3":
+  version: 9.0.3
+  resolution: "@open-keystone/app-next@npm:9.0.3"
+  peerDependencies:
+    next: ">=12"
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: 4a535df2febe1d2ca7df76d8b171b5dd49600bc1025cdbcb8254d0079a7c70c6c3677031199509f1ddfe6024575fbb180514ec9f8dc5142153f00aed9226ee6a
   languageName: node
   linkType: hard
 
@@ -12637,6 +12761,15 @@ __metadata:
   dependencies:
     loader-utils: ^2.0.0
   checksum: c1729377aa78a327fbe66194a953f7c1272c657c53b95f81002a4302f9ac8afeaca0f438bb37db3b4690386089a9719871844a6820b504165f8fb0b1df442de3
+  languageName: node
+  linkType: hard
+
+"@open-keystone/field-views-loader@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@open-keystone/field-views-loader@npm:7.0.2"
+  dependencies:
+    loader-utils: ^2.0.0
+  checksum: 625c98cf3972b7febd6d202289a1c53dd8f12ecfc089d6cfecaaa1d9be99f9e6b59c03b5eeae49af306b37d7cd8896d130099b1f824ce3c5d1a0a0a601538d0f
   languageName: node
   linkType: hard
 
@@ -12918,6 +13051,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/session@npm:^8.4.2":
+  version: 8.4.2
+  resolution: "@open-keystone/session@npm:8.4.2"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@types/cookie": ^0.4.0
+    "@types/express-session": ^1.17.3
+    cookie: ^0.4.1
+    cookie-signature: ^1.1.0
+    express: ^4.17.1
+    express-session: ^1.17.2
+  checksum: a4c2a62b9facc6999f4a555980bfe866419f00319dc7824b7a927affcfa5c6c742b8001e54cd410c42341fec108ab53a98a2dffa46fb9053104b118845408ee8
+  languageName: node
+  linkType: hard
+
 "@open-keystone/utils@npm:^6.1.3":
   version: 6.1.3
   resolution: "@open-keystone/utils@npm:6.1.3"
@@ -12941,6 +13089,19 @@ __metadata:
     p-reflect: ^2.1.0
     semver: ^7.3.5
   checksum: 1bef1e1844a2bc2a81626a11060e5529036c8b131b3911f17ed608e77b36c90a2c24c8814fa87ea2fc4e68eabb160c53f156b8709646f1d9e26eb35abe1cdc16
+  languageName: node
+  linkType: hard
+
+"@open-keystone/utils@npm:^6.1.5":
+  version: 6.1.5
+  resolution: "@open-keystone/utils@npm:6.1.5"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    p-is-promise: ^3.0.0
+    p-lazy: ^3.1.0
+    p-reflect: ^2.1.0
+    semver: ^7.3.5
+  checksum: f8798641c070cae25d8f9a2bab8f10c0c2d776a995ac515031afef51f7509f488c4f09b2d2b7e40436dcf36537753f8fd19e113673cb00faab71a3c11dba62cb
   languageName: node
   linkType: hard
 
