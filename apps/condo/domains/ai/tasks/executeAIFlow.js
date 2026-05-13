@@ -70,6 +70,8 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         const predictionUrl = adapterConfig.predictionUrl
         if (!predictionUrl) throw new Error(`Unknown prediction url for flow "${task.flowType}"!`)
 
+        const streaming = adapterConfig.streaming || false
+
         const topic = buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`)
 
         void publish({
@@ -85,54 +87,59 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             aiSessionId: task.aiSessionId,
         }
 
-        const prediction = await adapter.execute(predictionUrl, fullContext, task.flowType, async (event) => {
-            if (!event) return
-
-            switch (event.type) {
-                case EVENT_TYPES.START:
-                    void publish({
-                        topic,
-                        data: {
-                            type: CHUNK_TYPES.FLOW_START,
-                        },
-                    })
-                    return
-                case EVENT_TYPES.ITEM:
-                    void publish({
-                        topic,
-                        data: {
-                            type: CHUNK_TYPES.FLOW_ITEM,
-                            item: event.content,
-                        },
-                    })
-                    return
-                case EVENT_TYPES.END:
-                    void publish({
-                        topic,
-                        data: {
-                            type: CHUNK_TYPES.FLOW_END,
-                        },
-                    })
-                    return
-                case EVENT_TYPES.ERROR:
-                    void publish({
-                        topic,
-                        data: {
-                            type: CHUNK_TYPES.FLOW_ERROR,
-                            error: event.error,
-                        },
-                    })
-                    return
-                default: 
-                    void publish({
-                        topic,
-                        data: {
-                            type: CHUNK_TYPES.FLOW_ERROR,
-                            error: `Unknown event type: ${event.type}`,
-                        },
-                    })
-            }
-        })
+        let prediction
+        if (streaming) {
+            prediction = await adapter.execute(predictionUrl, fullContext, task.flowType, async (event) => {
+                if (!event) return
+    
+                switch (event.type) {
+                    case EVENT_TYPES.START:
+                        void publish({
+                            topic,
+                            data: {
+                                type: CHUNK_TYPES.FLOW_START,
+                            },
+                        })
+                        return
+                    case EVENT_TYPES.ITEM:
+                        void publish({
+                            topic,
+                            data: {
+                                type: CHUNK_TYPES.FLOW_ITEM,
+                                item: event.content,
+                            },
+                        })
+                        return
+                    case EVENT_TYPES.END:
+                        void publish({
+                            topic,
+                            data: {
+                                type: CHUNK_TYPES.FLOW_END,
+                            },
+                        })
+                        return
+                    case EVENT_TYPES.ERROR:
+                        void publish({
+                            topic,
+                            data: {
+                                type: CHUNK_TYPES.FLOW_ERROR,
+                                error: event.error,
+                            },
+                        })
+                        return
+                    default: 
+                        void publish({
+                            topic,
+                            data: {
+                                type: CHUNK_TYPES.FLOW_ERROR,
+                                error: `Unknown event type: ${event.type}`,
+                            },
+                        })
+                }
+            })
+        } else {
+            prediction = await adapter.execute(predictionUrl, fullContext, task.flowType)
+        }
 
         const schema = FLOW_META_SCHEMAS[isCustomFlow ? CUSTOM_FLOW_TYPE : task.flowType]?.output ?? { type: 'object' }
         const validatePrediction = ajv.compile(schema)
