@@ -68,7 +68,7 @@ class N8NAdapter extends AbstractAdapter {
             throw error
         }
 
-        if (response.headers.get('transfer-encoding') === 'chunked') {
+        if (onEvent) {
             const decoder = new TextDecoder('utf-8')
             let answer = ''
             const events = []
