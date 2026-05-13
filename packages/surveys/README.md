@@ -44,8 +44,8 @@ function MyComponent () {
         isReady,
         getSurveys,
         getSurveyById,
-        getSurveysLinkedFlagValue,
-        getActiveMatchingSurveys,
+        getSurveysLinkedValue,
+        getActiveSurveys,
     } = usePostHogSurveys()
 
     // Your logic
@@ -58,16 +58,16 @@ import { usePostHogSurveys } from '@open-condo/surveys'
 import { useEffect, useState } from 'react'
 
 function ActiveSurveys () {
-    const { getActiveMatchingSurveys, isReady } = usePostHogSurveys()
+    const { getActiveSurveys, isReady } = usePostHogSurveys()
     const [activeSurveys, setActiveSurveys] = useState([])
 
     useEffect(() => {
         if (isReady) {
-            const surveys = getActiveMatchingSurveys()
+            const surveys = getActiveSurveys()
                 
             setActiveSurveys(surveys)
         }
-    }, [isReady, getActiveMatchingSurveys])
+    }, [isReady, getActiveSurveys])
 
     return (
         <div>
@@ -86,12 +86,12 @@ import { usePostHogSurveys } from '@open-condo/surveys'
 import type { SurveyFeatureFlagPayload } from '@open-condo/surveys'
 
 function SurveyWithFlags ({ survey }) {
-    const { getSurveysLinkedFlagValue } = usePostHogSurveys()
+    const { getSurveysLinkedValue } = usePostHogSurveys()
 
-    const flagValue = getSurveysLinkedFlagValue(survey) as SurveyFeatureFlagPayload
+    const flagValue = getSurveysLinkedValue(survey) as SurveyLinkedValue
 
     if (!flagValue) {
-        return null // Feature flag not configured
+        return null
     }
 
     const isFullscreen = flagValue.fullscreen

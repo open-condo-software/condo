@@ -11,7 +11,7 @@ type PostHogSurveysQueueProps = {
 }
 
 export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
-    const { isReady, getActiveMatchingSurveys } = useSurveys()
+    const { isReady, getActiveSurveys } = useSurveys()
 
     const [currentSurvey, setCurrentSurvey] = useState<Survey | null>(null)
     const [surveyEventMap, setSurveyEventMap] = useState<Map<string, Survey[]> | null>(null)
@@ -21,7 +21,7 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
         if (!isReady || surveysLoaded.current) return
         posthog.onSurveysLoaded(() => {
 
-            const activeMatchingSurveys = getActiveMatchingSurveys()
+            const activeMatchingSurveys = getActiveSurveys()
 
             const eventMap = new Map<string, Survey[]>()
             const surveyIdsWithEvents = new Set<string>()

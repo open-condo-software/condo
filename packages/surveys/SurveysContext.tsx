@@ -8,7 +8,7 @@ export type SurveyResponse = {
     value: string | string[] | number
 }
 
-export type SurveyFeatureFlagPayload = {
+export type SurveyLinkedValue = {
     fullscreen?: boolean
     [key: string]: unknown
 }
@@ -17,8 +17,8 @@ type PostHogSurveysContextValue = {
     isReady: boolean
     getSurveys: () => Array<Survey> | null
     getSurveyById: (surveyId: string) => Survey | null
-    getSurveysLinkedFlagValue: (survey: Survey) => any
-    getActiveMatchingSurveys: () => Array<Survey> | null
+    getSurveysLinkedValue: (survey: Survey) => any
+    getActiveSurveys: () => Array<Survey> | null
 }
 
 const SurveysContext = createContext<PostHogSurveysContextValue | null>(null)
@@ -60,7 +60,7 @@ export const SurveysProvider = ({ children }) => {
         return surveys
     }, [isReady])
 
-    const getActiveMatchingSurveys = useCallback(() => {
+    const getActiveSurveys = useCallback(() => {
         if (!isReady || !posthog?.__loaded) return
         let surveys = []
 
@@ -82,10 +82,10 @@ export const SurveysProvider = ({ children }) => {
         return surveys.find((s) => s.id === surveyId) ?? null
     }, [isReady])
 
-    const getSurveysLinkedFlagValue = useCallback((survey: Survey) => {
+    const getSurveysLinkedValue = useCallback((survey: Survey) => {
         const linkedFlagKey = survey.linked_flag_key
         if (linkedFlagKey) {
-            const flagValue = posthog.getFeatureFlagResult(linkedFlagKey)?.payload as SurveyFeatureFlagPayload
+            const flagValue = posthog.getFeatureFlagResult(linkedFlagKey)?.payload as SurveyLinkedValue
 
             if (!flagValue || typeof flagValue !== 'object') return null
 
@@ -99,14 +99,14 @@ export const SurveysProvider = ({ children }) => {
         isReady,
         getSurveys,
         getSurveyById,
-        getSurveysLinkedFlagValue,
-        getActiveMatchingSurveys,
+        getSurveysLinkedValue,
+        getActiveSurveys,
     }), [
         isReady,
         getSurveys,
         getSurveyById,
-        getSurveysLinkedFlagValue,
-        getActiveMatchingSurveys,
+        getSurveysLinkedValue,
+        getActiveSurveys,
     ])
 
     return (

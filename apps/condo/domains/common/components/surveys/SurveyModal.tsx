@@ -40,7 +40,7 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
     const {
         isReady,
         getSurveyById,
-        getSurveysLinkedFlagValue,
+        getSurveysLinkedValue,
     } = useSurveys()
 
     const {
@@ -168,9 +168,9 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
     const isFullscreen = useMemo(() => {
         if (!survey) return false
 
-        const flagValue = getSurveysLinkedFlagValue(survey)
+        const linkedValue = getSurveysLinkedValue(survey)
 
-        return Boolean(flagValue?.fullscreen)
+        return Boolean(linkedValue?.fullscreen)
     }, [survey])
 
     if (isFullscreen) {
