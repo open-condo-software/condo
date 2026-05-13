@@ -1,9 +1,8 @@
 import posthog, { type Survey } from 'posthog-js'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useSurveys } from '@open-condo/surveys'
 
-import { SurveyFullscreenModal } from './SurveyFullscreenModal'
 import { SurveyModal } from './SurveyModal'
 
 
@@ -12,7 +11,7 @@ type PostHogSurveysQueueProps = {
 }
 
 export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
-    const { isReady, getActiveMatchingSurveys, getSurveysLinkedFlagValue } = useSurveys()
+    const { isReady, getActiveMatchingSurveys } = useSurveys()
 
     const [currentSurvey, setCurrentSurvey] = useState<Survey | null>(null)
     const [surveyEventMap, setSurveyEventMap] = useState<Map<string, Survey[]> | null>(null)
@@ -65,25 +64,7 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
         setCurrentSurvey(null)
     }, [])
 
-    const isFullscreen = useMemo(() => {
-        if (!currentSurvey) return false
-
-        const flagValue = getSurveysLinkedFlagValue(currentSurvey)
-
-        return Boolean(flagValue?.fullscreen)
-    }, [currentSurvey])
-
     if (!currentSurvey) return null
-
-    if (isFullscreen) {
-        return (
-            <SurveyFullscreenModal
-                surveyId={currentSurvey.id}
-                open={true}
-                onClose={handleClose}
-            />
-        )
-    }
 
     return (
         <SurveyModal

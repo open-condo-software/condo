@@ -3906,6 +3906,5 @@
   "richTextArea.emojiDropdown.categories.places": "Lugares",
   "richTextArea.emojiDropdown.categories.symbols": "Símbolos",
   "surveys.button.back": "Atrás",
-  "surveys.button.submit": "Enviar",
   "surveys.questionProgress": "Pregunta {current} de {total}"
 }

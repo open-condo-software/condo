@@ -63,9 +63,9 @@ function ActiveSurveys () {
 
     useEffect(() => {
         if (isReady) {
-            getActiveMatchingSurveys((surveys) => {
-                setActiveSurveys(surveys)
-            })
+            const surveys = getActiveMatchingSurveys()
+                
+            setActiveSurveys(surveys)
         }
     }, [isReady, getActiveMatchingSurveys])
 

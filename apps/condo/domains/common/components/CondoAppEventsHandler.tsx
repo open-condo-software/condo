@@ -5,11 +5,11 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { flattenObject } from '@condo/domains/common/utils/flattenObject'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import { usePostMessageContext } from './PostMessageProvider'
 
-import { flattenObject } from '../utils/flattenObject'
 
 import type { RequestHandler } from './PostMessageProvider/types'
 import type { FC } from 'react'

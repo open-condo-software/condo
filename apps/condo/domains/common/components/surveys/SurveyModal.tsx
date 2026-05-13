@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useIntl } from '@open-condo/next/intl'
 import  { type SurveyResponse, useSurveys } from '@open-condo/surveys'
-import { Button, Modal, Space, Typography } from '@open-condo/ui'
 
-import { getSurveyQuestionValue, SurveyQuestionContent } from './SurveyQuestionContent'
+import { DefaultSurveyModal } from './DefaultSurveyModal'
+import { SurveyFullscreenModal } from './SurveyFullscreenModal'
+import { getSurveyQuestionValue } from './SurveyQuestionContent'
 import { useSurveyEvents } from './useSurveyEvents'
 
 import type { SurveyQuestionState } from './SurveyQuestionContent'
-import type { Survey } from 'posthog-js'
+import type { Survey, SurveyQuestion } from 'posthog-js'
 
 type PostHogSurveyModalProps = {
     surveyId: string
@@ -17,17 +17,30 @@ type PostHogSurveyModalProps = {
     extraEventData?: Record<string, unknown>
 }
 
+export interface ModalProps {
+    modalTitle: string
+    canGoBack: boolean
+    currentQuestion: SurveyQuestion
+    survey: Survey
+    open: boolean
+    questionState: SurveyQuestionState
+    currentQuestionIndex: number
+    goToPreviousQuestion: () => void
+    handleSubmit: () => void
+    handleClose?: () => void
+    handleQuestionStateChange: (state: SurveyQuestionState) => void
+}
+
 export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
     surveyId,
     open,
     onClose,
     extraEventData = {},
 }) => {
-    const intl = useIntl()
-    const BackButtonLabel = intl.formatMessage({ id: 'surveys.button.back' })
     const {
         isReady,
         getSurveyById,
+        getSurveysLinkedFlagValue,
     } = useSurveys()
 
     const {
@@ -74,8 +87,12 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
         const responsesToUse = finalResponses || responses
 
         captureSurveySent(survey, responsesToUse, extraEventData)
-        handleClose()
-    }, [survey, responses, captureSurveySent, extraEventData, handleClose])
+        setSurvey(null)
+        setCurrentQuestionIndex(0)
+        setResponses([])
+        setSurveyShownEventSent(false)
+        onClose()
+    }, [survey, responses, captureSurveySent, extraEventData, onClose])
 
     const handleQuestionStateChange = useCallback((state: SurveyQuestionState) => {
         setQuestionState(state)
@@ -148,54 +165,43 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
         }
     }, [currentQuestionIndex])
 
-    const footer = useMemo(() => {
-        if (!currentQuestion) return null
+    const isFullscreen = useMemo(() => {
+        if (!survey) return false
 
+        const flagValue = getSurveysLinkedFlagValue(survey)
+
+        return Boolean(flagValue?.fullscreen)
+    }, [survey])
+
+    if (isFullscreen) {
         return (
-            <Space size={12}>
-                {canGoBack && (
-                    <Button
-                        type='secondary'
-                        onClick={goToPreviousQuestion}
-                    >
-                        {BackButtonLabel}
-                    </Button>
-                )}
-                <Button
-                    type='primary'
-                    onClick={handleSubmit}
-                    disabled={!questionState.isValid}
-                >
-                    {currentQuestion.buttonText}
-                </Button>
-            </Space>
+            <SurveyFullscreenModal
+                modalTitle={modalTitle}
+                canGoBack={canGoBack}
+                currentQuestion={currentQuestion}
+                survey={survey}
+                open={open}
+                questionState={questionState}
+                currentQuestionIndex={currentQuestionIndex}
+                goToPreviousQuestion={goToPreviousQuestion}
+                handleSubmit={handleSubmit}
+                handleClose={handleClose}
+                handleQuestionStateChange={handleQuestionStateChange}
+            />
         )
-    }, [currentQuestion, canGoBack, goToPreviousQuestion, handleSubmit, questionState.isValid, BackButtonLabel])
+    }
 
-    return (
-        <Modal
-            open={open}
-            onCancel={handleClose}
-            title={modalTitle}
-            width='small'
-            destroyOnClose
-            footer={footer}
-        >
-            {survey && survey.questions.length > 1 && currentQuestionIndex !== 0 && (
-                <Typography.Paragraph type='secondary'>
-                    {intl.formatMessage({ id: 'surveys.questionProgress' }, {
-                        current: currentQuestionIndex + 1,
-                        total: survey.questions.length,
-                    })}
-                </Typography.Paragraph>
-            )}
-
-            {currentQuestion && (
-                <SurveyQuestionContent
-                    question={currentQuestion}
-                    onStateChange={handleQuestionStateChange}
-                />
-            )}
-        </Modal>
-    )
+    return <DefaultSurveyModal
+        modalTitle={modalTitle}
+        canGoBack={canGoBack}
+        currentQuestion={currentQuestion}
+        survey={survey}
+        open={open}
+        questionState={questionState}
+        currentQuestionIndex={currentQuestionIndex}
+        goToPreviousQuestion={goToPreviousQuestion}
+        handleSubmit={handleSubmit}
+        handleClose={handleClose}
+        handleQuestionStateChange={handleQuestionStateChange}
+    />
 }
