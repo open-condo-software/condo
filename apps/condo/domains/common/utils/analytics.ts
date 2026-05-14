@@ -113,6 +113,13 @@ export type EventsData = {
     'ai_assistant_message_send': AiAssistantMessageSendEventData
     'ai_assistant_reset_history': { aiSessionId: string }
     'ai_suggestions_failure': AiSuggestionsFailureEventData
+    'subscription_purchase_click': {
+        paymentMethod: 'card' | 'userHelpRequest'
+        planName: string
+        priceAmount: number | null
+        currencyCode: string | null
+        period: string | null
+    }
 }
 
 type UserData = {

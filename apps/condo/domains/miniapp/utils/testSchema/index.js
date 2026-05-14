@@ -46,6 +46,7 @@ const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -88,6 +89,7 @@ const CustomValue = generateGQLTestUtils(CustomValueGQL)
 const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConfigGQL)
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
 const B2BAppMeterIntegrationConfig = generateGQLTestUtils(B2BAppMeterIntegrationConfigGQL)
+const B2BAppBillingEmbeddingConfig = generateGQLTestUtils(B2BAppBillingEmbeddingConfigGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
@@ -877,6 +879,33 @@ async function updateTestB2CAppAccessRightSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppBillingEmbeddingConfig (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppBillingEmbeddingConfig.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppBillingEmbeddingConfig (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppBillingEmbeddingConfig.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -907,5 +936,6 @@ module.exports = {
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
     sendVoIPCallStartMessageByTestClient, sendVoIPCallCancelMessageByTestClient,
     B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
+    B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

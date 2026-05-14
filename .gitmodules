@@ -79,3 +79,6 @@
 [submodule "apps/b2b-payments-gateway"]
 	path = apps/b2b-payments-gateway
 	url = git@github.com:open-condo-software/condo-b2b-payments-gateway.git
+[submodule "apps/debt-management"]
+	path = apps/debt-management
+	url = git@github.com:open-condo-software/condo-debt-management.git

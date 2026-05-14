@@ -55,6 +55,13 @@ async function packVariablesRecursively (rawVariables, prefix = ['variables'], m
                 file,
             })
             variables[key] = null
+        } else if (isPromise((rawVariables[key] || {}).promise)) {
+            const file = await rawVariables[key].promise
+            maps.push({
+                key: path,
+                file,
+            })
+            variables[key] = null
         } else if (Array.isArray(rawVariables[key])) {
             variables[key] = []
             for (let i = 0; i < rawVariables[key].length; i++) {

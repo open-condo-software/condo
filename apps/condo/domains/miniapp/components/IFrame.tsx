@@ -41,7 +41,7 @@ export type IFrameProps = {
     withResize?: boolean
     allowFullscreen?: boolean
     onLoad?: () => void
-    initialHeight?: number
+    initialHeight?: number | string
 }
 
 const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props, ref) => {

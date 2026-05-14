@@ -43,3 +43,12 @@ query getPublicB2BAppsByIds($ids: [ID!]!) {
         name
     }
 }
+
+query getB2BAppsWithBillingTabEmbeddingConfig {
+    b2bApps: allB2BApps(where: { billingEmbeddingConfig: { tabUrl_not: null } }, first: 100) {
+        id
+        name
+        shortDescription
+        billingEmbeddingConfig { tabUrl }
+    }
+}

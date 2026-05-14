@@ -4,16 +4,14 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button, Space, Tooltip } from '@open-condo/ui'
+import { Typography, Button, Tooltip } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 
-import styles from './SubscriptionAccessGuard.module.css'
+import { SubscriptionBlockedContent } from './SubscriptionBlockedContent'
 import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
@@ -194,6 +192,33 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         : null
 
     if (isBlocked) {
+        let primaryButton: React.ReactNode
+        if (!hasFeaturePlan) {
+            primaryButton = <Button type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
+        } else if (hasPendingFeatureRequest) {
+            primaryButton = (
+                <Tooltip title={AwaitingPaymentTooltipMessage}>
+                    <span>
+                        <Button type='primary' disabled>{AwaitingPaymentMessage}</Button>
+                    </span>
+                </Tooltip>
+            )
+        } else {
+            primaryButton = <Button type='primary' onClick={openPaymentModal}>{FeaturePayButton}</Button>
+        }
+
+        const featureDescription = (
+            <>
+                {formattedFeaturePrice && `${formattedFeaturePrice}${forPlanLabel ? ` ${forPlanLabel}` : ''}`}
+                {FreeWithPlanNode && (
+                    <>
+                        {formattedFeaturePrice && ', '}
+                        {FreeWithPlanNode}
+                    </>
+                )}
+            </>
+        )
+
         return (
             <>
                 {PaymentModal}
@@ -203,69 +228,14 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                 </Head>
                 <PageWrapper>
                     <PageHeader title={<Typography.Title>{pageTitle}</Typography.Title>} />
-                    <div className={styles['blocked-container']}>
-                        <div className={styles['blocked-content-wrapper']}>
-                            <Space
-                                direction='vertical'
-                                align='center'
-                                size={24}
-                            >
-                                <img
-                                    src='/mascot/searching.webp'
-                                    alt='Access denied'
-                                    width={240}
-                                    height={240}
-                                />
-
-                                <Space size={16} direction='vertical'>
-                                    <Typography.Title level={3}>
-                                        {hasFeaturePlan ? FeatureGuardTitle : GuardTitle}
-                                    </Typography.Title>
-
-                                    <Typography.Paragraph type='secondary'>
-                                        {hasFeaturePlan ? (
-                                            <>
-                                                {formattedFeaturePrice && `${formattedFeaturePrice}${forPlanLabel ? ` ${forPlanLabel}` : ''}`}
-                                                {FreeWithPlanNode && (
-                                                    <>
-                                                        {formattedFeaturePrice && ', '}
-                                                        {FreeWithPlanNode}
-                                                    </>
-                                                )}
-                                            </>
-                                        ) : GuardDescription}
-                                    </Typography.Paragraph>
-                                </Space>
-
-                                <Space size={16} direction='vertical' align='center'>
-                                    {hasFeaturePlan ? (
-                                        hasPendingFeatureRequest ? (
-                                            <Tooltip title={AwaitingPaymentTooltipMessage}>
-                                                <span>
-                                                    <Button type='primary' disabled>
-                                                        {AwaitingPaymentMessage}
-                                                    </Button>
-                                                </span>
-                                            </Tooltip>
-                                        ) : (
-                                            <Button type='primary' onClick={openPaymentModal}>
-                                                {FeaturePayButton}
-                                            </Button>
-                                        )
-                                    ) : (
-                                        <Button type='primary' onClick={handleGoToPlans}>
-                                            {GoToPlansMessage}
-                                        </Button>
-                                    )}
-                                    {helpLink && (
-                                        <Button type='secondary' onClick={handleLearnMore}>
-                                            {LearnMoreMessage}
-                                        </Button>
-                                    )}
-                                </Space>
-                            </Space>
-                        </div>
-                    </div>
+                    <SubscriptionBlockedContent
+                        title={hasFeaturePlan ? FeatureGuardTitle : GuardTitle}
+                        description={hasFeaturePlan ? featureDescription : GuardDescription}
+                        primaryButton={primaryButton}
+                        secondaryButton={helpLink && (
+                            <Button type='secondary' onClick={handleLearnMore}>{LearnMoreMessage}</Button>
+                        )}
+                    />
                 </PageWrapper>
             </>
         )

@@ -17,7 +17,7 @@ const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 type FeaturePlan = NonNullable<NonNullable<GetAvailableFeatureSubscriptionPlansQuery['result']>['plans'][number]>
 
-export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?: string) => {
+export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?: string, returnUrlOverride?: string) => {
     const intl = useIntl()
     const { organization } = useOrganization()
     const { subscriptionContext, isB2BAppEnabled, isFeatureAvailable, hasSubscriptionsFeature } = useOrganizationSubscription()
@@ -84,9 +84,9 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         return priceStr
     }, [featurePlanFirstPrice?.currencyCode, featurePlanFirstPrice?.period, featurePlanFirstPrice?.price, intl])
 
-    const returnUrl = feature === 'b2bApp' && b2bAppId
+    const returnUrl = returnUrlOverride ?? (feature === 'b2bApp' && b2bAppId
         ? `${serverUrl}/miniapps/${b2bAppId}/about`
-        : undefined
+        : undefined)
 
     const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
         if (!featurePlanFirstPrice?.id) return

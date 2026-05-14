@@ -1,3 +1,4 @@
+import { useGetB2BAppsWithBillingTabEmbeddingConfigQuery } from '@app/condo/gql'
 import { Image } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -11,12 +12,15 @@ import type { TabItem } from '@open-condo/ui'
 
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
+import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
+import { BillingTabTourStep } from '@condo/domains/billing/components/BillingPageContent/BillingTabTourStep'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
 import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
+import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
@@ -81,6 +85,16 @@ type MainContentProps = {
     uploadComponent?: React.ReactElement
 }
 
+type ExtensionTabType = {
+    id: string
+    appUrl: string
+    label: string
+    iconUrl?: string
+    initialHeight?: string | number
+    shortDescription?: string | null
+    isB2BApp?: boolean
+}
+
 export const MainContent: React.FC<MainContentProps> = ({
     uploadComponent,
 }) => {
@@ -93,12 +107,45 @@ export const MainContent: React.FC<MainContentProps> = ({
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
     const { billingContexts } = useBillingAndAcquiringContexts()
-    const extensionAppTabs = useMemo(() => billingContexts.filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage), [billingContexts])
+    const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
+        return billingContexts
+            .filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage)
+            .map(context => {
+                return {
+                    id: context.id,
+                    label: get(context, ['integration', 'billingPageTitle']) || get(context, ['integration', 'name'], ''),
+                    appUrl: get(context, ['integration', 'appUrl'], '') || '',
+                    iconUrl: get(context, ['integration', 'billingPageIcon', 'publicUrl'], null),
+                }
+            })
+    }, [billingContexts])
+
+    const { data } = useGetB2BAppsWithBillingTabEmbeddingConfigQuery()
+    const b2bAppsExtensionTabs: ExtensionTabType[] = useMemo(() => {
+        if (!data?.b2bApps) return []
+
+        return data?.b2bApps?.map((b2bApp) => {
+            return {
+                id: b2bApp.id,
+                label: b2bApp.name,
+                appUrl: b2bApp?.billingEmbeddingConfig?.tabUrl,
+                shortDescription: b2bApp?.shortDescription,
+                initialHeight: '100%',
+                isB2BApp: true,
+            }
+        })
+    }, [data?.b2bApps])
+
+    const extensionAppTabs: ExtensionTabType[] = useMemo(() => [
+        ...billingIntegrationsExtensionTabs,
+        ...b2bAppsExtensionTabs,
+    ], [b2bAppsExtensionTabs, billingIntegrationsExtensionTabs])
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
     const hasLastReport = billingContexts.find(({ lastReport }) => !!lastReport)
 
     const { useFlag } = useFeatureFlags()
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
+    const tourStepsConfig = useTourStepsConfig()
 
     const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
     const renderTabIcon = useCallback((iconUrl: string | null) => {
@@ -127,18 +174,21 @@ export const MainContent: React.FC<MainContentProps> = ({
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
                 children: <PaymentsTab type={currentType} />,
-            }]
+            },
+        ]
 
         extensionAppTabs.forEach((extensionAppTab) => {
-            const appUrl = get(extensionAppTab, ['integration', 'appUrl'], '') || ''
+            const { appUrl, id, label, iconUrl, initialHeight, shortDescription, isB2BApp } = extensionAppTab
             if (!appUrl) return
 
-            const iconUrl = get(extensionAppTab, ['integration', 'billingPageIcon', 'publicUrl'], null)
-            const tabKey = `${EXTENSION_TAB_KEY}-${extensionAppTab.id}`
             result.push({
-                label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
-                key: tabKey,
-                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>,
+                label,
+                key: `${EXTENSION_TAB_KEY}-${id}`,
+                children: isB2BApp ? (
+                    <B2BAppBillingTab appId={id} appUrl={appUrl} shortDescription={shortDescription} />
+                ) : (
+                    <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={initialHeight || 400}/>
+                ),
                 icon: renderTabIcon(iconUrl),
             })
         })
@@ -147,12 +197,20 @@ export const MainContent: React.FC<MainContentProps> = ({
     }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
 
     return (
-        <Tabs
-            activeKey={currentTab}
-            onChange={onTabChange}
-            items={items}
-            destroyInactiveTabPane
-            tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
-        />
+        <>
+            <Tabs
+                id='billing-tabs'
+                activeKey={currentTab}
+                onChange={onTabChange}
+                items={items}
+                destroyInactiveTabPane
+                tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
+            />
+            {extensionAppTabs.map(({ id }) => {
+                const tourStep = tourStepsConfig[id]
+                if (!tourStep) return null
+                return <BillingTabTourStep key={id} id={id} tabsId='billing-tabs' title={tourStep.title} message={tourStep.message} />
+            })}
+        </>
     )
 }
