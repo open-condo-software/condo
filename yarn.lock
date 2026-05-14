@@ -928,7 +928,7 @@ __metadata:
     antd: ^4.24.12
     cross-env: ^7.0.3
     dayjs: ^1.11.10
-    docx: ^8.5.0
+    docx: ^9.6.1
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
@@ -1180,7 +1180,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": ^9.0.3
+    "@open-keystone/app-next": ^9.0.1
     "@types/jest": ^29.5.14
     "@types/node": ^22
     "@types/react": ^18.3.1
@@ -1296,7 +1296,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": ^9.0.3
+    "@open-keystone/app-next": ^9.0.1
     "@types/jest": ^29.5.14
     "@types/node": ^22
     "@types/react": ^18.3.1
@@ -1806,7 +1806,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": ^9.0.3
+    "@open-keystone/app-next": ^9.0.1
     "@telephony/domains": "link:./domains"
     "@types/node": ^22
     "@types/react": ^18.3.1
@@ -12525,7 +12525,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/app-next@npm:^9.0.3":
+"@open-keystone/app-next@npm:^9.0.1, @open-keystone/app-next@npm:^9.0.3":
   version: 9.0.3
   resolution: "@open-keystone/app-next@npm:9.0.3"
   peerDependencies:
@@ -16448,15 +16448,6 @@ __metadata:
   dependencies:
     undici-types: ~5.26.4
   checksum: 33b477bfff9ebc15721d0d94beacbedbc3c66892587cce758289682a07a2a77e69b536cc68bddf240b82ddcb426700b4e04fc6f1db6fcfb174a98c5ec6d9bbf5
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.3.1":
-  version: 20.19.39
-  resolution: "@types/node@npm:20.19.39"
-  dependencies:
-    undici-types: ~6.21.0
-  checksum: ebd35fc49e79bb29b9af50b0ca442160c74e9b059e0f814240033b6b757dd15399d9fd1362e32c8246322b1c703f048af793656fc9dfd4c2484cf2b1702f6820
   languageName: node
   linkType: hard
 
@@ -23585,19 +23576,6 @@ __metadata:
   dependencies:
     esutils: ^2.0.2
   checksum: fd7673ca77fe26cd5cba38d816bc72d641f500f1f9b25b83e8ce28827fe2da7ad583a8da26ab6af85f834138cf8dae9f69b0cd6ab925f52ddab1754db44d99ce
-  languageName: node
-  linkType: hard
-
-"docx@npm:^8.5.0":
-  version: 8.5.0
-  resolution: "docx@npm:8.5.0"
-  dependencies:
-    "@types/node": ^20.3.1
-    jszip: ^3.10.1
-    nanoid: ^5.0.4
-    xml: ^1.0.1
-    xml-js: ^1.6.8
-  checksum: ff3fdafd4748ba7e4edefcd9f5e78996747d370eda10c6db47818b03945af415dc3ddf037a9583083fd201f9c080e1251e21062f35739791c1bfe4f25073660e
   languageName: node
   linkType: hard
 
@@ -35345,15 +35323,6 @@ __metadata:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
-  languageName: node
-  linkType: hard
-
-"nanoid@npm:^5.0.4":
-  version: 5.1.9
-  resolution: "nanoid@npm:5.1.9"
-  bin:
-    nanoid: bin/nanoid.js
-  checksum: a8cc355ed2176165a0fb5e0dbbac0b72f05d9ac08af50bf652ace22252d7a1455ef307b54681e39baf609a4da84600cad843bf01d9bd1cc1440f6fd166e19589
   languageName: node
   linkType: hard
 
