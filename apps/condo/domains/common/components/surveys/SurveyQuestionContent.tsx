@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { Checkbox, Input, Markdown, Radio, Space } from '@open-condo/ui'
 
@@ -11,130 +11,117 @@ export type SurveyQuestionState = {
     isValid: boolean
 }
 
+type QuestionRendererProps = {
+    question: SurveyQuestion
+    value: SurveyQuestionValue
+    onChange: (value: SurveyQuestionValue) => void
+}
+
+type QuestionConfig = {
+    getValue: (value: SurveyQuestionValue) => SurveyQuestionValue
+    validate: (value: SurveyQuestionValue) => boolean
+    render: (props: QuestionRendererProps) => React.ReactNode
+}
+
+const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
+    single_choice: {
+        getValue: (v) => (typeof v === 'string' ? v : ''),
+        validate: (v) => !!v,
+        render: ({ question, value, onChange }) => (
+            <Radio.Group value={value as string} onChange={(e) => onChange(e.target.value)}>
+                <Space direction='vertical' size={20}>
+                    {'choices' in question && question.choices?.map((choice) => (
+                        <Radio key={choice} value={choice} label={choice} />
+                    ))}
+                </Space>
+            </Radio.Group>
+        ),
+    },
+    multiple_choice: {
+        getValue: (v) => (Array.isArray(v) ? v : []),
+        validate: (v) => Array.isArray(v) && v.length > 0,
+        render: ({ question, value, onChange }) => {
+            const currentValues = Array.isArray(value) ? value : []
+            const handleChange = (choice: string, checked: boolean) => {
+                if (checked) {
+                    onChange([...currentValues, choice])
+                } else {
+                    onChange(currentValues.filter((v) => v !== choice))
+                }
+            }
+            return (
+                <Space direction='vertical' size={20}>
+                    {'choices' in question && question.choices?.map((choice) => (
+                        <Checkbox
+                            key={choice}
+                            checked={currentValues.includes(choice)}
+                            onChange={(e) => handleChange(choice, e.target.checked)}
+                        >
+                            {choice}
+                        </Checkbox>
+                    ))}
+                </Space>
+            )
+        },
+    },
+    open: {
+        getValue: (v) => (typeof v === 'string' ? v : ''),
+        validate: (v) => typeof v === 'string' && !!v.trim(),
+        render: ({ value, onChange }) => (
+            <Input.TextArea
+                value={value as string}
+                onChange={(e) => onChange(e.target.value)}
+                rows={4}
+            />
+        ),
+    },
+    rating: {
+        getValue: (v) => (typeof v === 'number' ? v : null),
+        validate: (v) => v !== null,
+        render: ({ value, onChange }) => (
+            <Radio.Group
+                value={value?.toString()}
+                onChange={(e) => onChange(Number(e.target.value))}
+            >
+                <Space direction='horizontal' size={12}>
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                        <Radio
+                            key={rating}
+                            value={rating.toString()}
+                            label={rating.toString()}
+                        />
+                    ))}
+                </Space>
+            </Radio.Group>
+        ),
+    },
+    link: {
+        getValue: () => 'link clicked',
+        validate: () => true,
+        render: () => null,
+    },
+}
+
 type SurveyQuestionContentProps = {
     question: SurveyQuestion
     onStateChange?: (state: SurveyQuestionState) => void
 }
 
 export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ question, onStateChange }) => {
-    const [singleChoiceValue, setSingleChoiceValue] = useState<string>('')
-    const [multipleChoiceValues, setMultipleChoiceValues] = useState<string[]>([])
-    const [openTextValue, setOpenTextValue] = useState<string>('')
-    const [ratingValue, setRatingValue] = useState<number | null>(null)
-
-    const currentValue = useMemo<SurveyQuestionValue>(() => {
-        switch (question.type) {
-            case 'single_choice':
-                return singleChoiceValue
-            case 'multiple_choice':
-                return multipleChoiceValues
-            case 'open':
-                return openTextValue
-            case 'rating':
-                return ratingValue
-            case 'link':
-                return 'link clicked'
-            default:
-                return null
-        }
-    }, [question.type, singleChoiceValue, multipleChoiceValues, openTextValue, ratingValue])
-
-    const isValid = useMemo(() => {
-        switch (question.type) {
-            case 'single_choice':
-                return !!singleChoiceValue
-            case 'multiple_choice':
-                return multipleChoiceValues.length > 0
-            case 'open':
-                return !!openTextValue.trim()
-            case 'rating':
-                return ratingValue !== null
-            case 'link':
-                return true
-            default:
-                return false
-        }
-    }, [question.type, singleChoiceValue, multipleChoiceValues, openTextValue, ratingValue])
+    const config = QUESTION_CONFIGS[question.type]
+    const [value, setValue] = useState<SurveyQuestionValue>(config?.getValue(null) ?? null)
 
     useEffect(() => {
-        if (onStateChange) {
-            onStateChange({ value: currentValue, isValid })
-        }
-    }, [currentValue, isValid, onStateChange])
+        setValue(config?.getValue(null) ?? null)
+    }, [question.id, config])
+
+    const isValid = useMemo(() => config?.validate(value) ?? false, [config, value])
 
     useEffect(() => {
-        setSingleChoiceValue('')
-        setMultipleChoiceValues([])
-        setOpenTextValue('')
-        setRatingValue(null)
-    }, [question])
+        onStateChange?.({ value, isValid })
+    }, [value, isValid, onStateChange])
 
-    const setCheckBoxValue = useCallback((e, choice)=> {
-        if (e.target.checked) {
-            setMultipleChoiceValues([...multipleChoiceValues, choice])
-        } else {
-            setMultipleChoiceValues(multipleChoiceValues.filter((v) => v !== choice))
-        }
-    }, [multipleChoiceValues])
-
-    const questionContent = useMemo(() => {
-        switch (question.type) {
-            case 'single_choice':
-                return (
-                    <Radio.Group
-                        value={singleChoiceValue}
-                        onChange={(e) => setSingleChoiceValue(e.target.value)}
-                    >
-                        <Space direction='vertical' size={20}>
-                            {'choices' in question && question.choices?.map((choice) => (
-                                <Radio key={choice} value={choice} label={choice} />
-                            ))}
-                        </Space>
-                    </Radio.Group>
-                )
-            case 'multiple_choice':
-                return (
-                    <Space direction='vertical' size={20}>
-                        {'choices' in question && question.choices?.map((choice) => (
-                            <Checkbox
-                                key={choice}
-                                checked={multipleChoiceValues.includes(choice)}
-                                onChange={e => setCheckBoxValue(e, choice)}
-                            >
-                                {choice}
-                            </Checkbox>
-                        ))}
-                    </Space>
-                )
-            case 'open':
-                return (
-                    <Input.TextArea
-                        value={openTextValue}
-                        onChange={(e) => setOpenTextValue(e.target.value)}
-                        rows={4}
-                    />
-                )
-            case 'rating':
-                return (
-                    <Radio.Group
-                        value={ratingValue?.toString()}
-                        onChange={(e) => setRatingValue(Number(e.target.value))}
-                    >
-                        <Space direction='horizontal' size={12}>
-                            {[1, 2, 3, 4, 5].map((rating) => (
-                                <Radio
-                                    key={rating}
-                                    value={rating.toString()}
-                                    label={rating.toString()}
-                                />
-                            ))}
-                        </Space>
-                    </Radio.Group>
-                )
-            default:
-                return null
-        }
-    }, [question, singleChoiceValue, openTextValue, ratingValue, multipleChoiceValues, setCheckBoxValue])
+    if (!config) return null
 
     return (
         <Space direction='vertical' size={24} width='100%'>
@@ -143,17 +130,15 @@ export const SurveyQuestionContent: React.FC<SurveyQuestionContentProps> = ({ qu
                     {question.description}
                 </Markdown>
             )}
-            {questionContent}
+            {config.render({ question, value, onChange: setValue })}
         </Space>
     )
 }
 
-export const getSurveyQuestionValue = (question: SurveyQuestion, state: SurveyQuestionState): string | string[] | number => {
-    if (question.type === 'link') {
-        if (question.link) {
-            window.open(question.link, '_blank')
-        }
+export const getSurveyQuestionValue = (question: SurveyQuestion, state: SurveyQuestionState): SurveyQuestionValue => {
+    if (question.type === 'link' && question.link) {
+        window.open(question.link, '_blank')
         return 'link clicked'
     }
-    return state.value as string | string[] | number
+    return state.value
 }
