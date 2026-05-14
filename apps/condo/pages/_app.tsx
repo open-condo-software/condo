@@ -31,6 +31,7 @@ import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
+import { SurveysProvider } from '@open-condo/surveys'
 
 import { AIProvider, useAIContext } from '@condo/domains/ai/components/AIContext'
 import { AIOverlay } from '@condo/domains/ai/components/AIOverlay'
@@ -49,6 +50,7 @@ import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
 import { Snowfall } from '@condo/domains/common/components/Snowfall'
+import { SurveysQueue } from '@condo/domains/common/components/surveys/SurveyQueue'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
@@ -573,15 +575,18 @@ const MyApp = ({ Component, pageProps }) => {
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
                                                                 <CondoAppEventsHandler/>
-                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                    <RequiredAccess>
-                                                                        <SubscriptionAccessGuard skipGuard={Component.isError}>
-                                                                            <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                                <Component {...pageProps} />
-                                                                            </FeaturesReady>
-                                                                        </SubscriptionAccessGuard>
-                                                                    </RequiredAccess>
-                                                                </LayoutComponent>
+                                                                <SurveysProvider>
+                                                                    <SurveysQueue/>
+                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                        <RequiredAccess>
+                                                                            <SubscriptionAccessGuard skipGuard={Component.isError}>
+                                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                                    <Component {...pageProps} />
+                                                                                </FeaturesReady>
+                                                                            </SubscriptionAccessGuard>
+                                                                        </RequiredAccess>
+                                                                    </LayoutComponent>
+                                                                </SurveysProvider>
                                                             </ConnectedAppsWithIconsContextProvider>
                                                         </ActiveCallContextProvider>
                                                     </TicketVisibilityContextProvider>

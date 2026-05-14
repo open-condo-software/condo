@@ -3904,5 +3904,7 @@
   "richTextArea.emojiDropdown.categories.objects": "Objetos",
   "richTextArea.emojiDropdown.categories.people": "Personas",
   "richTextArea.emojiDropdown.categories.places": "Lugares",
-  "richTextArea.emojiDropdown.categories.symbols": "Símbolos"
+  "richTextArea.emojiDropdown.categories.symbols": "Símbolos",
+  "surveys.button.back": "Atrás",
+  "surveys.questionProgress": "Pregunta {current} de {total}"
 }

@@ -71,6 +71,11 @@ type TicketExportToPdfEventData = {
     mode: 'single' | 'multiple' | null
 }
 
+type SurveyModalData = {
+    $survey_id: string
+    $survey_name: string
+}
+
 type AiAssistantMessageSendEventData = {
     source: 'typed' | 'scenario_button' | 'suggestion'
     is_first_in_session: boolean
@@ -120,11 +125,15 @@ export type EventsData = {
         currencyCode: string | null
         period: string | null
     }
+    'survey sent': SurveyModalData
+    'survey shown': SurveyModalData
+    'survey dismissed': SurveyModalData
 }
 
 type UserData = {
     name?: string | null
     type?: string | null
+    role?: string | null
     'organization.id'?: string | null
 }
 

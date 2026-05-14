@@ -3904,5 +3904,7 @@
   "richTextArea.emojiDropdown.categories.objects": "Предметы",
   "richTextArea.emojiDropdown.categories.people": "Эмоции и люди",
   "richTextArea.emojiDropdown.categories.places": "Путешествия и места",
-  "richTextArea.emojiDropdown.categories.symbols": "Символы"
+  "richTextArea.emojiDropdown.categories.symbols": "Символы",
+  "surveys.button.back": "Назад",
+  "surveys.questionProgress": "Вопрос {current} из {total}"
 }

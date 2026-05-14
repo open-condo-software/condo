@@ -1,0 +1,29 @@
+.survey-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.survey-fullscreen-logo {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+}
+
+.survey-fullscreen-modal {
+  max-width: 600px;
+  padding: 40px;
+}
+
+.action-button-wrapper {
+  width: 100%;
+}
