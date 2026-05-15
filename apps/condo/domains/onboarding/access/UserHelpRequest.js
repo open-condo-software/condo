@@ -9,12 +9,13 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { ACTIVATE_SUBSCRIPTION_TYPE, ACTIVATE_BANKING_TYPE, INTEGRATION_SETUP_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { checkUserEmploymentInOrganizations, getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 const AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FIELDS = ['dv', 'sender', 'isReadyToSend']
+const ORGANIZATION_WIDE_REQUESTS = [ACTIVATE_SUBSCRIPTION_TYPE, ACTIVATE_BANKING_TYPE, INTEGRATION_SETUP_TYPE]
 
 async function canReadUserHelpRequests ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -33,7 +34,7 @@ async function canReadUserHelpRequests ({ authentication: { item: user }, contex
                 { createdBy: { id: user.id } },
                 {
                     AND: [
-                        { type: ACTIVATE_SUBSCRIPTION_TYPE },
+                        { type_in: ORGANIZATION_WIDE_REQUESTS },
                         { organization: { id_in: employedOrganizationIds } },
                     ],
                 },

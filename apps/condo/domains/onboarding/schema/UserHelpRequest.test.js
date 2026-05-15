@@ -11,7 +11,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
-const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { ACTIVATE_SUBSCRIPTION_TYPE, CALLBACK_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest, createTestUserHelpRequest, updateTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
@@ -26,23 +26,36 @@ const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const UPDATE_PAYLOAD = { isReadyToSend: true }
 
 describe('UserHelpRequest', () => {
-    let admin, support, anonymous, organization, employeeUser, notEmployeeUser, employeeUserRequest, residentClient
+    let admin, support, anonymous, organization, secondOrganization
+    let employeeUser, sameOrganizationEmployeeUser, employedInSecondOrganizationUser, outsiderUser
+    let employeeUserRequest, residentClient
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
-        notEmployeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        sameOrganizationEmployeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        employedInSecondOrganizationUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        outsiderUser = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
 
         const [testOrganization] = await createTestOrganization(admin)
         organization = testOrganization
+        const [anotherOrganization] = await createTestOrganization(admin)
+        secondOrganization = anotherOrganization
 
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageCallRecords: true,
             canManageTickets: true,
         })
+        const [secondOrganizationRole] = await createTestOrganizationEmployeeRole(admin, secondOrganization, {
+            canManageCallRecords: true,
+            canManageTickets: true,
+        })
         await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, { isAccepted: true })
+        await createTestOrganizationEmployee(admin, organization, sameOrganizationEmployeeUser.user, role, { isAccepted: true })
+        await createTestOrganizationEmployee(admin, secondOrganization, employedInSecondOrganizationUser.user, secondOrganizationRole, { isAccepted: true })
+        await createTestOrganizationEmployee(admin, secondOrganization, employeeUser.user, secondOrganizationRole, { isAccepted: true })
 
         const [helpRequest] = await createTestUserHelpRequest(employeeUser, organization)
         employeeUserRequest = helpRequest
@@ -84,7 +97,7 @@ describe('UserHelpRequest', () => {
 
             it('user: can not if he is not employee', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestUserHelpRequest(notEmployeeUser, organization)
+                    await createTestUserHelpRequest(outsiderUser, organization)
                 })
             })
 
@@ -118,7 +131,43 @@ describe('UserHelpRequest', () => {
             })
 
             it('user: can not read not his help requests', async () => {
-                const readHelpRequest = await UserHelpRequest.getOne(notEmployeeUser, { id: employeeUserRequest.id })
+                const readHelpRequest = await UserHelpRequest.getOne(outsiderUser, { id: employeeUserRequest.id })
+                expect(readHelpRequest).toBeUndefined()
+            })
+
+            it('user: can read organization-wide type requests from same organization', async () => {
+                const [organizationWideRequest] = await createTestUserHelpRequest(employeeUser, organization, {
+                    type: ACTIVATE_SUBSCRIPTION_TYPE,
+                })
+                const readHelpRequest = await UserHelpRequest.getOne(sameOrganizationEmployeeUser, { id: organizationWideRequest.id })
+
+                expect(readHelpRequest).toBeDefined()
+            })
+
+            it('user: can not read non organization-wide type requests from same organization', async () => {
+                const [privateRequest] = await createTestUserHelpRequest(employeeUser, organization, {
+                    type: CALLBACK_TYPE,
+                })
+                const readHelpRequest = await UserHelpRequest.getOne(sameOrganizationEmployeeUser, { id: privateRequest.id })
+
+                expect(readHelpRequest).toBeUndefined()
+            })
+
+            it('user: can read organization-wide type requests from another employed organization', async () => {
+                const [organizationWideRequest] = await createTestUserHelpRequest(employedInSecondOrganizationUser, secondOrganization, {
+                    type: ACTIVATE_SUBSCRIPTION_TYPE,
+                })
+                const readHelpRequest = await UserHelpRequest.getOne(employeeUser, { id: organizationWideRequest.id })
+
+                expect(readHelpRequest).toBeDefined()
+            })
+
+            it('user: can not read organization-wide type requests from non-employed organization', async () => {
+                const [organizationWideRequest] = await createTestUserHelpRequest(employedInSecondOrganizationUser, secondOrganization, {
+                    type: ACTIVATE_SUBSCRIPTION_TYPE,
+                })
+                const readHelpRequest = await UserHelpRequest.getOne(outsiderUser, { id: organizationWideRequest.id })
+
                 expect(readHelpRequest).toBeUndefined()
             })
         })
