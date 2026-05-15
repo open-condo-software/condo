@@ -597,7 +597,7 @@ __metadata:
     "@types/react": ^18.3.1
     "@types/react-dom": ^18.3.1
     antd: ^4.24.12
-    next: ^15.5.18
+    next: ^15.5.7
     pdfmake: 0.2.10
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -690,7 +690,7 @@ __metadata:
     jest-jasmine2: ^29.7.0
     jszip: ^3.10.1
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     openid-client: 5.7.1
     pdf-lib: ^1.17.1
     phone: ^3.1.41
@@ -742,7 +742,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
@@ -856,7 +856,7 @@ __metadata:
     mkdirp: ^3.0.1
     n2words: 1.15.0
     nanoid: ^3.3.4
-    next: ^15.5.18
+    next: ^15.5.15
     next-with-less: ^3.0.1
     nock: ^14.0.5
     node-fetch: ^2.6.7
@@ -936,7 +936,7 @@ __metadata:
     jszip: ^3.10.1
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    next: ^15.5.18
+    next: ^15.5.7
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
@@ -1005,7 +1005,7 @@ __metadata:
     graphql: ^16.10.0
     gray-matter: 4.0.3
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.15
     next-mdx-remote: 4.3.0
     next-seo: ^6.4.0
     phone: ^3.1.41
@@ -1035,7 +1035,7 @@ __metadata:
     "@types/react": ^18.3.1
     "@types/react-dom": ^18.3.1
     antd: ^4.24.12
-    next: ^15.5.18
+    next: ^15.5.7
     react: ^18.3.1
     react-dom: ^18.3.1
     react-intl: ^7.1.11
@@ -1121,7 +1121,7 @@ __metadata:
     less-loader: ^12.3.0
     lodash: ^4.17.21
     nanoid: ^3.3.4
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     nunjucks: ^3.2.4
     react: ^18.3.1
@@ -1199,7 +1199,7 @@ __metadata:
     lodash: ^4.17.21
     mkdirp: ^3.0.1
     moment: 2.29.4
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     phone: ^3.1.41
@@ -1268,7 +1268,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.15
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
@@ -1297,7 +1297,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": ^9.0.3
+    "@open-keystone/app-next": ^9.0.1
     "@types/jest": ^29.5.14
     "@types/node": ^22
     "@types/react": ^18.3.1
@@ -1313,7 +1313,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     node-fetch: ^2.6.7
     pluralize: ^8.0.0
@@ -1375,7 +1375,7 @@ __metadata:
     deepmerge: ^4.3.1
     graphql: ^16.10.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     react: ^18.3.1
     react-dom: ^18.3.1
     react-intl: ^7.1.11
@@ -1426,7 +1426,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     pluralize: ^8.0.0
@@ -1473,7 +1473,7 @@ __metadata:
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    next: ^15.5.18
+    next: ^15.5.7
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
@@ -1505,7 +1505,7 @@ __metadata:
     flowise-embed-react: ^3.0.3
     http-proxy: ^1.18.1
     iron-session: ^8.0.4
-    next: ^15.5.18
+    next: ^15.5.7
     openid-client: 5.7.1
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -1544,7 +1544,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     node-fetch: ^2.6.7
     openid-client: 5.7.1
@@ -1606,7 +1606,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     next-cookies: ^2.0.3
     next-with-less: ^3.0.1
     nunjucks: ^3.2.4
@@ -1685,7 +1685,7 @@ __metadata:
     memory-streams: ^0.1.3
     mkdirp: ^3.0.1
     muhammara: ^6.0.2
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     pdf-lib: ^1.17.1
@@ -1750,7 +1750,7 @@ __metadata:
     libphonenumber-js: ^1.12.26
     locale-currency: 1.0.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     node-html-parser: ^7.0.2
     openid-client: 5.7.1
     path-to-regexp: ^8.2.0
@@ -1820,7 +1820,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.7
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
@@ -12215,7 +12215,7 @@ __metadata:
     isomorphic-unfetch: ^3.0.0
     js-cookie: ^2.2.1
     lodash: ^4.17.21
-    next: ^15.5.18
+    next: ^15.5.15
     next-cookies: ^2.0.3
     pino: ^6.13.3
     react-intl: ^7.1.11
@@ -12535,7 +12535,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/app-next@npm:^9.0.3":
+"@open-keystone/app-next@npm:^9.0.1, @open-keystone/app-next@npm:^9.0.3":
   version: 9.0.3
   resolution: "@open-keystone/app-next@npm:9.0.3"
   peerDependencies:
