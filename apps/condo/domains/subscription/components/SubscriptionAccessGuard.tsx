@@ -4,7 +4,9 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Button, Tooltip } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -79,6 +81,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { organization, isLoading: orgIsLoading } = useOrganization()
+    const { isLoading: authIsLoading } = useAuth()
 
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
@@ -175,7 +179,11 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
     }, [helpLink])
 
-    if (!skipGuard && (loading || (isMiniapp && b2bAppLoading) || featureLoading)) {
+    const pageRequiresSubscription = !skipGuard && requiresSubscriptionAccess(router.pathname)
+    const isLoading = authIsLoading || orgIsLoading || loading || featureLoading || (isMiniapp && b2bAppLoading)
+    const isOrgDataPending = pageRequiresSubscription && (isLoading || !organization)
+
+    if (!skipGuard && isOrgDataPending) {
         return <Loader />
     }
 
