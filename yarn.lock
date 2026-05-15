@@ -597,7 +597,7 @@ __metadata:
     "@types/react": ^18.3.1
     "@types/react-dom": ^18.3.1
     antd: ^4.24.12
-    next: ^15.5.7
+    next: ^15.5.18
     pdfmake: 0.2.10
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -690,7 +690,7 @@ __metadata:
     jest-jasmine2: ^29.7.0
     jszip: ^3.10.1
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     openid-client: 5.7.1
     pdf-lib: ^1.17.1
     phone: ^3.1.41
@@ -742,7 +742,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
@@ -856,7 +856,7 @@ __metadata:
     mkdirp: ^3.0.1
     n2words: 1.15.0
     nanoid: ^3.3.4
-    next: ^15.5.15
+    next: ^15.5.18
     next-with-less: ^3.0.1
     nock: ^14.0.5
     node-fetch: ^2.6.7
@@ -936,7 +936,7 @@ __metadata:
     jszip: ^3.10.1
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    next: ^15.5.7
+    next: ^15.5.18
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
@@ -1005,7 +1005,7 @@ __metadata:
     graphql: ^16.10.0
     gray-matter: 4.0.3
     lodash: ^4.17.21
-    next: ^15.5.15
+    next: ^15.5.18
     next-mdx-remote: 4.3.0
     next-seo: ^6.4.0
     phone: ^3.1.41
@@ -1035,7 +1035,7 @@ __metadata:
     "@types/react": ^18.3.1
     "@types/react-dom": ^18.3.1
     antd: ^4.24.12
-    next: ^15.5.7
+    next: ^15.5.18
     react: ^18.3.1
     react-dom: ^18.3.1
     react-intl: ^7.1.11
@@ -1121,7 +1121,7 @@ __metadata:
     less-loader: ^12.3.0
     lodash: ^4.17.21
     nanoid: ^3.3.4
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     nunjucks: ^3.2.4
     react: ^18.3.1
@@ -1199,7 +1199,7 @@ __metadata:
     lodash: ^4.17.21
     mkdirp: ^3.0.1
     moment: 2.29.4
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     phone: ^3.1.41
@@ -1268,7 +1268,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.15
+    next: ^15.5.18
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
@@ -1313,7 +1313,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     node-fetch: ^2.6.7
     pluralize: ^8.0.0
@@ -1375,7 +1375,7 @@ __metadata:
     deepmerge: ^4.3.1
     graphql: ^16.10.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     react: ^18.3.1
     react-dom: ^18.3.1
     react-intl: ^7.1.11
@@ -1426,7 +1426,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     pluralize: ^8.0.0
@@ -1473,7 +1473,7 @@ __metadata:
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    next: ^15.5.7
+    next: ^15.5.18
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
@@ -1505,7 +1505,7 @@ __metadata:
     flowise-embed-react: ^3.0.3
     http-proxy: ^1.18.1
     iron-session: ^8.0.4
-    next: ^15.5.7
+    next: ^15.5.18
     openid-client: 5.7.1
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -1544,7 +1544,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     node-fetch: ^2.6.7
     openid-client: 5.7.1
@@ -1606,7 +1606,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     next-cookies: ^2.0.3
     next-with-less: ^3.0.1
     nunjucks: ^3.2.4
@@ -1685,7 +1685,7 @@ __metadata:
     memory-streams: ^0.1.3
     mkdirp: ^3.0.1
     muhammara: ^6.0.2
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     pdf-lib: ^1.17.1
@@ -1750,7 +1750,7 @@ __metadata:
     libphonenumber-js: ^1.12.26
     locale-currency: 1.0.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     node-html-parser: ^7.0.2
     openid-client: 5.7.1
     path-to-regexp: ^8.2.0
@@ -1820,7 +1820,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
-    next: ^15.5.7
+    next: ^15.5.18
     next-with-less: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
@@ -10930,65 +10930,65 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@next/env@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/env@npm:15.5.15"
-  checksum: f07bf0f28bd71396e5f22328f4014fd64f4f7a175311d4d3e121797bd18f4635b8b906d4044709d20f5f55bdc2a6034dfa0acade4e152c1a733b61d4d08c500d
+"@next/env@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/env@npm:15.5.18"
+  checksum: de4165dc1caaf9da8bf014618e5a096d5c06e074509c1950c5a074a64110a497ed44d61866fbd1def3041e1e67b7f88ed515953eea4d5ab62f6ece01be79d7f4
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-darwin-arm64@npm:15.5.15"
+"@next/swc-darwin-arm64@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-darwin-arm64@npm:15.5.18"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-darwin-x64@npm:15.5.15"
+"@next/swc-darwin-x64@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-darwin-x64@npm:15.5.18"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-linux-arm64-gnu@npm:15.5.15"
+"@next/swc-linux-arm64-gnu@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-linux-arm64-gnu@npm:15.5.18"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-linux-arm64-musl@npm:15.5.15"
+"@next/swc-linux-arm64-musl@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-linux-arm64-musl@npm:15.5.18"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-linux-x64-gnu@npm:15.5.15"
+"@next/swc-linux-x64-gnu@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-linux-x64-gnu@npm:15.5.18"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-linux-x64-musl@npm:15.5.15"
+"@next/swc-linux-x64-musl@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-linux-x64-musl@npm:15.5.18"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-win32-arm64-msvc@npm:15.5.15"
+"@next/swc-win32-arm64-msvc@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-win32-arm64-msvc@npm:15.5.18"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:15.5.15":
-  version: 15.5.15
-  resolution: "@next/swc-win32-x64-msvc@npm:15.5.15"
+"@next/swc-win32-x64-msvc@npm:15.5.18":
+  version: 15.5.18
+  resolution: "@next/swc-win32-x64-msvc@npm:15.5.18"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -12215,7 +12215,7 @@ __metadata:
     isomorphic-unfetch: ^3.0.0
     js-cookie: ^2.2.1
     lodash: ^4.17.21
-    next: ^15.5.15
+    next: ^15.5.18
     next-cookies: ^2.0.3
     pino: ^6.13.3
     react-intl: ^7.1.11
@@ -35486,19 +35486,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:^15.5.15":
-  version: 15.5.15
-  resolution: "next@npm:15.5.15"
+"next@npm:^15.5.18":
+  version: 15.5.18
+  resolution: "next@npm:15.5.18"
   dependencies:
-    "@next/env": 15.5.15
-    "@next/swc-darwin-arm64": 15.5.15
-    "@next/swc-darwin-x64": 15.5.15
-    "@next/swc-linux-arm64-gnu": 15.5.15
-    "@next/swc-linux-arm64-musl": 15.5.15
-    "@next/swc-linux-x64-gnu": 15.5.15
-    "@next/swc-linux-x64-musl": 15.5.15
-    "@next/swc-win32-arm64-msvc": 15.5.15
-    "@next/swc-win32-x64-msvc": 15.5.15
+    "@next/env": 15.5.18
+    "@next/swc-darwin-arm64": 15.5.18
+    "@next/swc-darwin-x64": 15.5.18
+    "@next/swc-linux-arm64-gnu": 15.5.18
+    "@next/swc-linux-arm64-musl": 15.5.18
+    "@next/swc-linux-x64-gnu": 15.5.18
+    "@next/swc-linux-x64-musl": 15.5.18
+    "@next/swc-win32-arm64-msvc": 15.5.18
+    "@next/swc-win32-x64-msvc": 15.5.18
     "@swc/helpers": 0.5.15
     caniuse-lite: ^1.0.30001579
     postcss: 8.4.31
@@ -35541,7 +35541,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: e65eaf1b2b755e132cfa1ca8df376471d8535dfa698f250bf0f433bfbf560b7e2b52cd7e26e56bd4998042d5bd7deee910c1df8cdb2dbb7a1a5bd4f3de56d8a5
+  checksum: 97989a5a3766e859c239921d293111d29f5f3eaec5d4f2c06044d0e1952527cb1ecf09a42656538cb75b140b2bee34979156a3003e4af639d2fd74402f9acad1
   languageName: node
   linkType: hard
 
