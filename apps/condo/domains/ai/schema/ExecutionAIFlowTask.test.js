@@ -20,6 +20,7 @@ const {
 const {
     TASK_STATUSES,
 } = require('@condo/domains/ai/constants')
+const { EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER } = require('@condo/domains/ai/schema/ExecutionAIFlowTask')
 const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const {
     ExecutionAIFlowTask,
@@ -446,8 +447,8 @@ describe('ExecutionAIFlowTask', () => {
     })
 
     describe('Rate limiter', () => {
-        test('User can run only 30 tasks per 1 hours (default limits)', async () => {
-            const MAX_REQUESTS = 30
+        test(`User can run only ${EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER.windowLimit} tasks per 1 hours (default limits)`, async () => {
+            const MAX_REQUESTS = EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER.windowLimit
 
             for (let i = 0; i < MAX_REQUESTS; i++) {
                 const selfTask = await ExecutionAIFlowTaskForUser.create(userClient, {
@@ -501,6 +502,7 @@ describe('ExecutionAIFlowTask', () => {
             const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                 flowType: 'failed_flow',
                 context: { problem: faker.lorem.sentence() },
+                locale: 'en',
             })
 
             await waitFor(async () => {

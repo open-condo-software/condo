@@ -335,4 +335,5 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
 module.exports = {
     ExecutionAIFlowTask,
     ERRORS,
+    EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER,
 }
