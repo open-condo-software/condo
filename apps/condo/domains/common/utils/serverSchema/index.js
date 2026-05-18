@@ -19,6 +19,8 @@ const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
 const logger = getLogger()
 const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
 
+// Cross-table join (GraphQL path): load related rows from another source registry entry.
+// Used by GqlWithKnexLoadList to rewrite where { relation: {...} } and hydrate relations after main query.
 class RelationExecutionPlanner {
     constructor ({ listKey, adapter, isPrisma, prisma, knex, sourceRegistry, consistencyMode = 'strict' }) {
         this.listKey = listKey
@@ -31,15 +33,15 @@ class RelationExecutionPlanner {
         this.baseSource = sourceRegistry.resolveSource(listKey)
     }
 
-    hasCrossSourceRelations (singleRelations = []) {
+    _hasCrossSourceRelations (singleRelations = []) {
         return singleRelations.some(([model]) => this.sourceRegistry.resolveSource(model) !== this.baseSource)
     }
 
-    isCrossSourceRelation (model) {
+    _isCrossSourceRelation (model) {
         return this.sourceRegistry.resolveSource(model) !== this.baseSource
     }
 
-    async fetchRows ({ tableName, columns, values, valueColumn = 'id' }) {
+    async _fetchRows ({ tableName, columns, values, valueColumn = 'id' }) {
         if (!values.length) return []
 
         const sourceName = this.sourceRegistry.resolveSource(tableName)
@@ -200,7 +202,7 @@ class GqlWithKnexLoadList {
             return []
         }
 
-        if (this.crossDbPlannerEnabled && this._relationPlanner.hasCrossSourceRelations(this.singleRelations)) {
+        if (this.crossDbPlannerEnabled && this._relationPlanner._hasCrossSourceRelations(this.singleRelations)) {
             return this._loadChunkCrossDb(mainTableObjects)
         }
 
@@ -213,14 +215,15 @@ class GqlWithKnexLoadList {
         return this._loadChunkKnex(mainTableObjects)
     }
 
+    // Replace nested relation filters with fk _in: query related model on its DB, then filter main list by ids.
     async _prepareCrossDbWhere (initialWhere) {
         if (!initialWhere || typeof initialWhere !== 'object') return initialWhere
-        if (!this._relationPlanner.hasCrossSourceRelations(this.singleRelations)) return initialWhere
+        if (!this._relationPlanner._hasCrossSourceRelations(this.singleRelations)) return initialWhere
 
         this._crossDbRelationIdsCache = this._crossDbRelationIdsCache || new Map()
         const relationMap = new Map(
             this.singleRelations
-                .filter(([model, fieldName]) => this._relationPlanner.isCrossSourceRelation(model) && fieldName)
+                .filter(([model, fieldName]) => this._relationPlanner._isCrossSourceRelation(model) && fieldName)
                 .map(([model, fieldName]) => [fieldName, model])
         )
 
@@ -329,6 +332,7 @@ class GqlWithKnexLoadList {
     }
 
     /** @private */
+    // After main-table rows are loaded: batch-fetch related records from other sources and merge into result.
     async _loadChunkCrossDb (mainTableObjects) {
         logger.info({
             msg: 'cross-db relation planner path selected',
@@ -358,7 +362,7 @@ class GqlWithKnexLoadList {
         let fkById = {}
         if (missingFields.length > 0) {
             const columns = ['id', ...missingFields.map(({ dbColumn }) => dbColumn)]
-            const rows = await this._relationPlanner.fetchRows({
+            const rows = await this._relationPlanner._fetchRows({
                 tableName: this.listKey,
                 columns,
                 values: ids,
@@ -375,7 +379,7 @@ class GqlWithKnexLoadList {
 
             if (fkValues.length === 0) continue
 
-            const rows = await this._relationPlanner.fetchRows({
+            const rows = await this._relationPlanner._fetchRows({
                 tableName: relation.model,
                 columns: ['id', relation.value],
                 values: fkValues,
