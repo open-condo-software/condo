@@ -6,12 +6,11 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { hasRequiredJsonObject, hasOptionalJsonObject } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/notification/access/Message')
 const { MESSAGE_STATUSES, MESSAGE_SENDING_STATUS } = require('@condo/domains/notification/constants/constants')
 const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
 const { renderDefaultTemplate } = require('@condo/domains/notification/templates')
-
 
 const Message = new GQLListSchema('Message', {
     schemaDoc: 'Notification message',
@@ -89,7 +88,7 @@ const Message = new GQLListSchema('Message', {
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                    hasRequiredJsonObject(args)
                 },
             },
         },
@@ -109,7 +108,7 @@ const Message = new GQLListSchema('Message', {
             isRequired: false,
             hooks: {
                 validateInput: (args) => {
-                    if (!hasValidJsonStructure(args, false, 1, {})) return
+                    if (!hasOptionalJsonObject(args)) return
                 },
             },
         },

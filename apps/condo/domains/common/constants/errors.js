@@ -6,7 +6,6 @@ const JSON_EXPECT_OBJECT_ERROR = '[json:expectObject:'
 const JSON_EXPECT_ARRAY_ERROR = '[json:expectArray:'
 const JSON_NO_NULL_ERROR = '[json:noNull:'
 const JSON_UNKNOWN_VERSION_ERROR = '[json:unknownDataVersion:'
-const JSON_WRONG_VERSION_FORMAT_ERROR = '[json:wrongDataVersionFormat:'
 const JSON_SCHEMA_VALIDATION_ERROR = '[json:schemaValidationError:'
 const UNIQUE_ALREADY_EXISTS_ERROR = '[unique:alreadyExists:'
 const REQUIRED_NO_VALUE_ERROR = '[required:noValue:'
@@ -84,7 +83,6 @@ module.exports = {
     PHONE_WRONG_FORMAT_ERROR,
     EMAIL_WRONG_FORMAT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
-    JSON_WRONG_VERSION_FORMAT_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
     JSON_EXPECT_ARRAY_ERROR,
     JSON_NO_NULL_ERROR,

@@ -12,7 +12,7 @@ const {
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { hasRequiredJsonObject } = require('@condo/domains/common/utils/validation.utils')
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
@@ -91,7 +91,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (!hasValidJsonStructure(args, true, 1, {}))
+                    if (!hasRequiredJsonObject(args))
                         return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
                 },
             },
