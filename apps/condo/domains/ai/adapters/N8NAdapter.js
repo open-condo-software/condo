@@ -47,7 +47,7 @@ class N8NAdapter extends AbstractAdapter {
                     'Content-Type': 'application/json',
                 },
                 method: 'POST',
-                body: JSON.stringify({ context, privateContext }),
+                body: JSON.stringify({ context }),
                 abortRequestTimeout: N8N_DEFAULT_TIMEOUT,
             }
         )
