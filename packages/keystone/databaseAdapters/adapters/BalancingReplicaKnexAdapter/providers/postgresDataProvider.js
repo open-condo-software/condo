@@ -1,44 +1,7 @@
-class PostgresDataProvider {
-    shouldHandleFind () {
-        return false
-    }
+const { BaseDataProvider } = require('./baseDataProvider')
 
-    async executeFind () {
-        return null
-    }
-
-    shouldHandleItemsQuery () {
-        return false
-    }
-
-    async executeItemsQuery () {
-        return null
-    }
-
-    shouldHandleCreate () {
-        return false
-    }
-
-    async executeCreate () {
-        return null
-    }
-
-    shouldHandleUpdate () {
-        return false
-    }
-
-    async executeUpdate () {
-        return null
-    }
-
-    shouldHandleDelete () {
-        return false
-    }
-
-    async executeDelete () {
-        return null
-    }
-}
+/** Default provider: all reads/writes go through the Postgres list adapter. */
+class PostgresDataProvider extends BaseDataProvider {}
 
 module.exports = {
     PostgresDataProvider,
