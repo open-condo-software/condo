@@ -1,5 +1,3 @@
-const crypto = require('crypto')
-
 const Ajv = require('ajv')
 
 const conf = require('@open-condo/config')
@@ -44,8 +42,6 @@ const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
         throw new Error('Unknown executionAIFlowTaskId!')
     }
 
-    console.log('EXECUTING AI FLOW')
-
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
     const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status user { id } aiSessionId')
@@ -88,6 +84,7 @@ const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
             ...task.cleanContext,
             locale: task.locale,
             aiSessionId: task.aiSessionId,
+            ...additionalContext,
         }
 
         let prediction

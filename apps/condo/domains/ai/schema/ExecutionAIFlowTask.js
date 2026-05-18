@@ -4,7 +4,6 @@
 const crypto = require('crypto')
 
 const Ajv = require('ajv')
-const jwt = require('jsonwebtoken')
 const cloneDeep = require('lodash/cloneDeep')
 
 const conf = require('@open-condo/config')
@@ -28,6 +27,8 @@ const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSc
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const { FLOW_TOKEN_SCOPES } = require('../constants')
 
 const EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER = {
     windowSizeInSec: 60 * 60,
@@ -63,6 +64,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'INVALID_FLOW_CONTEXT',
         message: 'Flow context for current flow type has invalid format',
+        messageForUser: 'api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST',
+    },
+    INVALID_USER_FOR_FLOW: {
+        mutation: 'createExecutionAIFlowTask',
+        variable: ['data', 'context'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_USER_FOR_FLOW',
+        message: 'Authenticated user should be the same as user who requested this operation for this flow',
         messageForUser: 'api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST',
     },
     STATUS_IS_ALREADY_COMPLETED: {
@@ -281,36 +290,16 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
     },
     hooks: {
         resolveInput: async (args) => {
-            const { resolvedData, context, operation } = args
+            const { resolvedData, operation } = args
 
             if (operation === 'create') {
                 const { cleaned: cleanContext } = removeSensitiveDataFromObj(cloneDeep(resolvedData.context))
                 resolvedData.cleanContext = cleanContext
-
-                const shouldGetUserToken = true // Todo
-                if (shouldGetUserToken) {
-                    if (shouldGetUserToken) {
-                        const { keystone } = getSchemaCtx('User')
-
-                        const userToken = await keystone._sessionManager.cloneAuthedSession(context.req, {
-                            item: { id: context.authedItem.id },
-                            list: keystone.lists['User'],
-                            ttl: 5 * 60 * 1000,
-                            meta: {
-                                source: 'internal',
-                                provider: 'executionAIFlowAfterChange',
-                                scopes: [{ 'gqlOperationType': 'query' }],
-                            },
-                        })
-
-                        resolvedData.cleanContext.encryptedToken = userToken
-                        resolvedData.context.encryptedToken = userToken
-                    }
-                }
             }
 
             return resolvedData
         },
+
         validateInput: async (args) => {
             const { resolvedData, existingItem, operation, context } = args
 
@@ -341,6 +330,16 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                     }))
                     throw new GQLError({ ...ERRORS.INVALID_FLOW_CONTEXT, errors: flowContextErrors }, context)
                 }
+
+                if (!isCustomFlow) {
+                    const scopes = FLOW_TOKEN_SCOPES[flowType]
+
+                    if (scopes) {
+                        if (context.authedItem.id !== resolvedData.user) {
+                            throw new GQLError({ ...ERRORS.INVALID_USER_FOR_FLOW }, context)
+                        }
+                    }
+                }
             }
 
             if (existingItem) {
@@ -354,7 +353,34 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         },
         afterChange: async ({ context, updatedItem, operation }) => {
             if (operation === 'create') {
-                await executeAIFlow.delay(updatedItem.id, {})
+
+                const flowType = updatedItem.flowType
+
+                let condoUserToken = null
+
+                const scopesForFlow = FLOW_TOKEN_SCOPES[flowType]
+                if (scopesForFlow) {
+                    const { keystone } = getSchemaCtx('User')
+
+                    const userToken = await keystone._sessionManager.cloneAuthedSession(context.req, {
+                        item: { id: context.authedItem.id },
+                        list: keystone.lists['User'],
+                        ttl: 5 * 60 * 1000,
+                        meta: {
+                            source: 'internal',
+                            provider: 'executionAIFlowAfterChange',
+                            scopes: scopesForFlow,
+                        },
+                    })
+
+                    const iv = crypto.randomBytes(16)
+                    const cipher = crypto.createCipheriv(ENCODING_ALGO, ENCODING_KEY, iv)
+                    const encrypted = Buffer.concat([cipher.update(userToken), cipher.final()])
+
+                    condoUserToken = iv.toString('hex') + ENCODING_SEP + encrypted.toString('hex')
+                }
+
+                await executeAIFlow.delay(updatedItem.id, { condoUserToken })
             }
         },
     },
@@ -364,4 +390,7 @@ module.exports = {
     ExecutionAIFlowTask,
     ERRORS,
     EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER,
+    ENCODING_ALGO,
+    ENCODING_SEP,
+    ENCODING_KEY,
 }
