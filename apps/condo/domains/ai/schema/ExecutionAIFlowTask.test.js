@@ -38,6 +38,7 @@ const {
 } = require('@condo/domains/ai/utils/testSchema/AIFlowTestingApps/FlowiseTestingApp')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { Property } = require('@condo/domains/property/utils/testSchema')
+const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -45,7 +46,6 @@ const {
 
 const { ENCODING_ALGO, ENCODING_KEY, ENCODING_SEP } = require('./ExecutionAIFlowTask')
 
-const { updateTestProperty } = require('../../property/utils/testSchema')
 
 
 describe('ExecutionAIFlowTask', () => {
@@ -536,10 +536,7 @@ describe('ExecutionAIFlowTask', () => {
             const properties1 = await Property.getAll(staffClient, {})
 
             const executeAIFlowSpy = jest.spyOn(executeAIFlow, 'delay')
-                .mockImplementation(async (taskId, additionalContext) => {
-                    global.__capturedToken = additionalContext?.condoUserToken
-                    return Promise.resolve()
-                })
+                .mockImplementation(async (taskId, additionalContext) => { return Promise.resolve() }) // we do not need to exeute query here
 
             const task = await ExecutionAIFlowTaskForUser.create(staffClient, {
                 user: { connect: { id: staffClient.user.id } },
