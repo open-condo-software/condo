@@ -15,7 +15,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { NEWS_ITEM_FILES_MINIAPPS } from '@condo/domains/common/constants/featureflags'
+import { NEWS_ITEM_FILES_MINIAPPS, NEWS_ITEM_FILES } from '@condo/domains/common/constants/featureflags'
 import { createVideoPreviewFromUrl, getImagePreviewFromUrl } from '@condo/domains/news/components/FilesPreview/ImageOrVideoPreview'
 import { Action, convertFilesToUploadType, UploadFileType } from '@condo/domains/news/components/FilesUploadList'
 import {
@@ -145,6 +145,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
     const { useFlag } = useFeatureFlags()
     const isNewsItemFilesMiniappsEnabled = useFlag(NEWS_ITEM_FILES_MINIAPPS)
+    const isNewsItemFilesEnabled = useFlag(NEWS_ITEM_FILES)
 
     const { app: sharingApp, id: sharingAppId } = sharingAppData ?? { id: null, app: null }
     const { newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
@@ -376,13 +377,17 @@ export const InputStep: React.FC<InputStepProps> = ({
         if (files?.length > 0) return
         if (!newsItemIdForReuploadFiles) return
         if (isLoading) return
+        if (!isNewsItemFilesEnabled) return
 
         setIsFilesLoading(true)
 
         const tryReuploadFiles = async () => {
             const reuploadedNewsItemFiles = await reuploadFiles(newsItemIdForReuploadFiles)
 
-            if (!Array.isArray(reuploadedNewsItemFiles) || reuploadedNewsItemFiles.length < 1) return
+            if (!Array.isArray(reuploadedNewsItemFiles) || reuploadedNewsItemFiles.length < 1) {
+                setIsFilesLoading(false)
+                return
+            }
 
             const converted = convertFilesToUploadType(reuploadedNewsItemFiles)
 
