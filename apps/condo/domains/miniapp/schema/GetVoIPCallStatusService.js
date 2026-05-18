@@ -17,7 +17,7 @@ const GET_VOIP_CALL_STATUS_BY_CALL_CALLS_WINDOW_SEC = 60 // 1 per second basical
 const GET_VOIP_CALL_STATUS_LIMIT_BY_USER_WINDOW_IN_SECONDS = 60 // 1 minute
 const GET_VOIP_CALL_STATUS_BY_USER_CALLS_WINDOW_SEC = GET_VOIP_CALL_STATUS_BY_CALL_CALLS_WINDOW_SEC * 15 // 5 people in unit and 3 intercoms 
 
-const SERVICE_NAME = 'sendVoIPCallStartMessage'
+const SERVICE_NAME = 'getVoIPCallStatus'
 const ERRORS = {
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
@@ -74,7 +74,7 @@ async function checkLimits (context, { addressKey, app, callId }) {
     ])
 
     const errors = promiseResults.filter(p => p.status === 'rejected').map(p => p.reason)
-    if (errors.legth) {
+    if (errors.length) {
         throw new AggregateError(errors)
     }
 }
@@ -104,7 +104,7 @@ const GetVoIPCallStatusService = new GQLCustomSchema('GetVoIPCallStatusService',
             access: true,
             type: `type GetVoIPCallStatusOutput {
                 """
-                Status of call or null if status not found
+                Status of call
                 """
                 status: GetVoIPCallStatusCallStatus!
             }`,
@@ -116,7 +116,7 @@ const GetVoIPCallStatusService = new GQLCustomSchema('GetVoIPCallStatusService',
             access: access.canGetVoIPCallStatus,
             schema: 'getVoIPCallStatus(data: GetVoIPCallStatusInput!): GetVoIPCallStatusOutput',
             doc: {
-                summary: 'Mutation to get status of call status. Cancel push message might not come / take a long time.',
+                summary: 'Query to get status of voip call. Cancel push message might not come / take a long time.',
                 errors: omit(ERRORS, 'DV_VERSION_MISMATCH', 'WRONG_SENDER_FORMAT'),
             },
             resolver: async (parent, args, context) => {

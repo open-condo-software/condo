@@ -1,8 +1,20 @@
-const GET_VOIP_CALL_STATUS_URL_PATH = '/api/getVoIPCallStatus'
-
 const express = require('express')
 
+const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
+
 const { getVoIPCallStatus } = require('@condo/domains/miniapp/utils/serverSchema') 
+
+const GET_VOIP_CALL_STATUS_URL_PATH = '/api/getVoIPCallStatus'
+
+function asyncErrorHandler (handler) {
+    return async function wrappedAsyncErrorHandler (req, res, next) {
+        try {
+            await handler(req, res, next)
+        } catch (err) {
+            next(err)
+        }
+    }
+}
 
 class MiniappMiddleware {
     keystone
@@ -39,7 +51,9 @@ class MiniappMiddleware {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.get('/api/getVoIPCallStatus', this.handleGetVoIPCallStatus)
+        app.get(GET_VOIP_CALL_STATUS_URL_PATH, asyncErrorHandler(this.handleGetVoIPCallStatus))
+
+        app.use(expressErrorHandler)
 
         return app
     }

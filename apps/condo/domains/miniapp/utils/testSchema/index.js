@@ -426,7 +426,6 @@ async function sendVoIPCallCancelMessageByTestClient (client, extraAttrs = {}) {
         ...extraAttrs,
         callData,
     }
-    console.error('attrs', JSON.stringify(attrs, null, 2))
     const { data, errors } = await client.mutate(SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION, { data: attrs })
 
     throwIfError(data, errors, { query: SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION, variables: { data: attrs } })

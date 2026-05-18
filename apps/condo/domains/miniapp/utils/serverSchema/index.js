@@ -41,7 +41,6 @@ async function sendB2CAppPushMessage (context, data) {
 }
 
 async function getVoIPCallStatus (context, data) {
-    console.error('data', data)
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
