@@ -287,171 +287,25 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                 const { cleaned: cleanContext } = removeSensitiveDataFromObj(cloneDeep(resolvedData.context))
                 resolvedData.cleanContext = cleanContext
 
-                const additionalContext = {}
-
                 const shouldGetUserToken = true // Todo
                 if (shouldGetUserToken) {
                     if (shouldGetUserToken) {
                         const { keystone } = getSchemaCtx('User')
-                        const req = context.req
-                        const res = req.res
 
-                        // 0. Save current session identity
-                        const origSessionID = req.sessionID
-                        const origSession = req.session
-
-                        // 1. Start a new authenticated session (temporary)
-                        await keystone._sessionManager.startAuthedSession(req, {
+                        const userToken = await keystone._sessionManager.cloneAuthedSession(context.req, {
                             item: { id: context.authedItem.id },
                             list: keystone.lists['User'],
-                            ttl: 5 * 60 * 1000, // 5 minutes – match your background task timeout
+                            ttl: 5 * 60 * 1000,
                             meta: {
                                 source: 'internal',
                                 provider: 'executionAIFlowAfterChange',
-                                scopes: { 'foo': 'bar' },
+                                scopes: [{ 'gqlOperationType': 'query' }],
                             },
                         })
 
-                        // The token we need is the session ID itself
-                        const userToken = req.sessionID
-
-                        // 2. Store the token on the task (encrypt if you wish – here we follow your encryptedToken field)
                         resolvedData.cleanContext.encryptedToken = userToken
                         resolvedData.context.encryptedToken = userToken
-
-                        // 3. Restore original session immediately so the rest of the request logic sees the real session
-                        req.session = origSession
-                        req.sessionID = origSessionID
-
-                        // 4. Monkey‑patch res.end to:
-                        //    - restore session again (belt & suspenders)
-                        //    - remove any Set-Cookie header that the temporary session may have already set
-
-                        const _end = res.end
-                        let ended = false
-                        res.end = function end (chunk, encoding) {
-                            if (ended) return false
-                            ended = true
-                            req.session = origSession
-                            req.sessionID = origSessionID
-                            return _end.call(res, chunk, encoding)
-                        }
-
-                        // const _end = res.end
-                        // let ended = false
-                        // res.end = function end(chunk, encoding) {
-                        //     if (ended) return false
-                        //     ended = true
-                        //
-                        //     // Final restore
-                        //     req.session = origSession
-                        //     req.sessionID = origSessionID
-                        //
-                        //     // Remove the temporary session cookie from the response
-                        //     // (Express's removeHeader is case‑insensitive, both 'Set-Cookie' and 'set-cookie' are removed)
-                        //     res.removeHeader('Set-Cookie')
-                        //
-                        //     return _end.call(res, chunk, encoding)
-                        // }
                     }
-
-                    // const { keystone } = getSchemaCtx('User')
-                    //
-                    // // const ksContext = await keystone.createContext()
-                    // //
-                    // //const contextdupe = { ...context, ...{} }
-                    // //
-                    // // const context2 = keystone.createContext({
-                    // //     authentication: { item: { id: context.authedItem.id }, listKey: 'User' },
-                    // // })
-                    //
-                    // // 1. Create a fake express request object
-                    // //                     const fakeReq = {
-                    // //                         session: {
-                    // //                             cookie: {
-                    // //                                 originalMaxAge: 300000,  // 5 minutes
-                    // //                                 maxAge: 300000,
-                    // //                                 expires: new Date(Date.now() + 300000),
-                    // //                                 httpOnly: true,
-                    // //                                 secure: false,
-                    // //                                 path: '/',
-                    // //                                 sameSite: 'lax',
-                    // //                             },
-                    // //                         },
-                    // //                         sessionID: crypto.randomBytes(16).toString('hex'),
-                    // //                         headers: {},
-                    // //                         socket: { remoteAddress: '127.0.0.1' },
-                    // //                     }
-                    // //
-                    // //                     // Add methods Keystone expects
-                    // //                     fakeReq.session.regenerate = function(cb) {
-                    // //                         this.sessionID = crypto.randomBytes(32).toString('hex')
-                    // //                         if (cb) cb(null)
-                    // //                     }
-                    // //
-                    // //                     fakeReq.session.destroy = function(cb) {
-                    // //                         this.destroyed = true
-                    // //                         if (cb) cb(null)
-                    // //                     }
-                    // //
-                    // //                     fakeReq.session.save = function(cb) {
-                    // //                         if (cb) cb(null)
-                    // //                     }
-                    // // 3
-                    // //                     // 2. Create a fake response object
-                    // //                     const fakeRes = {
-                    // //                         end: function (chunk, encoding) { return true },
-                    // //                         statusCode: 200,
-                    // //                         headers: {},
-                    // //                     }
-                    // //
-                    // //                     const userToken = await context2.startAuthedSession({
-                    // //                         item: context.authedItem,
-                    // //                         list: keystone.lists['User'],
-                    // //                         ttl: 5 * 1000 * 60, // 5 min
-                    // //                         meta: {
-                    // //                             source: 'internal',
-                    // //                             provider: 'executionAIFlowAfterChange',
-                    // //                             scopes: { 'foo': 'bar' },
-                    // //                             // `open-keystone` prepare keystone - after auth + race condition, 3
-                    // //                         },
-                    // //                     })
-                    //
-                    // // const userToken = await keystone._sessionManager.startAuthedSession(fakeReq, {
-                    // //     item: { id: context.authedItem.id },
-                    // //     list: keystone.lists['User'],
-                    // //     ttl: 5 * 60 * 1000, // 5 minutes
-                    // //     meta: {
-                    // //         source: 'internal',
-                    // //         provider: 'executionAIFlowAfterChange',
-                    // //         scopes: { 'foo': 'bar' },
-                    // //     },
-                    // // })
-                    //
-                    // // const userToken = jwt.sign(
-                    // //     {
-                    // //         item: { id: context.authedItem.id },
-                    // //         list: keystone.lists['User'],
-                    // //         ttl: 5 * 60 * 1000, // 5 minutes
-                    // //         meta: {
-                    // //             source: 'internal',
-                    // //             provider: 'executionAIFlowAfterChange',
-                    // //             scopes: { 'foo': 'bar' },
-                    // //         },
-                    // //     },
-                    // //     process.env.JWT_SECRET,
-                    // //     { expiresIn: '5m' }
-                    // // )
-                    //
-                    // const iv = crypto.randomBytes(16)
-                    //
-                    // const cipher = crypto.createCipheriv(ENCODING_ALGO, ENCODING_KEY, iv)
-                    // const encrypted = Buffer.concat([cipher.update(userToken), cipher.final()])
-                    //
-                    // const encryptedToken = { iv: iv.toString('hex'), content: encrypted.toString('hex') }
-                    //
-                    // resolvedData.cleanContext.encryptedToken = userToken//encryptedToken
-                    // resolvedData.context.encryptedToken = userToken//encryptedToken
                 }
             }
 

@@ -134,38 +134,6 @@ describe('ExecutionAIFlowTask', () => {
                 expect(task.user.id).toEqual(supportClient.user.id)
             })
 
-            test('Can create for self only and generate token', async () => {
-                const staffClient = await makeClientWithProperty()
-
-                const task = await ExecutionAIFlowTaskForUser.create(staffClient, {
-                    user: { connect: { id: staffClient.user.id } },
-                    flowType: 'success_flow',
-                    context: { some_field: faker.lorem.words(3) },
-                    dv: 1,
-                    sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
-                })
-                expect(task.user.id).toEqual(staffClient.user.id)
-
-                const encryptedToken = task.context.encryptedToken
-                // todo
-                const decryptedToken = encryptedToken
-
-                const client2 = await makeClient()
-
-                client2.setHeaders({ Authorization: `Bearer ${decryptedToken}` })
-
-                //const properties2 = await Property.getAll(client2, {})
-
-                const properties1 = await Property.getAll(staffClient, {})
-
-                // expect(properties1[0].id).toEqual(properties2[0].id)
-                // expect(properties1.length).toEqual(properties2.length)
-
-                const properties3 = await Property.getAll(staffClient, {})
-
-                console.log('test')
-            })
-
             test('Cannot create for other user', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestExecutionAIFlowTask(supportClient, userClient.user, {
