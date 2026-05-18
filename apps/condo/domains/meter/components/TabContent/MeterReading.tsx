@@ -36,7 +36,6 @@ import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Inde
 import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
-import { METER_READING_BILLING_STATUS_DECLINED } from '@condo/domains/meter/constants/constants'
 import { useMeterIntegrationConfig } from '@condo/domains/meter/hooks/useMeterIntegrationConfig'
 import { useMeterReadingExportToExcelTask } from '@condo/domains/meter/hooks/useMeterReadingExportToExcelTask'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
@@ -155,17 +154,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const processedMeterReadings = useMemo(() => {
         const filteredMeterReading = [...meterReadings].sort((a, b) => (a.date < b.date ? 1 : -1))
-        const uniqMeterReadings = uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
-        if (hasMeterIntegration && !meter) {
-            return uniqMeterReadings.sort((a, b) => {
-                const aDeclined = a?.billingStatus === METER_READING_BILLING_STATUS_DECLINED
-                const bDeclined = b?.billingStatus === METER_READING_BILLING_STATUS_DECLINED
-                if (aDeclined !== bDeclined) return aDeclined ? -1 : 1
-                return 0
-            })
-        }
-        return uniqMeterReadings
-    }, [meterReadings, hasMeterIntegration, meter])
+        return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
+    }, [meterReadings])
 
     const readingsToFilter = meter ? meterReadings : processedMeterReadings
 
