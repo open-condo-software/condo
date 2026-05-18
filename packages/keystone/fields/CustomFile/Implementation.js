@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const { get, omit } = require('lodash')
+const get = require('lodash/get')
+const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
 const { validateFileUploadSignature } = require('@open-condo/files/utils')
@@ -29,6 +30,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'LEGACY_FLOW_RESTRICTED',
         message: 'You are unable to use graphql upload flow',
+    },
+    MISSING_ITEM_ID_FOR_FILE_ATTACH: {
+        code: BAD_USER_INPUT,
+        type: 'MISSING_ITEM_ID_FOR_FILE_ATTACH',
+        message: 'Cannot attach file: missing target item id',
     },
 }
 
@@ -187,7 +193,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         return super.resolveInput({ resolvedData, existingItem })
     }
 
-    async beforeChange ({ resolvedData, context, listKey }) {
+    async beforeChange ({ resolvedData, existingItem, context, listKey, operation }) {
         const key = `${listKey}.${this.path}`
         const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
         if (!hasFileInRequest) return
@@ -200,9 +206,17 @@ class CustomFile extends FileWithUTF8Name.implementation {
             throw new GQLError(ERRORS.WRONG_SIGNATURE)
         }
         const fileClientId = signatureData?.fileClientId || this._fileClientId
+        const itemId = resolvedData?.id || existingItem?.id
+        if (!itemId) {
+            throw new GQLError({
+                ...ERRORS.MISSING_ITEM_ID_FOR_FILE_ATTACH,
+                message: `${ERRORS.MISSING_ITEM_ID_FOR_FILE_ATTACH.message}. listKey=${listKey}, field=${this.path}, operation=${operation}`,
+                variable: [this.path],
+            }, context)
+        }
 
         const payload = {
-            itemId: resolvedData.id,
+            itemId,
             modelName: listKey,
             signature: context._fileNewFlow[key].signature,
             fileClientId: fileClientId,
