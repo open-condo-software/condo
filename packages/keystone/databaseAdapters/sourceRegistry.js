@@ -2,7 +2,7 @@ const conf = require('@open-condo/config')
 
 const SOURCE_REGISTRY_PREFIX = 'custom:'
 
-function parseJsonConfig (value, fallback = {}) {
+function _parseJsonConfig (value, fallback = {}) {
     if (!value) return fallback
     if (typeof value === 'object') return value
     if (typeof value !== 'string') return fallback
@@ -15,7 +15,7 @@ function parseJsonConfig (value, fallback = {}) {
 }
 
 function getSourceRegistryConfig (rawConfig = conf.CROSS_DB_SOURCE_REGISTRY) {
-    return parseJsonConfig(rawConfig, {})
+    return _parseJsonConfig(rawConfig, {})
 }
 
 function getConsistencyMode (rawMode = conf.CROSS_DB_CONSISTENCY_MODE) {

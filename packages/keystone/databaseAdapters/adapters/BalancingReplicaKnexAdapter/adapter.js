@@ -6,7 +6,6 @@ const omit = require('lodash/omit')
 const conf = require('@open-condo/config')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
-const { getSourceRegistry } = require('../../sourceRegistry')
 const { KnexPool } = require('./pool')
 const { createDataProvider, createSelectPlanner, getProviderCapabilities } = require('./providers')
 const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
@@ -14,6 +13,8 @@ const { initKnexClient } = require('./utils/knex')
 const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
+
+const { getSourceRegistry } = require('../../sourceRegistry')
 
 
 class BalancingReplicaKnexAdapter extends KnexAdapter {
@@ -212,6 +213,8 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
                 primaryRunner.run = async () => {
                     let primaryResult
+                    // Cross-table join (SQL path): intercept SELECT, rewrite cross-pool JOINs
+                    // before they hit Postgres. Planner lives in providers/postgresSelectPlanner.js.
                     if (
                         this._providerCapabilities.supportsCrossSourceSelectPlanning &&
                         this._providerPlanner &&
@@ -294,57 +297,81 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return null
     }
 
-    async executeFind ({ schemaName, condition, listAdapter }) {
+    _getDataProviderForSchema (schemaName) {
         const sourceName = this._sourceRegistry.resolveSource(schemaName)
         const providerName = this._resolveProviderBySourceName(sourceName)
-        const provider = providerName ? this._dataProviders[providerName] : null
+        return providerName ? this._dataProviders[providerName] : null
+    }
 
-        if (provider && provider.shouldHandleFind({ schemaName, condition, sourceName })) {
-            return provider.executeFind({ schemaName, condition, sourceName })
+    async executeFind ({ schemaName, condition, listAdapter }) {
+        const provider = this._getDataProviderForSchema(schemaName)
+        const context = {
+            schemaName,
+            condition,
+            sourceName: this._sourceRegistry.resolveSource(schemaName),
+        }
+
+        if (provider?.supportsFind(context)) {
+            return provider.find(context)
         }
         return listAdapter.find(condition)
     }
 
     async executeItemsQuery ({ schemaName, args, meta, from, listAdapter }) {
-        const sourceName = this._sourceRegistry.resolveSource(schemaName)
-        const providerName = this._resolveProviderBySourceName(sourceName)
-        const provider = providerName ? this._dataProviders[providerName] : null
+        const provider = this._getDataProviderForSchema(schemaName)
+        const context = {
+            schemaName,
+            args,
+            meta,
+            from,
+            sourceName: this._sourceRegistry.resolveSource(schemaName),
+        }
 
-        if (provider && provider.shouldHandleItemsQuery({ schemaName, args, meta, from, sourceName })) {
-            return provider.executeItemsQuery({ schemaName, args, meta, from, sourceName })
+        if (provider?.supportsItemsQuery(context)) {
+            return provider.itemsQuery(context)
         }
         return listAdapter.itemsQuery(args, { meta, from })
     }
 
     async executeCreate ({ schemaName, data, listAdapter }) {
-        const sourceName = this._sourceRegistry.resolveSource(schemaName)
-        const providerName = this._resolveProviderBySourceName(sourceName)
-        const provider = providerName ? this._dataProviders[providerName] : null
+        const provider = this._getDataProviderForSchema(schemaName)
+        const context = {
+            schemaName,
+            data,
+            sourceName: this._sourceRegistry.resolveSource(schemaName),
+        }
 
-        if (provider && provider.shouldHandleCreate({ schemaName, data, sourceName })) {
-            return provider.executeCreate({ schemaName, data, sourceName })
+        if (provider?.supportsCreate(context)) {
+            return provider.create(context)
         }
         return listAdapter._create(data)
     }
 
     async executeUpdate ({ schemaName, id, data, listAdapter }) {
-        const sourceName = this._sourceRegistry.resolveSource(schemaName)
-        const providerName = this._resolveProviderBySourceName(sourceName)
-        const provider = providerName ? this._dataProviders[providerName] : null
+        const provider = this._getDataProviderForSchema(schemaName)
+        const context = {
+            schemaName,
+            id,
+            data,
+            sourceName: this._sourceRegistry.resolveSource(schemaName),
+        }
 
-        if (provider && provider.shouldHandleUpdate({ schemaName, id, data, sourceName })) {
-            return provider.executeUpdate({ schemaName, id, data, sourceName })
+        if (provider?.supportsUpdate(context)) {
+            return provider.update(context)
         }
         return listAdapter._update(id, data)
     }
 
     async executeDelete ({ schemaName, id, listAdapter }) {
-        const sourceName = this._sourceRegistry.resolveSource(schemaName)
-        const providerName = this._resolveProviderBySourceName(sourceName)
-        const provider = providerName ? this._dataProviders[providerName] : null
+        const provider = this._getDataProviderForSchema(schemaName)
+        const context = {
+            schemaName,
+            id,
+            sourceName: this._sourceRegistry.resolveSource(schemaName),
+        }
 
-        if (provider && provider.shouldHandleDelete({ schemaName, id, sourceName })) {
-            return provider.executeDelete({ schemaName, id, sourceName })
+        if (provider?.supportsDelete(context)) {
+            return provider.delete(context)
         }
         return listAdapter._delete(id)
     }

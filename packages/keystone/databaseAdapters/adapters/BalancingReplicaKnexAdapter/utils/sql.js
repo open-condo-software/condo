@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const { Parser } = require('node-sql-parser/build/postgresql')
 
+const { getFkJoinMetadata } = require('./crossSourceSelectSql')
 const { logger } = require('./logger')
 
 const SUPPORTED_PG_OPERATIONS = new Set(['insert', 'select', 'update', 'delete', 'show'])
@@ -115,35 +116,6 @@ function extractCRUDQueryData (sqlString) {
     }
 
     return { sqlOperationName, tableName }
-}
-
-function getFkJoinMetadata (sqlString) {
-    if (!sqlString || typeof sqlString !== 'string') return null
-
-    const baseMatch = sqlString.match(/from\s+"[^"]+"\."([^"]+)"\s+as\s+"([^"]+)"/i)
-    if (!baseMatch) return null
-    const [, baseTable, baseAlias] = baseMatch
-
-    const joinRe = /left\s+outer\s+join\s+"[^"]+"\."([^"]+)"\s+as\s+"([^"]+)"\s+on\s+"\2"\."id"\s*=\s*"([^"]+)"\."([^"]+)"/ig
-    const joins = []
-    let joinMatch = null
-    while ((joinMatch = joinRe.exec(sqlString)) !== null) {
-        const [, joinTable, alias, sourceAlias, sourceField] = joinMatch
-        if (sourceAlias !== baseAlias) continue
-        joins.push({
-            alias,
-            joinTable: _normalizeTableName(joinTable),
-            sourceAlias,
-            sourceField,
-            fkExpression: `"${sourceAlias}"."${sourceField}"`,
-        })
-    }
-
-    return {
-        baseTable: _normalizeTableName(baseTable),
-        baseAlias,
-        joins,
-    }
 }
 
 module.exports = {
