@@ -190,7 +190,7 @@ const SendDTMFToB2CAppService = new GQLCustomSchema('SendDTMFToB2CAppService', {
                 const { data: argsData } = args
                 const { app, property, organization, callStatusToken, callId, data: { dtmfCode } } = argsData
 
-                await checkLimits({ appId: app.id, propertyId: property.id, organizationId: organization.id, callId })
+                await checkLimits({ appId: app.id, propertyId: property.id, organizationId: organization.id, callId }, context)
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 

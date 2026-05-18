@@ -12,6 +12,7 @@ const {
     getTestExpressApp,
 } = require('@open-condo/keystone/test.utils')
 
+const { SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED } = require('@condo/domains/miniapp/constants')
 const {
     sendDTMFToB2CAppByTestClient, createTestB2CApp, createTestB2CAppIntercomConfig,
     createTestB2CAppProperty,
@@ -27,7 +28,6 @@ const { VOIP_INCOMING_CALL_MESSAGE_TYPE, CANCELED_CALL_MESSAGE_PUSH_TYPE } = req
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED } = require('../constants')
 
 
 
@@ -35,6 +35,8 @@ const SERVER_URL = conf.SERVER_URL
 
 let intercomResponseStatus = 200
 
+// It's tests, no csrf middleware needed
+// nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
 const intercomApp = express()
 intercomApp.use(express.json())
 intercomApp.post('/dtmf', (_req, res) => {

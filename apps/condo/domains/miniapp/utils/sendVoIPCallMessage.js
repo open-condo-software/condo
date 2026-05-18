@@ -170,15 +170,9 @@ function prepareVoIPCallStartMessageData ({
                 if (!panel.dtmfCommand) return panel
                 const sendDTMFUrl = new URL(baseSendDTMFUrl)
                 sendDTMFUrl.searchParams.set('dtmfCode', panel.dtmfCommand)
-                panel.sendDTMFUrl = sendDTMFUrl.toString()
-                return panel
+                return { ...panel, sendDTMFUrl: sendDTMFUrl.toString() }
             })
             preparedDataArgs.sendDTMFTimeout = getSendDTMFTimeout()
-        }
-
-        for (const jsonKey of ['voipPanels', 'stunServers']) {
-            if (!preparedDataArgs[jsonKey]) continue
-            preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
         }
 
         preparedDataArgs = { ...preparedDataArgs, ...omit(customVoIPValues, 'voipType') }
@@ -187,6 +181,11 @@ function prepareVoIPCallStartMessageData ({
             ...preparedDataArgs,
             B2CAppContext: callData.b2cAppCallData.B2CAppContext,
         }
+    }
+
+    for (const jsonKey of ['voipPanels', 'stunServers']) {
+        if (!preparedDataArgs[jsonKey]) continue
+        preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
     }
 
     return preparedDataArgs

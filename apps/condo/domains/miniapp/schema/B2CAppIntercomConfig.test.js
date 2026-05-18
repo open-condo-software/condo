@@ -4,8 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const {
+    makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedToFieldError,
 } = require('@open-condo/keystone/test.utils')
@@ -250,11 +250,11 @@ describe('B2CAppIntercomConfig', () => {
                             createdB2CAppIntercomConfig = updatedB2CAppIntercomConfig
                         } else if (noAuth) {
                             await expectToThrowAuthenticationErrorToObj(async () => {
-                                await createTestB2CAppIntercomConfig(client, { accessToken: faker.random.alphaNumeric(8) })
+                                await updateTestB2CAppIntercomConfig(client, createdB2CAppIntercomConfig.id, { accessToken: faker.random.alphaNumeric(8) })
                             })
                         } else {
                             await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestB2CAppIntercomConfig(client, { accessToken: faker.random.alphaNumeric(8) })
+                                await updateTestB2CAppIntercomConfig(client, createdB2CAppIntercomConfig.id, { accessToken: faker.random.alphaNumeric(8) })
                             })
                         }
                     })
