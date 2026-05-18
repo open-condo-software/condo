@@ -1,218 +1,129 @@
-version: '3.8'
-x-postgres-common:
-  &postgres-common
-  image: ${REGISTRY}postgres:16.8
-  user: postgres
+# Coolify-friendly Compose for evaluation deploys of condo.
+#
+# Conventions enforced for Coolify:
+#  - No `networks:` blocks. Coolify provides a bridge network and routes via
+#    Traefik; custom networks cause intermittent routing failures.
+#  - Postgres/Redis publish no host ports — service-name DNS only.
+#  - Public ingress is the `condo` service on container port 4006, surfaced
+#    through Coolify's magic env var SERVICE_FQDN_CONDO_4006.
+#  - Secrets come from Coolify magic env vars (SERVICE_PASSWORD_POSTGRES,
+#    SERVICE_BASE64_64_COOKIE). The `:-` defaults exist purely so
+#    `docker compose config` runs locally without warnings; Coolify overrides
+#    them with generated values at deploy time.
+#
+# NOT FOR PRODUCTION. See COOLIFY.md.
 
 services:
-  app:
-    image: app
-    profiles:
-      - app
+  postgres:
+    image: postgres:16.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES:-postgres}
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:6.2
+    restart: unless-stopped
+    command: ["redis-server", "--databases", "64"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # One-shot bootstrap. We deliberately run the local-dev `bin/prepare.js`
+  # script so a brand-new Coolify deploy needs ZERO manual env-var setup —
+  # the script creates the per-app database, runs migrations, and seeds a
+  # default admin user. This is UNSUITABLE FOR PRODUCTION: it ships
+  # well-known default admin credentials, disables captcha, and leaves
+  # other dev-mode toggles enabled. See COOLIFY.md for the rotation steps
+  # before any public exposure.
+  init:
     build:
       context: .
       dockerfile: Dockerfile
-    user: app
-    volumes:
-      - ./apps/:/app/apps
-      - ./packages/:/app/packages
-      - ./bin/:/app/bin
-      - ./package.json:/app/package.json
-      - ./.env:/app/.env
-    networks:
-      - app-network
-
-  postgresdb:
-    image: ${REGISTRY}alpine
-    profiles: ['dbs']
-    depends_on:
-      - postgresdb-master
-      - postgresdb-replica
-    networks:
-      - app-network
-
-  postgresdb-master:
-    <<: *postgres-common
-    ports:
-      - "127.0.0.1:5432:5432"
+    # Coolify's `exclude_from_hc: true` is a non-standard field that fails
+    # `docker compose config` validation, so it is NOT set here. The same
+    # one-shot semantics are achieved via `restart: "no"` plus the
+    # `service_completed_successfully` dependency on condo/worker below.
+    # If Coolify still flags init as unhealthy after a successful exit,
+    # add `exclude_from_hc: true` manually in the Coolify UI's compose
+    # override — see COOLIFY.md.
+    restart: "no"
+    command: ["sh", "-c", "node bin/prepare -f condo && yarn workspace @app/condo migrate"]
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: main
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256\nhost replication all 0.0.0.0/0 scram-sha-256"
-      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
-    command: |
-      postgres
-        -c max_connections=2000
-        -c wal_level=replica
-        -c synchronous_commit=on
-        -c statement_timeout=10s
-        -c shared_buffers=256MB
-    volumes:
-      - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
-    networks:
-      - app-network
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - NODE_ENV=production
+      - PORT=4006
+      - SERVICE_FQDN_CONDO_4006
+      - SERVICE_PASSWORD_POSTGRES
+      - SERVICE_BASE64_64_COOKIE
+      - SERVER_URL=${SERVICE_FQDN_CONDO_4006:-http://localhost:4006}
+      - COOKIE_SECRET=${SERVICE_BASE64_64_COOKIE:-dev-only-cookie-secret-rotate-before-public-exposure}
+      - DATABASE_URL=postgresql://postgres:${SERVICE_PASSWORD_POSTGRES:-postgres}@postgres:5432/local-condo
+      - REDIS_URL=redis://redis:6379/1
+      # Tells bin/prepare.js where to reach Postgres/Redis (overrides its
+      # hardcoded 127.0.0.1 defaults so it works from inside a container).
+      - LOCAL_PG_DB_PREFIX=postgresql://postgres:${SERVICE_PASSWORD_POSTGRES:-postgres}@postgres:5432
+      - LOCAL_REDIS_DB_PREFIX=redis://redis:6379
+      # Seed a known admin so you can actually log in after first boot.
+      # CHANGE THESE BEFORE EXPOSING THE DEPLOY PUBLICLY.
+      - DEFAULT_TEST_ADMIN_IDENTITY=admin@example.com
+      - DEFAULT_TEST_ADMIN_SECRET=admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
-  postgresdb-replica:
-    <<: *postgres-common
+  condo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: ["yarn", "workspace", "@app/condo", "start"]
     ports:
-      - "127.0.0.1:5433:5432"
+      - "4006"
     environment:
-      PGUSER: replicator
-      PGPASSWORD: replicator_password
-    command: |
-      bash -c "
-      if [ ! -f /var/lib/postgresql/initialized ]; then
-        pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgresdb-master --port=5432
-        chmod -R 0700 /var/lib/postgresql/data
-        touch /var/lib/postgresql/initialized
-      fi
-      postgres -c max_connections=2000 -c statement_timeout=10s -c shared_buffers=256MB
-      "
-    networks:
-      - app-network
+      - NODE_ENV=production
+      - PORT=4006
+      - SERVICE_FQDN_CONDO_4006
+      - SERVICE_PASSWORD_POSTGRES
+      - SERVICE_BASE64_64_COOKIE
+      - SERVER_URL=${SERVICE_FQDN_CONDO_4006:-http://localhost:4006}
+      - COOKIE_SECRET=${SERVICE_BASE64_64_COOKIE:-dev-only-cookie-secret-rotate-before-public-exposure}
+      - DATABASE_URL=postgresql://postgres:${SERVICE_PASSWORD_POSTGRES:-postgres}@postgres:5432/local-condo
+      - REDIS_URL=redis://redis:6379/1
     depends_on:
-      postgresdb-master:
-        condition: service_healthy
+      init:
+        condition: service_completed_successfully
 
-  redis:
-    image: ${REGISTRY}redis:6.2
-    ports:
-      - "127.0.0.1:6379:6379"
-    networks:
-      - app-network
-    command: ["redis-server", "--databases", "64"]
-
-  nats:
-    image: ${REGISTRY}nats:2.12-alpine
-    ports:
-      - "127.0.0.1:4222:4222"
-      - "127.0.0.1:8080:8080"
-      - "127.0.0.1:8222:8222"
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: ["yarn", "workspace", "@app/condo", "worker"]
     environment:
-      MESSAGING_CONFIG: ${MESSAGING_CONFIG}
-    networks:
-      - app-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    entrypoint: ["/nats-entrypoint.sh"]
-    command: ["-c", "/etc/nats/nats.conf"]
-    volumes:
-      - ./nats.conf:/etc/nats/nats.conf:ro
-      - ./nats-entrypoint.sh:/nats-entrypoint.sh:ro
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  valkey-cluster:
-    image: ${REGISTRY}alpine
-    profiles: ['dbs']
+      - NODE_ENV=production
+      - PORT=4006
+      - SERVER_URL=${SERVICE_FQDN_CONDO_4006:-http://localhost:4006}
+      - COOKIE_SECRET=${SERVICE_BASE64_64_COOKIE:-dev-only-cookie-secret-rotate-before-public-exposure}
+      - DATABASE_URL=postgresql://postgres:${SERVICE_PASSWORD_POSTGRES:-postgres}@postgres:5432/local-condo
+      - REDIS_URL=redis://redis:6379/1
     depends_on:
-      - valkey-node-3
-      - valkey-node-2
-      - valkey-node-1
-      - valkey-cluster-creator
+      init:
+        condition: service_completed_successfully
 
-  valkey-cluster-creator:
-    command:
-      - valkey-cli
-      - --cluster
-      - create
-      - localhost:7001
-      - localhost:7002
-      - localhost:7003
-      - --cluster-yes
-      - --cluster-replicas
-      - '0'
-    depends_on:
-      valkey-node-1:
-        condition: service_healthy
-      valkey-node-2:
-        condition: service_healthy
-      valkey-node-3:
-        condition: service_healthy
-    image: ${REGISTRY}valkey/valkey:8.0.2
-    network_mode: host
-  valkey-node-1:
-    command:
-      - valkey-server
-      - /valkey/valkey.conf
-      - --port
-      - '7001'
-    healthcheck:
-      interval: 10s
-      retries: 3
-      test: [ "CMD", "valkey-cli", "-p", "7001", "-c", "ping" ]
-      timeout: 5s
-    image: ${REGISTRY}valkey/valkey:8.0.2
-    network_mode: host
-    configs:
-      - source: valkey.conf
-        target: /valkey/valkey.conf
-    ports:
-      - 7001:7000
-    volumes:
-      - valkey-data-1:/data
-  valkey-node-2:
-    command:
-      - valkey-server
-      - /valkey/valkey.conf
-      - --port
-      - '7002'
-    healthcheck:
-      interval: 10s
-      retries: 3
-      test: ["CMD", "valkey-cli", "-p", "7002", "-c", "ping"]
-      timeout: 5s
-    image: ${REGISTRY}valkey/valkey:8.0.2
-    network_mode: host
-    configs:
-      - source: valkey.conf
-        target: /valkey/valkey.conf
-    ports:
-      - 7002:7000
-    volumes:
-      - valkey-data-2:/data
-  valkey-node-3:
-    command:
-      - valkey-server
-      - /valkey/valkey.conf
-      - --port
-      - '7003'
-    healthcheck:
-      interval: 10s
-      retries: 3
-      test: ["CMD", "valkey-cli", "-p", "7003", "-c", "ping"]
-      timeout: 5s
-    image: ${REGISTRY}valkey/valkey:8.0.2
-    network_mode: host
-    configs:
-      - source: valkey.conf
-        target: /valkey/valkey.conf
-    ports:
-      - 7003:7000
-    volumes:
-      - valkey-data-3:/data
-
-networks:
-  app-network:
-    driver: bridge
 volumes:
-  valkey-data-1: {}
-  valkey-data-2: {}
-  valkey-data-3: {}
-configs:
-  valkey.conf:
-    content: |
-      cluster-enabled yes
-      cluster-config-file nodes.conf
-      cluster-node-timeout 5000
-      appendonly yes
-
+  postgres-data:
+  redis-data:

@@ -22,12 +22,20 @@ RUN set -ex \
 	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
     && echo "OK"
 
+# Pruner — runs `bin/prune.sh` inside the image so the installer stage doesn't
+# need a `./out` directory pre-built on the host (Coolify has no pre-build hook).
+FROM base AS pruner
+WORKDIR /repo
+COPY --chown=app:app . /repo
+# prune.sh uses `find -- *` so it must run from /repo.
+RUN cd /repo && bash bin/prune.sh
+
 # Installer
 FROM base AS installer
 
 WORKDIR /app
 # Copy pruned monorepo (only package.json + yarn.lock)
-COPY --chown=app:app ./out /app
+COPY --from=pruner --chown=app:app /repo/out /app
 # Copy yarn berry
 COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
