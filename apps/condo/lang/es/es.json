@@ -474,7 +474,7 @@
   "api.meter.registerMetersReadings.INVALID_METER_VALUES": "Valores no válidos: {valuesList}",
   "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Multiples contadores encontrados ({count})",
   "api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND": "Organización no encontrada",
-  "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Propiedad no encontrada",
+  "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Propiedad \"{address}\" no encontrada",
   "api.meter.registerMetersReadings.TOO_MUCH_READINGS": "Demasiadas lecturas. Has enviado {sentCount}, el límite es {limit}.",
   "api.meterReadingExportTask.STATUS_IS_ALREADY_COMPLETED": "Tarea ya completada con éxito",
   "api.meterReadingExportTask.STATUS_IS_ALREADY_ERROR": "La tarea se ha completado con un error",

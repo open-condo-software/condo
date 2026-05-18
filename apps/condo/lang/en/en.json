@@ -474,7 +474,7 @@
   "api.meter.registerMetersReadings.INVALID_METER_VALUES": "Invalid values: {valuesList}",
   "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Multiple meters found ({count})",
   "api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND": "Organization not found",
-  "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Property not found",
+  "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Property \"{address}\" not found",
   "api.meter.registerMetersReadings.TOO_MUCH_READINGS": "Too much readings. {sentCount} sent, limit is {limit}.",
   "api.meterReadingExportTask.STATUS_IS_ALREADY_COMPLETED": "Task already completed successfully",
   "api.meterReadingExportTask.STATUS_IS_ALREADY_ERROR": "The task has already completed with an error",

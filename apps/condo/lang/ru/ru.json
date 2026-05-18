@@ -474,7 +474,7 @@
   "api.meter.registerMetersReadings.INVALID_METER_VALUES": "Неверные значения: {valuesList}",
   "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Найдено несколько счетчиков ({count})",
   "api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND": "Организация не найдена",
-  "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Дом не найден",
+  "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Дом \"{address}\" не найден",
   "api.meter.registerMetersReadings.TOO_MUCH_READINGS": "Слишком много показаний. Передано {sentCount}, допустимый максимум {limit}.",
   "api.meterReadingExportTask.STATUS_IS_ALREADY_COMPLETED": "Задача уже успешно выполнена",
   "api.meterReadingExportTask.STATUS_IS_ALREADY_ERROR": "Задача уже завершилась с ошибкой",
