@@ -1,5 +1,5 @@
-const { PostgresSelectPlanner, POSTGRES_PROVIDER_CAPABILITIES } = require('./postgresSelectPlanner')
 const { PostgresDataProvider } = require('./postgresDataProvider')
+const { PostgresSelectPlanner, POSTGRES_PROVIDER_CAPABILITIES } = require('./postgresSelectPlanner')
 const { RedisDataProvider } = require('./redisDataProvider')
 const { RedisSelectPlanner, REDIS_PROVIDER_CAPABILITIES } = require('./redisSelectPlanner')
 
