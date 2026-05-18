@@ -2,20 +2,24 @@ const get = require('lodash/get')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
 
-class RedisDataProvider {
-    shouldHandleFind ({ condition = {} } = {}) {
-        return Boolean(this._resolveFindQuery(condition))
+const { BaseDataProvider } = require('./baseDataProvider')
+
+class RedisDataProvider extends BaseDataProvider {
+    supportsFind ({ condition = {} } = {}) {
+        return Boolean(this._resolveFindByIdQuery(condition))
     }
 
-    async executeFind ({ schemaName, condition = {} } = {}) {
-        const redisQuery = this._resolveFindQuery(condition)
-        if (!redisQuery) {
-            throw new Error(`Redis source for ${schemaName} supports only { id }, { id_in }, and optional deletedAt: null filters`)
+    async find ({ schemaName, condition = {} } = {}) {
+        const findQuery = this._resolveFindByIdQuery(condition)
+        if (!findQuery) {
+            throw new Error(
+                `Redis source for ${schemaName} supports only { id }, { id_in }, and optional deletedAt: null filters`
+            )
         }
-        if (redisQuery.ids.length === 0) return []
+        if (findQuery.ids.length === 0) return []
 
         const kv = getKVClient('cross-db-find')
-        const keys = redisQuery.ids.map(id => `${schemaName}:${id}`)
+        const keys = findQuery.ids.map(id => `${schemaName}:${id}`)
         const rawValues = await kv.mget(keys)
         const objects = rawValues
             .filter(Boolean)
@@ -27,43 +31,11 @@ class RedisDataProvider {
                 }
             })
 
-        if (!redisQuery.requireDeletedAtNull) return objects
+        if (!findQuery.requireDeletedAtNull) return objects
         return objects.filter(item => get(item, 'deletedAt', null) === null)
     }
 
-    shouldHandleItemsQuery () {
-        return false
-    }
-
-    async executeItemsQuery () {
-        return null
-    }
-
-    shouldHandleCreate () {
-        return false
-    }
-
-    async executeCreate () {
-        return null
-    }
-
-    shouldHandleUpdate () {
-        return false
-    }
-
-    async executeUpdate () {
-        return null
-    }
-
-    shouldHandleDelete () {
-        return false
-    }
-
-    async executeDelete () {
-        return null
-    }
-
-    _resolveFindQuery (condition = {}) {
+    _resolveFindByIdQuery (condition = {}) {
         const keys = Object.keys(condition || {})
         const allowedKeys = new Set(['id', 'id_in', 'deletedAt'])
         if (keys.some(key => !allowedKeys.has(key))) return null
