@@ -276,12 +276,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
         analytics.track('subscription_purchase_click', {
             paymentMethod: paymentType,
+            planId: plan.id,
             planName: plan.name,
-            priceAmount: price.price !== null && price.price !== undefined ? Number(price.price) : null,
-            currencyCode: price.currencyCode ?? null,
-            period: price.period ?? null,
+            priceAmount: price?.price !== null && price?.price !== undefined ? Number(price.price) : null,
+            period: price?.period ?? null,
         })
-
         setActivateLoading(true)
         try {
             await registerSubscriptionContext({
@@ -295,7 +294,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    }, [price, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
+    }, [price, registerSubscriptionContext, plan.id, plan.name, plan.trialDays, isCustomPrice])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerSubscriptionContextForModal,

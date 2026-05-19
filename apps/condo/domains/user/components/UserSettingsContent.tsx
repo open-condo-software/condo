@@ -100,7 +100,7 @@ export const UserSettingsContent: React.FC = () => {
     const { getSudoTokenWithModal, clearSudoToken } = useSudoToken()
 
     const { useFlag } = useFeatureFlags()
-    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isSPPOrg = true//useFlag(SERVICE_PROVIDER_PROFILE)
     const isFeature2FAEnabled = useFlag(TWO_FACTOR_SETTING)
     const { objs: userHelpRequests, refetch: userHelpRequestRefetch, loading: userHelpRequestsLoading } = UserHelpRequest.useObjects({
         where: {

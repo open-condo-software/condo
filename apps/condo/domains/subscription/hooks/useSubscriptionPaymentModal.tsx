@@ -30,6 +30,7 @@ const INVOICE_EMOJI = '📃'
 export const useSubscriptionPaymentModal = ({
     registerSubscriptionContext,
     activateLoading,
+    analyticsData,
 }: UseSubscriptionPaymentModalProps): UseSubscriptionPaymentModalReturn => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'subscription.paymentModal.title' })
