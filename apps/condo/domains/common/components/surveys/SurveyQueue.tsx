@@ -11,39 +11,64 @@ type PostHogSurveysQueueProps = {
 }
 
 export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
-    const { isReady, getActiveSurveys } = useSurveys()
+    const { isReady, getActiveSurveys, getSurveys } = useSurveys()
 
     const [currentSurvey, setCurrentSurvey] = useState<Survey | null>(null)
     const [surveyEventMap, setSurveyEventMap] = useState<Map<string, Survey[]> | null>(null)
     const surveysLoaded = useRef(false)
+    const activeSurveysLoaded = useRef(false)
+
+    useEffect(() => {
+        if (!isReady || activeSurveysLoaded.current) return
+        const unsubscribeOnSurveysLoaded = posthog.onSurveysLoaded(() => {
+            getActiveSurveys((activeSurveys)=>{
+                const eventMap = new Map<string, Survey[]>()
+                const surveyIdsWithEvents = new Set<string>()
+
+                activeSurveys.forEach((survey) => {
+                    const eventNames = survey.conditions?.events?.values?.map((event) => event.name) || []
+                    if (eventNames.length > 0) {
+                        surveyIdsWithEvents.add(survey.id)
+                    }
+                    eventNames.forEach((eventName) => {
+                        eventMap.set(eventName, [survey])
+                    })
+                })
+
+                const surveysWithoutEvents = activeSurveys.filter((survey) => !surveyIdsWithEvents.has(survey.id))
+                setCurrentSurvey(surveysWithoutEvents[0])
+
+                activeSurveysLoaded.current = true
+            })})
+
+        return () => unsubscribeOnSurveysLoaded()
+    }, [isReady])
 
     useEffect(() => {
         if (!isReady || surveysLoaded.current) return
-        posthog.onSurveysLoaded(() => {
 
-            const activeMatchingSurveys = getActiveSurveys()
+        const unsubscribeOnSurveysLoaded = posthog.onSurveysLoaded(() => {
+            getSurveys((surveys)=> {
+                const eventMap = new Map<string, Survey[]>()
+                const surveyIdsWithEvents = new Set<string>()
 
-            const eventMap = new Map<string, Survey[]>()
-            const surveyIdsWithEvents = new Set<string>()
-
-            activeMatchingSurveys.forEach((survey) => {
-                const eventNames = survey.conditions?.events?.values?.map((event) => event.name) || []
-                if (eventNames.length > 0) {
-                    surveyIdsWithEvents.add(survey.id)
-                }
-                eventNames.forEach((eventName) => {
-                    eventMap.set(eventName, [survey])
+                surveys.forEach((survey) => {
+                    if (survey.end_date) return
+                    const eventNames = survey.conditions?.events?.values?.map((event) => event.name) || []
+                    if (eventNames.length > 0) {
+                        surveyIdsWithEvents.add(survey.id)
+                    }
+                    eventNames.forEach((eventName) => {
+                        eventMap.set(eventName, [survey])
+                    })
                 })
+
+                setSurveyEventMap(eventMap)
+                surveysLoaded.current = true
             })
-
-            setSurveyEventMap(eventMap)
-
-            const surveysWithoutEvents = activeMatchingSurveys.filter((survey) => !surveyIdsWithEvents.has(survey.id))
-            setCurrentSurvey(surveysWithoutEvents[0])
-
-            surveysLoaded.current = true
-
         })
+
+        return () => unsubscribeOnSurveysLoaded()
     }, [isReady])
 
     useEffect(() => {
@@ -52,7 +77,13 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
         const eventListener = (e) => {
             const matchingSurveys = surveyEventMap.get(e?.event)
             if (matchingSurveys) {
-                setCurrentSurvey(matchingSurveys[0])
+                const survey = matchingSurveys[0]
+                setCurrentSurvey(survey)
+                if (!survey.conditions.events.repeatedActivation) {
+                    const newSurveyEventMap = new Map<string, Survey[]>(surveyEventMap)
+                    newSurveyEventMap.delete(e?.event)
+                    setSurveyEventMap(newSurveyEventMap)
+                }
             }
         }
 

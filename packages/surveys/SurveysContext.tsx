@@ -15,10 +15,10 @@ export type SurveyLinkedValue = {
 
 type PostHogSurveysContextValue = {
     isReady: boolean
-    getSurveys: () => Array<Survey> | null
-    getSurveyById: (surveyId: string) => Survey | null
-    getSurveysLinkedValue: (survey: Survey) => SurveyLinkedValue
-    getActiveSurveys: () => Array<Survey> | null
+    getSurveys: (callback: (surveys: Survey[]) => void) => void
+    getSurveyById: (surveyId: string, callback: (survey: Survey | null) => void) => void
+    getSurveysLinkedValue: (survey: Survey) => any
+    getActiveSurveys: (callback: (surveys: Survey[]) => void) => void
 }
 
 const SurveysContext = createContext<PostHogSurveysContextValue | null>(null)
@@ -49,37 +49,23 @@ export const SurveysProvider = ({ children }) => {
         }
     }, [isReady])
 
-    const getSurveys = useCallback(() => {
+    const getSurveys = useCallback((callback: (surveys: Survey[]) => void) => {
         if (!isReady || !posthog?.__loaded) return
-        let surveys = []
-
-        posthog.getSurveys(callbackSurveys => {
-            if (callbackSurveys && callbackSurveys.length) surveys = callbackSurveys
-        })
-
-        return surveys
+        posthog.getSurveys(callback)
     }, [isReady])
 
-    const getActiveSurveys = useCallback(() => {
+    const getActiveSurveys = useCallback((callback: (surveys: Survey[]) => void) => {
         if (!isReady || !posthog?.__loaded) return
-        let surveys = []
-
-        posthog.getActiveMatchingSurveys(callbackSurveys => {
-            if (callbackSurveys && callbackSurveys.length) surveys = callbackSurveys
-        })
-
-        return surveys
+        posthog.getActiveMatchingSurveys(callback)
     }, [isReady])
 
-    const getSurveyById = useCallback((surveyId: string) => {
-        if (!isReady || !posthog?.__loaded) return
-        let surveys = []
-
-        posthog.getSurveys(callbackSurveys => {
-            if (callbackSurveys && callbackSurveys.length) surveys = callbackSurveys
+    const getSurveyById = useCallback((surveyId: string, callback: (survey: Survey | null) => void) => {
+        if (!isReady || !posthog?.__loaded) {
+            return
+        }
+        posthog.getSurveys((surveys) => {
+            callback(surveys.find((s) => s.id === surveyId) ?? null)
         })
-
-        return surveys.find((s) => s.id === surveyId) ?? null
     }, [isReady])
 
     const getSurveysLinkedValue = useCallback((survey: Survey) => {
