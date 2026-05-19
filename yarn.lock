@@ -1606,7 +1606,6 @@ __metadata:
     less-loader: ^12.3.0
     lodash: ^4.17.21
     next: ^15.5.7
-    next-cookies: ^2.0.3
     next-with-less: ^3.0.1
     nunjucks: ^3.2.4
     openid-client: 5.7.1

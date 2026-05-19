@@ -7,9 +7,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 
-const ajv = new Ajv({
-    allErrors: true,
-})
+const ajv = new Ajv()
 
 const DV_VERSION_MISMATCH_ERROR = {
     variable: ['data', 'dv'],
