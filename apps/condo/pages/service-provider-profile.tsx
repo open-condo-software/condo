@@ -21,7 +21,7 @@ const ServiceProviderProfilePage: PageComponentType = () => {
     const PageTitle = intl.formatMessage({ id: 'global.section.SPP' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
     const { useFlag } = useFeatureFlags()
-    const isSPPOrg = true//useFlag(SERVICE_PROVIDER_PROFILE)
+    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const { GlobalHints } = useGlobalHints()
 
     if (sppConfig && 'BillingIntegrationId' in sppConfig && isSPPOrg) {
