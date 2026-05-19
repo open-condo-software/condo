@@ -61,7 +61,6 @@ export const SurveysProvider = ({ children }) => {
 
     const getSurveyById = useCallback((surveyId: string, callback: (survey: Survey | null) => void) => {
         if (!isReady || !posthog?.__loaded) {
-            callback(null)
             return
         }
         posthog.getSurveys((surveys) => {
