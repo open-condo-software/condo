@@ -28,7 +28,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, updateTestResident, registerResidentByTestClient, registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
@@ -870,6 +870,61 @@ describe('TicketComment', () => {
                     type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content2,
+                })
+
+                const { data: { objs: comments } } = await TicketComment.getAll(residentClient, {}, { sortBy: 'createdAt_ASC', raw: true })
+
+                expect(comments).toHaveLength(2)
+                expect(comments[0].id).toEqual(commentFromResident.id)
+                expect(comments[0].content).toEqual(content1)
+                expect(comments[1].id).toEqual(commentFromEmployee.id)
+                expect(comments[1].content).toEqual(content2)
+            })
+
+            it('can read comments with type resident in own ticket if has service consumer', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient, { type: 'SERVICE_PROVIDER' })
+
+                const [property] = await createTestProperty(adminClient, organization)
+
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+
+                const [resident] = await registerResidentByTestClient(residentClient, {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType: 'flat',
+                    unitName: '1',
+                })
+
+                const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
+                    residentId: resident.id,
+                    organizationId: organization.id,
+                    accountNumber: null,
+                })
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content1,
+                })
+
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                     content: content2,

@@ -5,7 +5,7 @@
 const { get, compact, isArray, uniq } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getByCondition, getById } = require('@open-condo/keystone/schema')
+const { getByCondition, getById, find } = require('@open-condo/keystone/schema')
 
 const {
     canReadObjectsAsB2BAppServiceUser,
@@ -49,8 +49,15 @@ async function canReadTicketComments (args) {
 
     if (user.type === RESIDENT) {
         const residents = await getUserResidents(context, user)
+        const serviceConsumers = await find('ServiceConsumer', {
+            resident: { user: { id: user.id }, deletedAt: null },
+            deletedAt: null,
+        })
 
-        const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
+        const organizationForResidentIds = compact(residents.map(resident => get(resident, 'organization')))
+        const organizationForServiceConsumersIds = compact(serviceConsumers.map(consumer => get(consumer, 'organization')))
+
+        const organizationsIds = [...organizationForResidentIds, ...organizationForServiceConsumersIds]
         const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
 
         return {
