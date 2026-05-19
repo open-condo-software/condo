@@ -113,6 +113,7 @@ export type EventsData = {
     'confirm_phone_registration': Record<string, never>
     'confirm_email_registration': Record<string, never>
     'register_user': { userId: string }
+    'create_organization': { organizationId: string }
     'ai_assistant_close': { aiSessionId: string }
     'ai_assistant_open_click': Record<string, never>
     'ai_assistant_message_send': AiAssistantMessageSendEventData

@@ -58,9 +58,9 @@ export const SurveyModal: React.FC<PostHogSurveyModalProps> = ({
     useEffect(() => {
         if (!isReady || !open || !surveyId) return
 
-        const survey = getSurveyById(surveyId)
-
-        setSurvey(survey)
+        getSurveyById(surveyId, (survey) => {
+            setSurvey(survey)}
+        )
     }, [isReady, open, surveyId, getSurveyById])
 
     useEffect(() => {
