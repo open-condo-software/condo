@@ -276,12 +276,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
         analytics.track('subscription_purchase_click', {
             paymentMethod: paymentType,
+            planId: plan.id,
             planName: plan.name,
-            priceAmount: price.price !== null && price.price !== undefined ? Number(price.price) : null,
-            currencyCode: price.currencyCode ?? null,
-            period: price.period ?? null,
+            priceAmount: price?.price !== null && price?.price !== undefined ? Number(price.price) : null,
+            period: price?.period ?? null,
         })
-
         setActivateLoading(true)
         try {
             await registerSubscriptionContext({
@@ -295,7 +294,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } finally {
             setActivateLoading(false)
         }
-    }, [price, registerSubscriptionContext, plan.name, plan.trialDays, isCustomPrice])
+    }, [price, registerSubscriptionContext, plan.id, plan.name, plan.trialDays, isCustomPrice])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerSubscriptionContextForModal,
@@ -487,13 +486,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                         {hasPaymentMethodForActivePlan && hasPaymentMethod && (
                                             <>
                                                 <Space size={8} direction='vertical'>
-                                                    <Typography.Link onClick={openPaymentHistoryModal}>
+                                                    <Typography.Link id={`subscription-plan-card-${plan.id}-payment-history-link`} onClick={openPaymentHistoryModal}>
                                                         <Space size={4} direction='horizontal' align='center'>
                                                             <Bill size='small' />
                                                             {PaymentHistoryLinkLabel}
                                                         </Space>
                                                     </Typography.Link>
-                                                    <Typography.Link onClick={openLinkedCardsModal}>
+                                                    <Typography.Link id={`subscription-plan-card-${plan.id}-linked-cards-link`} onClick={openLinkedCardsModal}>
                                                         <Space size={4} direction='horizontal' align='center'>
                                                             <CreditCard size='small' />
                                                             {LinkedCardsLinkLabel}
@@ -506,6 +505,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (
                                         <Space size={16} direction='vertical' width='100%'>
                                             <Button
+                                                id={`subscription-plan-card-${plan.id}-buy-button`}
                                                 block
                                                 type='primary'
                                                 onClick={handleActivePlanClick}
@@ -516,6 +516,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Button>
                                             {canActivateTrial && (
                                                 <Button
+                                                    id={`subscription-plan-card-${plan.id}-trial-button`}
                                                     block
                                                     type='accent'
                                                     onClick={handleTrialActivateClick}

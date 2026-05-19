@@ -120,9 +120,9 @@ export type EventsData = {
     'ai_suggestions_failure': AiSuggestionsFailureEventData
     'subscription_purchase_click': {
         paymentMethod: 'card' | 'userHelpRequest'
-        planName: string
+        planId: string | null
+        planName: string | null
         priceAmount: number | null
-        currencyCode: string | null
         period: string | null
     }
     'survey sent': SurveyModalData

@@ -86,6 +86,7 @@ export const UpgradePlanButton: React.FC = () => {
     /*TODO DOMA-12785 move to ui kit*/
     return (
         <Button
+            id='subscription-upgrade-plan-button'
             type='accent'
             minimal
             compact

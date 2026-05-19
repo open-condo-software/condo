@@ -132,7 +132,7 @@ export const usePaymentHistoryModal = () => {
                 // TODO(DOMA-13128): Add check page in condo
                 const receiptUrl = `${CONDO_RB_DOMAIN}/check/${multiPaymentId}`
                 return (
-                    <Typography.Link href={receiptUrl} target='_blank'>
+                    <Typography.Link id={`subscription-payment-history-${multiPaymentId}-receipt-link`} href={receiptUrl} target='_blank'>
                         {DownloadReceiptLabel}
                     </Typography.Link>
                 )

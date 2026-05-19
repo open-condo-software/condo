@@ -349,7 +349,7 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
         if (content.variant === 'activeBanking') {
             const buttonText = intl.formatMessage({ id: 'subscription.trialEndedModal.activeBanking.button' })
             return [
-                <Button key='action' type='primary' onClick={handleSubscriptionButtonClick}>
+                <Button id='subscription-trial-ended-modal-go-to-settings-button' key='action' type='primary' onClick={handleSubscriptionButtonClick}>
                     {buttonText}
                 </Button>,
             ]
@@ -357,14 +357,14 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
 
         if (!hasSbbolAuth) {
             return [
-                <Button key='action' type='primary' onClick={handleSubscriptionButtonClick}>
+                <Button id='subscription-trial-ended-modal-go-to-settings-button' key='action' type='primary' onClick={handleSubscriptionButtonClick}>
                     {intl.formatMessage({ id: 'subscription.trialEndedModal.activeBanking.button' })}
                 </Button>,
             ]
         }
 
         return [
-            <Space 
+            <Space
                 width='100%'
                 direction={isLargeScreen ? 'horizontal' : 'vertical'}
                 size={8}
@@ -372,6 +372,7 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
             >
                 <LoginWithSBBOLButton block checkTlsCert />
                 <Button
+                    id='subscription-trial-ended-modal-activate-banking-button'
                     block
                     type='primary'
                     onClick={handleActivateBankingRequest}
