@@ -909,6 +909,7 @@ export const TicketsPageContent = ({
         return (
             <EmptyListContent
                 label={EmptyListLabel}
+                image='/mascot/tickets.webp'
                 createRoute='/ticket/create'
                 accessCheck={canManageTickets}
                 importLayoutProps={isTicketImportFeatureEnabled && {
