@@ -14,7 +14,7 @@ import getConfig from 'next/config'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { isSSR } from '@open-condo/miniapp-utils'
-import { useEmbeddingContext } from '@open-condo/miniapp-utils/dist/helpers/embeddingContext'
+import { useEmbeddingContext } from '@open-condo/miniapp-utils/helpers/embeddingContext'
 import {
     DEBUG_RERENDERS,
     DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
@@ -58,8 +58,8 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
     const embeddingContext = useEmbeddingContext()
-    const platform = embeddingContext.platform
-    const appId = embeddingContext.app.id
+    const platform = embeddingContext?.platform
+    const appId = embeddingContext?.app?.id
 
     const [features, setFeature] = useState(initFeatures)
 
@@ -122,7 +122,7 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
             platform,
             appId,
         })
-    }, [updateContext, isAdmin, isSupport, organization, userId])
+    }, [updateContext, isAdmin, isSupport, organization, userId, platform, appId])
 
     return (
         <FeatureFlagsContext.Provider value={{
