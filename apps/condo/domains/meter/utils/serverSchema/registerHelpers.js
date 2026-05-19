@@ -47,6 +47,7 @@ const ERRORS = {
         type: PROPERTY_NOT_FOUND,
         message: 'Property not found',
         messageForUser: 'api.meter.registerMetersReadings.PROPERTY_NOT_FOUND',
+        messageInterpolation: { address: '??' },
     },
     INVALID_METER_VALUES: {
         code: BAD_USER_INPUT,

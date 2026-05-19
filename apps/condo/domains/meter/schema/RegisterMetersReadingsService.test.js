@@ -348,9 +348,10 @@ describe('RegisterMetersReadingsService', () => {
         const [property1] = await createTestPropertyWithMap(adminClient, organization)
         const [property2] = await createTestPropertyWithMap(adminClient, organization)
 
+        const fakeAddress = faker.address.streetAddress(true)
         const readings = [
             createTestReadingData(property1),
-            createTestReadingData({ address: faker.address.streetAddress(true) }),
+            createTestReadingData({ address: fakeAddress }),
             createTestReadingData(property2),
         ]
 
@@ -400,6 +401,7 @@ describe('RegisterMetersReadingsService', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'PROPERTY_NOT_FOUND',
                             message: 'Property not found',
+                            messageForUser: `Property "${fakeAddress}" not found`,
                         }),
                     }),
                 ])

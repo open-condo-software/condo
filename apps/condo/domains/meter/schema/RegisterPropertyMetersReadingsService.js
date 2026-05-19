@@ -169,7 +169,10 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                     const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
-                        resultRows.push(new GQLError(ERRORS.PROPERTY_NOT_FOUND, context))
+                        resultRows.push(new GQLError({
+                            ...ERRORS.PROPERTY_NOT_FOUND,
+                            messageInterpolation: { address: reading.address },
+                        }, context))
                         continue
                     }
 

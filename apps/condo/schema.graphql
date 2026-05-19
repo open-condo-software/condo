@@ -109056,7 +109056,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "PROPERTY_NOT_FOUND",
     "message": "Property not found",
-    "messageForUser": "Property not found"
+    "messageForUser": "Property \"??\" not found"
   }`
   
   `{
@@ -109123,7 +109123,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "PROPERTY_NOT_FOUND",
     "message": "Property not found",
-    "messageForUser": "Property not found"
+    "messageForUser": "Property \"??\" not found"
   }`
   
   `{
