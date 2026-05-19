@@ -194,7 +194,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     if (isBlocked) {
         let primaryButton: React.ReactNode
         if (!hasFeaturePlan) {
-            primaryButton = <Button type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
+            primaryButton = <Button id='subscription-access-guard-go-to-plans-button' type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
         } else if (hasPendingFeatureRequest) {
             primaryButton = (
                 <Tooltip title={AwaitingPaymentTooltipMessage}>
@@ -204,7 +204,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                 </Tooltip>
             )
         } else {
-            primaryButton = <Button type='primary' onClick={openPaymentModal}>{FeaturePayButton}</Button>
+            primaryButton = <Button id='subscription-access-guard-buy-feature-button' type='primary' onClick={openPaymentModal}>{FeaturePayButton}</Button>
         }
 
         const featureDescription = (
@@ -233,7 +233,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                         description={hasFeaturePlan ? featureDescription : GuardDescription}
                         primaryButton={primaryButton}
                         secondaryButton={helpLink && (
-                            <Button type='secondary' onClick={handleLearnMore}>{LearnMoreMessage}</Button>
+                            <Button id='subscription-access-guard-learn-more-button' type='secondary' onClick={handleLearnMore}>{LearnMoreMessage}</Button>
                         )}
                     />
                 </PageWrapper>

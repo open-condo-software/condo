@@ -6,6 +6,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
 import { useActivateSubscriptions } from './useActivateSubscriptions'
 import { useOrganizationSubscription } from './useOrganizationSubscription'
@@ -90,6 +91,13 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
 
     const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
         if (!featurePlanFirstPrice?.id) return
+        analytics.track('subscription_purchase_click', {
+            paymentMethod: paymentType,
+            planId: featurePlanInfo?.plan?.id ?? null,
+            planName: featurePlanInfo?.plan?.name ?? null,
+            priceAmount: featurePlanFirstPrice.price != null ? Number(featurePlanFirstPrice.price) : null,
+            period: featurePlanFirstPrice.period ?? null,
+        })
         await registerSubscriptionContext({
             priceId: featurePlanFirstPrice.id,
             isTrial: false,
@@ -99,7 +107,7 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
             paymentType,
             returnUrl,
         })
-    }, [returnUrl, featurePlanFirstPrice?.id, featurePlanFirstPrice?.price, featurePlanInfo?.plan?.name, registerSubscriptionContext])
+    }, [returnUrl, featurePlanFirstPrice?.id, featurePlanFirstPrice?.price, featurePlanFirstPrice?.period, featurePlanInfo?.plan?.id, featurePlanInfo?.plan?.name, registerSubscriptionContext])
 
     const forPlanLabel = currentServicePlanName
         ? intl.formatMessage({ id: 'subscription.feature.forPlan' }, { planName: currentServicePlanName })

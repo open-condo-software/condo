@@ -172,7 +172,7 @@ export const SubscriptionWelcomeModal: React.FC = () => {
             title={content.title}
             onCancel={handleClose}
             footer={[
-                <Button key='action' type='primary' onClick={handleButtonClick}>
+                <Button key='action' id='subscription-welcome-modal-action-button' type='primary' onClick={handleButtonClick}>
                     {content.buttonText}
                 </Button>,
             ]}

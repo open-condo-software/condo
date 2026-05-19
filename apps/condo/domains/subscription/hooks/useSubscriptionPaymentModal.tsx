@@ -8,6 +8,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 
 export type PaymentType = 'card' | 'userHelpRequest'
+
 interface UseSubscriptionPaymentModalProps {
     registerSubscriptionContext: (params: { paymentType: PaymentType }) => Promise<void> | void
     activateLoading: boolean
@@ -78,6 +79,7 @@ export const useSubscriptionPaymentModal = ({
 
         const footerButton = isCardSelected ? (
             <Button
+                id='subscription-payment-modal-proceed-to-payment-button'
                 type='primary'
                 onClick={handleProceedToPayment}
                 disabled={activateLoading}
@@ -86,6 +88,7 @@ export const useSubscriptionPaymentModal = ({
             </Button>
         ) : (
             <Button
+                id='subscription-payment-modal-issue-invoice-button'
                 type='primary'
                 onClick={handleCreateUserHelpRequest}
                 disabled={activateLoading}
