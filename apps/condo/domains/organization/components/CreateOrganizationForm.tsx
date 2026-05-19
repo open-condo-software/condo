@@ -27,6 +27,7 @@ import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { SKIP_SEARCH_ORGANIZATION_BY_TIN, DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 import { REQUEST_LIMIT_ERRORS } from '@condo/domains/user/constants/errors'
@@ -352,6 +353,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                 await onEmployeeSelected()
             }
         }
+
+        analytics.track('create_organization', { organizationId:organizationId })
         setIsOrganizationCreating(false)
     }, [
         registerSubscriptionContext, client, defaultTrialPlanId, findOrganizationsByTin,
