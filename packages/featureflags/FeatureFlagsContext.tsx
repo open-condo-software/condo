@@ -58,8 +58,8 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
     const embeddingContext = useEmbeddingContext()
-    const platform = embeddingContext?.platform
-    const appId = embeddingContext?.app?.id
+    const embeddingContextPlatform = embeddingContext?.platform
+    const embeddingContextAppId = embeddingContext?.app?.id
 
     const [features, setFeature] = useState(initFeatures)
 
@@ -119,10 +119,10 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
             isSupport: isSupport || isAdmin,
             organization: get(organization, 'id'),
             userId,
-            platform,
-            appId,
+            embeddingContextPlatform,
+            embeddingContextAppId,
         })
-    }, [updateContext, isAdmin, isSupport, organization, userId, platform, appId])
+    }, [updateContext, isAdmin, isSupport, organization, userId, embeddingContextPlatform, embeddingContextAppId])
 
     return (
         <FeatureFlagsContext.Provider value={{
