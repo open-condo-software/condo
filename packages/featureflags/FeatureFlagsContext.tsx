@@ -14,6 +14,7 @@ import getConfig from 'next/config'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { isSSR } from '@open-condo/miniapp-utils'
+import { useEmbeddingContext } from '@open-condo/miniapp-utils/helpers/embeddingContext'
 import {
     DEBUG_RERENDERS,
     DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
@@ -56,6 +57,10 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
+    const embeddingContext = useEmbeddingContext()
+    const embeddingContextPlatform = embeddingContext?.platform
+    const embeddingContextAppId = embeddingContext?.app?.id
+
     const [features, setFeature] = useState(initFeatures)
 
     const isSupport = get(user, 'isSupport', false)
@@ -110,8 +115,14 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     }, [features, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
-        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
-    }, [updateContext, isAdmin, isSupport, organization, userId])
+        updateContext({
+            isSupport: isSupport || isAdmin,
+            organization: get(organization, 'id'),
+            userId,
+            embeddingContextPlatform,
+            embeddingContextAppId,
+        })
+    }, [updateContext, isAdmin, isSupport, organization, userId, embeddingContextPlatform, embeddingContextAppId])
 
     return (
         <FeatureFlagsContext.Provider value={{
