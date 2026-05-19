@@ -5,7 +5,7 @@
 const { get, compact, isArray, uniq } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getByCondition, getById, find} = require('@open-condo/keystone/schema')
+const { getByCondition, getById, find } = require('@open-condo/keystone/schema')
 
 const {
     canReadObjectsAsB2BAppServiceUser,
