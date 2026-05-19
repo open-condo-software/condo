@@ -30,7 +30,6 @@ const INVOICE_EMOJI = '📃'
 export const useSubscriptionPaymentModal = ({
     registerSubscriptionContext,
     activateLoading,
-    analyticsData,
 }: UseSubscriptionPaymentModalProps): UseSubscriptionPaymentModalReturn => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'subscription.paymentModal.title' })
@@ -79,6 +78,7 @@ export const useSubscriptionPaymentModal = ({
 
         const footerButton = isCardSelected ? (
             <Button
+                id='subscription-payment-modal-proceed-to-payment-button'
                 type='primary'
                 onClick={handleProceedToPayment}
                 disabled={activateLoading}
@@ -87,6 +87,7 @@ export const useSubscriptionPaymentModal = ({
             </Button>
         ) : (
             <Button
+                id='subscription-payment-modal-issue-invoice-button'
                 type='primary'
                 onClick={handleCreateUserHelpRequest}
                 disabled={activateLoading}
@@ -108,6 +109,7 @@ export const useSubscriptionPaymentModal = ({
                         <Row gutter={breakpoints.TABLET_LARGE ? CUSTOM_CHECKBOXES_DESKTOP_WRAPPER_GUTTER : CUSTOM_CHECKBOXES_MOBILE_WRAPPER_GUTTER}>
                             <Col span={breakpoints.TABLET_LARGE ? 12 : 24}>
                                 <Card
+                                    id='subscription-payment-modal-card-option'
                                     hoverable
                                     bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
                                     active={isCardSelected}
@@ -156,6 +158,7 @@ export const useSubscriptionPaymentModal = ({
                             </Col>
                             <Col span={breakpoints.TABLET_LARGE ? 12 : 24}>
                                 <Card
+                                    id='subscription-payment-modal-invoice-option'
                                     hoverable
                                     bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
                                     active={isUserHelpRequestSelected}

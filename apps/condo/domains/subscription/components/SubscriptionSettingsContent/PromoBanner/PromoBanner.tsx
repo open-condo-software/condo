@@ -93,6 +93,7 @@ export const PromoBanner: React.FC = () => {
                     <Space size={12} direction='horizontal'>
                         <LoginWithSBBOLButton checkTlsCert />
                         <Button
+                            id='subscription-promo-banner-activate-banking-button'
                             type='primary'
                             onClick={handleActivateBankingRequest}
                             loading={loading}

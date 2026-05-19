@@ -486,13 +486,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                         {hasPaymentMethodForActivePlan && hasPaymentMethod && (
                                             <>
                                                 <Space size={8} direction='vertical'>
-                                                    <Typography.Link onClick={openPaymentHistoryModal}>
+                                                    <Typography.Link id='subscription-plan-card-payment-history-link' onClick={openPaymentHistoryModal}>
                                                         <Space size={4} direction='horizontal' align='center'>
                                                             <Bill size='small' />
                                                             {PaymentHistoryLinkLabel}
                                                         </Space>
                                                     </Typography.Link>
-                                                    <Typography.Link onClick={openLinkedCardsModal}>
+                                                    <Typography.Link id='subscription-plan-card-linked-cards-link' onClick={openLinkedCardsModal}>
                                                         <Space size={4} direction='horizontal' align='center'>
                                                             <CreditCard size='small' />
                                                             {LinkedCardsLinkLabel}
@@ -505,6 +505,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (
                                         <Space size={16} direction='vertical' width='100%'>
                                             <Button
+                                                id='subscription-plan-card-buy-button'
                                                 block
                                                 type='primary'
                                                 onClick={handleActivePlanClick}
@@ -515,6 +516,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Button>
                                             {canActivateTrial && (
                                                 <Button
+                                                    id='subscription-plan-card-trial-button'
                                                     block
                                                     type='accent'
                                                     onClick={handleTrialActivateClick}
