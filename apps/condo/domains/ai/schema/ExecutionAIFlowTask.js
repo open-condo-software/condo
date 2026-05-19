@@ -45,7 +45,7 @@ try {
     EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 }
 
-const ENCODING_ALGO = 'aes-256-cbc'
+const ENCODING_ALGO = 'aes-256-gcm'
 const ENCODING_KEY = conf['AI_ENCODING_SECRET_KEY']
 const ENCODING_SEP = ':'
 
