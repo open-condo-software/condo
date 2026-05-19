@@ -72,6 +72,7 @@ const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
                 value={value as string}
                 onChange={(e) => onChange(e.target.value)}
                 rows={4}
+                autoSize={{ minRows: 1, maxRows: 5 }}
             />
         ),
     },
