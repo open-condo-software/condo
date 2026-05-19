@@ -8,6 +8,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 
 export type PaymentType = 'card' | 'userHelpRequest'
+
 interface UseSubscriptionPaymentModalProps {
     registerSubscriptionContext: (params: { paymentType: PaymentType }) => Promise<void> | void
     activateLoading: boolean
@@ -109,7 +110,6 @@ export const useSubscriptionPaymentModal = ({
                         <Row gutter={breakpoints.TABLET_LARGE ? CUSTOM_CHECKBOXES_DESKTOP_WRAPPER_GUTTER : CUSTOM_CHECKBOXES_MOBILE_WRAPPER_GUTTER}>
                             <Col span={breakpoints.TABLET_LARGE ? 12 : 24}>
                                 <Card
-                                    id='subscription-payment-modal-card-option'
                                     hoverable
                                     bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
                                     active={isCardSelected}

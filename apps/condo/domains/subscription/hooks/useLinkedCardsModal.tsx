@@ -255,7 +255,7 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
                                     </Col>
                                     <Col flex='none'>
                                         <Button
-                                            id='subscription-linked-cards-unbind-button'
+                                            id={`subscription-linked-cards-unbind-${paymentMethod.bindingId}-button`}
                                             minimal
                                             compact
                                             size='large'
