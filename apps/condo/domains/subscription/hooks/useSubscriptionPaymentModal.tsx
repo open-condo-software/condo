@@ -158,7 +158,6 @@ export const useSubscriptionPaymentModal = ({
                             </Col>
                             <Col span={breakpoints.TABLET_LARGE ? 12 : 24}>
                                 <Card
-                                    id='subscription-payment-modal-invoice-option'
                                     hoverable
                                     bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
                                     active={isUserHelpRequestSelected}
