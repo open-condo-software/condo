@@ -20,7 +20,7 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
 
     useEffect(() => {
         if (!isReady || activeSurveysLoaded.current) return
-        posthog.onSurveysLoaded(() => {
+        const unsubscribeOnSurveysLoaded = posthog.onSurveysLoaded(() => {
             getActiveSurveys((activeSurveys)=>{
                 const eventMap = new Map<string, Survey[]>()
                 const surveyIdsWithEvents = new Set<string>()
@@ -40,19 +40,22 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
 
                 activeSurveysLoaded.current = true
             })})
+
+        return () => unsubscribeOnSurveysLoaded()
     }, [isReady])
 
     useEffect(() => {
         if (!isReady || surveysLoaded.current) return
 
-        const offOnSurveysLoaded = posthog.onSurveysLoaded(() => {
+        const unsubscribeOnSurveysLoaded = posthog.onSurveysLoaded(() => {
             getSurveys((surveys)=> {
                 const eventMap = new Map<string, Survey[]>()
                 const surveyIdsWithEvents = new Set<string>()
 
                 surveys.forEach((survey) => {
+                    if (survey.end_date) return
                     const eventNames = survey.conditions?.events?.values?.map((event) => event.name) || []
-                    if (eventNames.length > 0 && !survey.end_date) {
+                    if (eventNames.length > 0) {
                         surveyIdsWithEvents.add(survey.id)
                     }
                     eventNames.forEach((eventName) => {
@@ -65,9 +68,7 @@ export const SurveysQueue: React.FC<PostHogSurveysQueueProps> = () => {
             })
         })
 
-        return () => {
-            offOnSurveysLoaded()
-        }
+        return () => unsubscribeOnSurveysLoaded()
     }, [isReady])
 
     useEffect(() => {
