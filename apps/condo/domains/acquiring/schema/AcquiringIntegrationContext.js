@@ -35,7 +35,7 @@ const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Reci
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { hasRequiredJsonObject } = require('@condo/domains/common/utils/validation.utils')
 const { MarketSetting } = require('@condo/domains/marketplace/utils/serverSchema')
 const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
@@ -72,7 +72,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    hasValidJsonStructure(args, true, 1, {})
+                    hasRequiredJsonObject(args)
                 },
             },
         },
@@ -84,7 +84,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    hasValidJsonStructure(args, true, 1, {})
+                    hasRequiredJsonObject(args)
                 },
             },
         },

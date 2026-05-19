@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { JSON_EXPECT_ARRAY_ERROR, OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { hasOptionalJsonObject } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/notification/access/MessageBatch')
 const {
     CUSTOM_CONTENT_MESSAGE_TYPE,
@@ -108,7 +108,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
             isRequired: false,
             hooks: {
                 validateInput: (args) => {
-                    if (!hasValidJsonStructure(args, false, 1, {})) return
+                    if (!hasOptionalJsonObject(args)) return
                 },
             },
         },

@@ -1,77 +1,124 @@
-const { hasValidJsonStructure } = require('./validation.utils')
+const {
+    hasRequiredJsonObject,
+    hasOptionalJsonObject,
+} = require('./validation.utils')
 
-describe('hasValidJsonStructure()', () => {
-    describe('dv', () => {
-        test('no dv', () => {
+describe('JSON object validators', () => {
+    const makeArgs = (fieldPath, value, errors) => ({
+        resolvedData: { [fieldPath]: value },
+        fieldPath,
+        addFieldValidationError: (err) => errors.push(err),
+    })
+
+    describe('hasRequiredJsonObject()', () => {
+        test('should fail when field is missing and return error', () => {
             const errors = []
-            const fieldPath = 'meta'
-            const addFieldValidationError = (err) => errors.push(err)
-            const args = { resolvedData: { [fieldPath]: {} }, fieldPath, addFieldValidationError }
+            const args = {
+                resolvedData: {},
+                fieldPath: 'meta',
+                addFieldValidationError: (e) => errors.push(e),
+            }
 
-            hasValidJsonStructure(args, true, 1, {})
+            const result = hasRequiredJsonObject(args)
 
+            expect(result).toBe(false)
+            expect(errors).toEqual([
+                '[required:noValue:meta] Value is required',
+            ])
+        })
+
+        test('should fail when value is not object and return error', () => {
+            const errors = []
+            const args = makeArgs('meta', 'string', errors)
+
+            const result = hasRequiredJsonObject(args)
+
+            expect(result).toBe(false)
+            expect(errors).toEqual([
+                '[json:expectObject:meta] Expect JSON Object',
+            ])
+        })
+
+        test('should fail when dv is wrong and return error', () => {
+            const errors = []
+            const args = makeArgs('meta', { dv: 2 }, errors)
+
+            const result = hasRequiredJsonObject(args)
+
+            expect(result).toBe(false)
             expect(errors).toEqual([
                 '[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object',
             ])
         })
-        test('wrong dv', () => {
+
+        test('should pass when object is valid and return true', () => {
             const errors = []
-            const fieldPath = 'meta'
-            const addFieldValidationError = (err) => errors.push(err)
-            const args = { resolvedData: { [fieldPath]: { dv: 2 } }, fieldPath, addFieldValidationError }
+            const args = makeArgs('meta', { dv: 1, name: 'test' }, errors)
 
-            hasValidJsonStructure(args, false, 1, {})
+            const result = hasRequiredJsonObject(args)
 
-            expect(errors).toEqual([
-                '[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object',
-            ])
+            expect(result).toBe(true)
+            expect(errors).toEqual([])
         })
     })
 
-    describe('fieldConstrains', () => {
-        describe('string type check', () => {
-            test('for no value', () => {
-                const errors = []
-                const fieldPath = 'meta'
-                const addFieldValidationError = (err) => errors.push(err)
-                const args = { resolvedData: { [fieldPath]: { dv: 1 } }, fieldPath, addFieldValidationError }
+    describe('hasOptionalJsonObject()', () => {
+        test('should pass when field is missing and return true', () => {
+            const errors = []
+            const args = {
+                resolvedData: {},
+                fieldPath: 'meta',
+                addFieldValidationError: (e) => errors.push(e),
+            }
 
-                hasValidJsonStructure(args, false, 1, {
-                    name: { type: 'string' },
-                })
+            const result = hasOptionalJsonObject(args)
 
-                expect(errors).toEqual([])
-            })
-            test('for empty value', () => {
-                const errors = []
-                const fieldPath = 'meta'
-                const addFieldValidationError = (err) => errors.push(err)
-                const args = { resolvedData: { [fieldPath]: { dv: 1, name: '' } }, fieldPath, addFieldValidationError }
+            expect(result).toBe(true)
+            expect(errors).toEqual([])
+        })
 
-                hasValidJsonStructure(args, false, 1, {
-                    name: { type: 'string' },
-                })
+        test('should fail when value is not object and return error', () => {
+            const errors = []
+            const args = makeArgs('meta', 123, errors)
 
-                expect(errors).toEqual([])
-            })
-            test('for number value', () => {
-                const errors = []
-                const fieldPath = 'meta'
-                const addFieldValidationError = (err) => errors.push(err)
-                const args = {
-                    resolvedData: { [fieldPath]: { dv: 1, name: 3221 } },
-                    fieldPath,
-                    addFieldValidationError,
-                }
+            const result = hasOptionalJsonObject(args)
 
-                hasValidJsonStructure(args, false, 1, {
-                    name: { type: 'string' },
-                })
+            expect(result).toBe(false)
+            expect(errors).toEqual([
+                '[json:expectObject:meta] Expect JSON Object',
+            ])
+        })
 
-                expect(errors).toEqual([
-                    '[json:wrongDataVersionFormat:meta] Field \'name\': Name must be of type string',
-                ])
-            })
+        test('should fail when dv is wrong and return error', () => {
+            const errors = []
+            const args = makeArgs('meta', { dv: 3 }, errors)
+
+            const result = hasOptionalJsonObject(args)
+
+            expect(result).toBe(false)
+            expect(errors).toEqual([
+                '[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object',
+            ])
+        })
+
+        test('should pass when object is valid and return true', () => {
+            const errors = []
+            const args = makeArgs('meta', { dv: 1 }, errors)
+
+            const result = hasOptionalJsonObject(args)
+
+            expect(result).toBe(true)
+            expect(errors).toEqual([])
+        })
+
+        test('should pass when object has extra fields and return true', () => {
+            const errors = []
+            const args = makeArgs('meta', { dv: 1, foo: 'bar' }, errors)
+
+            const result = hasOptionalJsonObject(args)
+
+            expect(result).toBe(true)
+            expect(errors).toEqual([])
         })
     })
 })

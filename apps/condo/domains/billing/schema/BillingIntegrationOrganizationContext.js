@@ -8,7 +8,7 @@ const { find, getById, GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
 const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { hasRequiredJsonObject } = require('@condo/domains/common/utils/validation.utils')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -39,7 +39,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    hasValidJsonStructure(args, true, 1, {})
+                    hasRequiredJsonObject(args)
                 },
             },
         },
@@ -60,7 +60,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    hasValidJsonStructure(args, true, 1, {})
+                    hasRequiredJsonObject(args)
                 },
             },
         },

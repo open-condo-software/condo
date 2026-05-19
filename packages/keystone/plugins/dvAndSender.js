@@ -1,11 +1,13 @@
+const Ajv = require('ajv')
 const isEmpty = require('lodash/isEmpty')
 const nextCookies = require('next-cookies')
 const pluralize = require('pluralize')
-const validate = require('validate.js')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
+
+const ajv = new Ajv()
 
 const DV_VERSION_MISMATCH_ERROR = {
     variable: ['data', 'dv'],
@@ -15,18 +17,23 @@ const DV_VERSION_MISMATCH_ERROR = {
 }
 
 const SENDER_FIELD_CONSTRAINTS = {
-    fingerprint: {
-        presence: true,
-        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
-        length: { minimum: 5, maximum: 42 },
-    },
-    dv: {
-        numericality: {
-            noStrings: true,
-            equalTo: 1,
+    type: 'object',
+    required: ['fingerprint', 'dv'],
+    properties: {
+        fingerprint: {
+            type: 'string',
+            minLength: 5,
+            maxLength: 42,
+            pattern: '^[a-zA-Z0-9!#$%()*+\\-;=,:[\\]/.?@^_`{|}~]{5,42}$',
+        },
+        dv: {
+            type: 'integer',
+            const: 1,
         },
     },
 }
+
+const validateSender = ajv.compile(SENDER_FIELD_CONSTRAINTS)
 
 const WRONG_SENDER_FORMAT_ERROR = {
     variable: ['data', 'sender'],
@@ -49,10 +56,11 @@ function checkDvAndSender (data, dvError, senderError, context) {
         throw new GQLError({ ...DV_VERSION_MISMATCH_ERROR, ...dvError }, context)
     }
 
-    const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
-    if (senderErrors && Object.keys(senderErrors).length) {
-        const details = Object.keys(senderErrors)
-            .map(field => `${field}: ${senderErrors[field].map(error => `'${error}'`).join('; ')}`)
+    const isValidSender = validateSender(sender)
+
+    if (!isValidSender) {
+        const details = validateSender.errors
+            .map(error => `${error.instancePath.replace('/', '') || error.params.missingProperty}: '${error.message}'`)
             .join(', ')
 
         throw new GQLError({ ...WRONG_SENDER_FORMAT_ERROR, messageInterpolation: { details }, ...senderError }, context)

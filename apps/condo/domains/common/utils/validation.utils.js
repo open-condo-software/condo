@@ -1,8 +1,12 @@
-const { isNull, isUndefined, isObject } = require('lodash')
-const validate = require('validate.js')
+/**
+ * @deprecated
+ */
+
+const isNull = require('lodash/isNull')
+const isObject = require('lodash/isObject')
+const isUndefined = require('lodash/isUndefined')
 
 const {
-    JSON_WRONG_VERSION_FORMAT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
     REQUIRED_NO_VALUE_ERROR,
@@ -56,10 +60,11 @@ function hasOneOfFields (requestRequired, resolvedData, existingItem = {}, addFi
     return hasOneField
 }
 
-function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints) {
+// @deprecated
+function hasRequiredJsonObject (args) {
     const { resolvedData, fieldPath, addFieldValidationError } = args
 
-    if (isRequired && !resolvedData.hasOwnProperty(fieldPath)) {
+    if (!resolvedData.hasOwnProperty(fieldPath)) {
         addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
 
         return false
@@ -67,31 +72,50 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 
     const value = resolvedData[fieldPath]
 
-    if (!isObject(value) || isNull(value))
-        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
+    if (!isObject(value) || isNull(value)) {
+        addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
 
-    const { dv, ...data } = value
-
-    if (dv === dataVersion) {
-        const errors = validate(data, fieldsConstraints)
-
-        if (errors) {
-            for (const name of Object.keys(errors)) {
-                for (const err of errors[name]) {
-                    addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] Field '${name}': ${err}`)
-                }
-            }
-        }
-
-        return !errors
-    } else {
-        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+        return false
     }
+
+    if (value.dv !== 1) {
+        addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+
+        return false
+    }
+
+    return true
+}
+
+// @deprecated
+function hasOptionalJsonObject (args) {
+    const { resolvedData, fieldPath, addFieldValidationError } = args
+
+    if (!resolvedData.hasOwnProperty(fieldPath)) {
+        return true
+    }
+
+    const value = resolvedData[fieldPath]
+
+    if (!isObject(value) || isNull(value)) {
+        addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
+
+        return false
+    }
+
+    if (value.dv !== 1) {
+        addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+
+        return false
+    }
+
+    return true
 }
 
 module.exports = {
     JSON_STRUCTURE_FIELDS_CONSTRAINTS,
     hasDbFields,
     hasOneOfFields,
-    hasValidJsonStructure,
+    hasRequiredJsonObject,
+    hasOptionalJsonObject,
 }
