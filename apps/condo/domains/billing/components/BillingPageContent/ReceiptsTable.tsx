@@ -23,8 +23,8 @@ import {
     TableRef,
 } from '@open-condo/ui'
 
-import { BillingReceiptForOrganization as BillingReceiptForOrganizationGQL } from '@condo/domains/billing/gql'
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
+import { BillingReceiptForOrganization as BillingReceiptForOrganizationGQL } from '@condo/domains/billing/gql'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 import { BillingReceiptForOrganization } from '@condo/domains/billing/utils/clientSchema'
@@ -153,6 +153,9 @@ export const ReceiptsTable: React.FC = () => {
     }, [reportPeriod])
 
     const onRowClick = useCallback((record: BillingReceiptType) => {
+        const hasSelectedText = typeof window !== 'undefined' && window.getSelection?.()?.toString().trim()
+        if (hasSelectedText) return
+
         if (hasServices) {
             showServiceModal(record)
         }
