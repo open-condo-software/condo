@@ -523,12 +523,15 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             if (connectedTicketId && isConnectClientDataOp) {
-                const ticket = await getById('Ticket', connectedTicketId)
-                const notEmptyTicketClientData = pickBy(pick(ticket, CLIENT_DATA_FIELDS), Boolean)
-                const notEmptyInvoiceClientData = pickBy(pick(nextData, CLIENT_DATA_FIELDS), Boolean)
+                const changedClientFields = CLIENT_DATA_FIELDS.filter(f => f in changedFields)
+                if (changedClientFields.length > 0) {
+                    const ticket = await getById('Ticket', connectedTicketId)
+                    const notEmptyTicketClientData = pickBy(pick(ticket, changedClientFields), Boolean)
+                    const notEmptyInvoiceClientData = pickBy(pick(nextData, changedClientFields), Boolean)
 
-                if (!isEqual(notEmptyTicketClientData, notEmptyInvoiceClientData)) {
-                    throw new GQLError(ERRORS.CLIENT_DATA_DOES_NOT_MATCH_TICKET, context)
+                    if (!isEqual(notEmptyTicketClientData, notEmptyInvoiceClientData)) {
+                        throw new GQLError(ERRORS.CLIENT_DATA_DOES_NOT_MATCH_TICKET, context)
+                    }
                 }
             }
 

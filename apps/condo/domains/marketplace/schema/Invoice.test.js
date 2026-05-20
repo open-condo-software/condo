@@ -2148,6 +2148,58 @@ describe('Invoice', () => {
             expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
         })
 
+        test('can cancel published invoice connected to ticket when invoice has contact but ticket does not', async () => {
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+            const unitName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property, {
+                unitName,
+                unitType: FLAT_UNIT_TYPE,
+                clientPhone,
+                clientName,
+                isResidentTicket: false,
+            })
+
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                status: INVOICE_STATUS_PUBLISHED,
+                ticket: { connect: { id: ticket.id } },
+                rows: generateInvoiceRows(),
+            })
+
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                status: INVOICE_STATUS_CANCELED,
+            })
+
+            expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
+        })
+
+        test('can set paid status on published invoice connected to ticket when invoice has contact but ticket does not', async () => {
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+            const unitName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property, {
+                unitName,
+                unitType: FLAT_UNIT_TYPE,
+                clientPhone,
+                clientName,
+                isResidentTicket: false,
+            })
+
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                status: INVOICE_STATUS_PUBLISHED,
+                ticket: { connect: { id: ticket.id } },
+                rows: generateInvoiceRows(),
+            })
+
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                status: INVOICE_STATUS_PAID,
+            })
+
+            expect(updatedInvoice.status).toEqual(INVOICE_STATUS_PAID)
+        })
+
         test('can\'t publish invoice with isMin-price', async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 rows: [generateInvoiceRow({ isMin: true })],
