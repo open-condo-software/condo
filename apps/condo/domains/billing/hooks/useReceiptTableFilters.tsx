@@ -1,36 +1,123 @@
 import { BillingReceiptWhereInput } from '@app/condo/schema'
+import isEmpty from 'lodash/isEmpty'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 
+import { BillingProperty as BillingPropertyGQL } from '@condo/domains/billing/gql'
 import { BillingCategory } from '@condo/domains/billing/utils/clientSchema'
-import { ComponentType, convertToOptions, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
+import { ComponentType, convertToOptions, FilterComponentSize, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { categoryToSearchQuery, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 
-const addressFilter = getStringContainsFilter(['property', 'address'])
+const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+const addressStringContainsFilter = getStringContainsFilter(['property', 'address'])
 const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const fullNameFilter = getStringContainsFilter(['account', 'fullName'])
 const categoryFilter = getFilter(['category', 'id'], 'array', 'string', 'in')
 const periodFilter = (period: string) => ({ period })
 
-export function useReceiptTableFilters (defaultPeriod: string, search: string): Array<FiltersMeta<BillingReceiptWhereInput>>  {
+const searchBillingPropertyByContextIds = (contextIds: string[]): ISearchInputProps['search'] => {
+    return async function (client, searchText, query = {}, first = 10, skip = 0) {
+        if (!contextIds?.length) return []
+
+        const where = {
+            context: { id_in: contextIds },
+            ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+            ...query,
+        }
+        const sortBy = ['address_ASC']
+
+        const { data = {}, error } = await client.query({
+            query: BillingPropertyGQL.GET_ALL_OBJS_QUERY,
+            variables: { where, sortBy, first, skip },
+            fetchPolicy: 'network-only',
+        })
+
+        if (error) console.warn(error)
+
+        return (data?.objs || []).filter(Boolean).map(({ address, id }) => ({ text: address, value: id }))
+    }
+}
+
+export function useReceiptTableFilters (defaultPeriod: string, search: string, contextIds: string[] = []): Array<TableFiltersMeta<BillingReceiptWhereInput>>  {
     const intl = useIntl()
-    // const contextPeriod = get(context, ['lastReport', 'period'], null)
     const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
+    const EnterUnitNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+    const EnterAccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAccountNumber' })
+    const EnterHolderMessage = intl.formatMessage({ id: 'field.Holder' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
-    const categorySearchFilter = categoryToSearchQuery(search, intl.messages)
+    const categorySearchFilter = useMemo(
+        () => categoryToSearchQuery(search, intl.messages),
+        [search, intl.messages]
+    )
+    const billingPropertySearch = useMemo(() => searchBillingPropertyByContextIds(contextIds), [contextIds])
     const { objs: categories } = BillingCategory.useObjects({})
-    const categoryOptions = useMemo(() => convertToOptions(categories, 'name', 'id'), [categories])
+    const categoryOptionsKey = useMemo(
+        () => categories.map(({ id, name }) => `${id}:${name}`).sort().join('|'),
+        [categories]
+    )
+    // NOTE: Keep options reference stable while data content is unchanged, to avoid filter component remounts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const categoryOptions = useMemo(() => convertToOptions(categories, 'name', 'id'), [categoryOptionsKey])
     return useMemo(() => {
         return [
             { keyword: 'period', filters: [periodFilter], defaultValue: defaultPeriod },
-            { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter, fullNameFilter, categorySearchFilter], combineType: 'OR' },
-            { keyword: 'address', filters: [addressFilter] },
-            { keyword: 'unitName', filters: [unitNameFilter] },
-            { keyword: 'account', filters: [accountFilter] },
-            { keyword: 'fullName', filters: [fullNameFilter] },
+            { keyword: 'search', filters: [addressStringContainsFilter, unitNameFilter, accountFilter, fullNameFilter, categorySearchFilter], combineType: 'OR' },
+            {
+                keyword: 'address',
+                filters: [addressFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: billingPropertySearch,
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterAddressMessage,
+                        infinityScroll: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: EnterAddressMessage,
+                        size: FilterComponentSize.Large,
+                    },
+                    columnFilterComponentWrapper: {
+                        width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'unitName',
+                filters: [unitNameFilter],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: EnterUnitNameMessage,
+                    },
+                },
+            },
+            {
+                keyword: 'account',
+                filters: [accountFilter],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: EnterAccountNumberMessage,
+                    },
+                },
+            },
+            {
+                keyword: 'fullName',
+                filters: [fullNameFilter],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: EnterHolderMessage,
+                    },
+                },
+            },
             {
                 keyword: 'category',
                 filters: [categoryFilter],
@@ -49,6 +136,17 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string): 
                 },
             },
         ]
-    }, [SelectMessage, StatusMessage, categoryOptions, defaultPeriod, categorySearchFilter])
+    }, [
+        EnterAccountNumberMessage,
+        EnterAddressMessage,
+        EnterHolderMessage,
+        EnterUnitNameMessage,
+        SelectMessage,
+        StatusMessage,
+        billingPropertySearch,
+        categoryOptions,
+        defaultPeriod,
+        categorySearchFilter,
+    ])
   
 }
