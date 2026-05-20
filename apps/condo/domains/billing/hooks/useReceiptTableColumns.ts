@@ -1,10 +1,12 @@
-import { BillingReceipt, BillingReceiptWhereInput } from '@app/condo/schema'
+import { BillingReceipt, BillingReceiptWhereInput, BuildingUnitSubType } from '@app/condo/schema'
+import { Typography } from 'antd'
+import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { TableColumn } from '@open-condo/ui'
 
-import { getMoneyRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getHighlightedContents, getMoneyRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 type ReceiptTableRow = BillingReceipt
@@ -12,6 +14,8 @@ type ReceiptColumn = TableColumn<ReceiptTableRow>
 type ReceiptDataKey = Extract<ReceiptColumn, { dataKey: unknown }>['dataKey']
 
 const receiptDataKey = <TKey extends ReceiptDataKey>(value: TKey): TKey => value
+const ELLIPSIS_STYLES = { marginBottom: 0 }
+const ELLIPSIS_CONFIG = { rows: 2, expandable: false } as const
 
 export const useReceiptTableColumns = (
     filterMetas: Array<TableFiltersMeta<BillingReceiptWhereInput>>,
@@ -31,8 +35,23 @@ export const useReceiptTableColumns = (
     const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
 
     return useMemo(() => {
-        const renderTextCell = (value: string, _record: ReceiptTableRow, _index: number, globalFilter?: string) =>
-            getTableCellRenderer({ search: globalFilter, ellipsis: true })(value)
+        const renderTextCellWithoutTooltip = (value: string, _record: ReceiptTableRow, _index: number, globalFilter?: string) => {
+            if (!value) return null
+
+            return (
+                <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={ELLIPSIS_STYLES}>
+                    {getHighlightedContents({ search: globalFilter })(value)}
+                </Typography.Paragraph>
+            )
+        }
+        const renderUnitNameCell = (value: string, record: ReceiptTableRow, _index: number, globalFilter?: string) => {
+            const unitType = get(record, 'account.unitType', BuildingUnitSubType.Flat)
+            const unitTypeMessage = unitType
+                ? intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` as FormatjsIntl.Message['ids'] })
+                : null
+
+            return getTableCellRenderer({ search: globalFilter, ellipsis: true, extraTitle: unitTypeMessage })(value)
+        }
         const renderMoneyCell = getMoneyRender(intl, currencyCode)
 
         const allColumns: Record<string, ReceiptColumn> = {
@@ -43,7 +62,7 @@ export const useReceiptTableColumns = (
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'address'),
                 initialSize: detailed ? '25%' : '50%',
-                render: renderTextCell,
+                render: renderTextCellWithoutTooltip,
             },
             unitName: {
                 header: UnitNameTitle,
@@ -52,7 +71,7 @@ export const useReceiptTableColumns = (
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'unitName'),
                 initialSize: '8%',
-                render: renderTextCell,
+                render: renderUnitNameCell,
             },
             fullName: {
                 header: FullNameTitle,
@@ -61,7 +80,7 @@ export const useReceiptTableColumns = (
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'fullName'),
                 initialSize: '18%',
-                render: renderTextCell,
+                render: renderTextCellWithoutTooltip,
             },
             category: {
                 header: CategoryTitle,
@@ -70,7 +89,7 @@ export const useReceiptTableColumns = (
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'category'),
                 initialSize: '10%',
-                render: renderTextCell,
+                render: renderTextCellWithoutTooltip,
             },
             account: {
                 header: AccountTitle,
@@ -79,13 +98,14 @@ export const useReceiptTableColumns = (
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'account'),
                 initialSize: detailed ? '10%' : '15%',
-                render: renderTextCell,
+                render: renderTextCellWithoutTooltip,
             },
             balance: {
                 header: DebtTitle,
                 id: 'balance',
                 dataKey: receiptDataKey('toPayDetails.balance'),
                 enableSorting: false,
+                initialVisibility: false,
                 initialSize: '14%',
                 render: renderMoneyCell,
             },
@@ -94,6 +114,7 @@ export const useReceiptTableColumns = (
                 id: 'penalty',
                 dataKey: receiptDataKey('toPayDetails.penalty'),
                 enableSorting: false,
+                initialVisibility: false,
                 initialSize: '13%',
                 render: renderMoneyCell,
             },
