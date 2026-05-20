@@ -368,7 +368,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                         ttl: 5 * 60 * 1000,
                         meta: {
                             source: 'internal',
-                            provider: 'executionAIFlowAfterChange',
+                            provider: 'executionAIFlowTask',
                             _scopes: scopesForFlow,
                         },
                     })
