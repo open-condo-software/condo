@@ -133,6 +133,7 @@ export function registerBridgeEvents ({
             title: z.string(),
             url: z.url(),
             size: z.enum(['big', 'small']).optional(),
+            initialHeight: z.number().optional(),
         })), ({
             source,
             params,

@@ -11,6 +11,7 @@ import type {
 
 const DEFAULT_METHOD_TIMEOUTS: Partial<Record<AnyRequestMethodName, number>> = {
     CondoWebAppRequestAuth: 10_000, // 10 sec
+    CondoWebAppRequestPayment: 3 * 60 * 60 * 1000, // 3 hours before we assume user abandoned payment
 }
 const DEFAULT_TIMEOUT_MS = 1_000 // 1 sec
 
