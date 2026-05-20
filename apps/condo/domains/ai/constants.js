@@ -269,6 +269,11 @@ const FLOW_META_SCHEMAS = {
 const FLOW_TOKEN_SCOPES = {
     [FLOW_TYPES.CHAT_WITH_CONDO]: [
         { gqlOperationType: 'query' }, // Allow all queries
+        { gqlOperationNames: ['allTickets', '...'] },
+        { gqlSchemas: ['User', '...'] },
+        // b2bAccessRight
+        // canReadTickets ...
+        // orgranization-scoped
     ],
 }
 

@@ -369,15 +369,19 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                         meta: {
                             source: 'internal',
                             provider: 'executionAIFlowAfterChange',
-                            scopes: scopesForFlow,
+                            _scopes: scopesForFlow,
                         },
                     })
 
                     const iv = crypto.randomBytes(16)
                     const cipher = crypto.createCipheriv(ENCODING_ALGO, ENCODING_KEY, iv)
+
                     const encrypted = Buffer.concat([cipher.update(userToken), cipher.final()])
 
-                    condoUserToken = iv.toString('hex') + ENCODING_SEP + encrypted.toString('hex')
+                    const authTag = cipher.getAuthTag()
+                    condoUserToken = iv.toString('hex') + ENCODING_SEP +
+                        authTag.toString('hex') + ENCODING_SEP +
+                        encrypted.toString('hex')
                 }
 
                 await executeAIFlow.delay(updatedItem.id, { condoUserToken })

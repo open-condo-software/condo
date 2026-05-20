@@ -8,7 +8,10 @@
 const { GQLError } = require('../../errors')
 const { extractQueriesAndMutationsFromRequest } = require('../utils/requests')
 
-/** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
+/**
+ * @deprecated This is an experimental module - use at your own risk
+ * @implements {import('apollo-server-plugin-base').ApolloServerPlugin}
+ */
 class ApolloTokenScopesPlugin {
     /** @type {import('@open-keystone/keystone').Keystone} */
     #keystone = null
@@ -21,18 +24,14 @@ class ApolloTokenScopesPlugin {
         this.#keystone = keystone
     }
 
-    /**
-     * Logs incoming requests for debugging and monitoring
-     * @param {Object} requestContext - Apollo request context
-     */
     async #processIncomingRequest (requestContext) {
         const { mutations, queries } = extractQueriesAndMutationsFromRequest(requestContext)
 
         // Token meta is stored in session, accessible via authedItem
         const tokenMeta = requestContext?.context?.req?.session?.keystoneSessionMeta
-        const tokenScopes = tokenMeta?.scopes
+        const tokenScopes = tokenMeta?._scopes
 
-        // If no token scopes are provided - PR will continue as is
+        // If no token scopes are provided - request will continue as is
         if (!tokenScopes) {
             return
         }

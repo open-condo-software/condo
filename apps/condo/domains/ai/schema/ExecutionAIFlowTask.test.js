@@ -549,12 +549,20 @@ describe('ExecutionAIFlowTask', () => {
 
             const encryptedToken = executeAIFlowSpy.mock.calls[0]?.[1]?.condoUserToken
 
-            const [iv, content] = encryptedToken.split(ENCODING_SEP)
+            const parts = encryptedToken.split(ENCODING_SEP)
+            const iv = Buffer.from(parts[0], 'hex')
+            const authTag = Buffer.from(parts[1], 'hex')
+            const content = Buffer.from(parts[2], 'hex')
 
-            const decipher = crypto.createDecipheriv(ENCODING_ALGO, ENCODING_KEY, Buffer.from(iv, 'hex'))
-            const decrpytedBuffer = Buffer.concat([decipher.update(Buffer.from(content, 'hex')), decipher.final()])
+            const decipher = crypto.createDecipheriv(ENCODING_ALGO, ENCODING_KEY, iv)
+            decipher.setAuthTag(authTag)
 
-            const userTokenSentToAI = decrpytedBuffer.toString()
+            const decryptedBuffer = Buffer.concat([
+                decipher.update(content),
+                decipher.final(),
+            ])
+
+            const userTokenSentToAI = decryptedBuffer.toString()
 
             const clientWithTokenSentFromAI = await makeClient()
             clientWithTokenSentFromAI.setHeaders({ Authorization: `Bearer ${userTokenSentToAI}` })
