@@ -6,8 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { TableColumn } from '@open-condo/ui'
 
 import { getMoneyRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 
 type ReceiptTableRow = BillingReceipt
 type ReceiptColumn = TableColumn<ReceiptTableRow>
