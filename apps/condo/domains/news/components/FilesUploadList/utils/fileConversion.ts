@@ -65,20 +65,19 @@ const UNIVERSAL_H264_ARGS = [
     // 28 = noticeable degradation
     '-crf', '23',
 
-    // Pixel format.
-    // Universal mobile compatibility (8-bit)
-    '-pix_fmt', 'yuv420p',
+    // Proper HDR -> SDR conversion
+    '-vf',
+    [
+        'tonemap=reinhard',
+        'colorspace=all=bt709:iall=bt2020',
+        'format=yuv420p',
+    ].join(','),
 
     // H264 High Profile (for compatibility)
     '-profile:v', 'high',
 
     // For Android compatibility
     '-level:v', '4.1',
-
-    // SDR color space
-    '-colorspace', 'bt709',
-    '-color_primaries', 'bt709',
-    '-color_trc', 'bt709',
 ]
 
 const AAC_AUDIO_ARGS = [
