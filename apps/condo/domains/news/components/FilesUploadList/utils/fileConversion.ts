@@ -102,23 +102,22 @@ async function transcodeVideo (
     const isH264 = videoCodec === 'h264'
     const isAAC = audioCodec === 'aac'
 
-    const canCopyVideo = hasVideo && isH264 && !forceVideoTranscode
-    const canCopyAudio = !hasAudio || isAAC
-    const shouldDirectCopy = canCopyVideo && canCopyAudio
+    const shouldCopyVideo = hasVideo && isH264 && !forceVideoTranscode
+    const shouldCopyAudio = !hasAudio || isAAC
 
     const args = [
         '-i', inputName,
         '-movflags', '+faststart', // for streaming/start playback
     ]
 
-    if (shouldDirectCopy) {
+    if (shouldCopyVideo) {
         args.push('-c:v', 'copy')
     } else {
         args.push(...UNIVERSAL_H264_ARGS)
     }
 
     if (hasAudio) {
-        if (isAAC) {
+        if (shouldCopyAudio) {
             args.push(
                 '-c:a', 'copy',
             )
