@@ -534,6 +534,13 @@ query checkTicketExistenceWithSourceAndOrganization ($sourceId: ID!, $organizati
     }
 }
 
+query getTicketUpdatedAt ($id: ID!) {
+    ticket: allTickets(where: { id: $id }, first: 1) {
+        id
+        updatedAt
+    }
+}
+
 mutation createTicket ($data: TicketCreateInput!) {
     ticket: createTicket(data: $data) {
         id

@@ -2,21 +2,22 @@ import {
     useUpdateTicketMutation,
     useGetEmployeesByOrganizationIdAndUserIdsQuery,
     useGetTicketObserversByTicketIdQuery,
+    useGetTicketUpdatedAtLazyQuery,
 } from '@app/condo/gql'
-import { Form, Typography } from 'antd'
+import { Form, notification } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import pick from 'lodash/pick'
 import reduce from 'lodash/reduce'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
@@ -103,12 +104,25 @@ interface IUpdateTicketForm {
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
+    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
+    const ChangesSavedMsg = intl.formatMessage({ id: 'ChangesSaved' })
+    const ConcurrentUpdateMessage = intl.formatMessage({ id: 'pages.condo.ticket.notification.concurrentUpdate.message' })
+    const ConcurrentUpdateDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.concurrentUpdate.description' })
+    const ConcurrentUpdateLink = intl.formatMessage({ id: 'pages.condo.ticket.notification.concurrentUpdate.link' })
 
     const { replace } = useRouter()
     const { persistor } = useCachePersistor()
     const { useFlag } = useFeatureFlags()
     const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
+    const initialUpdatedAtRef = useRef<string | null>(null)
+    const [fetchTicketUpdatedAt] = useGetTicketUpdatedAtLazyQuery({ fetchPolicy: 'network-only' })
+
+    useEffect(() => {
+        if (obj?.updatedAt && !initialUpdatedAtRef.current) {
+            initialUpdatedAtRef.current = obj.updatedAt
+        }
+    }, [obj])
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
     const {
@@ -147,6 +161,25 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     const updateAction = async (values) => {
         const { existedInvoices, newInvoices, observers: newObserverUserIds, ...ticketValues } = values
+
+        const freshData = await fetchTicketUpdatedAt({ variables: { id } })
+        const freshUpdatedAt = freshData?.data?.ticket?.[0]?.updatedAt
+        if (freshUpdatedAt && initialUpdatedAtRef.current && freshUpdatedAt !== initialUpdatedAtRef.current) {
+            notification.error({
+                message: <Typography.Text size='large' strong>{ConcurrentUpdateMessage}</Typography.Text>,
+                description: (
+                    <>
+                        {ConcurrentUpdateDescription}
+                        <br />
+                        <Typography.Link href={`/ticket/${id}/update`} target='_blank' rel='noreferrer'>
+                            {ConcurrentUpdateLink}
+                        </Typography.Link>
+                    </>
+                ),
+                duration: 0,
+            })
+            return
+        }
 
         const observersUpdatePayload = buildTicketObserversPayload({
             existingObserversList: observers,
@@ -266,8 +299,13 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             organization={get(obj, 'organization')}
             files={files}
             afterActionCompleted={(ticket) => {
+                notification.success({
+                    message: <Typography.Text size='large' strong>{DoneMsg}</Typography.Text>,
+                    description: ChangesSavedMsg,
+                })
                 replace(`/ticket/${ticket.id}`)
             }}
+            OnCompletedMsg={null}
             isExisted={Boolean(obj)}
         >
             {({ handleSave, isLoading, form }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}

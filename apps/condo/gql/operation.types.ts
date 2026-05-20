@@ -1289,6 +1289,13 @@ export type CheckTicketExistenceWithSourceAndOrganizationQueryVariables = Types.
 
 export type CheckTicketExistenceWithSourceAndOrganizationQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
 
+export type GetTicketUpdatedAtQueryVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetTicketUpdatedAtQuery = { __typename?: 'Query', ticket?: Array<{ __typename?: 'Ticket', id: string, updatedAt?: string | null } | null> | null };
+
 export type CreateTicketMutationVariables = Types.Exact<{
   data: Types.TicketCreateInput;
 }>;

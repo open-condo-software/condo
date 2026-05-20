@@ -8854,6 +8854,50 @@ export type CheckTicketExistenceWithSourceAndOrganizationQueryHookResult = Retur
 export type CheckTicketExistenceWithSourceAndOrganizationLazyQueryHookResult = ReturnType<typeof useCheckTicketExistenceWithSourceAndOrganizationLazyQuery>;
 export type CheckTicketExistenceWithSourceAndOrganizationSuspenseQueryHookResult = ReturnType<typeof useCheckTicketExistenceWithSourceAndOrganizationSuspenseQuery>;
 export type CheckTicketExistenceWithSourceAndOrganizationQueryResult = Apollo.QueryResult<Types.CheckTicketExistenceWithSourceAndOrganizationQuery, Types.CheckTicketExistenceWithSourceAndOrganizationQueryVariables>;
+export const GetTicketUpdatedAtDocument = gql`
+    query getTicketUpdatedAt($id: ID!) {
+  ticket: allTickets(where: {id: $id}, first: 1) {
+    id
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetTicketUpdatedAtQuery__
+ *
+ * To run a query within a React component, call `useGetTicketUpdatedAtQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketUpdatedAtQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketUpdatedAtQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetTicketUpdatedAtQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables> & ({ variables: Types.GetTicketUpdatedAtQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>(GetTicketUpdatedAtDocument, options);
+      }
+export function useGetTicketUpdatedAtLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>(GetTicketUpdatedAtDocument, options);
+        }
+// @ts-ignore
+export function useGetTicketUpdatedAtSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>;
+export function useGetTicketUpdatedAtSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetTicketUpdatedAtQuery | undefined, Types.GetTicketUpdatedAtQueryVariables>;
+export function useGetTicketUpdatedAtSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>(GetTicketUpdatedAtDocument, options);
+        }
+export type GetTicketUpdatedAtQueryHookResult = ReturnType<typeof useGetTicketUpdatedAtQuery>;
+export type GetTicketUpdatedAtLazyQueryHookResult = ReturnType<typeof useGetTicketUpdatedAtLazyQuery>;
+export type GetTicketUpdatedAtSuspenseQueryHookResult = ReturnType<typeof useGetTicketUpdatedAtSuspenseQuery>;
+export type GetTicketUpdatedAtQueryResult = Apollo.QueryResult<Types.GetTicketUpdatedAtQuery, Types.GetTicketUpdatedAtQueryVariables>;
 export const CreateTicketDocument = gql`
     mutation createTicket($data: TicketCreateInput!) {
   ticket: createTicket(data: $data) {
