@@ -846,6 +846,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             details: normalizeText(details),
         }, ...args)
 
+        if (!result) return
+
         await syncModifiedFiles(result.id)
 
         // NOTE: remove any current values from local storage
