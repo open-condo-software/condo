@@ -58,7 +58,7 @@ const ResidentBillingVirtualReceipt = generateGqlQueries('ResidentBillingVirtual
 const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{ 
         id period toPay
         file { file { id publicUrl } }
-        property { id address addressKey }
+        property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } }
         account { id number unitType unitName fullName ownerType globalId isClosed }
         toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } 
         ${BILLING_RECEIPT_SERVICE_FIELDS}

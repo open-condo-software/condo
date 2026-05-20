@@ -9,15 +9,36 @@ import { BillingProperty as BillingPropertyGQL } from '@condo/domains/billing/gq
 import { BillingCategory } from '@condo/domains/billing/utils/clientSchema'
 import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ComponentType, convertToOptions, FilterComponentSize, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { categoryToSearchQuery, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import { getAddressDetails, ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
+import { categoryToSearchQuery, FilterType, getFilter, getStringContainsFilter, QueryArgType, WhereType } from '@condo/domains/common/utils/tables.utils'
 
-const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+const addressFilter: FilterType<BillingReceiptWhereInput> = (search: QueryArgType) => {
+    if (!search) return undefined as unknown as BillingReceiptWhereInput
+
+    const addressKeys = (Array.isArray(search) ? search : [search])
+        .filter(Boolean)
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+
+    if (addressKeys.length === 0) return undefined as unknown as BillingReceiptWhereInput
+    if (addressKeys.length === 1) return { property: { addressKey: addressKeys[0] } }
+
+    return {
+        OR: addressKeys.map((addressKey) => ({ property: { addressKey } })),
+    }
+}
 const addressStringContainsFilter = getStringContainsFilter(['property', 'address'])
 const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const fullNameFilter = getStringContainsFilter(['account', 'fullName'])
 const categoryFilter = getFilter(['category', 'id'], 'array', 'string', 'in')
 const periodFilter = (period: string) => ({ period })
+
+const formatAddressOptionText = (property: ObjectWithAddressInfo): string => {
+    const { streetPart, cityPart } = getAddressDetails(property)
+    if (streetPart && cityPart) return `${streetPart}, ${cityPart}`
+    return streetPart || property?.address || ''
+}
 
 const searchBillingPropertyByContextIds = (contextIds: string[]): ISearchInputProps['search'] => {
     return async function (client, searchText, query = {}, first = 10, skip = 0) {
@@ -38,8 +59,25 @@ const searchBillingPropertyByContextIds = (contextIds: string[]): ISearchInputPr
 
         if (error) console.warn(error)
 
-        return (data?.objs || []).filter(Boolean).map(({ address, id }) => ({ text: address, value: id }))
+        const uniqueByAddressKey = new Map<string, { text: string, value: string }>()
+        for (const property of (data?.objs || []).filter(Boolean)) {
+            const addressKey = property?.addressKey
+            if (!addressKey || uniqueByAddressKey.has(addressKey)) continue
+
+            uniqueByAddressKey.set(addressKey, {
+                text: formatAddressOptionText({ address: property.address, addressMeta: property.addressMeta }),
+                value: addressKey,
+            })
+        }
+
+        return Array.from(uniqueByAddressKey.values())
     }
+}
+
+const getAddressKeyInitialValueQuery = (initialValue: string | string[]): WhereType => {
+    const addressKeys = (Array.isArray(initialValue) ? initialValue : [initialValue]).filter(Boolean)
+    if (addressKeys.length === 0) return {}
+    return { addressKey_in: addressKeys }
 }
 
 export function useReceiptTableFilters (defaultPeriod: string, search: string, contextIds: string[] = []): Array<TableFiltersMeta<BillingReceiptWhereInput>>  {
@@ -74,6 +112,7 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string, c
                     type: ComponentType.GQLSelect,
                     props: {
                         search: billingPropertySearch,
+                        getInitialValueQuery: getAddressKeyInitialValueQuery,
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterAddressMessage,
