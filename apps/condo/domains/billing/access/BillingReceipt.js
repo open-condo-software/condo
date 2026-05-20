@@ -3,11 +3,15 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { find, getById } = require('@open-condo/keystone/schema')
 
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const {
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
-const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 async function canReadBillingReceipts (args) {
@@ -61,8 +65,50 @@ async function canReadSensitiveBillingReceiptData ({ authentication: { item: use
     return user.type !== RESIDENT
 }
 
+const SOFT_DELETE_ALLOWED_UPDATE_FIELDS = ['dv', 'sender', 'deletedAt']
+
+const isSoftDeleteInput = (data) => {
+    if (typeof data !== 'object') {
+        return false
+    }
+    const keys = Object.keys(data?.data || data)
+    return keys.length === 3 && keys.every(key => SOFT_DELETE_ALLOWED_UPDATE_FIELDS.includes(key))
+}
+
+const isSoftDeleteUpdateRequest = (originalInput) => {
+    if (Array.isArray(originalInput)) {
+        return originalInput.every((itemInput) => isSoftDeleteInput(itemInput))
+    }
+    return isSoftDeleteInput(originalInput)
+}
+
 async function canManageBillingReceipts (args) {
-    return await canManageBillingEntityWithContext(args)
+    const { authentication: { item: user }, operation, context, itemId, itemIds, originalInput } = args
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+    if (user.isSupport) return false
+    if (user.type === STAFF && operation === 'update') {
+        if (!isSoftDeleteUpdateRequest(originalInput)) {
+            return false
+        }
+        const idsToCheck = itemIds?.length ? itemIds : [itemId]
+        if (!idsToCheck.length) return false
+        const receipts = await find('BillingReceipt', { id_in: idsToCheck, deletedAt: null })
+        // some receipts were already deleted
+        if (receipts.length !== idsToCheck.length) return false
+        const contextIds = Array.from(new Set(receipts.map(({ context }) => context)))
+        const contexts = await find('BillingIntegrationOrganizationContext', {
+            id_in: contextIds,
+            deletedAt: null,
+        })
+        if (!contexts.length) {
+            return false
+        }
+        const organizationIds = Array.from(new Set(contexts.map(({ organization }) => organization)))
+        return checkPermissionsInEmployedOrganizations(context, user, organizationIds, 'canImportBillingReceipts')
+    }
+    return canManageBillingEntityWithContext(args)
 }
 
 /*

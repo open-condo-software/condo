@@ -1,12 +1,12 @@
 import { BillingReceipt, BillingReceiptWhereInput, BuildingUnitSubType } from '@app/condo/schema'
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { TableColumn } from '@open-condo/ui'
 
-import { getHighlightedContents, getMoneyRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getMoneyRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 type ReceiptTableRow = BillingReceipt
@@ -14,8 +14,6 @@ type ReceiptColumn = TableColumn<ReceiptTableRow>
 type ReceiptDataKey = Extract<ReceiptColumn, { dataKey: unknown }>['dataKey']
 
 const receiptDataKey = <TKey extends ReceiptDataKey>(value: TKey): TKey => value
-const ELLIPSIS_STYLES = { marginBottom: 0 }
-const ELLIPSIS_CONFIG = { rows: 2, expandable: false } as const
 
 export const useReceiptTableColumns = (
     filterMetas: Array<TableFiltersMeta<BillingReceiptWhereInput>>,
@@ -35,14 +33,26 @@ export const useReceiptTableColumns = (
     const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
 
     return useMemo(() => {
+        const renderAddressCell = (value: string, record: ReceiptTableRow, _index: number, globalFilter?: string) => {
+            const property = get(record, 'property', {})
+            const { streetPart, renderPostfix } = getAddressDetails(property)
+            const addressLine = streetPart || get(property, 'address') || value
+
+            return getTableCellRenderer({
+                search: globalFilter,
+                ellipsis: true,
+                postfix: renderPostfix,
+                extraTitle: null,
+                extraPostfixProps: {
+                    type: 'secondary',
+                    style: { whiteSpace: 'pre-line' },
+                },
+            })(addressLine)
+        }
         const renderTextCellWithoutTooltip = (value: string, _record: ReceiptTableRow, _index: number, globalFilter?: string) => {
             if (!value) return null
 
-            return (
-                <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={ELLIPSIS_STYLES}>
-                    {getHighlightedContents({ search: globalFilter })(value)}
-                </Typography.Paragraph>
-            )
+            return getTableCellRenderer({ search: globalFilter, ellipsis: true, extraTitle: null })(value)
         }
         const renderUnitNameCell = (value: string, record: ReceiptTableRow, _index: number, globalFilter?: string) => {
             const unitType = get(record, 'account.unitType', BuildingUnitSubType.Flat)
@@ -62,7 +72,7 @@ export const useReceiptTableColumns = (
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'address'),
                 initialSize: detailed ? '25%' : '50%',
-                render: renderTextCellWithoutTooltip,
+                render: renderAddressCell,
             },
             unitName: {
                 header: UnitNameTitle,

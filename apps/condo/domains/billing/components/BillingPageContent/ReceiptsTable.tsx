@@ -11,6 +11,7 @@ import bridge from '@open-condo/bridge'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import {
     ActionBar,
     ActionBarProps,
@@ -59,7 +60,7 @@ export const ReceiptsTable: React.FC = () => {
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
     const ImpossibleToRestoreMessage = intl.formatMessage({ id: 'global.ImpossibleToRestore' })
 
-    const { user } = useAuth()
+    const userOrganization = useOrganization()
     const { billingContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
@@ -69,7 +70,7 @@ export const ReceiptsTable: React.FC = () => {
     const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
     const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
-    const canManageReceipts = Boolean(user?.isAdmin) || user?.type === UserTypeType.Service
+    const canManageReceipts =  get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
 
     const router = useRouter()
     const tableRef = useRef<TableRef | null>(null)
@@ -176,7 +177,6 @@ export const ReceiptsTable: React.FC = () => {
             }),
             context: { id_in: contextIds },
         }
-
         try {
             const { data } = await apolloClient.query({
                 query: BillingReceiptForOrganizationGQL.GET_ALL_OBJS_WITH_COUNT_QUERY,
