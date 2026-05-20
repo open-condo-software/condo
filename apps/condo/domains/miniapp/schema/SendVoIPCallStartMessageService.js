@@ -305,8 +305,8 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
 
                     return {
                         verifiedContactsCount: allVerifiedContactsOnUnit.length,
-                        createdMessagesCount: sendMessageStats.filter(stat => !stat.error).length,
-                        erroredMessagesCount: sendMessageStats.filter(stat => !!stat.error).length,
+                        createdMessagesCount: sendMessageStats.filter(stat => stat.success).length,
+                        erroredMessagesCount: sendMessageStats.filter(stat => !stat.success).length,
                     }
                 } catch (err) {
                     logInfo(logContext)

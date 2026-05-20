@@ -644,6 +644,7 @@ const MESSAGE_META = {
             stun: { required: false },
             codec: { required: false },
             callStatusToken: { required: false },
+            address: { required: true },
         },
     },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
@@ -657,6 +658,7 @@ const MESSAGE_META = {
             residentId: { required: true },
             callId: { required: false },
             voipIncomingCallId: { required: true },
+            address: { required: true },
         },
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
