@@ -382,13 +382,14 @@ describe('BillingReceipt', () => {
                     test('Employee with canImportBillingReceipts can delete receipts', async () => {
                         const [receiptToDelete] = await createTestBillingReceipt(admin, context, property, account)
                         const [oneMoreReceiptToDelete] = await createTestBillingReceipt(admin, context, property, account)
-                        const [deletedReceipt] = await updateTestBillingReceipts(billingReceiptsImporter, [
+                        const [deletedReceipts] = await updateTestBillingReceipts(billingReceiptsImporter, [
                             { id: receiptToDelete.id, data: { deletedAt: new Date().toISOString() } },
                             { id: oneMoreReceiptToDelete.id, data: { deletedAt: new Date().toISOString() } },
                         ])
-                        console.error(deletedReceipt)
-                        expect(deletedReceipt).toBeDefined()
-                        expect(deletedReceipt.deletedAt).not.toBeNull()
+                        expect(deletedReceipts).toEqual([
+                            expect.objectContaining({ deletedAt: expect.any(String) }),
+                            expect.objectContaining({ deletedAt: expect.any(String) }),
+                        ])
                     })
                     test('Other users cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObjects(async () => {
