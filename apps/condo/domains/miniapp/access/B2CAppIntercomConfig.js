@@ -1,15 +1,15 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 
-async function canReadB2CAppIntercomConfigs ({ authentication: { item: user } }) {
+async function canReadB2CAppIntercomConfigs ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return false
+    return await canDirectlyReadSchemaObjects(user, listKey)
 }
 
 async function canManageB2CAppIntercomConfigs ({ authentication: { item: user }, listKey, originalInput, operation }) {
