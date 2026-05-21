@@ -1,9 +1,13 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 
 
 const getUnitTypeFieldResolveInput = ({ unitTypeFieldName = 'unitType', unitNameFieldName = 'unitName' } = {}) => ({ resolvedData, existingItem }) => {
+    if (!(unitTypeFieldName in resolvedData) && !(unitNameFieldName in resolvedData)) {
+        return undefined
+    }
+
     const newItem = { ...existingItem, ...resolvedData }
     const unitType = get(newItem, unitTypeFieldName)
     const unitName = get(newItem, unitNameFieldName)
@@ -19,6 +23,10 @@ const getUnitTypeFieldResolveInput = ({ unitTypeFieldName = 'unitType', unitName
 }
 
 const getSectionTypeFieldResolveInput = ({ sectionTypeFieldName = 'sectionType', sectionNameFieldName = 'sectionName' } = {}) => ({ resolvedData, existingItem }) => {
+    if (!(sectionTypeFieldName in resolvedData) && !(sectionNameFieldName in resolvedData)) {
+        return undefined
+    }
+
     const newItem = { ...existingItem, ...resolvedData }
     const sectionType = get(newItem, sectionTypeFieldName)
     const sectionName = get(newItem, sectionNameFieldName)
