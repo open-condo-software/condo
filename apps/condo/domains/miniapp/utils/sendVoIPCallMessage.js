@@ -78,6 +78,7 @@ function prepareVoIPCallStartMessageData ({
         organizationId: contact.organization,
         propertyId: property.id,
         callStatusToken,
+        address: resident.address,
     }
 
     const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
@@ -131,6 +132,7 @@ function prepareVoIPCallCancelMessageData ({
         propertyId: property.id,
         reason: callData.reason,
         voipIncomingCallId,
+        address: resident.address,
     }
 
     if (callData.b2cAppCallData?.B2CAppContext) {
@@ -237,7 +239,7 @@ async function getVerifiedResidentsWithContacts ({ context, logContext, addressK
         unitName_i: unitName,
         unitType,
         deletedAt: null,
-    }, 'id user { id phone }')
+    }, 'id user { id phone } address')
     if (logContext) {
         logContext.logInfoStats.step = 'find residents'
         logContext.logInfoStats.residentsCount = allResidentsOnUnit.length
@@ -272,7 +274,7 @@ async function getVerifiedResidentsWithContacts ({ context, logContext, addressK
 
     if (logContext) {
         logContext.logInfoStats.step = 'find verified residents'
-        logContext.logInfoStats.contactsCount = verifiedResidentsWithContacts.length
+        logContext.logInfoStats.verifiedResidentsCount = verifiedResidentsWithContacts.length
     }
 
     if (!verifiedResidentsWithContacts.length) {
@@ -337,30 +339,29 @@ async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessage
 function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
     const sendMessageStats = sendMessagePromisesResults.map(promiseResult => {
         if (promiseResult.status === 'rejected') {
-            return { error: promiseResult.reason }
+            return { success: false, error: promiseResult.reason }
         } 
-        const { resident, result } = promiseResult.value
+        
+        const { user, resident, contact, result } = promiseResult.value
 
-        if (result.isDuplicateMessage) {
-            return { error: `${resident.id} duplicate message` }
+        const userData = { userId: user.id, contactId: contact.id, residentId: resident.id }
+        const sendMessageResult = { id: result?.id, status: result?.status, isDuplicateMessage: result?.isDuplicateMessage }
+
+        if (result.isDuplicateMessage || result.status !== MESSAGE_SENDING_STATUS) {
+            return { ...userData, result: sendMessageResult, success: false }
         }
-        if (result.status !== MESSAGE_SENDING_STATUS) {
-            return { error: `${resident.id} invalid status for some reason` }
-        }
-        return promiseResult
+        return { ...userData, result: sendMessageResult, success: true }
     })
 
+    if (!logContext) return sendMessageStats
+
     for (const messageStat of sendMessageStats) {
-        if (messageStat.error) {
-            if (logContext) {
-                logContext.logInfoStats.erroredMessagesCount++
-                logContext.logInfoStats.createMessageErrors.push(messageStat.error)
-            }
-            continue
-        }
-        if (logContext) {
+        if (!messageStat.success) {
+            logContext.logInfoStats.erroredMessagesCount++
+        } else {
             logContext.logInfoStats.createdMessagesCount++
         }
+        logContext.logInfoStats.createMessageResults.push(messageStat)
     }
 
     return sendMessageStats
@@ -446,7 +447,7 @@ function getInitialLogContext ({ addressKey, unitName, unitType, app, callData }
             verifiedResidentsCount: 0,
             createdMessagesCount: 0,
             erroredMessagesCount: 0,
-            createMessageErrors: [],
+            createMessageResults: [],
             isStatusCached: false,
             isPropertyFound: false,
             isAppFound: false,

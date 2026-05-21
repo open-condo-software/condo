@@ -108001,6 +108001,9 @@ type Mutation {
   			},
   			"callStatusToken": {
   				"required": false
+  			},
+  			"address": {
+  				"required": true
   			}
   		}
   	},
@@ -108031,6 +108034,9 @@ type Mutation {
   				"required": false
   			},
   			"voipIncomingCallId": {
+  				"required": true
+  			},
+  			"address": {
   				"required": true
   			}
   		}

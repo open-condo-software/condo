@@ -284,7 +284,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     const sendMessageStats = parseSendMessageResults({ sendMessagePromisesResults: sendMessageResults, logContext })
                     const startingMessagesIdsByUserIds = parseStartingMessagesIdsByUserIdsByMessageResults({ sendMessagePromisesResults: sendMessageResults })
 
-                    if (sendMessageStats.some(stat => !stat.error)) {
+                    if (sendMessageStats.some(stat => stat.success)) {
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
                             callStatusToken,
                             b2cAppId,
@@ -305,8 +305,8 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
 
                     return {
                         verifiedContactsCount: allVerifiedContactsOnUnit.length,
-                        createdMessagesCount: sendMessageStats.filter(stat => !stat.error).length,
-                        erroredMessagesCount: sendMessageStats.filter(stat => !!stat.error).length,
+                        createdMessagesCount: sendMessageStats.filter(stat => stat.success).length,
+                        erroredMessagesCount: sendMessageStats.filter(stat => !stat.success).length,
                     }
                 } catch (err) {
                     logInfo(logContext)

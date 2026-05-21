@@ -212,7 +212,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                     const sendMessageResults = await Promise.allSettled(sendMessagePromises)
                     const sendMessageStats = parseSendMessageResults({ sendMessagePromisesResults: sendMessageResults, logContext })
 
-                    if (sendMessageStats.some(stat => !stat.error)) {
+                    if (sendMessageStats.some(stat => stat.success)) {
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
                             ...callStatus,
                             b2cAppId,
@@ -228,8 +228,8 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
 
                     return {
                         verifiedContactsCount: allVerifiedContactsOnUnit.length,
-                        createdMessagesCount: sendMessageStats.filter(stat => !stat.error).length,
-                        erroredMessagesCount: sendMessageStats.filter(stat => !!stat.error).length,
+                        createdMessagesCount: sendMessageStats.filter(stat => stat.success).length,
+                        erroredMessagesCount: sendMessageStats.filter(stat => !stat.success).length,
                     }
                 } catch (err) {
                     logInfo(logContext)
