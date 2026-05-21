@@ -66,7 +66,7 @@ const SettingsPage: PageComponentType = () => {
     const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
 
-    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { hasSubscription, hasAvailablePlans, hasServicePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
     const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && hasSubscriptionsFeature
 
     const { objs: [acquiringIntegrationContext], loading: acquiringIntegrationContextLoading } = AcquiringIntegrationContext.useObjects({
@@ -81,7 +81,7 @@ const SettingsPage: PageComponentType = () => {
     const loading = subscriptionsLoading || acquiringIntegrationContextLoading
 
     const availableTabs = useMemo(() => {
-        if (!hasSubscription && isSubscriptionsEnabled) return [SETTINGS_TAB_SUBSCRIPTION]
+        if (!hasSubscription && isSubscriptionsEnabled && hasServicePlans) return [SETTINGS_TAB_SUBSCRIPTION]
         const availableTabs = [...ALWAYS_AVAILABLE_TABS]
 
         if (canManageEmployeeRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
@@ -93,7 +93,7 @@ const SettingsPage: PageComponentType = () => {
         if (isSubscriptionsEnabled) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
     
         return availableTabs
-    }, [hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading])
+    }, [hasSubscription, hasServicePlans, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading])
 
     const settingsTabs: TabItem[] = useMemo(() => {
         const subscriptionTab = {
@@ -102,7 +102,7 @@ const SettingsPage: PageComponentType = () => {
             children: <SubscriptionSettingsContent />,
         }
             
-        if (!hasSubscription && isSubscriptionsEnabled) return [subscriptionTab]
+        if (!hasSubscription && isSubscriptionsEnabled && hasServicePlans) return [subscriptionTab]
 
         return [
             canManageEmployeeRoles && isManagingCompany && {
@@ -137,7 +137,7 @@ const SettingsPage: PageComponentType = () => {
             },
             isSubscriptionsEnabled && subscriptionTab,
         ].filter(Boolean)
-    }, [SubscriptionsTitle, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, MarketSettingTitle])
+    }, [SubscriptionsTitle, hasSubscription, hasServicePlans, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, MarketSettingTitle])
 
     const titleContent = useMemo(() => (
         <Typography.Title>{PageTitle}</Typography.Title>

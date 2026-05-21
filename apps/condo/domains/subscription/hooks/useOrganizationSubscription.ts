@@ -36,6 +36,10 @@ export const useOrganizationSubscription = () => {
         skip: !organization?.id,
     })
     const hasAvailablePlans = useMemo(() => (allPlansData?.result?.plans || []).length > 0, [allPlansData?.result?.plans])
+    const hasServicePlans = useMemo(
+        () => (allPlansData?.result?.plans || []).some(p => p?.plan?.planType === 'service'),
+        [allPlansData?.result?.plans]
+    )
 
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
@@ -134,6 +138,7 @@ export const useOrganizationSubscription = () => {
         isInBufferPeriod,
         loading: orgLoading || plansLoading || contextLoading,
         hasAvailablePlans,
+        hasServicePlans,
         refetch: refetchContext,
     }
 }

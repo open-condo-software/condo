@@ -32,7 +32,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
     const { organization } = useOrganization()
     const { activatedSubscriptions, registerSubscriptionContext, activateLoading } = useActivateSubscriptions()
     const { trialSubscriptions } = useTrialSubscriptions()
-    const { isFeatureAvailable, hasSubscription, isB2BAppEnabled } = useOrganizationSubscription()
+    const { isFeatureAvailable, hasSubscription, hasServicePlans, isB2BAppEnabled } = useOrganizationSubscription()
     const [isActivating, setIsActivating] = useState(false)
 
     const requiredFeature = path ? getRequiredFeature(path) : null
@@ -185,7 +185,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         return children
     }
 
-    if (path && !hasSubscription) {
+    if (path && !hasSubscription && hasServicePlans) {
         return children
     }
 

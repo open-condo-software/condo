@@ -172,8 +172,8 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { hasSubscription, isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
-    const disabled = !employee || !hasSubscription
+    const { hasSubscription, hasServicePlans, isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const disabled = !employee || (!hasSubscription && hasServicePlans)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
 

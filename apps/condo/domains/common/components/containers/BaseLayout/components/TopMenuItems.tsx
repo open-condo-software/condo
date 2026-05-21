@@ -28,7 +28,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { hasSubscription } = useOrganizationSubscription()
+    const { hasSubscription, hasServicePlans } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const { isAIOverlayOpen, openAIOverlay } = useAIContext()
     const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
@@ -71,7 +71,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 </Space>
                 <UserMenu extraMenuItems={subscriptionMenuItems} />
                 <div style={{ maxHeight: '24px' }}>
-                    <UserMessagesList disabled={!hasSubscription} />
+                    <UserMessagesList disabled={!hasSubscription && hasServicePlans} />
                 </div>
                 { isAIChatEnabled && !isAIOverlayOpen && (
                     <AIFlowButton

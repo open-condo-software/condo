@@ -80,7 +80,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
     const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
-    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, hasServicePlans, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
     const { organization, isLoading: orgIsLoading } = useOrganization()
     const { isLoading: authIsLoading } = useAuth()
 
@@ -149,7 +149,11 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             return false
         }
 
-        if (loading || !hasSubscription) {
+        if (loading) {
+            return true
+        }
+
+        if (!hasSubscription && hasServicePlans) {
             return true
         }
 
@@ -167,7 +171,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [skipGuard, router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFeature])
+    }, [skipGuard, router.pathname, loading, hasSubscription, hasServicePlans, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, featureLoading, isB2BAppEnabled, hasSubscriptionsFeature])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
