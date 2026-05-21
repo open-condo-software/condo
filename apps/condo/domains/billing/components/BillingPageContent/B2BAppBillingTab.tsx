@@ -70,5 +70,9 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
         return <Loader />
     }
 
-    return <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight='100%' />
+    return (
+        <div style={{ minHeight: '100%' }}>
+            <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />
+        </div>
+    )
 }
