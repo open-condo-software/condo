@@ -176,7 +176,7 @@ export const ReceiptsTable: React.FC = () => {
     }, [reportPeriod])
 
     const onRowClick = useCallback((record: BillingReceiptType) => {
-        const hasSelectedText = typeof globalThis.window !== 'undefined' && globalThis.window.getSelection?.()?.toString().trim()
+        const hasSelectedText =  globalThis.window?.getSelection?.()?.toString().trim()
         if (hasSelectedText) return
 
         if (hasServices) {
