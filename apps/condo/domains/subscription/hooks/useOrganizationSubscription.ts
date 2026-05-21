@@ -1,4 +1,4 @@
-import { useGetAvailableServiceSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
+import { useGetAvailableFeatureSubscriptionPlansQuery, useGetAvailableServiceSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useMemo, useCallback } from 'react'
@@ -30,6 +30,12 @@ export const useOrganizationSubscription = () => {
     }, [organization])
 
     const { data: allPlansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
+        variables: {
+            organization: { id: organization?.id || '' },
+        },
+        skip: !organization?.id,
+    })
+    const { data: featurePlansData, loading: featurePlansLoading } = useGetAvailableFeatureSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id || '' },
         },
@@ -99,14 +105,17 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionFeatures, hasSubscriptionsFeature])
 
     const allEnabledB2BApps = useMemo(() => {
-        const plans = allPlansData?.result?.plans || []
+        const plans = [
+            ...(allPlansData?.result?.plans || []),
+            ...(featurePlansData?.result?.plans || []),
+        ]
         const appsSet = new Set<string>()
         plans.forEach(planInfo => {
             const enabledApps = planInfo?.plan?.enabledB2BApps || []
             enabledApps.forEach(appId => appsSet.add(appId))
         })
         return appsSet
-    }, [allPlansData])
+    }, [allPlansData, featurePlansData])
 
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
         if (!hasSubscriptionsFeature) return true
@@ -132,7 +141,7 @@ export const useOrganizationSubscription = () => {
         daysRemaining,
         daysRemainingWithoutBuffer,
         isInBufferPeriod,
-        loading: orgLoading || plansLoading || contextLoading,
+        loading: orgLoading || plansLoading || featurePlansLoading || contextLoading,
         hasAvailablePlans,
         refetch: refetchContext,
     }

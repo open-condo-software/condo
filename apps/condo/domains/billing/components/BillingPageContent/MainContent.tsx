@@ -90,7 +90,6 @@ type ExtensionTabType = {
     appUrl: string
     label: string
     iconUrl?: string
-    initialHeight?: string | number
     shortDescription?: string | null
     isB2BApp?: boolean
 }
@@ -130,7 +129,6 @@ export const MainContent: React.FC<MainContentProps> = ({
                 label: b2bApp.name,
                 appUrl: b2bApp?.billingEmbeddingConfig?.tabUrl,
                 shortDescription: b2bApp?.shortDescription,
-                initialHeight: '100%',
                 isB2BApp: true,
             }
         })
@@ -178,7 +176,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         ]
 
         extensionAppTabs.forEach((extensionAppTab) => {
-            const { appUrl, id, label, iconUrl, initialHeight, shortDescription, isB2BApp } = extensionAppTab
+            const { appUrl, id, label, iconUrl, shortDescription, isB2BApp } = extensionAppTab
             if (!appUrl) return
 
             result.push({
@@ -187,7 +185,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 children: isB2BApp ? (
                     <B2BAppBillingTab appId={id} appUrl={appUrl} shortDescription={shortDescription} />
                 ) : (
-                    <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={initialHeight || 400}/>
+                    <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize/>
                 ),
                 icon: renderTabIcon(iconUrl),
             })

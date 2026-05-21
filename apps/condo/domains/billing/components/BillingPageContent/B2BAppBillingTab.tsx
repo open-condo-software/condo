@@ -21,12 +21,12 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
     const userOrganization = useOrganization()
     const organizationId: string = get(userOrganization, ['organization', 'id'], '')
 
-    const { isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { isB2BAppEnabled, hasSubscriptionsFeature, loading: subscriptionLoading } = useOrganizationSubscription()
     const isBlocked = hasSubscriptionsFeature && !isB2BAppEnabled(appId)
 
     const { data, loading, refetch } = useGetB2BAppContextsByOrgQuery({
         variables: { organizationId },
-        skip: !organizationId || isBlocked,
+        skip: !organizationId || isBlocked || subscriptionLoading,
         fetchPolicy: 'network-only',
     })
 
@@ -37,7 +37,7 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
     const [createB2BAppContext] = useCreateB2BAppContextMutation()
 
     useEffect(() => {
-        if (isBlocked || contextExists || creatingRef.current || !organizationId || data === undefined) return
+        if (isBlocked || subscriptionLoading || contextExists || creatingRef.current || !organizationId || data === undefined) return
 
         creatingRef.current = true
         setCreateError(null)
@@ -56,7 +56,7 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
                 creatingRef.current = false
                 setCreateError(err)
             })
-    }, [isBlocked, contextExists, organizationId, appId, createB2BAppContext, data, refetch])
+    }, [isBlocked, subscriptionLoading, contextExists, organizationId, appId, createB2BAppContext, data, refetch])
 
     if (isBlocked) {
         return <BlockedB2BAppTab appId={appId} shortDescription={shortDescription} />
@@ -70,5 +70,9 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
         return <Loader />
     }
 
-    return <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight='100%' />
+    return (
+        <div style={{ minHeight: '100%' }}>
+            <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />
+        </div>
+    )
 }
