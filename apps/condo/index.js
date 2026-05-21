@@ -28,7 +28,7 @@ const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkM
 const { WEBHOOK_EVENTS } = require('@condo/domains/common/constants/webhooks')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
-const { MiniappMiddleware } = require('@condo/domains/miniapp/MiniappMiddleware')
+const { VoIPMiddleware } = require('@condo/domains/miniapp/VoIPMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
@@ -131,7 +131,7 @@ const apps = () => {
         new FileMiddleware({ apiPrefix: '/api/files' }),
         FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
-        new MiniappMiddleware(),
+        new VoIPMiddleware(),
     ]
 }
 

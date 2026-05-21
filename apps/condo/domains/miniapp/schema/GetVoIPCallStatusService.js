@@ -12,10 +12,10 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_WINDOW_IN_SECONDS = 60 // 1 minute
-const GET_VOIP_CALL_STATUS_BY_CALL_CALLS_WINDOW_SEC = 60 // 1 per second basically
-const GET_VOIP_CALL_STATUS_LIMIT_BY_USER_WINDOW_IN_SECONDS = 60 // 1 minute
-const GET_VOIP_CALL_STATUS_BY_USER_CALLS_WINDOW_SEC = GET_VOIP_CALL_STATUS_BY_CALL_CALLS_WINDOW_SEC * 15 // 5 people in unit and 3 intercoms 
+const GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_WINDOW_DURATION_IN_SECONDS = 60 // 1 minute
+const GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_MAX_REQUESTS_PER_WINDOW = 60 // 1 per second basically
+const GET_VOIP_CALL_STATUS_LIMIT_BY_USER_WINDOW_DURATION_IN_SECONDS = 60 // 1 minute
+const GET_VOIP_CALL_STATUS_LIMIT_BY_USER_MAX_REQUESTS_PER_WINDOW = GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_MAX_REQUESTS_PER_WINDOW * 5 * 3 // 5 people in unit and 3 intercoms 
 
 const SERVICE_NAME = 'getVoIPCallStatus'
 const ERRORS = {
@@ -47,8 +47,8 @@ async function checkLimitsByCall (context, { addressKey, app, callId }) {
 
     await redisGuard.checkCustomLimitCounters(
         `${SERVICE_NAME}-${searchKey}`,
-        GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_WINDOW_IN_SECONDS,
-        GET_VOIP_CALL_STATUS_BY_CALL_CALLS_WINDOW_SEC,
+        GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_WINDOW_DURATION_IN_SECONDS,
+        GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_MAX_REQUESTS_PER_WINDOW,
         context,
     )
 }
@@ -61,8 +61,8 @@ async function checkLimitsByIp (context) {
 
     await redisGuard.checkCustomLimitCounters(
         `${SERVICE_NAME}-${searchKey}`,
-        GET_VOIP_CALL_STATUS_LIMIT_BY_USER_WINDOW_IN_SECONDS,
-        GET_VOIP_CALL_STATUS_BY_USER_CALLS_WINDOW_SEC,
+        GET_VOIP_CALL_STATUS_LIMIT_BY_USER_WINDOW_DURATION_IN_SECONDS,
+        GET_VOIP_CALL_STATUS_LIMIT_BY_USER_MAX_REQUESTS_PER_WINDOW,
         context,
     )
 }
