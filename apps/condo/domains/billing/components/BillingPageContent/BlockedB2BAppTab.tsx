@@ -74,7 +74,7 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
 
     const description = useMemo(() => (
         <>
-            {shortDescription && `${shortDescription} `}
+            {shortDescription && `${shortDescription}. `}
             {formattedFeaturePrice && `${formattedFeaturePrice}${forPlanLabel ? ` ${forPlanLabel}` : ''}`}
             {FreeWithPlanNode && (
                 <>
