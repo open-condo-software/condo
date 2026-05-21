@@ -138,7 +138,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         )
     }
 
-    if (!visible || !services || !services.length) return null
+    if (!visible || !services?.length) return null
 
     // TODO (savelevMatthew): Move modal to common width-expandable component?
     return (

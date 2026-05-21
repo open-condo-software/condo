@@ -3,7 +3,7 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
@@ -71,7 +71,7 @@ const isSoftDeleteInput = (data) => {
     const target = data?.data || data
     if (typeof target !== 'object' || target === null) return false
 
-    return Object.hasOwn(target, 'deletedAt') &&
+    return !!target?.deletedAt &&
         Object.keys(target).every(key => SOFT_DELETE_ALLOWED_UPDATE_FIELDS.has(key))
 }
 

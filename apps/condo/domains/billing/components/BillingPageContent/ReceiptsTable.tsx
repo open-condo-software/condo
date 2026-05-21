@@ -50,6 +50,56 @@ const FILTERS_GUTTER: RowProps['gutter'] = [16, 20]
 const ASC = 'ASC'
 const DESC = 'DESC'
 
+const getSortQueryValue = (sortState: FullTableState['sortState']): string | undefined => {
+    if (!sortState?.length) return undefined
+
+    const firstSort = sortState[0]
+    const sortOrder = firstSort.desc ? DESC : ASC
+    return `${firstSort.id}_${sortOrder}`
+}
+
+const getFiltersWithGlobalSearch = (filterState: FullTableState['filterState'], globalFilter?: string): FullTableState['filterState'] => {
+    const nextFilters = { ...filterState }
+
+    if (globalFilter && globalFilter.trim() !== '') {
+        nextFilters.search = globalFilter
+    } else {
+        delete nextFilters.search
+    }
+
+    return nextFilters
+}
+
+const setQueryParam = (query: Record<string, string | string[]>, key: string, value: string | undefined): void => {
+    if (value) {
+        query[key] = value
+        return
+    }
+
+    delete query[key]
+}
+
+const buildNextTableQuery = (
+    currentQuery: Record<string, string | string[]>,
+    params: FullTableState
+): Record<string, string | string[]> => {
+    const { startRow, filterState, sortState, rowSelectionState, globalFilter } = params
+    const nextFilters = getFiltersWithGlobalSearch(filterState, globalFilter)
+    const nextQuery = { ...currentQuery }
+
+    const nextOffset = startRow > 0 ? String(startRow) : undefined
+    const nextFiltersValue = Object.keys(nextFilters).length > 0 ? JSON.stringify(nextFilters) : undefined
+    const nextSortValue = getSortQueryValue(sortState)
+    const nextSelectedRows = rowSelectionState?.length > 0 ? JSON.stringify(rowSelectionState) : undefined
+
+    setQueryParam(nextQuery, 'offset', nextOffset)
+    setQueryParam(nextQuery, 'filters', nextFiltersValue)
+    setQueryParam(nextQuery, 'sort', nextSortValue)
+    setQueryParam(nextQuery, 'selectedRows', nextSelectedRows)
+
+    return nextQuery
+}
+
 export const ReceiptsTable: React.FC = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -64,7 +114,7 @@ export const ReceiptsTable: React.FC = () => {
     const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
     const reportPeriod = get(billingContexts.find(({ lastReport }) => !!lastReport), ['lastReport', 'period'], null)
-    const contextIdsKey = useMemo(() => billingContexts.map(({ id }) => id).sort().join(','), [billingContexts])
+    const contextIdsKey = useMemo(() => billingContexts.map(({ id }) => id).sort((left, right) => left.localeCompare(right)).join(','), [billingContexts])
     const contextIds = useMemo(() => contextIdsKey ? contextIdsKey.split(',') : [], [contextIdsKey])
     const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
@@ -85,43 +135,15 @@ export const ReceiptsTable: React.FC = () => {
     const columnLabels = useTableTranslations()
     const initialTableState = useMemo(() => defaultParseUrlQuery(router.query, DEFAULT_PAGE_SIZE), [router.query])
     const updateUrlQuery = useCallback((params: FullTableState) => {
-        const { startRow, filterState, sortState, rowSelectionState, globalFilter } = params
-
-        const nextFilters = { ...filterState }
-        if (globalFilter && globalFilter.trim() !== '') {
-            nextFilters.search = globalFilter
-        } else {
-            delete nextFilters.search
-        }
-
-        const sort = sortState?.length
-            ? `${sortState[0].id}_${sortState[0].desc ? DESC : ASC}`
-            : null
-
-        const nextQuery: Record<string, string | string[]> = { ...router.query } as Record<string, string | string[]>
-        const nextOffset = startRow > 0 ? String(startRow) : undefined
-        const nextFiltersValue = Object.keys(nextFilters).length > 0 ? JSON.stringify(nextFilters) : undefined
-        const nextSortValue = sort ?? undefined
-        const nextSelectedRows = rowSelectionState?.length > 0 ? JSON.stringify(rowSelectionState) : undefined
-
-        if (nextOffset) nextQuery.offset = nextOffset
-        else delete nextQuery.offset
-
-        if (nextFiltersValue) nextQuery.filters = nextFiltersValue
-        else delete nextQuery.filters
-
-        if (nextSortValue) nextQuery.sort = nextSortValue
-        else delete nextQuery.sort
-
-        if (nextSelectedRows) nextQuery.selectedRows = nextSelectedRows
-        else delete nextQuery.selectedRows
-
+        const nextQuery = buildNextTableQuery(router.query as Record<string, string | string[]>, params)
         if (isEqual(router.query, nextQuery)) return
 
-        void router.replace({
+        router.replace({
             pathname: router.pathname,
             query: nextQuery,
-        }, undefined, { shallow: true })
+        }, undefined, { shallow: true }).catch((error) => {
+            console.error('Failed to update billing receipts table query params', error)
+        })
     }, [router])
 
     const { updateStepIfNotCompleted } = useTourContext()
@@ -154,7 +176,7 @@ export const ReceiptsTable: React.FC = () => {
     }, [reportPeriod])
 
     const onRowClick = useCallback((record: BillingReceiptType) => {
-        const hasSelectedText = typeof window !== 'undefined' && window.getSelection?.()?.toString().trim()
+        const hasSelectedText = typeof globalThis.window !== 'undefined' && globalThis.window.getSelection?.()?.toString().trim()
         if (hasSelectedText) return
 
         if (hasServices) {
@@ -202,6 +224,7 @@ export const ReceiptsTable: React.FC = () => {
                 rowCount,
             }
         } catch (error) {
+            console.error('Failed to fetch billing receipts', error)
             setLoadingError(true)
             return {
                 rowData: [],
@@ -273,7 +296,12 @@ export const ReceiptsTable: React.FC = () => {
         setSelectedRowIds(initialTableState.rowSelectionState)
 
         const tablePeriod = get(nextTableRef.api.getFilterState(), 'period')
-        const nextPeriod = tablePeriod ? dayjs(String(tablePeriod), 'YYYY-MM-DD') : (reportPeriod ? dayjs(reportPeriod, 'YYYY-MM-DD') : null)
+        let nextPeriod: Dayjs | null = null
+        if (tablePeriod) {
+            nextPeriod = dayjs(String(tablePeriod), 'YYYY-MM-DD')
+        } else if (reportPeriod) {
+            nextPeriod = dayjs(reportPeriod, 'YYYY-MM-DD')
+        }
         setPeriod(nextPeriod)
     }, [initialTableState.rowSelectionState, reportPeriod, setSearch])
 
