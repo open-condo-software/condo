@@ -45,9 +45,9 @@ const searchBillingPropertyByContextIds = (contextIds: string[]): ISearchInputPr
         if (!contextIds?.length) return []
 
         const where = {
-            context: { id_in: contextIds },
             ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
             ...query,
+            context: { id_in: contextIds },
         }
         const sortBy = ['address_ASC']
 

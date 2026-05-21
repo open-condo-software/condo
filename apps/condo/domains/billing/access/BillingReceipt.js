@@ -65,21 +65,38 @@ async function canReadSensitiveBillingReceiptData ({ authentication: { item: use
     return user.type !== RESIDENT
 }
 
-const SOFT_DELETE_ALLOWED_UPDATE_FIELDS = ['dv', 'sender', 'deletedAt']
+const SOFT_DELETE_ALLOWED_UPDATE_FIELDS = new Set(['dv', 'sender', 'deletedAt'])
 
 const isSoftDeleteInput = (data) => {
-    if (typeof data !== 'object') {
-        return false
-    }
-    const keys = Object.keys(data?.data || data)
-    return keys.length === 3 && keys.every(key => SOFT_DELETE_ALLOWED_UPDATE_FIELDS.includes(key))
+    const target = data?.data || data
+    if (typeof target !== 'object' || target === null) return false
+
+    return Object.hasOwn(target, 'deletedAt') &&
+        Object.keys(target).every(key => SOFT_DELETE_ALLOWED_UPDATE_FIELDS.has(key))
 }
 
-const isSoftDeleteUpdateRequest = (originalInput) => {
+function isSoftDeleteUpdateRequest (originalInput) {
     if (Array.isArray(originalInput)) {
         return originalInput.every((itemInput) => isSoftDeleteInput(itemInput))
     }
     return isSoftDeleteInput(originalInput)
+}
+
+async function getOrganizationIdsFromReceiptIds (ids) {
+    if (!ids.length) return []
+    const receipts = await find('BillingReceipt', { id_in: ids, deletedAt: null })
+    // some receipts were already deleted
+    if (receipts.length !== ids.length) return []
+    const contextIds = Array.from(new Set(receipts.map(({ context }) => context)))
+    const contexts = await find('BillingIntegrationOrganizationContext', {
+        id_in: contextIds,
+        deletedAt: null,
+        organization: { deletedAt: null },
+    })
+    if (!contexts.length || contexts.length !== contextIds.length) {
+        return []
+    }
+    return Array.from(new Set(contexts.map(({ organization }) => organization)))
 }
 
 async function canManageBillingReceipts (args) {
@@ -87,25 +104,15 @@ async function canManageBillingReceipts (args) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
-    if (user.isSupport) return false
     if (user.type === STAFF && operation === 'update') {
         if (!isSoftDeleteUpdateRequest(originalInput)) {
             return false
         }
-        const idsToCheck = itemIds?.length ? itemIds : [itemId]
-        if (!idsToCheck.length) return false
-        const receipts = await find('BillingReceipt', { id_in: idsToCheck, deletedAt: null })
-        // some receipts were already deleted
-        if (receipts.length !== idsToCheck.length) return false
-        const contextIds = Array.from(new Set(receipts.map(({ context }) => context)))
-        const contexts = await find('BillingIntegrationOrganizationContext', {
-            id_in: contextIds,
-            deletedAt: null,
-        })
-        if (!contexts.length) {
+        const receiptIds = itemIds?.length ? itemIds : [itemId]
+        const organizationIds = await getOrganizationIdsFromReceiptIds(receiptIds)
+        if (!organizationIds.length) {
             return false
         }
-        const organizationIds = Array.from(new Set(contexts.map(({ organization }) => organization)))
         return checkPermissionsInEmployedOrganizations(context, user, organizationIds, 'canImportBillingReceipts')
     }
     return canManageBillingEntityWithContext(args)

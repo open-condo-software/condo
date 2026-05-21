@@ -1,4 +1,4 @@
-import { BillingReceipt as BillingReceiptType, BillingReceiptWhereInput, SortBillingReceiptsBy, TourStepTypeType, UserTypeType } from '@app/condo/schema'
+import { BillingReceipt as BillingReceiptType, BillingReceiptWhereInput, SortBillingReceiptsBy, TourStepTypeType } from '@app/condo/schema'
 import { Col, Row, Space, Typography, type RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -9,7 +9,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import bridge from '@open-condo/bridge'
 import { useApolloClient } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import {
@@ -76,6 +75,7 @@ export const ReceiptsTable: React.FC = () => {
     const tableRef = useRef<TableRef | null>(null)
     const [search, handleSearchChange, setSearch] = useTableSearch(tableRef)
     const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0)
+    const [selectedRowIds, setSelectedRowIds] = useState<string[]>([])
     const [loadingError, setLoadingError] = useState<boolean>(false)
     const [period, setPeriod] = useState<Dayjs | null>(() => reportPeriod ? dayjs(reportPeriod, 'YYYY-MM-DD') : null)
 
@@ -211,20 +211,20 @@ export const ReceiptsTable: React.FC = () => {
     }, [apolloClient, contextIds, filtersToWhere, sortersToSortBy, updateStepIfNotCompleted])
 
     const softDeleteSelectedReceipts = useCallback(async () => {
-        const selectedRows = tableRef.current?.api?.getRowSelection() || []
-        if (!selectedRows.length) return
+        if (!selectedRowIds.length) return
 
         const deletedAt = new Date().toISOString()
 
-        for (const id of selectedRows) {
+        for (const id of selectedRowIds) {
             await updateReceipt({ deletedAt }, { id })
         }
 
         tableRef.current?.api?.resetRowSelection()
         setSelectedRowsCount(0)
+        setSelectedRowIds([])
         tableRef.current?.api?.setPagination({ startRow: 0, endRow: DEFAULT_PAGE_SIZE })
         await tableRef.current?.api?.refetchData()
-    }, [updateReceipt])
+    }, [selectedRowIds, updateReceipt])
 
     const selectedReceiptsActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         <DeleteButtonWithConfirmModal
@@ -244,6 +244,7 @@ export const ReceiptsTable: React.FC = () => {
             onClick={() => {
                 tableRef.current?.api?.resetRowSelection()
                 setSelectedRowsCount(0)
+                setSelectedRowIds([])
             }}
         >
             {CancelSelectionMessage}
@@ -260,6 +261,7 @@ export const ReceiptsTable: React.FC = () => {
         enableRowSelection: canManageReceipts,
         onRowSelectionChange: (rowSelectionState: RowSelectionState) => {
             setSelectedRowsCount(rowSelectionState.length)
+            setSelectedRowIds(rowSelectionState)
         },
     }), [canManageReceipts])
 
@@ -267,12 +269,13 @@ export const ReceiptsTable: React.FC = () => {
     const onTableReady = useCallback((nextTableRef: TableRef) => {
         const tableSearch = nextTableRef.api.getGlobalFilter()
         setSearch(String(tableSearch || ''))
-        setSelectedRowsCount(nextTableRef.api.getRowSelection().length)
+        setSelectedRowsCount(initialTableState.rowSelectionState.length)
+        setSelectedRowIds(initialTableState.rowSelectionState)
 
         const tablePeriod = get(nextTableRef.api.getFilterState(), 'period')
         const nextPeriod = tablePeriod ? dayjs(String(tablePeriod), 'YYYY-MM-DD') : (reportPeriod ? dayjs(reportPeriod, 'YYYY-MM-DD') : null)
         setPeriod(nextPeriod)
-    }, [reportPeriod, setSearch])
+    }, [initialTableState.rowSelectionState, reportPeriod, setSearch])
 
     useEffect(() => {
         const handleRedirect = async (event) => {
@@ -304,19 +307,27 @@ export const ReceiptsTable: React.FC = () => {
         )
     }, [onPeriodChange, period])
 
-    if (loadingError) {
-        return (
-            <BasicEmptyListView>
-                <Typography.Title level={4}>
-                    {LoadingErrorMessage}
-                </Typography.Title>
-            </BasicEmptyListView>
-        )
-    }
-
     return (
         <>
             <Row gutter={ITEMS_GUTTER}>
+                {loadingError && (
+                    <Col span={24}>
+                        <BasicEmptyListView>
+                            <Typography.Title level={4}>
+                                {LoadingErrorMessage}
+                            </Typography.Title>
+                            <Button
+                                type='secondary'
+                                onClick={async () => {
+                                    setLoadingError(false)
+                                    await tableRef.current?.api?.refetchData()
+                                }}
+                            >
+                                Retry
+                            </Button>
+                        </BasicEmptyListView>
+                    </Col>
+                )}
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row gutter={FILTERS_GUTTER}>
