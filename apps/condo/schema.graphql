@@ -106380,6 +106380,13 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired ConfirmEmailAction by specified token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "User not found",
     "messageForUser": "Unable to update email"
