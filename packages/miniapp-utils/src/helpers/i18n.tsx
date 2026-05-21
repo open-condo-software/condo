@@ -533,11 +533,13 @@ export class TranslationsHelper<
             useEffectOnce(() => {
                 if (!isSSR() && initialSelectedLocale && initialMessages) {
                     translationsObj[initialSelectedLocale] = initialMessages
+                    setCookie(localeCookieName, initialFullLocale, { sameSite: 'none', secure: true })
                 } else if (!isSSR() && (!initialSelectedLocale || !initialFullLocale || !initialMessages)) {
                     const localeSelection = getPreferredLocale()
                     setSelectedLocale(localeSelection.selectedLocale)
                     setFullLocale(localeSelection.fullLocale)
                     getTranslations(localeSelection.selectedLocale).then(setMessages)
+                    setCookie(localeCookieName, localeSelection.fullLocale, { sameSite: 'none', secure: true })
                 }
             })
 
@@ -547,7 +549,7 @@ export class TranslationsHelper<
                 setSelectedLocale(newLocale)
                 setFullLocale(fullLocale)
                 setMessages(messages)
-                setCookie(localeCookieName, fullLocale)
+                setCookie(localeCookieName, fullLocale, { sameSite: 'none', secure: true })
             }, [])
 
             return (
