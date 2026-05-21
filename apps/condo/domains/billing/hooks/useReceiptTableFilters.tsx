@@ -10,17 +10,17 @@ import { BillingCategory } from '@condo/domains/billing/utils/clientSchema'
 import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ComponentType, convertToOptions, FilterComponentSize, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getAddressDetails, ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
-import { categoryToSearchQuery, FilterType, getFilter, getStringContainsFilter, QueryArgType, WhereType } from '@condo/domains/common/utils/tables.utils'
+import { categoryToSearchQuery, getFilter, getStringContainsFilter, QueryArgType, WhereType } from '@condo/domains/common/utils/tables.utils'
 
-const addressFilter: FilterType<BillingReceiptWhereInput> = (search: QueryArgType) => {
-    if (!search) return undefined as unknown as BillingReceiptWhereInput
+const addressFilter = (search: QueryArgType) => {
+    if (!search) return
 
     const addressKeys = (Array.isArray(search) ? search : [search])
         .filter(Boolean)
         .map((value) => String(value).trim())
         .filter(Boolean)
 
-    if (addressKeys.length === 0) return undefined as unknown as BillingReceiptWhereInput
+    if (addressKeys.length === 0) return
     if (addressKeys.length === 1) return { property: { addressKey: addressKeys[0] } }
 
     return {
@@ -44,8 +44,9 @@ const searchBillingPropertyByContextIds = (contextIds: string[]): ISearchInputPr
     return async function (client, searchText, query = {}, first = 10, skip = 0) {
         if (!contextIds?.length) return []
 
+        const addressSearchFilter = isEmpty(searchText) ? {} : { address_contains_i: searchText }
         const where = {
-            ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+            ...addressSearchFilter,
             ...query,
             context: { id_in: contextIds },
         }
