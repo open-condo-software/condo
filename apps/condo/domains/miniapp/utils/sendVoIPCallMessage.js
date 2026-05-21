@@ -345,11 +345,12 @@ function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
         const { user, resident, contact, result } = promiseResult.value
 
         const userData = { userId: user.id, contactId: contact.id, residentId: resident.id }
+        const sendMessageResult = { id: result?.id, status: result?.status, isDuplicateMessage: result?.isDuplicateMessage }
 
         if (result.isDuplicateMessage || result.status !== MESSAGE_SENDING_STATUS) {
-            return { ...userData, success: false }
+            return { ...userData, result: sendMessageResult, success: false }
         }
-        return { ...userData, success: true }
+        return { ...userData, result: sendMessageResult, success: true }
     })
 
     if (!logContext) return sendMessageStats
