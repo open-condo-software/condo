@@ -20,7 +20,7 @@ const {
 const { base64UrlEncode } = require('@condo/domains/common/utils/base64.utils')
 const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { EMAIL_VERIFY_CODE_MESSAGE_TYPE, VERIFY_USER_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { EMAIL_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
     CONFIRM_EMAIL_ACTION_EXPIRY,
@@ -30,7 +30,10 @@ const {
     MAX_EMAIL_FOR_IP_BY_DAY: DEFAULT_MAX_EMAIL_FOR_IP_BY_DAY,
     MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY: DEFAULT_MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY,
 } = require('@condo/domains/user/constants/common')
-const { CONFIRM_EMAIL_ACTION_MESSAGE_TYPES } = require('@condo/domains/user/constants/confirmEmailAction')
+const {
+    EMAIL_CONFIRMATION_FLOWS,
+    MESSAGE_TYPE_BY_EMAIL_CONFIRMATION_FLOW,
+} = require('@condo/domains/user/constants/confirmEmailAction')
 const {
     CAPTCHA_CHECK_FAILED,
     UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
@@ -188,11 +191,11 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
         },
         {
             access: true,
-            type: `enum ConfirmEmailActionMessageType { ${CONFIRM_EMAIL_ACTION_MESSAGE_TYPES.join(' ')} }`,
+            type: `enum EmailConfirmationFlowType { ${Object.values(EMAIL_CONFIRMATION_FLOWS).join(' ')} }`,
         },
         {
             access: true,
-            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String, messageType: ConfirmEmailActionMessageType, user: UserWhereUniqueInput }',
+            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String, user: UserWhereUniqueInput, confirmationFlow: EmailConfirmationFlowType }',
         },
         {
             access: true,
@@ -289,7 +292,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     user: userFromInput,
                     sender,
                     captcha,
-                    messageType = EMAIL_VERIFY_CODE_MESSAGE_TYPE,
+                    confirmationFlow = EMAIL_CONFIRMATION_FLOWS.CODE,
                 } = data
 
                 const ip = context.req.ip
@@ -363,9 +366,9 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 let meta = {}
 
-                if (messageType === VERIFY_USER_EMAIL_MESSAGE_TYPE) {
+                if (confirmationFlow === EMAIL_CONFIRMATION_FLOWS.LINK_FOR_STAFF_VERIFICATION) {
                     const tokenPayload = {
-                        messageType,
+                        confirmationFlow,
                         secretCode,
                         token,
                     }
@@ -399,7 +402,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 await sendMessage(context,  {
                     to: { email: normalizedEmail },
-                    type: messageType,
+                    type: MESSAGE_TYPE_BY_EMAIL_CONFIRMATION_FLOW[confirmationFlow],
                     meta,
                     sender,
                 })

@@ -2,7 +2,7 @@ import {
     useCompleteConfirmEmailActionMutation,
     useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
-import { ConfirmEmailActionMessageType } from '@app/condo/schema'
+import { EmailConfirmationFlowType } from '@app/condo/schema'
 import { Row } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -19,23 +19,30 @@ import { base64UrlDecode } from '@condo/domains/common/utils/base64.utils'
 import { encryptionManager } from '@condo/domains/common/utils/encryption'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { OutdatedLinkPoster } from '@condo/domains/user/components/OutdatedLinkPoster'
+import { MESSAGE_TYPE_BY_EMAIL_CONFIRMATION_FLOW } from '@condo/domains/user/constants/confirmEmailAction'
 
 import type { GetServerSideProps } from 'next'
 
 
 type ConfirmEmailPageProps = {
-    messageType?: string
+    confirmationFlow?: string
     secretCode?: string
     token?: string
 }
 
-const ALLOWED_MESSAGE_TYPES = [
-    ConfirmEmailActionMessageType.VerifyUserEmail,
+const ALLOWED_EMAIL_CONFIRMATION_FLOWS = [
+    EmailConfirmationFlowType.LinkForStaffVerification,
 ]
 
-const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageType, secretCode, token }) => {
+const EMAIL_CONFIRMATION_FLOW_BY_MESSAGE_TYPE = Object.entries(MESSAGE_TYPE_BY_EMAIL_CONFIRMATION_FLOW)
+    .reduce((acc, [key, value]) => {
+        acc[value] = key
+        return acc
+    }, {})
+
+const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ confirmationFlow, secretCode, token }) => {
     const [loading, setLoading] = useState<boolean>(false)
-    const [step, setStep] = useState<'error' | 'completion'>((messageType && secretCode && token) ? 'completion' : 'error')
+    const [step, setStep] = useState<'error' | 'completion'>((confirmationFlow && secretCode && token) ? 'completion' : 'error')
     const [isEmailResent, setIsEmailResent] = useState<boolean>(false)
 
     const { executeCaptcha } = useHCaptcha()
@@ -75,7 +82,7 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageTyp
             })
 
             if (!res.errors && res?.data?.result?.status === 'ok') {
-                if (messageType === ConfirmEmailActionMessageType.VerifyUserEmail) {
+                if (confirmationFlow === EmailConfirmationFlowType.LinkForStaffVerification) {
                     await updateQuery(router, {
                         newRoute: '/user/verify-email',
                         newParameters: {
@@ -86,7 +93,7 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageTyp
                         routerAction: 'replace',
                     })
                 } else {
-                    throw new Error(`Unexpected messageType: "${messageType}"`)
+                    throw new Error(`Unexpected confirmationFlow: "${confirmationFlow}"`)
                 }
             } else {
                 throw new Error('Cannot complete email action!')
@@ -95,7 +102,7 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageTyp
             console.error(error)
             setStep('error')
         }
-    }, [loading, messageType, secretCode, token])
+    }, [loading, confirmationFlow, secretCode, token])
 
     const handleResendConfirmEmailAction = useCallback(async () => {
         if (!user?.email) return
@@ -110,7 +117,7 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageTyp
                     sender,
                     captcha,
                     email: user.email,
-                    messageType: messageType as ConfirmEmailActionMessageType,
+                    confirmationFlow: confirmationFlow as EmailConfirmationFlowType,
                 },
             },
         })
@@ -121,10 +128,10 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageTyp
         if (step !== 'completion') return
 
         handleCompleteConfirmAction()
-    }, [messageType, secretCode, token])
+    }, [confirmationFlow, secretCode, token])
 
     useEffect(() => {
-        if (!ALLOWED_MESSAGE_TYPES.includes(messageType as ConfirmEmailActionMessageType)) return
+        if (!ALLOWED_EMAIL_CONFIRMATION_FLOWS.includes(confirmationFlow as EmailConfirmationFlowType)) return
         if (step !== 'error') return
         if (isEmailResent) return
 
@@ -170,10 +177,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         console.error('Unable to read email verification token!')
         console.error(error)
     }
+    
+    let confirmationFlow = data?.confirmationFlow || null
+    // NOTE: Backward compatibility
+    if (!confirmationFlow && data?.messageType && data.messageType in EMAIL_CONFIRMATION_FLOW_BY_MESSAGE_TYPE) {
+        confirmationFlow = EMAIL_CONFIRMATION_FLOW_BY_MESSAGE_TYPE[data.messageType] || null
+    }
 
     return {
         props: {
-            messageType: data?.messageType || null,
+            confirmationFlow,
             secretCode: data?.secretCode || null,
             token: data?.token || null,
         },

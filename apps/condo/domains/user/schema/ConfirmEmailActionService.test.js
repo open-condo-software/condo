@@ -9,7 +9,7 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONFIRM_EMAIL_ACTION_MESSAGE_TYPES } = require('@condo/domains/user/constants/confirmEmailAction')
+const { EMAIL_CONFIRMATION_FLOWS } = require('@condo/domains/user/constants/confirmEmailAction')
 const {
     createTestEmail,
     createTestConfirmEmailAction,
@@ -67,17 +67,17 @@ describe('ConfirmEmailActionService', () => {
                 expect(token).not.toHaveLength(0)
             })
 
-            test.each(CONFIRM_EMAIL_ACTION_MESSAGE_TYPES)('User can start email confirm with messageType %p by email', async (messageType) => {
+            test.each(Object.values(EMAIL_CONFIRMATION_FLOWS))('User can start email confirm with confirmationFlow %p by email', async (confirmationFlow) => {
                 const client = await makeClient()
                 const email = createTestEmail()
                 const [{ token }] = await startConfirmEmailActionByTestClient(client, {
                     email,
-                    messageType,
+                    confirmationFlow,
                 })
                 expect(token).not.toHaveLength(0)
             })
 
-            test.each(CONFIRM_EMAIL_ACTION_MESSAGE_TYPES)('User can start email confirm with messageType %p by user', async (messageType) => {
+            test.each(Object.values(EMAIL_CONFIRMATION_FLOWS))('User can start email confirm with confirmationFlow %p by user', async (confirmationFlow) => {
                 const client = await makeClient()
 
                 const anonymous = await makeClient()
@@ -85,7 +85,7 @@ describe('ConfirmEmailActionService', () => {
 
                 const [{ token }] = await startConfirmEmailActionByTestClient(client, {
                     user: { id: registeredUser.id },
-                    messageType,
+                    confirmationFlow,
                 })
                 expect(token).not.toHaveLength(0)
             })

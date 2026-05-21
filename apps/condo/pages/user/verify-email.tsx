@@ -2,7 +2,7 @@ import {
     useVerifyUserEmailMutation,
     useUpdateUserMutation, useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
-import { ConfirmEmailActionMessageType } from '@app/condo/schema'
+import { EmailConfirmationFlowType } from '@app/condo/schema'
 import { Row } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -125,7 +125,7 @@ const VerifyEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
                     sender,
                     captcha,
                     email: user.email,
-                    messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                    confirmationFlow: EmailConfirmationFlowType.LinkForStaffVerification,
                 },
             },
         })

@@ -4,10 +4,10 @@ import {
     useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
 import {
-    ConfirmEmailActionMessageType,
     UserTypeType as UserType,
     AuthenticateOrRegisterUserWithTokenSecondFactorType,
     AuthenticateOrRegisterUserWithTokenSecondFactorInput,
+    EmailConfirmationFlowType,
 } from '@app/condo/schema'
 import { Col, Form, Row, notification } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
@@ -192,7 +192,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                         sender,
                         captcha,
                         email,
-                        messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                        confirmationFlow: EmailConfirmationFlowType.LinkForStaffVerification,
                     },
                 },
             })

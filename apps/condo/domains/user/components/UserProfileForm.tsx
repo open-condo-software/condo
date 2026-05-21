@@ -1,5 +1,5 @@
 import { useUpdateUserMutation, useChangeUserEmailMutation, useStartConfirmEmailActionMutation } from '@app/condo/gql'
-import { ConfirmEmailActionMessageType } from '@app/condo/schema'
+import { EmailConfirmationFlowType } from '@app/condo/schema'
 import { Col, Form, Row, notification } from 'antd'
 import getConfig from 'next/config'
 import Link from 'next/link'
@@ -153,7 +153,7 @@ export const UserProfileForm: React.FC = () => {
                                         sender: getClientSideSenderInfo(),
                                         captcha,
                                         email: newEmail,
-                                        messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                                        confirmationFlow: EmailConfirmationFlowType.LinkForStaffVerification,
                                     },
                                 },
                             })
