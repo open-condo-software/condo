@@ -12,6 +12,7 @@ import type { ShowProgressBarParams, ShowProgressBarData } from './progress-bars
 import type { UpdateProgressBarParams, UpdateProgressBarData } from './progress-bars/UpdateProgressBar'
 import type { RedirectData, RedirectParams } from './Redirect'
 import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
+import type { RequestPaymentParams, RequestPaymentData } from './RequestPayment'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
@@ -25,6 +26,7 @@ export type { PushHistoryStateParams, PushHistoryStateData } from './historical/
 export type { RedirectData, RedirectParams } from './Redirect'
 export type { ReplaceHistoryStateParams, ReplaceHistoryStateData } from './historical/ReplaceHistoryState'
 export type { RequestAuthData, RequestAuthParams } from './RequestAuth'
+export type { RequestPaymentParams, RequestPaymentData } from './RequestPayment'
 export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 export type { ShowModalWindowParams, ShowModalWindowData } from './modals/ShowModalWindow'
 export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
@@ -46,6 +48,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppRedirect: RedirectParams
     CondoWebAppReplaceHistoryState: ReplaceHistoryStateParams
     CondoWebAppRequestAuth: RequestAuthParams
+    CondoWebAppRequestPayment: RequestPaymentParams
     CondoWebAppResizeWindow: ResizeWindowParams
     CondoWebAppSetPageActions: SetPageActionsParams
     CondoWebAppShowModalWindow: ShowModalWindowParams
@@ -66,6 +69,7 @@ export type ResultResponseDataMap = {
     CondoWebAppPopHistoryState: PopHistoryStateData
     CondoWebAppPushHistoryState: PushHistoryStateData
     CondoWebAppRequestAuth: RequestAuthData
+    CondoWebAppRequestPayment: RequestPaymentData
     CondoWebAppRedirect: RedirectData
     CondoWebAppReplaceHistoryState: ReplaceHistoryStateData
     CondoWebAppResizeWindow: ResizeWindowData
