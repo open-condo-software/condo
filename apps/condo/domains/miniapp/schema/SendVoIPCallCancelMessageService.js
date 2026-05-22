@@ -177,7 +177,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                     // 3) Check limits
                     await checkLimits({ context, logContext, b2cAppId, addressKey, unitName, unitType, redisGuard, serviceName: SERVICE_NAME, voipMessageType: CANCELED_CALL_MESSAGE_PUSH_TYPE })
                 
-                    const callStatus = await getCallStatus({ b2cAppId, callId: callData.callId, organizationId: organization.id, propertyId: property.addressKey }) // NOTE is being changed in another PR in parallel
+                    const callStatus = await getCallStatus({ b2cAppId, callId: callData.callId, organizationId: organization.id, addressKey: property.addressKey })
 
                     if (!callStatus || callStatus.status !== CALL_STATUS_STARTED) {
                         logContext.logInfoStats.step = 'call status not found'
@@ -210,7 +210,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
                             ...callStatus,
                             b2cAppId,
-                            propertyId: property.addressKey, // TODO changed in another pr paralelly
+                            addressKey: property.addressKey,
                             organizationId: organization.id,
                             callId: callData.callId,
                             status: CANCEL_REASON_TO_CALL_STATUS[callData.reason],

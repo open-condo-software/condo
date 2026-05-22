@@ -1,18 +1,21 @@
 const { timingSafeEqual } = require('crypto')
 
-
+const jwt = require('jsonwebtoken')
 const { z } = require('zod')
 
-
+const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils/helpers/uuid')
 
 const { CALL_STATUSES, CALL_STATUS_TTL_IN_SECONDS } = require('@condo/domains/miniapp/constants')
 const KEY_PREFIX = 'voipCallStatus'
 const kv = getKVClient(KEY_PREFIX)
+const logger = getLogger()
 
 const MIN_CALL_ID_LENGTH = 1
 const MAX_CALL_ID_LENGTH = 300
+const VOIP_CALL_STATUS_JWT_SECRET = conf.VOIP_CALL_STATUS_JWT_SECRET || generateUUIDv4()
 
 const MAX_CALL_META_LENGTH = 1000
 
@@ -22,6 +25,14 @@ const CALL_STATUS_SCHEMA = z.object({
     status: z.union(Object.values(CALL_STATUSES).map(v => z.literal(v))),
     startingMessagesIdsByUserIds: z.record(z.string(), z.string()),
     callMeta: z.nullish(z.object()),
+    callStatusToken: z.string(),
+})
+
+const JWT_PAYLOAD_SCHEMA = z.object({
+    organizationId: z.string(),
+    b2cAppId: z.string(),
+    addressKey: z.string(),
+    callId: z.string(),
     callStatusToken: z.string(),
 })
 
@@ -38,30 +49,58 @@ function isCallMetaValid (callMeta) {
     return length <= MAX_CALL_META_LENGTH
 }
 
-function buildKey (b2cAppId, organizationId, propertyId, callId) {
-    return [KEY_PREFIX, b2cAppId, organizationId, propertyId, Buffer.from(callId).toString('base64')].join(':')
+function buildKey (b2cAppId, organizationId, addressKey, callId) {
+    return [KEY_PREFIX, b2cAppId, organizationId, addressKey, Buffer.from(callId).toString('base64')].join(':')
 }
 
 function generateCallStatusToken () {
     return generateUUIDv4()
 }
 
+/**
+ * @param {z.infer<typeof JWT_PAYLOAD_SCHEMA>} data 
+ * @returns 
+ */
+function buildCallStatusJWTToken (data) {
+    try {
+        const verifiedData = JWT_PAYLOAD_SCHEMA.parse(data)
+        return jwt.sign(
+            verifiedData,
+            VOIP_CALL_STATUS_JWT_SECRET,
+            { expiresIn: '1h' },
+        )
+    } catch (err) {
+        logger.error({ msg: 'buildJWTToken error', err })
+        return null
+    }
+}
+
+function parseCallStatusJWTToken (jwtToken) {
+    try {
+        const jwtPayload = jwt.verify(jwtToken, VOIP_CALL_STATUS_JWT_SECRET)
+        return JWT_PAYLOAD_SCHEMA.parse(jwtPayload)
+    } catch (err) {
+        logger.error({ msg: 'parseJWTToken error', err, data: { jwtToken } })
+        return null
+    }
+}
+
 // NOTE(YEgorLu): startingMessagesIdsByUserIds present for older mobile apps compatibility, as they use this to cancel calls.
 //                Will be removed someday in the future. Should be okay to save it only for few minutes
-async function setCallStatus ({ callStatusToken, b2cAppId, organizationId, propertyId, callId, status, startingMessagesIdsByUserIds, callMeta }) {
+async function setCallStatus ({ callStatusToken, b2cAppId, organizationId, addressKey, callId, status, startingMessagesIdsByUserIds, callMeta }) {
     if (!callStatusToken || !isCallIdValid(callId)) return false
     if (!isCallMetaValid(callMeta)) callMeta = null
     return kv.set(
-        buildKey(b2cAppId, organizationId, propertyId, callId),
+        buildKey(b2cAppId, organizationId, addressKey, callId),
         JSON.stringify({ status, startingMessagesIdsByUserIds, callMeta, callStatusToken }),
         'EX',
         CALL_STATUS_TTL_IN_SECONDS,
     )
 }
 
-async function getCallStatus ({ b2cAppId, organizationId, propertyId, callId }) {
+async function getCallStatus ({ b2cAppId, organizationId, addressKey, callId }) {
     if (!isCallIdValid(callId)) return null
-    const res = await kv.get(buildKey(b2cAppId, organizationId, propertyId, callId))
+    const res = await kv.get(buildKey(b2cAppId, organizationId, addressKey, callId))
     if (!res) return null
     try {
         const parsedJSON = JSON.parse(res)
@@ -94,6 +133,8 @@ module.exports = {
     getCallStatus,
 
     generateCallStatusToken,
+    buildCallStatusJWTToken,
+    parseCallStatusJWTToken,
 
     MIN_CALL_ID_LENGTH,
     MAX_CALL_ID_LENGTH,

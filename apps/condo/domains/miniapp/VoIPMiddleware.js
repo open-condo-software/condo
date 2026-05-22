@@ -37,7 +37,7 @@ class VoIPMiddleware {
     }
 
     async handleGetVoIPCallStatus (req, res, next) {
-        const { callStatusToken, callId, organizationId, addressKey, appId } = req.query
+        const { token } = req.query
         let { dv, sender } = req.query
 
         try {
@@ -46,13 +46,9 @@ class VoIPMiddleware {
         } catch {/* */}
         
         const result = await getVoIPCallStatus(req.keystoneContext, {
-            callStatusToken,
-            callId,
+            token,
             dv,
             sender,
-            addressKey, // TODO ! being changed in another PR parallely
-            organization: { id: organizationId },
-            app: { id: appId },
         })
         return res.json(result)
     }

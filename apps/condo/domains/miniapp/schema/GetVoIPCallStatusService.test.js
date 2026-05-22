@@ -23,7 +23,7 @@ const {
     getVoIPCallStatusByTestClient,
     sendVoIPCallCancelMessageByTestClient,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, MAX_CALL_ID_LENGTH, isCallStatusTokenEqual } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, MAX_CALL_ID_LENGTH, isCallStatusTokenEqual, buildCallStatusJWTToken, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
@@ -41,6 +41,16 @@ const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser,
 const { ERRORS } = require('./GetVoIPCallStatusService')
 
 const SERVER_URL = conf.SERVER_URL
+
+/**
+ * @param {Parameters<typeof buildCallStatusJWTToken>[0]} data 
+ * @returns 
+ */
+function buildQueryPayload (data) {
+    const token = buildCallStatusJWTToken(data)
+    if (!token) throw new Error('Invalid token data, check "buildQueryPayload"')
+    return { token }
+}
 
 async function prepareUser ({ admin, organization, property, unitName, unitType }) {
     const phone = createTestPhone()
@@ -77,7 +87,7 @@ describe('GetVoIPCallStatusService', () => {
         let serviceUser
         let b2cAccessRight
         let callId
-        let callStatusToken
+        let callStatusJwtToken
 
         beforeAll(async () => {
             const [testB2CApp] = await createTestB2CApp(admin)
@@ -105,7 +115,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { first: 1, sortBy: ['createdAt_DESC'] })
-            callStatusToken = msg.meta.data.callStatusToken
+            callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
         })
 
         const TEST_CASES = [
@@ -117,13 +127,7 @@ describe('GetVoIPCallStatusService', () => {
 
         test.each(TEST_CASES)('$name', async ({ getClient }) => {
             const client = await getClient()
-            const [result] = await getVoIPCallStatusByTestClient(client, { 
-                addressKey: property.addressKey,
-                organization: { id: organization.id },
-                app: { id: b2cApp.id },
-                callStatusToken,
-                callId,
-            })
+            const [result] = await getVoIPCallStatusByTestClient(client, { token: callStatusJwtToken })
             expect(result).toHaveProperty('status', CALL_STATUS_STARTED)
         })
     })
@@ -159,13 +163,13 @@ describe('GetVoIPCallStatusService', () => {
 
             test.each(TEST_CASES)('$name', async ({ callId }) => {
                 await expectToThrowGQLErrorToResult(async () => {
-                    await getVoIPCallStatusByTestClient(await makeClient(), {
+                    await getVoIPCallStatusByTestClient(await makeClient(), buildQueryPayload({
                         addressKey: property.addressKey,
-                        organization: { id: organization.id },
-                        app: { id: b2cApp.id },
+                        organizationId: organization.id,
+                        b2cAppId: b2cApp.id,
                         callId,
                         callStatusToken: faker.random.alphaNumeric(8),
-                    })
+                    }))
                 }, ERRORS.INVALID_CALL_ID)
             })
         })
@@ -208,14 +212,10 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const { callStatusToken } = msg.meta.data
+            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
-                addressKey: property.addressKey,
-                organization: { id: organization.id },
-                app: { id: b2cApp.id },
-                callId,
-                callStatusToken,
+                token: callStatusJwtToken,
             })
             expect(status).toEqual(CALL_STATUS_STARTED)
         })
@@ -236,7 +236,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const { callStatusToken } = msg.meta.data
+            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
             await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
                 addressKey: property.addressKey,
@@ -249,11 +249,7 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
-                addressKey: property.addressKey,
-                organization: { id: organization.id },
-                app: { id: b2cApp.id },
-                callId,
-                callStatusToken,
+                token: callStatusJwtToken,
             })
             expect(status).toEqual(CALL_STATUS_ENDED)
         })
@@ -275,7 +271,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const { callStatusToken } = msg.meta.data
+            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
 
             await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
@@ -289,11 +285,7 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
-                addressKey,
-                organization: { id: organization.id },
-                app: { id: b2cApp.id },
-                callId,
-                callStatusToken,
+                token: callStatusJwtToken,
             })
             expect(status).toEqual(CALL_STATUS_ANSWERED)
         })
@@ -314,21 +306,20 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const { callStatusToken } = msg.meta.data
+            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
 
             const wrongCallId = faker.random.alphaNumeric(8)
+            const parsedToken = parseCallStatusJWTToken(callStatusJwtToken)
+            const wrongCallIdJwtToken = buildCallStatusJWTToken({ ...parsedToken, callId: wrongCallId })
+
 
             await expectToThrowGQLErrorToResult(async () => {
                 await getVoIPCallStatusByTestClient(await makeClient(), {
-                    addressKey: property.addressKey,
-                    organization: { id: organization.id },
-                    app: { id: b2cApp.id },
-                    callId: wrongCallId,
-                    callStatusToken,
+                    token: wrongCallIdJwtToken,
                 })
             }, ERRORS.CALL_NOT_FOUND) 
 
-            const callStatus = await getCallStatus({ b2cAppId: b2cApp.id, organizationId: organization.id, propertyId: property.addressKey, callId: wrongCallId })
+            const callStatus = await getCallStatus({ b2cAppId: b2cApp.id, organizationId: organization.id, addressKey: property.addressKey, callId: wrongCallId })
             expect(callStatus).toBeNull()
         })
 
@@ -336,7 +327,7 @@ describe('GetVoIPCallStatusService', () => {
             const unitName = faker.random.alphaNumeric(8)
             const unitType = FLAT_UNIT_TYPE
             const callId = faker.random.alphaNumeric(8)
-            await prepareUser({ admin, organization, property, unitName, unitType })
+            const { user } = await prepareUser({ admin, organization, property, unitName, unitType })
             await sendVoIPCallStartMessageByTestClient(admin, {
                 app: { id: b2cApp.id },
                 addressKey: property.addressKey,
@@ -348,19 +339,21 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
 
+            const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
+            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+
             const wrongCallStatusToken = faker.random.alphaNumeric(8)
+
+            const parsedToken = parseCallStatusJWTToken(callStatusJwtToken)
+            const wrongCallStatusTokenJwtToken = buildCallStatusJWTToken({ ...parsedToken, callStatusToken: wrongCallStatusToken })
 
             await expectToThrowGQLErrorToResult(async () => {
                 await getVoIPCallStatusByTestClient(await makeClient(), {
-                    addressKey: property.addressKey,
-                    organization: { id: organization.id },
-                    app: { id: b2cApp.id },
-                    callId,
-                    callStatusToken: wrongCallStatusToken,
+                    token: wrongCallStatusTokenJwtToken,
                 })
             }, ERRORS.CALL_NOT_FOUND)
 
-            const callStatus = await getCallStatus({ b2cAppId: b2cApp.id, organizationId: organization.id, propertyId: property.addressKey, callId })
+            const callStatus = await getCallStatus({ b2cAppId: b2cApp.id, organizationId: organization.id, addressKey: property.addressKey, callId })
             expect(callStatus).not.toBeNull()
             expect(isCallStatusTokenEqual({ callStatus, callStatusToken: wrongCallStatusToken })).toBe(false)
         })

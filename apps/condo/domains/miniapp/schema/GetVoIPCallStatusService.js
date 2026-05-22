@@ -7,7 +7,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/GetVoIPCallStatusService')
 const { INVALID_CALL_ID_ERROR, CALL_NOT_FOUND_ERROR, CALL_STATUSES } = require('@condo/domains/miniapp/constants')
-const { getCallStatus, isCallStatusTokenEqual, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, isCallStatusTokenEqual, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
@@ -32,7 +32,7 @@ const ERRORS = {
         variable: ['data', 'callId'],
         type: INVALID_CALL_ID_ERROR,
         code: BAD_USER_INPUT,
-        message: `"callId" contains invalid characters or does not has length between ${MIN_CALL_ID_LENGTH} and ${MAX_CALL_ID_LENGTH}`,
+        message: `"callId" contains invalid characters or does not have length between ${MIN_CALL_ID_LENGTH} and ${MAX_CALL_ID_LENGTH}`,
     },
     CALL_NOT_FOUND: {
         mutation: SERVICE_NAME,
@@ -86,14 +86,10 @@ const GetVoIPCallStatusService = new GQLCustomSchema('GetVoIPCallStatusService',
             type: `input GetVoIPCallStatusInput {
                 dv: Int!,
                 sender: SenderFieldInput!,
-                app: B2CAppWhereUniqueInput!,
                 """
-                Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+                Token with data about the call. Received in voip push messages.
                 """
-                addressKey: String!,
-                callId: String!,
-                organization: OrganizationWhereUniqueInput!
-                callStatusToken: String!
+                token: String!,
             }`,
         },
         {
@@ -121,23 +117,29 @@ const GetVoIPCallStatusService = new GQLCustomSchema('GetVoIPCallStatusService',
             },
             resolver: async (parent, args, context) => {
                 const { data: argsData } = args
-                const { app, addressKey, organization, callId, callStatusToken } = argsData
+                const { token } = argsData
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                if (!isCallIdValid(callId)) {
+                await checkLimitsByIp(context)
+
+                const tokenData = parseCallStatusJWTToken(token)
+                if (!tokenData) {
+                    throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
+                }
+
+                if (!isCallIdValid(tokenData.callId)) {
                     throw new GQLError(ERRORS.INVALID_CALL_ID, context)
                 }
 
-                await checkLimits(context, argsData)
+                await checkLimitsByCall(context, { addressKey: tokenData.addressKey, app: { id: tokenData.b2cAppId }, callId: tokenData.callId })                
                 
-                // THESE PARAMS MAY CHANGE BASED ON ANOTHER PR
-                const callStatus = await getCallStatus({ b2cAppId: app.id, propertyId: addressKey, organizationId: organization.id, callId })
+                const callStatus = await getCallStatus(tokenData)
                 if (!callStatus) {
                     throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
                 }
 
-                if (!isCallStatusTokenEqual({ callStatus, callStatusToken })) {
+                if (!isCallStatusTokenEqual({ callStatus, callStatusToken: tokenData.callStatusToken })) {
                     throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
                 }
 
