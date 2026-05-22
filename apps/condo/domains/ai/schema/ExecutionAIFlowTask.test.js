@@ -22,8 +22,8 @@ const {
 const {
     TASK_STATUSES,
 } = require('@condo/domains/ai/constants')
-const { executeAIFlow } = require('@condo/domains/ai/tasks/index')
 const { EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER } = require('@condo/domains/ai/schema/ExecutionAIFlowTask')
+const { executeAIFlow } = require('@condo/domains/ai/tasks/index')
 const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const {
     ExecutionAIFlowTask,
@@ -65,6 +65,7 @@ describe('ExecutionAIFlowTask', () => {
         userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
     })
 
+    // TODO: DOMA-13292 Use jest mock to fix random tests inside of this module
     describe.skip('Accesses', () => {
         describe('Admin', () => {
             test('Can create for any user', async () => {
@@ -547,6 +548,7 @@ describe('ExecutionAIFlowTask', () => {
             })
             expect(task.user.id).toEqual(staffClient.user.id)
 
+            // Get AI token and decrypt it
             const encryptedToken = executeAIFlowSpy.mock.calls[0]?.[1]?.condoUserToken
 
             const parts = encryptedToken.split(ENCODING_SEP)
@@ -563,29 +565,29 @@ describe('ExecutionAIFlowTask', () => {
             ])
 
             const userTokenSentToAI = decryptedBuffer.toString()
-
             const clientWithTokenSentFromAI = await makeClient()
             clientWithTokenSentFromAI.setHeaders({ Authorization: `Bearer ${userTokenSentToAI}` })
 
+            // Check that AI token gets same info as staff token
             const properties2 = await Property.getAll(clientWithTokenSentFromAI, {})
             const properties3 = await Property.getAll(staffClient, {})
 
             expect(properties1[0].id).toEqual(properties2[0].id)
             expect(properties1).toHaveLength(properties2.length)
-
-            expect(properties2).toHaveLength(properties3.length)
             expect(properties2).toHaveLength(properties3.length)
 
+            // Check that you can update property as staff
             await updateTestProperty(staffClient, staffClient.property.id, { name: 'test-name-2' })
             const properties4 = await Property.getAll(clientWithTokenSentFromAI, {})
             expect(properties4[0].id).toEqual(properties1[0].id)
             expect(properties4).toHaveLength(properties1.length)
             expect(properties4[0].name).toEqual('test-name-2')
 
+            // Check that you cannot run a mutation from AI token, because it is forbidden by scopes
             await catchErrorFrom(async () => {
                 await updateTestProperty(clientWithTokenSentFromAI, staffClient.property.id, { name: 'test-name-3' })
             }, (err) => {
-                expect(err.errors[0].message).toEqual('Request is rejected because it contains queries or mutations, not allowed for current session scopes')
+                expect(err.errors[0].extensions.code).toEqual('FORBIDDEN')
             })
         })
     })

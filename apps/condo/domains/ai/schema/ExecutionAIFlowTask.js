@@ -365,7 +365,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                     const userToken = await keystone._sessionManager.cloneAuthedSession(context.req, {
                         item: { id: context.authedItem.id },
                         list: keystone.lists['User'],
-                        ttl: 5 * 60 * 1000,
+                        ttl: 10 * 60 * 1000, // 10 minutes
                         meta: {
                             source: 'internal',
                             provider: 'executionAIFlowTask',
