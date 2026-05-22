@@ -112,8 +112,10 @@ export const ReceiptsTable: React.FC = () => {
     const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
     const reportPeriod = get(billingContexts.find(({ lastReport }) => !!lastReport), ['lastReport', 'period'], null)
-    const contextIdsKey = useMemo(() => billingContexts.map(({ id }) => id).sort((left, right) => left.localeCompare(right)).join(','), [billingContexts])
-    const contextIds = useMemo(() => contextIdsKey ? contextIdsKey.split(',') : [], [contextIdsKey])
+    const contextIds = useMemo(
+        () => billingContexts.map(({ id }) => id).sort((a, b) => a.localeCompare(b)),
+        [billingContexts]
+    )
     const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
     const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
@@ -251,6 +253,7 @@ export const ReceiptsTable: React.FC = () => {
             okButtonLabel={DeleteMessage}
             action={softDeleteSelectedReceipts}
             buttonContent={DeleteMessage}
+            buttonCustomProps={{ id: 'staffDeleteBillingReceipts', type: 'secondary' }}
             cancelMessage={DontDeleteMessage}
             showCancelButton
             cancelButtonType='primary'

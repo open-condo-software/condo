@@ -16,7 +16,6 @@ const addressFilter = (search: QueryArgType) => {
     if (!search) return
 
     const addressKeys = (Array.isArray(search) ? search : [search])
-        .filter(Boolean)
         .map((value) => String(value).trim())
         .filter(Boolean)
 
