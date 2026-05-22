@@ -202,6 +202,8 @@ export function registerBridgeEvents ({
 
             return { updated: true }
         })
+
+        // NOTE: make sure to keep * scope, so parent window can close modals too
         addHandler<CloseModalWindowParams, CloseModalWindowData>('condo-bridge', 'CondoWebAppCloseModalWindow', '*', zodSchemaToValidator(z.strictObject({
             modalId: z.string(),
         })), ({ params, storage }) => {
