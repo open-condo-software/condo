@@ -94767,7 +94767,7 @@ input SendB2BAppPushMessageInput {
 
 type SendB2BAppPushMessageOutput {
   status: String!
-  id: String!
+  id: String
 }
 
 input SendVoIPCallStartMessageVoIPPanelParameters {
