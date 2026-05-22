@@ -1,5 +1,5 @@
 import { BillingReceipt as BillingReceiptType, BillingReceiptWhereInput, SortBillingReceiptsBy, TourStepTypeType } from '@app/condo/schema'
-import { Col, Row, Space, Typography, type RowProps } from 'antd'
+import { Col, Row, Space, type RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -29,7 +29,6 @@ import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptT
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 import { BillingReceiptForOrganization } from '@condo/domains/billing/utils/clientSchema'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -103,7 +102,6 @@ const buildNextTableQuery = (
 export const ReceiptsTable: React.FC = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
@@ -126,7 +124,6 @@ export const ReceiptsTable: React.FC = () => {
     const [search, handleSearchChange, setSearch] = useTableSearch(tableRef)
     const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0)
     const [selectedRowIds, setSelectedRowIds] = useState<string[]>([])
-    const [loadingError, setLoadingError] = useState<boolean>(false)
     const [period, setPeriod] = useState<Dayjs | null>(() => reportPeriod ? dayjs(reportPeriod, 'YYYY-MM-DD') : null)
 
     const filterMetas = useReceiptTableFilters(reportPeriod, search, contextIds)
@@ -212,7 +209,6 @@ export const ReceiptsTable: React.FC = () => {
 
             const rowData: BillingReceiptType[] = data?.objs?.filter(Boolean) ?? []
             const rowCount = data?.meta?.count ?? 0
-            setLoadingError(false)
 
             if (rowData.length > 0) {
                 updateStepIfNotCompleted(TourStepTypeType.UploadReceipts)
@@ -224,7 +220,6 @@ export const ReceiptsTable: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to fetch billing receipts', error)
-            setLoadingError(true)
             return {
                 rowData: [],
                 rowCount: 0,
@@ -337,24 +332,6 @@ export const ReceiptsTable: React.FC = () => {
     return (
         <>
             <Row gutter={ITEMS_GUTTER}>
-                {loadingError && (
-                    <Col span={24}>
-                        <BasicEmptyListView>
-                            <Typography.Title level={4}>
-                                {LoadingErrorMessage}
-                            </Typography.Title>
-                            <Button
-                                type='secondary'
-                                onClick={async () => {
-                                    setLoadingError(false)
-                                    await tableRef.current?.api?.refetchData()
-                                }}
-                            >
-                                Retry
-                            </Button>
-                        </BasicEmptyListView>
-                    </Col>
-                )}
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row gutter={FILTERS_GUTTER}>
