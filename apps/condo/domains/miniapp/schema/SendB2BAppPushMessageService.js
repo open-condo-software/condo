@@ -104,7 +104,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
         },
         {
             access: true,
-            type: 'type SendB2BAppPushMessageOutput { status: String!, id: String! }',
+            type: 'type SendB2BAppPushMessageOutput { status: String!, id: String }',
         },
     ],
     
