@@ -428,6 +428,8 @@
   "api.document.WRONG_PROPERTY_ORGANIZATION": "Дом находится в другой организации",
   "api.global.queryBlocking.FORBIDDEN_REQUEST": "Данный запрос запрещен сервером, так как содержит заблокированные операции: {blockedOperations}",
   "api.global.rateLimit.RATE_LIMIT_EXCEEDED": "Вы сделали слишком много запросов за последнее время, повторите попытку позднее",
+  "api.global.tokenScopes.FORBIDDEN": "Запрос содержит в себе запрещенные операции",
+  "api.global.tokenScopes.INTERNAL_ERROR": "Сессия запроса настроена некорректно",
   "api.global.requestLimit.ROOT_QUERY_LENGTH_EXCEEDED": "Слишком большой GraphQL-запрос. Попробуйте использовать переменные запроса (variables) или уменьшить запрос",
   "api.global.requestLimit.VARIABLES_SIZE_EXCEEDED": "Слишком большой размер variables. Попробуйте уменьшить фильтры или объем передаваемых данных",
   "api.marketplace.invoice.ALREADY_CANCELED": "Нельзя изменять отмененный счет",

@@ -87,7 +87,7 @@ class N8NAdapter extends AbstractAdapter {
                     throw new Error('Failed to parse streamed chunk')
                 }
                 switch (event.type) {
-                    case 'begin': 
+                    case 'begin':
                         await onEvent({
                             type: EVENT_TYPES.START,
                             meta: event.metadata,
@@ -107,7 +107,7 @@ class N8NAdapter extends AbstractAdapter {
                             meta: event.metadata,
                         })
                         break
-                    default: 
+                    default:
                         await onEvent({
                             type: EVENT_TYPES.ERROR,
                             meta: event?.metadata,

@@ -6,7 +6,6 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 const { buildUserTopic, publish } = require('@open-condo/messaging')
 
-
 const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
@@ -17,10 +16,10 @@ const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
-const { 
-    FLOW_META_SCHEMAS, 
-    CUSTOM_FLOW_TYPE, 
-    EVENT_TYPES, 
+const {
+    FLOW_META_SCHEMAS,
+    CUSTOM_FLOW_TYPE,
+    EVENT_TYPES,
     CHUNK_TYPES,
 } = require('../constants')
 
@@ -35,7 +34,7 @@ const ajv = new Ajv()
 
 const taskLogger = getLogger()
 
-const executeAIFlow = async (executionAIFlowTaskId) => {
+const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
     if (!executionAIFlowTaskId) {
         taskLogger.error({
             msg: 'unknown executionAIFlowTaskId!',
@@ -85,13 +84,14 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             ...task.cleanContext,
             locale: task.locale,
             aiSessionId: task.aiSessionId,
+            ...additionalContext,
         }
 
         let prediction
         if (streaming) {
             prediction = await adapter.execute(predictionUrl, fullContext, task.flowType, async (event) => {
                 if (!event) return
-    
+
                 switch (event.type) {
                     case EVENT_TYPES.START:
                         void publish({
@@ -127,7 +127,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                             },
                         })
                         return
-                    default: 
+                    default:
                         void publish({
                             topic,
                             data: {

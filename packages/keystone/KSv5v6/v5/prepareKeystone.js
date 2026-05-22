@@ -16,6 +16,7 @@ const {
     ApolloRateLimitingPlugin,
     ApolloQueryBlockingPlugin,
     ApolloRequestLimitingPlugin,
+    ApolloTokenScopesPlugin,
 } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
@@ -117,6 +118,9 @@ function _getApolloServerPlugins (keystone) {
     if (!IS_RATE_LIMIT_DISABLED) {
         apolloServerPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
     }
+
+    // Add token scopes plugin for token scope validation
+    apolloServerPlugins.push(new ApolloTokenScopesPlugin(keystone))
 
     // NOTE: Must be after all req.context filling plugins
     apolloServerPlugins.push(new GraphQLLoggerPlugin())

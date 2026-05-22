@@ -12099,6 +12099,7 @@ __metadata:
     uuid: ^8.3.0
     validate.js: ^0.13.1
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    zod: ^4.0.8
   bin:
     keystone: ./bin/cli.js
   languageName: unknown

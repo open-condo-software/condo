@@ -53,7 +53,7 @@ const FLOW_TYPES = {
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
 /**
- * Schemes for validating input and output data.
+ * Schemas for validating input and output data.
  * Syntax Ajv. Only object type.
  * If a schema is not specified for a type, the basic check will be used: { type: 'object' }
  *
@@ -261,6 +261,18 @@ const FLOW_META_SCHEMAS = {
     },
 }
 
+/**
+ * Token scopes for flow.
+ *
+ * @type {{}}
+ */
+const FLOW_TOKEN_SCOPES = {
+    [FLOW_TYPES.CHAT_WITH_CONDO]: [
+        // TODO: DOMA-13291 make scopes logic more secure
+        { gqlOperationType: 'query' }, // Allow all queries
+    ],
+}
+
 for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
     for (const [operation, schema] of Object.entries(schemaByOperation)) {
         if (operation !== 'input' && operation !== 'output') throw new Error(`Flow "${flowName}": You can only specify the properties "input" and "output"!`)
@@ -281,4 +293,5 @@ module.exports = {
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
     CHAT_WITH_CONDO_FLOW_TYPE,
+    FLOW_TOKEN_SCOPES,
 }

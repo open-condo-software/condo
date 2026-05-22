@@ -428,6 +428,8 @@
   "api.document.WRONG_PROPERTY_ORGANIZATION": "La propiedad tiene una organización diferente",
   "api.global.queryBlocking.FORBIDDEN_REQUEST": "Esta petición ha sido denegada por el servidor porque contiene operaciones bloqueadas: {blockedOperations}",
   "api.global.rateLimit.RATE_LIMIT_EXCEEDED": "Has creado demasiadas incidencias. Por favor, inténtalo más tarde.",
+  "api.global.tokenScopes.FORBIDDEN": "La solicitud es rechazada porque contiene consultas o mutaciones no permitidas para los alcances de la sesión actual.",
+  "api.global.tokenScopes.INTERNAL_ERROR": "La solicitud es rechazada porque los ámbitos de la sesión actual están mal configurados.",
   "api.global.requestLimit.ROOT_QUERY_LENGTH_EXCEEDED": "La consulta GraphQL es demasiado grande. Intente utilizar variables de consulta o reducir la consulta",
   "api.global.requestLimit.VARIABLES_SIZE_EXCEEDED": "El tamaño de las variables es demasiado grande. Considere la posibilidad de utilizar filtros más simples o disminuir el tamaño del lote",
   "api.marketplace.invoice.ALREADY_CANCELED": "No se puede modificar una factura cancelada",
