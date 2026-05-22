@@ -13,8 +13,6 @@ import { getAddressDetails, ObjectWithAddressInfo } from '@condo/domains/common/
 import { categoryToSearchQuery, getFilter, getStringContainsFilter, QueryArgType, WhereType } from '@condo/domains/common/utils/tables.utils'
 
 const addressFilter = (search: QueryArgType) => {
-    if (!search) return
-
     const addressKeys = (Array.isArray(search) ? search : [search])
         .map((value) => String(value).trim())
         .filter(Boolean)
