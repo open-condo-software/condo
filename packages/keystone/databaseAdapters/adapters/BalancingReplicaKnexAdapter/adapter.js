@@ -15,6 +15,7 @@ const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
 
 const { getSourceRegistry } = require('../../sourceRegistry')
+const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
 
 class BalancingReplicaKnexAdapter extends KnexAdapter {
@@ -288,6 +289,59 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         if (this._knexClients) {
             await Promise.all(Object.values(this._knexClients).map(client => client.destroy()))
         }
+    }
+
+    _getWritableDatabaseNames () {
+        const writableDbNames = new Set()
+        for (const poolConfig of Object.values(this._replicaPoolsConfig)) {
+            if (!poolConfig.writable) continue
+            for (const dbName of poolConfig.databases) {
+                writableDbNames.add(dbName)
+            }
+        }
+        return writableDbNames
+    }
+
+    /**
+     * kmigrator runs full schema + knex migrations on writable DATABASE_URL sources only.
+     * Read-only replica connections (writable: false pools) are skipped — they cannot take
+     * knex_migrations_lock. Runtime DATABASE_ROUTING_RULES is unchanged. Default-pool DB is
+     * last so Django makemigrations diffs against the primary writable connection (see bin/kmigrator.py).
+     */
+    __kmigratorKnexAdapters () {
+        if (!this._knexClients) {
+            throw new Error('BalancingReplicaKnexAdapter is not connected')
+        }
+
+        const defaultRule = this._routingRules.find(rule => isDefaultRule(rule))
+        const defaultDbName = this._replicaPoolsConfig[defaultRule.target].databases[0]
+        const writableDbNames = this._getWritableDatabaseNames()
+        const dbNames = Object.keys(this._knexClients).filter(dbName => writableDbNames.has(dbName))
+
+        const skippedDbNames = Object.keys(this._knexClients).filter(dbName => !writableDbNames.has(dbName))
+        if (skippedDbNames.length) {
+            logger.info({
+                msg: 'skipping kmigrator targets for read-only databases',
+                data: { skippedDbNames },
+            })
+        }
+
+        if (!dbNames.length) {
+            throw new Error('BalancingReplicaKnexAdapter: no writable databases configured for kmigrator')
+        }
+
+        const orderedDbNames = [
+            ...dbNames.filter(dbName => dbName !== defaultDbName),
+            ...(dbNames.includes(defaultDbName) ? [defaultDbName] : []),
+        ]
+
+        return orderedDbNames.map((dbName) => createKmigratorKnexAdapter({
+            knex: this._knexClients[dbName],
+            listAdapters: this.listAdapters,
+            getListAdapterByKey: (key) => this.getListAdapterByKey(key),
+            schemaName: 'public',
+            dbName,
+        }))
     }
 
     _resolveProviderBySourceName (sourceName) {

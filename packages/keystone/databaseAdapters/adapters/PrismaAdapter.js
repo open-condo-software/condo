@@ -1167,6 +1167,7 @@ class PrismaAdapter extends OriginalPrismaAdapter {
     }
 
     __kmigratorKnexAdapters () {
+        const { createKmigratorKnexAdapter } = require('../utils/kmigratorKnexAdapter')
         const url = this._url()
         const knexInstance = require('knex')({
             client: 'pg',
@@ -1175,91 +1176,12 @@ class PrismaAdapter extends OriginalPrismaAdapter {
 
         const schemaName = this.getDbSchemaName ? this.getDbSchemaName() : 'public'
 
-        const allRels = []
-        const relSet = new Set()
-        for (const la of Object.values(this.listAdapters)) {
-            for (const fa of la.fieldAdapters) {
-                if (fa.rel && !relSet.has(fa.rel)) {
-                    relSet.add(fa.rel)
-                    allRels.push(fa.rel)
-                }
-            }
-        }
-
-        const getListAdapterByKey = (key) => this.getListAdapterByKey(key)
-        const listAdapters = this.listAdapters
-
-        const adapter = {
+        return [createKmigratorKnexAdapter({
             knex: knexInstance,
+            listAdapters: this.listAdapters,
+            getListAdapterByKey: (key) => this.getListAdapterByKey(key),
             schemaName,
-            schema () {
-                return knexInstance.schema.withSchema(this.schemaName)
-            },
-            getListAdapterByKey,
-            async _createTables () {
-                const results = []
-
-                for (const la of Object.values(listAdapters)) {
-                    try {
-                        await adapter.schema().createTable(la.key, (table) => {
-                            for (const fa of la.fieldAdapters) {
-                                _addFieldToKnexSchema(fa, table, knexInstance)
-                            }
-                        })
-                        results.push({ isFulfilled: true })
-                    } catch (err) {
-                        results.push({ isRejected: true, reason: err })
-                    }
-                }
-
-                for (const rel of allRels) {
-                    const { left, right, cardinality, tableName } = rel
-                    try {
-                        if (cardinality === 'N:N') {
-                            const columnKey = `${left.listKey}.${left.path}`
-                            const { near, far } = rel.columnNames[columnKey]
-                            const leftListAdapter = getListAdapterByKey(left.listKey)
-                            const rightListAdapter = getListAdapterByKey(left.adapter.refListKey)
-                            const leftPkName = leftListAdapter.getPrimaryKeyAdapter().fieldName
-                            const rightPkName = rightListAdapter.getPrimaryKeyAdapter().fieldName
-
-                            await adapter.schema().createTable(tableName, (table) => {
-                                const leftCol = (leftPkName === 'AutoIncrementInteger' || leftPkName === 'Integer')
-                                    ? table.integer(near) : table.uuid(near)
-                                leftCol.index().notNullable()
-                                table.foreign(near).references('id').inTable(`${schemaName}.${left.listKey}`)
-
-                                const rightCol = (rightPkName === 'AutoIncrementInteger' || rightPkName === 'Integer')
-                                    ? table.integer(far) : table.uuid(far)
-                                rightCol.index().notNullable()
-                                table.foreign(far).references('id').inTable(`${schemaName}.${left.adapter.refListKey}`)
-                            })
-                        } else if (cardinality === '1:N' && right) {
-                            await adapter.schema().table(right.listKey, (table) => {
-                                table.foreign(right.path).references('id')
-                                    .inTable(`${schemaName}.${left.listKey}`)
-                            })
-                        } else if (cardinality === 'N:1') {
-                            await adapter.schema().table(left.listKey, (table) => {
-                                table.foreign(left.path).references('id')
-                                    .inTable(`${schemaName}.${left.adapter.refListKey}`)
-                            })
-                        } else if (cardinality === '1:1') {
-                            await adapter.schema().table(left.listKey, (table) => {
-                                table.foreign(left.path).references('id')
-                                    .inTable(`${schemaName}.${left.adapter.refListKey}`)
-                            })
-                        }
-                    } catch (err) {
-                        results.push({ isRejected: true, reason: err })
-                    }
-                }
-
-                return results
-            },
-        }
-
-        return [adapter]
+        })]
     }
 
     async _generatePrismaSchema ({ rels, clientDir }) {
@@ -1492,4 +1414,7 @@ class PrismaAdapter extends OriginalPrismaAdapter {
 
 }
 
-module.exports = { PrismaAdapter }
+module.exports = {
+    PrismaAdapter,
+    addFieldToKnexSchema: _addFieldToKnexSchema,
+}
