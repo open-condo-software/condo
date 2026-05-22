@@ -1,4 +1,5 @@
 // Imports for usage here
+import type { CloseApplicationParams, CloseApplicationData } from './CloseApplication'
 import type { GetFragmentParams, GetFragmentData } from './GetFragment'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 import type { PopHistoryStateParams, PopHistoryStateData } from './historical/PopHistoryState'
@@ -17,6 +18,7 @@ import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 // Reexports for accessibility from outside
+export type { CloseApplicationParams, CloseApplicationData } from './CloseApplication'
 export type { CloseModalWindowParams, CloseModalWindowData } from './modals/CloseModalWindow'
 export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './progress-bars/GetActiveProgressBars'
 export type { GetFragmentParams, GetFragmentData } from './GetFragment'
@@ -39,6 +41,7 @@ export type { SetPageActionsParams, SetPageActionsData } from './SetPageActions'
  * Mapping for event -> request payload
  */
 export type RequestMethodsParamsMap = {
+    CondoWebAppCloseApplication: CloseApplicationParams
     CondoWebAppCloseModalWindow: CloseModalWindowParams
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
     CondoWebAppGetFragment: GetFragmentParams
@@ -62,6 +65,7 @@ export type RequestMethodsParamsMap = {
  * Mapping for event -> response data (what method returns unwrapped)
  */
 export type ResultResponseDataMap = {
+    CondoWebAppCloseApplication: CloseApplicationData
     CondoWebAppCloseModalWindow: CloseModalWindowData
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
     CondoWebAppGetFragment: GetFragmentData
