@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
-import { useApolloClient } from '@open-condo/next/apollo'
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import {
@@ -147,7 +147,7 @@ export const ReceiptsTable: React.FC = () => {
     }, [router])
 
     const { updateStepIfNotCompleted } = useTourContext()
-    const apolloClient = useApolloClient()
+    const [fetchReceipts] = useLazyQuery(BillingReceiptForOrganizationGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
     const updateReceipt = BillingReceiptForOrganization.useUpdate({})
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
@@ -200,8 +200,7 @@ export const ReceiptsTable: React.FC = () => {
             context: { id_in: contextIds },
         }
         try {
-            const { data } = await apolloClient.query({
-                query: BillingReceiptForOrganizationGQL.GET_ALL_OBJS_WITH_COUNT_QUERY,
+            const { data } = await fetchReceipts({
                 variables: {
                     where,
                     sortBy,
@@ -231,7 +230,7 @@ export const ReceiptsTable: React.FC = () => {
                 rowCount: 0,
             }
         }
-    }, [apolloClient, contextIds, filtersToWhere, sortersToSortBy, updateStepIfNotCompleted])
+    }, [contextIds, fetchReceipts, filtersToWhere, sortersToSortBy, updateStepIfNotCompleted])
 
     const softDeleteSelectedReceipts = useCallback(async () => {
         if (!selectedRowIds.length) return
