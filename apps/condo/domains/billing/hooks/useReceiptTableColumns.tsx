@@ -141,6 +141,7 @@ export const useReceiptTableColumns = (
                 id: 'paid',
                 dataKey: receiptDataKey('toPayDetails.paid'),
                 enableSorting: false,
+                initialVisibility: false,
                 initialSize: '14%',
                 render: renderMoneyCell,
             },
