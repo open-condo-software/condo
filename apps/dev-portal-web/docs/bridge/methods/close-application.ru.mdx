@@ -1,0 +1,45 @@
+Данный метод позволяет закрыть мини-приложение программно — например, по завершении какого-либо сценария или по нажатию кнопки «Готово».
+
+### Работа с дочерними окнами
+
+<Alert type={'info'}>
+    Если окно мини-приложения было открыто через метод `CondoWebAppShowModalWindow`, то вызов `CondoWebAppCloseApplication` закроет именно это модальное окно и отправит соответствующее событие — так же, как если бы был вызван метод `CondoWebAppCloseModalWindow`.
+</Alert>
+
+## Платформы
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Параметры метода
+
+Метод не принимает параметров.
+
+## Возвращаемое значение
+
+При успешном выполнении метод вернет назад JSON-объект, содержащий единственное поле `success`:
+```json
+{ "success": true }
+```
+
+## Пример использования
+
+```typescript jsx
+// pages/index.tsx
+import React, { useCallback } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { Button } from '@open-condo/ui'
+
+export default function MiniappPage (): React.ReactNode {
+    const handleClose = useCallback(() => {
+        bridge.send('CondoWebAppCloseApplication').then(() => {
+            // Мини-приложение закрыто
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Button type='primary' onClick={handleClose}>Закрыть приложение</Button>
+    )
+}
+```

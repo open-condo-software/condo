@@ -1,0 +1,80 @@
+This method allows the miniapp to initiate a payment flow in the parent application's interface.
+You can pass one or more invoices (`invoiceIds`) or a pre-created `multiPaymentId`.
+
+Learn how to create and publish invoices in the [Working with invoices](/docs/api/examples/invoices/work-with-invoices#invoice-from-b2c-mini-app) article.
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Parameters
+
+The method accepts one of two parameter variants.
+
+### Pay by invoices
+
+| Parameter  | Type            | Required | Description                              |
+|------------|-----------------|----------|------------------------------------------|
+| invoiceIds | Array\<string\> | yes      | Array of published invoice IDs to pay    |
+
+### Pay by multipayment
+
+| Parameter      | Type   | Required | Description                              |
+|----------------|--------|----------|------------------------------------------|
+| multiPaymentId | string | yes      | ID of a pre-created multipayment         |
+
+## Return value
+
+If successful, you will receive a JSON object of the following type:
+<Tabs labels={['Return type', 'Return example']}>
+    ```typescript
+    type RequestPaymentData = {
+        multiPaymentId: string  // ID of the created (or provided) multipayment
+        success: boolean        // Payment result
+    }
+    ```
+    ```json
+    {
+      "multiPaymentId": "d21ec5e9-aafe-4552-b8ce-825f9c48c7ea",
+      "success": true
+    }
+    ```
+</Tabs>
+
+## Usage example
+
+```typescript jsx
+// pages/index.tsx
+import React, { useCallback } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { Button } from '@open-condo/ui'
+
+async function registerInvoice (): Promise<string> {
+    // Create and publish an invoice on your backend, return its ID
+    const response = await fetch('/api/invoices', { method: 'POST' })
+    const { invoiceId } = await response.json()
+    return invoiceId
+}
+
+export default function MiniappPage (): React.ReactNode {
+    const handlePayment = useCallback(async () => {
+        const invoiceId = await registerInvoice()
+
+        bridge.send('CondoWebAppRequestPayment', { invoiceIds: [invoiceId] }).then(({ success, multiPaymentId }) => {
+            if (success) {
+                // Payment successful — update the order status on your backend
+                console.log('Payment complete, multiPaymentId:', multiPaymentId)
+            } else {
+                // User cancelled or an error occurred
+                console.log('Payment not completed')
+            }
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Button type='primary' onClick={handlePayment}>Pay</Button>
+    )
+}
+```

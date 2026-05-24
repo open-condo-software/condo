@@ -1,0 +1,45 @@
+This method allows you to close the miniapp programmatically — for example, after completing a scenario or when the user clicks a "Done" button.
+
+### Working with child windows
+
+<Alert type={'info'}>
+    If the miniapp window was opened via the `CondoWebAppShowModalWindow` method, calling `CondoWebAppCloseApplication` will close that modal window and emit the corresponding event — just as if `CondoWebAppCloseModalWindow` had been called.
+</Alert>
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Parameters
+
+This method takes no parameters.
+
+## Return value
+
+If successful, the method returns a JSON object with a single `success` field:
+```json
+{ "success": true }
+```
+
+## Usage example
+
+```typescript jsx
+// pages/index.tsx
+import React, { useCallback } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { Button } from '@open-condo/ui'
+
+export default function MiniappPage (): React.ReactNode {
+    const handleClose = useCallback(() => {
+        bridge.send('CondoWebAppCloseApplication').then(() => {
+            // Miniapp closed
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Button type='primary' onClick={handleClose}>Close application</Button>
+    )
+}
+```

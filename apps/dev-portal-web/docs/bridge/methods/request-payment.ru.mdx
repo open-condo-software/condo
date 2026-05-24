@@ -1,0 +1,80 @@
+Данный метод позволяет мини-приложению запустить процесс оплаты в интерфейсе родительского приложения.
+Можно передать один или несколько счетов (`invoiceIds`) либо уже сформированный `multiPaymentId`.
+
+Узнать, как создавать и публиковать счета, можно в статье [«Работа со счетами»](/docs/api/examples/invoices/work-with-invoices#%D1%81%D1%87%D0%B5%D1%82-%D0%BE%D1%82-b2c-%D0%BC%D0%B8%D0%BD%D0%B8-%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F).
+
+## Платформы
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Параметры метода
+
+Метод принимает один из двух вариантов параметров.
+
+### Оплата счетов
+
+| Имя параметра | Тип параметра   | Обязательный | Описание параметра                         |
+|---------------|-----------------|--------------|--------------------------------------------|
+| invoiceIds    | Array\<string\> | да           | Массив идентификаторов счетов для оплаты |
+
+### Оплата мультиплатежа
+
+| Имя параметра  | Тип параметра | Обязательный | Описание параметра                              |
+|----------------|---------------|--------------|-------------------------------------------------|
+| multiPaymentId | string        | да           | ID заранее сформированного мультиплатежа        |
+
+## Возвращаемое значение
+
+В случае успешного выполнения вы получите JSON-объект следующего типа:
+<Tabs labels={['Возвращаемый тип', 'Пример возвращаемого значения']}>
+    ```typescript
+    type RequestPaymentData = {
+        multiPaymentId: string  // ID созданного (или переданного) мультиплатежа
+        success: boolean        // Результат оплаты
+    }
+    ```
+    ```json
+    {
+      "multiPaymentId": "d21ec5e9-aafe-4552-b8ce-825f9c48c7ea",
+      "success": true
+    }
+    ```
+</Tabs>
+
+## Пример использования
+
+```typescript jsx
+// pages/index.tsx
+import React, { useCallback } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { Button } from '@open-condo/ui'
+
+async function registerInvoice (): Promise<string> {
+    // Создайте и опубликуйте счет на вашем бэкенде, верните его ID
+    const response = await fetch('/api/invoices', { method: 'POST' })
+    const { invoiceId } = await response.json()
+    return invoiceId
+}
+
+export default function MiniappPage (): React.ReactNode {
+    const handlePayment = useCallback(async () => {
+        const invoiceId = await registerInvoice()
+
+        bridge.send('CondoWebAppRequestPayment', { invoiceIds: [invoiceId] }).then(({ success, multiPaymentId }) => {
+            if (success) {
+                // Оплата прошла успешно — обновите статус заказа на вашем бэкенде
+                console.log('Платеж выполнен, multiPaymentId:', multiPaymentId)
+            } else {
+                // Пользователь отменил оплату или произошла ошибка
+                console.log('Оплата не завершена')
+            }
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Button type='primary' onClick={handlePayment}>Оплатить</Button>
+    )
+}
+```

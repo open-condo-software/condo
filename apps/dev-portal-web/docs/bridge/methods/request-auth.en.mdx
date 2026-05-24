@@ -1,0 +1,85 @@
+This method initiates and **performs OIDC authorization** for the miniapp in the background. The parent application executes the authorization redirect chain in a hidden window and returns the result of the last request — its status, body, and URL.
+
+## Platforms
+<SupportedPlatforms platforms={['B2CWeb']} />
+
+## Parameters
+
+| Parameter | Type   | Required | Description                                                                              |
+|-----------|--------|----------|------------------------------------------------------------------------------------------|
+| url       | string | yes      | The authorization start URL on your backend, e.g. `https://my-app.com/api/auth/condo`   |
+
+## Return value
+
+If successful, you will receive a JSON object of the following type:
+<Tabs labels={['Return type', 'Return example']}>
+    ```typescript
+    type RequestAuthData = {
+        response: {
+            status: number  // HTTP status of the last response
+            body: string    // Body of the last response
+            url: string     // URL of the last endpoint in the chain (e.g. callback)
+        }
+    }
+    ```
+    ```json
+    {
+      "response": {
+        "status": 200,
+        "body": "",
+        "url": "https://my-app.com/api/auth/condo/callback"
+      }
+    }
+    ```
+</Tabs>
+
+## Usage example
+
+```typescript jsx
+// pages/index.tsx
+import React, { useEffect, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+
+const AUTH_START_URL = 'https://my-app.com/api/auth/condo'
+const CALLBACK_URL = 'https://my-app.com/api/auth/condo/callback'
+
+export default function MiniappPage (): React.ReactNode {
+    const [condoUserId, setCondoUserId] = useState<string | null>(null)
+
+    // Check current miniapp session
+    const { user, refetchUser, authLoading } = useAuth()
+
+    // Get condoUserId from launch params
+    useEffect(() => {
+        bridge.send('CondoWebAppGetLaunchParams').then(({ condoUserId }) => {
+            setCondoUserId(condoUserId)
+        }).catch(console.error)
+    }, [])
+
+    // If session is missing or belongs to a different user — authorize
+    useEffect(() => {
+        if (authLoading || !condoUserId) return
+        if (!user || user.id !== condoUserId) {
+            bridge.send('CondoWebAppRequestAuth', { url: AUTH_START_URL }).then(({ response }) => {
+                if (response.status === 200 && response.url === CALLBACK_URL) {
+                    // Authorization successful — refresh user data
+                    refetchUser()
+                }
+            }).catch(console.error)
+        }
+    }, [authLoading, user, condoUserId, refetchUser])
+
+    return (
+        // ...
+    )
+}
+```
+
+## Token security
+
+<Alert type={'warning'}>
+    Although this method returns the URL and body of the last response, **passing authorization tokens in plain text is insecure**.
+    Authorization in your miniapp should rely on `http-only` cookies set by your miniapp backend during the OIDC callback.
+    This way, tokens never reach the JavaScript context of the page.
+</Alert>
