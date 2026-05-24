@@ -46,7 +46,8 @@ try {
 }
 
 const ENCODING_ALGO = 'aes-256-gcm'
-const ENCODING_KEY = conf['AI_ENCODING_SECRET_KEY']
+// If we are running inside of test environment or locally -- just generate key here
+const ENCODING_KEY = conf['AI_ENCODING_SECRET_KEY'] || crypto.randomBytes(16).toString('hex')
 const ENCODING_SEP = ':'
 
 const ERRORS = {

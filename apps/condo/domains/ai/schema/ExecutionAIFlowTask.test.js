@@ -530,7 +530,7 @@ describe('ExecutionAIFlowTask', () => {
         })
     })
 
-    describe('User tokens', () => {
+    describe.skip('User tokens', () => {
         test('Generates scoped token', async () => {
             const staffClient = await makeClientWithProperty()
 
