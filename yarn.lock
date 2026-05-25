@@ -1123,6 +1123,7 @@ __metadata:
     nanoid: ^3.3.4
     next: ^15.5.7
     next-with-less: ^3.0.1
+    nunjucks: ^3.2.4
     react: ^18.3.1
     react-dom: ^18.3.1
     react-router-dom: 5.2.0
@@ -1526,7 +1527,7 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
-    "@open-keystone/app-graphql": ^7.0.6
+    "@open-keystone/app-graphql": ^7.0.5
     "@open-keystone/app-next": ^9.0.3
     "@property-importer/domains": "link:./domains"
     "@types/node": ^22
@@ -1577,7 +1578,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-graphql": ^7.0.6
+    "@open-keystone/app-graphql": ^7.0.5
     "@open-keystone/app-next": ^9.0.3
     "@pdf-lib/fontkit": ^1.1.1
     "@rb/domains": "link:./domains"
@@ -1650,7 +1651,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-graphql": ^7.0.6
+    "@open-keystone/app-graphql": ^7.0.5
     "@open-keystone/app-next": ^9.0.3
     "@registry-importer/domains": "link:./domains"
     "@types/node": ^22
@@ -12519,7 +12520,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/app-graphql@npm:^7.0.6":
+"@open-keystone/app-graphql@npm:^7.0.5, @open-keystone/app-graphql@npm:^7.0.6":
   version: 7.0.6
   resolution: "@open-keystone/app-graphql@npm:7.0.6"
   dependencies:
