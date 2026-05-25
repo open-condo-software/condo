@@ -94934,15 +94934,9 @@ enum SendVoIPCallCancelMessageUnitType {
 input GetVoIPCallStatusInput {
   dv: Int!
   sender: SenderFieldInput!
-  app: B2CAppWhereUniqueInput!
 
-  """
-  Should be "addressKey" of B2CAppProperty / Property for which you want to send message
-  """
-  addressKey: String!
-  callId: String!
-  organization: OrganizationWhereUniqueInput!
-  callStatusToken: String!
+  """Token with data about the call. Received in voip push messages."""
+  token: String!
 }
 
 enum GetVoIPCallStatusCallStatus {
@@ -94952,7 +94946,7 @@ enum GetVoIPCallStatusCallStatus {
 }
 
 type GetVoIPCallStatusOutput {
-  """Status of call or null if status not found"""
+  """Status of call"""
   status: GetVoIPCallStatusCallStatus!
 }
 
@@ -99707,7 +99701,7 @@ type Query {
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
 
   """
-  Mutation to get status of call status. Cancel push message might not come / take a long time.
+  Query to get status of voip call. Cancel push message might not come / take a long time.
   
   
   
@@ -99718,7 +99712,7 @@ type Query {
   `{
     "code": "BAD_USER_INPUT",
     "type": "INVALID_CALL_ID",
-    "message": "\"callId\" contains invalid characters or does not has length between 1 and 300"
+    "message": "\"callId\" contains invalid characters or does not have length between 1 and 300"
   }`
   
   `{
@@ -108054,11 +108048,14 @@ type Mutation {
   			"codec": {
   				"required": false
   			},
-  			"callStatusToken": {
-  				"required": false
-  			},
   			"address": {
   				"required": true
+  			},
+  			"getVoIPCallStatusUrl": {
+  				"required": false
+  			},
+  			"getVoIPCallStatusTimeout": {
+  				"required": false
   			}
   		}
   	},
@@ -108093,6 +108090,12 @@ type Mutation {
   			},
   			"address": {
   				"required": true
+  			},
+  			"getVoIPCallStatusUrl": {
+  				"required": false
+  			},
+  			"getVoIPCallStatusTimeout": {
+  				"required": false
   			}
   		}
   	},

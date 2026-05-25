@@ -18,11 +18,19 @@ const GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.merge(z.strictOb
     token: z.string(),
 }))
 
+const ERRORS = {
+    INVALID_PARAMETERS: {
+        code: BAD_USER_INPUT,
+        type: INVALID_PARAMETERS_ERROR,
+        message: '{jsonError}',
+    },
+}
+
 /**
  * @param {import('zod').ZodError} error 
  */
 function formatZodSafeParseError (error) {
-    error.issues.map((issue) => ({
+    return error.issues.map((issue) => ({
         field: issue.path.join('.'), // Converts ['profile', 'bio'] to 'profile.bio'
         message: issue.message,
         rule: issue.code,
@@ -41,10 +49,9 @@ function withParsedData (dataSchema) {
                 data = JSON.parse(req.query.data)
             } catch (err) {
                 throw new GQLError({
-                    code: BAD_USER_INPUT,
-                    type: INVALID_PARAMETERS_ERROR,
-                    message: JSON.stringify({ errors: [err.message] }),
-                })
+                    ...ERRORS.INVALID_PARAMETERS,
+                    messageInterpolation: { jsonError: JSON.stringify({ errors: [err.message] }) },
+                }, req.keystoneContext)
             }
         } else {
             data = req.body?.data
@@ -53,10 +60,9 @@ function withParsedData (dataSchema) {
         const { success, data: parsedData, error } = dataSchema.safeParse(data)
         if (!success) {
             throw new GQLError({
-                code: BAD_USER_INPUT,
-                type: INVALID_PARAMETERS_ERROR,
-                message: JSON.stringify({ errors: formatZodSafeParseError(error) }),
-            })
+                ...ERRORS.INVALID_PARAMETERS,
+                messageInterpolation: { jsonError: JSON.stringify({ errors: formatZodSafeParseError(error) }) },
+            }, req.keystoneContext)
         }
 
         req.parsedData = parsedData
