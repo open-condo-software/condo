@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight, Eye, PlusCircle, Trash } from '@open-condo/i
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/colors'
 
-import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { SIZE_LIMIT_BY_FILE_TYPE } from '@condo/domains/news/constants/uploads'
 
 import styles from './FilesUploadList.module.css'
@@ -238,7 +238,26 @@ export const FilesUploadList: React.FC<ImagesUploadListProps> = ({
         let file = options.file as File
 
         try {
+            const analyticsConversionFileData = {
+                originalFileSizeInBytes: file.size || 0,
+                originalFileMimetype: file.type || '',
+                convertedFileSizeInBytes: 0,
+                convertedFileMimetype: '',
+                totalTimeInSec: 0,
+            }
+
+            const startAt = Date.now()
+
             file = await convertFile(file, onProgress)
+
+            const endAt = Date.now()
+            const totalTimeInSec = (endAt - startAt) / 1000
+
+            analyticsConversionFileData.convertedFileSizeInBytes = file.size || 0
+            analyticsConversionFileData.convertedFileMimetype = file.type || ''
+            analyticsConversionFileData.totalTimeInSec = totalTimeInSec
+
+            analytics.track('file_conversion', analyticsConversionFileData)
         } catch (error) {
             console.error('Conversion failed', error)
             const errorMessage = new Error(UploadFailedErrorMessage)

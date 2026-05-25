@@ -48,48 +48,82 @@ async function getCodec (type, inputName) {
     }
 }
 
-async function transcodeVideo (ffmpeg: FFmpeg, inputName, outputName) {
+const UNIVERSAL_H264_ARGS = [
+    // Use H264 encoder (x264)
+    '-c:v', 'libx264',
+
+    // This provides the compression to encoding speed ratio:
+    // ultrafast -> superfast -> veryfast -> faster -> fast -> medium -> slow -> slower -> veryslow
+    '-preset', 'ultrafast',
+
+    // Constant Rate Factor (Quality)
+    //
+    // Typical values:
+    // 18 = visually lossless
+    // 20 = very good quality
+    // 23 = default x264
+    // 28 = noticeable degradation
+    '-crf', '23',
+
+    // Proper HDR -> SDR conversion
+    '-vf',
+    [
+        'tonemap=reinhard',
+        'colorspace=all=bt709:iall=bt2020',
+        'format=yuv420p',
+    ].join(','),
+
+    // H264 High Profile (for compatibility)
+    '-profile:v', 'high',
+
+    // For Android compatibility
+    '-level:v', '4.1',
+]
+
+const AAC_AUDIO_ARGS = [
+    '-c:a', 'aac',
+    '-b:a', '128k',
+]
+
+async function transcodeVideo (
+    ffmpeg: FFmpeg,
+    inputName: string,
+    outputName: string,
+    options?: { forceVideoTranscode?: boolean },
+) {
+    const forceVideoTranscode = options?.forceVideoTranscode ?? false
+
     const videoCodec = await getCodec('v', inputName)
     const audioCodec = await getCodec('a', inputName)
 
+    const hasVideo = videoCodec !== null
+    const hasAudio = audioCodec !== null
+
     const isH264 = videoCodec === 'h264'
     const isAAC = audioCodec === 'aac'
-    const hasAudio = audioCodec !== null
+
+    const shouldCopyVideo = hasVideo && isH264 && !forceVideoTranscode
+    const shouldCopyAudio = !hasAudio || isAAC
 
     const args = [
         '-i', inputName,
-        '-movflags', 'faststart',
+        '-movflags', '+faststart', // for streaming/start playback
     ]
 
-    // No encode
-    if (isH264 && (isAAC || !hasAudio)) {
-        args.push('-c', 'copy')
+    if (shouldCopyVideo) {
+        args.push('-c:v', 'copy')
+    } else {
+        args.push(...UNIVERSAL_H264_ARGS)
     }
 
-    // Encode audio only
-    else if (isH264 && hasAudio && !isAAC) {
-        args.push(
-            '-c:v', 'copy',
-            '-c:a', 'aac'
-        )
-    }
-
-    // Encode video only
-    else if (!isH264 && isAAC) {
-        args.push(
-            '-c:v', 'libx264',
-            '-preset', 'ultrafast',
-            '-c:a', 'copy'
-        )
-    }
-
-    // Encode audio and video
-    else {
-        args.push(
-            '-c:v', 'libx264',
-            '-preset', 'ultrafast',
-            '-c:a', 'aac'
-        )
+    if (hasAudio) {
+        if (shouldCopyAudio) {
+            args.push(
+                '-c:a', 'copy',
+            )
+        } else {
+            args.push(...AAC_AUDIO_ARGS)
+        }
     }
 
     args.push(outputName)
@@ -167,7 +201,12 @@ export const convertFile = async (file: File, onProgress?: UploadRequestOption['
         try {
             await ffmpeg.writeFile(inputName, new Uint8Array(await file.arrayBuffer()))
 
-            await transcodeVideo(ffmpeg, inputName, outputName)
+            await transcodeVideo(
+                ffmpeg,
+                inputName,
+                outputName,
+                { forceVideoTranscode: file.type === 'video/quicktime' }
+            )
 
             const data = await ffmpeg.readFile(outputName)
             if (typeof data === 'string') {

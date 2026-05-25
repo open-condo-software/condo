@@ -98,6 +98,13 @@ export type EventsData = {
     'ticket_comment_submit': Record<string, never>
     'import_complete': Record<string, never>
     'file_upload': { fileId: string, location: string }
+    'file_conversion': {
+        originalFileSizeInBytes: number
+        originalFileMimetype: string
+        convertedFileSizeInBytes: number
+        convertedFileMimetype: string
+        totalTimeInSec: number
+    }
     'miniapp_session_start': { appId: string, startedAt: string }
     'miniapp_session_end': { appId: string, startedAt: string, durationInSec: number }
     'news_template_change': { title: string, body: string }
