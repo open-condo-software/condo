@@ -50,7 +50,11 @@ const {
 const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithResidentUser,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 const { METER_ERRORS } = require('./Meter')
 
@@ -68,10 +72,12 @@ describe('Meter', () => {
         organization,
         resource,
         otherEmployeeClient,
+        support,
         otherOrganization
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
         const [testOrganization] = await createTestOrganization(admin)
         organization = testOrganization
         employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -392,6 +398,15 @@ describe('Meter', () => {
                 expect(meter.id).toMatch(UUID_RE)
             })
 
+            test('support: can create Meter', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [resource] = await MeterResource.getAll(support, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(support, organization, property, resource, {})
+
+                expect(meter.id).toMatch(UUID_RE)
+            })
+
             test('Can not create meter with property in organization where user in not an employee', async () => {
                 const [property] = await createTestProperty(otherEmployeeClient, otherOrganization)
 
@@ -637,6 +652,19 @@ describe('Meter', () => {
                 const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
                 const newNumber = faker.random.alphaNumeric(8)
                 const [updatedMeter] = await updateTestMeter(adminClient, meter.id, {
+                    number: newNumber,
+                })
+
+                expect(updatedMeter.number).toEqual(newNumber)
+            })
+
+            test('support: can update Meter', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                const newNumber = faker.random.alphaNumeric(8)
+                const [updatedMeter] = await updateTestMeter(support, meter.id, {
                     number: newNumber,
                 })
 

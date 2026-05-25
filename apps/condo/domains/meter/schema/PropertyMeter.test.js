@@ -17,19 +17,24 @@ const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 describe('PropertyMeter', () => {
     let admin,
+        support,
         resource,
         employeeClient,
         organization,
         otherEmployeeClient
 
     beforeAll(async () => {
-        admin = await makeLoggedInAdminClient();
-        [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser();
+        [resource]  = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
         const [testOrganization] = await createTestOrganization(admin)
         organization = testOrganization
         employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -104,6 +109,14 @@ describe('PropertyMeter', () => {
                 expectValuesOfCommonFields(meter, attrs, admin)
             })
 
+            test('support can', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [meter, attrs] = await createTestPropertyMeter(support, organization, property, resource, {})
+
+                expectValuesOfCommonFields(meter, attrs, support)
+            })
+
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
 
@@ -140,6 +153,19 @@ describe('PropertyMeter', () => {
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(2)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            })
+
+            test('support can', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [meter] = await createTestPropertyMeter(admin, organization, property, resource, {})
+
+                const [obj, attrs] = await updateTestPropertyMeter(support, meter.id)
+
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
 
             test('user can', async () => {

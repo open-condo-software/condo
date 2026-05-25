@@ -56,7 +56,7 @@ async function canManageMeters (args) {
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isSupport || user.isAdmin) return true
 
     if (user.type === SERVICE) {
         return await canManageObjectsAsB2BAppServiceUser(args)
