@@ -24,6 +24,11 @@ type LoggerType = {
 }
 
 type RelativeOrAbsoluteEndpoint = string
+type AuthorizationOptions = {
+    token: string
+    tokenType?: 'Bearer' | 'Basic'
+    tokenHeader?: string
+}
 
 export type ProxyOptions = {
     /** Name of the proxy. Primarily used to set "via" header */
@@ -53,6 +58,11 @@ export type ProxyOptions = {
      * Must implement an error method that accepts any data type.
      */
     logger?: LoggerType
+    /**
+     * Function to extract authorization header from request
+     * @param req
+     */
+    authorization?: (req: IncomingMessage) => AuthorizationOptions
 }
 
 type ProxyHandler = (req: IncomingMessage, res: ServerResponse) => void
@@ -88,6 +98,11 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
             for (const [headerName, headerValue] of Object.entries(headers)) {
                 proxyReq.setHeader(headerName, headerValue)
             }
+        }
+
+        if (options.authorization) {
+            const { token, tokenType = 'Bearer', tokenHeader = 'Authorization' } = options.authorization(req)
+            proxyReq.setHeader(tokenHeader, `${tokenType} ${token}`)
         }
     })
     proxy.on('proxyRes', (proxyRes, _req, _res) => {
