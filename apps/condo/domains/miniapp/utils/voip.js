@@ -28,13 +28,33 @@ const CALL_STATUS_SCHEMA = z.object({
     callStatusToken: z.string(),
 })
 
-const JWT_PAYLOAD_SCHEMA = z.strictObject({
+const DEFAULT_JWT_PAYLOAD_PARAMS = {
+    iss: z.optional(z.string()),
+    sub: z.optional(z.string()),
+    aud: z.optional(z.union([z.string(), z.array(z.string())])),
+    exp: z.optional(z.number()),
+    nbf: z.optional(z.number()),
+    iat: z.optional(z.number()),
+    jti: z.optional(z.string()),
+}
+const DEFAULT_JWT_PAYLOAD_SCHEMA = z.strictObject(DEFAULT_JWT_PAYLOAD_PARAMS)
+
+const JWT_PAYLOAD_SCHEMA = DEFAULT_JWT_PAYLOAD_SCHEMA.merge(z.strictObject({
     organizationId: z.uuid(),
     b2cAppId: z.uuid(),
     addressKey: z.uuid(),
     callId: z.string(),
     callStatusToken: z.string(),
-})
+})).transform(data => 
+    Object.fromEntries(
+        Object.entries(data)
+            .filter(
+                ([key]) => !(key in DEFAULT_JWT_PAYLOAD_PARAMS)
+            )
+    )
+)
+
+
 
 function isCallIdValid (callId) {
     return typeof callId === 'string'

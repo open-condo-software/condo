@@ -115,7 +115,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { first: 1, sortBy: ['createdAt_DESC'] })
-            callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+            callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
         })
 
         const TEST_CASES = [
@@ -212,7 +212,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
                 token: callStatusJwtToken,
@@ -236,7 +236,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
             await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
                 addressKey: property.addressKey,
@@ -271,7 +271,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
 
             await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
@@ -306,7 +306,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
 
             const wrongCallId = faker.random.alphaNumeric(8)
             const parsedToken = parseCallStatusJWTToken(callStatusJwtToken)
@@ -340,7 +340,7 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('token')
+            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
 
             const wrongCallStatusToken = faker.random.alphaNumeric(8)
 

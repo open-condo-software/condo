@@ -11,32 +11,12 @@ const INVALID_PARAMETERS_ERROR = 'INVALID_PARAMETERS'
 
 const DV_SENDER_SCHEMA = z.strictObject({
     dv: z.number(),
-    sender: z.strictObject({ dv: z.number(), sender: z.string() }),
+    sender: z.strictObject({ dv: z.number(), fingerprint: z.string() }),
 })
 
-const GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.and(z.strictObject({
+const GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.merge(z.strictObject({
     token: z.string(),
 }))
-
-// function asyncErrorHandler (handler) {
-//     return async function wrappedAsyncErrorHandler (req, res, next) {
-//         try {
-//             await handler(req, res, next)
-//         } catch (err) {
-//             if (err instanceof GQLError && err.extensions?.type === SUB_GQL_ERROR && err.errors.length) {
-//                 const innerError = err.errors[0]
-//                 if (innerError instanceof GQLError) return next(innerError)
-//                 if (
-//                     innerError.extensions?.code &&
-//                     innerError.extensions?.type &&
-//                     innerError.extensions?.message
-//                 )
-//                     return next(new GQLError(innerError.extensions, req.keystoneContext))
-//             }
-//             return next(err)
-//         }
-//     }
-// }
 
 /**
  * @param {import('zod').ZodError} error 
@@ -87,7 +67,8 @@ function withParsedData (dataSchema) {
 function callService (callServiceFn) {
     return async function callServiceInternal (req, res, next) {
         try {
-            await callServiceFn(req.keystoneContext, req.parsedData)
+            const result = await callServiceFn(req.keystoneContext, req.parsedData)
+            return res.json(result)
         } catch (err) {
             if (err instanceof GQLError && err.extensions?.type === SUB_GQL_ERROR && err.errors.length) {
                 const innerError = err.errors[0]
@@ -110,13 +91,7 @@ class VoIPMiddleware {
 
     constructor () {
         this.withKeystoneContext = this.withKeystoneContext.bind(this)
-        // this.handleGetVoIPCallStatus = this.handleGetVoIPCallStatus.bind(this)
     }
-
-    // async handleGetVoIPCallStatus (req, res, next) {
-    //     const result = await getVoIPCallStatus(req.keystoneContext, req.parsedData)
-    //     return res.json(result)
-    // }
 
     async prepareMiddleware ({ keystone }) {
         this.keystone = keystone

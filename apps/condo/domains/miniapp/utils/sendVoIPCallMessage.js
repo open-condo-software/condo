@@ -71,6 +71,7 @@ class RejectCallError extends Error {
 }
 
 function getGetVoIPCallStatusUrl ({ dv, sender, callStatusJwtToken }) {
+    if (typeof dv !== 'number' || !sender || !callStatusJwtToken) return null
     const url = new URL(`${SERVER_URL}${GET_VOIP_CALL_STATUS_URL_PATH}`)
     const queryData = JSON.stringify({ dv, sender, token: callStatusJwtToken })
     url.searchParams.set('data', queryData)
@@ -97,8 +98,16 @@ function prepareVoIPCallStartMessageData ({
         callId: callData.callId,
         address: resident.address,
         callStatusJwtToken,
-        getVoIPCallStatusUrl: getGetVoIPCallStatusUrl({ dv: 1, sender, callStatusJwtToken }),
-        getVoIPCallStatusTimeout: getGetVoIPCallStatusTimeout(),
+    }
+
+    const getVoIPCallStatusUrl = getGetVoIPCallStatusUrl({ dv: 1, sender, callStatusJwtToken })
+    const getVoIPCallStatusTimeout = getGetVoIPCallStatusTimeout()
+    if (getVoIPCallStatusUrl && getVoIPCallStatusTimeout) {
+        preparedDataArgs = {
+            ...preparedDataArgs,
+            getVoIPCallStatusUrl,
+            getVoIPCallStatusTimeout,
+        }
     }
 
     const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData

@@ -643,7 +643,6 @@ const MESSAGE_META = {
             stunServers: { required: false },
             stun: { required: false },
             codec: { required: false },
-            callStatusToken: { required: false },
             address: { required: true },
             getVoIPCallStatusUrl: { required: false },
             getVoIPCallStatusTimeout: { required: false },
