@@ -1,16 +1,93 @@
 const express = require('express')
+const { z } = require('zod')
 
-const { GQLError, GQLInternalErrorTypes: { SUB_GQL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLInternalErrorTypes: { SUB_GQL_ERROR }, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const { getVoIPCallStatus } = require('@condo/domains/miniapp/utils/serverSchema') 
 
-const GET_VOIP_CALL_STATUS_URL_PATH = '/api/rest/v1/getVoIPCallStatus'
+const GET_VOIP_CALL_STATUS_URL_PATH = '/api/voip/getVoIPCallStatus'
+const INVALID_PARAMETERS_ERROR = 'INVALID_PARAMETERS'
 
-function asyncErrorHandler (handler) {
-    return async function wrappedAsyncErrorHandler (req, res, next) {
+const DV_SENDER_SCHEMA = z.strictObject({
+    dv: z.number(),
+    sender: z.strictObject({ dv: z.number(), sender: z.string() }),
+})
+
+const GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.and(z.strictObject({
+    token: z.string(),
+}))
+
+// function asyncErrorHandler (handler) {
+//     return async function wrappedAsyncErrorHandler (req, res, next) {
+//         try {
+//             await handler(req, res, next)
+//         } catch (err) {
+//             if (err instanceof GQLError && err.extensions?.type === SUB_GQL_ERROR && err.errors.length) {
+//                 const innerError = err.errors[0]
+//                 if (innerError instanceof GQLError) return next(innerError)
+//                 if (
+//                     innerError.extensions?.code &&
+//                     innerError.extensions?.type &&
+//                     innerError.extensions?.message
+//                 )
+//                     return next(new GQLError(innerError.extensions, req.keystoneContext))
+//             }
+//             return next(err)
+//         }
+//     }
+// }
+
+/**
+ * @param {import('zod').ZodError} error 
+ */
+function formatZodSafeParseError (error) {
+    error.issues.map((issue) => ({
+        field: issue.path.join('.'), // Converts ['profile', 'bio'] to 'profile.bio'
+        message: issue.message,
+        rule: issue.code,
+    }))
+}
+
+/**
+ * @param {import('zod').ZodType} dataSchema 
+ * @returns 
+ */
+function withParsedData (dataSchema) {
+    return function (req, res, next) {
+        let data
+        if (req.method === 'GET') {
+            try {
+                data = JSON.parse(req.query.data)
+            } catch (err) {
+                throw new GQLError({
+                    code: BAD_USER_INPUT,
+                    type: INVALID_PARAMETERS_ERROR,
+                    message: JSON.stringify({ errors: [err.message] }),
+                })
+            }
+        } else {
+            data = req.body?.data
+        }
+
+        const { success, data: parsedData, error } = dataSchema.safeParse(data)
+        if (!success) {
+            throw new GQLError({
+                code: BAD_USER_INPUT,
+                type: INVALID_PARAMETERS_ERROR,
+                message: JSON.stringify({ errors: formatZodSafeParseError(error) }),
+            })
+        }
+
+        req.parsedData = parsedData
+        next()
+    }
+}
+
+function callService (callServiceFn) {
+    return async function callServiceInternal (req, res, next) {
         try {
-            await handler(req, res, next)
+            await callServiceFn(req.keystoneContext, req.parsedData)
         } catch (err) {
             if (err instanceof GQLError && err.extensions?.type === SUB_GQL_ERROR && err.errors.length) {
                 const innerError = err.errors[0]
@@ -33,25 +110,13 @@ class VoIPMiddleware {
 
     constructor () {
         this.withKeystoneContext = this.withKeystoneContext.bind(this)
-        this.handleGetVoIPCallStatus = this.handleGetVoIPCallStatus.bind(this)
+        // this.handleGetVoIPCallStatus = this.handleGetVoIPCallStatus.bind(this)
     }
 
-    async handleGetVoIPCallStatus (req, res, next) {
-        const { token } = req.query
-        let { dv, sender } = req.query
-
-        try {
-            sender = JSON.parse(sender)
-            dv = parseInt(dv)
-        } catch {/* */}
-        
-        const result = await getVoIPCallStatus(req.keystoneContext, {
-            token,
-            dv,
-            sender,
-        })
-        return res.json(result)
-    }
+    // async handleGetVoIPCallStatus (req, res, next) {
+    //     const result = await getVoIPCallStatus(req.keystoneContext, req.parsedData)
+    //     return res.json(result)
+    // }
 
     async prepareMiddleware ({ keystone }) {
         this.keystone = keystone
@@ -59,7 +124,12 @@ class VoIPMiddleware {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.get(GET_VOIP_CALL_STATUS_URL_PATH, this.withKeystoneContext, asyncErrorHandler(this.handleGetVoIPCallStatus))
+        app.get(
+            GET_VOIP_CALL_STATUS_URL_PATH, 
+            this.withKeystoneContext, 
+            withParsedData(GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA), 
+            callService(getVoIPCallStatus),
+        )
 
         app.use(expressErrorHandler)
 

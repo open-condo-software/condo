@@ -72,12 +72,8 @@ class RejectCallError extends Error {
 
 function getGetVoIPCallStatusUrl ({ dv, sender, callStatusJwtToken }) {
     const url = new URL(`${SERVER_URL}${GET_VOIP_CALL_STATUS_URL_PATH}`)
-    const queryParams = { dv, sender, token: callStatusJwtToken }
-    for (const paramKey in queryParams) {
-        let paramValue = queryParams[paramKey]
-        if (URL_QUERY_PARAMS_TO_STRINGIFY.has(paramKey)) paramValue = JSON.stringify(paramValue)
-        url.searchParams.set(paramKey, paramValue)
-    }
+    const queryData = JSON.stringify({ dv, sender, token: callStatusJwtToken })
+    url.searchParams.set('data', queryData)
     return url.toString()
 }
 

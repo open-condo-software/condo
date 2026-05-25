@@ -15,7 +15,7 @@ const logger = getLogger()
 
 const MIN_CALL_ID_LENGTH = 1
 const MAX_CALL_ID_LENGTH = 300
-const VOIP_CALL_STATUS_JWT_SECRET = conf.VOIP_CALL_STATUS_JWT_SECRET || generateUUIDv4()
+const VOIP_CALL_STATUS_JWT_SECRET = conf.VOIP_CALL_STATUS_JWT_SECRET || generateUUIDv4() // NOTE(YEgorLu): generateUUIDv4() is only to make testing easier. In prod you should set env
 
 const MAX_CALL_META_LENGTH = 1000
 
@@ -28,10 +28,10 @@ const CALL_STATUS_SCHEMA = z.object({
     callStatusToken: z.string(),
 })
 
-const JWT_PAYLOAD_SCHEMA = z.object({
-    organizationId: z.string(),
-    b2cAppId: z.string(),
-    addressKey: z.string(),
+const JWT_PAYLOAD_SCHEMA = z.strictObject({
+    organizationId: z.uuid(),
+    b2cAppId: z.uuid(),
+    addressKey: z.uuid(),
     callId: z.string(),
     callStatusToken: z.string(),
 })
@@ -80,7 +80,7 @@ function parseCallStatusJWTToken (jwtToken) {
         const jwtPayload = jwt.verify(jwtToken, VOIP_CALL_STATUS_JWT_SECRET)
         return JWT_PAYLOAD_SCHEMA.parse(jwtPayload)
     } catch (err) {
-        logger.error({ msg: 'parseJWTToken error', err, data: { jwtToken } })
+        logger.error({ msg: 'parseJWTToken error', err })
         return null
     }
 }
