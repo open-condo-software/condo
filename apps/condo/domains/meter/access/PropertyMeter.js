@@ -31,7 +31,7 @@ async function canReadPropertyMeters ({ authentication: { item: user }, context 
 async function canManagePropertyMeters ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isSupport || user.isAdmin) return true
 
     const isBulkRequest = Array.isArray(originalInput)
     let organizationIds
