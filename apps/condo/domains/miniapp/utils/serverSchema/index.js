@@ -48,7 +48,7 @@ async function getVoIPCallStatus (context, data) {
     return await execGqlWithoutAccess(context, {
         query: GET_VOIP_CALL_STATUS_QUERY,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to getVoIPCalStatus',
+        errorMessage: '[error] Unable to getVoIPCallStatus',
         dataPath: 'result',
     })
 }

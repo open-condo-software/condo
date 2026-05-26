@@ -5,7 +5,6 @@ jest.mock('@open-condo/config', () => {
         set: () => {},
         get: (target, p) => {
             if (p === 'VOIP_CALL_STATUS_JWT_SECRET') {
-                console.error('GET MOCKED VOIP_CALL_STATUS_JWT_SECRET')
                 return VOIP_CALL_STATUS_JWT_SECRET
             }
             return target[p]
