@@ -27,6 +27,7 @@ import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/fe
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { isSSR } from '@open-condo/miniapp-utils'
+import { withEmbeddingContext } from '@open-condo/miniapp-utils/helpers/embeddingContext'
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
@@ -121,6 +122,7 @@ import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 import '@open-condo/next/logging/patchConsoleLogMethods'
+
 
 const AIOverlayWrapper = () => {
     const { isAIOverlayOpen, closeAIOverlay } = useAIContext()
@@ -816,10 +818,12 @@ export default (
             withApollo({ legacy: false, ssr: !isDisabledSsr, apolloHelperOptions })(
                 withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
-                        withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                            withFeatureFlags({ ssr: !isDisabledSsr })(
-                                withError()(
-                                    MyApp
+                        withEmbeddingContext(
+                            withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
+                                withFeatureFlags({ ssr: !isDisabledSsr })(
+                                    withError()(
+                                        MyApp
+                                    )
                                 )
                             )
                         )

@@ -70,6 +70,8 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
 
+        console.log({ ...previousContext, ...context })
+
         growthbook.setAttributes({ ...previousContext, ...context })
     }, [growthbook])
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
