@@ -118,6 +118,7 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
         updateContext({
             isSupport: isSupport || isAdmin,
             organization: get(organization, 'id'),
+            'organization.type': get(organization, 'type'),
             userId,
             embeddingContextPlatform,
             embeddingContextAppId,
