@@ -92979,9 +92979,9 @@ type GetEmailByConfirmEmailActionTokenOutput {
   isEmailVerified: Boolean!
 }
 
-enum ConfirmEmailActionMessageType {
-  EMAIL_VERIFY
-  VERIFY_USER_EMAIL
+enum EmailConfirmationFlowType {
+  CODE
+  LINK_FOR_STAFF_VERIFICATION
 }
 
 input StartConfirmEmailActionInput {
@@ -92989,8 +92989,8 @@ input StartConfirmEmailActionInput {
   sender: SenderFieldInput!
   captcha: String!
   email: String
-  messageType: ConfirmEmailActionMessageType
   user: UserWhereUniqueInput
+  confirmationFlow: EmailConfirmationFlowType
 }
 
 type StartConfirmEmailActionOutput {
@@ -106375,6 +106375,13 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find non-expired UserSudoToken by specified token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired ConfirmEmailAction by specified token",
     "messageForUser": "Invalid token"
   }`
   

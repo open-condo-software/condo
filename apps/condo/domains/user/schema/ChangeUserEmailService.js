@@ -10,9 +10,9 @@ const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const access = require('@condo/domains/user/access/ChangeUserEmailService')
 const { INVALID_TOKEN, UNSUPPORTED_TOKEN, TOKEN_NOT_FOUND, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
-const { User, UserSudoToken } = require('@condo/domains/user/utils/serverSchema')
+const { User, UserSudoToken, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { changeOrVerifyUserEmailGuard } = require('@condo/domains/user/utils/serverSchema/userEmailGuards')
-const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
+const { detectTokenTypeSafely, TOKEN_TYPES, ABBREVIATION_BY_TOKEN_TYPE, TOKEN_SEPARATOR } = require('@condo/domains/user/utils/tokens')
 
 
 /**
@@ -50,6 +50,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: TOKEN_NOT_FOUND,
         message: 'Unable to find non-expired UserSudoToken by specified token',
+        messageForUser: 'api.user.changeUserEmail.TOKEN_NOT_FOUND',
+    },
+    CONFIRM_EMAIL_TOKEN_NOT_FOUND: {
+        mutation: 'changeUserEmail',
+        variable: ['data', 'newEmail'],
+        code: BAD_USER_INPUT,
+        type: TOKEN_NOT_FOUND,
+        message: 'Unable to find non-expired ConfirmEmailAction by specified token',
         messageForUser: 'api.user.changeUserEmail.TOKEN_NOT_FOUND',
     },
     USER_NOT_FOUND: {
@@ -100,7 +108,28 @@ const ChangeUserEmailService = new GQLCustomSchema('ChangeUserEmailService', {
                 const { data } = args
                 const { token, newEmail, sender } = data
 
-                const normalizedEmail = normalizeEmail(newEmail) || null
+
+                let normalizedEmail = normalizeEmail(newEmail) || null
+                let isEmailVerified = false
+                let confirmEmailAction = null
+
+                const isNewEmailAsToken = newEmail && !normalizedEmail && newEmail.startsWith(ABBREVIATION_BY_TOKEN_TYPE.CONFIRM_EMAIL + TOKEN_SEPARATOR)
+                if (isNewEmailAsToken) {
+                    const newEmailAsToken = newEmail
+
+                    confirmEmailAction = await getByCondition('ConfirmEmailAction', {
+                        token: newEmailAsToken,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isEmailVerified: true,
+                        deletedAt: null,
+                    })
+
+                    if (!confirmEmailAction) throw new GQLError(ERRORS.CONFIRM_EMAIL_TOKEN_NOT_FOUND, context)
+
+                    normalizedEmail = confirmEmailAction.email
+                    isEmailVerified = true
+                }
 
                 await changeOrVerifyUserEmailGuard(context, normalizedEmail)
 
@@ -143,13 +172,20 @@ const ChangeUserEmailService = new GQLCustomSchema('ChangeUserEmailService', {
                 await User.update(context, user.id, {
                     dv: 1, sender,
                     email: normalizedEmail,
-                    isEmailVerified: false,
+                    isEmailVerified,
                 })
 
                 await UserSudoToken.update(context, sudoToken.id, {
                     dv: 1, sender,
                     remainingUses: sudoToken.remainingUses - 1,
                 })
+
+                if (isNewEmailAsToken && confirmEmailAction) {
+                    await ConfirmEmailAction.update(context, confirmEmailAction.id, {
+                        dv: 1, sender,
+                        completedAt: new Date().toISOString(),
+                    })
+                }
 
                 return {
                     status: 'ok',

@@ -97,6 +97,7 @@ function generateTokenSafely (tokenType) {
 module.exports = {
     TOKEN_TYPES,
     ABBREVIATION_BY_TOKEN_TYPE,
+    TOKEN_SEPARATOR,
     detectTokenType,
     detectTokenTypeSafely,
     generateToken,

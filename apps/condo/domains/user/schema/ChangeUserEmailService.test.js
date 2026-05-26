@@ -20,6 +20,8 @@ const {
     createTestEmail,
     UserAdmin,
     UserSudoToken,
+    createTestConfirmEmailAction,
+    ConfirmEmailAction,
 } = require('@condo/domains/user/utils/testSchema')
 const { generateToken, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
@@ -112,6 +114,31 @@ describe('ChangeUserEmailService', () => {
             expect(updatedUser.isEmailVerified).toBeFalsy()
         })
 
+        test('Should change user email to new email and set isEmailVerified to true if pass confirmEmailToken as newEmail and confirmEmailAction should be marked as used', async () => {
+            const staffClient = await makeClientWithStaffUser({
+                isEmailVerified: true,
+            })
+            const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
+                captcha: getCaptcha(),
+                user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                authFactors: { password: staffClient.userAttrs.password },
+            })
+            const newEmail = createTestEmail()
+            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { email: newEmail, isEmailVerified: true })
+            const [result] = await changeUserEmailByTestClient(staffClient, {
+                token: sudoToken.token,
+                newEmail: confirmEmailAction.token,
+            })
+            expect(result.status).toBe('ok')
+
+            const updatedUser = await UserAdmin.getOne(adminClient, { id: staffClient.user.id })
+            expect(updatedUser.email).toBe(newEmail)
+            expect(updatedUser.isEmailVerified).toBeTruthy()
+
+            const usedConfirmEmailAction = await ConfirmEmailAction.getOne(adminClient, { token: confirmEmailAction.token })
+            expect(usedConfirmEmailAction.completedAt).not.toBeNull()
+        })
+
         test('Should reset user email if new email is null', async () => {
             const staffClient = await makeClientWithStaffUser({
                 isEmailVerified: true,
@@ -165,6 +192,39 @@ describe('ChangeUserEmailService', () => {
                 await changeUserEmailByTestClient(staffClient, {
                     token: sudoToken.token,
                     newEmail: faker.random.alphaNumeric(8),
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_EMAIL_VALUE',
+                message: 'Wrong email format',
+            })
+        })
+
+        test('throw error if new email as token invalid', async () => {
+            const staffClient = await makeClientWithStaffUser({
+                isEmailVerified: true,
+            })
+            const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
+                captcha: getCaptcha(),
+                user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                authFactors: { password: staffClient.userAttrs.password },
+            })
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await changeUserEmailByTestClient(staffClient, {
+                    token: sudoToken.token,
+                    newEmail: generateToken(TOKEN_TYPES.CONFIRM_EMAIL),
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOKEN_NOT_FOUND',
+                message: 'Unable to find non-expired ConfirmEmailAction by specified token',
+            })
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await changeUserEmailByTestClient(staffClient, {
+                    token: sudoToken.token,
+                    newEmail: generateToken(TOKEN_TYPES.CONFIRM_PHONE),
                 })
             }, {
                 code: 'BAD_USER_INPUT',

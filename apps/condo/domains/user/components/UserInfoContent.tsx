@@ -1,5 +1,5 @@
 import { useStartConfirmEmailActionMutation } from '@app/condo/gql'
-import { ConfirmEmailActionMessageType } from '@app/condo/schema'
+import { EmailConfirmationFlowType } from '@app/condo/schema'
 import { Col, Row, notification } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
@@ -63,7 +63,7 @@ export const UserInfoContent: React.FC<UserInfoContentProps> = ({ useAllOrganiza
                     sender,
                     captcha,
                     email: user.email,
-                    messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                    confirmationFlow: EmailConfirmationFlowType.LinkForStaffVerification,
                 },
             },
         })
