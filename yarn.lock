@@ -1650,7 +1650,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-graphql": ^7.0.5
+    "@open-keystone/app-graphql": ^7.0.6
     "@open-keystone/app-next": ^9.0.3
     "@registry-importer/domains": "link:./domains"
     "@types/node": ^24
@@ -12519,7 +12519,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/app-graphql@npm:^7.0.5, @open-keystone/app-graphql@npm:^7.0.6":
+"@open-keystone/app-graphql@npm:^7.0.6":
   version: 7.0.6
   resolution: "@open-keystone/app-graphql@npm:7.0.6"
   dependencies:
