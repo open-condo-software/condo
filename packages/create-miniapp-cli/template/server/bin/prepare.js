@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { prepareCondoAppOidcConfig, updateAppEnvFile, prepareAppEnvLocalAdminUsers, getAppEnvValue, safeExec } = require('@open-condo/cli')
+const { prepareCondoAppOidcConfig, updateAppEnvFile, prepareAppEnvLocalAdminUsers, getAppEnvValue } = require('@open-condo/cli')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..'))
 

@@ -1,11 +1,9 @@
-import fs from 'fs'
 import path from 'path'
 
 import { AppType } from '@cli/consts.js'
 import { PkgInstallerMap } from '@cli/installers/index.js'
 import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 
-import { installPackages } from './installPackages.js'
 import { scaffoldProject } from './scaffoldProject.js'
 
 interface CreateProjectOptions {
@@ -14,19 +12,18 @@ interface CreateProjectOptions {
     noInstall: boolean
     importAlias: string
     appType: AppType
+    hasWorker: boolean
     packages?: PkgInstallerMap
 }
 
 export const createProject = async ({
     projectName,
     scopedAppName,
-    packages,
     noInstall,
     appType,
+    hasWorker,
 }: CreateProjectOptions) => {
     const pkgManager = getUserPkgManager()
-    console.log('process.cwd(): ', process.cwd())
-    console.log('projectName: ', projectName)
     const rootDir = path.resolve(process.cwd(), '../..') // relative to CLI package
     const appsDir = path.join(rootDir, 'apps')
     const projectDir = path.resolve(appsDir, projectName)
@@ -39,6 +36,7 @@ export const createProject = async ({
         scopedAppName,
         noInstall,
         appType,
+        hasWorker,
     })
 
     // Install the selected packages
