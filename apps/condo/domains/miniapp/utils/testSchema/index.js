@@ -15,6 +15,10 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 const {
     B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { makeClientWithResidentUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
@@ -919,6 +923,27 @@ async function getVoIPCallStatusByTestClient (client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function prepareVoIPUser ({ admin, organization, property, unitName, unitType }) {
+    const phone = createTestPhone()
+    const userClient = await makeClientWithResidentUser({}, { phone })
+    const [contact] = await createTestContact(admin, organization, property, {
+        unitName: unitName,
+        unitType: unitType,
+        isVerified: true,
+        phone: phone,
+    })
+    const [resident] = await createTestResident(admin, userClient.user, property, {
+        unitName: unitName,
+        unitType: unitType,
+    })
+
+    return {
+        user: userClient.user,
+        contact,
+        resident,
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -951,5 +976,6 @@ module.exports = {
     B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
     B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
     getVoIPCallStatusByTestClient,
+    prepareVoIPUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

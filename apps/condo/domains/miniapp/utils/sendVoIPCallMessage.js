@@ -61,8 +61,6 @@ const GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID = JSON.parse(conf.GLOB
 
 const MAX_UNIT_NAME_LANEGTH = 100
 
-const URL_QUERY_PARAMS_TO_STRINGIFY = new Set(['dv', 'sender'])
-
 class RejectCallError extends Error {
     constructor (returnData) {
         super('Code has no reason to go further')
