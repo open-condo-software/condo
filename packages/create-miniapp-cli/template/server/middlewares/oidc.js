@@ -1,5 +1,5 @@
 const express = require('express')
-const { isObject } = require('lodash')
+const isObject = require('lodash/isObject')
 const { Issuer, generators } = require('openid-client') // certified openid client will all checks
 
 const conf = require('@open-condo/config')

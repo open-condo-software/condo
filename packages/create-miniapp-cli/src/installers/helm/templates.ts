@@ -24,10 +24,15 @@ function fillTemplate (template: string, appName: string, reviewEnabled: boolean
         .replace(/\$\{REVIEW_NE_WRAPPER_END\}/g, wrapperEnd)
 }
 
-export async function writeHelmTemplates (appName: string, nextPrefix: number, reviewEnabled: boolean) {
+export async function writeHelmTemplates (appName: string, nextPrefix: number, reviewEnabled: boolean, hasWorker: boolean) {
     const created: string[] = []
-    // TODO(@abshnko): filter out needed templates based on appType and user's input
-    const names = ['app', 'secrets', 'worker', 'migrations', 'ingress'] as const
+    const names = [
+        'app',
+        'secrets',
+        ...(hasWorker ? ['worker' as const] : []),
+        'migrations',
+        'ingress',
+    ] as const
     for (let i = 0; i < names.length; i++) {
         const role = names[i]
         const fileName = `${padNum(nextPrefix + i)}-${appName}-${role}.yaml`

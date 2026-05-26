@@ -4,8 +4,8 @@ import {
     AvailableDependencies,
     dependencyVersionMap,
 } from '@cli/installers/dependencyVersionMap.js'
+import { sortPackageJson } from '@cli/utils/sortPackageJson.js'
 import fs from 'fs-extra'
-import sortPackageJson from 'sort-package-json'
 import { type PackageJson } from 'type-fest'
 
 export const addPackageDependency = (opts: {

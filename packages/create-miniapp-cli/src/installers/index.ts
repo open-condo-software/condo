@@ -22,6 +22,7 @@ export interface InstallerOptions {
     projectName: string
     scopedAppName: string
     appType: AppType
+    hasWorker: boolean
 }
 
 export type Installer = (opts: InstallerOptions) => void
