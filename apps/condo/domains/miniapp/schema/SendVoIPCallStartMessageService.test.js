@@ -9,7 +9,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { NATIVE_VOIP_TYPE, B2C_APP_VOIP_TYPE } = require('@condo/domains/miniapp/constants')
+const { NATIVE_VOIP_TYPE, B2C_APP_VOIP_TYPE, CALL_STATUS_STARTED } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     sendVoIPCallStartMessageByTestClient,
@@ -25,7 +25,7 @@ const {
     createTestAppMessageSetting,
     createTestCustomField,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, CALL_STATUS_STARTED, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -451,7 +451,7 @@ describe('SendVoIPCallStartMessageService', () => {
 
                 const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: preparedUsers[0].user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
                 const callStatusToken = msg.meta.data.callStatusToken
-                const cache = await getCallStatus({ callStatusToken, organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+                const cache = await getCallStatus({ callStatusToken, organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
                 expect(cache).not.toBe(null)
                 expect(cache.status).toBe(CALL_STATUS_STARTED)
             })
@@ -492,7 +492,7 @@ describe('SendVoIPCallStartMessageService', () => {
                 expect(createdMessages).toHaveLength(residentsCount)
                 const expectedUserIdToMessageId = Object.fromEntries(createdMessages.map(message => ([message.user.id, message.id])))
                 const callStatusToken = createdMessages[0].meta.data.callStatusToken
-                const cache = await getCallStatus({ callStatusToken, b2cAppId: b2cApp.id, organizationId: organization.id, propertyId: property.id, callId })
+                const cache = await getCallStatus({ callStatusToken, b2cAppId: b2cApp.id, organizationId: organization.id, addressKey: property.addressKey, callId })
                 expect(cache).not.toBe(null)
                 expect(cache.startingMessagesIdsByUserIds).toEqual(expectedUserIdToMessageId)
             })
@@ -519,7 +519,7 @@ describe('SendVoIPCallStartMessageService', () => {
                 expect(result.createdMessagesCount).toBe(0)
                 expect(result.erroredMessagesCount).toBe(0)
 
-                const cache = await getCallStatus({ b2cAppId: b2cApp.id, callId })
+                const cache = await getCallStatus({ b2cAppId: b2cApp.id, callId, organizationId: organization.id, addressKey: property.addressKey })
                 expect(cache).toBe(null)
             })
         })
