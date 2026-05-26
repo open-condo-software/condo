@@ -10,6 +10,7 @@ const {
     getAppEnvValue,
     updateAppEnvFile,
     safeExec,
+    registerAppProxy,
 } = require('@open-condo/cli')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..'))
@@ -50,7 +51,11 @@ async function main () {
     // STEP 1. Register local users
     await prepareAppEnvLocalAdminUsers(APP_NAME, 'phone')
 
-    // STEP 2. Prepare file service
+    // STEP 2. Register proxies
+    const { proxySecret, proxyId } = await registerAppProxy('condo', 'dev-portal-api')
+    await updateAppEnvFile(APP_NAME, 'CONDO_PROXY_CONFIG', JSON.stringify({ proxyId, proxySecret }))
+
+    // STEP 3. Prepare file service
     await updateAppEnvFile('condo', 'FILE_UPLOAD_CONFIG', (prev) => {
         const newValue = JSON.parse(prev || '{"clients": {}}')
         set(newValue, ['clients', APP_NAME], { secret: APP_NAME + '-secret' })
@@ -59,7 +64,7 @@ async function main () {
     await updateAppEnvFile(APP_NAME, 'FILE_CLIENT_ID', APP_NAME)
     await updateAppEnvFile(APP_NAME, 'FILE_SECRET', APP_NAME + '-secret')
 
-    // STEP 3. Register bots
+    // STEP 4. Register bots
     const condoUrl = await getAppEnvValue(APP_NAME, 'CONDO_DOMAIN')
     const devBotEnvValue = await getAppEnvValue(APP_NAME, 'CONDO_DEV_BOT_CONFIG')
     const devBotConfig = devBotEnvValue ? JSON.parse(devBotEnvValue) : {
@@ -82,7 +87,7 @@ async function main () {
     await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(devBotConfig.email)} ${JSON.stringify(devBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
     await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(prodBotConfig.email)} ${JSON.stringify(prodBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
 
-    // STEP 4. Register OIDC client
+    // STEP 5. Register OIDC client
     const portalWebDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_WEB_DOMAIN')
     const portalApiDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_API_DOMAIN')
     const webRedirectUrl = `${portalWebDomain}/api/oidc/callback`
