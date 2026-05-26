@@ -21,7 +21,7 @@ const logger = getLogger('sbbol-sync-subscriptions')
  * @return {Promise<void>}
  */
 const syncServiceSubscriptions = async ({ context, organization }) => {
-    const subscriptionPlanId = await featureToggleManager.getFeatureValue(context, ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
+    const subscriptionPlanId = await featureToggleManager.getFeatureValue(context, ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, null, { 'organization.type': organization.type })
     if (!subscriptionPlanId) {
         logger.info({
             msg: 'ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID not configured in feature flag, skipping SubscriptionContext creation',
