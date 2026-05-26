@@ -9,6 +9,7 @@ const { execGqlWithoutAccess, generateServerUtils } = require('@open-condo/codeg
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
+    GET_VOIP_CALL_STATUS_QUERY,
 } = require('@condo/domains/miniapp/gql')
 const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -35,6 +36,19 @@ async function sendB2CAppPushMessage (context, data) {
         query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to sendB2CAppPushMessage',
+        dataPath: 'result',
+    })
+}
+
+async function getVoIPCallStatus (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    
+    return await execGqlWithoutAccess(context, {
+        query: GET_VOIP_CALL_STATUS_QUERY,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getVoIPCallStatus',
         dataPath: 'result',
     })
 }
@@ -100,5 +114,6 @@ module.exports = {
     B2BAppPosIntegrationConfig,
     B2CAppAccessRightSet,
     B2BAppBillingEmbeddingConfig,
+    getVoIPCallStatus,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -41,6 +41,12 @@ const SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION = gql`
     }
 `
 
+const GET_VOIP_CALL_STATUS_QUERY = gql`
+    query getVoIPCallStatus ($data: GetVoIPCallStatusInput!) {
+        result: getVoIPCallStatus(data: $data) { status }
+    }
+`
+
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl pushNotificationSettings customFormUrl getRecipientsUrl getRecipientsCountersUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
@@ -157,5 +163,6 @@ module.exports = {
     SEND_VOIP_CALL_START_MESSAGE_MUTATION, 
     SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION,
     B2BAppBillingEmbeddingConfig,
+    GET_VOIP_CALL_STATUS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -643,8 +643,9 @@ const MESSAGE_META = {
             stunServers: { required: false },
             stun: { required: false },
             codec: { required: false },
-            callStatusToken: { required: false },
             address: { required: true },
+            getVoIPCallStatusUrl: { required: false },
+            getVoIPCallStatusTimeout: { required: false },
         },
     },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
@@ -659,6 +660,8 @@ const MESSAGE_META = {
             callId: { required: false },
             voipIncomingCallId: { required: true },
             address: { required: true },
+            getVoIPCallStatusUrl: { required: false },
+            getVoIPCallStatusTimeout: { required: false },
         },
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {

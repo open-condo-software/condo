@@ -10,6 +10,8 @@ const access = require('@condo/domains/miniapp/access/SendVoIPCallCancelMessageS
 const {
     PROPERTY_NOT_FOUND_ERROR,
     INVALID_CALL_ID_ERROR,
+    SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED, SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ENDED, CANCEL_REASON_TO_CALL_STATUS,
+    CALL_STATUS_STARTED,
 } = require('@condo/domains/miniapp/constants')
 const { 
     getAppInfo, 
@@ -21,7 +23,7 @@ const {
     getInitialLogContext,
     getLogInfoFn,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { setCallStatus, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, getCallStatus, CALL_STATUS_ANSWERED, CALL_STATUS_ENDED } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, getCallStatus } = require('@condo/domains/miniapp/utils/voip')
 const { CANCELED_CALL_MESSAGE_PUSH_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -68,14 +70,6 @@ function validateInput ({ context, logContext, args }) {
     if (!isCallIdValid(callId)) {
         throw new GQLError(ERRORS.INVALID_CALL_ID, context)
     }
-}
-
-const SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED = 'answered'
-const SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ENDED = 'ended'
-
-const CANCEL_REASON_TO_CALL_STATUS = {
-    [SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ENDED]: CALL_STATUS_ENDED,
-    [SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED]: CALL_STATUS_ANSWERED,
 }
 
 const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancelMessageService', {
@@ -183,7 +177,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                     // 3) Check limits
                     await checkLimits({ context, logContext, b2cAppId, addressKey, unitName, unitType, redisGuard, serviceName: SERVICE_NAME, voipMessageType: CANCELED_CALL_MESSAGE_PUSH_TYPE })
                 
-                    const callStatus = await getCallStatus({ b2cAppId, callId: callData.callId, organizationId: organization.id, propertyId: property.id })
+                    const callStatus = await getCallStatus({ b2cAppId, callId: callData.callId, organizationId: organization.id, addressKey: property.addressKey })
 
                     if (!callStatus || callStatus.status !== CALL_STATUS_STARTED) {
                         logContext.logInfoStats.step = 'call status not found'
@@ -216,7 +210,7 @@ const SendVoIPCallCancelMessageService = new GQLCustomSchema('SendVoIPCallCancel
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
                             ...callStatus,
                             b2cAppId,
-                            propertyId: property.id,
+                            addressKey: property.addressKey,
                             organizationId: organization.id,
                             callId: callData.callId,
                             status: CANCEL_REASON_TO_CALL_STATUS[callData.reason],

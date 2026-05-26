@@ -24,6 +24,7 @@ const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppProperty } = require('./B2CAppProperty')
 const { CustomField } = require('./CustomField')
 const { CustomValue } = require('./CustomValue')
+const { GetVoIPCallStatusService } = require('./GetVoIPCallStatusService')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
 const { SendB2BAppPushMessageService } = require('./SendB2BAppPushMessageService')
 const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
@@ -60,5 +61,6 @@ module.exports = {
     SendVoIPCallStartMessageService,
     SendVoIPCallCancelMessageService,
     B2BAppBillingEmbeddingConfig,
+    GetVoIPCallStatusService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

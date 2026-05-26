@@ -9,6 +9,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { CALL_STATUS_STARTED, CALL_STATUS_ANSWERED } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     sendVoIPCallCancelMessageByTestClient,
@@ -19,7 +20,7 @@ const {
     updateTestB2CAppAccessRight,
     createTestAppMessageSetting,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, CALL_STATUS_STARTED, MAX_CALL_ID_LENGTH, CALL_STATUS_ANSWERED, setCallStatus } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, MAX_CALL_ID_LENGTH, setCallStatus } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
@@ -400,10 +401,10 @@ describe('SendVoIPCallCancelMessageService', () => {
                 },
             })
 
-            cache = await getCallStatus({ organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+            cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
             expect(cache).not.toBe(null)
 
-            await setCallStatus({ ...cache, organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId, status: CALL_STATUS_ANSWERED })
+            await setCallStatus({ ...cache, organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId, status: CALL_STATUS_ANSWERED })
 
             const [result] = await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
@@ -418,7 +419,7 @@ describe('SendVoIPCallCancelMessageService', () => {
             expect(result.createdMessagesCount).toBe(0)
             expect(result.erroredMessagesCount).toBe(1)
 
-            cache = await getCallStatus({ organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+            cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
         })
 
         describe('Cache', () => {
@@ -449,7 +450,7 @@ describe('SendVoIPCallCancelMessageService', () => {
                     callData: { callId, b2cAppCallData: { B2CAppContext: '' } },
                 })
 
-                cache = await getCallStatus({ organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+                cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
                 expect(cache).not.toBe(null)
                 expect(cache.status).toBe(CALL_STATUS_STARTED)
 
@@ -464,7 +465,7 @@ describe('SendVoIPCallCancelMessageService', () => {
                 expect(result.createdMessagesCount).toBe(residentsCount)
                 expect(result.erroredMessagesCount).toBe(0)
 
-                cache = await getCallStatus({ organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+                cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
                 expect(cache).not.toBe(null)
                 expect(cache.status).toBe(CALL_STATUS_ANSWERED)
             })
@@ -489,7 +490,7 @@ describe('SendVoIPCallCancelMessageService', () => {
                     },
                 })
 
-                cache = await getCallStatus({ organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+                cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
                 expect(cache).not.toBe(null)
 
                 await updateTestContact(admin, contact.id, { deletedAt: new Date().toISOString() })
@@ -507,7 +508,7 @@ describe('SendVoIPCallCancelMessageService', () => {
                 expect(result.createdMessagesCount).toBe(0)
                 expect(result.erroredMessagesCount).toBe(0)
 
-                cache = await getCallStatus({ organizationId: organization.id, propertyId: property.id, b2cAppId: b2cApp.id, callId })
+                cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
                 expect(cache).toEqual(expect.objectContaining(cache))
             })
 

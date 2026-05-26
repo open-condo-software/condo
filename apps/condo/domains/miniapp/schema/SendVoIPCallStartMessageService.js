@@ -12,6 +12,7 @@ const {
     CALL_DATA_NOT_PROVIDED_ERROR,
     INVALID_CALL_ID_ERROR,
     INVALID_CALL_META_ERROR,
+    CALL_STATUS_STARTED,
 } = require('@condo/domains/miniapp/constants')
 const {
     RejectCallError,
@@ -24,7 +25,7 @@ const {
     parseSendMessageResults,
     sendMessageToUser,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, generateCallStatusToken, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -265,6 +266,14 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     const customVoIPValuesByContactId = await getCustomVoIPValuesByContacts({ voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, contactIds: [...new Set(verifiedResidentsWithContacts.map(({ contact }) => contact.id))] })
                 
                     const callStatusToken = generateCallStatusToken()
+                    const callStatusIdentityParams = {
+                        b2cAppId, 
+                        callId: callData.callId, 
+                        callStatusToken,
+                        organizationId: organization.id,
+                        addressKey: property.addressKey,
+                    }
+                    const callStatusJwtToken = buildCallStatusJWTToken(callStatusIdentityParams)
 
                     // 4) Send messages
                     /** @type {Array<Promise<{status, id, isDuplicateMessage}>>} */
@@ -274,7 +283,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                                 voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                                 context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
-                                callStatusToken,
+                                callStatusJwtToken,
                             })
                         })
                 
@@ -286,11 +295,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
 
                     if (sendMessageStats.some(stat => stat.success)) {
                         logContext.logInfoStats.isStatusCached = await setCallStatus({
-                            callStatusToken,
-                            b2cAppId,
-                            propertyId: property.id,
-                            organizationId: organization.id,
-                            callId: callData.callId,
+                            ...callStatusIdentityParams,
                             status: CALL_STATUS_STARTED,
                             // NOTE(YEgorLu): we can use uniqKey for that: [pushType, b2cAppId, callId, userId, YYYY-MM-DD].join()
                             //                but this would require to check current and previous day/period

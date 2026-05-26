@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 
@@ -10,8 +11,10 @@ const {
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     NATIVE_VOIP_TYPE,
     B2C_APP_VOIP_TYPE,
+    CALL_STATUS_TTL_IN_SECONDS,
 } = require('@condo/domains/miniapp/constants')
 const { B2CAppProperty, CustomValue } = require('@condo/domains/miniapp/utils/serverSchema')
+const { GET_VOIP_CALL_STATUS_URL_PATH } = require('@condo/domains/miniapp/VoIPMiddleware')
 const {
     MESSAGE_META,
     VOIP_INCOMING_CALL_MESSAGE_TYPE, MESSAGE_SENDING_STATUS,
@@ -20,6 +23,9 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+
+
+const SERVER_URL = conf.SERVER_URL
 
 const VOIP_MESSAGE_TYPES = [
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
@@ -62,12 +68,25 @@ class RejectCallError extends Error {
     }
 }
 
+function getGetVoIPCallStatusUrl ({ dv, sender, callStatusJwtToken }) {
+    if (typeof dv !== 'number' || !sender || !callStatusJwtToken) return null
+    const url = new URL(`${SERVER_URL}${GET_VOIP_CALL_STATUS_URL_PATH}`)
+    const queryData = JSON.stringify({ dv, sender, token: callStatusJwtToken })
+    url.searchParams.set('data', queryData)
+    return url.toString()
+}
+
+function getGetVoIPCallStatusTimeout () {
+    return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
+}
+
 function prepareVoIPCallStartMessageData ({ 
     callData, 
     b2cApp: { id: b2cAppId, name: b2cAppName },
-    resident, contact, property,
-    callStatusToken,
+    resident,
+    callStatusJwtToken,
     customVoIPValues,
+    sender,
 }) {
     // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
     let preparedDataArgs = {
@@ -75,10 +94,18 @@ function prepareVoIPCallStartMessageData ({
         B2CAppName: b2cAppName,
         residentId: resident.id,
         callId: callData.callId,
-        organizationId: contact.organization,
-        propertyId: property.id,
-        callStatusToken,
         address: resident.address,
+        callStatusJwtToken,
+    }
+
+    const getVoIPCallStatusUrl = getGetVoIPCallStatusUrl({ dv: 1, sender, callStatusJwtToken })
+    const getVoIPCallStatusTimeout = getGetVoIPCallStatusTimeout()
+    if (getVoIPCallStatusUrl && getVoIPCallStatusTimeout) {
+        preparedDataArgs = {
+            ...preparedDataArgs,
+            getVoIPCallStatusUrl,
+            getVoIPCallStatusTimeout,
+        }
     }
 
     const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
@@ -120,7 +147,7 @@ function prepareVoIPCallStartMessageData ({
 function prepareVoIPCallCancelMessageData ({
     callData, 
     b2cApp: { id: b2cAppId, name: b2cAppName },
-    resident, contact, property,
+    resident,
     voipIncomingCallId,
 }) {
     const preparedDataArgs = {
@@ -128,11 +155,10 @@ function prepareVoIPCallCancelMessageData ({
         B2CAppName: b2cAppName,
         residentId: resident.id,
         callId: callData.callId,
-        organizationId: contact.organization,
-        propertyId: property.id,
         reason: callData.reason,
         voipIncomingCallId,
         address: resident.address,
+        getVoIPCallStatusTimeout: getGetVoIPCallStatusTimeout(),
     }
 
     if (callData.b2cAppCallData?.B2CAppContext) {
@@ -153,7 +179,7 @@ function prepareVoIPCallCancelMessageData ({
  *  nativeCallData,
  *  b2cAppCallData,
  * },
- * callStatusToken,
+ * callStatusJwtToken,
  * customVoIPValues,
  * resident,
  * contact,
@@ -165,7 +191,7 @@ function prepareVoIPCallCancelMessageData ({
  * @returns 
  */
 async function sendMessageToUser (args) {
-    const { 
+    const {
         voipMessageType,
         context, resident, contact, user,
         sender, dv,

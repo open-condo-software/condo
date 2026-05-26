@@ -15,6 +15,10 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 const {
     B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { makeClientWithResidentUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
@@ -42,11 +46,11 @@ const { AppMessageSetting: AppMessageSettingGQL } = require('@condo/domains/mini
 const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 const { CustomField: CustomFieldGQL } = require('@condo/domains/miniapp/gql')
 const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
-
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
+const { GET_VOIP_CALL_STATUS_QUERY } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -906,6 +910,40 @@ async function updateTestB2BAppBillingEmbeddingConfig (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
+async function getVoIPCallStatusByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        ...extraAttrs
+    }
+
+    const { data, errors } = await client.query(GET_VOIP_CALL_STATUS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function prepareVoIPUser ({ admin, organization, property, unitName, unitType }) {
+    const phone = createTestPhone()
+    const userClient = await makeClientWithResidentUser({}, { phone })
+    const [contact] = await createTestContact(admin, organization, property, {
+        unitName: unitName,
+        unitType: unitType,
+        isVerified: true,
+        phone: phone,
+    })
+    const [resident] = await createTestResident(admin, userClient.user, property, {
+        unitName: unitName,
+        unitType: unitType,
+    })
+
+    return {
+        user: userClient.user,
+        contact,
+        resident,
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -937,5 +975,7 @@ module.exports = {
     sendVoIPCallStartMessageByTestClient, sendVoIPCallCancelMessageByTestClient,
     B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
     B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
+    getVoIPCallStatusByTestClient,
+    prepareVoIPUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
