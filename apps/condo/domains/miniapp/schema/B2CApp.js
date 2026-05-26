@@ -11,6 +11,7 @@ const access = require('@condo/domains/miniapp/access/B2CApp')
 const { RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
 const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
 const { getDevicePermissionsFields } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
+const { EXTERNAL_LINKS_FIELD } = require('@condo/domains/miniapp/schema/fields/externalLinks')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
@@ -50,6 +51,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
         additionalDomains: ADDITIONAL_DOMAINS_FIELD,
         oidcClient: OIDC_CLIENT_FIELD,
         domains: MINIAPP_DOMAINS_FIELD,
+        externalLinks: EXTERNAL_LINKS_FIELD,
         currentBuild: {
             schemaDoc: 'Link to current active app build',
             type: 'Relationship',
