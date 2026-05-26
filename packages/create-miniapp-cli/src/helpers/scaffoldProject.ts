@@ -7,6 +7,7 @@ import { logger } from '@cli/utils/logger.js'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import ora from 'ora'
+import { type PackageJson } from 'type-fest'
 
 
 function getTemplateBaseDir (appType: AppType) {
@@ -26,6 +27,7 @@ export const scaffoldProject = async ({
     pkgManager,
     noInstall,
     appType,
+    hasWorker,
 }: InstallerOptions) => {
     const srcDir = getTemplateBaseDir(appType)
 
@@ -95,10 +97,24 @@ export const scaffoldProject = async ({
     spinner.start()
 
     fs.copySync(srcDir, projectDir)
-    fs.renameSync(
-        path.join(projectDir, '_gitignore'),
-        path.join(projectDir, '.gitignore'),
-    )
+    const gitignorePath = path.join(projectDir, '_gitignore')
+    if (fs.existsSync(gitignorePath)) {
+        fs.renameSync(
+            gitignorePath,
+            path.join(projectDir, '.gitignore'),
+        )
+    }
+
+    if (!hasWorker) {
+        fs.removeSync(path.join(projectDir, 'worker.js'))
+
+        const packageJsonPath = path.join(projectDir, 'package.json')
+        const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
+        if (pkgJson.scripts && 'worker' in pkgJson.scripts) {
+            delete pkgJson.scripts.worker
+            fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
+        }
+    }
 
     const scaffoldedName = projectName === '.' ? 'App' : chalk.cyan.bold(projectName)
 

@@ -22,7 +22,7 @@ export async function setupHelm ({ appName, hasReview, appResources, workerResou
         const nextPrefix = await getNextPrefix()
         logger.info(`Next prefix block: ${nextPrefix}`)
 
-        const created = await writeHelmTemplates(appName, nextPrefix, hasReview)
+        const created = await writeHelmTemplates(appName, nextPrefix, hasReview, hasWorker)
         const servicesFile = await updateServicesUrls(appName)
         created.push(servicesFile)
 

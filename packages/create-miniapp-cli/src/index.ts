@@ -46,6 +46,7 @@ const main = async () => {
         importAlias,
         noInstall,
         appType,
+        hasWorker,
     })
 
     // Write name to package.json
