@@ -199,7 +199,7 @@ async function updateEnvFile (filePath, key, value, opts = { override: true, com
  * Add or update some ./apps/<appName>/.env config value!
  * @param appName {string} application name ./apps/<appName>
  * @param key {string} environment variable name
- * @param value {string} environment variable value
+ * @param value {string | function} environment variable value
  * @param opts {{ override: boolean, commentAbove: string }}
  * @return {Promise<void>}
  */
@@ -397,22 +397,26 @@ async function getAllActualApps () {
 }
 
 async function registerAppProxy (appName, proxyName) {
-    const currentValue = await getAppEnvValue(appName, 'TRUSTED_PROXIES_CONFIG') || '{}'
-    const currentProxies = JSON.parse(currentValue)
-    if (!currentProxies.hasOwnProperty(proxyName)) {
-        const secret = getRandomString(32)
+    let proxySecret
 
-        currentProxies[proxyName] = {
-            address: '::1',
-            secret,
+
+    await updateAppEnvFile(appName, 'TRUSTED_PROXIES_CONFIG', (prevValue) => {
+        const currentProxies = JSON.parse(prevValue ?? '{}')
+        if (!currentProxies.hasOwnProperty(proxyName)) {
+            proxySecret = getRandomString(32)
+
+            currentProxies[proxyName] = {
+                address: '::1',
+                secret: proxySecret,
+            }
+        } else {
+            proxySecret = currentProxies[proxyName].secret
         }
 
-        await updateAppEnvFile(appName, 'TRUSTED_PROXIES_CONFIG', JSON.stringify(currentProxies))
+        return JSON.stringify(currentProxies)
+    })
 
-        return { proxySecret: secret, proxyId: proxyName }
-    }
-
-    return { proxySecret: currentProxies[proxyName].secret, proxyId: proxyName }
+    return { proxySecret, proxyId: proxyName }
 }
 
 module.exports = {
