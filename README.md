@@ -40,12 +40,12 @@ Or you can bring up the databases directly on the host machine, using the corres
 
 ### 2. Environment setup
 
-#### Node.js 22.x
+#### Node.js 24.x
 
 All of our applications are written in [Node.js](https://nodejs.org/en), 
 so you should also install it before you run the project.
 
-> We run our applications on the **current LTS** version of node, which is **22.x**. 
+> We run our applications on the **current LTS** version of node, which is **24.x**. 
 > You can check node version using `node -v` command in your terminal.
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for local development, 

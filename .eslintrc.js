@@ -5,6 +5,9 @@ module.exports = {
         node: true,
         'jest/globals': true,
     },
+    globals: {
+        URLPattern: 'readonly',
+    },
     extends: [
         'eslint:recommended',
         'plugin:react/recommended',
