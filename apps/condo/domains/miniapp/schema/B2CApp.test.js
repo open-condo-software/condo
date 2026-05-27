@@ -470,6 +470,10 @@ describe('B2CApp', () => {
                     isSupported: true,
                 },
                 {
+                    pattern: '808*',
+                    isSupported: false,
+                },
+                {
                     pattern: '*',
                     isSupported: false,
                 },
@@ -559,11 +563,6 @@ describe('B2CApp', () => {
                     portStr: concretePorts,
                     path: pathname.positiveExamples,
                 })) {
-                    const u = buildUrl(protocol.pattern, host, portStr, path)
-                    const res = pattern.test(buildUrl(protocol.pattern, host, portStr, path))
-                    if (res) {
-                        expect(u).toBe(true)
-                    }
                     expect(pattern.test(buildUrl(protocol.pattern, host, portStr, path))).toBe(false)
                 }
 
