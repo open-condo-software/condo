@@ -70,6 +70,9 @@ const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{
 const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
 const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
 
+const BILLING_SEND_BILLING_RECEIPT_FILES_TASK_FIELDS = `{ status exportedRecordsCount totalRecordsCount period receiptIds user { id name } file { id publicUrl originalFilename mimetype } ${COMMON_FIELDS} }`
+const BillingSendBillingReceiptFilesTask = generateGqlQueries('BillingSendBillingReceiptFilesTask', BILLING_SEND_BILLING_RECEIPT_FILES_TASK_FIELDS)
+
 const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
         result: registerBillingReceipts(data: $data) ${BILLING_RECEIPT_FIELDS}
@@ -129,6 +132,7 @@ module.exports = {
 
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     BillingReceiptFile,
+    BillingSendBillingReceiptFilesTask,
     VALIDATE_QRCODE_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
     SUM_BILLING_RECEIPTS_QUERY,

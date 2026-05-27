@@ -1,0 +1,48 @@
+query getBillingSendBillingReceiptFilesTasks ($where: BillingSendBillingReceiptFilesTaskWhereInput!) {
+    tasks: allBillingSendBillingReceiptFilesTasks(
+        where: $where
+    ) {
+        id
+        status
+        sentRecordsCount
+        totalRecordsCount
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation createBillingSendBillingReceiptFilesTask ($data: BillingSendBillingReceiptFilesTaskCreateInput!) {
+    task: createBillingSendBillingReceiptFilesTask(
+        data: $data
+    ) {
+        id
+        status
+        exportedRecordsCount
+        totalRecordsCount
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation updateBillingSendBillingReceiptFilesTask ($id: ID!, $data: BillingSendBillingReceiptFilesTaskUpdateInput!) {
+    task: updateBillingSendBillingReceiptFilesTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        exportedRecordsCount
+        totalRecordsCount
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}

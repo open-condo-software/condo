@@ -25,6 +25,7 @@ const BillingIntegrationOrganizationContext = generateServerUtils('BillingIntegr
 const BillingIntegrationProblem = generateServerUtils('BillingIntegrationProblem')
 const BillingProperty = generateServerUtils('BillingProperty')
 const BillingAccount = generateServerUtils('BillingAccount')
+const BillingSendBillingReceiptFilesTask = generateServerUtils('BillingSendBillingReceiptFilesTask')
 const BillingReceipt = generateServerUtils('BillingReceipt')
 const BillingRecipient = generateServerUtils('BillingRecipient')
 const BillingCategory = generateServerUtils('BillingCategory')
@@ -187,6 +188,7 @@ module.exports = {
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
+    BillingSendBillingReceiptFilesTask,
     BillingReceipt,
     BillingRecipient,
     BillingCategory,

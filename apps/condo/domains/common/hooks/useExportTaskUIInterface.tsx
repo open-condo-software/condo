@@ -4,6 +4,7 @@ import {
     type GetIncidentExportTasksQuery,
     type GetTicketExportTasksQuery,
     type GetNewsItemRecipientsExportTasksQuery,
+    type GetBillingSendBillingReceiptFilesTasksQuery,
 } from '@app/condo/gql'
 import { useCallback, useMemo } from 'react'
 
@@ -23,6 +24,7 @@ type ExportTaskMergedType = {
     IncidentExportTask: GetIncidentExportTasksQuery['tasks'][number]
     TicketExportTask: GetTicketExportTasksQuery['tasks'][number]
     ContactExportTask: GetContactExportTasksQuery['tasks'][number]
+    BillingSendBillingReceiptFilesTask: GetBillingSendBillingReceiptFilesTasksQuery['tasks'][number]
     NewsItemRecipientsExportTask: GetNewsItemRecipientsExportTasksQuery['tasks'][number] & {
         exportedRecordsCount: number
         totalRecordsCount: number

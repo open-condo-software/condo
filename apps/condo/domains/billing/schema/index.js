@@ -15,6 +15,7 @@ const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingReceiptFile } = require('./BillingReceiptFile')
 const { BillingRecipient } = require('./BillingRecipient')
+const { BillingSendBillingReceiptFilesTask } = require('./BillingSendBillingReceiptFilesTask')
 const { RegisterBillingReceiptFileService } = require('./RegisterBillingReceiptFileService')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
 const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBillingReceiptFilesNotificationsService')
@@ -30,6 +31,7 @@ module.exports = {
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
+    BillingSendBillingReceiptFilesTask,
     BillingReceipt,
     AllResidentBillingReceiptsService,
     BillingRecipient,

@@ -14,4 +14,5 @@ export * as BillingRecipient from './BillingRecipient'
 export * as BillingCategory from './BillingCategory'
 export * as BillingReceiptFile from './BillingReceiptFile'
 export * as BillingReceiptForOrganization from './BillingReceiptForOrganization'
+export * as BillingSendBillingReceiptFilesTask from './BillingSendBillingReceiptFilesTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

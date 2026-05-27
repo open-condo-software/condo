@@ -1192,6 +1192,140 @@ export type GetBillingReceiptsByPropertyCountQueryHookResult = ReturnType<typeof
 export type GetBillingReceiptsByPropertyCountLazyQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountLazyQuery>;
 export type GetBillingReceiptsByPropertyCountSuspenseQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountSuspenseQuery>;
 export type GetBillingReceiptsByPropertyCountQueryResult = Apollo.QueryResult<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>;
+export const GetBillingSendBillingReceiptFilesTasksDocument = gql`
+    query getBillingSendBillingReceiptFilesTasks($where: BillingSendBillingReceiptFilesTaskWhereInput!) {
+  tasks: allBillingSendBillingReceiptFilesTasks(where: $where) {
+    id
+    status
+    sentRecordsCount
+    totalRecordsCount
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `;
+
+/**
+ * __useGetBillingSendBillingReceiptFilesTasksQuery__
+ *
+ * To run a query within a React component, call `useGetBillingSendBillingReceiptFilesTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingSendBillingReceiptFilesTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillingSendBillingReceiptFilesTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetBillingSendBillingReceiptFilesTasksQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables> & ({ variables: Types.GetBillingSendBillingReceiptFilesTasksQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>(GetBillingSendBillingReceiptFilesTasksDocument, options);
+      }
+export function useGetBillingSendBillingReceiptFilesTasksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>(GetBillingSendBillingReceiptFilesTasksDocument, options);
+        }
+// @ts-ignore
+export function useGetBillingSendBillingReceiptFilesTasksSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>;
+export function useGetBillingSendBillingReceiptFilesTasksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetBillingSendBillingReceiptFilesTasksQuery | undefined, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>;
+export function useGetBillingSendBillingReceiptFilesTasksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>(GetBillingSendBillingReceiptFilesTasksDocument, options);
+        }
+export type GetBillingSendBillingReceiptFilesTasksQueryHookResult = ReturnType<typeof useGetBillingSendBillingReceiptFilesTasksQuery>;
+export type GetBillingSendBillingReceiptFilesTasksLazyQueryHookResult = ReturnType<typeof useGetBillingSendBillingReceiptFilesTasksLazyQuery>;
+export type GetBillingSendBillingReceiptFilesTasksSuspenseQueryHookResult = ReturnType<typeof useGetBillingSendBillingReceiptFilesTasksSuspenseQuery>;
+export type GetBillingSendBillingReceiptFilesTasksQueryResult = Apollo.QueryResult<Types.GetBillingSendBillingReceiptFilesTasksQuery, Types.GetBillingSendBillingReceiptFilesTasksQueryVariables>;
+export const CreateBillingSendBillingReceiptFilesTaskDocument = gql`
+    mutation createBillingSendBillingReceiptFilesTask($data: BillingSendBillingReceiptFilesTaskCreateInput!) {
+  task: createBillingSendBillingReceiptFilesTask(data: $data) {
+    id
+    status
+    sentRecordsCount
+    totalRecordsCount
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `;
+export type CreateBillingSendBillingReceiptFilesTaskMutationFn = Apollo.MutationFunction<Types.CreateBillingSendBillingReceiptFilesTaskMutation, Types.CreateBillingSendBillingReceiptFilesTaskMutationVariables>;
+
+/**
+ * __useCreateBillingSendBillingReceiptFilesTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateBillingSendBillingReceiptFilesTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBillingSendBillingReceiptFilesTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBillingSendBillingReceiptFilesTaskMutation, { data, loading, error }] = useCreateBillingSendBillingReceiptFilesTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateBillingSendBillingReceiptFilesTaskMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateBillingSendBillingReceiptFilesTaskMutation, Types.CreateBillingSendBillingReceiptFilesTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateBillingSendBillingReceiptFilesTaskMutation, Types.CreateBillingSendBillingReceiptFilesTaskMutationVariables>(CreateBillingSendBillingReceiptFilesTaskDocument, options);
+      }
+export type CreateBillingSendBillingReceiptFilesTaskMutationHookResult = ReturnType<typeof useCreateBillingSendBillingReceiptFilesTaskMutation>;
+export type CreateBillingSendBillingReceiptFilesTaskMutationResult = Apollo.MutationResult<Types.CreateBillingSendBillingReceiptFilesTaskMutation>;
+export type CreateBillingSendBillingReceiptFilesTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateBillingSendBillingReceiptFilesTaskMutation, Types.CreateBillingSendBillingReceiptFilesTaskMutationVariables>;
+export const UpdateBillingSendBillingReceiptFilesTaskDocument = gql`
+    mutation updateBillingSendBillingReceiptFilesTask($id: ID!, $data: BillingSendBillingReceiptFilesTaskUpdateInput!) {
+  task: updateBillingSendBillingReceiptFilesTask(data: $data, id: $id) {
+    id
+    status
+    sentRecordsCount
+    totalRecordsCount
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `;
+export type UpdateBillingSendBillingReceiptFilesTaskMutationFn = Apollo.MutationFunction<Types.UpdateBillingSendBillingReceiptFilesTaskMutation, Types.UpdateBillingSendBillingReceiptFilesTaskMutationVariables>;
+
+/**
+ * __useUpdateBillingSendBillingReceiptFilesTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateBillingSendBillingReceiptFilesTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBillingSendBillingReceiptFilesTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBillingSendBillingReceiptFilesTaskMutation, { data, loading, error }] = useUpdateBillingSendBillingReceiptFilesTaskMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateBillingSendBillingReceiptFilesTaskMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateBillingSendBillingReceiptFilesTaskMutation, Types.UpdateBillingSendBillingReceiptFilesTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateBillingSendBillingReceiptFilesTaskMutation, Types.UpdateBillingSendBillingReceiptFilesTaskMutationVariables>(UpdateBillingSendBillingReceiptFilesTaskDocument, options);
+      }
+export type UpdateBillingSendBillingReceiptFilesTaskMutationHookResult = ReturnType<typeof useUpdateBillingSendBillingReceiptFilesTaskMutation>;
+export type UpdateBillingSendBillingReceiptFilesTaskMutationResult = Apollo.MutationResult<Types.UpdateBillingSendBillingReceiptFilesTaskMutation>;
+export type UpdateBillingSendBillingReceiptFilesTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateBillingSendBillingReceiptFilesTaskMutation, Types.UpdateBillingSendBillingReceiptFilesTaskMutationVariables>;
 export const GetProcessingTasksDocument = gql`
     query getProcessingTasks($userId: ID!, $createdAtGte: String!) {
   allTicketDocumentGenerationTasks(

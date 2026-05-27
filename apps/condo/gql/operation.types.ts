@@ -193,6 +193,28 @@ export type GetBillingReceiptsByPropertyCountQueryVariables = Types.Exact<{
 
 export type GetBillingReceiptsByPropertyCountQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetBillingSendBillingReceiptFilesTasksQueryVariables = Types.Exact<{
+  where: Types.BillingSendBillingReceiptFilesTaskWhereInput;
+}>;
+
+
+export type GetBillingSendBillingReceiptFilesTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, sentRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null };
+
+export type CreateBillingSendBillingReceiptFilesTaskMutationVariables = Types.Exact<{
+  data: Types.BillingSendBillingReceiptFilesTaskCreateInput;
+}>;
+
+
+export type CreateBillingSendBillingReceiptFilesTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, sentRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
+
+export type UpdateBillingSendBillingReceiptFilesTaskMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.BillingSendBillingReceiptFilesTaskUpdateInput;
+}>;
+
+
+export type UpdateBillingSendBillingReceiptFilesTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, sentRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
+
 export type GetProcessingTasksQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   createdAtGte: Types.Scalars['String']['input'];
