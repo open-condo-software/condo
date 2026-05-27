@@ -74745,6 +74745,7 @@ type B2CAppHistoryRecord {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  externalLinks: JSON
   currentBuild: String
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
@@ -74865,6 +74866,10 @@ input B2CAppHistoryRecordWhereInput {
   oidcClient_not: String
   oidcClient_in: [String]
   oidcClient_not_in: [String]
+  externalLinks: JSON
+  externalLinks_not: JSON
+  externalLinks_in: [JSON]
+  externalLinks_not_in: [JSON]
   currentBuild: String
   currentBuild_not: String
   currentBuild_in: [String]
@@ -75066,6 +75071,7 @@ input B2CAppHistoryRecordUpdateInput {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  externalLinks: JSON
   currentBuild: String
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
@@ -75107,6 +75113,7 @@ input B2CAppHistoryRecordCreateInput {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  externalLinks: JSON
   currentBuild: String
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
@@ -75211,6 +75218,10 @@ type B2CApp {
 
   """ List of mapping from condo-hosted domain to miniapp-defined domain """
   domains: MiniappDomains
+
+  """ List of URLs or URLPatterns, containing external links that miniapp can open (via iframe or just regular links) during its work. Used by native clients to control user navigation 
+  """
+  externalLinks: [String!]
 
   """ Link to current active app build """
   currentBuild: B2CAppBuild
@@ -75372,6 +75383,10 @@ input B2CAppWhereInput {
   additionalDomains_not_in: [[String!]]
   oidcClient: OidcClientWhereInput
   oidcClient_is_null: Boolean
+  externalLinks: [String!]
+  externalLinks_not: [String!]
+  externalLinks_in: [[String!]]
+  externalLinks_not_in: [[String!]]
   currentBuild: B2CAppBuildWhereInput
   currentBuild_is_null: Boolean
 
@@ -75566,6 +75581,7 @@ input B2CAppUpdateInput {
   appUrl: String
   additionalDomains: [String!]
   oidcClient: OidcClientRelateToOneInput
+  externalLinks: [String!]
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
   isFullscreenAllowed: Boolean
@@ -75605,6 +75621,7 @@ input B2CAppCreateInput {
   appUrl: String
   additionalDomains: [String!]
   oidcClient: OidcClientRelateToOneInput
+  externalLinks: [String!]
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
   isFullscreenAllowed: Boolean

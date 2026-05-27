@@ -25,6 +25,31 @@ function expectedAppDomain (appId, idx) {
     return new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`)).origin
 }
 
+function _generateCombinations (options) {
+    const keys = Object.keys(options)
+    const total = Object.values(options).map(variants => variants.length).reduce((acc, cur) => acc * cur, 1)
+
+    const combinations = []
+
+    for (let i = 0; i < total; i++) {
+        let left = i
+        let spaceSize = total
+        const combination = {}
+
+        for (const key of keys) {
+            const optionSize = spaceSize / options[key].length
+            const option = Math.floor(left / optionSize)
+            combination[key] = options[key][option]
+            spaceSize = optionSize
+            left -= option * optionSize
+        }
+
+        combinations.push(combination)
+    }
+
+    return combinations
+}
+
 describe('B2CApp', () => {
     let admin
     let user
@@ -265,6 +290,289 @@ describe('B2CApp', () => {
                 const [app] = await createTestB2CApp(support, payload)
                 expect(app).toBeDefined()
                 expect(app.additionalDomains).toEqual([])
+            })
+        })
+        describe('externalLinks field', () => {
+            const pathnamePatterns = [
+                {
+                    // NOTE: Static URL
+                    pattern: '/exact/location',
+                    positiveExamples: ['/exact/location'],
+                    negativeExamples: ['/exact', '/exact/location/extra', '/exact/location/extra/',  '/exact/location/'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Static file
+                    pattern: '/exact/file.js',
+                    positiveExamples: ['/exact/file.js'],
+                    negativeExamples: ['/exact/file'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Static URL + trailing slash
+                    pattern: '/exact/location/',
+                    positiveExamples: ['/exact/location/'],
+                    negativeExamples: ['/exact', '/exact/location/extra', '/exact/location/extra/', '/exact/location'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Static root
+                    pattern: '/',
+                    positiveExamples: ['', '/'],
+                    negativeExamples: ['/something', '//'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: dynamic root (treated as *)
+                    pattern: '',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: Simple parametrized URL
+                    pattern: '/posts/:id',
+                    positiveExamples: ['/posts/1', '/posts/create', '/posts/index.min.js', '/posts/отчёт.xlsx', '/posts/отчёт'],
+                    negativeExamples: ['/posts', '/posts/', '/posts/123/create', '/posts/123/'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Simple parametrized URL + trailing slash
+                    pattern: '/posts/:id/',
+                    positiveExamples: ['/posts/123/', '/posts/create/'],
+                    negativeExamples: ['/posts', '/posts/', '/posts/123/create', '/posts/123'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Nested parametrized URL
+                    pattern: '/users/:userId/posts/:postId',
+                    positiveExamples: ['/users/1/posts/1', '/users/123/posts/123', '/users/create/posts/create'],
+                    negativeExamples: ['/users', '/users/', '/users/123/posts'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Optional parametrized URL
+                    pattern: '/posts/:id?',
+                    positiveExamples: ['/posts/1', '/posts/123', '/posts/create', '/posts'],
+                    negativeExamples: ['/posts/123/create', '/posts/'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Catch-all URL
+                    pattern: '/docs/:articleSlug+',
+                    positiveExamples: ['/docs/en/how-to-fail-all-tests', '/docs/1/2/3/4/4/5'],
+                    negativeExamples: ['/docs', '/non-docs/'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Catch-all in the middle URL
+                    pattern: '/docs/:articleSlug+/article',
+                    positiveExamples: ['/docs/en/how-to-fail-all-tests/article', '/docs/1/2/3/4/4/5/article'],
+                    negativeExamples: ['/docs/en/how-to-fail-all-tests'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Optional catch-all URL
+                    pattern: '/docs/:articleSlug*',
+                    positiveExamples: ['/docs/en/how-to-fail-all-tests', '/docs/1/2/3/4/4/5', '/docs'],
+                    negativeExamples: ['/non-docs/'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Catch-all in the middle URL
+                    pattern: '/docs/:articleSlug*/article',
+                    positiveExamples: ['/docs/en/how-to-fail-all-tests/article', '/docs/1/2/3/4/4/5/article', '/docs/article'],
+                    negativeExamples: ['/docs/en/how-to-fail-all-tests'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Any-route
+                    pattern: '/:articleSlug*',
+                    positiveExamples: ['/aksldj/123jasd/123', '/inject.js'],
+                    negativeExamples: [],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: Regexps
+                    pattern: '/user/:id(\\\\d+)',
+                    isSupported: false,
+                },
+            ]
+
+            const domainPatterns = [
+                {
+                    // NOTE: regular domain
+                    pattern: 'exact-domain.com',
+                    positiveExamples: ['exact-domain.com'],
+                    negativeExamples: ['another-domain.com', 'sub.exact-domain.com'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: regular domain encoded
+                    pattern: 'пример.рф',
+                    positiveExamples: ['пример.рф'],
+                    negativeExamples: ['another-domain.com', 'другой'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: parametrized domain
+                    pattern: ':locale.my-cdn.com',
+                    positiveExamples: ['ru.my-cdn.com', 'en.my-cdn.com', 'a5b6283c3.my-cdn.com'],
+                    negativeExamples: ['my-cdn.com', 'en.en.my-cdn.com', 'en.another-domain.com'],
+                    isSupported: true,
+                },
+                {
+                    // NOTE: catch-all domain
+                    pattern: '*.any.com',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: catch-all domain
+                    pattern: '*.any.com',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: regexps
+                    pattern: 'api-:subdomain(\\\\w+).com',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: partial-parameter
+                    pattern: 'api-:subdomain.com',
+                    isSupported: false,
+                },
+            ]
+
+            const protolPatterns = [
+                {
+                    pattern:'https',
+                    isSupported: true,
+                },
+                {
+                    pattern: 'http',
+                    isSupported: true,
+                },
+                {
+                    pattern: 'wss',
+                    isSupported: false,
+                },
+                {
+                    pattern: 'ws',
+                    isSupported: false,
+                },
+            ]
+
+            const portPatterns = [
+                {
+                    pattern:'443',
+                    isSupported: true,
+                },
+                {
+                    pattern: '80',
+                    isSupported: true,
+                },
+                {
+                    pattern: '808*',
+                    isSupported: false,
+                },
+                {
+                    pattern: '*',
+                    isSupported: false,
+                },
+            ]
+
+            const varyingDomainCases = _generateCombinations({
+                domain: domainPatterns,
+                protocol: [protolPatterns.find(p => p.isSupported)],
+                port: [portPatterns.find(p => p.isSupported)],
+                pathname: [pathnamePatterns.find(p => p.isSupported)],
+            })
+            const varyingProtocolCases = _generateCombinations({
+                domain: [domainPatterns.find(p => p.isSupported)],
+                protocol: protolPatterns,
+                port: [portPatterns.find(p => p.isSupported)],
+                pathname: [pathnamePatterns.find(p => p.isSupported)],
+            })
+            const varyingPortCases = _generateCombinations({
+                domain: [domainPatterns.find(p => p.isSupported)],
+                protocol: [protolPatterns.find(p => p.isSupported)],
+                port: portPatterns,
+                pathname: [pathnamePatterns.find(p => p.isSupported)],
+            })
+            const varyingPathnameCases = _generateCombinations({
+                domain: [domainPatterns.find(p => p.isSupported)],
+                protocol: [protolPatterns.find(p => p.isSupported)],
+                port: [portPatterns.find(p => p.isSupported)],
+                pathname: pathnamePatterns,
+            })
+
+            const cases = [
+                ...varyingDomainCases,
+                ...varyingProtocolCases,
+                ...varyingPortCases,
+                ...varyingPathnameCases]
+                .map(c => ({
+                    ...c,
+                    isSupported: c.domain.isSupported && c.protocol.isSupported && c.port.isSupported && c.pathname.isSupported,
+                    urlPattern: `${c.protocol.pattern}://${c.domain.pattern}${c.port.pattern ? `:${c.port.pattern}` : ''}${c.pathname.pattern}`,
+                }))
+            const supportedCases = cases.filter(c => c.isSupported)
+            const unsupportedCases = cases.filter(c => !c.isSupported)
+
+            test('Should be able to create B2CApp with correct pattern', async () => {
+                const [b2cApp] = await createTestB2CApp(admin, {
+                    externalLinks: supportedCases.map(c => c.urlPattern),
+                })
+                expect(b2cApp).toHaveProperty('id')
+            })
+
+            describe('Should not be able to create B2CApp with incorrect patterns', () => {
+                test.each(unsupportedCases)('should not accept $urlPattern pattern as external link', async ({ urlPattern }) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestB2CApp(admin, {
+                            externalLinks: [urlPattern],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_MINIAPP_EXTERNAL_LINKS',
+                    })
+                })
+            })
+
+            test.each(supportedCases)('should support $urlPattern pattern', ({ urlPattern, protocol, domain, port, pathname }) => {
+                const pattern = new URLPattern(urlPattern)
+
+                const concretePorts = port.pattern ? [port.pattern] : ['']
+                const querySuffixes = ['', '?foo=bar&baz=1']
+                const hashSuffixes = ['', '#section-2']
+
+                const buildUrl = (proto, host, portStr, path) =>
+                    `${proto}://${host}${portStr ? `:${portStr}` : ''}${path}`
+
+                for (const { host, portStr, path } of _generateCombinations({
+                    host: domain.positiveExamples,
+                    portStr: concretePorts,
+                    path: pathname.positiveExamples,
+                })) {
+                    const base = buildUrl(protocol.pattern, host, portStr, path)
+                    for (const { query, hash } of _generateCombinations({ query: querySuffixes, hash: hashSuffixes })) {
+                        expect(pattern.test(base + query + hash)).toBe(true)
+                    }
+                }
+
+                for (const { host, portStr, path } of _generateCombinations({
+                    host: domain.negativeExamples,
+                    portStr: concretePorts,
+                    path: pathname.positiveExamples,
+                })) {
+                    expect(pattern.test(buildUrl(protocol.pattern, host, portStr, path))).toBe(false)
+                }
+
+                for (const { host, portStr, path } of _generateCombinations({
+                    host: domain.positiveExamples,
+                    portStr: concretePorts,
+                    path: pathname.negativeExamples,
+                })) {
+                    expect(pattern.test(buildUrl(protocol.pattern, host, portStr, path))).toBe(false)
+                }
             })
         })
     })
