@@ -198,14 +198,14 @@ export type GetBillingSendBillingReceiptFilesTasksQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetBillingSendBillingReceiptFilesTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, sentRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null };
+export type GetBillingSendBillingReceiptFilesTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, exportedRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null };
 
 export type CreateBillingSendBillingReceiptFilesTaskMutationVariables = Types.Exact<{
   data: Types.BillingSendBillingReceiptFilesTaskCreateInput;
 }>;
 
 
-export type CreateBillingSendBillingReceiptFilesTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, sentRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
+export type CreateBillingSendBillingReceiptFilesTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, exportedRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
 
 export type UpdateBillingSendBillingReceiptFilesTaskMutationVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
@@ -213,7 +213,7 @@ export type UpdateBillingSendBillingReceiptFilesTaskMutationVariables = Types.Ex
 }>;
 
 
-export type UpdateBillingSendBillingReceiptFilesTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, sentRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
+export type UpdateBillingSendBillingReceiptFilesTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BillingSendBillingReceiptFilesTask', id: string, status?: Types.BillingSendBillingReceiptFilesTaskStatusType | null, exportedRecordsCount?: number | null, totalRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
 
 export type GetProcessingTasksQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];

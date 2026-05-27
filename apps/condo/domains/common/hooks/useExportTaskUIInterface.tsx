@@ -24,7 +24,10 @@ type ExportTaskMergedType = {
     IncidentExportTask: GetIncidentExportTasksQuery['tasks'][number]
     TicketExportTask: GetTicketExportTasksQuery['tasks'][number]
     ContactExportTask: GetContactExportTasksQuery['tasks'][number]
-    BillingSendBillingReceiptFilesTask: GetBillingSendBillingReceiptFilesTasksQuery['tasks'][number]
+    BillingSendBillingReceiptFilesTask: GetBillingSendBillingReceiptFilesTasksQuery['tasks'][number] & {
+        exportedRecordsCount: number
+        totalRecordsCount: number
+    }
     NewsItemRecipientsExportTask: GetNewsItemRecipientsExportTasksQuery['tasks'][number] & {
         exportedRecordsCount: number
         totalRecordsCount: number

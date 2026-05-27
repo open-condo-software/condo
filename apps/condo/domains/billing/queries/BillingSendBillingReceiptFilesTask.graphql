@@ -4,7 +4,7 @@ query getBillingSendBillingReceiptFilesTasks ($where: BillingSendBillingReceiptF
     ) {
         id
         status
-        sentRecordsCount
+        exportedRecordsCount
         totalRecordsCount
         file {
             publicUrl

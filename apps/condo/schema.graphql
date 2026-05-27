@@ -15509,7 +15509,7 @@ type BillingSendBillingReceiptFilesTaskHistoryRecord {
   """
   _label_: String
   status: String
-  sentRecordsCount: Int
+  exportedRecordsCount: Int
   totalRecordsCount: Int
   file: JSON
   period: String
@@ -15552,14 +15552,14 @@ input BillingSendBillingReceiptFilesTaskHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
-  sentRecordsCount: Int
-  sentRecordsCount_not: Int
-  sentRecordsCount_lt: Int
-  sentRecordsCount_lte: Int
-  sentRecordsCount_gt: Int
-  sentRecordsCount_gte: Int
-  sentRecordsCount_in: [Int]
-  sentRecordsCount_not_in: [Int]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
   totalRecordsCount: Int
   totalRecordsCount_not: Int
   totalRecordsCount_lt: Int
@@ -15677,8 +15677,8 @@ input BillingSendBillingReceiptFilesTaskHistoryRecordWhereUniqueInput {
 enum SortBillingSendBillingReceiptFilesTaskHistoryRecordsBy {
   status_ASC
   status_DESC
-  sentRecordsCount_ASC
-  sentRecordsCount_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
   totalRecordsCount_ASC
   totalRecordsCount_DESC
   period_ASC
@@ -15703,7 +15703,7 @@ enum SortBillingSendBillingReceiptFilesTaskHistoryRecordsBy {
 
 input BillingSendBillingReceiptFilesTaskHistoryRecordUpdateInput {
   status: String
-  sentRecordsCount: Int
+  exportedRecordsCount: Int
   totalRecordsCount: Int
   file: JSON
   period: String
@@ -15731,7 +15731,7 @@ input BillingSendBillingReceiptFilesTaskHistoryRecordsUpdateInput {
 
 input BillingSendBillingReceiptFilesTaskHistoryRecordCreateInput {
   status: String
-  sentRecordsCount: Int
+  exportedRecordsCount: Int
   totalRecordsCount: Int
   file: JSON
   period: String
@@ -15779,7 +15779,7 @@ type BillingSendBillingReceiptFilesTask {
   status: BillingSendBillingReceiptFilesTaskStatusType
 
   """ How many records were processed for sending at the moment """
-  sentRecordsCount: Int
+  exportedRecordsCount: Int
 
   """ Total records to process """
   totalRecordsCount: Int
@@ -15829,14 +15829,14 @@ input BillingSendBillingReceiptFilesTaskWhereInput {
   status_not: BillingSendBillingReceiptFilesTaskStatusType
   status_in: [BillingSendBillingReceiptFilesTaskStatusType]
   status_not_in: [BillingSendBillingReceiptFilesTaskStatusType]
-  sentRecordsCount: Int
-  sentRecordsCount_not: Int
-  sentRecordsCount_lt: Int
-  sentRecordsCount_lte: Int
-  sentRecordsCount_gt: Int
-  sentRecordsCount_gte: Int
-  sentRecordsCount_in: [Int]
-  sentRecordsCount_not_in: [Int]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
   totalRecordsCount: Int
   totalRecordsCount_not: Int
   totalRecordsCount_lt: Int
@@ -15930,8 +15930,8 @@ input BillingSendBillingReceiptFilesTaskWhereUniqueInput {
 enum SortBillingSendBillingReceiptFilesTasksBy {
   status_ASC
   status_DESC
-  sentRecordsCount_ASC
-  sentRecordsCount_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
   totalRecordsCount_ASC
   totalRecordsCount_DESC
   period_ASC
@@ -15960,7 +15960,7 @@ enum SortBillingSendBillingReceiptFilesTasksBy {
 
 input BillingSendBillingReceiptFilesTaskUpdateInput {
   status: BillingSendBillingReceiptFilesTaskStatusType
-  sentRecordsCount: Int
+  exportedRecordsCount: Int
   totalRecordsCount: Int
   file: FileMeta
   period: String
@@ -15985,7 +15985,7 @@ input BillingSendBillingReceiptFilesTasksUpdateInput {
 
 input BillingSendBillingReceiptFilesTaskCreateInput {
   status: BillingSendBillingReceiptFilesTaskStatusType
-  sentRecordsCount: Int
+  exportedRecordsCount: Int
   totalRecordsCount: Int
   file: FileMeta
   period: String

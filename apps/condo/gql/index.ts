@@ -1197,7 +1197,7 @@ export const GetBillingSendBillingReceiptFilesTasksDocument = gql`
   tasks: allBillingSendBillingReceiptFilesTasks(where: $where) {
     id
     status
-    sentRecordsCount
+    exportedRecordsCount
     totalRecordsCount
     file {
       publicUrl
@@ -1248,7 +1248,7 @@ export const CreateBillingSendBillingReceiptFilesTaskDocument = gql`
   task: createBillingSendBillingReceiptFilesTask(data: $data) {
     id
     status
-    sentRecordsCount
+    exportedRecordsCount
     totalRecordsCount
     file {
       publicUrl
@@ -1289,7 +1289,7 @@ export const UpdateBillingSendBillingReceiptFilesTaskDocument = gql`
   task: updateBillingSendBillingReceiptFilesTask(data: $data, id: $id) {
     id
     status
-    sentRecordsCount
+    exportedRecordsCount
     totalRecordsCount
     file {
       publicUrl
