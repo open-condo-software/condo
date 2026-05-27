@@ -28,6 +28,8 @@ const {
 const { getCallStatus, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -842,6 +844,89 @@ describe('SendVoIPCallStartMessageService', () => {
             expect(createdMessage.meta.data).toEqual(expect.objectContaining(
                 Object.fromEntries(customFieldNames.map(fieldName => ([fieldName, customValue])))
             ))
+        })
+
+        describe('Multiple messages for one call', () => {
+
+            test(`Creates message of old ${VOIP_INCOMING_CALL_MESSAGE_TYPE} and one of the new types: ${VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE} or ${VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE}`, async () => {
+                const unitName = faker.random.alphaNumeric(3)
+                const unitType = FLAT_UNIT_TYPE
+                const actor = await prepareUser({ admin, organization, property, unitName, unitType })
+        
+                const callDataNative = {
+                    callId: faker.datatype.uuid(),
+                    nativeCallData: {
+                        voipAddress: faker.internet.ip(),
+                        voipLogin: faker.internet.userName(),
+                        voipPassword: faker.internet.password(),
+                        voipPanels: [{ dtmfCommand: faker.random.alphaNumeric(2), name: faker.random.alphaNumeric(3) }],
+                        stunServers: [faker.internet.ip()],
+                        codec: 'vp8',
+                    },
+                }
+
+                const callDataB2c = {
+                    callId: faker.datatype.uuid(),
+                    b2cAppCallData: {
+                        B2CAppContext: '',
+                    },
+                }
+        
+                const [resultNative] = await sendVoIPCallStartMessageByTestClient(serviceUser, {
+                    app: { id: b2cApp.id },
+                    addressKey: property.addressKey,
+                    unitName,
+                    unitType,
+                    callData: callDataNative,
+                })
+        
+                expect(resultNative.verifiedContactsCount).toBe(1)
+                expect(resultNative.createdMessagesCount).toBe(1)
+                expect(resultNative.erroredMessagesCount).toBe(0)
+
+                const createdNativeMessages = await Message.getAll(admin, {
+                    user: { id: actor.user.id },
+                    type_in: [VOIP_INCOMING_CALL_MESSAGE_TYPE, VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE],
+                }, { first: 2, sortBy: ['createdAt_DESC'] })
+
+                expect(createdNativeMessages).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        type: VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE,
+                    }),
+                    expect.objectContaining({
+                        type: VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE,
+                    }),
+                ]))
+
+
+                const [resultB2C] = await sendVoIPCallStartMessageByTestClient(serviceUser, {
+                    app: { id: b2cApp.id },
+                    addressKey: property.addressKey,
+                    unitName,
+                    unitType,
+                    callData: callDataB2c,
+                })
+        
+                expect(resultB2C.verifiedContactsCount).toBe(1)
+                expect(resultB2C.createdMessagesCount).toBe(1)
+                expect(resultB2C.erroredMessagesCount).toBe(0)
+
+                const createdB2CMessages = await Message.getAll(admin, {
+                    user: { id: actor.user.id },
+                    type_in: [VOIP_INCOMING_CALL_MESSAGE_TYPE, VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE],
+                }, { first: 2, sortBy: ['createdAt_DESC'] })
+
+                expect(createdB2CMessages).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                    }),
+                    expect.objectContaining({
+                        type: VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE,
+                    }),
+                ]))
+
+            })
+
         })
     })
 })

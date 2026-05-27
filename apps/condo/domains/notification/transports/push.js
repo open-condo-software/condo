@@ -24,6 +24,9 @@ const {
     TICKET_COMMENT_CREATED_TYPE,
     PASS_TICKET_CREATED_MESSAGE_TYPE,
     PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
@@ -318,6 +321,31 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     let container = { failureCount: 0, successCount: 0, responses: [] }
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
+
+    const settings = {
+        _global: {
+            disabled: [...TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS, VOIP_INCOMING_CALL_MESSAGE_TYPE],
+        },
+        ['appId']: {
+            enabled: [VOIP_INCOMING_CALL_MESSAGE_TYPE],
+            disabled: [VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE, VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE],
+        },
+    }
+
+    
+
+    if (message.type === VOIP_INCOMING_CALL_MESSAGE_TYPE) {
+        pushTokens.filter(({ appId }) => {
+            const appSettings = settings[appId]
+            const locallyDisabeld = appSettings?.disabled?.includes(message.type)
+            const locallyEnabled = appSettings?.enabled?.includes(message.type)
+
+            // TODO: make it somehow
+        })
+        const notSupportedRemoteRecipients = pushTokens.filter(({ appId }) => [].includes(appId))
+
+    }
+
     const invalidRecipients = recipients.filter(recipient => !recipient.notification || !recipient.data)
     recipients = recipients.filter(recipient => !invalidRecipients.includes(recipient))
 
