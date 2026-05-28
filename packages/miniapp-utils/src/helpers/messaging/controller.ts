@@ -288,9 +288,10 @@ export class PostMessageController extends EventTarget {
 
     // ---- COMMON HANDLERS METHODS ----
 
-    registerBridgeEvents (options: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
+    registerBridgeEvents (options: Omit<RegisterBridgeEventsOptions, 'addHandler' | 'handlers'>) {
         registerBridgeEvents({
             ...options,
+            handlers: this.#registeredHandlers,
             addHandler: this.addHandler,
         })
         this.updateState({ isBridgeReady: true })

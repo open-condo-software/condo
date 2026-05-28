@@ -25,5 +25,5 @@ export function isValidResponse (value: unknown): value is CondoBridgeSubscripti
         return false
     }
 
-    return (!data || _isObject(data))
+    return (data === undefined || _isObject(data))
 }
