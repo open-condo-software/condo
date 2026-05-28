@@ -281,7 +281,6 @@ describe('SendVoIPCallStartMessageService', () => {
 
     describe('Logic', () => {
         let serviceUser
-        let b2cAppProperty
         let organization
         let property
         let b2cApp
@@ -292,8 +291,8 @@ describe('SendVoIPCallStartMessageService', () => {
 
             const { organization: testOrganization, property: testProperty } = await makeClientWithResidentAccessAndProperty()
             organization = testOrganization
-            property = testProperty;
-            [b2cAppProperty] = await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
+            property = testProperty
+            await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
             serviceUser = await makeClientWithServiceUser()
             const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
             await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } })

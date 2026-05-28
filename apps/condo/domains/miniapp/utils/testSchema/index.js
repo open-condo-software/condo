@@ -14,11 +14,10 @@ const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/c
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { makeClientWithResidentUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
@@ -56,8 +55,8 @@ const {
     B2CAppIntercomConfigAdmin: B2CAppIntercomConfigAdminGQL,
  } = require('@condo/domains/miniapp/gql')
 
-const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { Message } = require('@condo/domains/notification/utils/testSchema') 
 
 const { createTestPhone, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -939,6 +938,10 @@ async function getVoIPCallStatusByTestClient (client, extraAttrs = {}) {
 }
 
 async function prepareVoIPUser ({ admin, organization, property, unitName, unitType }) {
+    if (!admin) admin = await makeLoggedInAdminClient()
+    if (!unitName) unitName = faker.random.alphaNumeric(8)
+    if (!unitType) unitType = FLAT_UNIT_TYPE
+
     const phone = createTestPhone()
     const userClient = await makeClientWithResidentUser({}, { phone })
     const [contact] = await createTestContact(admin, organization, property, {
@@ -959,9 +962,8 @@ async function prepareVoIPUser ({ admin, organization, property, unitName, unitT
     }
 }
 
-async function sendDTMFToB2CAppByTestClient (client, app, extraAttrs = {}) {
+async function sendDTMFToB2CAppByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!app || !app.id) throw new Error('no app')
 
     const extraData = extraAttrs?.data ?? {}
 
@@ -970,8 +972,6 @@ async function sendDTMFToB2CAppByTestClient (client, app, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        app: { id: app.id },
-        callId: faker.random.alphaNumeric(8),
         ...extraAttrs,
         data: {
             dtmfCode: faker.random.alphaNumeric(8),
@@ -1013,29 +1013,35 @@ async function updateTestB2CAppIntercomConfig (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function prepareUserWithVerifiedResidentAndContact ({ admin, organization, property, unitName, unitType }) {
-    if (!admin) admin = await makeLoggedInAdminClient()
-    if (!unitName) unitName = faker.random.alphaNumeric(8)
-    if (!unitType) unitType = FLAT_UNIT_TYPE
-    
-    const phone = createTestPhone()
-    const userClient = await makeClientWithResidentUser({}, { phone })
-    const [contact] = await createTestContact(admin, organization, property, {
-        unitName: unitName,
-        unitType: unitType,
-        isVerified: true,
-        phone: phone,
-    })
-    const [resident] = await createTestResident(admin, userClient.user, property, {
-        unitName: unitName,
-        unitType: unitType,
-    })
 
-    return {
-        user: userClient.user,
-        contact,
-        resident,
-    }
+async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type = 'b2c', resident, nativeCallData = {}, b2cAppCallData = {} }) {
+    if (!admin) admin = await makeLoggedInAdminClient()    
+    
+    const callId = faker.datatype.uuid()
+    const dtmfCommand = faker.random.alphaNumeric(4)
+    await sendVoIPCallStartMessageByTestClient(serviceUserClient, {
+        app: { id: b2cAppId },
+        addressKey: resident.addressKey,
+        unitName: resident.unitName,
+        unitType: resident.unitType,
+        callData: {
+            callId,
+            ...type === 'b2c' 
+                ? { b2cAppCallData: { B2CAppContext: '', ...b2cAppCallData } }
+                : { 
+                    nativeCallData: {
+                        voipAddress: faker.internet.ipv4(),
+                        voipPassword: faker.internet.password(), 
+                        voipLogin: faker.internet.userName(),
+                        voipPanels: [{ dtmfCommand }],
+                        ...nativeCallData
+                    } 
+                },
+        },
+    })
+    const [msg] = await Message.getAll(admin, { user: { id: resident.user.id || resident.user }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
+    const callStatusJWTToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+    return { callId, callStatusJWTToken, msg, dtmfCommand }
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -1073,6 +1079,6 @@ module.exports = {
     getVoIPCallStatusByTestClient,
     prepareVoIPUser,
     B2CAppIntercomConfig, B2CAppIntercomConfigAdmin, createTestB2CAppIntercomConfig, updateTestB2CAppIntercomConfig,
-    prepareUserWithVerifiedResidentAndContact,
+    makeStartCallRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

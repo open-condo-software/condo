@@ -95212,7 +95212,7 @@ input SendB2BAppPushMessageInput {
 
 type SendB2BAppPushMessageOutput {
   status: String!
-  id: String!
+  id: String
 }
 
 input SendVoIPCallStartMessageVoIPPanelParameters {
@@ -95315,31 +95315,6 @@ enum SendVoIPCallStartMessageUnitType {
   warehouse
 }
 
-input SendDTMFToB2CAppData {
-  """Code for opening intercom, same which was sent in voip call"""
-  dtmfCode: String!
-}
-
-input SendDTMFToB2CAppInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  app: B2CAppWhereUniqueInput!
-
-  """Same "callId" which been sent in sendVoIPStartMessage"""
-  callId: String!
-
-  """Token which was received in push"""
-  callStatusToken: String!
-  property: PropertyWhereUniqueInput!
-  organization: OrganizationWhereUniqueInput!
-  data: SendDTMFToB2CAppData!
-}
-
-type SendDTMFToB2CAppOutput {
-  """"OK" string, otherwise an error will be thrown"""
-  status: String!
-}
-
 enum SendVoIPCallCancelMessageCancelReason {
   """
   Call was answered on one of the devices, so call session is still active
@@ -95418,6 +95393,25 @@ enum GetVoIPCallStatusCallStatus {
 type GetVoIPCallStatusOutput {
   """Status of call"""
   status: GetVoIPCallStatusCallStatus!
+}
+
+input SendDTMFToB2CAppData {
+  """Code for opening intercom, same which was sent in voip call"""
+  dtmfCode: String!
+}
+
+input SendDTMFToB2CAppInput {
+  dv: Int!
+  sender: SenderFieldInput!
+
+  """Token with data about the call. Received in voip push messages."""
+  token: String!
+  data: SendDTMFToB2CAppData!
+}
+
+type SendDTMFToB2CAppOutput {
+  """"OK" string, otherwise an error will be thrown"""
+  status: String!
 }
 
 type unauthenticateUserOutput {
@@ -99391,6 +99385,37 @@ type Query {
   """ Retrieve the meta-data for the B2CAppAccessRightSet list. """
   _B2CAppAccessRightSetsMeta: _ListMeta
 
+  """ Search for all B2BAppBillingEmbeddingConfigHistoryRecord items which match the where clause. 
+  """
+  allB2BAppBillingEmbeddingConfigHistoryRecords(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbeddingConfigHistoryRecord]
+
+  """ Search for the B2BAppBillingEmbeddingConfigHistoryRecord item with the matching ID. 
+  """
+  B2BAppBillingEmbeddingConfigHistoryRecord(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereUniqueInput!): B2BAppBillingEmbeddingConfigHistoryRecord
+
+  """ Perform a meta-query on all B2BAppBillingEmbeddingConfigHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppBillingEmbeddingConfigHistoryRecordsMeta(where: B2BAppBillingEmbeddingConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppBillingEmbeddingConfigHistoryRecord list. 
+  """
+  _B2BAppBillingEmbeddingConfigHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppBillingEmbeddingConfig items which match the where clause. 
+  """
+  allB2BAppBillingEmbeddingConfigs(where: B2BAppBillingEmbeddingConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigsBy!], orderBy: String, first: Int, skip: Int): [B2BAppBillingEmbeddingConfig]
+
+  """ Search for the B2BAppBillingEmbeddingConfig item with the matching ID. 
+  """
+  B2BAppBillingEmbeddingConfig(where: B2BAppBillingEmbeddingConfigWhereUniqueInput!): B2BAppBillingEmbeddingConfig
+
+  """ Perform a meta-query on all B2BAppBillingEmbeddingConfig items which match the where clause. 
+  """
+  _allB2BAppBillingEmbeddingConfigsMeta(where: B2BAppBillingEmbeddingConfigWhereInput, search: String, sortBy: [SortB2BAppBillingEmbeddingConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppBillingEmbeddingConfig list. """
+  _B2BAppBillingEmbeddingConfigsMeta: _ListMeta
+
   """ Search for all B2CAppIntercomConfigHistoryRecord items which match the where clause. 
   """
   allB2CAppIntercomConfigHistoryRecords(where: B2CAppIntercomConfigHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppIntercomConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2CAppIntercomConfigHistoryRecord]
@@ -100187,7 +100212,7 @@ type Query {
   `{
     "code": "NOT_FOUND",
     "type": "CALL_NOT_FOUND",
-    "message": "Call not found or expired"
+    "message": "Call for that callId is already ended or never existed"
   }`
   """
   getVoIPCallStatus(data: GetVoIPCallStatusInput!): GetVoIPCallStatusOutput
@@ -105231,6 +105256,46 @@ type Mutation {
   """ Delete multiple B2CAppAccessRightSet items by ID. """
   deleteB2CAppAccessRightSets(ids: [ID!]): [B2CAppAccessRightSet]
 
+  """ Create a single B2BAppBillingEmbeddingConfigHistoryRecord item. """
+  createB2BAppBillingEmbeddingConfigHistoryRecord(data: B2BAppBillingEmbeddingConfigHistoryRecordCreateInput): B2BAppBillingEmbeddingConfigHistoryRecord
+
+  """ Create multiple B2BAppBillingEmbeddingConfigHistoryRecord items. """
+  createB2BAppBillingEmbeddingConfigHistoryRecords(data: [B2BAppBillingEmbeddingConfigHistoryRecordsCreateInput]): [B2BAppBillingEmbeddingConfigHistoryRecord]
+
+  """ Update a single B2BAppBillingEmbeddingConfigHistoryRecord item by ID. 
+  """
+  updateB2BAppBillingEmbeddingConfigHistoryRecord(id: ID!, data: B2BAppBillingEmbeddingConfigHistoryRecordUpdateInput): B2BAppBillingEmbeddingConfigHistoryRecord
+
+  """ Update multiple B2BAppBillingEmbeddingConfigHistoryRecord items by ID. 
+  """
+  updateB2BAppBillingEmbeddingConfigHistoryRecords(data: [B2BAppBillingEmbeddingConfigHistoryRecordsUpdateInput]): [B2BAppBillingEmbeddingConfigHistoryRecord]
+
+  """ Delete a single B2BAppBillingEmbeddingConfigHistoryRecord item by ID. 
+  """
+  deleteB2BAppBillingEmbeddingConfigHistoryRecord(id: ID!): B2BAppBillingEmbeddingConfigHistoryRecord
+
+  """ Delete multiple B2BAppBillingEmbeddingConfigHistoryRecord items by ID. 
+  """
+  deleteB2BAppBillingEmbeddingConfigHistoryRecords(ids: [ID!]): [B2BAppBillingEmbeddingConfigHistoryRecord]
+
+  """ Create a single B2BAppBillingEmbeddingConfig item. """
+  createB2BAppBillingEmbeddingConfig(data: B2BAppBillingEmbeddingConfigCreateInput): B2BAppBillingEmbeddingConfig
+
+  """ Create multiple B2BAppBillingEmbeddingConfig items. """
+  createB2BAppBillingEmbeddingConfigs(data: [B2BAppBillingEmbeddingConfigsCreateInput]): [B2BAppBillingEmbeddingConfig]
+
+  """ Update a single B2BAppBillingEmbeddingConfig item by ID. """
+  updateB2BAppBillingEmbeddingConfig(id: ID!, data: B2BAppBillingEmbeddingConfigUpdateInput): B2BAppBillingEmbeddingConfig
+
+  """ Update multiple B2BAppBillingEmbeddingConfig items by ID. """
+  updateB2BAppBillingEmbeddingConfigs(data: [B2BAppBillingEmbeddingConfigsUpdateInput]): [B2BAppBillingEmbeddingConfig]
+
+  """ Delete a single B2BAppBillingEmbeddingConfig item by ID. """
+  deleteB2BAppBillingEmbeddingConfig(id: ID!): B2BAppBillingEmbeddingConfig
+
+  """ Delete multiple B2BAppBillingEmbeddingConfig items by ID. """
+  deleteB2BAppBillingEmbeddingConfigs(ids: [ID!]): [B2BAppBillingEmbeddingConfig]
+
   """ Create a single B2CAppIntercomConfigHistoryRecord item. """
   createB2CAppIntercomConfigHistoryRecord(data: B2CAppIntercomConfigHistoryRecordCreateInput): B2CAppIntercomConfigHistoryRecord
 
@@ -108521,6 +108586,9 @@ type Mutation {
   			},
   			"getVoIPCallStatusTimeout": {
   				"required": false
+  			},
+  			"sendDTMFTimeout": {
+  				"required": false
   			}
   		}
   	},
@@ -108560,6 +108628,9 @@ type Mutation {
   				"required": false
   			},
   			"getVoIPCallStatusTimeout": {
+  				"required": false
+  			},
+  			"sendDTMFTimeout": {
   				"required": false
   			}
   		}
@@ -110011,7 +110082,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "INVALID_CALL_ID",
-    "message": "\"callId\" contains invalid characters or does not has length between 1 and 300"
+    "message": "\"callId\" contains invalid characters or does not have length between 1 and 300"
   }`
   
   `{
@@ -110021,7 +110092,6 @@ type Mutation {
   }`
   """
   sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput
-  sendDTMFToB2CApp(data: SendDTMFToB2CAppInput!): SendDTMFToB2CAppOutput
 
   """
   Mutation sends CANCELED_CALL_MESSAGE Messages to each verified resident on address + unit. This push rejects incoming calls, if they werent answered yet.
@@ -110041,10 +110111,11 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "INVALID_CALL_ID",
-    "message": "\"callId\" contains invalid characters or does not has length between 1 and 300"
+    "message": "\"callId\" contains invalid characters or does not have length between 1 and 300"
   }`
   """
   sendVoIPCallCancelMessage(data: SendVoIPCallCancelMessageInput!): SendVoIPCallCancelMessageOutput
+  sendDTMFToB2CApp(data: SendDTMFToB2CAppInput!): SendDTMFToB2CAppOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """
