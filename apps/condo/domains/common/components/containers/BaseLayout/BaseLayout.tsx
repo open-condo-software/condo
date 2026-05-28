@@ -4,9 +4,10 @@ import classnames from 'classnames'
 import Router from 'next/router'
 import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+
 import { useAIContext } from '@condo/domains/ai/components/AIContext'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { UI_HIDE_LAYOUT_HEADER, UI_HIDE_LAYOUT_SIDE_MENU } from '@condo/domains/common/constants/featureflags'
 
 import styles from './BaseLayout.module.css'
