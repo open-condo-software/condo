@@ -6,6 +6,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -15,6 +16,7 @@ import { Space } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { UI_HIDE_USER_LINKS } from '@condo/domains/common/constants/featureflags'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { UserMessagesListContextProvider } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
@@ -24,9 +26,7 @@ import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/doma
 import { useOrganizationEmployeeRequests } from '@condo/domains/organization/hooks/useOrganizationEmployeeRequests'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
-import { UI_HIDE_USER_HEADER_MENU_ITEM } from '@condo/domains/common/constants/featureflags'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
@@ -42,7 +42,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const { toggleCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
     const { useFlag } = useFeatureFlags()
-    const isUserMenuHidden = useFlag(UI_HIDE_USER_HEADER_MENU_ITEM)
+    const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()

@@ -54,7 +54,7 @@ import { SurveysQueue } from '@condo/domains/common/components/surveys/SurveyQue
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, UI_LEGAL_INFO } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -533,6 +533,8 @@ const MyApp = ({ Component, pageProps }) => {
         RequiredAccess = Component.requiredAccess
     }
 
+    const { useFlag } = useFeatureFlags()
+    const isLegalInfoEnabled = useFlag(UI_LEGAL_INFO)
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth(\/.*)?/)
 
     // NOTE: We remember that the client has already been authorized,
@@ -563,7 +565,7 @@ const MyApp = ({ Component, pageProps }) => {
                             detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
                             initialIsCollapsed={initialIsCollapsed}
                         >
-                            {shouldDisplayCookieAgreement && <CookieAgreement/>}
+                            {shouldDisplayCookieAgreement && isLegalInfoEnabled && <CookieAgreement/>}
                             <HCaptchaProvider>
                                 <SudoTokenProvider>
                                     <TasksProvider>

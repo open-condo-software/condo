@@ -27,24 +27,26 @@ export const Footer: React.FC = () => {
 
     const localizedFooterConfig = footerConfig?.[intl?.locale] || null
 
-    return isLegalInfoEnabled && localizedFooterConfig && (
+    return (
         <Layout.Footer
             className={styles.footer}
         >
-            <Row justify='end'>
-                {
-                    localizedFooterConfig?.privacyPolicyLink &&
-                    <Col>
-                        <SecondaryLink
-                            size='small'
-                            href={localizedFooterConfig?.privacyPolicyLink}
-                            target='_blank'
-                        >
-                            {privacyPolicyText}
-                        </SecondaryLink>
-                    </Col>
-                }
-            </Row>
+            {isLegalInfoEnabled && localizedFooterConfig && (
+                <Row justify='end'>
+                    {
+                        localizedFooterConfig?.privacyPolicyLink &&
+                        <Col>
+                            <SecondaryLink
+                                size='small'
+                                href={localizedFooterConfig?.privacyPolicyLink}
+                                target='_blank'
+                            >
+                                {privacyPolicyText}
+                            </SecondaryLink>
+                        </Col>
+                    }
+                </Row>
+            )}
         </Layout.Footer>
     )
 }
