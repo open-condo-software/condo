@@ -15,14 +15,6 @@ const DV_SENDER_SCHEMA = z.strictObject({
     sender: z.strictObject({ dv: z.number(), fingerprint: z.string() }),
 })
 
-// const GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.extend(z.strictObject({
-//     token: z.string(),
-// }))
-
-// const SEND_DTMF_TO_B2C_APP_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.extend(z.strictObject({
-//     token: z.string(),
-// }))
-
 const HANDLERS_CONFIG = [
     {
         path: GET_VOIP_CALL_STATUS_URL_PATH,
@@ -140,20 +132,6 @@ class VoIPMiddleware {
                 callService(handler.callServiceFn),
             )
         }
-
-        // app.get(
-        //     GET_VOIP_CALL_STATUS_URL_PATH,
-        //     this.withKeystoneContext, 
-        //     withParsedData(GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA), 
-        //     callService(getVoIPCallStatus),
-        // )
-
-        // app.get(
-        //     SEND_DTMF_TO_B2C_APP_URL_PATH,
-        //     this.withKeystoneContext,
-        //     withParsedData(SEND_DTMF_TO_B2C_APP_QUERY_DATA_SCHEMA),
-        //     callService(sendDTMFToB2CApp)
-        // )
 
         app.use(expressErrorHandler)
 

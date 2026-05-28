@@ -101,7 +101,7 @@ describe('SendDTMFToB2CAppService spec', () => {
             {
                 name: 'throws error if call not found',
                 updateJWTToken: (jwtTokenParsed) => ({ ...jwtTokenParsed, callId: faker.random.alphaNumeric(8) }),
-                expected: ERRORS.CALL_NOT_FOUND, // { mutation: 'sendDTMFToB2CApp', code: 'NOT_FOUND', type: 'CALL_NOT_FOUND' },
+                expected: ERRORS.CALL_NOT_FOUND,
             },
         ]
 

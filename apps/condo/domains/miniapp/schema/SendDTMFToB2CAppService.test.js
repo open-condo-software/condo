@@ -161,22 +161,22 @@ describe('SendDTMFToB2CAppService', () => {
             {
                 name: 'throws error if dtmfCode empty',
                 getDTMFCode: () => '',
-                expected: ERRORS.INVALID_DTMF_CODE, // { mutation: 'sendDTMFToB2CApp', code: 'BAD_USER_INPUT', type: 'INVALID_DTMF_CODE' },
+                expected: ERRORS.INVALID_DTMF_CODE,
             },
             {
                 name: 'throws error if intercom returns 403',
                 setup: () => { intercomResponseStatus = 403 },
-                expected: ERRORS.INVALID_ACCESS_TOKEN, ///{ mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'INVALID_ACCESS_TOKEN' },
+                expected: ERRORS.INVALID_ACCESS_TOKEN,
             },
             {
                 name: 'throws error if intercom returns 404',
                 setup: () => { intercomResponseStatus = 404 },
-                expected: ERRORS.CALL_NOT_FOUND, //{ mutation: 'sendDTMFToB2CApp', code: 'NOT_FOUND', type: 'CALL_NOT_FOUND' },
+                expected: ERRORS.CALL_NOT_FOUND,
             },
             {
                 name: 'throws error if intercom returns 500',
                 setup: () => { intercomResponseStatus = 500 },
-                expected: ERRORS.UNKNOWN_ERROR, // { mutation: 'sendDTMFToB2CApp', code: 'INTERNAL_ERROR', type: 'UNKNOWN_ERROR' },
+                expected: ERRORS.UNKNOWN_ERROR,
             },
             {
                 name: 'throws error if app has no intercom config',
@@ -185,7 +185,7 @@ describe('SendDTMFToB2CAppService', () => {
                     await updateTestB2CAppIntercomConfig(admin, intercomConfig.id, { deletedAt: new Date().toISOString() })
                     await expectToThrowGQLErrorToResult(async () => {
                         await sendDTMFToB2CAppByTestClient(client, attrs)
-                    }, ERRORS.APP_NOT_ALLOWED) //{ mutation: 'sendDTMFToB2CApp', code: 'FORBIDDEN', type: 'APP_NOT_ALLOWED' })
+                    }, ERRORS.APP_NOT_ALLOWED)
                 },
             },
         ]
