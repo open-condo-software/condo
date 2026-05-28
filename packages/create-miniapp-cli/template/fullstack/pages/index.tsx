@@ -1,6 +1,6 @@
 import React from 'react'
-import { useIntl } from 'react-intl'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 
 const IndexPage = () => {
