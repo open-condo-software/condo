@@ -6,6 +6,7 @@ const TICKET_REPORT_TABLE_MAIN_GROUP = ['categoryClassifier', 'executor', 'assig
 const REQUIRED_TICKET_FIELDS = ['property', 'details', 'placeClassifier', 'categoryClassifier', 'deadline']
 
 const TICKET_SOURCE_PREFIX = 'ticket.source.'
+
 const TICKET_SOURCE_TYPES = {
     EMAIL: 'email',
     MOBILE_APP: 'mobile_app',
@@ -22,6 +23,14 @@ const TICKET_SOURCE_TYPES = {
     CRM_IMPORT: 'crm_import',
     WEB_APP_RESIDENT: 'web_app_resident',
 }
+
+const AUTO_ASSIGN_SOURCE_TYPES = [
+    TICKET_SOURCE_TYPES.MOBILE_APP,
+    TICKET_SOURCE_TYPES.MESSENGER,
+    TICKET_SOURCE_TYPES.WEB_APP_RESIDENT,
+    TICKET_SOURCE_TYPES.MOBILE_APP_RESIDENT,
+    TICKET_SOURCE_TYPES.REMOTE_SYSTEM,
+]
 
 const MIN_TICKET_DEADLINE_DURATION = 'P' // 0 days
 const MAX_TICKET_DEADLINE_DURATION = 'P45D' // 45 days
@@ -50,6 +59,7 @@ module.exports = {
     TICKET_REPORT_TABLE_MAIN_GROUP,
     REQUIRED_TICKET_FIELDS,
     TICKET_SOURCE_TYPES,
+    AUTO_ASSIGN_SOURCE_TYPES,
     TICKET_SOURCE_PREFIX,
     MIN_TICKET_DEADLINE_DURATION,
     MAX_TICKET_DEADLINE_DURATION,

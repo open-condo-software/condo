@@ -46,6 +46,7 @@ const AI_STREAMING = 'ai-streaming'
 const SUBSCRIPTIONS = 'subscriptions'
 const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
 const TICKET_OBSERVERS = 'ticket-observers'
+const AUTO_ASSIGN_ALL_TICKETS = 'auto-assign-all-tickets'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
 const TWO_FACTOR_SETTING = 'two-factor-setting'
@@ -102,6 +103,7 @@ module.exports = {
     UI_NEWS_MARKDOWN,
     ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
     TICKET_OBSERVERS,
+    AUTO_ASSIGN_ALL_TICKETS,
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
     SUBSCRIPTION_PAYMENT_MODAL,
     TWO_FACTOR_SETTING,
