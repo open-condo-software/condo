@@ -1,5 +1,6 @@
 import pkg from '../../package.json'
 import { promisifySend } from '../utils/promisify'
+import { isValidResponse } from '../utils/response'
 
 import type {
     AnyRequestMethodName,
@@ -41,8 +42,7 @@ export class WebCondoBridge implements CondoBridge {
 
     #handleResponseEvent (event: MessageEvent) {
         const response = event.data
-        // TODO: validate shape
-        if (typeof response !== 'object') {
+        if (!isValidResponse(response)) {
             return
         }
 
