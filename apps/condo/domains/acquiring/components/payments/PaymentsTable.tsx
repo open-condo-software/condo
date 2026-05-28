@@ -105,7 +105,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
-    const { billingContexts } = useBillingAndAcquiringContexts()
+    const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts[0]
 
     const { breakpoints } = useLayoutContext()
@@ -129,7 +129,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         setIsStatusDescModalVisible(true)
     }
 
-    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext })
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext, acquiringContexts })
 
     useEffect(() => {
         if (!areAlertLoading) {
