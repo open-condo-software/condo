@@ -24,7 +24,9 @@ import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/doma
 import { useOrganizationEmployeeRequests } from '@condo/domains/organization/hooks/useOrganizationEmployeeRequests'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
+import { UI_HIDE_USER_HEADER_MENU_ITEM } from '@condo/domains/common/constants/featureflags'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
@@ -39,6 +41,8 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
     const { toggleCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
+    const { useFlag } = useFeatureFlags()
+    const isUserMenuHidden = useFlag(UI_HIDE_USER_HEADER_MENU_ITEM)
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
@@ -89,7 +93,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                                         <SBBOLIndicator organization={organization} />
                                         <InlineOrganizationSelect/>
                                     </Space>
-                                    <UserMenu/>
+                                    {!isUserMenuHidden && <UserMenu/>}
                                 </div>
                             </div>
                             <div className='appeals-bar'>
