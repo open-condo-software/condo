@@ -3,6 +3,8 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
+
+
 import { useIntl } from '@open-condo/next/intl'
 
 import { getPosReceiptUrlRender } from '@condo/domains/acquiring/components/payments/getPosReceiptUrlRender'
@@ -17,8 +19,11 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 import { LastTestingPosReceiptData } from './usePosIntegrationLastTestingPosReceipt'
 
+import type { AcquiringIntegrationContext } from '@app/condo/schema'
+
 
 type PaymentsTableColumnsOptions = {
+    acquiringContexts?: AcquiringIntegrationContext[]
     lastTestingPosReceipt?: LastTestingPosReceiptData
     posIntegrationContext?: GetB2BAppContextWithPosIntegrationConfigQuery['contexts'][number]
 }
@@ -32,6 +37,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
+    const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
     const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
@@ -102,6 +108,12 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 width: '10em',
                 sorter: true,
             },
+            source: options.acquiringContexts?.length > 1 ? {
+                title: PaymentSourceTitle,
+                key: 'integration',
+                dataIndex: ['context', 'integration', 'name'],
+                width: '7em',
+            } : null,
             posReceiptUrl: options.posIntegrationContext ? {
                 title: PosReceiptColumnTitle,
                 key: 'posReceiptUrl',
@@ -117,5 +129,5 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
         }
 
         return Object.values(columns).filter(Boolean)
-    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.posIntegrationContext, options.lastTestingPosReceipt, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
+    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.acquiringContexts, options.posIntegrationContext, options.lastTestingPosReceipt, PaymentSourceTitle, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
 }
