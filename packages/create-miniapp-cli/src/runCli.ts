@@ -18,6 +18,8 @@ interface CliFlags {
     eslint: boolean
     hasReview: boolean
     hasWorker: boolean
+    hasOidc: boolean
+    hasSchemaStitching: boolean
     appResources: ResourceSettings
     maxOldSpace: MaxOldSpace
     workerResources?: ResourceSettings
@@ -39,6 +41,8 @@ const defaultOptions: CliResults = {
         appType: APP_TYPES.server,
         hasReview: false,
         hasWorker: false,
+        hasOidc: false,
+        hasSchemaStitching: false,
         appResources: DEFAULT_APP_RESOURCES,
         maxOldSpace: DEFAULT_MAX_OLD_SPACE,
     },
@@ -127,6 +131,22 @@ export const runCli = async (): Promise<CliResults> => {
                     initialValue: defaultOptions.flags.hasWorker,
                 })
             },
+            hasOidc: ({ results }) => {
+                if (results.appType !== APP_TYPES['full-stack']) return
+
+                return p.confirm({
+                    message: 'Will app be launched from Condo (OIDC + Bridge auth)?',
+                    initialValue: true,
+                })
+            },
+            hasSchemaStitching: ({ results }) => {
+                if (results.appType !== APP_TYPES['full-stack']) return
+
+                return p.confirm({
+                    message: 'Will app need Condo schema stitching?',
+                    initialValue: true,
+                })
+            },
             appResources: ({ results }) => askForResources({
                 label: 'app',
                 wantReview: Boolean(results.hasReview),
@@ -207,6 +227,8 @@ export const runCli = async (): Promise<CliResults> => {
             appType: project.appType ?? cliResults.flags.appType,
             hasReview: project.hasReview ?? cliResults.flags.hasReview,
             hasWorker: project.hasWorker ?? cliResults.flags.hasWorker,
+            hasOidc: Boolean(project.hasOidc ?? cliResults.flags.hasOidc),
+            hasSchemaStitching: Boolean(project.hasSchemaStitching ?? cliResults.flags.hasSchemaStitching),
             appResources: project.appResources as ResourceSettings ?? cliResults.flags.appResources,
             workerResources: project.workerResources as ResourceSettings ?? cliResults.flags.workerResources,
             maxOldSpace: project.maxOldSpace as MaxOldSpace ?? cliResults.flags.maxOldSpace,

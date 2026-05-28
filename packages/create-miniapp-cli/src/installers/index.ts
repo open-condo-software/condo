@@ -23,6 +23,8 @@ export interface InstallerOptions {
     scopedAppName: string
     appType: AppType
     hasWorker: boolean
+    hasOidc: boolean
+    hasSchemaStitching: boolean
 }
 
 export type Installer = (opts: InstallerOptions) => void

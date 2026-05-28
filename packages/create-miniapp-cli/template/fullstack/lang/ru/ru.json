@@ -1,0 +1,8 @@
+{
+  "pages.index.title": "Ваш fullstack миниапп",
+  "pages.index.subtitle": "Добавьте бизнес-логику в domains и pages.",
+  "pages.condo.error.NotFoundTitle": "Страница не найдена",
+  "pages.condo.error.NotFoundDescription": "Запрошенная страница не существует.",
+  "pages.error.500.title": "Что-то пошло не так",
+  "pages.error.500.description": "Попробуйте снова позже."
+}

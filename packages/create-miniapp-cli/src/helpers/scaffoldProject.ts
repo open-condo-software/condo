@@ -20,6 +20,119 @@ function getTemplateBaseDir (appType: AppType) {
     return path.join(PKG_ROOT, 'template/fullstack')
 }
 
+type FullstackFeatureFlags = {
+    OIDC: boolean
+    STITCH: boolean
+}
+
+const CONDITIONAL_START_RE = /^\/\/\s*@if\s+([A-Z_]+)\s*$/
+const CONDITIONAL_END_RE = /^\/\/\s*@endif\s*$/
+
+function resolveFeatureFlag (token: string, flags: FullstackFeatureFlags): boolean {
+    if (token.startsWith('NOT_')) {
+        const nestedToken = token.slice(4)
+        return !resolveFeatureFlag(nestedToken, flags)
+    }
+
+    if (token in flags) {
+        return flags[token as keyof FullstackFeatureFlags]
+    }
+
+    throw new Error(`Unknown fullstack template feature flag: ${token}`)
+}
+
+function pruneConditionalBlocks (raw: string, flags: FullstackFeatureFlags) {
+    const lines = raw.split('\n')
+    const keepStack = [true]
+    const output: string[] = []
+
+    for (const line of lines) {
+        const trimmed = line.trim()
+        const startMatch = trimmed.match(CONDITIONAL_START_RE)
+
+        if (startMatch) {
+            const token = startMatch[1]
+            const parentEnabled = keepStack[keepStack.length - 1]
+            const currentEnabled = resolveFeatureFlag(token, flags)
+            keepStack.push(parentEnabled && currentEnabled)
+            continue
+        }
+
+        if (CONDITIONAL_END_RE.test(trimmed)) {
+            if (keepStack.length === 1) {
+                throw new Error('Unexpected "// @endif" in fullstack template')
+            }
+            keepStack.pop()
+            continue
+        }
+
+        if (keepStack[keepStack.length - 1]) {
+            output.push(line)
+        }
+    }
+
+    if (keepStack.length !== 1) {
+        throw new Error('Unclosed "// @if" block in fullstack template')
+    }
+
+    return output.join('\n')
+}
+
+function pruneTemplateFile (filePath: string, flags: FullstackFeatureFlags) {
+    if (!fs.existsSync(filePath)) return
+
+    const raw = fs.readFileSync(filePath, 'utf-8')
+    const pruned = pruneConditionalBlocks(raw, flags)
+    fs.writeFileSync(filePath, pruned)
+}
+
+function configureFullstackTemplate ({
+    projectDir,
+    hasOidc,
+    hasSchemaStitching,
+}: {
+    projectDir: string
+    hasOidc: boolean
+    hasSchemaStitching: boolean
+}) {
+    const packageJsonPath = path.join(projectDir, 'package.json')
+    const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
+
+    const featureFlags = {
+        OIDC: hasOidc,
+        STITCH: hasSchemaStitching,
+    }
+
+    pruneTemplateFile(path.join(projectDir, 'index.js'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'pages/_app.tsx'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'bin/prepare.js'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'next.config.ts'), featureFlags)
+
+    if (!hasOidc) {
+        fs.removeSync(path.join(projectDir, 'middlewares/oidc.js'))
+        fs.removeSync(path.join(projectDir, 'domains/common/hooks/useLaunchParams.ts'))
+        fs.removeSync(path.join(projectDir, 'domains/common/utils/oidcAuth.tsx'))
+
+        if (pkgJson.dependencies) {
+            delete pkgJson.dependencies['openid-client']
+            delete pkgJson.dependencies['@open-condo/bridge']
+        }
+    }
+
+    if (!hasSchemaStitching) {
+        fs.removeSync(path.join(projectDir, 'bin/generate-condo-schema.js'))
+        fs.removeSync(path.join(projectDir, 'domains/condo'))
+        fs.removeSync(path.join(projectDir, 'condoSchema.graphql'))
+
+        if (pkgJson.scripts) {
+            delete pkgJson.scripts['maketypes:condo']
+            pkgJson.scripts.maketypes = 'cross-env NODE_ENV=development yarn maketypes:local'
+        }
+    }
+
+    fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
+}
+
 // This bootstraps the base application based on user's choice of AppType(server | client | full-stack)
 export const scaffoldProject = async ({
     projectName,
@@ -28,6 +141,8 @@ export const scaffoldProject = async ({
     noInstall,
     appType,
     hasWorker,
+    hasOidc,
+    hasSchemaStitching,
 }: InstallerOptions) => {
     const srcDir = getTemplateBaseDir(appType)
 
@@ -114,6 +229,10 @@ export const scaffoldProject = async ({
             delete pkgJson.scripts.worker
             fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
         }
+    }
+
+    if (appType === APP_TYPES['full-stack']) {
+        configureFullstackTemplate({ projectDir, hasOidc, hasSchemaStitching })
     }
 
     const scaffoldedName = projectName === '.' ? 'App' : chalk.cyan.bold(projectName)
