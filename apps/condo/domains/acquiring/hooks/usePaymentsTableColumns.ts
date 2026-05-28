@@ -108,7 +108,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 width: '10em',
                 sorter: true,
             },
-            source: options.acquiringContexts.length > 1 ? {
+            source: options.acquiringContexts?.length > 1 ? {
                 title: PaymentSourceTitle,
                 key: 'integration',
                 dataIndex: ['context', 'integration', 'name'],
