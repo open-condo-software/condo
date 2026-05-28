@@ -31,6 +31,8 @@ const main = async () => {
             appType,
             hasReview,
             hasWorker,
+            hasOidc,
+            hasSchemaStitching,
             appResources,
             workerResources,
             maxOldSpace,
@@ -47,6 +49,8 @@ const main = async () => {
         noInstall,
         appType,
         hasWorker,
+        hasOidc,
+        hasSchemaStitching,
     })
 
     // Write name to package.json
@@ -65,7 +69,7 @@ const main = async () => {
     if (importAlias !== '~/') {
         setImportAlias(projectDir, importAlias, appName)
     } else {
-        replaceTextInFiles(projectDir, '@app/~/', `@app/${scopedAppName}`)
+        replaceTextInFiles(projectDir, '@app/~/', `@app/${scopedAppName}/`)
     }
 
     // update github related files
