@@ -1,6 +1,8 @@
 import { z } from 'zod'
 
 import type {
+    GetAvailableMethodsParams,
+    GetAvailableMethodsData,
     GetFragmentData,
     GetFragmentParams,
     RedirectData,
@@ -18,6 +20,7 @@ import type {
     CloseModalWindowData,
     CloseModalWindowParams,
     CondoBridgeResultResponseEvent,
+    AnyRequestMethodName,
 } from '@open-condo/bridge'
 
 
@@ -25,8 +28,7 @@ import { isSafeUrl } from '../../urls'
 import { generateUUIDv4 } from '../../uuid'
 import { zodSchemaToValidator, sendResponseMessage } from '../utils'
 
-import type { SourceMetadata } from '../types'
-import type { AddHandlerType } from '../types'
+import type { SourceMetadata, AddHandlerType, RegisteredHandlersType, HandlerScope } from '../types'
 
 type SimpleRouter = {
     push(url: string): unknown
@@ -45,6 +47,7 @@ export type ModalsApi = (params: ShowModalWindowParams & ExtraShowModalParams) =
 
 export type RegisterBridgeEventsOptions = {
     addHandler: AddHandlerType
+    handlers: Readonly<RegisteredHandlersType>
     router?: SimpleRouter
     notificationsApi?: NotificationsApi
     modalsApi?: ModalsApi
@@ -53,9 +56,30 @@ export type RegisterBridgeEventsOptions = {
 export function registerBridgeEvents ({
     addHandler,
     router,
+    handlers,
     notificationsApi,
     modalsApi,
 }: RegisterBridgeEventsOptions) {
+    addHandler<GetAvailableMethodsParams, GetAvailableMethodsData>('condo-bridge', 'CondoWebAppGetAvailableMethods', '*', zodSchemaToValidator(z.strictObject({})), ({ source }) => {
+        let localScope: HandlerScope = '*'
+        switch (source.type) {
+            case 'frame':
+                localScope = source.id
+                break
+            case 'window':
+                localScope = 'parent'
+                break
+            case 'worker':
+                localScope = 'worker'
+                break
+        }
+
+        const localHandlers = Object.keys(handlers[localScope]?.['condo-bridge'] ?? {}) as Array<AnyRequestMethodName>
+        const globalHandlers = Object.keys(handlers['*']?.['condo-bridge'] ?? {}) as Array<AnyRequestMethodName>
+
+        return { methods: [...new Set([...localHandlers, ...globalHandlers])] }
+    })
+
     addHandler<ResizeWindowParams, ResizeWindowData>('condo-bridge', 'CondoWebAppResizeWindow', '*', zodSchemaToValidator(z.strictObject({
         height: z.number(),
     })), ({ params, source }) => {

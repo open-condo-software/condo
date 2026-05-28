@@ -50,6 +50,7 @@ export type HandlerMethods<Params extends EventParams, Result extends HandlerRes
     handler: Handler<Params, Result>
 }
 export type HandlerScope = MessageSource['id'] | '*'
+export type RegisteredHandlersType = Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>>
 export type AddHandlerType = <Params extends EventParams, Result extends HandlerResult>(
     eventType: EventType,
     eventName: EventName,
