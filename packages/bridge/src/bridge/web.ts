@@ -19,13 +19,15 @@ export class WebCondoBridge implements CondoBridge {
         this.unsubscribe = this.unsubscribe.bind(this)
         this.send = promisifySend(this.#sendMessage, this.subscribe)
 
+        const bindResponse = this.#handleResponseEvent.bind(this)
+
         if (typeof window !== 'undefined' && 'addEventListener' in window) {
-            window.addEventListener('message', this.#handleResponseEvent)
+            window.addEventListener('message', bindResponse)
         }
     }
 
     #sendMessage<K extends AnyRequestMethodName>(method: K, params?: RequestParams<K> & RequestId) {
-        if (typeof typeof window !== 'undefined') {
+        if (typeof window !== 'undefined') {
             // NOTE: bridge as transport can be used for many platforms with different origins
             // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
             parent.postMessage({
