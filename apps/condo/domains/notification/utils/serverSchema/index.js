@@ -160,6 +160,7 @@ const MessageOrganizationBlackList = generateServerUtils('MessageOrganizationBla
 const MessageBatch = generateServerUtils('MessageBatch')
 const NotificationUserSetting = generateServerUtils('NotificationUserSetting')
 const TelegramUserChat = generateServerUtils('TelegramUserChat')
+const RegionMessengerUserChat = generateServerUtils('RegionMessengerUserChat')
 const NotificationAnonymousSetting = generateServerUtils('NotificationAnonymousSetting')
 
 async function _internalSendNotificationNewMobileAppVersion (context, data) {
@@ -205,6 +206,7 @@ module.exports = {
     MessageBatch,
     NotificationUserSetting,
     TelegramUserChat,
+    RegionMessengerUserChat,
     NotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersion,
     _internalSendHashedResidentPhones,
