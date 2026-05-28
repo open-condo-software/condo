@@ -7,7 +7,7 @@ import type {
     AnyResponseMethodName,
     ResultResponseData,
     ErrorResponseData,
-} from './types/bridge'
+} from '../types/bridge'
 
 const DEFAULT_METHOD_TIMEOUTS: Partial<Record<AnyRequestMethodName, number>> = {
     CondoWebAppRequestAuth: 10_000, // 10 sec

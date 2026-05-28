@@ -1,5 +1,6 @@
 // Imports for usage here
 import type { CloseApplicationParams, CloseApplicationData } from './CloseApplication'
+import type { GetAvailableMethodsParams, GetAvailableMethodsData } from './GetAvailableMethods'
 import type { GetFragmentParams, GetFragmentData } from './GetFragment'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 import type { PopHistoryStateParams, PopHistoryStateData } from './historical/PopHistoryState'
@@ -21,6 +22,7 @@ import type { ShowNotificationParams, ShowNotificationData } from './ShowNotific
 export type { CloseApplicationParams, CloseApplicationData } from './CloseApplication'
 export type { CloseModalWindowParams, CloseModalWindowData } from './modals/CloseModalWindow'
 export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './progress-bars/GetActiveProgressBars'
+export type { GetAvailableMethodsParams, GetAvailableMethodsData } from './GetAvailableMethods'
 export type { GetFragmentParams, GetFragmentData } from './GetFragment'
 export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 export type { PopHistoryStateParams, PopHistoryStateData } from './historical/PopHistoryState'
@@ -44,6 +46,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppCloseApplication: CloseApplicationParams
     CondoWebAppCloseModalWindow: CloseModalWindowParams
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
+    CondoWebAppGetAvailableMethods: GetAvailableMethodsParams
     CondoWebAppGetFragment: GetFragmentParams
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
     CondoWebAppPopHistoryState: PopHistoryStateParams
@@ -68,6 +71,7 @@ export type ResultResponseDataMap = {
     CondoWebAppCloseApplication: CloseApplicationData
     CondoWebAppCloseModalWindow: CloseModalWindowData
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
+    CondoWebAppGetAvailableMethods: GetAvailableMethodsData
     CondoWebAppGetFragment: GetFragmentData
     CondoWebAppGetLaunchParams: GetLaunchParamsData
     CondoWebAppPopHistoryState: PopHistoryStateData

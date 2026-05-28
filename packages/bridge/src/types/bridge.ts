@@ -55,7 +55,7 @@ export type PromisifiedSendType = <Method extends AnyRequestMethodName>(
 
 export interface CondoBridge {
     send: PromisifiedSendType
-    supports: <Method extends AnyRequestMethodName>(method: Method) => boolean
+    supports: <Method extends AnyRequestMethodName>(method: Method) => Promise<boolean>
     subscribe: (listener: CondoBridgeSubscriptionListener) => void
     unsubscribe: (listener: CondoBridgeSubscriptionListener) => void
 }

@@ -1,9 +1,10 @@
 import Ajv from 'ajv'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
-import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
+import React, { useEffect, useRef, createContext, useState, useContext, useCallback } from 'react'
 
 import type { ErrorReason, ErrorCode } from '@open-condo/bridge'
+import type { AnyRequestMethodName } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 
 import {
@@ -139,17 +140,20 @@ const initialHandlers: Record<HandlerId, OriginHandlers> = {
 export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [registeredFrames, setRegisteredFrames] = useState<Record<FrameId, React.Ref<HTMLIFrameElement>>>({})
     const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerId, OriginHandlers>>(initialHandlers)
+    const registeredHandlersRef = useRef(registeredHandlers)
     const isOnClient = typeof window !== 'undefined'
 
     const addEventHandler: RegisterHandler = useCallback((event, frameId, handler) => {
         setRegisteredHandlers(prev => {
-            return {
+            const next = {
                 ...prev,
                 [frameId]: {
                     ...prev[frameId],
                     [event]: handler,
                 },
             }
+            registeredHandlersRef.current = next
+            return next
         })
     }, [])
 
@@ -167,6 +171,16 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
         actionsOrigin,
         clearActions,
     ] = useSetActionsHandler()
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppGetAvailableMethods', '*', (_params, _origin, _window, sourceId) => {
+            const handlers = registeredHandlersRef.current
+            const localHandlers = Object.keys(handlers[sourceId] ?? {}) as Array<AnyRequestMethodName>
+            const globalHandlers = Object.keys(handlers['*'] ?? {}) as Array<AnyRequestMethodName>
+
+            return { methods: [...new Set([...localHandlers, ...globalHandlers])] }
+        })
+    }, [addEventHandler])
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -281,7 +295,7 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
             const validator = validators[method]
             if (validator(params)) {
                 try {
-                    const result = await handler(params, origin, event.source)
+                    const result = await handler(params, origin, event.source, frameId)
                     return event.source.postMessage({
                         type: `${method}Result`,
                         data: {

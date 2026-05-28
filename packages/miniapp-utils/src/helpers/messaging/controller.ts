@@ -22,6 +22,7 @@ import type {
     HandlerMethods,
     HandlerResult,
     HandlerScope,
+    RegisteredHandlersType,
     Middleware,
     MiddlewareFn,
     MiddlewareNextFn,
@@ -45,7 +46,7 @@ const MESSAGE_SCHEMA = z.object({
 
 export class PostMessageController extends EventTarget {
     #registeredFrames: Record<FrameId, RegisteredFrame> = {}
-    #registeredHandlers: Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>> = {}
+    #registeredHandlers: RegisteredHandlersType = {}
     #registeredMiddlewares: Record<HandlerScope, Array<RegisteredMiddleware<EventParams, HandlerResult>>> = {}
     #middlewaresIdsMap: Record<MiddlewareId, HandlerScope> = {}
     #storage: DataStorage = {}
@@ -287,9 +288,10 @@ export class PostMessageController extends EventTarget {
 
     // ---- COMMON HANDLERS METHODS ----
 
-    registerBridgeEvents (options: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
+    registerBridgeEvents (options: Omit<RegisterBridgeEventsOptions, 'addHandler' | 'handlers'>) {
         registerBridgeEvents({
             ...options,
+            handlers: this.#registeredHandlers,
             addHandler: this.addHandler,
         })
         this.updateState({ isBridgeReady: true })
