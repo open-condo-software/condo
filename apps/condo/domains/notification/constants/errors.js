@@ -15,6 +15,8 @@ const MESSAGE_DISABLED_BY_USER = 'Notification not delivered because user disabl
 const ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER = '1 message per %s sec for user. The latest message was at %s'
 const NO_TELEGRAM_CHAT_FOR_USER = 'No telegram chat for user id'
 const NO_USER_ID_TO_SEND_TELEGRAM_NOTIFICATION = 'No userId to send telegram notification'
+const NO_REGION_MESSENGER_CHAT_FOR_USER = 'No region messenger chat for user id'
+const NO_USER_ID_TO_SEND_REGION_MESSENGER_NOTIFICATION = 'No userId to send region messenger notification'
 const EMPTY_ONESIGNAL_CONFIG_ERROR = `Valid ${ONESIGNAL_CONFIG_ENV} should be provided within .helm (.env)`
 
 const UNUSABLE_TOKEN_PROVIDED = 'UNUSABLE_TOKEN_PROVIDED'
@@ -46,6 +48,8 @@ module.exports = {
     ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER,
     NO_TELEGRAM_CHAT_FOR_USER,
     NO_USER_ID_TO_SEND_TELEGRAM_NOTIFICATION,
+    NO_REGION_MESSENGER_CHAT_FOR_USER,
+    NO_USER_ID_TO_SEND_REGION_MESSENGER_NOTIFICATION,
     EMPTY_NOTIFICATION_ANONYMOUS_SETTING_FIELDS_ERROR,
     EMPTY_ONESIGNAL_CONFIG_ERROR,
 
