@@ -41,6 +41,7 @@ const convertOptions = (items: Array<OptionsItem>, selectId?: string, groupKey?:
                         id={selectId && `${selectId}__${mergedKey}`}
                         key={mergedKey}
                         value={value}
+                        label={label}
                         disabled={disabled}
                         title={title ? title : label}
                         className={className}
