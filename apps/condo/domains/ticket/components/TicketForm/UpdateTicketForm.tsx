@@ -20,12 +20,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
-import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
+import { TICKET_OBSERVERS, AUTO_ASSIGN_ALL_TICKETS } from '@condo/domains/common/constants/featureflags'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
-import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { REQUIRED_TICKET_FIELDS, AUTO_ASSIGN_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline, buildTicketObserversPayload } from '@condo/domains/ticket/utils/helpers'
 
@@ -114,6 +114,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { persistor } = useCachePersistor()
     const { useFlag } = useFeatureFlags()
     const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
+    const isAutoAssignAllEnabled = useFlag(AUTO_ASSIGN_ALL_TICKETS)
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const initialUpdatedAtRef = useRef<string | null>(null)
     const [fetchTicketUpdatedAt] = useGetTicketUpdatedAtLazyQuery({ fetchPolicy: 'network-only' })
@@ -264,9 +265,11 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const ticketSourceType = useMemo(() => get(obj, ['source', 'type']), [obj])
     const ticketAssignee = useMemo(() => get(obj, 'assignee'), [obj])
 
-    const autoAssign = isEmpty(ticketAssignee) && ticketSourceType === TICKET_SOURCE_TYPES.MOBILE_APP
+    const autoAssign = isEmpty(ticketAssignee) && (
+        isAutoAssignAllEnabled || AUTO_ASSIGN_SOURCE_TYPES.includes(ticketSourceType)
+    )
 
-    const initialValues = useMemo(() => {
+    const initialValues  = useMemo(() => {
         const result = { ...Ticket.convertToFormState(obj) }
         if (invoices) {
             result['invoices'] = invoices.map(invoice => invoice.id)
