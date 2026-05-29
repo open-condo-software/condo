@@ -17,7 +17,11 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { CANCELED_STATUS_TYPE, BULK_UPDATE_ALLOWED_FIELDS } = require('@condo/domains/ticket/constants')
+const {
+    CANCELED_STATUS_TYPE,
+    BULK_UPDATE_ALLOWED_FIELDS,
+    SUPPORT_ALLOWED_FIELDS_FOR_SENT_TO_AUTHORITIES_TICKETS,
+} = require('@condo/domains/ticket/constants')
 const {
     AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT,
     INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT,
@@ -77,6 +81,29 @@ async function canManageTickets (args) {
 
     if (user.type === SERVICE) {
         return await canManageObjectsAsB2BAppServiceUser(args)
+    }
+
+    // TODO (DOMA-13316): fix status update working in tickets with sentToAuthoritiesAt
+    if (user.isSupport && operation === 'update' && itemId) {
+        const updatedStatusId = get(originalInput, 'status.connect.id')
+        if (updatedStatusId) {
+            const ticketStatus = await getById('TicketStatus', updatedStatusId)
+            const ticket = await getById('Ticket', itemId)
+
+            if (!ticketStatus) return false
+            if (!ticket) return false
+            if (ticketStatus.organization && ticketStatus.organization !== ticket.organization) return false
+
+            if (ticket && ticket.sentToAuthoritiesAt) {
+                const hasOnlyAllowedFields = Object.keys(originalInput).every(field => {
+                    return SUPPORT_ALLOWED_FIELDS_FOR_SENT_TO_AUTHORITIES_TICKETS.includes(field)
+                })
+
+                if (hasOnlyAllowedFields) {
+                    return true
+                }
+            }
+        }
     }
 
     if (user.type === RESIDENT) {
