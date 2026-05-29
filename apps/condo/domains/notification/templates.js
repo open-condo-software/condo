@@ -23,6 +23,7 @@ const {
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
+    REGION_MESSENGER_TRANSPORT,
 } = require('./constants/constants')
 
 const LANG_DIR_RELATED = '../../lang'
@@ -351,6 +352,30 @@ function pushRenderer ({ message, env, additionalParams }) {
     }
 }
 
+function regionMessengerTemplate ({ message, env } ){
+    const { lang: locale, type, meta } = message
+    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
+    const messageTranslated = substituteTranslations(message, locale)
+    const ret = {}
+
+    if (templatePathText) {
+        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+    }
+
+    if (templatePathHtml) {
+        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    const text = i18n(translationStringKeyForTelegramUrlMessage(type), { locale, meta: messageTranslated.meta })
+    const url = meta?.data?.url
+
+    if (url && text) {
+        ret.inlineKeyboard = [[{ text, url }]]
+    }
+
+    return ret
+}
+
 /**
  * Template environment variable type
  * @typedef {Object} MessageTemplateEnvironment
@@ -366,6 +391,7 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
     [EMAIL_TRANSPORT]: emailRenderer,
     [TELEGRAM_TRANSPORT]: telegramRenderer,
     [PUSH_TRANSPORT]: pushRenderer,
+    [REGION_MESSENGER_TRANSPORT]: regionMessengerTemplate,
 }
 
 const TRANSPORT_RENDERER_KEYS = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)

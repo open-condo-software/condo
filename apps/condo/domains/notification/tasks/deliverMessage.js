@@ -48,6 +48,7 @@ const TRANSPORT_ADAPTERS = {
     [EMAIL_TRANSPORT]: emailAdapter,
     [PUSH_TRANSPORT]: pushAdapter,
     [TELEGRAM_TRANSPORT]: telegramAdapter,
+    [REGION_MESSENGER_TRANSPORT]: regionMessengerAdapter,
 }
 const MESSAGE_TASK_RETRY_STATUSES = [
     MESSAGE_PROCESSING_STATUS,
