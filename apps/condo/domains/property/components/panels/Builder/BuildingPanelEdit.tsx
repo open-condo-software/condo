@@ -2,6 +2,7 @@ import { BuildingMap, BuildingSection, BuildingUnit, Property as PropertyType } 
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, notification, Row, RowProps, Space } from 'antd'
+import classNames from 'classnames'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -18,7 +19,7 @@ import { Button, Select, Tour, Typography } from '@open-condo/ui'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { EditUnitsForm } from '@condo/domains/property/components/panels/Builder/forms/EditUnitsForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
@@ -37,6 +38,7 @@ import {
     PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
+import styles from './BuildingPanelEditTopModal.module.css'
 import { AddSectionFloorForm } from './forms/SectionFloorForm'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
@@ -48,35 +50,6 @@ const DEBOUNCE_TIMEOUT = 800
 const TopRowCss = css`
   margin-top: 12px;
   position: relative;
-`
-
-interface ITopModalProps {
-    visible: boolean
-}
-
-const TopModal = styled.div<ITopModalProps>`
-  position: absolute;
-  top: 10px;
-  right: 22px;
-  display: ${({ visible }) => visible ? 'flex' : 'none'};
-  flex-direction: column;
-  align-items: flex-start;
-  border-radius: 12px;
-  background-color: ${colors.white};
-  padding: 24px;
-  width: 315px;
-  box-shadow: ${shadows.main};
-  z-index: 4;
-  
-  & .ant-row {
-    width: 100%;
-  }
-  & > .ant-row:first-child {
-    margin-bottom: 20px;
-  }
-  & .ant-row .ant-input-number {
-    border: 1px solid #D0D3E5;
-  }
 `
 
 export const AddressTopTextContainer = styled.div`
@@ -100,8 +73,8 @@ interface IBuildingPanelTopModalProps {
 }
 
 const BuildingPanelTopModal: React.FC<React.PropsWithChildren<IBuildingPanelTopModalProps>> = ({ visible, onClose, title, children }) => (
-    <TopModal visible={visible}>
-        <Row justify='space-between' align='top'>
+    <div className={classNames(styles.topModal, { [styles.topModalHidden]: !visible })}>
+        <Row justify='space-between' align='top' className={styles.topModalHeader}>
             <Col span={22}>
                 {title !== null && (
                     <Typography.Title level={4}>{title}</Typography.Title>
@@ -117,10 +90,10 @@ const BuildingPanelTopModal: React.FC<React.PropsWithChildren<IBuildingPanelTopM
                 />
             </Col>
         </Row>
-        <Row data-cy='property-map__top-modal__children-container'>
+        <Row className={styles.topModalBody} data-cy='property-map__top-modal__children-container'>
             {children}
         </Row>
-    </TopModal>
+    </div>
 )
 
 const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { marginTop: '8px' }
