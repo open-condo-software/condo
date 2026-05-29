@@ -1675,6 +1675,69 @@ describe('Ticket', () => {
         })
     })
 
+    describe('support: can update status for tickets sent to authorities', () => {
+        test('support user can update status for ticket with sentToAuthoritiesAt', async () => {
+            const client = await makeClientWithProperty()
+            const client2 = await makeClientWithProperty()
+            const supportClient = await makeClientWithSupportUser()
+
+            const [rightsSet] = await createTestUserRightsSet(admin, {  canManageTicketSentToAuthoritiesAtField: true })
+            await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+            const unitName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(client2, client2.organization, client2.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await updateTestTicket(client, ticket.id, {
+                sentToAuthoritiesAt: dayjs().toISOString(),
+            })
+
+            const [updatedTicket] = await updateTestTicket(supportClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            expect(updatedTicket.status.id).toEqual(STATUS_IDS.IN_PROGRESS)
+        })
+
+        test('support user cannot update status for ticket without sentToAuthoritiesAt', async () => {
+            const client = await makeClientWithProperty()
+            const supportClient = await makeClientWithSupportUser()
+
+            const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(supportClient, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.DECLINED } },
+                })
+            })
+        })
+
+        test('support user cannot update other fields for ticket with sentToAuthoritiesAt', async () => {
+            const client = await makeClientWithProperty()
+            const client2 = await makeClientWithProperty()
+            const supportClient = await makeClientWithSupportUser()
+
+            const [rightsSet] = await createTestUserRightsSet(admin, {  canManageTicketSentToAuthoritiesAtField: true })
+            await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+            const unitName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(client2, client2.organization, client2.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await updateTestTicket(client, ticket.id, {
+                sentToAuthoritiesAt: dayjs().toISOString(),
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(supportClient, ticket.id, {
+                    details: 'New details',
+                })
+            })
+        })
+    })
+
     describe('Bulk-operation', () => {
         test('anonymous: cannot bulk create Tickets', async () => {
             const client = await makeClientWithProperty()
