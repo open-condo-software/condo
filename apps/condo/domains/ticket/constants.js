@@ -62,7 +62,7 @@ const BULK_UPDATE_ALLOWED_FIELDS = [
     'sender',
 ]
 
-const SUPPORT_ALLOWED_FIELDS_FOR_SENT_TO_AUTHORITIES_TICKETS = ['status', 'v', 'dv', 'sender']
+const SUPPORT_ALLOWED_FIELDS_FOR_SENT_TO_AUTHORITIES_TICKETS = ['status', 'dv', 'sender']
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,

@@ -83,14 +83,15 @@ async function canManageTickets (args) {
         return await canManageObjectsAsB2BAppServiceUser(args)
     }
 
+    // TODO (DOMA-13316): fix status update working in tickets with sentToAuthoritiesAt
     if (user.isSupport && operation === 'update' && itemId) {
         const updatedStatusId = get(originalInput, 'status.connect.id')
         if (updatedStatusId) {
             const ticketStatus = await getById('TicketStatus', updatedStatusId)
-            
             const ticket = await getById('Ticket', itemId)
 
             if (!ticketStatus) return false
+            if (!ticket) return false
             if (ticketStatus.organization && ticketStatus.organization !== ticket.organization) return false
 
             if (ticket && ticket.sentToAuthoritiesAt) {
