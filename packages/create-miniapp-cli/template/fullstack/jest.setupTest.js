@@ -3,7 +3,7 @@ const index = require('@app/~/index')
 const conf = require('@open-condo/config')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const EXTRA_LOGGING = process.env.DISABLE_LOGGING !== 'true'
+const EXTRA_LOGGING = conf.DISABLE_LOGGING !== 'true'
 
 jest.setTimeout(60000)
 

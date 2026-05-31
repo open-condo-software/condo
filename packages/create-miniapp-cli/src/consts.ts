@@ -16,6 +16,14 @@ export const APP_TYPES = {
 export type AppType = keyof typeof APP_TYPES
 export type AppTypeValue = (typeof APP_TYPES)[keyof typeof APP_TYPES]
 
+export const CLIENT_AUTH_TYPES = {
+    none: 'none',
+    oidc: 'oidc',
+} as const
+
+export type ClientAuthType = keyof typeof CLIENT_AUTH_TYPES
+export type ClientAuthTypeValue = (typeof CLIENT_AUTH_TYPES)[keyof typeof CLIENT_AUTH_TYPES]
+
 export const DEFAULT_APP_RESOURCES = {
     cpu: {
         default: '250m',

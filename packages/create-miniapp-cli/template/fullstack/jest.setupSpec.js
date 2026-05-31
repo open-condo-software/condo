@@ -1,4 +1,6 @@
-const EXTRA_LOGGING = process.env.DISABLE_LOGGING !== 'true'
+const conf = require('@open-condo/config')
+
+const EXTRA_LOGGING = conf.DISABLE_LOGGING !== 'true'
 
 jest.setTimeout(60000)
 

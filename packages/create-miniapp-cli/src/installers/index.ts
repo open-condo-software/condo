@@ -1,4 +1,4 @@
-import { AppType } from '@cli/consts.js'
+import { AppType, ClientAuthType } from '@cli/consts.js'
 import { PackageManager } from '@cli/utils/getUserPkgManager.js'
 
 
@@ -22,6 +22,7 @@ export interface InstallerOptions {
     projectName: string
     scopedAppName: string
     appType: AppType
+    clientAuthType: ClientAuthType
     hasWorker: boolean
     hasOidc: boolean
     hasSchemaStitching: boolean
