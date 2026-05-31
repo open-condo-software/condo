@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { CONDO_ROOT } from '@cli/consts'
+import { APP_TYPES, AppType, CONDO_ROOT } from '@cli/consts'
 import { HELM_TEMPLATES } from '@cli/installers/helm/constants'
 import { fileExists, padNum } from '@cli/installers/helm/utils'
 
@@ -24,13 +24,19 @@ function fillTemplate (template: string, appName: string, reviewEnabled: boolean
         .replace(/\$\{REVIEW_NE_WRAPPER_END\}/g, wrapperEnd)
 }
 
-export async function writeHelmTemplates (appName: string, nextPrefix: number, reviewEnabled: boolean, hasWorker: boolean) {
+export async function writeHelmTemplates (
+    appName: string,
+    nextPrefix: number,
+    reviewEnabled: boolean,
+    hasWorker: boolean,
+    appType: AppType,
+) {
     const created: string[] = []
     const names = [
         'app',
         'secrets',
         ...(hasWorker ? ['worker' as const] : []),
-        'migrations',
+        ...(appType === APP_TYPES.client ? [] : ['migrations' as const]),
         'ingress',
     ] as const
     for (let i = 0; i < names.length; i++) {

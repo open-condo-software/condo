@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "prepare": "node ./bin/prepare.js",
-    "dev": "yarn build:deps && NODE_ENV=development && yarn dev:start  ",
+    "dev": "yarn build:deps && cross-env NODE_ENV=development yarn dev:start",
     "dev:start": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "build:deps": "turbo build --filter=@app/~/^... --filter=!@app/condo",
     "build": "cross-env PHASE=build keystone build",

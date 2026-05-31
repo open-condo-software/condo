@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { AppType } from '@cli/consts.js'
+import { AppType, ClientAuthType } from '@cli/consts.js'
 import { PkgInstallerMap } from '@cli/installers/index.js'
 import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 
@@ -12,6 +12,7 @@ interface CreateProjectOptions {
     noInstall: boolean
     importAlias: string
     appType: AppType
+    clientAuthType: ClientAuthType
     hasWorker: boolean
     hasOidc: boolean
     hasSchemaStitching: boolean
@@ -23,6 +24,7 @@ export const createProject = async ({
     scopedAppName,
     noInstall,
     appType,
+    clientAuthType,
     hasWorker,
     hasOidc,
     hasSchemaStitching,
@@ -40,35 +42,11 @@ export const createProject = async ({
         scopedAppName,
         noInstall,
         appType,
+        clientAuthType,
         hasWorker,
         hasOidc,
         hasSchemaStitching,
     })
-
-    // Install the selected packages
-    // if (packages) {
-    //     installPackages({
-    //         projectName,
-    //         scopedAppName,
-    //         projectDir,
-    //         pkgManager,
-    //         packages,
-    //         noInstall,
-    //         appType,
-    //     })
-    // }
-
-    // const indexModuleCss = path.join(
-    //     PKG_ROOT,
-    //     'template/extras/src/index.module.css',
-    // )
-    // const indexModuleCssDest = path.join(
-    //     projectDir,
-    //     'src',
-    //     'pages',
-    //     'index.module.css',
-    // )
-    // fs.copyFileSync(indexModuleCss, indexModuleCssDest)
 
     return projectDir
 }
