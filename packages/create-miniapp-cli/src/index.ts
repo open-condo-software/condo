@@ -29,6 +29,7 @@ const main = async () => {
             noInstall,
             importAlias,
             appType,
+            clientAuthType,
             hasReview,
             hasWorker,
             hasOidc,
@@ -48,6 +49,7 @@ const main = async () => {
         importAlias,
         noInstall,
         appType,
+        clientAuthType,
         hasWorker,
         hasOidc,
         hasSchemaStitching,
@@ -86,10 +88,10 @@ const main = async () => {
     }
 
     // run prepare and yarn scripts to make app ready for development
-    await prepareApp({ appName, pkgManager, projectDir })
+    await prepareApp({ appName, pkgManager, projectDir, appType })
 
     // configure helm templates and values/secret-values
-    await setupHelm({ appName, hasReview, appResources, hasWorker, maxOldSpace, workerResources })
+    await setupHelm({ appName, appType, hasReview, appResources, hasWorker, maxOldSpace, workerResources })
 
     await logNextSteps({
         projectName: appDir,

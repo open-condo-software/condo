@@ -1,7 +1,7 @@
 import path from 'path'
 
 import * as p from '@clack/prompts'
-import { APP_TYPES, AppType, PKG_ROOT } from '@cli/consts.js'
+import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, PKG_ROOT } from '@cli/consts.js'
 import { InstallerOptions } from '@cli/installers/index.js'
 import { logger } from '@cli/utils/logger.js'
 import chalk from 'chalk'
@@ -20,28 +20,28 @@ function getTemplateBaseDir (appType: AppType) {
     return path.join(PKG_ROOT, 'template/fullstack')
 }
 
-type FullstackFeatureFlags = {
+type TemplateFeatureFlags = {
     OIDC: boolean
     STITCH: boolean
 }
 
-const CONDITIONAL_START_RE = /^\/\/\s*@if\s+([A-Z_]+)\s*$/
-const CONDITIONAL_END_RE = /^\/\/\s*@endif\s*$/
+const CONDITIONAL_START_RE = /^(?:\/\/|\{\/\*)\s*@if\s+([A-Z_]+)\s*(?:\*\/\})?$/
+const CONDITIONAL_END_RE = /^(?:\/\/|\{\/\*)\s*@endif\s*(?:\*\/\})?$/
 
-function resolveFeatureFlag (token: string, flags: FullstackFeatureFlags): boolean {
+function resolveFeatureFlag (token: string, flags: TemplateFeatureFlags): boolean {
     if (token.startsWith('NOT_')) {
         const nestedToken = token.slice(4)
         return !resolveFeatureFlag(nestedToken, flags)
     }
 
     if (token in flags) {
-        return flags[token as keyof FullstackFeatureFlags]
+        return flags[token as keyof TemplateFeatureFlags]
     }
 
-    throw new Error(`Unknown fullstack template feature flag: ${token}`)
+    throw new Error(`Unknown template feature flag: ${token}`)
 }
 
-function pruneConditionalBlocks (raw: string, flags: FullstackFeatureFlags) {
+function pruneConditionalBlocks (raw: string, flags: TemplateFeatureFlags) {
     const lines = raw.split('\n')
     const keepStack = [true]
     const output: string[] = []
@@ -60,7 +60,7 @@ function pruneConditionalBlocks (raw: string, flags: FullstackFeatureFlags) {
 
         if (CONDITIONAL_END_RE.test(trimmed)) {
             if (keepStack.length === 1) {
-                throw new Error('Unexpected "// @endif" in fullstack template')
+                throw new Error('Unexpected "// @endif" in template')
             }
             keepStack.pop()
             continue
@@ -72,13 +72,13 @@ function pruneConditionalBlocks (raw: string, flags: FullstackFeatureFlags) {
     }
 
     if (keepStack.length !== 1) {
-        throw new Error('Unclosed "// @if" block in fullstack template')
+        throw new Error('Unclosed "// @if" block in template')
     }
 
     return output.join('\n')
 }
 
-function pruneTemplateFile (filePath: string, flags: FullstackFeatureFlags) {
+function pruneTemplateFile (filePath: string, flags: TemplateFeatureFlags) {
     if (!fs.existsSync(filePath)) return
 
     const raw = fs.readFileSync(filePath, 'utf-8')
@@ -98,7 +98,7 @@ function configureFullstackTemplate ({
     const packageJsonPath = path.join(projectDir, 'package.json')
     const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
 
-    const featureFlags = {
+    const featureFlags: TemplateFeatureFlags = {
         OIDC: hasOidc,
         STITCH: hasSchemaStitching,
     }
@@ -133,6 +133,49 @@ function configureFullstackTemplate ({
     fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
 }
 
+function configureClientTemplate ({
+    projectDir,
+    clientAuthType,
+}: {
+    projectDir: string
+    clientAuthType: ClientAuthType
+}) {
+    const packageJsonPath = path.join(projectDir, 'package.json')
+    const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
+
+    const hasOidcAuth = clientAuthType === CLIENT_AUTH_TYPES.oidc
+
+    const featureFlags: TemplateFeatureFlags = {
+        OIDC: hasOidcAuth,
+        STITCH: true,
+    }
+
+    pruneTemplateFile(path.join(projectDir, 'bin/prepare.js'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'pages/_app.tsx'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'pages/index.tsx'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'pages/auth/signin.tsx'), featureFlags)
+    pruneTemplateFile(path.join(projectDir, 'pages/api/graphql.ts'), featureFlags)
+
+    if (!hasOidcAuth) {
+        fs.removeSync(path.join(projectDir, 'pages/api/oidc'))
+        fs.removeSync(path.join(projectDir, 'domains/common/utils/oidcHelper.ts'))
+        fs.removeSync(path.join(projectDir, 'domains/common/utils/session.ts'))
+        fs.removeSync(path.join(projectDir, 'domains/common/utils/url.ts'))
+
+        if (pkgJson.dependencies) {
+            delete pkgJson.dependencies['iron-session']
+            delete pkgJson.dependencies['openid-client']
+            delete pkgJson.dependencies['uuid']
+        }
+    }
+
+    if (!hasOidcAuth) {
+        fs.removeSync(path.join(projectDir, 'pages/auth'))
+    }
+
+    fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
+}
+
 // This bootstraps the base application based on user's choice of AppType(server | client | full-stack)
 export const scaffoldProject = async ({
     projectName,
@@ -140,6 +183,7 @@ export const scaffoldProject = async ({
     pkgManager,
     noInstall,
     appType,
+    clientAuthType,
     hasWorker,
     hasOidc,
     hasSchemaStitching,
@@ -229,6 +273,10 @@ export const scaffoldProject = async ({
             delete pkgJson.scripts.worker
             fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
         }
+    }
+
+    if (appType === APP_TYPES.client) {
+        configureClientTemplate({ projectDir, clientAuthType })
     }
 
     if (appType === APP_TYPES['full-stack']) {

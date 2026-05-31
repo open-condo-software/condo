@@ -1,3 +1,4 @@
+import { AppType } from '@cli/consts'
 import { updateReviewSecrets } from '@cli/installers/helm/reviewSecrets'
 import { updateSecretValues } from '@cli/installers/helm/secretValues'
 import { updateServicesUrls } from '@cli/installers/helm/servicesUrls'
@@ -9,6 +10,7 @@ import ora from 'ora'
 
 interface SetupHelmProps {
     appName: string
+    appType: AppType
     hasReview: boolean
     appResources: ResourceSettings
     maxOldSpace: MaxOldSpace
@@ -16,13 +18,13 @@ interface SetupHelmProps {
     hasWorker: boolean
 }
 
-export async function setupHelm ({ appName, hasReview, appResources, workerResources, hasWorker, maxOldSpace }: SetupHelmProps) {
+export async function setupHelm ({ appName, appType, hasReview, appResources, workerResources, hasWorker, maxOldSpace }: SetupHelmProps) {
     const spinner = ora('Setting up Helm...').start()
     try {
         const nextPrefix = await getNextPrefix()
         logger.info(`Next prefix block: ${nextPrefix}`)
 
-        const created = await writeHelmTemplates(appName, nextPrefix, hasReview, hasWorker)
+        const created = await writeHelmTemplates(appName, nextPrefix, hasReview, hasWorker, appType)
         const servicesFile = await updateServicesUrls(appName)
         created.push(servicesFile)
 

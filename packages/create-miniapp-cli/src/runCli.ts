@@ -4,7 +4,7 @@ import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 import { validateAppName } from '@cli/utils/validateAppName.js'
 import { Command } from 'commander'
 
-import { APP_TYPES, AppType, DEFAULT_APP_RESOURCES, DEFAULT_MAX_OLD_SPACE, TITLE_TEXT } from './consts.js'
+import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, DEFAULT_APP_RESOURCES, DEFAULT_MAX_OLD_SPACE, TITLE_TEXT } from './consts.js'
 import { askForResources, validateNumber } from './installers/helm/utils.js'
 import { MaxOldSpace, ResourceSettings } from './installers/helm/values.js'
 import { isAppType } from './utils/isAppType.js'
@@ -15,6 +15,7 @@ interface CliFlags {
     default: boolean
     importAlias: string
     appType: AppType
+    clientAuthType: ClientAuthType
     eslint: boolean
     hasReview: boolean
     hasWorker: boolean
@@ -39,6 +40,7 @@ const defaultOptions: CliResults = {
         importAlias: '~/',
         eslint: false,
         appType: APP_TYPES.server,
+        clientAuthType: CLIENT_AUTH_TYPES.oidc,
         hasReview: false,
         hasWorker: false,
         hasOidc: false,
@@ -125,10 +127,20 @@ export const runCli = async (): Promise<CliResults> => {
                     initialValue: defaultOptions.flags.hasReview,
                 })
             },
-            hasWorker: () => {
+            hasWorker: ({ results }) => {
+                if (results.appType === APP_TYPES.client) return
+
                 return p.confirm({
                     message: 'Will you need a worker?',
                     initialValue: defaultOptions.flags.hasWorker,
+                })
+            },
+            hasClientOidc: ({ results }) => {
+                if (results.appType !== APP_TYPES.client) return
+
+                return p.confirm({
+                    message: 'Will client app use OIDC auth?',
+                    initialValue: true,
                 })
             },
             hasOidc: ({ results }) => {
@@ -217,6 +229,8 @@ export const runCli = async (): Promise<CliResults> => {
         throw new Error(`Invalid app type: ${project.appType}`)
     }
 
+    const resolvedAppType = project.appType ?? cliResults.flags.appType
+
     return {
         appName: project.name ?? cliResults.appName,
         packages,
@@ -224,9 +238,12 @@ export const runCli = async (): Promise<CliResults> => {
             ...cliResults.flags,
             noInstall: !project.install || cliResults.flags.noInstall,
             importAlias: project.importAlias as string ?? cliResults.flags.importAlias,
-            appType: project.appType ?? cliResults.flags.appType,
+            appType: resolvedAppType,
             hasReview: project.hasReview ?? cliResults.flags.hasReview,
-            hasWorker: project.hasWorker ?? cliResults.flags.hasWorker,
+            hasWorker: Boolean(project.hasWorker ?? cliResults.flags.hasWorker),
+            clientAuthType: resolvedAppType === APP_TYPES.client
+                ? ((project.hasClientOidc ?? true) ? CLIENT_AUTH_TYPES.oidc : CLIENT_AUTH_TYPES.none)
+                : cliResults.flags.clientAuthType,
             hasOidc: Boolean(project.hasOidc ?? cliResults.flags.hasOidc),
             hasSchemaStitching: Boolean(project.hasSchemaStitching ?? cliResults.flags.hasSchemaStitching),
             appResources: project.appResources as ResourceSettings ?? cliResults.flags.appResources,

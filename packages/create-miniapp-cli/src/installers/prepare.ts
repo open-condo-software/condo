@@ -1,6 +1,7 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { APP_TYPES, AppType } from '@cli/consts.js'
 import { type PackageManager } from '@cli/utils/getUserPkgManager.js'
 import { logger } from '@cli/utils/logger'
 import { execa } from 'execa'
@@ -10,6 +11,7 @@ interface PrepareAppProps {
     pkgManager: PackageManager
     appName: string
     projectDir: string
+    appType: AppType
 }
 
 interface ScriptConfig {
@@ -82,7 +84,7 @@ const handleFailureWithMigrator = async (
     await runScript(failedScript)
 }
 
-export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareAppProps) => {
+export const prepareApp = async ({ pkgManager, appName, projectDir, appType }: PrepareAppProps) => {
     const SCRIPTS = {
         BUILD_PACKAGES: {
             name: 'build-packages',
@@ -159,8 +161,8 @@ export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareApp
     const scriptOrder = [
         SCRIPTS.BUILD_PACKAGES,
         SCRIPTS.GLOBAL_PREPARE, // base env vars
-        SCRIPTS.MAKE_MIGRATIONS,
-        SCRIPTS.GLOBAL_PREPARE, // migrate and run local prepare
+        ...(appType === APP_TYPES.client ? [] : [SCRIPTS.MAKE_MIGRATIONS]),
+        ...(appType === APP_TYPES.client ? [] : [SCRIPTS.GLOBAL_PREPARE]), // migrate and run local prepare
         SCRIPTS.MAKE_TYPES,
     ]
 
