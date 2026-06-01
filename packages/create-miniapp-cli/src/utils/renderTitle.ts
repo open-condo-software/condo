@@ -2,12 +2,10 @@ import { TITLE_TEXT } from '@cli/consts.js'
 import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 import gradient from 'gradient-string'
 
-import { colors } from '@open-condo/ui/colors'
-
 const themeColors = {
-    blue: colors.blue[5],
+    blue: '#3f8cff',
     cyan: '#89ddff',
-    green: colors.green[3],
+    green: '#8ad17a',
     magenta: '#fae4fc',
     red: '#d0679d',
     yellow: '#fffac2',

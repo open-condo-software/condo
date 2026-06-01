@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Empty, EmptyProps, Space } from 'antd'
 import React, { CSSProperties } from 'react'
 

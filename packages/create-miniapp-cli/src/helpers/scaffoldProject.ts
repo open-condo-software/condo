@@ -86,6 +86,31 @@ function pruneTemplateFile (filePath: string, flags: TemplateFeatureFlags) {
     fs.writeFileSync(filePath, pruned)
 }
 
+function stripEslintDirectivesInFile (filePath: string) {
+    const raw = fs.readFileSync(filePath, 'utf-8')
+    const cleaned = raw
+        .split('\n')
+        .filter((line) => !/eslint-(disable|enable)/.test(line))
+        .join('\n')
+
+    if (cleaned !== raw) {
+        fs.writeFileSync(filePath, cleaned)
+    }
+}
+
+function stripTemplateEslintDirectives (projectDir: string) {
+    const CODE_FILE_RE = /\.(?:[cm]?[jt]sx?)$/
+    const files = fs.readdirSync(projectDir, { recursive: true }) as string[]
+
+    for (const relativePath of files) {
+        if (!CODE_FILE_RE.test(relativePath)) continue
+
+        const fullPath = path.join(projectDir, relativePath)
+        if (!fs.statSync(fullPath).isFile()) continue
+        stripEslintDirectivesInFile(fullPath)
+    }
+}
+
 function configureFullstackTemplate ({
     projectDir,
     hasOidc,
@@ -282,6 +307,8 @@ export const scaffoldProject = async ({
     if (appType === APP_TYPES['full-stack']) {
         configureFullstackTemplate({ projectDir, hasOidc, hasSchemaStitching })
     }
+
+    stripTemplateEslintDirectives(projectDir)
 
     const scaffoldedName = projectName === '.' ? 'App' : chalk.cyan.bold(projectName)
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 const fs = require('fs')
 
 const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')

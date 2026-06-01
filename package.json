@@ -22,7 +22,7 @@
     "lint": "yarn lint:code && yarn lint:styles && yarn lint:translations && yarn lint:deps",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install",
-    "create-miniapp": "node ./packages/create-miniapp-cli/dist/index.js"
+    "create-miniapp": "yarn workspace @open-condo/create-miniapp-cli build && node ./packages/create-miniapp-cli/dist/index.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

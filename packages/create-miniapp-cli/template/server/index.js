@@ -1,3 +1,4 @@
+/* eslint-disable */
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
     HealthCheck,

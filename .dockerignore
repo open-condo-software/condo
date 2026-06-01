@@ -21,6 +21,8 @@
 **/.werf*
 **/helm*
 **/.helm*
+!packages/create-miniapp-cli/src/installers/helm
+!packages/create-miniapp-cli/src/installers/helm/**
 .yarn
 !.yarn/patches
 !.yarn/plugins
