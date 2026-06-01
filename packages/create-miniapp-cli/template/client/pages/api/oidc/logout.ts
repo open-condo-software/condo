@@ -30,7 +30,7 @@ export default async function handler (req: NextApiRequest, res: NextApiResponse
         res.redirect(302, endSessionUrl)
     } catch (error) {
         const id = uuidV4()
-        console.error(`OIDC logout error (id: ${id}):`, error)
+        console.error('OIDC logout error', { id, error })
         res.status(500).send(`OIDC logout failed (id: ${id})`)
     }
 }

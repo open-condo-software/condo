@@ -40,7 +40,7 @@ export default async function handler (req: NextApiRequest, res: NextApiResponse
         await session.save()
 
         const id = uuidV4()
-        console.error(`OIDC auth error (id: ${id}):`, error)
+        console.error('OIDC auth error', { id, error })
         res.status(500).send(`OIDC auth failed (id: ${id})`)
     }
 }
