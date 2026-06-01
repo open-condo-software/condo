@@ -147,7 +147,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
                             {message.content.suggestions.map((suggestion) => (
                                 <Button
                                     key={`${message.id}-${suggestion}`}
-                                    type='secondary'
+                                    type='primary'
                                     size='medium'
                                     disabled={!canExecuteAIFlow}
                                     onClick={() => onSuggestionClick?.(suggestion)}

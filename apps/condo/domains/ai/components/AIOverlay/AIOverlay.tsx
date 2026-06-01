@@ -170,27 +170,27 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         >
             <div className={styles.header}>
                 <div className={styles.leftSection}>
-                    <Typography.Title level={3}>
-                        {title}<span className={styles.alphaCharacter}>α</span>
+                    <Typography.Title level={5}>
+                        {title}
                     </Typography.Title>
                 </div>
                 <div className={styles.rightSection}>
                     <Button
-                        type='secondary'
+                        type='primary'
                         size='medium'
                         compact
                         minimal
                         onClick={handleResetHistory}
-                        icon={<RefreshCw size='small' />}
+                        icon={<RefreshCw size='large' />}
                         title={resetHistoryLabel}
                     />
                     <Button
-                        type='secondary'
+                        type='primary'
                         size='medium'
                         compact
                         minimal
                         onClick={handleCloseButtonClick}
-                        icon={<Close size='small' />}
+                        icon={<Close size='large' />}
                         title={closeLabel}
                     />
                 </div>
