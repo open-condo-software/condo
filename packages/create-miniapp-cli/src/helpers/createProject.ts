@@ -16,6 +16,7 @@ interface CreateProjectOptions {
     hasWorker: boolean
     hasOidc: boolean
     hasSchemaStitching: boolean
+    hasCiTests: boolean
     packages?: PkgInstallerMap
 }
 
@@ -28,6 +29,7 @@ export const createProject = async ({
     hasWorker,
     hasOidc,
     hasSchemaStitching,
+    hasCiTests,
 }: CreateProjectOptions) => {
     const pkgManager = getUserPkgManager()
     const rootDir = path.resolve(process.cwd(), '../..') // relative to CLI package
@@ -46,6 +48,7 @@ export const createProject = async ({
         hasWorker,
         hasOidc,
         hasSchemaStitching,
+        hasCiTests,
     })
 
     return projectDir
