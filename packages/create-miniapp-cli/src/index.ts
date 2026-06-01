@@ -10,7 +10,7 @@ import { createProject } from './helpers/createProject.js'
 import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
 import { replaceTextInFiles, setImportAlias } from './helpers/setImportAlias.js'
-import { addDeployEnvVar, addSubmoduleEntry } from './installers/git.js'
+import { addDeployEnvVar, addNodeJsCondoCiTests, addSubmoduleEntry, addWerfImage } from './installers/git.js'
 import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
@@ -34,6 +34,7 @@ const main = async () => {
             hasWorker,
             hasOidc,
             hasSchemaStitching,
+            hasCiTests,
             appResources,
             workerResources,
             maxOldSpace,
@@ -53,6 +54,7 @@ const main = async () => {
         hasWorker,
         hasOidc,
         hasSchemaStitching,
+        hasCiTests,
     })
 
     // Write name to package.json
@@ -83,6 +85,12 @@ const main = async () => {
         await addDeployEnvVar(appName, env)
     }
 
+    if (hasCiTests) {
+        await addNodeJsCondoCiTests(appName, appType)
+    }
+
+    await addWerfImage(appName, appType)
+
     if (!noInstall) {
         await installDependencies({ projectDir })
     }
@@ -96,7 +104,7 @@ const main = async () => {
     await logNextSteps({
         projectName: appDir,
         noInstall,
-        projectDir,
+        hasCiTests,
     })
 
     process.exit(0)

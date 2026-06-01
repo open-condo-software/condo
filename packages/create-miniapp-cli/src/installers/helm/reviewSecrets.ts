@@ -12,16 +12,38 @@ export async function updateReviewSecrets (appName: string) {
     }
 
     const content = await fs.readFile(file, 'utf8')
-    const appUnderscore = appName.replace(/-/g, '_')
-    const upperUnderscore = appUnderscore.toUpperCase()
-    const insert = `  PG_REVIEW_${upperUnderscore}_USER: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}\n  PG_REVIEW_${upperUnderscore}_PASS: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}\n  PG_REVIEW_${upperUnderscore}_DB: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}`
-    const idx = content.lastIndexOf('PG_REVIEW_PREFIX')
-    
-    if (idx === -1) {
+    const desiredIndent = '  '
+    const prefixLineRe = /^(\s*)PG_REVIEW_PREFIX:.*$/m
+    const prefixMatch = prefixLineRe.exec(content)
+    if (!prefixMatch || prefixMatch.index === undefined) {
         return null
     }
-    const before = content.slice(0, idx)
-    const after = content.slice(idx)
+
+    let normalizedContent = content
+    if (prefixMatch[1] !== desiredIndent) {
+        normalizedContent = content.slice(0, prefixMatch.index) +
+            desiredIndent +
+            content.slice(prefixMatch.index + prefixMatch[1].length)
+    }
+
+    const appUnderscore = appName.replace(/-/g, '_')
+    const upperUnderscore = appUnderscore.toUpperCase()
+    const sentinel = `PG_REVIEW_${upperUnderscore}_USER`
+    if (normalizedContent.includes(sentinel)) {
+        if (normalizedContent !== content) {
+            await fs.writeFile(file, normalizedContent, 'utf8')
+        }
+        return file
+    }
+
+    const insert = `${desiredIndent}PG_REVIEW_${upperUnderscore}_USER: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}\n${desiredIndent}PG_REVIEW_${upperUnderscore}_PASS: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}\n${desiredIndent}PG_REVIEW_${upperUnderscore}_DB: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}`
+    const normalizedPrefixMatch = prefixLineRe.exec(normalizedContent)
+
+    if (!normalizedPrefixMatch || normalizedPrefixMatch.index === undefined) {
+        return null
+    }
+    const before = normalizedContent.slice(0, normalizedPrefixMatch.index)
+    const after = normalizedContent.slice(normalizedPrefixMatch.index)
     const out = before.trimEnd() + '\n' + insert + '\n' + after
     await fs.writeFile(file, out, 'utf8')
 

@@ -1,5 +1,4 @@
 import { DEFAULT_APP_NAME } from '@cli/consts.js'
-import { type InstallerOptions } from '@cli/installers/index.js'
 import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 import { logger } from '@cli/utils/logger.js'
 
@@ -7,10 +6,12 @@ import { logger } from '@cli/utils/logger.js'
 export const logNextSteps = async ({
     projectName = DEFAULT_APP_NAME,
     noInstall,
-}: Pick<
-InstallerOptions,
-'projectName' | 'packages' | 'noInstall' | 'projectDir'
->) => {
+    hasCiTests = false,
+}: {
+    projectName: string
+    noInstall: boolean
+    hasCiTests?: boolean
+}) => {
     const pkgManager = getUserPkgManager()
 
     logger.info('Next steps:')
@@ -30,5 +31,15 @@ InstallerOptions,
         logger.info(`  ${pkgManager} run dev`)
     } else {
         logger.info(`  ${pkgManager} dev`)
+    }
+
+    if (hasCiTests) {
+        logger.info('')
+        logger.info('CI notes:')
+        logger.info('  We added a basic paths-filter rule: apps/<app>/**')
+        logger.info('  Please extend nodejs.condo.ci.yml filters with relevant packages/domains for your app.')
+        logger.info('')
+        logger.info('  CI test job may also need extra prepare flow steps for your app (for example additional dependent apps).')
+        logger.info('  Please extend werf.yaml in shell/setup block to add the steps you need.')
     }
 }

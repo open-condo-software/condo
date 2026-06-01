@@ -26,6 +26,7 @@ export interface InstallerOptions {
     hasWorker: boolean
     hasOidc: boolean
     hasSchemaStitching: boolean
+    hasCiTests: boolean
 }
 
 export type Installer = (opts: InstallerOptions) => void
