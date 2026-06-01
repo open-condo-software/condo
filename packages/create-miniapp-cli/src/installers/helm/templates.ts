@@ -32,6 +32,7 @@ export async function writeHelmTemplates (
     appType: AppType,
 ) {
     const created: string[] = []
+    const existingFiles = await fs.readdir(TEMPLATES_DIR)
     const names = [
         'app',
         'secrets',
@@ -39,9 +40,17 @@ export async function writeHelmTemplates (
         ...(appType === APP_TYPES.client ? [] : ['migrations' as const]),
         'ingress',
     ] as const
-    for (let i = 0; i < names.length; i++) {
-        const role = names[i]
-        const fileName = `${padNum(nextPrefix + i)}-${appName}-${role}.yaml`
+    let prefixOffset = 0
+    for (const role of names) {
+        const existingFile = existingFiles.find((file) => {
+            return new RegExp(`^\\d{3}-${appName}-${role}\\.yaml$`).test(file)
+        })
+        if (existingFile) {
+            created.push(path.join(TEMPLATES_DIR, existingFile))
+            continue
+        }
+
+        const fileName = `${padNum(nextPrefix + prefixOffset)}-${appName}-${role}.yaml`
         const fullPath = path.join(TEMPLATES_DIR, fileName)
         const content = fillTemplate(HELM_TEMPLATES[role], appName, reviewEnabled)
         if (await fileExists(fullPath)) {
@@ -49,6 +58,7 @@ export async function writeHelmTemplates (
         }
         await fs.writeFile(fullPath, content, 'utf8')
         created.push(fullPath)
+        prefixOffset++
     }
 
     return created

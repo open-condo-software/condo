@@ -12,6 +12,10 @@ export async function updateServicesUrls (appName: string) {
     const underscoredAppName = appName.replace(/-/g, '_')
     const upperUnderscoredAppName = underscoredAppName.toUpperCase()
     const line = `${upperUnderscoredAppName}_DOMAIN: {{ ( printf "https://%s" $.Values.global.ci_${underscoredAppName}_url ) | b64enc }}`
+    if (content.includes(line)) {
+        return SERVICES_URLS
+    }
+
     const idx = content.lastIndexOf('{{- end')
     
     let out = ''

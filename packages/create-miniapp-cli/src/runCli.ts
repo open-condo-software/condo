@@ -21,6 +21,7 @@ interface CliFlags {
     hasWorker: boolean
     hasOidc: boolean
     hasSchemaStitching: boolean
+    hasCiTests: boolean
     appResources: ResourceSettings
     maxOldSpace: MaxOldSpace
     workerResources?: ResourceSettings
@@ -45,6 +46,7 @@ const defaultOptions: CliResults = {
         hasWorker: false,
         hasOidc: false,
         hasSchemaStitching: false,
+        hasCiTests: false,
         appResources: DEFAULT_APP_RESOURCES,
         maxOldSpace: DEFAULT_MAX_OLD_SPACE,
     },
@@ -108,7 +110,8 @@ export const runCli = async (): Promise<CliResults> => {
                     return p.confirm({
                         message:
               `Should we run '${pkgManager}` +
-              (pkgManager === 'yarn' ? '\'?' : ' install\' for you?'),
+              (pkgManager === 'yarn' ? '\' for you?' : ' install\' for you?') +
+              ' (recommended: yes, otherwise prepare/makemigrations/maketypes may fail until dependencies are installed)',
                         initialValue: !defaultOptions.flags.noInstall,
                     })
                 },
@@ -157,6 +160,12 @@ export const runCli = async (): Promise<CliResults> => {
                 return p.confirm({
                     message: 'Will app need Condo schema stitching?',
                     initialValue: true,
+                })
+            },
+            hasCiTests: () => {
+                return p.confirm({
+                    message: 'Should we add CI test job to .github/workflows/nodejs.condo.ci.yml?',
+                    initialValue: false,
                 })
             },
             appResources: ({ results }) => askForResources({
@@ -246,6 +255,7 @@ export const runCli = async (): Promise<CliResults> => {
                 : cliResults.flags.clientAuthType,
             hasOidc: Boolean(project.hasOidc ?? cliResults.flags.hasOidc),
             hasSchemaStitching: Boolean(project.hasSchemaStitching ?? cliResults.flags.hasSchemaStitching),
+            hasCiTests: Boolean(project.hasCiTests ?? cliResults.flags.hasCiTests),
             appResources: project.appResources as ResourceSettings ?? cliResults.flags.appResources,
             workerResources: project.workerResources as ResourceSettings ?? cliResults.flags.workerResources,
             maxOldSpace: project.maxOldSpace as MaxOldSpace ?? cliResults.flags.maxOldSpace,
