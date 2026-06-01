@@ -1,12 +1,14 @@
-import { AppType } from '../../consts.js'
+import ora from 'ora'
+
 import { updateReviewSecrets } from './reviewSecrets.js'
 import { updateSecretValues } from './secretValues.js'
 import { updateServicesUrls } from './servicesUrls.js'
 import { writeHelmTemplates } from './templates.js'
 import { getNextPrefix } from './utils.js'
 import { MaxOldSpace, ResourceSettings, updateValues } from './values.js'
+
+import { AppType } from '../../consts.js'
 import { logger } from '../../utils/logger.js'
-import ora from 'ora'
 
 interface SetupHelmProps {
     appName: string
@@ -40,14 +42,14 @@ export async function setupHelm ({ appName, appType, hasReview, appResources, wo
         if (valuesFile) created.push(valuesFile)
 
         spinner.succeed('Helm setup completed!')
-    } catch (err: any) {
+    } catch (err: unknown) {
         spinner.fail('Helm setup failed!')
 
         console.error('\n[error]')
-        if (err.stack) {
+        if (err instanceof Error && err.stack) {
             console.error(err.stack)
         } else {
-            console.error(err.message || err)
+            console.error(err instanceof Error ? err.message : err)
         }
 
         throw err

@@ -2,9 +2,11 @@ import { promises as fs } from 'fs'
 import path from 'path'
 
 import * as p from '@clack/prompts'
-import { CONDO_ROOT } from '../../consts.js'
 
 import { ResourceSettings } from './values'
+
+import { CONDO_ROOT } from '../../consts.js'
+
 
 const TEMPLATES_DIR = path.join(CONDO_ROOT, './.helm/templates')
 
@@ -117,8 +119,8 @@ export async function askForResources ({
     const cpuParts = cpu.split(',').map((s) => s.trim())
     const memParts = memory.split(',').map((s) => s.trim())
 
-    const cpuObj: any = { default: cpuParts[0] }
-    const memObj: any = { default: memParts[0] }
+    const cpuObj: ResourceSettings['cpu'] = { default: cpuParts[0] }
+    const memObj: ResourceSettings['memory'] = { default: memParts[0] }
     let i = 1
     if (wantReview) {
         cpuObj.review = cpuParts[i]
