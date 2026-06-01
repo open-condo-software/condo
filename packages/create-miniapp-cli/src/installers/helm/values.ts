@@ -1,8 +1,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-import { CONDO_ROOT } from '@cli/consts'
-import { logger } from '@cli/utils/logger'
+import { CONDO_ROOT } from '../../consts.js'
+import { logger } from '../../utils/logger.js'
 import { parseDocument, YAMLMap, Pair, Scalar } from 'yaml'
 
 export interface MaxOldSpace {
@@ -163,4 +163,3 @@ export async function updateValues (options: UpdateValuesOptions) {
 
     return VALUES_FILE
 }
-

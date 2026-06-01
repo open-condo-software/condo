@@ -1,6 +1,8 @@
-import { TITLE_TEXT } from '@cli/consts.js'
-import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 import gradient from 'gradient-string'
+
+import { getUserPkgManager } from './getUserPkgManager.js'
+
+import { TITLE_TEXT } from '../consts.js'
 
 const themeColors = {
     blue: '#3f8cff',

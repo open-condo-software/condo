@@ -2,7 +2,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 
 import * as p from '@clack/prompts'
-import { CONDO_ROOT } from '@cli/consts'
+import { CONDO_ROOT } from '../../consts.js'
 
 import { ResourceSettings } from './values'
 

@@ -1,11 +1,12 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { APP_TYPES, AppType } from '@cli/consts.js'
-import { type PackageManager } from '@cli/utils/getUserPkgManager.js'
-import { logger } from '@cli/utils/logger'
 import { execa } from 'execa'
 import ora from 'ora'
+
+import { APP_TYPES, AppType } from '../consts.js'
+import { type PackageManager } from '../utils/getUserPkgManager.js'
+import { logger } from '../utils/logger.js'
 
 interface PrepareAppProps {
     pkgManager: PackageManager

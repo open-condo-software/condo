@@ -1,5 +1,5 @@
-import { AppType, ClientAuthType } from '@cli/consts.js'
-import { PackageManager } from '@cli/utils/getUserPkgManager.js'
+import { AppType, ClientAuthType } from '../consts.js'
+import { PackageManager } from '../utils/getUserPkgManager.js'
 
 
 export const availablePackages = ['eslint'] as const

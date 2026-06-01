@@ -1,13 +1,14 @@
 import path from 'path'
 
 import * as p from '@clack/prompts'
-import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, PKG_ROOT } from '@cli/consts.js'
-import { InstallerOptions } from '@cli/installers/index.js'
-import { logger } from '@cli/utils/logger.js'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import ora from 'ora'
 import { type PackageJson } from 'type-fest'
+
+import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, PKG_ROOT } from '../consts.js'
+import { InstallerOptions } from '../installers/index.js'
+import { logger } from '../utils/logger.js'
 
 
 function getTemplateBaseDir (appType: AppType) {

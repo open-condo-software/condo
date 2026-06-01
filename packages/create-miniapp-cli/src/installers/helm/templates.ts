@@ -1,9 +1,9 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { APP_TYPES, AppType, CONDO_ROOT } from '@cli/consts'
-import { HELM_TEMPLATES } from '@cli/installers/helm/constants'
-import { fileExists, padNum } from '@cli/installers/helm/utils'
+import { APP_TYPES, AppType, CONDO_ROOT } from '../../consts.js'
+import { HELM_TEMPLATES } from './constants.js'
+import { fileExists, padNum } from './utils.js'
 
 const HELM_DIR = path.resolve(CONDO_ROOT, './.helm')
 const TEMPLATES_DIR = path.join(HELM_DIR, 'templates')
