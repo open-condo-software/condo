@@ -521,8 +521,10 @@ describe('ExecutionAIFlowTask', () => {
                 expect(foundTask.result).toBeNull()
                 expect(foundTask.errorMessage).toBe('Failed to complete request')
                 expect(foundTask.error).toEqual(expect.objectContaining({
-                    developerErrorMessage: FAULTY_FLOWISE_PREDICTION_RESULT.message,
+                    message: 'Failed to complete prediction',
+                    name: 'Error',
                 }))
+                expect(foundTask.error.stack).toBeTruthy()
                 expect(foundTask.meta).toEqual(expect.objectContaining({
                     response: expect.objectContaining(FAULTY_FLOWISE_PREDICTION_RESULT),
                 }))
