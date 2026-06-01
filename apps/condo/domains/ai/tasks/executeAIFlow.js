@@ -223,7 +223,7 @@ const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
             topic: buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`),
             data: {
                 type: CHUNK_TYPES.TASK_ERROR,
-                error: safeFormatError(error, false),
+                error: safeFormatError(error, true),
                 errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
             },
         })
