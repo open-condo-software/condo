@@ -5,6 +5,7 @@ import { HELM_TEMPLATES } from './constants.js'
 import { fileExists, padNum } from './utils.js'
 
 import { APP_TYPES, AppType, CONDO_ROOT } from '../../consts.js'
+import { resolvePathInside } from '../../utils/resolvePathInside.js'
 
 const HELM_DIR = path.resolve(CONDO_ROOT, './.helm')
 const TEMPLATES_DIR = path.join(HELM_DIR, 'templates')
@@ -43,16 +44,17 @@ export async function writeHelmTemplates (
     ] as const
     let prefixOffset = 0
     for (const role of names) {
+        const suffix = `-${appName}-${role}.yaml`
         const existingFile = existingFiles.find((file) => {
-            return new RegExp(`^\\d{3}-${appName}-${role}\\.yaml$`).test(file)
+            return /^\d{3}-/.test(file) && file.endsWith(suffix)
         })
         if (existingFile) {
-            created.push(path.join(TEMPLATES_DIR, existingFile))
+            created.push(resolvePathInside(TEMPLATES_DIR, existingFile))
             continue
         }
 
         const fileName = `${padNum(nextPrefix + prefixOffset)}-${appName}-${role}.yaml`
-        const fullPath = path.join(TEMPLATES_DIR, fileName)
+        const fullPath = resolvePathInside(TEMPLATES_DIR, fileName)
         const content = fillTemplate(HELM_TEMPLATES[role], appName, reviewEnabled)
         if (await fileExists(fullPath)) {
             throw new Error(`File already exists: ${fullPath} - aborting to avoid overwrite`)
