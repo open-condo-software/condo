@@ -14,16 +14,19 @@ const WERF_YAML_PATH = path.resolve(CONDO_ROOT, './werf.yaml')
 
 const ENV_CONFIG = {
     prod: {
+        workflowPath: path.resolve(WORKFLOWS_DIR, './deploy_production.yaml'),
         filename: 'deploy_production.yaml',
         domainSuffix: '.doma.ai',
         envVarPrefix: 'WERF_SET_CI_',
     },
     dev: {
+        workflowPath: path.resolve(WORKFLOWS_DIR, './deploy_development.yaml'),
         filename: 'deploy_development.yaml',
         domainSuffix: '.d.doma.ai',
         envVarPrefix: 'WERF_SET_CI_',
     },
     review: {
+        workflowPath: path.resolve(WORKFLOWS_DIR, './deploy_review.yaml'),
         filename: 'deploy_review.yaml',
         domainSuffix: '.r.doma.ai',
         envVarPrefix: 'WERF_SET_CI_',
@@ -33,8 +36,8 @@ const ENV_CONFIG = {
 export async function addSubmoduleEntry (appName: string) {
     const spinner = ora('Adding submodule entry to .gitmodules...').start()
     const content = await fs.readFile(GITMODULES_PATH, 'utf8')
-    const sectionPattern = new RegExp(`^\\[submodule "apps/${appName}"\\]$`, 'm')
-    if (sectionPattern.test(content)) {
+    const sectionHeader = `[submodule "apps/${appName}"]`
+    if (content.split('\n').some((line) => line.trim() === sectionHeader)) {
         spinner.succeed(`Submodule apps/${appName} already exists in .gitmodules`)
         return
     }
@@ -53,7 +56,7 @@ export async function addDeployEnvVar (appName: string, env: ENVS_TYPE) {
 
     try {
         const config = ENV_CONFIG[env]
-        const workflowPath = path.join(WORKFLOWS_DIR, config.filename)
+        const workflowPath = config.workflowPath
   
         const content = await fs.readFile(workflowPath, 'utf8')
         const underscoredAppName = appName.replace(/-/g, '_').toUpperCase()
@@ -189,9 +192,8 @@ export async function addWerfImage (appName: string, appType: AppType) {
     try {
         const appUnderscoreName = appName.replace(/-/g, '_')
         const content = await fs.readFile(WERF_YAML_PATH, 'utf8')
-        const imageHeaderPattern = new RegExp(`^image:\\s+${appUnderscoreName}\\s*$`, 'm')
-
-        if (imageHeaderPattern.test(content)) {
+        const imageHeaderLine = `image: ${appUnderscoreName}`
+        if (content.split('\n').some((line) => line.trim() === imageHeaderLine)) {
             spinner.succeed(`werf.yaml already contains image block for ${appUnderscoreName}`)
             return
         }

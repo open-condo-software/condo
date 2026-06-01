@@ -45,7 +45,7 @@ export default async function handler (req: NextApiRequest, res: NextApiResponse
         await session.save()
 
         const id = uuidV4()
-        console.error(`OIDC callback error (id: ${id}):`, error)
+        console.error('OIDC callback error', { id, error })
         res.status(500).send(`OIDC callback failed (id: ${id})`)
     }
 }

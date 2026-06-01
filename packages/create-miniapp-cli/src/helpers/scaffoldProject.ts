@@ -9,6 +9,7 @@ import { type PackageJson } from 'type-fest'
 import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, PKG_ROOT } from '../consts.js'
 import { InstallerOptions } from '../installers/index.js'
 import { logger } from '../utils/logger.js'
+import { resolvePathInside } from '../utils/resolvePathInside.js'
 
 
 function getTemplateBaseDir (appType: AppType) {
@@ -106,7 +107,7 @@ function stripTemplateEslintDirectives (projectDir: string) {
     for (const relativePath of files) {
         if (!CODE_FILE_RE.test(relativePath)) continue
 
-        const fullPath = path.join(projectDir, relativePath)
+        const fullPath = resolvePathInside(projectDir, relativePath)
         if (!fs.statSync(fullPath).isFile()) continue
         stripEslintDirectivesInFile(fullPath)
     }
@@ -121,7 +122,7 @@ function configureFullstackTemplate ({
     hasOidc: boolean
     hasSchemaStitching: boolean
 }) {
-    const packageJsonPath = path.join(projectDir, 'package.json')
+    const packageJsonPath = resolvePathInside(projectDir, 'package.json')
     const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
 
     const featureFlags: TemplateFeatureFlags = {
@@ -129,15 +130,15 @@ function configureFullstackTemplate ({
         STITCH: hasSchemaStitching,
     }
 
-    pruneTemplateFile(path.join(projectDir, 'index.js'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'pages/_app.tsx'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'bin/prepare.js'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'next.config.ts'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'index.js'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'pages/_app.tsx'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'bin/prepare.js'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'next.config.ts'), featureFlags)
 
     if (!hasOidc) {
-        fs.removeSync(path.join(projectDir, 'middlewares/oidc.js'))
-        fs.removeSync(path.join(projectDir, 'domains/common/hooks/useLaunchParams.ts'))
-        fs.removeSync(path.join(projectDir, 'domains/common/utils/oidcAuth.tsx'))
+        fs.removeSync(resolvePathInside(projectDir, 'middlewares/oidc.js'))
+        fs.removeSync(resolvePathInside(projectDir, 'domains/common/hooks/useLaunchParams.ts'))
+        fs.removeSync(resolvePathInside(projectDir, 'domains/common/utils/oidcAuth.tsx'))
 
         if (pkgJson.dependencies) {
             delete pkgJson.dependencies['openid-client']
@@ -146,9 +147,9 @@ function configureFullstackTemplate ({
     }
 
     if (!hasSchemaStitching) {
-        fs.removeSync(path.join(projectDir, 'bin/generate-condo-schema.js'))
-        fs.removeSync(path.join(projectDir, 'domains/condo'))
-        fs.removeSync(path.join(projectDir, 'condoSchema.graphql'))
+        fs.removeSync(resolvePathInside(projectDir, 'bin/generate-condo-schema.js'))
+        fs.removeSync(resolvePathInside(projectDir, 'domains/condo'))
+        fs.removeSync(resolvePathInside(projectDir, 'condoSchema.graphql'))
 
         if (pkgJson.scripts) {
             delete pkgJson.scripts['maketypes:condo']
@@ -166,7 +167,7 @@ function configureClientTemplate ({
     projectDir: string
     clientAuthType: ClientAuthType
 }) {
-    const packageJsonPath = path.join(projectDir, 'package.json')
+    const packageJsonPath = resolvePathInside(projectDir, 'package.json')
     const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
 
     const hasOidcAuth = clientAuthType === CLIENT_AUTH_TYPES.oidc
@@ -176,17 +177,17 @@ function configureClientTemplate ({
         STITCH: true,
     }
 
-    pruneTemplateFile(path.join(projectDir, 'bin/prepare.js'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'pages/_app.tsx'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'pages/index.tsx'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'pages/auth/signin.tsx'), featureFlags)
-    pruneTemplateFile(path.join(projectDir, 'pages/api/graphql.ts'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'bin/prepare.js'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'pages/_app.tsx'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'pages/index.tsx'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'pages/auth/signin.tsx'), featureFlags)
+    pruneTemplateFile(resolvePathInside(projectDir, 'pages/api/graphql.ts'), featureFlags)
 
     if (!hasOidcAuth) {
-        fs.removeSync(path.join(projectDir, 'pages/api/oidc'))
-        fs.removeSync(path.join(projectDir, 'domains/common/utils/oidcHelper.ts'))
-        fs.removeSync(path.join(projectDir, 'domains/common/utils/session.ts'))
-        fs.removeSync(path.join(projectDir, 'domains/common/utils/url.ts'))
+        fs.removeSync(resolvePathInside(projectDir, 'pages/api/oidc'))
+        fs.removeSync(resolvePathInside(projectDir, 'domains/common/utils/oidcHelper.ts'))
+        fs.removeSync(resolvePathInside(projectDir, 'domains/common/utils/session.ts'))
+        fs.removeSync(resolvePathInside(projectDir, 'domains/common/utils/url.ts'))
 
         if (pkgJson.dependencies) {
             delete pkgJson.dependencies['iron-session']
@@ -196,7 +197,7 @@ function configureClientTemplate ({
     }
 
     if (!hasOidcAuth) {
-        fs.removeSync(path.join(projectDir, 'pages/auth'))
+        fs.removeSync(resolvePathInside(projectDir, 'pages/auth'))
     }
 
     fs.writeJSONSync(packageJsonPath, pkgJson, { spaces: 2 })
@@ -282,18 +283,18 @@ export const scaffoldProject = async ({
     spinner.start()
 
     fs.copySync(srcDir, projectDir)
-    const gitignorePath = path.join(projectDir, '_gitignore')
+    const gitignorePath = resolvePathInside(projectDir, '_gitignore')
     if (fs.existsSync(gitignorePath)) {
         fs.renameSync(
             gitignorePath,
-            path.join(projectDir, '.gitignore'),
+            resolvePathInside(projectDir, '.gitignore'),
         )
     }
 
     if (!hasWorker) {
-        fs.removeSync(path.join(projectDir, 'worker.js'))
+        fs.removeSync(resolvePathInside(projectDir, 'worker.js'))
 
-        const packageJsonPath = path.join(projectDir, 'package.json')
+        const packageJsonPath = resolvePathInside(projectDir, 'package.json')
         const pkgJson = fs.readJSONSync(packageJsonPath) as PackageJson
         if (pkgJson.scripts && 'worker' in pkgJson.scripts) {
             delete pkgJson.scripts.worker

@@ -5,6 +5,7 @@ import { scaffoldProject } from './scaffoldProject.js'
 import { AppType, ClientAuthType } from '../consts.js'
 import { PkgInstallerMap } from '../installers/index.js'
 import { getUserPkgManager } from '../utils/getUserPkgManager.js'
+import { resolvePathInside } from '../utils/resolvePathInside.js'
 
 
 interface CreateProjectOptions {
@@ -35,7 +36,7 @@ export const createProject = async ({
     const pkgManager = getUserPkgManager()
     const rootDir = path.resolve(process.cwd(), '../..') // relative to CLI package
     const appsDir = path.join(rootDir, 'apps')
-    const projectDir = path.resolve(appsDir, projectName)
+    const projectDir = resolvePathInside(appsDir, projectName)
 
     // Bootstraps the base application
     await scaffoldProject({
