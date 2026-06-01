@@ -60,17 +60,25 @@ const runScript = async ({
         else logger.success(successMessage)
 
         return true
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (spinner) spinner.fail(errorMessage)
         else logger.error(errorMessage)
 
         // Show captured logs only if subprocess logs were hidden
         if (!showSubprocessLogs && !allowInput) {
-            if (err.stdout) logger.error(`\n[stdout]\n${err.stdout}`)
-            if (err.stderr) logger.error(`\n[stderr]\n${err.stderr}`)
+            if (err && typeof err === 'object' && 'stdout' in err) {
+                logger.error(`\n[stdout]\n${String(err.stdout)}`)
+            }
+            if (err && typeof err === 'object' && 'stderr' in err) {
+                logger.error(`\n[stderr]\n${String(err.stderr)}`)
+            }
         }
 
-        logger.error(`\n[error]\n${err.message}`)
+        if (err instanceof Error) {
+            logger.error(`\n[error]\n${err.message}`)
+        } else {
+            logger.error(`\n[error]\n${String(err)}`)
+        }
 
         if (!ignoreFailure) throw err
         return false

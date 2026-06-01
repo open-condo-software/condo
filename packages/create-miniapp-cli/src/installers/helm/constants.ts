@@ -7,8 +7,6 @@ export const TEMPLATES_DIR = path.join(HELM_DIR, 'templates')
 export const REVIEW_DIR = path.join(TEMPLATES_DIR, 'review')
 export const SERVICES_URLS = path.join(TEMPLATES_DIR, '000-services-urls.yaml')
 
-// @ts-nocheck
-// This entire block will now be ignored by TypeScript's type checker.
 export const HELM_TEMPLATES = {
     app: `\${REVIEW_NE_WRAPPER_START}
 ---
