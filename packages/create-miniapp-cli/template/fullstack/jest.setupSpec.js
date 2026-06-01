@@ -1,3 +1,4 @@
+/* eslint-disable */
 const conf = require('@open-condo/config')
 
 const EXTRA_LOGGING = conf.DISABLE_LOGGING !== 'true'

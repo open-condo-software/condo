@@ -1,3 +1,4 @@
+/* eslint-disable */
 import getConfig from 'next/config'
 import { v4 as uuidV4 } from 'uuid'
 

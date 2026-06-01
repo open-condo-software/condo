@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { generators } from 'openid-client'
 import { v4 as uuidV4 } from 'uuid'
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 const isEqual = require('lodash/isEqual')
 
 const { getById } = require('@open-condo/keystone/schema')

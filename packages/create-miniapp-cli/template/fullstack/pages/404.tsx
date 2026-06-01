@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Typography } from 'antd'
 import React, { CSSProperties } from 'react'
 

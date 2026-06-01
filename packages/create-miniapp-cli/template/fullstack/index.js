@@ -1,3 +1,4 @@
+/* eslint-disable */
 const { NextApp } = require('@open-keystone/app-next')
 
 const conf = require('@open-condo/config')

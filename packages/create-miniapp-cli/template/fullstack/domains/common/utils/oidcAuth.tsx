@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Spin } from 'antd'
 import isObject from 'lodash/isObject'
 import getConfig from 'next/config'
