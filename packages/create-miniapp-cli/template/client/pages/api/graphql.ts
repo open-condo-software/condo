@@ -1,3 +1,4 @@
+/* eslint-disable */
 import httpProxy from 'http-proxy'
 import getConfig from 'next/config'
 

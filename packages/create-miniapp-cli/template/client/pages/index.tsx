@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

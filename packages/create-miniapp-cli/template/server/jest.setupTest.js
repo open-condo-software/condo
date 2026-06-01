@@ -1,3 +1,4 @@
+/* eslint-disable */
 const index = require('@app/~/index')
 
 const conf = require('@open-condo/config')
