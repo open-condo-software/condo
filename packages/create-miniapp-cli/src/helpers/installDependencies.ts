@@ -1,11 +1,12 @@
+import chalk from 'chalk'
+import { execa } from 'execa'
+import ora from 'ora'
+
 import {
     getUserPkgManager,
     type PackageManager,
 } from '../utils/getUserPkgManager.js'
 import { logger } from '../utils/logger.js'
-import chalk from 'chalk'
-import { execa } from 'execa'
-import ora from 'ora'
 
 
 const runInstallCommand = async (
@@ -25,12 +26,20 @@ const runInstallCommand = async (
 
         spinner.succeed(chalk.green('Successfully installed dependencies!\n'))
         return true
-    } catch (err: any) {
+    } catch (err: unknown) {
         spinner.fail(chalk.red('Failed to install dependencies.'))
 
-        if (err.stdout) logger.error(`\n[stdout]\n${err.stdout}`)
-        if (err.stderr) logger.error(`\n[stderr]\n${err.stderr}`)
-        logger.error(`\n[error]\n${err.message}`)
+        if (err && typeof err === 'object' && 'stdout' in err) {
+            logger.error(`\n[stdout]\n${String(err.stdout)}`)
+        }
+        if (err && typeof err === 'object' && 'stderr' in err) {
+            logger.error(`\n[stderr]\n${String(err.stderr)}`)
+        }
+        if (err instanceof Error) {
+            logger.error(`\n[error]\n${err.message}`)
+        } else {
+            logger.error(`\n[error]\n${String(err)}`)
+        }
 
         return false
     }

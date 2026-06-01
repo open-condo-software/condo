@@ -1,9 +1,10 @@
 import fs from 'fs/promises'
 import path from 'path'
 
+import { parseDocument, YAMLMap, Pair, Scalar } from 'yaml'
+
 import { CONDO_ROOT } from '../../consts.js'
 import { logger } from '../../utils/logger.js'
-import { parseDocument, YAMLMap, Pair, Scalar } from 'yaml'
 
 export interface MaxOldSpace {
     default: number
@@ -63,7 +64,7 @@ export async function updateValues (options: UpdateValuesOptions) {
         return VALUES_FILE
     }
 
-    const newMiniappBlock: Record<string, any> = {
+    const newMiniappBlock: Record<string, unknown> = {
         app: {
             port: { _default: 3000 },
             replicas: { _default: 1 },
