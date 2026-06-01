@@ -1,14 +1,16 @@
 const omit = require('lodash/omit')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, NOT_FOUND } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/GetVoIPCallStatusService')
-const { INVALID_CALL_ID_ERROR, CALL_NOT_FOUND_ERROR, CALL_STATUSES } = require('@condo/domains/miniapp/constants')
-const { getCallStatus, isCallStatusTokenEqual, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
+const { CALL_STATUSES } = require('@condo/domains/miniapp/constants')
+const { COMMON_VOIP_ERRORS } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
+const { getCallStatus, isCallStatusTokenEqual, isCallIdValid, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
 
 const redisGuard = new RedisGuard()
 
@@ -21,24 +23,21 @@ const SERVICE_NAME = 'getVoIPCallStatus'
 const ERRORS = {
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
-        mutation: SERVICE_NAME,
+        query: SERVICE_NAME,
     },
     WRONG_SENDER_FORMAT: {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
-        mutation: SERVICE_NAME,
+        query: SERVICE_NAME,
     },
     INVALID_CALL_ID: {
-        mutation: SERVICE_NAME,
-        variable: ['data', 'callId'],
-        type: INVALID_CALL_ID_ERROR,
-        code: BAD_USER_INPUT,
-        message: `"callId" contains invalid characters or does not have length between ${MIN_CALL_ID_LENGTH} and ${MAX_CALL_ID_LENGTH}`,
+        ...COMMON_VOIP_ERRORS.INVALID_CALL_ID,
+        query: SERVICE_NAME,
+        variable: ['data', 'token'],
     },
     CALL_NOT_FOUND: {
-        mutation: SERVICE_NAME,
-        type: CALL_NOT_FOUND_ERROR,
-        code: NOT_FOUND,
-        message: 'Call not found or expired',
+        ...COMMON_VOIP_ERRORS.CALL_NOT_FOUND,
+        query: SERVICE_NAME,
+        variable: ['data', 'token'],
     },
 }
 
@@ -65,18 +64,6 @@ async function checkLimitsByIp (context) {
         GET_VOIP_CALL_STATUS_LIMIT_BY_USER_MAX_REQUESTS_PER_WINDOW,
         context,
     )
-}
-
-async function checkLimits (context, { addressKey, app, callId }) {
-    const promiseResults = await Promise.allSettled([
-        checkLimitsByCall(context, { addressKey, app, callId }),
-        checkLimitsByIp(context),
-    ])
-
-    const errors = promiseResults.filter(p => p.status === 'rejected').map(p => p.reason)
-    if (errors.length) {
-        throw new AggregateError(errors)
-    }
 }
 
 const GetVoIPCallStatusService = new GQLCustomSchema('GetVoIPCallStatusService', {

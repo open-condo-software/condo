@@ -69,9 +69,6 @@ describe('GetVoIPCallStatusService spec', () => {
             let b2cApp
             let property
             let organization
-            let unitName
-            let unitType
-            let serviceUser
 
             beforeAll(async () => {
                 const [testB2CApp] = await createTestB2CApp(admin)
@@ -80,9 +77,6 @@ describe('GetVoIPCallStatusService spec', () => {
                 const { organization: testOrganization, property: testProperty } = await makeClientWithResidentAccessAndProperty()
                 property = testProperty
                 organization = testOrganization
-
-                unitName = faker.random.alphaNumeric(3)
-                unitType = FLAT_UNIT_TYPE
             })
 
             const TEST_CASES = [

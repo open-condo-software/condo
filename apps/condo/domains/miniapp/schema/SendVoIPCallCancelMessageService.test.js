@@ -205,7 +205,6 @@ describe('SendVoIPCallCancelMessageService', () => {
 
     describe('Logic', () => {
         let serviceUser
-        let b2cAppProperty
         let organization
         let property
         let b2cApp
@@ -216,8 +215,8 @@ describe('SendVoIPCallCancelMessageService', () => {
 
             const { organization: testOrganization, property: testProperty } = await makeClientWithResidentAccessAndProperty()
             organization = testOrganization
-            property = testProperty;
-            [b2cAppProperty] = await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
+            property = testProperty
+            await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
             serviceUser = await makeClientWithServiceUser()
             const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallCancelMessage: true, canExecuteSendVoIPCallStartMessage: true })
             await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } })
@@ -479,7 +478,7 @@ describe('SendVoIPCallCancelMessageService', () => {
                 const callId = faker.datatype.uuid()
                 let cache
 
-                const [r] = await sendVoIPCallStartMessageByTestClient(serviceUser, {
+                await sendVoIPCallStartMessageByTestClient(serviceUser, {
                     app: { id: b2cApp.id },
                     addressKey: property.addressKey,
                     unitName: unitName,

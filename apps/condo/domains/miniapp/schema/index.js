@@ -21,6 +21,7 @@ const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppAccessRightSet } = require('./B2CAppAccessRightSet')
 const { B2CAppBuild } = require('./B2CAppBuild')
+const { B2CAppIntercomConfig } = require('./B2CAppIntercomConfig')
 const { B2CAppProperty } = require('./B2CAppProperty')
 const { CustomField } = require('./CustomField')
 const { CustomValue } = require('./CustomValue')
@@ -28,6 +29,7 @@ const { GetVoIPCallStatusService } = require('./GetVoIPCallStatusService')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
 const { SendB2BAppPushMessageService } = require('./SendB2BAppPushMessageService')
 const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
+const { SendDTMFToB2CAppService } = require('./SendDTMFToB2CAppService')
 const { SendVoIPCallCancelMessageService } = require('./SendVoIPCallCancelMessageService')
 const { SendVoIPCallStartMessageService } = require('./SendVoIPCallStartMessageService')
 
@@ -62,5 +64,7 @@ module.exports = {
     SendVoIPCallCancelMessageService,
     B2BAppBillingEmbeddingConfig,
     GetVoIPCallStatusService,
+    SendDTMFToB2CAppService,
+    B2CAppIntercomConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

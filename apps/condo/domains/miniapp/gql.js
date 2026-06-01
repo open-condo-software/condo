@@ -130,6 +130,18 @@ const B2CAppAccessRightSet = generateGqlQueries('B2CAppAccessRightSet', B2C_APP_
 const B2_BAPP_BILLING_EMBED_CONFIG_FIELDS = `{ tabUrl ${COMMON_FIELDS} }`
 const B2BAppBillingEmbeddingConfig = generateGqlQueries('B2BAppBillingEmbeddingConfig', B2_BAPP_BILLING_EMBED_CONFIG_FIELDS)
 
+const SEND_DTMF_TO_B2C_APP_MUTATION = gql`
+    mutation SendDTMFToB2CApp($data: SendDTMFToB2CAppInput!) {
+        result: sendDTMFToB2CApp(data: $data) { status }
+    }
+`
+
+const B2C_APP_INTERCOM_CONFIG_COMMON_FIELDS = `id sendDTMFUrl ${COMMON_FIELDS}`
+const B2C_APP_INTERCOM_CONFIG_FIELDS = `{ ${B2C_APP_INTERCOM_CONFIG_COMMON_FIELDS} }`
+const B2C_APP_INTERCOM_CONFIG_ADMIN_FIELDS = `{ accessToken ${B2C_APP_INTERCOM_CONFIG_COMMON_FIELDS} }`
+const B2CAppIntercomConfig = generateGqlQueries('B2CAppIntercomConfig', B2C_APP_INTERCOM_CONFIG_FIELDS)
+const B2CAppIntercomConfigAdmin = generateGqlQueries('B2CAppIntercomConfig', B2C_APP_INTERCOM_CONFIG_ADMIN_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -164,5 +176,7 @@ module.exports = {
     SEND_VOIP_CALL_CANCEL_MESSAGE_MUTATION,
     B2BAppBillingEmbeddingConfig,
     GET_VOIP_CALL_STATUS_QUERY,
+    SEND_DTMF_TO_B2C_APP_MUTATION,
+    B2CAppIntercomConfig, B2CAppIntercomConfigAdmin,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

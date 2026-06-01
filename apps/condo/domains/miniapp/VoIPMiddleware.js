@@ -4,9 +4,10 @@ const { z } = require('zod')
 const { GQLError, GQLInternalErrorTypes: { SUB_GQL_ERROR }, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
-const { getVoIPCallStatus } = require('@condo/domains/miniapp/utils/serverSchema') 
+const { getVoIPCallStatus, sendDTMFToB2CApp } = require('@condo/domains/miniapp/utils/serverSchema') 
 
 const GET_VOIP_CALL_STATUS_URL_PATH = '/api/voip/getVoIPCallStatus'
+const SEND_DTMF_TO_B2C_APP_URL_PATH = '/api/voip/sendDTMFToB2CApp'
 const INVALID_PARAMETERS_ERROR = 'INVALID_PARAMETERS'
 
 const DV_SENDER_SCHEMA = z.strictObject({
@@ -14,9 +15,27 @@ const DV_SENDER_SCHEMA = z.strictObject({
     sender: z.strictObject({ dv: z.number(), fingerprint: z.string() }),
 })
 
-const GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA = DV_SENDER_SCHEMA.merge(z.strictObject({
-    token: z.string(),
-}))
+const HANDLERS_CONFIG = [
+    {
+        path: GET_VOIP_CALL_STATUS_URL_PATH,
+        method: 'get',
+        dataSchema: z.strictObject({
+            token: z.string(),
+            ...DV_SENDER_SCHEMA.shape,
+        }),
+        callServiceFn: getVoIPCallStatus,
+    },
+    {
+        path: SEND_DTMF_TO_B2C_APP_URL_PATH,
+        method: 'post',
+        dataSchema: z.strictObject({
+            token: z.string(),
+            data: z.strictObject({ dtmfCode: z.string() }),
+            ...DV_SENDER_SCHEMA.shape,
+        }),
+        callServiceFn: sendDTMFToB2CApp,
+    },
+]
 
 const ERRORS = {
     INVALID_PARAMETERS: {
@@ -44,7 +63,8 @@ function formatZodSafeParseError (error) {
 function withParsedData (dataSchema) {
     return function (req, res, next) {
         let data
-        if (req.method === 'GET') {
+        const bodyIsEmpty = !req.body || typeof req.body !== 'object' || !Object.keys(req.body).length
+        if (req.method === 'GET' || bodyIsEmpty) {
             try {
                 data = JSON.parse(req.query.data)
             } catch (err) {
@@ -105,12 +125,14 @@ class VoIPMiddleware {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.get(
-            GET_VOIP_CALL_STATUS_URL_PATH, 
-            this.withKeystoneContext, 
-            withParsedData(GET_VOIP_CALL_STATUS_QUERY_DATA_SCHEMA), 
-            callService(getVoIPCallStatus),
-        )
+        for (const handler of HANDLERS_CONFIG) {
+            app[handler.method](
+                handler.path,
+                this.withKeystoneContext,
+                withParsedData(handler.dataSchema),
+                callService(handler.callServiceFn),
+            )
+        }
 
         app.use(expressErrorHandler)
 
@@ -133,4 +155,5 @@ module.exports = {
     VoIPMiddleware,
 
     GET_VOIP_CALL_STATUS_URL_PATH,
+    SEND_DTMF_TO_B2C_APP_URL_PATH,
 }

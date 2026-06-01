@@ -28,7 +28,7 @@ const CALL_STATUS_SCHEMA = z.object({
     callStatusToken: z.string(),
 })
 
-const DEFAULT_JWT_PAYLOAD_PARAMS = {
+const DEFAULT_JWT_PAYLOAD_SCHEMA = z.strictObject({
     iss: z.optional(z.string()),
     sub: z.optional(z.string()),
     aud: z.optional(z.union([z.string(), z.array(z.string())])),
@@ -36,25 +36,22 @@ const DEFAULT_JWT_PAYLOAD_PARAMS = {
     nbf: z.optional(z.number()),
     iat: z.optional(z.number()),
     jti: z.optional(z.string()),
-}
-const DEFAULT_JWT_PAYLOAD_SCHEMA = z.strictObject(DEFAULT_JWT_PAYLOAD_PARAMS)
+})
 
-const JWT_PAYLOAD_SCHEMA = DEFAULT_JWT_PAYLOAD_SCHEMA.merge(z.strictObject({
+const JWT_PAYLOAD_DATA_SCHEMA = z.strictObject({
     organizationId: z.uuid(),
     b2cAppId: z.uuid(),
     addressKey: z.uuid(),
     callId: z.string(),
     callStatusToken: z.string(),
-})).transform(data => 
-    Object.fromEntries(
-        Object.entries(data)
-            .filter(
-                ([key]) => !(key in DEFAULT_JWT_PAYLOAD_PARAMS)
-            )
-    )
+})
+
+const JWT_PAYLOAD_SCHEMA = z.strictObject({ 
+    ...DEFAULT_JWT_PAYLOAD_SCHEMA.shape, 
+    ...JWT_PAYLOAD_DATA_SCHEMA.shape,
+}).transform(data => 
+    z.object(JWT_PAYLOAD_DATA_SCHEMA.shape).safeParse(data)?.data ?? null // NOTE(YEgorLu): to clear jwt specific fields and normal type hint
 )
-
-
 
 function isCallIdValid (callId) {
     return typeof callId === 'string'
@@ -159,4 +156,6 @@ module.exports = {
     MIN_CALL_ID_LENGTH,
     MAX_CALL_ID_LENGTH,
     MAX_CALL_META_LENGTH,
+
+    CALL_STATUS_TTL_IN_SECONDS,
 }

@@ -46,7 +46,6 @@ describe('GetVoIPCallStatusService', () => {
         let property
         let organization
         let serviceUser
-        let b2cAccessRight
         let callId
         let callStatusJwtToken
 
@@ -58,8 +57,8 @@ describe('GetVoIPCallStatusService', () => {
             property = testProperty
             organization = testOrganization
             await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
-            serviceUser = await makeClientWithServiceUser();
-            [b2cAccessRight] = await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
+            serviceUser = await makeClientWithServiceUser()
+            await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp)
 
             callId = faker.datatype.uuid()
             const unitName = faker.random.alphaNumeric(8)

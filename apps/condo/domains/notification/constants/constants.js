@@ -646,6 +646,7 @@ const MESSAGE_META = {
             address: { required: true },
             getVoIPCallStatusUrl: { required: false },
             getVoIPCallStatusTimeout: { required: false },
+            sendDTMFTimeout: { required: false },
         },
     },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
@@ -662,6 +663,7 @@ const MESSAGE_META = {
             address: { required: true },
             getVoIPCallStatusUrl: { required: false },
             getVoIPCallStatusTimeout: { required: false },
+            sendDTMFTimeout: { required: false },
         },
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {

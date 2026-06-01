@@ -14,11 +14,10 @@ const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/c
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { makeClientWithResidentUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
@@ -43,7 +42,7 @@ const { B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/
 const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonlyAdmin: B2BAccessTokenReadonlyAdminGQL } = require('@condo/domains/miniapp/gql')
 const { AppMessageSetting: AppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
-const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
+const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION, SEND_DTMF_TO_B2C_APP_MUTATION } = require('@condo/domains/miniapp/gql')
 const { CustomField: CustomFieldGQL } = require('@condo/domains/miniapp/gql')
 const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
@@ -51,6 +50,19 @@ const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domain
 const { B2BAppMeterIntegrationConfig: B2BAppMeterIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppBillingEmbeddingConfig: B2BAppBillingEmbeddingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { GET_VOIP_CALL_STATUS_QUERY } = require('@condo/domains/miniapp/gql')
+const { 
+    B2CAppIntercomConfig: B2CAppIntercomConfigGQL,
+    B2CAppIntercomConfigAdmin: B2CAppIntercomConfigAdminGQL,
+ } = require('@condo/domains/miniapp/gql')
+
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { Message } = require('@condo/domains/notification/utils/testSchema') 
+
+const { createTestPhone, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -94,6 +106,8 @@ const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConf
 const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
 const B2BAppMeterIntegrationConfig = generateGQLTestUtils(B2BAppMeterIntegrationConfigGQL)
 const B2BAppBillingEmbeddingConfig = generateGQLTestUtils(B2BAppBillingEmbeddingConfigGQL)
+const B2CAppIntercomConfig = generateGQLTestUtils(B2CAppIntercomConfigGQL)
+const B2CAppIntercomConfigAdmin = generateGQLTestUtils(B2CAppIntercomConfigAdminGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
@@ -924,6 +938,10 @@ async function getVoIPCallStatusByTestClient (client, extraAttrs = {}) {
 }
 
 async function prepareVoIPUser ({ admin, organization, property, unitName, unitType }) {
+    if (!admin) admin = await makeLoggedInAdminClient()
+    if (!unitName) unitName = faker.random.alphaNumeric(8)
+    if (!unitType) unitType = FLAT_UNIT_TYPE
+
     const phone = createTestPhone()
     const userClient = await makeClientWithResidentUser({}, { phone })
     const [contact] = await createTestContact(admin, organization, property, {
@@ -942,6 +960,88 @@ async function prepareVoIPUser ({ admin, organization, property, unitName, unitT
         contact,
         resident,
     }
+}
+
+async function sendDTMFToB2CAppByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const extraData = extraAttrs?.data ?? {}
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+        data: {
+            dtmfCode: faker.random.alphaNumeric(8),
+            ...extraData
+        }
+    }
+
+    const { data, errors } = await client.mutate(SEND_DTMF_TO_B2C_APP_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function createTestB2CAppIntercomConfig (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        sendDTMFUrl: faker.internet.url(),
+        accessToken: faker.random.alphaNumeric(32),
+        ...extraAttrs,
+    }
+    const obj = await B2CAppIntercomConfig.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppIntercomConfig (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppIntercomConfig.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type = 'b2c', resident, nativeCallData = {}, b2cAppCallData = {} }) {
+    if (!admin) admin = await makeLoggedInAdminClient()    
+    
+    const callId = faker.datatype.uuid()
+    const dtmfCommand = faker.random.alphaNumeric(4)
+    await sendVoIPCallStartMessageByTestClient(serviceUserClient, {
+        app: { id: b2cAppId },
+        addressKey: resident.addressKey,
+        unitName: resident.unitName,
+        unitType: resident.unitType,
+        callData: {
+            callId,
+            ...type === 'b2c' 
+                ? { b2cAppCallData: { B2CAppContext: '', ...b2cAppCallData } }
+                : { 
+                    nativeCallData: {
+                        voipAddress: faker.internet.ipv4(),
+                        voipPassword: faker.internet.password(), 
+                        voipLogin: faker.internet.userName(),
+                        voipPanels: [{ dtmfCommand }],
+                        ...nativeCallData
+                    } 
+                },
+        },
+    })
+    const [msg] = await Message.getAll(admin, { user: { id: resident.user.id || resident.user }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
+    const callStatusJWTToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+    return { callId, callStatusJWTToken, msg, dtmfCommand }
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -973,9 +1073,12 @@ module.exports = {
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
     sendVoIPCallStartMessageByTestClient, sendVoIPCallCancelMessageByTestClient,
+    sendDTMFToB2CAppByTestClient,
     B2BAppMeterIntegrationConfig, createTestB2BAppMeterIntegrationConfig, updateTestB2BAppMeterIntegrationConfig,
     B2BAppBillingEmbeddingConfig, createTestB2BAppBillingEmbeddingConfig, updateTestB2BAppBillingEmbeddingConfig,
     getVoIPCallStatusByTestClient,
     prepareVoIPUser,
+    B2CAppIntercomConfig, B2CAppIntercomConfigAdmin, createTestB2CAppIntercomConfig, updateTestB2CAppIntercomConfig,
+    makeStartCallRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

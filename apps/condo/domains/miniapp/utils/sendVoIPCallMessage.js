@@ -3,7 +3,7 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, NOT_FOUND } } = require('@open-condo/keystone/errors')
 const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 const {
@@ -11,10 +11,13 @@ const {
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     NATIVE_VOIP_TYPE,
     B2C_APP_VOIP_TYPE,
-    CALL_STATUS_TTL_IN_SECONDS,
+    SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ENDED,
+    INVALID_CALL_ID_ERROR,
+    CALL_NOT_FOUND_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2CAppProperty, CustomValue } = require('@condo/domains/miniapp/utils/serverSchema')
-const { GET_VOIP_CALL_STATUS_URL_PATH } = require('@condo/domains/miniapp/VoIPMiddleware')
+const { CALL_STATUS_TTL_IN_SECONDS, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
+const { GET_VOIP_CALL_STATUS_URL_PATH, SEND_DTMF_TO_B2C_APP_URL_PATH } = require('@condo/domains/miniapp/VoIPMiddleware')
 const {
     MESSAGE_META,
     VOIP_INCOMING_CALL_MESSAGE_TYPE, MESSAGE_SENDING_STATUS,
@@ -61,6 +64,21 @@ const GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID = JSON.parse(conf.GLOB
 
 const MAX_UNIT_NAME_LANEGTH = 100
 
+const COMMON_VOIP_ERRORS = {
+    INVALID_CALL_ID: {
+        variable: ['data', 'callId'],
+        type: INVALID_CALL_ID_ERROR,
+        code: BAD_USER_INPUT,
+        message: `"callId" contains invalid characters or does not have length between ${MIN_CALL_ID_LENGTH} and ${MAX_CALL_ID_LENGTH}`,
+    },
+    CALL_NOT_FOUND: {
+        variable: ['data', 'callId'],
+        code: NOT_FOUND,
+        type: CALL_NOT_FOUND_ERROR,
+        message: 'Call for that callId is already ended or never existed',
+    },
+}
+
 class RejectCallError extends Error {
     constructor (returnData) {
         super('Code has no reason to go further')
@@ -80,12 +98,25 @@ function getGetVoIPCallStatusTimeout () {
     return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
 }
 
+function getSendDTMFUrl ({ dv, sender, callStatusJwtToken, dtmfCode }) {
+    if (typeof dv !== 'number' || !sender || !callStatusJwtToken) return null
+    const baseSendDTMFUrl = new URL(`${SERVER_URL}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
+    baseSendDTMFUrl.searchParams.set('data', JSON.stringify({ dv, sender, token: callStatusJwtToken, data: { dtmfCode } }))
+    return baseSendDTMFUrl.toString()
+}
+
+function getSendDTMFTimeout () {
+    return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
+}
+
 function prepareVoIPCallStartMessageData ({ 
     callData, 
     b2cApp: { id: b2cAppId, name: b2cAppName },
-    resident,
+    resident, contact,
+    property,
     callStatusJwtToken,
-    customVoIPValues,
+    customVoIPValues = {},
+    hasSendDTMFUrl,
     sender,
 }) {
     // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
@@ -109,13 +140,13 @@ function prepareVoIPCallStartMessageData ({
     }
 
     const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
-    const isB2CAppCallDataProvidedAndPreferredByCustomValue = !!callData.b2cAppCallData && customVoIPValues?.voipType === B2C_APP_VOIP_TYPE
+    const isB2CAppCallDataProvidedAndPreferredByCustomValue = !!callData.b2cAppCallData && customVoIPValues.voipType === B2C_APP_VOIP_TYPE
     const needToPasteB2CAppCallData = isB2CAppCallDataIsOnlyOption || isB2CAppCallDataProvidedAndPreferredByCustomValue
 
     if (!needToPasteB2CAppCallData) {
         let voipType = customVoIPValues?.voipType || NATIVE_VOIP_TYPE
         
-        const customValuePrefersB2CAppDataButHasOnlyNativeData = customVoIPValues?.voipType === B2C_APP_VOIP_TYPE && !callData.b2cAppCallData
+        const customValuePrefersB2CAppDataButHasOnlyNativeData = customVoIPValues.voipType === B2C_APP_VOIP_TYPE && !callData.b2cAppCallData
         // CustomValue says to use B2C_APP_VOIP_TYPE, but we have no b2cAppCallData
         if (customValuePrefersB2CAppDataButHasOnlyNativeData) {
             voipType = NATIVE_VOIP_TYPE
@@ -134,11 +165,27 @@ function prepareVoIPCallStartMessageData ({
             codec: callData.nativeCallData.codec,
             ...omit(customVoIPValues, 'voipType'),
         }
+        if (hasSendDTMFUrl && callStatusJwtToken && !customVoIPValues?.voipPanels) {
+            preparedDataArgs.voipPanels = preparedDataArgs.voipPanels.map(panel => {
+                if (!panel.dtmfCommand) return panel
+                const sendDTMFUrl = getSendDTMFUrl({ dv: 1, sender, callStatusJwtToken, dtmfCode: panel.dtmfCommand })
+                if (!sendDTMFUrl) return panel
+                return { ...panel, sendDTMFUrl }
+            })
+            preparedDataArgs.sendDTMFTimeout = getSendDTMFTimeout()
+        }
+
+        preparedDataArgs = { ...preparedDataArgs, ...omit(customVoIPValues, 'voipType') }
     } else {
         preparedDataArgs = {
             ...preparedDataArgs,
             B2CAppContext: callData.b2cAppCallData.B2CAppContext,
         }
+    }
+
+    for (const jsonKey of ['voipPanels', 'stunServers']) {
+        if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey]) continue
+        preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
     }
 
     return preparedDataArgs
@@ -149,6 +196,7 @@ function prepareVoIPCallCancelMessageData ({
     b2cApp: { id: b2cAppId, name: b2cAppName },
     resident,
     voipIncomingCallId,
+    hasSendDTMFUrl,
 }) {
     const preparedDataArgs = {
         B2CAppId: b2cAppId,
@@ -161,8 +209,8 @@ function prepareVoIPCallCancelMessageData ({
         getVoIPCallStatusTimeout: getGetVoIPCallStatusTimeout(),
     }
 
-    if (callData.b2cAppCallData?.B2CAppContext) {
-        preparedDataArgs.B2CAppContext = callData.b2cAppCallData.B2CAppContext
+    if (hasSendDTMFUrl && callData.reason !== SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ENDED) {
+        preparedDataArgs.sendDTMFTimeout = getSendDTMFTimeout()
     }
 
     return preparedDataArgs
@@ -187,6 +235,7 @@ function prepareVoIPCallCancelMessageData ({
  * property,
  * sender,
  * dv,
+ * hasSendDTMFUrl,
  * }} args 
  * @returns 
  */
@@ -326,7 +375,7 @@ async function getAppInfo ({ context, propertyNotFoundError, logContext, address
         app: { id: b2cAppId, deletedAt: null },
         addressKey: addressKey,
         deletedAt: null,
-    }, 'id app { id name }')
+    }, 'id app { id name intercomConfig { sendDTMFUrl } }')
 
     if (!b2cAppProperty) {
         if (logContext) {
@@ -339,7 +388,7 @@ async function getAppInfo ({ context, propertyNotFoundError, logContext, address
         logContext.logInfoStats.isAppFound = true
     }
 
-    return { b2cAppId, b2cAppName: b2cAppProperty.app.name }
+    return { b2cAppId, b2cAppName: b2cAppProperty.app.name, hasSendDTMFUrl: !!b2cAppProperty.app.intercomConfig?.sendDTMFUrl }
 }
 
 async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessageType }) {
@@ -494,4 +543,6 @@ module.exports = {
     getInitialLogContext,
 
     RejectCallError,
+
+    COMMON_VOIP_ERRORS,
 }

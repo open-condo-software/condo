@@ -10,7 +10,6 @@ const access = require('@condo/domains/miniapp/access/SendVoIPCallStartMessageSe
 const {
     PROPERTY_NOT_FOUND_ERROR,
     CALL_DATA_NOT_PROVIDED_ERROR,
-    INVALID_CALL_ID_ERROR,
     INVALID_CALL_META_ERROR,
     CALL_STATUS_STARTED,
 } = require('@condo/domains/miniapp/constants')
@@ -24,8 +23,9 @@ const {
     getVerifiedResidentsWithContacts,
     parseSendMessageResults,
     sendMessageToUser,
+    COMMON_VOIP_ERRORS,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -59,11 +59,9 @@ const ERRORS = {
         mutation: SERVICE_NAME,
     },
     INVALID_CALL_ID: {
+        ...COMMON_VOIP_ERRORS.INVALID_CALL_ID,
         mutation: SERVICE_NAME,
         variable: ['data', 'callData', 'callId'],
-        type: INVALID_CALL_ID_ERROR,
-        code: BAD_USER_INPUT,
-        message: `"callId" contains invalid characters or does not has length between ${MIN_CALL_ID_LENGTH} and ${MAX_CALL_ID_LENGTH}`,
     },
     INVALID_CALL_META: {
         mutation: SERVICE_NAME,
@@ -250,7 +248,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     validateInput({ context, logContext, args })
 
                     // 1) Check B2CApp and B2CAppProperty
-                    const { b2cAppId, b2cAppName } = await getAppInfo({ propertyNotFoundError: ERRORS.PROPERTY_NOT_FOUND, context, logContext, addressKey, app }) 
+                    const { b2cAppId, b2cAppName, hasSendDTMFUrl } = await getAppInfo({ propertyNotFoundError: ERRORS.PROPERTY_NOT_FOUND, context, logContext, addressKey, app }) 
 
                     // 2) Get verified residents
                     const { 
@@ -283,7 +281,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                                 voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                                 context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
-                                callStatusJwtToken,
+                                callStatusJwtToken, hasSendDTMFUrl,
                             })
                         })
                 

@@ -10,6 +10,7 @@ const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
     GET_VOIP_CALL_STATUS_QUERY,
+    SEND_DTMF_TO_B2C_APP_MUTATION,
 } = require('@condo/domains/miniapp/gql')
 const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -87,6 +88,19 @@ const CustomValue = generateServerUtils('CustomValue')
 const B2BAppPosIntegrationConfig = generateServerUtils('B2BAppPosIntegrationConfig')
 const B2CAppAccessRightSet = generateServerUtils('B2CAppAccessRightSet')
 const B2BAppBillingEmbeddingConfig = generateServerUtils('B2BAppBillingEmbeddingConfig')
+
+async function sendDTMFToB2CApp (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_DTMF_TO_B2C_APP_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendDTMFToB2CApp',
+        dataPath: 'result',
+    })
+}
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -115,5 +129,6 @@ module.exports = {
     B2CAppAccessRightSet,
     B2BAppBillingEmbeddingConfig,
     getVoIPCallStatus,
+    sendDTMFToB2CApp,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
