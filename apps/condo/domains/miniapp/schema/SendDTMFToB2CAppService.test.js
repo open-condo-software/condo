@@ -213,6 +213,25 @@ describe('SendDTMFToB2CAppService', () => {
 
     })
 
+    describe('Logic', () => {
+
+        test('Success case', async () => {
+            const client = await makeClient()
+            const { callStatusJWTToken } = await makeStartCallRequest()
+
+            intercomResponseStatus = 200
+            const [result] = await sendDTMFToB2CAppByTestClient(client, {
+                token: callStatusJWTToken,
+                data: {
+                    dtmfCode: faker.random.alphaNumeric(4),
+                },
+            })
+
+            expect(result).toEqual(expect.objectContaining({ status: 'OK' }))
+        })
+
+    })
+
     describe('express route', () => {
         test('works', async () => {
             const { callStatusJWTToken } = await makeStartCallRequest()
@@ -221,7 +240,7 @@ describe('SendDTMFToB2CAppService', () => {
             const url = new URL(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
             url.searchParams.set('data', JSON.stringify({ dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, token: callStatusJWTToken, data: { dtmfCode: '#' } }))
 
-            const result = await fetch(url.toString())
+            const result = await fetch(url.toString(), { method: 'POST' })
             expect(result).toBeDefined()
             const resultText = await result.text()
             const resultJSON = JSON.parse(resultText)
@@ -243,7 +262,7 @@ describe('SendDTMFToB2CAppService', () => {
             expect(msg.meta.data.sendDTMFTimeout).toEqual(new Date(msg.meta.data.sendDTMFTimeout).toISOString())
 
             const url = voipPanels[0].sendDTMFUrl.replace(SERVER_URL, serverUrl)
-            const result = await fetch(url)
+            const result = await fetch(url, { method: 'POST' })
             expect(result).toBeDefined()
             const resultText = await result.text()
             const resultJSON = JSON.parse(resultText)

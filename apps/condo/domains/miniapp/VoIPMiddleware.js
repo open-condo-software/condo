@@ -27,7 +27,7 @@ const HANDLERS_CONFIG = [
     },
     {
         path: SEND_DTMF_TO_B2C_APP_URL_PATH,
-        method: 'get',
+        method: 'post',
         dataSchema: z.strictObject({
             token: z.string(),
             data: z.strictObject({ dtmfCode: z.string() }),
@@ -63,7 +63,8 @@ function formatZodSafeParseError (error) {
 function withParsedData (dataSchema) {
     return function (req, res, next) {
         let data
-        if (req.method === 'GET') {
+        const bodyIsEmpty = !req.body || typeof req.body !== 'object' || !Object.keys(req.body).length
+        if (req.method === 'GET' || bodyIsEmpty) {
             try {
                 data = JSON.parse(req.query.data)
             } catch (err) {
