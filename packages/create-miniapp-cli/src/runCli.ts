@@ -1,13 +1,13 @@
 import * as p from '@clack/prompts'
-import { AvailablePackages } from '@cli/installers/index.js'
-import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
-import { validateAppName } from '@cli/utils/validateAppName.js'
 import { Command } from 'commander'
 
 import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, DEFAULT_APP_RESOURCES, DEFAULT_MAX_OLD_SPACE, TITLE_TEXT } from './consts.js'
 import { askForResources, validateNumber } from './installers/helm/utils.js'
 import { MaxOldSpace, ResourceSettings } from './installers/helm/values.js'
+import { AvailablePackages } from './installers/index.js'
+import { getUserPkgManager } from './utils/getUserPkgManager.js'
 import { isAppType } from './utils/isAppType.js'
+import { validateAppName } from './utils/validateAppName.js'
 import { validateImportAlias } from './utils/validateImportAlias.js'
 
 interface CliFlags {

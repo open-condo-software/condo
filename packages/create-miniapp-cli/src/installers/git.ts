@@ -1,9 +1,10 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { AppType, APP_TYPES, CONDO_ROOT, ENVS_TYPE } from '@cli/consts'
-import { logger } from '@cli/utils/logger'
 import ora from 'ora'
+
+import { AppType, APP_TYPES, CONDO_ROOT, ENVS_TYPE } from '../consts.js'
+import { logger } from '../utils/logger.js'
 
 const GITMODULES_PATH = path.resolve(CONDO_ROOT, './.gitmodules')
 const WORKFLOWS_DIR = path.resolve(CONDO_ROOT, './.github/workflows')

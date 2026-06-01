@@ -3,8 +3,8 @@ import { promises as fs } from 'fs'
 import os from 'os'
 import path from 'path'
 
-import { CONDO_ROOT } from '@cli/consts'
-import { logger } from '@cli/utils/logger'
+import { CONDO_ROOT } from '../../consts.js'
+import { logger } from '../../utils/logger.js'
 import { execa } from 'execa'
 import yaml from 'yaml'
 
