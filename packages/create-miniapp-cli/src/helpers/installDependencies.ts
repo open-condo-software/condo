@@ -1,8 +1,8 @@
 import {
     getUserPkgManager,
     type PackageManager,
-} from '@cli/utils/getUserPkgManager.js'
-import { logger } from '@cli/utils/logger'
+} from '../utils/getUserPkgManager.js'
+import { logger } from '../utils/logger.js'
 import chalk from 'chalk'
 import { execa } from 'execa'
 import ora from 'ora'

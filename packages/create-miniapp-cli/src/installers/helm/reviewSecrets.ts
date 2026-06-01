@@ -1,8 +1,8 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { REVIEW_DIR } from '@cli/installers/helm/constants'
-import { fileExists } from '@cli/installers/helm/utils'
+import { REVIEW_DIR } from './constants.js'
+import { fileExists } from './utils.js'
 
 export async function updateReviewSecrets (appName: string) {
     const file = path.join(REVIEW_DIR, '04-review-secrets.yaml')

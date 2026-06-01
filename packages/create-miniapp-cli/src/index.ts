@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import * as path from 'path'
 
-import { runCli } from '@cli/runCli.js'
 import fs from 'fs-extra'
 import { type PackageJson } from 'type-fest'
 
@@ -13,6 +12,7 @@ import { replaceTextInFiles, setImportAlias } from './helpers/setImportAlias.js'
 import { addDeployEnvVar, addNodeJsCondoCiTests, addSubmoduleEntry, addWerfImage } from './installers/git.js'
 import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
+import { runCli } from './runCli.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
 import { logger } from './utils/logger.js'
 import { parseNameAndPath } from './utils/parseNameAndPath.js'

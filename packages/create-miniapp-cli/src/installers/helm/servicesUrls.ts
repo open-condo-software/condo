@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { CONDO_ROOT } from '@cli/consts'
+import { CONDO_ROOT } from '../../consts.js'
 
 const HELM_DIR = path.resolve(CONDO_ROOT, './.helm')
 const TEMPLATES_DIR = path.join(HELM_DIR, 'templates')

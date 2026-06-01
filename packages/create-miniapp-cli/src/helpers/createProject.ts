@@ -1,10 +1,11 @@
 import path from 'path'
 
-import { AppType, ClientAuthType } from '@cli/consts.js'
-import { PkgInstallerMap } from '@cli/installers/index.js'
-import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
-
 import { scaffoldProject } from './scaffoldProject.js'
+
+import { AppType, ClientAuthType } from '../consts.js'
+import { PkgInstallerMap } from '../installers/index.js'
+import { getUserPkgManager } from '../utils/getUserPkgManager.js'
+
 
 interface CreateProjectOptions {
     projectName: string
