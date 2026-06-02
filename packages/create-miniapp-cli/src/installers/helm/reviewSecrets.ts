@@ -12,19 +12,24 @@ export async function updateReviewSecrets (appName: string) {
     }
 
     const content = await fs.readFile(file, 'utf8')
+    const lines = content.split('\n')
     const desiredIndent = '  '
-    const prefixLineRe = /^(\s*)PG_REVIEW_PREFIX:.*$/m
-    const prefixMatch = prefixLineRe.exec(content)
-    if (!prefixMatch || prefixMatch.index === undefined) {
+
+    const prefixLineIndex = lines.findIndex((line) => line.trimStart().startsWith('PG_REVIEW_PREFIX:'))
+    if (prefixLineIndex === -1) {
         return null
     }
 
-    let normalizedContent = content
-    if (prefixMatch[1] !== desiredIndent) {
-        normalizedContent = content.slice(0, prefixMatch.index) +
-            desiredIndent +
-            content.slice(prefixMatch.index + prefixMatch[1].length)
+    const prefixLine = lines[prefixLineIndex]
+    const prefixLineTrimmedStart = prefixLine.trimStart()
+    const currentIndentLength = prefixLine.length - prefixLineTrimmedStart.length
+    const currentIndent = prefixLine.slice(0, currentIndentLength)
+
+    const normalizedLines = [...lines]
+    if (currentIndent !== desiredIndent) {
+        normalizedLines[prefixLineIndex] = `${desiredIndent}${prefixLineTrimmedStart}`
     }
+    const normalizedContent = normalizedLines.join('\n')
 
     const appUnderscore = appName.replace(/-/g, '_')
     const upperUnderscore = appUnderscore.toUpperCase()
@@ -37,14 +42,9 @@ export async function updateReviewSecrets (appName: string) {
     }
 
     const insert = `${desiredIndent}PG_REVIEW_${upperUnderscore}_USER: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}\n${desiredIndent}PG_REVIEW_${upperUnderscore}_PASS: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}\n${desiredIndent}PG_REVIEW_${upperUnderscore}_DB: {{ .Values.review.pg_${appUnderscore}._default | b64enc }}`
-    const normalizedPrefixMatch = prefixLineRe.exec(normalizedContent)
-
-    if (!normalizedPrefixMatch || normalizedPrefixMatch.index === undefined) {
-        return null
-    }
-    const before = normalizedContent.slice(0, normalizedPrefixMatch.index)
-    const after = normalizedContent.slice(normalizedPrefixMatch.index)
-    const out = before.trimEnd() + '\n' + insert + '\n' + after
+    const outLines = [...normalizedLines]
+    outLines.splice(prefixLineIndex, 0, ...insert.split('\n'))
+    const out = outLines.join('\n')
     await fs.writeFile(file, out, 'utf8')
 
     return file
