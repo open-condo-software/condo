@@ -1,6 +1,7 @@
 const Ajv = require('ajv')
 
 const conf = require('@open-condo/config')
+const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
@@ -213,10 +214,8 @@ const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,
             status: TASK_STATUSES.ERROR,
-            error: { ...error },
-            meta: {
-                response: error._response,
-            },
+            error: safeFormatError(error, false),
+            meta: error?._response ? { response: error._response } : null,
             errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
         })
 
@@ -224,7 +223,7 @@ const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
             topic: buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`),
             data: {
                 type: CHUNK_TYPES.TASK_ERROR,
-                error,
+                error: safeFormatError(error, true),
                 errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
             },
         })
