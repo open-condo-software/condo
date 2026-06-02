@@ -83,6 +83,9 @@ export const runCli = async (): Promise<CliResults> => {
     }
 
     const pkgManager = getUserPkgManager()
+    const suggestedImportAlias = cliProvidedName
+        ? `@${cliProvidedName}`
+        : defaultOptions.flags.importAlias
 
     const project = await p.group(
         {
@@ -117,10 +120,11 @@ export const runCli = async (): Promise<CliResults> => {
                 },
             }),
             importAlias: ({ results }) => {
+                const aliasFromName = results.name ? `@${results.name}` : suggestedImportAlias
                 return p.text({
                     message: 'What import alias would you like to use?',
-                    defaultValue: (results.name ? `@${results.name}` : `@${cliProvidedName}`) || defaultOptions.flags.importAlias,
-                    placeholder: (results.name ? `@${results.name}` : `@${cliProvidedName}`) || defaultOptions.flags.importAlias,
+                    defaultValue: aliasFromName,
+                    placeholder: aliasFromName,
                     validate: validateImportAlias,
                 })
             },
@@ -246,7 +250,7 @@ export const runCli = async (): Promise<CliResults> => {
         flags: {
             ...cliResults.flags,
             noInstall: !project.install || cliResults.flags.noInstall,
-            importAlias: project.importAlias as string ?? cliResults.flags.importAlias,
+            importAlias: (project.importAlias as string)?.trim() || cliResults.flags.importAlias,
             appType: resolvedAppType,
             hasReview: project.hasReview ?? cliResults.flags.hasReview,
             hasWorker: Boolean(project.hasWorker ?? cliResults.flags.hasWorker),
