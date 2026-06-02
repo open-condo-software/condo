@@ -80,7 +80,7 @@ export async function askForResources ({
         message: `Enter ${label} CPU (${envLabels}) [e.g. 250m,300m,400m,500m]:`,
         defaultValue: defaultCpuValue,
         placeholder: defaultCpuValue,
-        validate: (v) => {
+        validate: (v = '') => {
             const parts = v.split(',').map((s) => s.trim())
             if (v) {
                 if (parts.length !== envCount)
