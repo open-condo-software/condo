@@ -2,7 +2,7 @@ import path from 'path'
 
 import { scaffoldProject } from './scaffoldProject.js'
 
-import { AppType, ClientAuthType } from '../consts.js'
+import { AppType, ClientAuthType, CONDO_ROOT } from '../consts.js'
 import { PkgInstallerMap } from '../installers/index.js'
 import { getUserPkgManager } from '../utils/getUserPkgManager.js'
 import { resolvePathInside } from '../utils/resolvePathInside.js'
@@ -34,7 +34,7 @@ export const createProject = async ({
     hasCiTests,
 }: CreateProjectOptions) => {
     const pkgManager = getUserPkgManager()
-    const rootDir = path.resolve(process.cwd(), '../..') // relative to CLI package
+    const rootDir = CONDO_ROOT
     const appsDir = path.join(rootDir, 'apps')
     const projectDir = resolvePathInside(appsDir, projectName)
 
