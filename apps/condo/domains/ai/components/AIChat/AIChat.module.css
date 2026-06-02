@@ -17,6 +17,12 @@
   gap: 12px;
   padding: 16px 24px 24px;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.messages-container::-webkit-scrollbar {
+  display: none;
 }
 
 .welcome-message {
@@ -57,21 +63,11 @@
   z-index: 2;
   padding: 16px 24px;
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
 .input-spacer {
   flex-shrink: 0;
   height: 84px;
-}
-
-.messages-container {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.messages-container::-webkit-scrollbar {
-  display: none;
 }
 
 .user-message {
