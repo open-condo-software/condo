@@ -4,6 +4,7 @@ import * as p from '@clack/prompts'
 import fs from 'fs-extra'
 
 import { logger } from './logger.js'
+import { resolvePathInside } from './resolvePathInside.js'
 
 import { CONDO_ROOT, PKG_ROOT } from '../consts.js'
 import { type PackageJson } from '../types/packageJson.js'
@@ -194,7 +195,7 @@ export async function refreshDepsManifest (): Promise<DepsManifest> {
 }
 
 export function applyDepsManifestToPackageJson (projectDir: string, depsManifest: DepsManifest) {
-    const packageJsonPath = path.join(projectDir, 'package.json')
+    const packageJsonPath = resolvePathInside(projectDir, 'package.json')
     const packageJson = fs.readJSONSync(packageJsonPath) as PackageJson
 
     const sections: Array<'dependencies' | 'devDependencies'> = ['dependencies', 'devDependencies']
