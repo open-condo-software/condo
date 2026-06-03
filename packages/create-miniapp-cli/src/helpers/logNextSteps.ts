@@ -42,4 +42,7 @@ export const logNextSteps = async ({
         logger.info('  CI test job may also need extra prepare flow steps for your app (for example additional dependent apps).')
         logger.info('  Please extend werf.yaml in shell/setup block to add the steps you need.')
     }
+
+    logger.info('GIT next steps:')
+    logger.info(`  git submodule add <your repo url> apps/${projectName}`)
 }
