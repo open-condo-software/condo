@@ -4,7 +4,6 @@ import path from 'path'
 import ora from 'ora'
 
 import { AppType, APP_TYPES, CONDO_ROOT, ENVS_TYPE } from '../consts.js'
-import { logger } from '../utils/logger.js'
 
 const GITMODULES_PATH = path.resolve(CONDO_ROOT, './.gitmodules')
 const WORKFLOWS_DIR = path.resolve(CONDO_ROOT, './.github/workflows')
@@ -52,7 +51,7 @@ export async function addSubmoduleEntry (appName: string) {
 }
 
 export async function addDeployEnvVar (appName: string, env: ENVS_TYPE) {
-    const spinner = ora('Adding deploy CI variables for ${env} environment to ./.github/workflows...').start()
+    const spinner = ora(`Adding deploy CI variables for ${env} environment to ./.github/workflows...`).start()
 
     try {
         const config = ENV_CONFIG[env]
@@ -63,7 +62,7 @@ export async function addDeployEnvVar (appName: string, env: ENVS_TYPE) {
         const envVarName = `${config.envVarPrefix}${underscoredAppName}_URL`
   
         if (content.includes(`${envVarName}:`)) {
-            console.log(`Environment variable ${envVarName} already exists in ${config.filename}`)
+            spinner.succeed(`Environment variable ${envVarName} already exists in ${config.filename}`)
             return workflowPath
         }
 
@@ -83,7 +82,7 @@ export async function addDeployEnvVar (appName: string, env: ENVS_TYPE) {
         const namespaceLineIndex = lines.findIndex(line => line.includes('WERF_SET_CI_NAMESPACE:'))
   
         if (namespaceLineIndex === -1) {
-            logger.error(`Github workflow for ${env} failed! You should add the CI variable manually`)
+            spinner.fail(`Github workflow for ${env} failed! You should add the CI variable manually`)
             return
         }
   
