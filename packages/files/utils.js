@@ -18,6 +18,7 @@ const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
+const { detectMimeTypeFromFile } = require('./detectMimeType')
 const { ERRORS } = require('./errors')
 const DEFAULT_USER_HOUR_QUOTA = 100
 const fileMetaSymbol = Symbol.for('fileMeta')
@@ -260,7 +261,7 @@ function parserHandler ({ processRequestOptions } = {}) {
             multiples: true,
         })
 
-        form.parse(req, (err, fields, files) => {
+        form.parse(req, async (err, fields, files) => {
             if (err) {
                 if (err.code === 'ETOOBIG') return next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req }))
                 logger.error({
@@ -308,18 +309,20 @@ function parserHandler ({ processRequestOptions } = {}) {
             const fileList = Object.values(files || {}).flat().filter(Boolean)
             if (!fileList.length) return next(new GQLError(ERRORS.MISSING_ATTACHED_FILES, { req }))
 
-            req.files = fileList.map((f) => {
+            req.files = await Promise.all(fileList.map(async (f) => {
                 const safeName = f.originalFilename ? path.basename(f.originalFilename) : path.basename(f.filepath)
+                const mimetype = await detectMimeTypeFromFile(f.filepath) || f.mimetype || 'application/octet-stream'
+
                 return {
                     size: f.size ?? 0,
                     filename: safeName,
-                    mimetype: f.mimetype || 'application/octet-stream',
+                    mimetype,
                     encoding: 'binary',
                     createReadStream: () => fs.createReadStream(f.filepath),
                     filepath: f.filepath,
                     originalFilename: f.originalFilename,
                 }
-            })
+            }))
 
             req[fileMetaSymbol] = meta
             req.inlineAttach = inlineAttach

@@ -38,6 +38,7 @@
     "@open-condo/config": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
     "express": "^4.21.2",
+    "file-type": "16.5.4",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.0",
     "zod": "^4.0.8"
