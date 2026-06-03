@@ -962,6 +962,7 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     "@types/jest": ^29.5.14
     "@types/node": ^24
+    archiver: 7.0.1
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
@@ -971,6 +972,7 @@ __metadata:
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     phone: ^3.1.41
+    unzipper: 0.12.3
   languageName: unknown
   linkType: soft
 
@@ -18489,7 +18491,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"archiver@npm:^7.0.1":
+"archiver@npm:7.0.1, archiver@npm:^7.0.1":
   version: 7.0.1
   resolution: "archiver@npm:7.0.1"
   dependencies:
@@ -19722,7 +19724,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bluebird@npm:^3.5.0":
+"bluebird@npm:^3.5.0, bluebird@npm:~3.7.2":
   version: 3.7.2
   resolution: "bluebird@npm:3.7.2"
   checksum: 869417503c722e7dc54ca46715f70e15f4d9c602a423a02c825570862d12935be59ed9c7ba34a9b31f186c017c23cac6b54e35446f8353059c101da73eac22ef
@@ -26838,6 +26840,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:^11.2.0":
+  version: 11.3.5
+  resolution: "fs-extra@npm:11.3.5"
+  dependencies:
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: 34decd8ff2f019a603aa1313be7a8213d2aba1436b91fc018e605d83e3eb8b428cc5d900016b0c21d3918b85bbcbb1389b44f95d71220739967e19775a3fa3d9
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^8.1.0":
   version: 8.1.0
   resolution: "fs-extra@npm:8.1.0"
@@ -27768,7 +27781,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.2.11":
+"graceful-fs@npm:^4.2.11, graceful-fs@npm:^4.2.2":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: ac85f94da92d8eb6b7f5a8b20ce65e43d66761c55ce85ac96df6865308390da45a8d3f0296dd3a663de65d30ba497bd46c696cc1e248c72b13d6d567138a4fc7
@@ -48110,6 +48123,19 @@ __metadata:
   version: 4.0.0
   resolution: "untildify@npm:4.0.0"
   checksum: 39ced9c418a74f73f0a56e1ba4634b4d959422dff61f4c72a8e39f60b99380c1b45ed776fbaa0a4101b157e4310d873ad7d114e8534ca02609b4916bb4187fb9
+  languageName: node
+  linkType: hard
+
+"unzipper@npm:0.12.3":
+  version: 0.12.3
+  resolution: "unzipper@npm:0.12.3"
+  dependencies:
+    bluebird: ~3.7.2
+    duplexer2: ~0.1.4
+    fs-extra: ^11.2.0
+    graceful-fs: ^4.2.2
+    node-int64: ^0.4.0
+  checksum: 2e3296d1fad307b02b3d0f3e9c4ac1bdd56047e66fe5108a9e580b417f4ac9b07c31e9ded3e006e01edaaba3e20b13c638bd3c893600f75c589b6e0f778d9ffd
   languageName: node
   linkType: hard
 

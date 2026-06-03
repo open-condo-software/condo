@@ -19,5 +19,17 @@ module.exports = {
             ],
             setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
         },
+        {
+            testRunner: 'jasmine2',
+            displayName: 'utils specs',
+            testEnvironment: 'node',
+            testMatch: [
+                '<rootDir>/domains/**/*.spec.js',
+            ],
+            testPathIgnorePatterns: [
+                '/schema/',
+            ],
+            setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
+        },
     ],
 }
