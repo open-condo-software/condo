@@ -1977,6 +1977,7 @@
   "pages.billing.ReceiptsTable.loadRegistry.button": "Загрузить реестр",
   "pages.billing.Status.success.title": "Платежи от физлиц подключены",
   "pages.billing.registry.uploadPage.title": "Загрузка нового реестра",
+  "pages.billing.SendBillingReceiptsToEmail.button": "Отправить PDF на почту",
   "pages.clientCard.Title": "Контакт {phone}",
   "pages.clientCard.addAddress": "Добавить адрес жителя",
   "pages.clientCard.callRecordsLog": "История звонков",

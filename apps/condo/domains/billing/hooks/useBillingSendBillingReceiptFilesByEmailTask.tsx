@@ -1,8 +1,8 @@
 import {
     User as UserType,
+    Organization,
     BillingSendBillingReceiptFilesTaskCreateInput,
 } from '@app/condo/schema'
-import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -15,6 +15,7 @@ import { useBillingSendBillingReceiptFilesTaskUIInterface } from './useBillingSe
 
 type UseBillingSendBillingReceiptFilesByEmailTaskProps = {
     user: UserType
+    organization: Organization
     period: string
     receiptIds?: string[]
     label?: string
@@ -31,9 +32,9 @@ type UseBillingSendBillingReceiptFilesByEmailTaskReturnType = {
 
 export const useBillingSendBillingReceiptFilesByEmailTask = (props: UseBillingSendBillingReceiptFilesByEmailTaskProps): UseBillingSendBillingReceiptFilesByEmailTaskReturnType => {
     const intl = useIntl()
-    const SendLabel = intl.formatMessage({ id: 'Email' })
+    const SendLabel = intl.formatMessage({ id: 'pages.billing.SendBillingReceiptsToEmail.button' })
 
-    const { user, period, receiptIds, label } = props
+    const { user, period, receiptIds, label, organization } = props
 
     const { BillingSendBillingReceiptFilesTask: TaskUIInterface } = useBillingSendBillingReceiptFilesTaskUIInterface()
 
@@ -42,7 +43,8 @@ export const useBillingSendBillingReceiptFilesByEmailTask = (props: UseBillingSe
         sender: getClientSideSenderInfo(),
         period,
         receiptIds: receiptIds || [],
-        user: { connect: { id: get(user, 'id', null) } },
+        user: { connect: { id: user?.id } },
+        organization: { connect: { id: organization?.id } },
     })
 
     const handleClick = useCallback(() => handleRunTask(), [handleRunTask])

@@ -1977,6 +1977,7 @@
   "pages.billing.registry.uploadPage.title": "Carga del registro",
   "pages.clientCard.Title": "Número de teléfono {phone}",
   "pages.clientCard.addAddress": "Añadir dirección del vecino",
+  "pages.billing.SendBillingReceiptsToEmail.button": "Enviar el archivo PDF al correo",
   "pages.clientCard.callRecordsLog": "Historia de llamadas",
   "pages.clientCard.editContact": "Editar contacto",
   "pages.clientCard.emptyClientContent.description": "Este contacto aún no tiene dirección, pero puedes buscarla en la plataforma",

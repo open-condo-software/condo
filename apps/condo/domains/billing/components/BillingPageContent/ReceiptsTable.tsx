@@ -1,4 +1,7 @@
 import { BillingReceipt as BillingReceiptType, BillingReceiptWhereInput, SortBillingReceiptsBy, TourStepTypeType } from '@app/condo/schema'
+import {
+    Organization,
+} from '@app/condo/schema'
 import { Col, Row, Space, type RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -9,6 +12,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import bridge from '@open-condo/bridge'
 import { useLazyQuery } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import {
@@ -25,6 +29,7 @@ import {
 
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
 import { BillingReceiptForOrganization as BillingReceiptForOrganizationGQL } from '@condo/domains/billing/gql'
+import { useBillingSendBillingReceiptFilesByEmailTask } from '@condo/domains/billing/hooks/useBillingSendBillingReceiptFilesByEmailTask'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 import { BillingReceiptForOrganization } from '@condo/domains/billing/utils/clientSchema'
@@ -107,7 +112,9 @@ export const ReceiptsTable: React.FC = () => {
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
     const ImpossibleToRestoreMessage = intl.formatMessage({ id: 'global.ImpossibleToRestore' })
 
+    const { user } = useAuth()
     const userOrganization = useOrganization()
+    console.log('userOrganization', userOrganization)
     const { billingContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
@@ -173,6 +180,12 @@ export const ReceiptsTable: React.FC = () => {
         }
         tableRef.current?.api?.setFilterState(nextFilterState)
     }, [reportPeriod])
+
+    const normalizedPeriod = useMemo(() => {
+        return period?.isValid?.()
+            ? dayjs(period).format('YYYY-MM-01')
+            : dayjs().startOf('month').format('YYYY-MM-01')
+    }, [period])
 
     const onRowClick = useCallback((record: BillingReceiptType) => {
         const hasSelectedText =  globalThis.window?.getSelection?.()?.toString().trim()
@@ -245,6 +258,13 @@ export const ReceiptsTable: React.FC = () => {
         await tableRef.current?.api?.refetchData()
     }, [selectedRowIds, updateReceipt])
 
+    const { SendButton } = useBillingSendBillingReceiptFilesByEmailTask({
+        user,
+        organization: userOrganization.organization as Organization,
+        period: normalizedPeriod,
+        receiptIds: selectedRowIds,
+    })
+
     const selectedReceiptsActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         <DeleteButtonWithConfirmModal
             key='deleteSelectedReceipts'
@@ -258,6 +278,7 @@ export const ReceiptsTable: React.FC = () => {
             showCancelButton
             cancelButtonType='primary'
         />,
+        <SendButton key='sendBillingReceiptFilesByEmail' />,
         <Button
             key='cancelReceiptSelection'
             type='secondary'
@@ -269,13 +290,7 @@ export const ReceiptsTable: React.FC = () => {
         >
             {CancelSelectionMessage}
         </Button>,
-    ], [
-        CancelSelectionMessage,
-        DeleteMessage,
-        DontDeleteMessage,
-        ImpossibleToRestoreMessage,
-        softDeleteSelectedReceipts,
-    ])
+    ], [CancelSelectionMessage, DeleteMessage, DontDeleteMessage, ImpossibleToRestoreMessage, SendButton, softDeleteSelectedReceipts])
 
     const rowSelectionOptions = useMemo(() => ({
         enableRowSelection: canManageReceipts,
@@ -318,6 +333,7 @@ export const ReceiptsTable: React.FC = () => {
         return intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRowsCount })
     }, [intl, selectedRowsCount])
 
+
     const periodMetaSelect = useMemo(() => {
         return (
             <Space direction='vertical' size={12}>
@@ -331,6 +347,7 @@ export const ReceiptsTable: React.FC = () => {
             </Space>
         )
     }, [onPeriodChange, period])
+
 
     return (
         <>

@@ -1977,6 +1977,7 @@
   "pages.billing.ReceiptsTable.loadRegistry.button": "Load registry",
   "pages.billing.Status.success.title": "Payments from individuals are enabled",
   "pages.billing.registry.uploadPage.title": "Registry upload",
+  "pages.billing.SendBillingReceiptsToEmail.button": "Send PDF to Email",
   "pages.clientCard.Title": "Contact {phone}",
   "pages.clientCard.addAddress": "Add resident address",
   "pages.clientCard.callRecordsLog": "Call records log",
