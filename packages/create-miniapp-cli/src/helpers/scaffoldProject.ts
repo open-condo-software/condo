@@ -4,10 +4,10 @@ import * as p from '@clack/prompts'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import ora from 'ora'
-import { type PackageJson } from 'type-fest'
 
 import { APP_TYPES, AppType, CLIENT_AUTH_TYPES, ClientAuthType, PKG_ROOT } from '../consts.js'
 import { InstallerOptions } from '../installers/index.js'
+import { type PackageJson } from '../types/packageJson.js'
 import { logger } from '../utils/logger.js'
 import { resolvePathInside } from '../utils/resolvePathInside.js'
 

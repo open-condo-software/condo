@@ -3,7 +3,7 @@ import { promises as fs } from 'fs'
 import os from 'os'
 import path from 'path'
 
-import { execa } from 'execa'
+import execa from 'execa'
 import yaml from 'yaml'
 
 import { CONDO_ROOT } from '../../consts.js'

@@ -1,4 +1,4 @@
-import { type PackageJson } from 'type-fest'
+import { type PackageJson } from '../types/packageJson.js'
 
 const TOP_LEVEL_ORDER = [
     'name',

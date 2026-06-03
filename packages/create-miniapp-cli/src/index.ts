@@ -2,7 +2,6 @@
 import * as path from 'path'
 
 import fs from 'fs-extra'
-import { type PackageJson } from 'type-fest'
 
 import { ENVS_TYPE } from './consts.js'
 import { createProject } from './helpers/createProject.js'
@@ -13,6 +12,7 @@ import { addDeployEnvVar, addNodeJsCondoCiTests, addSubmoduleEntry, addWerfImage
 import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
 import { runCli } from './runCli.js'
+import { type PackageJson } from './types/packageJson.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
 import { logger } from './utils/logger.js'
 import { parseNameAndPath } from './utils/parseNameAndPath.js'

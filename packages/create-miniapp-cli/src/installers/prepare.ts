@@ -1,7 +1,7 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { execa } from 'execa'
+import execa from 'execa'
 import ora from 'ora'
 
 import { APP_TYPES, AppType } from '../consts.js'
