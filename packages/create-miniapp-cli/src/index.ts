@@ -13,6 +13,7 @@ import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
 import { runCli } from './runCli.js'
 import { type PackageJson } from './types/packageJson.js'
+import { applyDepsManifestToPackageJson, refreshDepsManifest } from './utils/depsManifest.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
 import { logger } from './utils/logger.js'
 import { parseNameAndPath } from './utils/parseNameAndPath.js'
@@ -56,6 +57,9 @@ const main = async () => {
         hasSchemaStitching,
         hasCiTests,
     })
+
+    const depsManifest = await refreshDepsManifest()
+    applyDepsManifestToPackageJson(projectDir, depsManifest)
 
     // Write name to package.json
     const pkgJson = fs.readJSONSync(
