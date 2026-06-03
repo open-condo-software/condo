@@ -45,9 +45,23 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this.graphQLOutputType = 'File'
         this._fileSecret = conf['FILE_SECRET']
         this._fileClientId = conf['FILE_CLIENT_ID']
-        this._fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/attach'
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
         this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
+    }
+
+    _getFileServiceBaseUrl (req) {
+        if (conf.FILE_SERVICE_URL) {
+            return conf.FILE_SERVICE_URL
+        }
+
+        const host = req?.get?.('host') || req?.headers?.host
+        if (host) {
+            const protocol = req.protocol || (req.secure ? 'https' : 'http')
+            return `${protocol}://${host}`
+        }
+
+        // conf.SERVER_URL is cached at config init; read env for tests that override SERVER_URL
+        return process.env.SERVER_URL || conf.SERVER_URL
     }
 
     _getSecretForSignature (signature) {
@@ -238,7 +252,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         }
 
         try {
-            const res = await fetch(this._fileServiceUrl, {
+            const res = await fetch(`${this._getFileServiceBaseUrl(context.req)}/api/files/attach`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload),
