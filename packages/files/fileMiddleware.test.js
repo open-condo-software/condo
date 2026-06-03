@@ -5,6 +5,7 @@ const FormData = require('form-data')
 const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
+const { FileRecord } = require('@open-condo/files/schema/utils/testSchema')
 const { parseAndValidateFileMetaSignature, validateFileUploadSignature } = require('@open-condo/files/utils')
 const { HTTPStatusByGQLErrorCode } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -745,6 +746,37 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     signature: file.signature,
                     originalFilename: 'dino.png',
                 })
+            })
+
+            test('stores mimetype from file content', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    user: { id: user.user.id },
+                    fileClientId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('file', filestream, {
+                    filename: 'dino.png',
+                    contentType: 'image/jpeg',
+                })
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                const { id: fileRecordId } = json.data.files[0]
+
+                const fileRecord = await FileRecord.getOne(admin, { id: fileRecordId })
+
+                expect(fileRecord.fileMimeType).toBe('image/png')
+                expect(fileRecord.fileMeta.mimetype).toBe('image/png')
             })
 
             test('signature should contain correct payload', async () => {
