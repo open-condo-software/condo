@@ -18,6 +18,7 @@
   "bin": "./dist/index.js",
   "files": [
     "dist",
+    "config",
     "template",
     "README.md",
     "package.json"
