@@ -116,7 +116,6 @@ export const ReceiptsTable: React.FC = () => {
         () => billingContexts.map(({ id }) => id).sort((a, b) => a.localeCompare(b)),
         [billingContexts]
     )
-    const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
     const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
     const canManageReceipts =  get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
@@ -130,7 +129,7 @@ export const ReceiptsTable: React.FC = () => {
 
     const filterMetas = useReceiptTableFilters(reportPeriod, search, contextIds)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers<BillingReceiptWhereInput>(filterMetas, SORTABLE_PROPERTIES)
-    const mainTableColumns = useReceiptTableColumns(filterMetas, hasToPayDetails, currencyCode)
+    const mainTableColumns = useReceiptTableColumns(filterMetas, currencyCode)
     const columnLabels = useTableTranslations()
     const initialTableState = useMemo(() => defaultParseUrlQuery(router.query, DEFAULT_PAGE_SIZE), [router.query])
     const updateUrlQuery = useCallback((params: FullTableState) => {

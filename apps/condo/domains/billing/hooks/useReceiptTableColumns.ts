@@ -17,7 +17,6 @@ const receiptDataKey = <TKey extends ReceiptDataKey>(value: TKey): TKey => value
 
 export const useReceiptTableColumns = (
     filterMetas: Array<TableFiltersMeta<BillingReceiptWhereInput>>,
-    detailed: boolean,
     currencyCode: string
 ): ReceiptColumn[] => {
     const intl = useIntl()
@@ -42,7 +41,6 @@ export const useReceiptTableColumns = (
                 search: globalFilter,
                 ellipsis: true,
                 postfix: renderPostfix,
-                extraTitle: null,
                 extraPostfixProps: {
                     type: 'secondary',
                     style: { whiteSpace: 'pre-line' },
@@ -52,7 +50,7 @@ export const useReceiptTableColumns = (
         const renderTextCellWithoutTooltip = (value: string, _record: ReceiptTableRow, _index: number, globalFilter?: string) => {
             if (!value) return null
 
-            return getTableCellRenderer({ search: globalFilter, ellipsis: true, extraTitle: null })(value)
+            return getTableCellRenderer({ search: globalFilter, ellipsis: true })(value)
         }
         const renderUnitNameCell = (value: string, record: ReceiptTableRow, _index: number, globalFilter?: string) => {
             const unitType = get(record, 'account.unitType', BuildingUnitSubType.Flat)
@@ -60,7 +58,7 @@ export const useReceiptTableColumns = (
                 ? intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` as FormatjsIntl.Message['ids'] })
                 : null
 
-            return getTableCellRenderer({ search: globalFilter, ellipsis: true, extraTitle: unitTypeMessage })(value)
+            return getTableCellRenderer({ search: globalFilter, ellipsis: true, extraTitle: unitTypeMessage + ' ' + value })(value)
         }
         const renderMoneyCell = getMoneyRender(intl, currencyCode)
 
@@ -71,7 +69,7 @@ export const useReceiptTableColumns = (
                 dataKey: receiptDataKey('property.address'),
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'address'),
-                initialSize: detailed ? '25%' : '50%',
+                initialSize: '21%',
                 render: renderAddressCell,
             },
             unitName: {
@@ -107,7 +105,7 @@ export const useReceiptTableColumns = (
                 dataKey: receiptDataKey('account.number'),
                 enableSorting: false,
                 filterComponent: getFilterComponentByKey(filterMetas, 'account'),
-                initialSize: detailed ? '10%' : '15%',
+                initialSize: '14%',
                 render: renderTextCellWithoutTooltip,
             },
             balance: {
@@ -133,7 +131,7 @@ export const useReceiptTableColumns = (
                 id: 'charge',
                 dataKey: receiptDataKey('toPayDetails.charge'),
                 enableSorting: false,
-                initialSize: '14%',
+                initialSize: '12%',
                 render: renderMoneyCell,
             },
             paid: {
@@ -142,7 +140,7 @@ export const useReceiptTableColumns = (
                 dataKey: receiptDataKey('toPayDetails.paid'),
                 enableSorting: false,
                 initialVisibility: false,
-                initialSize: '14%',
+                initialSize: '12%',
                 render: renderMoneyCell,
             },
             toPay: {
@@ -150,32 +148,11 @@ export const useReceiptTableColumns = (
                 id: 'toPay',
                 dataKey: receiptDataKey('toPay'),
                 enableSorting: true,
-                initialSize: detailed ? '13%' : '20%',
+                initialSize: '12%',
                 render: renderMoneyCell,
             },
         }
-
-        if (detailed) {
-            return [
-                allColumns.address,
-                allColumns.unitName,
-                allColumns.fullName,
-                allColumns.account,
-                allColumns.category,
-                allColumns.balance,
-                allColumns.penalty,
-                allColumns.charge,
-                allColumns.paid,
-                allColumns.toPay,
-            ]
-        }
-
-        return [
-            allColumns.address,
-            allColumns.unitName,
-            allColumns.account,
-            allColumns.toPay,
-        ]
+        return Object.values(allColumns)
     }, [
         AccountTitle,
         AddressTitle,
@@ -188,7 +165,6 @@ export const useReceiptTableColumns = (
         ToPayTitle,
         UnitNameTitle,
         currencyCode,
-        detailed,
         filterMetas,
         intl,
     ])
