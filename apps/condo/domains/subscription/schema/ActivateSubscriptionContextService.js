@@ -5,19 +5,23 @@
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema, find, getById, itemsQuery } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById, getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 const { queueWebhookPayload } = require('@open-condo/webhooks/utils/queueWebhookPayload')
 
 const {
     PAYMENT_DONE_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
+const { WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED } = require('@condo/domains/common/constants/webhooks')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const logger = getLogger('ActivateSubscriptionContextService')
+
+const SUBSCRIPTION_ACTIVATED_WEBHOOK_URL = conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL']
+const SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET = conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET']
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -172,14 +176,21 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     frozenPaymentInfo,
                 })
 
-                if (conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL'] && conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET']) {
+                if (SUBSCRIPTION_ACTIVATED_WEBHOOK_URL && SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET) {
                     try {
+                        const { keystone: internalContext } = getSchemaCtx('WebhookPayload')
                         const payerOrg = await getById('Organization', invoice.payerOrganization)
                         const createdByUser = await getById('User', invoice.createdBy)
-                        await queueWebhookPayload(context, {
-                            url: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL'],
-                            secret: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET'],
-                            eventType: 'subscription.activated',
+                        if (!payerOrg) {
+                            throw new Error(`Organization not found: ${invoice.payerOrganization}`)
+                        }
+                        if (!createdByUser) {
+                            throw new Error(`User not found: ${invoice.createdBy}`)
+                        }
+                        await queueWebhookPayload(internalContext, {
+                            url: SUBSCRIPTION_ACTIVATED_WEBHOOK_URL,
+                            secret: SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET,
+                            eventType: WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED,
                             modelName: 'SubscriptionContext',
                             itemId: subscriptionContext.id,
                             payload: {
@@ -188,13 +199,13 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                                 toPay: invoice.toPay,
                                 planName: invoice.rows?.[0]?.name,
                                 organization: {
-                                    id: payerOrg?.id,
-                                    name: payerOrg?.name,
-                                    tin: payerOrg?.tin,
+                                    id: payerOrg.id,
+                                    name: payerOrg.name,
+                                    tin: payerOrg.tin,
                                 },
                                 user: {
-                                    id: createdByUser?.id,
-                                    name: createdByUser?.name,
+                                    id: createdByUser.id,
+                                    name: createdByUser.name,
                                 },
                             },
                             sender: { dv: 1, fingerprint: 'activateSubscriptionContext' },
