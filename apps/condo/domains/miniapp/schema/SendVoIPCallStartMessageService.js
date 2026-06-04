@@ -25,11 +25,9 @@ const {
     parseSendMessageResults,
     sendMessageToUser,
     COMMON_VOIP_ERRORS,
-    getVoipTypeByData
+    getVoipTypeByData,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
 const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
-const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, CALL_STATUS_STARTED, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, MAX_CALL_META_LENGTH, isCallMetaValid } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE, VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE, VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
