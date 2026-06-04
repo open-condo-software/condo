@@ -55,6 +55,7 @@ const NEWS_ITEM_FILES_MINIAPPS = 'news-item-files-miniapps'
 const NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM = 'news-item-file-publishing-timeout-by-news-item'
 const CUSTOM_TOUR_STEPS = 'custom-tour-steps'
 const UI_LEGAL_INFO = 'ui-legal-info'
+const UI_DOCUMENTS_MENU = 'ui-documents-menu'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -114,4 +115,5 @@ module.exports = {
     NEWS_ITEM_FILE_PUBLISHING_TIMEOUT_BY_NEWS_ITEM,
     CUSTOM_TOUR_STEPS,
     UI_LEGAL_INFO,
+    UI_DOCUMENTS_MENU,
 }

@@ -73246,6 +73246,7 @@ enum B2BAppMenuCategoryType {
   MARKET
   BILLING
   METERS
+  DOCUMENTS
   MINIAPPS
   SETTINGS
 }
@@ -89525,6 +89526,7 @@ type DocumentHistoryRecord {
   name: String
   file: JSON
   canReadByResident: Boolean
+  anonymousCanRead: Boolean
   meta: JSON
   id: ID!
   v: Int
@@ -89580,6 +89582,8 @@ input DocumentHistoryRecordWhereInput {
   file_not_in: [JSON]
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  anonymousCanRead: Boolean
+  anonymousCanRead_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -89671,6 +89675,8 @@ enum SortDocumentHistoryRecordsBy {
   name_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  anonymousCanRead_ASC
+  anonymousCanRead_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -89696,6 +89702,7 @@ input DocumentHistoryRecordUpdateInput {
   name: String
   file: JSON
   canReadByResident: Boolean
+  anonymousCanRead: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -89723,6 +89730,7 @@ input DocumentHistoryRecordCreateInput {
   name: String
   file: JSON
   canReadByResident: Boolean
+  anonymousCanRead: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -89779,6 +89787,10 @@ type Document {
 
   """ If set to true, this means document will be accessible by residents """
   canReadByResident: Boolean
+
+  """ If set to true, this means document will be accessible by anonymous users 
+  """
+  anonymousCanRead: Boolean
 
   """ Untyped metadata for this object. May be used by custom integrations. 
   """
@@ -89839,6 +89851,8 @@ input DocumentWhereInput {
   file_not_in: [String]
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  anonymousCanRead: Boolean
+  anonymousCanRead_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -89916,6 +89930,8 @@ enum SortDocumentsBy {
   name_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  anonymousCanRead_ASC
+  anonymousCanRead_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -89941,6 +89957,7 @@ input DocumentUpdateInput {
   name: String
   file: FileMeta
   canReadByResident: Boolean
+  anonymousCanRead: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -89965,6 +89982,7 @@ input DocumentCreateInput {
   name: String
   file: FileMeta
   canReadByResident: Boolean
+  anonymousCanRead: Boolean
   meta: JSON
   v: Int
   createdAt: String

@@ -55,7 +55,7 @@ import { SurveysQueue } from '@condo/domains/common/components/surveys/SurveyQue
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, UI_DOCUMENTS_MENU } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -66,6 +66,7 @@ import {
     MARKET_CATEGORY,
     BILLING_CATEGORY,
     METERS_CATEGORY,
+    DOCUMENTS_CATEGORY,
     MINIAPPS_CATEGORY,
     SETTINGS_CATEGORY,
 } from '@condo/domains/common/constants/menuCategories'
@@ -170,6 +171,7 @@ const ANT_DEFAULT_LOCALE = enUS
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isDocumentsMenuEnabled = useFlag(UI_DOCUMENTS_MENU)
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
@@ -350,6 +352,18 @@ const MenuItems: React.FC = () => {
             ].filter(checkItemAccess),
         },
         {
+            key: DOCUMENTS_CATEGORY,
+            items: [
+                {
+                    id: 'menu-item-documents',
+                    path: 'documents',
+                    icon: AllIcons['FileText'],
+                    label: 'global.section.documents',
+                    access: isDocumentsMenuEnabled,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
             key: MINIAPPS_CATEGORY,
             items: [
                 {
@@ -376,7 +390,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings, hasAccessToTour, isNoServiceProviderOrganization])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings, hasAccessToTour, isNoServiceProviderOrganization, isDocumentsMenuEnabled])
 
     return (
         <div>

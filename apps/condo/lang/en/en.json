@@ -1291,6 +1291,7 @@
   "global.paymentPurpose": "Payment purpose",
   "global.receiver": "Receiver",
   "global.section.SPP": "Payments from individuals",
+  "global.section.documents": "Documents",
   "global.section.accrualsAndPayments": "Accruals and payments",
   "global.section.analytics": "Analytics",
   "global.section.contacts": "Contacts",

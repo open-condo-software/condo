@@ -1291,6 +1291,7 @@
   "global.paymentPurpose": "Назначение платежа",
   "global.receiver": "Получатель",
   "global.section.SPP": "Платежи от физлиц",
+  "global.section.documents": "Документы",
   "global.section.accrualsAndPayments": "Начисления и оплаты",
   "global.section.analytics": "Аналитика",
   "global.section.contacts": "Жители",

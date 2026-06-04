@@ -5,6 +5,7 @@
 const { uniq, compact } = require('lodash')
 const get = require('lodash/get')
 
+const { isSpecificQuery } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
@@ -15,8 +16,14 @@ const {
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadDocuments ({ authentication: { item: user }, context }) {
-    if (!user) return throwAuthenticationError()
+async function canReadDocuments ({ authentication: { item: user }, context, args }) {
+    if (!user) {
+        const where = get(args, 'where', {})
+        if (isSpecificQuery('allDocuments') && (where.id || where.id_in) && where.publicAccessToken) {
+            return { anonymousCanRead: true, publicAccessToken: where.publicAccessToken }
+        }
+        return false
+    }
     if (user.deletedAt) return false
 
     if (user.isAdmin) return {}

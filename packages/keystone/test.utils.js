@@ -85,7 +85,7 @@ async function getUploadingFile (filePath, fileMeta, user) {
     const fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/upload'
 
     // NOTE: Old way to upload file. Keep that for backward compatibility
-    if (!fileSecret || !fileClient) {
+    if (!fileSecret || !fileClient || conf['FILE_FIELD_ADAPTER'] === 'local') {
         return new UploadingFile(filePath)
     }
 
@@ -99,6 +99,10 @@ async function getUploadingFile (filePath, fileMeta, user) {
         headers: { Cookie: user.getCookie() },
     })
     const json = await response.json()
+
+    if (!json.data || !json.data.files || !json.data.files[0]) {
+        throw new Error(`File upload failed: ${JSON.stringify(json)}`)
+    }
 
     return json.data.files[0]
 }
