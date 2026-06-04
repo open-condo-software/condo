@@ -206,9 +206,14 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
         afterAll(async () => {
             if (__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
-            if (__savedServerUrl !== null) process.env.SERVER_URL = __savedServerUrl
-            if (__savedFileServiceUrl !== null) process.env.FILE_SERVICE_URL = __savedFileServiceUrl
-            else delete process.env.FILE_SERVICE_URL
+            if (__savedServerUrl !== null) {
+                if (typeof __savedServerUrl === 'undefined') delete process.env.SERVER_URL
+                else process.env.SERVER_URL = __savedServerUrl
+            }
+            if (__savedFileServiceUrl !== null) {
+                if (typeof __savedFileServiceUrl === 'undefined') delete process.env.FILE_SERVICE_URL
+                else process.env.FILE_SERVICE_URL = __savedFileServiceUrl
+            }
             __savedServerUrl = null
             __savedFileServiceUrl = null
             __keystone = null
