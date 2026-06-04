@@ -144,7 +144,8 @@ class MaxOauthRoutes {
 
     async _logoutAndRedirectToAuth (req, res, context, userType) {
         if (isAuthorized(req)) {
-            await context._sessionManager.endAuthedSession(req)
+            const { keystone } = await getSchemaCtx('User')
+            await keystone._sessionManager.endAuthedSession(req)
         }
         const reqUrl = new URL(req.url, 'https://_')
         const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`

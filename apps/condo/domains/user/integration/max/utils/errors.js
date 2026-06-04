@@ -31,7 +31,7 @@ const ERRORS = {
     MAX_AUTH_DATA_MISSING: {
         type: 'MAX_AUTH_DATA_MISSING',
         code: BAD_USER_INPUT,
-        message: 'search parameter "maxAuthData" is empty',
+        message: 'request parameter "maxAuthData" is empty',
     },
     INVALID_REDIRECT_URL: {
         type: 'INVALID_REDIRECT_URL',
