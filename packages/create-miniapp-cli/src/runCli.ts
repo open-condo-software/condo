@@ -65,7 +65,7 @@ export const runCli = async (): Promise<CliResults> => {
             false,
         )
         .option(
-            '-i, --import-alias',
+            '-i, --import-alias <alias>',
             'Explicitly tell the CLI to use a custom import alias',
             defaultOptions.flags.importAlias,
         )
@@ -77,15 +77,18 @@ export const runCli = async (): Promise<CliResults> => {
     }
 
     cliResults.flags = program.opts()
+    const importAliasSource = program.getOptionValueSource('importAlias')
 
     if (cliResults.flags.default) {
         return cliResults
     }
 
     const pkgManager = getUserPkgManager()
-    const suggestedImportAlias = cliProvidedName
-        ? `@${cliProvidedName}`
-        : defaultOptions.flags.importAlias
+    const suggestedImportAlias = importAliasSource === 'cli'
+        ? cliResults.flags.importAlias
+        : cliProvidedName
+            ? `@${cliProvidedName}`
+            : defaultOptions.flags.importAlias
 
     const project = await p.group(
         {
