@@ -139,16 +139,27 @@ function getOauthConfigValidationError (oauthConfig) {
         const duplicateNames = [...uniqueBotIds].filter(botId => oauthConfig.filter(conf => conf.botId === botId).length > 1)
         return { ...ERRORS.INVALID_CONFIG, data: { reason: `Duplicate bot ids: "${duplicateNames.join('", "')}"` } }
     }
-    oauthConfig.forEach((config, index) => {
+    for (const [index, config] of oauthConfig.entries()) {
         for (const key of CONFIG_REQUIRED_FIELDS) {
             if (!Object.hasOwn(config, key)) {
-                return { ...ERRORS.INVALID_CONFIG, data: { reason: `Missing required field ${key} at index ${index}` } }
+                return { ...ERRORS.INVALID_CONFIG, data: { reason: `Missing required field "${key}" at index ${index}` } }
             }
         }
         if (!Array.isArray(config.allowedRedirectUrls)) {
             return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls" should be array at index ${index}` } }
         }
-    })
+        for (const [urlIndex, url] of config.allowedRedirectUrls.entries()) {
+            try {
+                new URL(url)
+            } catch {
+                return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls[${urlIndex}]" is not a valid URL at index ${index}` } }
+            }
+        }
+        if (typeof config.allowedUserType !== 'string' || !config.allowedUserType) {
+            return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedUserType" must be a non-empty string at index ${index}` } }
+        }
+    }
+    return null
 }
 
 /** 
