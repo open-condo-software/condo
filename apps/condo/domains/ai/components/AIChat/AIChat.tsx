@@ -574,11 +574,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                                     </div>
                                 </div>
                                 {chatButtonConfig.buttons.length > 0 && (
-                                    <Space wrap size={8}>
+                                    <div className={styles.assistantSuggestions}>
                                         {chatButtonConfig.buttons.map((btn) => {
                                             const scenarioButton = (
                                                 <Button
-                                                    type='secondary'
+                                                    type='primary'
                                                     size='medium'
                                                     disabled={!canExecuteAIFlow}
                                                     onClick={() => void handleScenarioButtonClick(btn.button_id, btn.button_name)}
@@ -587,7 +587,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                                                 </Button>
                                             )
                                             return btn.button_description ? (
-                                                <Tooltip key={btn.button_id} title={btn.button_description}>
+                                                <Tooltip
+                                                    key={btn.button_id}
+                                                    title={btn.button_description}
+                                                    getPopupContainer={(trigger) => trigger.parentElement || trigger}
+                                                >
                                                     <span className={styles.scenarioButtonTooltipWrap}>
                                                         {scenarioButton}
                                                     </span>
@@ -596,7 +600,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                                                 <React.Fragment key={btn.button_id}>{scenarioButton}</React.Fragment>
                                             )
                                         })}
-                                    </Space>
+                                    </div>
                                 )}
                             </Space>
                         </div>
