@@ -91911,7 +91911,7 @@ type WebhookPayload {
   """
   secret: String
 
-  """ Type of event that triggered this webhook. Custom events: payment.status.updated. Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated). 
+  """ Type of event that triggered this webhook. Custom events: payment.status.updated, subscription.activated. Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated). 
   """
   eventType: String
 

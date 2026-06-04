@@ -20,9 +20,6 @@ const { SubscriptionContext } = require('@condo/domains/subscription/utils/serve
 
 const logger = getLogger('ActivateSubscriptionContextService')
 
-const SUBSCRIPTION_ACTIVATED_WEBHOOK_URL = conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL']
-const SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET = conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET']
-
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -176,20 +173,21 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     frozenPaymentInfo,
                 })
 
-                if (SUBSCRIPTION_ACTIVATED_WEBHOOK_URL && SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET) {
+                const webhookUrl = conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL']
+                const webhookSecret = conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET']
+                if (webhookUrl && webhookSecret) {
                     try {
                         const { keystone: internalContext } = getSchemaCtx('WebhookPayload')
                         const payerOrg = await getById('Organization', invoice.payerOrganization)
-                        const createdByUser = await getById('User', invoice.createdBy)
                         if (!payerOrg) {
                             throw new Error(`Organization not found: ${invoice.payerOrganization}`)
                         }
-                        if (!createdByUser) {
-                            throw new Error(`User not found: ${invoice.createdBy}`)
-                        }
+                        const createdByUser = invoice.createdBy
+                            ? await getById('User', invoice.createdBy)
+                            : null
                         await queueWebhookPayload(internalContext, {
-                            url: SUBSCRIPTION_ACTIVATED_WEBHOOK_URL,
-                            secret: SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET,
+                            url: webhookUrl,
+                            secret: webhookSecret,
                             eventType: WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED,
                             modelName: 'SubscriptionContext',
                             itemId: subscriptionContext.id,
@@ -203,10 +201,12 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                                     name: payerOrg.name,
                                     tin: payerOrg.tin,
                                 },
-                                user: {
-                                    id: createdByUser.id,
-                                    name: createdByUser.name,
-                                },
+                                ...(createdByUser && {
+                                    user: {
+                                        id: createdByUser.id,
+                                        name: createdByUser.name,
+                                    },
+                                }),
                             },
                             sender: { dv: 1, fingerprint: 'activateSubscriptionContext' },
                         })
