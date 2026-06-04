@@ -5,6 +5,7 @@ const omit = require('lodash/omit')
 const conf = require('@open-condo/config')
 const { validateFileUploadSignature } = require('@open-condo/files/utils')
 const { GQLError, GQLErrorCode: { INTERNAL_ERROR, BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
+const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
@@ -47,6 +48,13 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this._fileClientId = conf['FILE_CLIENT_ID']
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
         this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
+    }
+
+    _getFileNewFlowKey (listKey, context) {
+        const gqlFieldAlias = context?._gqlFieldAlias || graphqlCtx.getStore()?.gqlFieldAlias
+        const baseKey = `${listKey}.${this.path}`
+
+        return gqlFieldAlias ? `${baseKey}:${gqlFieldAlias}` : baseKey
     }
 
     _getFileServiceBaseUrl (req) {
@@ -177,11 +185,9 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 throw new GQLError(ERRORS.WRONG_SIGNATURE, context, error)
             }
 
-            // keep per-request state so afterChange knows to run the webhook
             if (!context._fileNewFlow) context._fileNewFlow = {}
 
-            const key = `${listKey}.${this.path}`
-            context._fileNewFlow[key] = {
+            context._fileNewFlow[this._getFileNewFlowKey(listKey, context)] = {
                 signature: input.signature,
                 userId: context.authedItem?.id || null,
                 listKey,
@@ -208,14 +214,13 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     async beforeChange ({ resolvedData, existingItem, context, listKey, operation }) {
-        const key = `${listKey}.${this.path}`
-        const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
-        if (!hasFileInRequest) return
+        const fileNewFlow = context._fileNewFlow?.[this._getFileNewFlowKey(listKey, context)]
+        if (!fileNewFlow) return
 
         // Verify and decode signature to get the original fileClientId
         let signatureData
         try {
-            signatureData = jwt.verify(context._fileNewFlow[key].signature, this._getSecretForSignature(context._fileNewFlow[key].signature))
+            signatureData = jwt.verify(fileNewFlow.signature, this._getSecretForSignature(fileNewFlow.signature))
         } catch (e) {
             throw new GQLError(ERRORS.WRONG_SIGNATURE)
         }
@@ -232,7 +237,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         const payload = {
             itemId,
             modelName: listKey,
-            signature: context._fileNewFlow[key].signature,
+            signature: fileNewFlow.signature,
             fileClientId: fileClientId,
             dv: 1, sender: resolvedData.sender,
         }
