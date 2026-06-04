@@ -4,6 +4,7 @@ const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expre
 
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
+const { MaxOauthRoutes } = require('@condo/domains/user/integration/max/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegram/routes')
 
@@ -37,6 +38,11 @@ class UserExternalIdentityMiddleware {
         const telegramOauthRoutes = new TelegramOauthRoutes()
         app.get('/api/tg/auth', telegramOauthRoutes.startAuth.bind(telegramOauthRoutes))
         app.get('/api/tg/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
+
+        // max oauth routes
+        const maxOauthRoutes = new MaxOauthRoutes()
+        app.get('/api/max/auth', maxOauthRoutes.startAuth.bind(maxOauthRoutes))
+        app.get('/api/max/auth/callback', maxOauthRoutes.completeAuth.bind(maxOauthRoutes))
 
         const passportRouter = PassportAuthRouter.init()
         passportRouter.addPassportRoutes(app, keystone)
