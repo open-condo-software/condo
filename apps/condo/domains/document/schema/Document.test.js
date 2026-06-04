@@ -520,6 +520,26 @@ describe('Document', () => {
     })
 
     describe('Validations', () => {
+        it('uses file originalFilename as name when name is omitted on create', async () => {
+            const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+            const fileMeta = {
+                organization: { id: organization.id },
+                user: { id: admin.user.id },
+                fileClientId: 'condo',
+                modelNames: ['Document'],
+                dv: 1,
+                sender,
+            }
+            const file = await getUploadingFile(TEST_FILE, fileMeta, admin)
+
+            expect(file.originalFilename).toEqual('dino.png')
+
+            const [createdDocument] = await createTestDocument(admin, organization, documentCategory, { file })
+
+            expect(createdDocument.name).toEqual(file.originalFilename)
+            expect(createdDocument.file.originalFilename).toEqual(file.originalFilename)
+        })
+
         it('Can not create document with property organization different to document organization', async () => {
             const [otherOrganization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, otherOrganization)
