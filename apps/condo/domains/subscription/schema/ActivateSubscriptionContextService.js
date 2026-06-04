@@ -172,13 +172,13 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                     frozenPaymentInfo,
                 })
 
-                if (conf['N8N_SUBSCRIPTION_WEBHOOK_URL'] && conf['N8N_SUBSCRIPTION_WEBHOOK_SECRET']) {
+                if (conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL'] && conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET']) {
                     try {
                         const payerOrg = await getById('Organization', invoice.payerOrganization)
                         const createdByUser = await getById('User', invoice.createdBy)
                         await queueWebhookPayload(context, {
-                            url: conf['N8N_SUBSCRIPTION_WEBHOOK_URL'],
-                            secret: conf['N8N_SUBSCRIPTION_WEBHOOK_SECRET'],
+                            url: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL'],
+                            secret: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET'],
                             eventType: 'subscription.activated',
                             modelName: 'SubscriptionContext',
                             itemId: subscriptionContext.id,
