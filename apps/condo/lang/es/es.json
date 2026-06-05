@@ -1812,6 +1812,8 @@
   "notification.messages.VERIFY_USER_EMAIL.email.subject": "Verificación",
   "notification.messages.VERIFY_USER_EMAIL.email.title": "Verificación",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "Llamada del interfono",
+  "notification.messages.VOIP_INCOMING_NATIVE_CALL_MESSAGE.push.title": "Llamada del interfono",
+  "notification.messages.VOIP_INCOMING_B2C_APP_CALL_MESSAGE.push.title": "Llamada del interfono",
   "onboarding.tourStep.tooltip.ticket.message": "Asegúrate de que la información es correcta y crea una incidencia",
   "onboarding.tourStep.tooltip.ticket.title": "Varios campos se completan automáticamente",
   "organization.createOrganizationForm.cancelModal.message": "El acceso a la plataforma solo estará disponible después de crear una organización. Si sales de esta página, los datos de la organización no se guardarán.",

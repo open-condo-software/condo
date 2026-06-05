@@ -24,6 +24,7 @@ const {
     createTestCustomValue,
     createTestAppMessageSetting,
     createTestCustomField,
+    prepareVoIPUser,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { getCallStatus, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
 const {
@@ -43,26 +44,6 @@ const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser,
 const { ERRORS } = require('./SendVoIPCallStartMessageService')
 
 
-async function prepareUser ({ admin, organization, property, unitName, unitType }) {
-    const phone = createTestPhone()
-    const userClient = await makeClientWithResidentUser({}, { phone })
-    const [contact] = await createTestContact(admin, organization, property, {
-        unitName: unitName,
-        unitType: unitType,
-        isVerified: true,
-        phone: phone,
-    })
-    const [resident] = await createTestResident(admin, userClient.user, property, {
-        unitName: unitName,
-        unitType: unitType,
-    })
-
-    return {
-        user: userClient.user,
-        contact,
-        resident,
-    }
-}
 
 describe('SendVoIPCallStartMessageService', () => {
     let admin
@@ -431,7 +412,7 @@ describe('SendVoIPCallStartMessageService', () => {
 
                 for (let i = 0; i < residentsCount; i++) {
                     prepareDataPromises.push((async ({ admin, organization, property, unitName, unitType }) => {
-                        const preparedUser = await prepareUser({ admin, organization, property, unitName, unitType })
+                        const preparedUser = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
                         preparedUsers.push(preparedUser)
                     })({ admin, organization, property, unitName, unitType }))
                 }
@@ -467,7 +448,7 @@ describe('SendVoIPCallStartMessageService', () => {
 
                 for (let i = 0; i < residentsCount; i++) {
                     prepareDataPromises.push((async ({ admin, organization, property, unitName, unitType }) => {
-                        const preparedUser = await prepareUser({ admin, organization, property, unitName, unitType })
+                        const preparedUser = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
                         preparedUsers.push(preparedUser)
                     })({ admin, organization, property, unitName, unitType }))
                 }
@@ -565,7 +546,7 @@ describe('SendVoIPCallStartMessageService', () => {
         
                 for (let i = 0; i < residentsCount; i++) {
                     prepareDataPromises.push((async ({ admin, organization, property, unitName, unitType }) => {
-                        const actor = await prepareUser({ admin, organization, property, unitName, unitType })
+                        const actor = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
                         actors.push(actor)
                     })({ admin, organization, property, unitName, unitType }))
                 }
@@ -730,7 +711,7 @@ describe('SendVoIPCallStartMessageService', () => {
             test('uses native call voipType when CustomValue is absent', async () => {
                 const unitName = faker.random.alphaNumeric(3)
                 const unitType = FLAT_UNIT_TYPE
-                const actor = await prepareUser({ admin, organization, property, unitName, unitType })
+                const actor = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
         
                 const callData = {
                     callId: faker.datatype.uuid(),
@@ -792,7 +773,7 @@ describe('SendVoIPCallStartMessageService', () => {
             await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: b2cRightSet.id } } })
 
 
-            const actor = await prepareUser({ admin, organization, property, unitName, unitType: FLAT_UNIT_TYPE })
+            const actor = await prepareVoIPUser({ admin, organization, property, unitName, unitType: FLAT_UNIT_TYPE })
 
 
             const customValue = faker.random.alphaNumeric(8)
@@ -851,7 +832,7 @@ describe('SendVoIPCallStartMessageService', () => {
             test(`Creates message of old ${VOIP_INCOMING_CALL_MESSAGE_TYPE} and one of the new types: ${VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE} or ${VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE}`, async () => {
                 const unitName = faker.random.alphaNumeric(3)
                 const unitType = FLAT_UNIT_TYPE
-                const actor = await prepareUser({ admin, organization, property, unitName, unitType })
+                const actor = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
         
                 const callDataNative = {
                     callId: faker.datatype.uuid(),
