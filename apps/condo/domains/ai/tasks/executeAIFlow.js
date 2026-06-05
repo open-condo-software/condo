@@ -35,7 +35,10 @@ const ajv = new Ajv()
 
 const taskLogger = getLogger()
 
-const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
+const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
+    const task = executionAIFlowTask
+    const executionAIFlowTaskId = task?.id
+
     if (!executionAIFlowTaskId) {
         taskLogger.error({
             msg: 'unknown executionAIFlowTaskId!',
@@ -44,8 +47,6 @@ const executeAIFlow = async (executionAIFlowTaskId, additionalContext = {}) => {
     }
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
-
-    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status user { id } aiSessionId')
 
     try {
         if (!task || task.deletedAt) {

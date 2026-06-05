@@ -385,7 +385,16 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                         encrypted.toString('hex')
                 }
 
-                await executeAIFlow.delay(updatedItem.id, { condoUserToken })
+                await executeAIFlow.delay({
+                    id: updatedItem.id,
+                    flowType: updatedItem.flowType,
+                    context: updatedItem.context,
+                    cleanContext: updatedItem.cleanContext,
+                    locale: updatedItem.locale,
+                    status: updatedItem.status,
+                    user: { id: updatedItem.user },
+                    aiSessionId: updatedItem.aiSessionId,
+                }, { condoUserToken })
             }
         },
     },
