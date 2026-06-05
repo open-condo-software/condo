@@ -79052,6 +79052,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketCommentFiles: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -79208,6 +79209,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
   canManageNewsItemFiles_not: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -79399,6 +79402,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
   canManageNewsItemFiles_DESC
+  canExecuteRegisterExternalPayments_ASC
+  canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
@@ -79479,6 +79484,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketCommentFiles: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -79554,6 +79560,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketCommentFiles: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -79685,6 +79692,7 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -79833,6 +79841,8 @@ input B2BAppAccessRightSetWhereInput {
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
   canManageNewsItemFiles_not: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -80006,6 +80016,8 @@ enum SortB2BAppAccessRightSetsBy {
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
   canManageNewsItemFiles_DESC
+  canExecuteRegisterExternalPayments_ASC
+  canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
@@ -80086,6 +80098,7 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketCommentFiles: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -80158,6 +80171,7 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketCommentFiles: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
