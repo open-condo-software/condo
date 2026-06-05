@@ -1,0 +1,32 @@
+.input-container {
+  padding: 16px 24px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+}
+
+.text-area-container {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.text-area-container :global(.condo-input.condo-input-textarea-wrapper) {
+  width: 100%;
+}
+
+.text-area-container :global(.condo-input-textarea) {
+  width: 100%;
+}
+
+.attachments-container {
+  max-height: 210px;
+  margin-bottom: 8px;
+  overflow-y: auto;
+}
+
+.attachment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}

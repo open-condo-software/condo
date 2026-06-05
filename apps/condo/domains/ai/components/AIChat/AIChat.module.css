@@ -77,6 +77,14 @@
 
 .user-message-container {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  max-width: 100%;
+}
+
+.user-message-row {
+  display: flex;
   gap: 4px;
   align-items: center;
   justify-content: flex-end;
@@ -93,12 +101,23 @@
 }
 
 .user-message-bubble {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
   max-width: 100%;
   padding: 6px 8px;
   background: var(--condo-global-color-white);
   border-radius: var(--condo-global-border-radius-medium);
   box-shadow: 0 1px 2px rgb(0 0 0 / 3%);
+}
+
+.user-message-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  width: 100%;
 }
 
 .assistant-message {
