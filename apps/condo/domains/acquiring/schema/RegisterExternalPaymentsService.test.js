@@ -23,6 +23,12 @@ const {
     createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { MultiPayment, Payment } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRight,
+    createTestB2BAppAccessRightSet,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithServiceUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -98,6 +104,43 @@ describe('RegisterExternalPaymentsService', () => {
             }
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(anotherServiceUser, payload)
+            })
+        })
+
+        test('B2B service user with permissions can register payments', async () => {
+            const b2bServiceUser = await makeClientWithServiceUser()
+            const [b2bApp] = await createTestB2BApp(admin)
+            await createTestB2BAppContext(admin, b2bApp, organization, { status: CONTEXT_FINISHED_STATUS })
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
+                canExecuteRegisterExternalPayments: true,
+            })
+            await createTestB2BAppAccessRight(admin, b2bServiceUser.user, b2bApp, accessRightSet)
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment()],
+            }
+            const [data] = await registerExternalPaymentsByTestClient(b2bServiceUser, payload)
+            expect(data.status).toBe('ok')
+        })
+
+        test('B2B service user without permissions cannot register payments', async () => {
+            const b2bServiceUser = await makeClientWithServiceUser()
+            const [b2bApp] = await createTestB2BApp(admin)
+            await createTestB2BAppContext(admin, b2bApp, organization, { status: CONTEXT_FINISHED_STATUS })
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
+                canExecuteRegisterExternalPayments: false,
+            })
+            await createTestB2BAppAccessRight(admin, b2bServiceUser.user, b2bApp, accessRightSet)
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment()],
+            }
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(b2bServiceUser, payload)
             })
         })
 

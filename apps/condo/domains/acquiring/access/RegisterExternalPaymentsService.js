@@ -8,9 +8,11 @@ const {
     ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
 } = require('@condo/domains/acquiring/constants/integration')
 const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
+const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canRegisterExternalPayments ({ authentication: { item: user }, args: { data: { acquiringIntegrationContext } } }) {
+async function canRegisterExternalPayments (args) {
+    const { authentication: { item: user }, args: { data: { acquiringIntegrationContext } } } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -32,7 +34,11 @@ async function canRegisterExternalPayments ({ authentication: { item: user }, ar
     })
     if (!integration) return false
 
-    return checkAcquiringIntegrationAccessRights(user.id, [integration.id])
+    if (await checkAcquiringIntegrationAccessRights(user.id, [integration.id])) {
+        return true
+    }
+
+    return await canExecuteServiceAsB2BAppServiceUser(args, context.organization)
 }
 
 /*
