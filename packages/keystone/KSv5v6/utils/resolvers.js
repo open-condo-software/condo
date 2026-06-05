@@ -44,11 +44,11 @@ function _extractCurrentQueryContext (info) {
         path = path.prev
     }
 
-    const aliasedOperationName = path.key
+    const gqlFieldAlias = path.key
     const aliases = _extractOperationFieldsAliases(info.operation)
-    const gqlOperationName = aliases[aliasedOperationName]
+    const gqlOperationName = aliases[gqlFieldAlias]
 
-    return { gqlOperationName, gqlOperationType }
+    return { gqlOperationName, gqlOperationType, gqlFieldAlias }
 }
 
 /**
@@ -88,6 +88,10 @@ function _extractCurrentQueryContext (info) {
 function _wrapResolverWithContextProvider (originalResolver) {
     return async function wrappedResolver (parent, args, contextValue, info) {
         const currentCtx = _extractCurrentQueryContext(info)
+
+        contextValue._gqlFieldAlias = currentCtx.gqlFieldAlias
+        contextValue._gqlOperationName = currentCtx.gqlOperationName
+        contextValue._gqlOperationType = currentCtx.gqlOperationType
 
         return graphqlCtx.run(currentCtx, originalResolver, parent, args, contextValue, info)
     }

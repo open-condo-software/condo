@@ -82,7 +82,7 @@ class UploadingFile {
 async function getUploadingFile (filePath, fileMeta, user) {
     const fileSecret = conf['FILE_SECRET']
     const fileClient = conf['FILE_CLIENT_ID']
-    const fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/upload'
+    const fileServiceUrl = `${getTestFileServiceOrigin()}/api/files/upload`
 
     // NOTE: Old way to upload file. Keep that for backward compatibility
     if (!fileSecret || !fileClient) {
@@ -117,6 +117,29 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
+let __savedServerUrl = null
+let __savedFileServiceUrl = null
+
+function getFakeExpressServerOrigin () {
+    if (!__expressApp || !__expressServer) {
+        return null
+    }
+
+    const port = __expressServer.address().port
+    const protocol = __expressApp instanceof https.Server ? 'https' : 'http'
+    return `${protocol}://127.0.0.1:${port}`
+}
+
+function getTestServerOrigin () {
+    return getFakeExpressServerOrigin() || conf.SERVER_URL
+}
+
+function getTestFileServiceOrigin () {
+    return getFakeExpressServerOrigin()
+        || conf.FILE_SERVICE_URL
+        || process.env.SERVER_URL
+        || conf.SERVER_URL
+}
 
 /**
  * @type {Map<string, any>}
@@ -174,10 +197,25 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
             // tests express for a fake gql client
             // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
             __expressServer = http.createServer(__expressApp).listen(0)
+            const fakeOrigin = getFakeExpressServerOrigin()
+            __savedServerUrl = process.env.SERVER_URL
+            __savedFileServiceUrl = process.env.FILE_SERVICE_URL
+            process.env.SERVER_URL = fakeOrigin
+            process.env.FILE_SERVICE_URL = fakeOrigin
         })
         afterAll(async () => {
             if (__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
+            if (__savedServerUrl !== null) {
+                if (typeof __savedServerUrl === 'undefined') delete process.env.SERVER_URL
+                else process.env.SERVER_URL = __savedServerUrl
+            }
+            if (__savedFileServiceUrl !== null) {
+                if (typeof __savedFileServiceUrl === 'undefined') delete process.env.FILE_SERVICE_URL
+                else process.env.FILE_SERVICE_URL = __savedFileServiceUrl
+            }
+            __savedServerUrl = null
+            __savedFileServiceUrl = null
             __keystone = null
             __expressApp = null
             __expressServer = null
@@ -581,11 +619,7 @@ const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => 
 
     if (__expressApp) {
         // NOTE(pahaz): it's fake client mode
-        const port = __expressServer.address().port
-        const protocol = __expressApp instanceof https.Server ? 'https' : 'http'
-
-        // Overriding with data for fake client
-        serverUrl = protocol + '://127.0.0.1:' + port
+        serverUrl = getTestServerOrigin()
     } else {
         // NOTE(pahaz): it's real client mode
         serverUrl = conf.SERVER_URL

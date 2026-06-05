@@ -5,6 +5,7 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
+const { gql } = require('graphql-tag')
 
 const conf = require('@open-condo/config')
 const { FileRecord } = require('@open-condo/files/schema/utils/testSchema')
@@ -20,6 +21,9 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
+
+
+const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 
 const { ERRORS } = require('@condo/domains/document/constants')
 const {
@@ -37,9 +41,6 @@ const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-
-const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 
 describe('Document', () => {
     let admin, support, anonymous, employeeUserWithDocumentPermissions, employeeUserWithoutDocumentPermissions, employeeUserInOtherOrganization, notEmployeeUser,
@@ -110,6 +111,72 @@ describe('Document', () => {
                 expect(createdDocument.organization.id).toEqual(organization.id)
                 expect(createdDocument.category.id).toEqual(documentCategory.id)
                 expect(createdDocument.canReadByResident).toEqual(true)
+            })
+
+            it('batch createDocument attaches each uploaded file to its record', async () => {
+                const client = employeeUserWithDocumentPermissions
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                const fileMetaBase = {
+                    organization: { id: organization.id },
+                    user: { id: client.user.id },
+                    fileClientId: 'condo',
+                    modelNames: ['Document'],
+                    dv: 1,
+                    sender,
+                }
+                const file1 = await getUploadingFile(TEST_FILE, fileMetaBase, client)
+                const file2 = await getUploadingFile(TEST_FILE, fileMetaBase, client)
+                const baseData = {
+                    dv: 1,
+                    sender,
+                    organization: { connect: { id: organization.id } },
+                    category: { connect: { id: documentCategory.id } },
+                }
+                const CUSTOM_DOCUMENTS_MUTATION = gql`
+                    mutation createMultipleDocuments($data1: DocumentCreateInput!, $data2: DocumentCreateInput!) {
+                        document1: createDocument(data: $data1) {
+                            id
+                            file { id publicUrl }
+                        }
+                        document2: createDocument(data: $data2) {
+                            id
+                            file { id publicUrl }
+                        }
+                    }
+                `
+                const { data, errors } = await client.mutate(CUSTOM_DOCUMENTS_MUTATION, {
+                    data1: { ...baseData, file: file1 },
+                    data2: { ...baseData, file: file2 },
+                })
+
+                expect(errors).toBeUndefined()
+                expect(data.document1.id).not.toEqual(data.document2.id)
+                expect(data.document1.file.publicUrl).not.toBeNull()
+                expect(data.document2.file.publicUrl).not.toBeNull()
+
+                const fileRecord1 = await FileRecord.getOne(admin, { id: file1.id })
+                const fileRecord2 = await FileRecord.getOne(admin, { id: file2.id })
+
+                expect(fileRecord1.attachments.attachments).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: data.document1.id, modelName: 'Document' }),
+                    ]),
+                )
+                expect(fileRecord1.attachments.attachments).not.toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: data.document2.id, modelName: 'Document' }),
+                    ]),
+                )
+                expect(fileRecord2.attachments.attachments).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: data.document2.id, modelName: 'Document' }),
+                    ]),
+                )
+                expect(fileRecord2.attachments.attachments).not.toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: data.document1.id, modelName: 'Document' }),
+                    ]),
+                )
             })
 
             it('employee with canManageDocuments in several organizations can', async () => {
@@ -453,6 +520,26 @@ describe('Document', () => {
     })
 
     describe('Validations', () => {
+        it('uses file originalFilename as name when name is omitted on create', async () => {
+            const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+            const fileMeta = {
+                organization: { id: organization.id },
+                user: { id: admin.user.id },
+                fileClientId: 'condo',
+                modelNames: ['Document'],
+                dv: 1,
+                sender,
+            }
+            const file = await getUploadingFile(TEST_FILE, fileMeta, admin)
+
+            expect(file.originalFilename).toEqual('dino.png')
+
+            const [createdDocument] = await createTestDocument(admin, organization, documentCategory, { file })
+
+            expect(createdDocument.name).toEqual(file.originalFilename)
+            expect(createdDocument.file.originalFilename).toEqual(file.originalFilename)
+        })
+
         it('Can not create document with property organization different to document organization', async () => {
             const [otherOrganization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, otherOrganization)
