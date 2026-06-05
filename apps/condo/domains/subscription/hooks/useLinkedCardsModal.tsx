@@ -3,11 +3,14 @@ import { notification, Row, Col } from 'antd'
 import getConfig from 'next/config'
 import { useCallback, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Trash } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography, Space, Card, Button } from '@open-condo/ui'
+
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 
 import styles from './useLinkedCardsModal.module.css'
 
@@ -43,6 +46,8 @@ type UseLinkedCardsModalProps = {
 
 export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps = {}) => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const { organization, role } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
@@ -150,8 +155,9 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
     }, [])
 
     const openModal = useCallback(() => {
+        if (hidePaidFeatures) return
         setIsModalOpen(true)
-    }, [])
+    }, [hidePaidFeatures])
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false)
@@ -218,87 +224,91 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
         }
     }, [organization, canManageSubscriptions, selectedCardId, subscriptionContextsData, updateSubscriptionContextPaymentMethod, refetchSubscriptionContexts, onCardUnbound, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
 
-    const LinkedCardsModal = useMemo(() => (
-        <>
-            <Modal
-                open={isModalOpen}
-                onCancel={closeModal}
-                title={LinkedCardsTitle}
-                footer={null}
-                scrollX={false}
-            >
-                <Space size={12} direction='vertical' width='100%'>
-                    {paymentMethods.map((paymentMethod) => {
-                        const cardLabel = getCardLabel(paymentMethod.bindingId)
-                        return (
-                            <Card key={paymentMethod.bindingId} width='100%'>
-                                <Row justify='space-between' align='middle' wrap={false}>
-                                    <Col flex='auto' className={styles.cardContent}>
-                                        <img
-                                            src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)}
-                                            alt={paymentMethod.cardIssuerName || 'card'}
-                                            width={60}
-                                            height={40}
-                                            className={styles.cardImg}
-                                            onError={() => handleImageError(paymentMethod.bindingId)}
-                                        />
-                                        <div className={styles.cardText}>
-                                            <Typography.Text ellipsis>
-                                                {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
-                                                {cardLabel && (
-                                                    <Typography.Text type='secondary'>
-                                                        {' '}{cardLabel}
-                                                    </Typography.Text>
-                                                )}
-                                            </Typography.Text>
-                                        </div>
-                                    </Col>
-                                    <Col flex='none'>
-                                        <Button
-                                            id={`subscription-linked-cards-unbind-${paymentMethod.bindingId}-button`}
-                                            minimal
-                                            compact
-                                            size='large'
-                                            type='primary'
-                                            icon={<Trash size='small' />}
-                                            onClick={() => handleUnbindClick(paymentMethod.bindingId)}
-                                            disabled={!canManageSubscriptions}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Card>
-                        )
-                    })}
-                </Space>
-            </Modal>
-            <Modal
-                open={isConfirmModalOpen}
-                onCancel={closeConfirmModal}
-                title={UnbindCardTitle}
-                footer={[
-                    <Button
-                        id='subscription-linked-cards-confirm-unbind-button'
-                        key='unbind'
-                        type='secondary'
-                        danger
-                        loading={isUnbinding}
-                        onClick={handleUnbindConfirm}
-                        disabled={!canManageSubscriptions}
-                    >
-                        {UnbindButtonLabel}
-                    </Button>,
-                ]}
-            >
-                <Typography.Paragraph>
-                    {UnbindCardMessage}
-                </Typography.Paragraph>
-            </Modal>
-        </>
-    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethods, imageErrors, getCardTypeTranslation, getCardLabel, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
+    const LinkedCardsModal = useMemo(() => {
+        if (hidePaidFeatures) return null
+
+        return (
+            <>
+                <Modal
+                    open={isModalOpen}
+                    onCancel={closeModal}
+                    title={LinkedCardsTitle}
+                    footer={null}
+                    scrollX={false}
+                >
+                    <Space size={12} direction='vertical' width='100%'>
+                        {paymentMethods.map((paymentMethod) => {
+                            const cardLabel = getCardLabel(paymentMethod.bindingId)
+                            return (
+                                <Card key={paymentMethod.bindingId} width='100%'>
+                                    <Row justify='space-between' align='middle' wrap={false}>
+                                        <Col flex='auto' className={styles.cardContent}>
+                                            <img
+                                                src={imageErrors[paymentMethod.bindingId] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)}
+                                                alt={paymentMethod.cardIssuerName || 'card'}
+                                                width={60}
+                                                height={40}
+                                                className={styles.cardImg}
+                                                onError={() => handleImageError(paymentMethod.bindingId)}
+                                            />
+                                            <div className={styles.cardText}>
+                                                <Typography.Text ellipsis>
+                                                    {getCardTypeTranslation(paymentMethod.paymentSystem)} ∙ {paymentMethod.cardMask?.slice(-4)}
+                                                    {cardLabel && (
+                                                        <Typography.Text type='secondary'>
+                                                            {' '}{cardLabel}
+                                                        </Typography.Text>
+                                                    )}
+                                                </Typography.Text>
+                                            </div>
+                                        </Col>
+                                        <Col flex='none'>
+                                            <Button
+                                                id={`subscription-linked-cards-unbind-${paymentMethod.bindingId}-button`}
+                                                minimal
+                                                compact
+                                                size='large'
+                                                type='primary'
+                                                icon={<Trash size='small' />}
+                                                onClick={() => handleUnbindClick(paymentMethod.bindingId)}
+                                                disabled={!canManageSubscriptions}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </Card>
+                            )
+                        })}
+                    </Space>
+                </Modal>
+                <Modal
+                    open={isConfirmModalOpen}
+                    onCancel={closeConfirmModal}
+                    title={UnbindCardTitle}
+                    footer={[
+                        <Button
+                            id='subscription-linked-cards-confirm-unbind-button'
+                            key='unbind'
+                            type='secondary'
+                            danger
+                            loading={isUnbinding}
+                            onClick={handleUnbindConfirm}
+                            disabled={!canManageSubscriptions}
+                        >
+                            {UnbindButtonLabel}
+                        </Button>,
+                    ]}
+                >
+                    <Typography.Paragraph>
+                        {UnbindCardMessage}
+                    </Typography.Paragraph>
+                </Modal>
+            </>
+        )
+    }, [hidePaidFeatures, isModalOpen, closeModal, LinkedCardsTitle, paymentMethods, imageErrors, getCardTypeTranslation, getCardLabel, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
 
     return {
         LinkedCardsModal,
         openModal,
-        hasPaymentMethod: paymentMethods.length > 0,
+        hasPaymentMethod: !hidePaidFeatures && paymentMethods.length > 0,
     }
 }

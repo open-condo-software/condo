@@ -3189,6 +3189,8 @@
   "subscription.accessGuard.goToPlans": "Подробнее о тарифах",
   "subscription.accessGuard.learnMore": "Узнать больше о разделе",
   "subscription.accessGuard.defaultPageTitle": "Раздел",
+  "subscription.accessGuard.unavailable.title": "Сервис недоступен",
+  "subscription.accessGuard.unavailable.description": "У вас нет доступа к этому сервису",
   "subscription.accessGuard.feature.title": "Прокачайте свой тариф или оплатите функционал отдельно",
   "subscription.accessGuard.feature.payButton": "Оплатить",
   "subscription.accessGuard.feature.freeWithPlan": "бесплатно с тарифом «{planName}»",

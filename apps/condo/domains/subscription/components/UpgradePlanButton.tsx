@@ -8,7 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
-import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import styles from './UpgradePlanButton.module.css'
@@ -20,6 +20,8 @@ export const UpgradePlanButton: React.FC = () => {
     const router = useRouter()
     const { organization } = useOrganization()
     const { subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
 
     const { data: plansData, loading: plansLoading } = useGetAvailableServiceSubscriptionPlansQuery({
         variables: {
@@ -82,7 +84,7 @@ export const UpgradePlanButton: React.FC = () => {
         router.push('/settings?tab=subscription')
     }
 
-    if (!buttonText || !hasSubscriptionsFeature) return null
+    if (hidePaidFeatures || !buttonText || !hasSubscriptionsFeature) return null
     /*TODO DOMA-12785 move to ui kit*/
     return (
         <Button

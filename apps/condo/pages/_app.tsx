@@ -54,7 +54,7 @@ import { SurveysQueue } from '@condo/domains/common/components/surveys/SurveyQue
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE, UI_LEGAL_INFO } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, UI_HIDE_PAID_FEATURES, UI_LEGAL_INFO } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -168,6 +168,7 @@ const ANT_DEFAULT_LOCALE = enUS
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
@@ -378,13 +379,13 @@ const MenuItems: React.FC = () => {
 
     return (
         <div>
-            {hasSubscription && hasSubscriptionsFeature && <SubscriptionFeatureProgress />}
+            {!hidePaidFeatures && hasSubscription && hasSubscriptionsFeature && <SubscriptionFeatureProgress />}
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
                     {category.items.map((item) => {
                         const isSubscriptionPage = item.path === 'settings'
                         const isDisabled = isSubscriptionPage ? !employee : disabled
-                        const featureTooltip = ({ element, placement }) => (
+                        const featureTooltip = hidePaidFeatures ? null : ({ element, placement }) => (
                             <NoSubscriptionTooltip path={`/${item.path}`} children={element} placement={placement} />
                         )
 
@@ -415,9 +416,11 @@ const MenuItems: React.FC = () => {
                         let tooltipDecorator = null
                         if (disabled) {
                             tooltipDecorator = wrapElementIntoNoOrganizationToolTip
-                        } else if (!isAppAvailable) {
+                        } else if (!hidePaidFeatures && !isAppAvailable) {
                             tooltipDecorator = miniappTooltip
                         }
+
+                        if (hidePaidFeatures && !isAppAvailable) return null
 
                         return <MenuItem
                             id={`menu-item-app-${app.id}`}

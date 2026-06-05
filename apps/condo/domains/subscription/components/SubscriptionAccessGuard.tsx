@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -11,6 +12,7 @@ import { Typography, Button, Tooltip } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 
 import { SubscriptionBlockedContent } from './SubscriptionBlockedContent'
@@ -72,6 +74,8 @@ const getPageTitle = (pathname: string, intl: any): string => {
 export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children, skipGuard = false }) => {
     const router = useRouter()
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const GuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.title' })
     const GuardDescription = intl.formatMessage({ id: 'subscription.accessGuard.description' })
     const GoToPlansMessage = intl.formatMessage({ id: 'subscription.accessGuard.goToPlans' })
@@ -80,6 +84,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
     const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
+    const UnavailableTitle = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.title' }, { defaultMessage: 'Access denied' })
+    const UnavailableDescription = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.description' }, { defaultMessage: 'You do not have access to this service' })
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
     const { organization, isLoading: orgIsLoading } = useOrganization()
     const { isLoading: authIsLoading } = useAuth()
@@ -200,6 +206,24 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         : null
 
     if (isBlocked) {
+        if (hidePaidFeatures && !hasSubscription) {
+            return (
+                <>
+                    <Head>
+                        <title>{pageTitle}</title>
+                    </Head>
+                    <PageWrapper>
+                        <PageHeader title={<Typography.Title>{pageTitle}</Typography.Title>} />
+                        <SubscriptionBlockedContent
+                            title={UnavailableTitle}
+                            description={UnavailableDescription}
+                            primaryButton={null}
+                        />
+                    </PageWrapper>
+                </>
+            )
+        }
+
         let primaryButton: React.ReactNode
         if (!hasFeaturePlan) {
             primaryButton = <Button id='subscription-access-guard-go-to-plans-button' type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
@@ -229,8 +253,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
 
         return (
             <>
-                {PaymentModal}
-                <SubscriptionTrialEndedModal />
+                {!hidePaidFeatures && PaymentModal}
+                {!hidePaidFeatures && <SubscriptionTrialEndedModal />}
                 <Head>
                     <title>{pageTitle}</title>
                 </Head>
@@ -251,8 +275,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
 
     return (
         <>
-            <SubscriptionWelcomeModal />
-            <SubscriptionTrialEndedModal />
+            {!hidePaidFeatures && <SubscriptionWelcomeModal />}
+            {!hidePaidFeatures && <SubscriptionTrialEndedModal />}
             {children}
         </>
     )

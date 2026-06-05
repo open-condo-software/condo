@@ -3189,6 +3189,8 @@
   "subscription.accessGuard.goToPlans": "Learn more about plans",
   "subscription.accessGuard.learnMore": "Learn more about this section",
   "subscription.accessGuard.defaultPageTitle": "Section",
+  "subscription.accessGuard.unavailable.title": "Access denied",
+  "subscription.accessGuard.unavailable.description": "You do not have access to this service",
   "subscription.accessGuard.feature.title": "Upgrade your plan or pay for the feature separately",
   "subscription.accessGuard.feature.payButton": "Pay",
   "subscription.accessGuard.feature.freeWithPlan": "free with \"{planName}\" plan",
