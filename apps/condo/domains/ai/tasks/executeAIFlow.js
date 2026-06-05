@@ -1,8 +1,8 @@
 const Ajv = require('ajv')
 
 const conf = require('@open-condo/config')
-const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
+const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')

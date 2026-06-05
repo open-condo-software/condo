@@ -541,7 +541,7 @@ describe('ExecutionAIFlowTask', () => {
             const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                 flowType: CHAT_WITH_CONDO_FLOW_TYPE,
                 context: {
-                    userInput: 'Что в файле?',
+                    userInput: 'test',
                     userData: {
                         userId: userClient.user.id,
                         organizationId: faker.datatype.uuid(),
