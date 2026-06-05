@@ -538,7 +538,10 @@ describe('ExecutionAIFlowTask', () => {
 
     describe('Attachments validation', () => {
         test('chat-with-condo context accepts attachments metadata without url', async () => {
-            const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+            const task = await ExecutionAIFlowTaskForUser.create(userClient, {
+                dv: 1,
+                sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                user: { connect: { id: userClient.user.id } },
                 flowType: CHAT_WITH_CONDO_FLOW_TYPE,
                 context: {
                     userInput: 'test',
@@ -554,15 +557,16 @@ describe('ExecutionAIFlowTask', () => {
                     }],
                 },
             })
+            const foundTask = await ExecutionAIFlowTask.getOne(adminClient, { id: task.id })
 
             expect(task.context.attachments).toHaveLength(1)
             expect(task.context.attachments[0]).not.toHaveProperty('url')
-            expect(task.cleanContext.attachments[0]).not.toHaveProperty('url')
+            expect(foundTask.cleanContext.attachments[0]).not.toHaveProperty('url')
         })
 
         test('chat-with-condo rejects attachment with url in client context', async () => {
             await expectToThrowGQLError(async () => {
-                await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
                     flowType: CHAT_WITH_CONDO_FLOW_TYPE,
                     context: {
                         userInput: 'test',
@@ -586,7 +590,7 @@ describe('ExecutionAIFlowTask', () => {
 
         test('chat-with-condo rejects unsupported attachment mimeType', async () => {
             await expectToThrowGQLError(async () => {
-                await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
                     flowType: CHAT_WITH_CONDO_FLOW_TYPE,
                     context: {
                         userInput: 'test',
@@ -612,7 +616,7 @@ describe('ExecutionAIFlowTask', () => {
             const safeMimeType = CHAT_WITH_CONDO_ALLOWED_MIME_TYPES[0]
 
             await expectToThrowGQLError(async () => {
-                await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
                     flowType: CHAT_WITH_CONDO_FLOW_TYPE,
                     context: {
                         userInput: 'test',
@@ -646,7 +650,7 @@ describe('ExecutionAIFlowTask', () => {
             }))
 
             await expectToThrowGQLError(async () => {
-                await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
                     flowType: CHAT_WITH_CONDO_FLOW_TYPE,
                     context: {
                         userInput: 'test',
