@@ -2,9 +2,11 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tooltip, Typography } from '@open-condo/ui'
 
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { SubscriptionBlockedContent } from '@condo/domains/subscription/components'
 import { useActivateSubscriptions } from '@condo/domains/subscription/hooks/useActivateSubscriptions'
@@ -21,6 +23,8 @@ type BlockedB2BAppTabProps = {
 
 export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, shortDescription }) => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const GuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.title' })
     const FeatureGuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.feature.title' })
     const GoToPlansMessage = intl.formatMessage({ id: 'subscription.accessGuard.goToPlans' })
@@ -28,6 +32,8 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
     const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const LearnMoreMessage = intl.formatMessage({ id: 'subscription.accessGuard.learnMore' })
+    const UnavailableTitle = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.title' }, { defaultMessage: 'Access denied' })
+    const UnavailableDescription = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.description' }, { defaultMessage: 'You do not have access to this service' })
 
     const router = useRouter()
 
@@ -84,6 +90,16 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
             )}
         </>
     ), [shortDescription, formattedFeaturePrice, forPlanLabel, FreeWithPlanNode])
+
+    if (hidePaidFeatures) {
+        return (
+            <SubscriptionBlockedContent
+                title={UnavailableTitle}
+                description={UnavailableDescription}
+                primaryButton={null}
+            />
+        )
+    }
 
     let primaryButton: React.ReactNode
     if (!hasFeaturePlan) {

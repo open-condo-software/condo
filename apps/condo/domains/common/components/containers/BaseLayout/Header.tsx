@@ -6,6 +6,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -15,6 +16,7 @@ import { Space } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { UI_HIDE_USER_LINKS } from '@condo/domains/common/constants/featureflags'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { UserMessagesListContextProvider } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
@@ -39,6 +41,8 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
     const { toggleCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
+    const { useFlag } = useFeatureFlags()
+    const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
@@ -89,7 +93,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                                         <SBBOLIndicator organization={organization} />
                                         <InlineOrganizationSelect/>
                                     </Space>
-                                    <UserMenu/>
+                                    {!isUserMenuHidden && <UserMenu/>}
                                 </div>
                             </div>
                             <div className='appeals-bar'>

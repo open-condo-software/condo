@@ -2,9 +2,11 @@ import { AvailableSubscriptionPlan } from '@app/condo/schema'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Banner, Button, Modal, Space, Typography } from '@open-condo/ui'
 
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { useActivateSubscriptions, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
@@ -43,6 +45,8 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
     subscriptionModalConfig,
 }) => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const TryTrialButtonText =  intl.formatMessage({ id: 'subscription.featureProgress.modal.tryTrialButton' })
     const router = useRouter()
     const { registerSubscriptionContext, activateLoading } = useActivateSubscriptions()
@@ -123,6 +127,8 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
             </Space>
         )
     }, [hasActivatedAnyTrial, handleViewPlans, handleActivateTrial, viewPlansButtonText, TryTrialButtonText, isLoading])
+
+    if (hidePaidFeatures) return null
 
     return (
         <Modal

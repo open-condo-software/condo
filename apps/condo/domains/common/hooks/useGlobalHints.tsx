@@ -11,10 +11,14 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Banner, Carousel, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
+
+import { UI_HIDE_USER_LINKS } from '@condo/domains/common/constants/featureflags'
+
 
 
 interface HintI18n {
@@ -43,6 +47,8 @@ const HINTS_WRAPPER_STYLE: CSSProperties = { marginBottom: 40 }
 const HINTS_ROW_GUTTERS: RowProps['gutter'] = [0, 8]
 
 export const useGlobalHints = () => {
+    const { useFlag } = useFeatureFlags()
+    const isUserLinksHidden = useFlag(UI_HIDE_USER_LINKS)
     const intl = useIntl()
     const CanDisableHintsMessage = intl.formatMessage({ id: 'global.globalHints.canDisableHints' })
     const InProfileMessage = intl.formatMessage({ id: 'global.globalHints.canDisableHints.inProfile' })
@@ -134,14 +140,16 @@ export const useGlobalHints = () => {
                         <Typography.Text type='secondary' size='small'>
                             {CanDisableHintsMessage}
                         </Typography.Text>&nbsp;
-                        <Link href='/user'>
-                            <Typography.Link size='small'>{InProfileMessage}</Typography.Link>
-                        </Link>
+                        {!isUserLinksHidden && (
+                            <Link href='/user'>
+                                <Typography.Link size='small'>{InProfileMessage}</Typography.Link>
+                            </Link>
+                        )}
                     </Typography.Text>
                 </Col>
             </Row>
         </div>
-    ), [CanDisableHintsMessage, InProfileMessage, MoreMessage, handleBannerClick, hints])
+    ), [CanDisableHintsMessage, InProfileMessage, isUserLinksHidden, MoreMessage, handleBannerClick, hints])
 
     return {
         GlobalHints: renderHints,

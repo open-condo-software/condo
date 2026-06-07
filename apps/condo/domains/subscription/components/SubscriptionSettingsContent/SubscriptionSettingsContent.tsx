@@ -1,11 +1,13 @@
 import { useGetAvailableServiceSubscriptionPlansQuery, GetAvailableServiceSubscriptionPlansQueryResult, useGetPublicB2BAppsByIdsQuery } from '@app/condo/gql'
 import React, { useState, useMemo, useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space, Radio } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { useActivateSubscriptions, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
 import { PromoBanner } from './PromoBanner/PromoBanner'
@@ -20,6 +22,8 @@ const PLAN_CARD_EMOJIS = ['🏠', '🚀', '👑']
 
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const { organization } = useOrganization()
 
     const YearlyLabel = intl.formatMessage({ id: 'subscription.period.yearly' })
@@ -83,6 +87,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }, [refetchActivatedSubscriptions])
 
     const isLoading = plansLoading || trialActivationLoading
+    if (hidePaidFeatures) return null
     if (isLoading) return <Loader />
 
     return (

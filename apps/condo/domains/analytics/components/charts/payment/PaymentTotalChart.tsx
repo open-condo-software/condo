@@ -1,10 +1,12 @@
 import { Row, Col } from 'antd'
 import React, { useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
 
 import { CustomChartView, CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SubscriptionGuardWithTooltip } from '@condo/domains/subscription/components'
 
 import { PaymentTotalDataMapper } from './dataMappers'
@@ -13,6 +15,8 @@ import type { IPaymentChartCard } from './dataMappers'
 
 const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const ChartTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
     const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
@@ -26,7 +30,7 @@ const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
                 <Typography.Title level={3}>{ChartTitle}</Typography.Title>
             </Col>
 
-            {data.length > 0 &&
+            {!hidePaidFeatures && data.length > 0 &&
                 <SubscriptionGuardWithTooltip
                     feature='marketplace'
                     placement='bottom'

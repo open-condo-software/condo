@@ -1,10 +1,12 @@
 import { Row, Col, RowProps } from 'antd'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Checkbox, Modal, Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 
 
 export type PaymentType = 'card' | 'userHelpRequest'
@@ -33,6 +35,8 @@ export const useSubscriptionPaymentModal = ({
     activateLoading,
 }: UseSubscriptionPaymentModalProps): UseSubscriptionPaymentModalReturn => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const ModalTitleMessage = intl.formatMessage({ id: 'subscription.paymentModal.title' })
     const CardOnlineMessage = intl.formatMessage({ id: 'subscription.paymentModal.cardOnline' })
     const InvoiceMessage = intl.formatMessage({ id: 'subscription.paymentModal.invoice' })
@@ -46,9 +50,10 @@ export const useSubscriptionPaymentModal = ({
     const [selectedMethod, setSelectedMethod] = useState<PaymentType>('card')
 
     const openModal = useCallback(() => {
+        if (hidePaidFeatures) return
         setSelectedMethod('card')
         setOpen(true)
-    }, [])
+    }, [hidePaidFeatures])
 
     const closeModal = useCallback(() => {
         setOpen(false)
@@ -74,6 +79,8 @@ export const useSubscriptionPaymentModal = ({
     }, [registerSubscriptionContext, closeModal])
 
     const PaymentModal = useMemo(() => {
+        if (hidePaidFeatures) return null
+
         const isCardSelected = selectedMethod === 'card'
         const isUserHelpRequestSelected = selectedMethod === 'userHelpRequest'
 
@@ -225,6 +232,7 @@ export const useSubscriptionPaymentModal = ({
         CardSaveNoticeMessage,
         ProceedToPaymentMessage,
         IssueInvoiceMessage,
+        hidePaidFeatures,
         breakpoints.TABLET_LARGE,
         open,
         selectedMethod,

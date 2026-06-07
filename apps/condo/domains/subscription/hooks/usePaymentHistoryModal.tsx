@@ -4,6 +4,7 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useMemo, useCallback, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography } from '@open-condo/ui'
@@ -12,6 +13,7 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import {
     getDateRender,
 } from '@condo/domains/common/components/Table/Renders'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 const { publicRuntimeConfig } = getConfig()
@@ -23,6 +25,8 @@ type PaymentHistoryRecord = GetOrganizationPaymentHistoryQuery['paymentHistory']
 
 export const usePaymentHistoryModal = () => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const router = useRouter()
     const { organization } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -73,8 +77,9 @@ export const usePaymentHistoryModal = () => {
     const hasPaymentHistory = totalCount > 0
 
     const openModal = useCallback(() => {
+        if (hidePaidFeatures) return
         setIsModalOpen(true)
-    }, [])
+    }, [hidePaidFeatures])
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false)
@@ -142,28 +147,32 @@ export const usePaymentHistoryModal = () => {
 
     const getRowId = useCallback((row: PaymentHistoryRecord) => row.id, [])
 
-    const PaymentHistoryModal = useMemo(() => (
-        <Modal
-            open={isModalOpen}
-            onCancel={closeModal}
-            title={PaymentHistoryTitle}
-            footer={null}
-            width='big'
-        >
-            <Table
-                loading={loading}
-                dataSource={paymentHistory}
-                columns={columns}
-                totalRows={totalCount}
-                pageSize={PAGE_SIZE}
-                rowKey={getRowId}
-            />  
-        </Modal>
-    ), [isModalOpen, closeModal, PaymentHistoryTitle, loading, paymentHistory, columns, totalCount, getRowId])
+    const PaymentHistoryModal = useMemo(() => {
+        if (hidePaidFeatures) return null
+
+        return (
+            <Modal
+                open={isModalOpen}
+                onCancel={closeModal}
+                title={PaymentHistoryTitle}
+                footer={null}
+                width='big'
+            >
+                <Table
+                    loading={loading}
+                    dataSource={paymentHistory}
+                    columns={columns}
+                    totalRows={totalCount}
+                    pageSize={PAGE_SIZE}
+                    rowKey={getRowId}
+                />  
+            </Modal>
+        )
+    }, [hidePaidFeatures, isModalOpen, closeModal, PaymentHistoryTitle, loading, paymentHistory, columns, totalCount, getRowId])
 
     return {
         PaymentHistoryModal,
         openModal,
-        hasPaymentHistory,
+        hasPaymentHistory: !hidePaidFeatures && hasPaymentHistory,
     }
 }

@@ -2,10 +2,12 @@ import { Progress, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import React, { useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 const BRAND_GRADIENT = {
@@ -18,6 +20,8 @@ const MAX_VALUE_IN_PAID_INDICATOR = 30
 
 export const SubscriptionDaysIndicator: React.FC = () => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const { subscriptionContext, daysRemaining, daysRemainingWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
 
     const isTrial = subscriptionContext?.isTrial
@@ -107,7 +111,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         )
     }, [isTrial, isInBufferPeriod, intl, planName, endDate, daysRemaining, daysRemainingWithoutBuffer])
 
-    if (!shouldShow) return null
+    if (hidePaidFeatures || !shouldShow) return null
 
     return (
         <Tooltip title={tooltipText}>

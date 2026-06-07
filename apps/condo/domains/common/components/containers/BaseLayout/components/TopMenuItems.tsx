@@ -8,7 +8,7 @@ import { Space, Typography } from '@open-condo/ui'
 
 import { useAIContext } from '@condo/domains/ai/components/AIContext'
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
-import { UI_AI_CHAT_WITH_CONDO } from '@condo/domains/common/constants/featureflags'
+import { UI_AI_CHAT_WITH_CONDO, UI_HIDE_USER_LINKS } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
@@ -32,6 +32,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { useFlag } = useFeatureFlags()
     const { isAIOverlayOpen, openAIOverlay } = useAIContext()
     const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
+    const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 
     const PaymentHistoryLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
     const LinkedCardsLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
@@ -69,7 +70,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                     <SBBOLIndicator organization={organization} />
                     <InlineOrganizationSelect />
                 </Space>
-                <UserMenu extraMenuItems={subscriptionMenuItems} />
+                {!isUserMenuHidden && <UserMenu extraMenuItems={subscriptionMenuItems} />}
                 <div style={{ maxHeight: '24px' }}>
                     <UserMessagesList disabled={!hasSubscription} />
                 </div>

@@ -2,10 +2,12 @@ import { useGetAvailableServiceSubscriptionPlansQuery } from '@app/condo/gql'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 import { getRequiredFeature } from '@condo/domains/subscription/constants/routeFeatureMapping'
 import {
@@ -28,6 +30,8 @@ export interface NoSubscriptionTooltipProps {
 
 export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right', feature: featureProp, path, skipTooltip, b2bAppId, tooltipButtonId }) => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const router = useRouter()
     const { organization } = useOrganization()
     const { activatedSubscriptions, registerSubscriptionContext, activateLoading } = useActivateSubscriptions()
@@ -177,7 +181,7 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
         </Space>
     )
 
-    if (skipTooltip) {
+    if (hidePaidFeatures || skipTooltip) {
         return children
     }
 

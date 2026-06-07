@@ -4,12 +4,14 @@ import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { AVAILABLE_FEATURES, AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
@@ -32,6 +34,8 @@ const subscriptionModalConfig = publicRuntimeConfig?.subscriptionProgressModalCo
 
 export const SubscriptionFeatureProgress: React.FC = () => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const TooltipTitle = intl.formatMessage({ id: 'subscription.featureProgress.tooltip' })
     const { organization } = useOrganization()
     const { isFeatureAvailable, isB2BAppEnabled } = useOrganizationSubscription()
@@ -159,7 +163,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         openModal()
     }
 
-    if (!bestPlan || !bestPlan?.prices?.[0] || !hasSubscriptionModalConfig) {
+    if (hidePaidFeatures || !bestPlan || !bestPlan?.prices?.[0] || !hasSubscriptionModalConfig) {
         return null
     }
 

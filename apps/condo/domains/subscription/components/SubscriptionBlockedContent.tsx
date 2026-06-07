@@ -9,7 +9,7 @@ import styles from './SubscriptionBlockedContent.module.css'
 type SubscriptionBlockedContentProps = {
     title: string
     description: React.ReactNode
-    primaryButton: React.ReactNode
+    primaryButton?: React.ReactNode
     secondaryButton?: React.ReactNode
 }
 
@@ -27,10 +27,12 @@ export const SubscriptionBlockedContent: React.FC<SubscriptionBlockedContentProp
                     <Typography.Title level={3}>{title}</Typography.Title>
                     <Typography.Paragraph type='secondary'>{description}</Typography.Paragraph>
                 </Space>
-                <Space size={16} direction='vertical' align='center'>
-                    {primaryButton}
-                    {secondaryButton}
-                </Space>
+                {(primaryButton || secondaryButton) && (
+                    <Space size={16} direction='vertical' align='center'>
+                        {primaryButton}
+                        {secondaryButton}
+                    </Space>
+                )}
             </Space>
         </div>
     </div>

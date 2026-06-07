@@ -4,8 +4,11 @@ import classnames from 'classnames'
 import Router from 'next/router'
 import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+
 import { useAIContext } from '@condo/domains/ai/components/AIContext'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { UI_HIDE_LAYOUT_HEADER, UI_HIDE_LAYOUT_SIDE_MENU } from '@condo/domains/common/constants/featureflags'
 
 import styles from './BaseLayout.module.css'
 import { SideNav } from './components/SideNav'
@@ -38,6 +41,9 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
 
     const { isCollapsed } = useLayoutContext()
     const { isAIOverlayOpen, aiOverlayWidth } = useAIContext()
+    const { useFlag } = useFeatureFlags()
+    const isHeaderHidden = useFlag(UI_HIDE_LAYOUT_HEADER)
+    const isSideMenuHidden = useFlag(UI_HIDE_LAYOUT_SIDE_MENU)
 
     const subLayoutStyle: CSSProperties = {
         ...style,
@@ -46,15 +52,15 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
 
     return (
         <Layout className={classnames(styles.layout, className)} style={style}>
-            <SideNav menuData={menuData} onLogoClick={onLogoClick}/>
-            <Layout 
+            {!isSideMenuHidden && <SideNav menuData={menuData} onLogoClick={onLogoClick}/>}
+            <Layout
                 className={classnames(
                     styles.subLayout,
                     isCollapsed ? styles.subLayoutCollapsed : styles.subLayoutExpanded
                 )}
                 style={subLayoutStyle}
             >
-                <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
+                {!isHeaderHidden && <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />}
                 {children}
                 <Footer />
             </Layout>

@@ -3189,6 +3189,8 @@
   "subscription.accessGuard.goToPlans": "Más información sobre los planes",
   "subscription.accessGuard.learnMore": "Aprender más sobre esta sección",
   "subscription.accessGuard.defaultPageTitle": "Sección",
+  "subscription.accessGuard.unavailable.title": "Acceso denegado",
+  "subscription.accessGuard.unavailable.description": "No tienes acceso a este servicio",
   "subscription.accessGuard.feature.title": "Mejore su plan o pague la función por separado",
   "subscription.accessGuard.feature.payButton": "Pagar",
   "subscription.accessGuard.feature.freeWithPlan": "gratis con el plan «{planName}»",
