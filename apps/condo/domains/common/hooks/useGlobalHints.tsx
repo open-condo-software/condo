@@ -149,7 +149,7 @@ export const useGlobalHints = () => {
                 </Col>
             </Row>
         </div>
-    ), [CanDisableHintsMessage, InProfileMessage, MoreMessage, handleBannerClick, hints])
+    ), [CanDisableHintsMessage, InProfileMessage, isUserLinksHidden, MoreMessage, handleBannerClick, hints])
 
     return {
         GlobalHints: renderHints,
