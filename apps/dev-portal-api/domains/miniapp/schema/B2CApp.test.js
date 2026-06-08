@@ -15,8 +15,6 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
-    UploadingFile,
-    getUploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
 const { INVALID_MIMETYPE } = require('@dev-portal-api/domains/common/constants/errors')
@@ -213,22 +211,15 @@ describe('B2CApp', () => {
     describe('Validations', () => {
         describe('logo', () => {
             test('Png image can be passed', async () => {
-                const fileMeta = {
-                    user: { id: admin.user.id },
-                    fileClientId: conf['FILE_CLIENT_ID'],
-                    modelNames: ['B2CApp'],
-                    dv: 1, sender: { dv: 1, fingerprint: 'test-utils' },
-                }
-                const logo = await getUploadingFile(PNG_LOGO_ASSET_PATH, fileMeta, admin)
                 const [app] = await createTestB2CApp(admin, {
-                    logo,
+                    logo: PNG_LOGO_ASSET_PATH,
                 })
                 expect(app).toHaveProperty(['logo', 'publicUrl'])
                 expect(app.logo.publicUrl).not.toBeNull()
             })
             test('Other images cannot', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestB2CApp(admin, { logo: new UploadingFile(JPG_LOGO_ASSET_PATH) })
+                    await createTestB2CApp(admin, { logo: JPG_LOGO_ASSET_PATH })
                 }, {
                     code: 'BAD_USER_INPUT',
                     type: INVALID_MIMETYPE,

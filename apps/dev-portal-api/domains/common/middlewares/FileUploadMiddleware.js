@@ -1,9 +1,26 @@
+const { Readable } = require('stream')
+
 const express = require('express')
 
 const conf = require('@open-condo/config')
 const { createProxy } = require('@open-condo/miniapp-utils/helpers/proxying')
 
 const { OIDCMiddleware } = require('./OIDCMiddleware')
+
+function reStreamParsedBody (req, res, next) {
+    if (req.body === undefined) return next()
+
+    const bodyStr = JSON.stringify(req.body)
+    const bodyBuffer = Buffer.from(bodyStr)
+
+    req.headers['content-type'] = 'application/json'
+    req.headers['content-length'] = String(bodyBuffer.length)
+
+    const bodyStream = Readable.from(bodyBuffer)
+    req.pipe = bodyStream.pipe.bind(bodyStream)
+
+    next()
+}
 
 class FileUploadMiddleware {
     constructor () {
@@ -12,10 +29,10 @@ class FileUploadMiddleware {
         const trustedProxies = conf['TRUSTED_PROXIES_CONFIG'] ? JSON.parse(conf['TRUSTED_PROXIES_CONFIG']) : undefined
 
         this._proxyHandler = createProxy({
-            name: 'DevPortalUploadMiddleware',
-            proxyPrefix: '/api/files/upload',
+            name: 'DevPortalFilesMiddleware',
+            proxyPrefix: '/api/files',
             upstreamOrigin: conf['CONDO_DOMAIN'],
-            upstreamPrefix: '/api/files/upload',
+            upstreamPrefix: '/api/files',
             ipProxying: ipProxyConfig ? {
                 proxyId: ipProxyConfig.proxyId,
                 proxySecret: ipProxyConfig.proxySecret,
@@ -36,6 +53,7 @@ class FileUploadMiddleware {
     prepareMiddleware () {
         const app = express()
         app.post('/api/files/upload', this._proxyHandler)
+        app.post('/api/files/attach', reStreamParsedBody, this._proxyHandler)
 
         return app
     }

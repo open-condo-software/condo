@@ -77,12 +77,13 @@ class UploadingFile {
  * @param {string} filePath - absolute path to the upload file on the local disk
  * @param {Object} fileMeta - file meta, that should be attached to FileRecord
  * @param {Object} user - result of 'createTestUser'
+ * @param {string} [serverUrl] - url of server to which upload the file
  * @returns {Promise<UploadingFile>}
  */
-async function getUploadingFile (filePath, fileMeta, user) {
+async function getUploadingFile (filePath, fileMeta, user, serverUrl) {
     const fileSecret = conf['FILE_SECRET']
     const fileClient = conf['FILE_CLIENT_ID']
-    const fileServiceUrl = `${getTestFileServiceOrigin()}/api/files/upload`
+    const fileServiceUrl = `${serverUrl ?? getTestFileServiceOrigin()}/api/files/upload`
 
     // NOTE: Old way to upload file. Keep that for backward compatibility
     if (!fileSecret || !fileClient) {
@@ -93,10 +94,9 @@ async function getUploadingFile (filePath, fileMeta, user) {
     form.append('file', fs.readFileSync(filePath), path.basename(filePath))
     form.append('meta', JSON.stringify(fileMeta))
 
-    const response = await fetch(fileServiceUrl, {
+    const response = await user.fetch(fileServiceUrl, {
         method: 'POST',
         body: form,
-        headers: { Cookie: user.getCookie() },
     })
     const json = await response.json()
 
@@ -572,7 +572,8 @@ const makeApolloClient = (serverUrl, opts = {}) => {
         fetch: (uri, options) => {
             options.headers = {
                 ...options.headers,
-                'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders,
+                'feature-flags': JSON.stringify(Array.from(featureFlagsStore)),
+                ...customHeaders,
             }
 
             if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls

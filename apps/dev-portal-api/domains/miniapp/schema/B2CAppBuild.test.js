@@ -7,7 +7,7 @@ const path = require('path')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { makeClient, UploadingFile } = require('@open-condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -68,7 +68,7 @@ describe('B2CAppBuild', () => {
             })
             test('Anonymous cannot', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestB2CAppBuild(anonymous, app)
+                    await createTestB2CAppBuild(anonymous, app, { data: null })
                 })
             })
         })
@@ -180,7 +180,7 @@ describe('B2CAppBuild', () => {
             test('Must be a zip-archive', async () => {
                 await expectToThrowGQLError(async () => {
                     await createTestB2CAppBuild(user, app, {
-                        data: new UploadingFile(NON_ZIP_ASSET_PATH),
+                        data: NON_ZIP_ASSET_PATH,
                     })
                 }, {
                     code: 'BAD_USER_INPUT',
