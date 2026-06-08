@@ -178,6 +178,7 @@ const FileMetaSignatureSchema = z.object({
 
 const FileUploadMetaSchema = z.object({
     id: z.uuid(),
+    mimetype: z.string().min(1),
     dv: z.literal(1),
     sender: z.object({
         dv: z.literal(1),
@@ -398,10 +399,10 @@ function fileStorageHandler ({ keystone, appClients }) {
         let result = []
         if (!inlineAttach) {
             // classic behavior
-            result = fileRecords.map(file => ({
+            result = fileRecords.map((file, index) => ({
                 id: file.id,
                 signature: jwt.sign(
-                    { id: file.id, ...file.fileMeta.meta },
+                    { id: file.id, mimetype: files[index].mimetype, ...file.fileMeta.meta },
                     appClient.secret,
                     { expiresIn: '5m', algorithm: 'HS256' }
                 ),
@@ -414,7 +415,7 @@ function fileStorageHandler ({ keystone, appClients }) {
             }
 
             // Attach all uploaded files to the same item/model
-            result = await Promise.all(fileRecords.map(async (fileRecord) => {
+            result = await Promise.all(fileRecords.map(async (fileRecord, index) => {
                 const fileMeta = fileRecord.fileMeta
                 const originalAttachments = fileRecord.attachments?.attachments
 
@@ -437,7 +438,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                 return {
                     id: updated.id,
                     signature: jwt.sign(
-                        { id: updated.id, ...fileMeta.meta },
+                        { id: updated.id, mimetype: files[index].mimetype, ...fileMeta.meta },
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),
@@ -527,7 +528,7 @@ function fileShareHandler ({ keystone, appClients }) {
                 file: {
                     id: sharedFile.id,
                     signature: jwt.sign(
-                        { id: sharedFile.id, ...sharedFile.fileMeta.meta },
+                        { id: sharedFile.id, mimetype: fileRecord.fileMimeType, ...sharedFile.fileMeta.meta },
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),

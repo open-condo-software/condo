@@ -813,6 +813,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 const { success } = validateFileUploadSignature(decryptedData)
                 // Check encrypted shape has an expected shape
                 expect(success).toBeTruthy()
+                expect(decryptedData.mimetype).toBe('image/png')
             })
 
             test('uploading multiple files should be possible', async () => {
@@ -899,8 +900,11 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 const sharedFile = shareResultJson.data.file
                 const decryptedData = jwt.verify(sharedFile.signature, appClients[Object.keys(appClients)[1]].secret, { algorithms: ['HS256'] })
 
+                const { success } = validateFileUploadSignature(decryptedData)
+                expect(success).toBeTruthy()
                 expect(decryptedData).toEqual(expect.objectContaining({
                     id: decryptedData.id,
+                    mimetype: 'image/png',
                     exp: decryptedData.exp,
                     iat: decryptedData.iat,
                     dv: 1,
