@@ -155,7 +155,7 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
             _asyncContext.set(req, { auth })
 
         } catch (err) {
-            _throwErr(err, res)
+            return _throwErr(err, res)
         }
 
         proxy.web(req, res, {}, (err) => {
