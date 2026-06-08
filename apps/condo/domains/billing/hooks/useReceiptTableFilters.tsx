@@ -80,7 +80,7 @@ const getAddressKeyInitialValueQuery = (initialValue: string | string[]): WhereT
     return { addressKey_in: addressKeys }
 }
 
-export function useReceiptTableFilters (defaultPeriod: string, search: string, contextIds: string[] = []): Array<TableFiltersMeta<BillingReceiptWhereInput>>  {
+export function useReceiptTableFilters (defaultPeriod: string | null, search: string, contextIds: string[] = []): Array<TableFiltersMeta<BillingReceiptWhereInput>>  {
     const intl = useIntl()
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
@@ -103,7 +103,7 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string, c
     const categoryOptions = useMemo(() => convertToOptions(categories, 'name', 'id'), [categoryOptionsKey])
     return useMemo(() => {
         return [
-            { keyword: 'period', filters: [periodFilter], defaultValue: defaultPeriod },
+            { keyword: 'period', filters: [periodFilter], defaultValue: defaultPeriod || undefined },
             { keyword: 'search', filters: [addressStringContainsFilter, unitNameFilter, accountFilter, fullNameFilter, categorySearchFilter], combineType: 'OR' },
             {
                 keyword: 'address',
