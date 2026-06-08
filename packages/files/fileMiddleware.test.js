@@ -813,6 +813,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 const { success } = validateFileUploadSignature(decryptedData)
                 // Check encrypted shape has an expected shape
                 expect(success).toBeTruthy()
+                expect(decryptedData.mimetype).toBe('image/png')
             })
 
             test('uploading multiple files should be possible', async () => {
