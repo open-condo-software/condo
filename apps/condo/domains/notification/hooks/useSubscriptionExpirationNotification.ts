@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useMemo, useCallback } from 'react'
 
@@ -36,7 +37,7 @@ interface SubscriptionExpirationNotification {
 export const useSubscriptionExpirationNotification = (): SubscriptionExpirationNotification => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscriptionContext, daysRemaining } = useOrganizationSubscription()
+    const { subscriptionContext, activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
 
     const organizationId = organization?.id
 
@@ -63,6 +64,11 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
     }, [createdAt, readSubscriptionExpirationMessageAt, storage, organizationId])
 
     const hasPaymentMethod = Boolean(subscriptionContext?.bindingId)
+
+    const daysRemaining = useMemo(() => {
+        if (!activeSubscriptionEndAtWithoutBuffer) return null
+        return Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true))
+    }, [activeSubscriptionEndAtWithoutBuffer])
 
     const messageContent = useMemo(() => {
         if (daysRemaining === null || daysRemaining > DAYS_BEFORE_EXPIRATION_TO_SHOW || daysRemaining < 0) {

@@ -142,11 +142,18 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
     const ExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
 
-    const { subscriptionContext, daysRemaining } = useOrganizationSubscription()
+    const { subscriptionContext, activeSubscriptionEndAt, activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
 
     const activePlanId = subscriptionContext?.subscriptionPlan?.id
     const isActivePlan = activePlanId === plan?.id
     const isTrialExpired = !!activatedTrial
+
+    const daysRemainingWithoutBuffer = activeSubscriptionEndAtWithoutBuffer
+        ? Math.max(0, Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true)))
+        : 0
+    const daysRemainingWithBuffer = activeSubscriptionEndAt
+        ? Math.max(0, Math.ceil(dayjs(activeSubscriptionEndAt).diff(dayjs(), 'day', true)))
+        : 0
 
     let badgeMessage: string | null = null
     let bgColor = colors.gray[7]
@@ -160,11 +167,14 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
 
         if (hasPaymentMethod) {
             badgeMessage = ActiveMessage
-        } else if (daysRemaining !== null && daysRemaining <= 30) {
-            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemaining })
+        } else if (isInBufferPeriod) {
+            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithBuffer })
+            bgColor = colors.red[5]
+        } else if (daysRemainingWithoutBuffer > 0 && daysRemainingWithoutBuffer <= 30) {
+            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithoutBuffer })
 
-            if (daysRemaining <= 7) bgColor = colors.orange[5]
-            if (daysRemaining <= 1) bgColor = colors.red[5]
+            if (daysRemainingWithoutBuffer <= 7) bgColor = colors.orange[5]
+            if (daysRemainingWithoutBuffer <= 1) bgColor = colors.red[5]
         } else {
             badgeMessage = ActiveMessage
         }
@@ -192,7 +202,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
-    const { subscriptionContext: activeSubscriptionContext, daysRemaining } = useOrganizationSubscription()
+    const { subscriptionContext: activeSubscriptionContext, activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
 
     const { plan, prices } = planInfo
@@ -385,8 +395,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId
 
-    const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0
-        ? dayjs().add(daysRemaining, 'day')
+    const endDate = isActivePlan && activeSubscriptionEndAtWithoutBuffer?.isAfter(dayjs())
+        ? activeSubscriptionEndAtWithoutBuffer
         : null
     const currentYear = dayjs().year()
     const isCurrentYear = endDate?.year() === currentYear

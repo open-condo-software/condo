@@ -22,51 +22,59 @@ export const SubscriptionDaysIndicator: React.FC = () => {
     const intl = useIntl()
     const { useFlag } = useFeatureFlags()
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
-    const { subscriptionContext, daysRemaining, daysRemainingWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
+    const { subscriptionContext, activeSubscriptionEndAt, activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
 
     const isTrial = subscriptionContext?.isTrial
     const planName = subscriptionContext?.subscriptionPlan?.name || ''
-    const endDate = subscriptionContext?.endAt ? dayjs(subscriptionContext.endAt).format('DD.MM.YY') : ''
+    const endDate = activeSubscriptionEndAtWithoutBuffer ? activeSubscriptionEndAtWithoutBuffer.format('DD.MM.YY') : ''
 
     const hasPaymentMethod = Boolean(subscriptionContext?.bindingId)
-    
+
+    const daysRemaining = useMemo(() => {
+        if (!activeSubscriptionEndAt) return 0
+        return Math.max(0, Math.ceil(dayjs(activeSubscriptionEndAt).diff(dayjs(), 'day', true)))
+    }, [activeSubscriptionEndAt])
+
+    const daysRemainingWithoutBuffer = useMemo(() => {
+        if (!activeSubscriptionEndAtWithoutBuffer) return 0
+        return Math.max(0, Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true)))
+    }, [activeSubscriptionEndAtWithoutBuffer])
+
     const shouldShow = useMemo(() => {
-        if (!subscriptionContext || daysRemaining === undefined || daysRemaining === null) return false
+        if (!subscriptionContext || !activeSubscriptionEndAt) return false
 
         if (daysRemaining > 365) return false
 
         if (hasPaymentMethod && !isInBufferPeriod) return false
-        
-        if (isTrial && daysRemainingWithoutBuffer >= 0) {
+
+        if (isTrial && daysRemainingWithoutBuffer > 0) {
             return true
         }
-        
-        if (!isTrial && daysRemainingWithoutBuffer <= DAYS_TO_SHOW_PAID_INDICATOR && daysRemainingWithoutBuffer >= 0) {
+
+        if (!isTrial && daysRemainingWithoutBuffer > 0 && daysRemainingWithoutBuffer <= DAYS_TO_SHOW_PAID_INDICATOR) {
             return true
         }
-        
+
         if (!isTrial && isInBufferPeriod && daysRemaining > 0) {
             return true
         }
-        
+
         return false
-    }, [subscriptionContext, isTrial, daysRemaining, daysRemainingWithoutBuffer, isInBufferPeriod, hasPaymentMethod])
+    }, [subscriptionContext, activeSubscriptionEndAt, isTrial, daysRemaining, daysRemainingWithoutBuffer, isInBufferPeriod, hasPaymentMethod])
 
     const progressPercent = useMemo(() => {
-        if (daysRemaining === undefined || daysRemaining === null) return 0
-        
         if (isInBufferPeriod) {
             return Math.round((daysRemaining / MAX_VALUE_IN_PAID_INDICATOR) * 100)
         }
-        
+
         if (isTrial) {
             const trialDays = subscriptionContext?.subscriptionPlan?.trialDays || 0
             const maxDays = Math.max(trialDays, daysRemaining)
-            
+
             if (maxDays > 0) {
                 return Math.round((daysRemainingWithoutBuffer / maxDays) * 100)
             }
-            
+
             return 0
         } else {
             return Math.round((daysRemainingWithoutBuffer / MAX_VALUE_IN_PAID_INDICATOR) * 100)
@@ -77,11 +85,11 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         if (isInBufferPeriod) {
             return colors.red[5]
         }
-        
+
         if (!daysRemainingWithoutBuffer) {
             return BRAND_GRADIENT
         }
-        
+
         if (daysRemainingWithoutBuffer <= 1) {
             return colors.red[5]
         }
@@ -98,7 +106,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
                 { planName, days: daysRemaining }
             )
         }
-        
+
         if (isTrial) {
             return intl.formatMessage(
                 { id: 'subscription.daysIndicator.tooltip.trial' },
