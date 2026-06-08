@@ -528,7 +528,7 @@ function fileShareHandler ({ keystone, appClients }) {
                 file: {
                     id: sharedFile.id,
                     signature: jwt.sign(
-                        { id: sharedFile.id, mimetype: sharedFile.fileMeta.mimetype, ...sharedFile.fileMeta.meta },
+                        { id: sharedFile.id, mimetype: fileRecord.fileMimeType, ...sharedFile.fileMeta.meta },
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),
