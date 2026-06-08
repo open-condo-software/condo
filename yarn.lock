@@ -12037,7 +12037,6 @@ __metadata:
     "@open-keystone/fields": ^25.0.19
     "@open-keystone/fields-authed-relationship": ^2.0.30
     "@open-keystone/fields-markdown": ^7.0.19
-    "@open-keystone/fields-wysiwyg-tinymce": ^7.0.19
     "@open-keystone/file-adapters": ^7.1.7
     "@open-keystone/keystone": ^19.4.32
     "@open-keystone/server-side-graphql-client": ^2.1.5
@@ -12635,27 +12634,6 @@ __metadata:
     "@open-keystone/fields": ^25.0.19
     react: ^18.3.1
   checksum: cfe314544a5ef2728ae9d2671c5f58edddb37fda7c08b1c94738aa24613240b51f89c3e8b5693502d09b020ce7d17d415e059cbd54bf76d680aee5a2dd741e2f
-  languageName: node
-  linkType: hard
-
-"@open-keystone/fields-wysiwyg-tinymce@npm:^7.0.19":
-  version: 7.0.19
-  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:7.0.19"
-  dependencies:
-    "@babel/runtime": ^7.14.6
-    "@emotion/core": ^10.1.1
-    "@open-arch-ui/fields": ^4.0.1
-    "@open-arch-ui/input": ^1.0.1
-    "@open-arch-ui/theme": ^1.0.1
-    "@open-keystone/fields": ^25.0.19
-    "@primer/octicons-react": ^11.3.0
-    "@tinymce/tinymce-react": ^3.12.6
-    prop-types: ^15.7.2
-    react: ^18.3.1
-    tinymce: ^5.8.1
-  peerDependencies:
-    express: ^4.17.1
-  checksum: 260f6edc74b284a4cbdb7a5791a9f2a4926e9a84789b7efdfa5fe4759d4562461510f568e682a6b5e800b3e75e52ed3c14cf3756c6866800392cb7afd82b218e
   languageName: node
   linkType: hard
 
@@ -15251,19 +15229,6 @@ __metadata:
   resolution: "@ticket-importer/domains@link:./domains::locator=%40app%2Fticket-importer%40workspace%3Aapps%2Fticket-importer"
   languageName: node
   linkType: soft
-
-"@tinymce/tinymce-react@npm:^3.12.6":
-  version: 3.14.0
-  resolution: "@tinymce/tinymce-react@npm:3.14.0"
-  dependencies:
-    prop-types: ^15.6.2
-    tinymce: ^5.5.1
-  peerDependencies:
-    react: ^18.0.0 || ^17.0.1 || ^16.7.0
-    react-dom: ^18.0.0 || ^17.0.1 || ^16.7.0
-  checksum: e8b1b83c71f297a318cc66b0546961e975e60f64c91d38395e3c46d62f9663cba49b2b78165ce5c648f7b651d5f6dc9cef66a00380fbc33d788078f9194ec638
-  languageName: node
-  linkType: hard
 
 "@tiptap/core@npm:^3.20.0":
   version: 3.20.0
@@ -46456,13 +46421,6 @@ __metadata:
     fdir: ^6.4.2
     picomatch: ^4.0.2
   checksum: 7e2ffe262ebc149036bdef37c56b32d02d52cf09efa7d43dbdab2ea3c12844a4da881058835ce4c74d1891190e5ad5ec5133560a11ec8314849b68ad0d99d3f4
-  languageName: node
-  linkType: hard
-
-"tinymce@npm:^5.5.1, tinymce@npm:^5.8.1":
-  version: 5.10.5
-  resolution: "tinymce@npm:5.10.5"
-  checksum: a3251922019dd82a87dcb80a41f46d289781a88efd8644d0227618ca9983159008c8ebb61ab8d99fcf94da8a69946b78c9e1e73eaa53b5c7eeb2e6fa8b58c1bb
   languageName: node
   linkType: hard
 

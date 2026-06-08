@@ -125,7 +125,7 @@ const Organization = new GQLListSchema('Organization', {
         },
         description: {
             schemaDoc: 'Customer-friendly description. Friendly text for employee and resident users',
-            type: 'Wysiwyg',
+            type: 'Text',
             isRequired: false,
         },
         avatar: {
