@@ -394,33 +394,6 @@ describe('SubscriptionContext', () => {
         })
 
 
-        test('daysRemaining is calculated correctly', async () => {
-            const startAt = dayjs().format('YYYY-MM-DD')
-            const endAt = dayjs().add(10, 'day').format('YYYY-MM-DD')
-
-            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt,
-                endAt,
-                isTrial: true,
-            })
-
-            expect(obj.daysRemaining).toBeGreaterThanOrEqual(9)
-            expect(obj.daysRemaining).toBeLessThanOrEqual(10)
-        })
-
-        test('daysRemaining returns 0 for expired subscription', async () => {
-            const startAt = dayjs().subtract(20, 'day').format('YYYY-MM-DD')
-            const endAt = dayjs().subtract(5, 'day').format('YYYY-MM-DD')
-
-            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt,
-                endAt,
-                isTrial: true,
-            })
-
-            expect(obj.daysRemaining).toBe(0)
-        })
-
         describe('Overlapping subscription validation', () => {
             test('cannot create overlapping subscriptions with same plan and isTrial', async () => {
                 await createTestSubscriptionContext(admin, organization, subscriptionPlan, {

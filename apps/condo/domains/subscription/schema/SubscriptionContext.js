@@ -199,24 +199,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        daysRemaining: {
-            schemaDoc: 'Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired',
-            type: 'Virtual',
-            graphQLReturnType: 'Int',
-            resolver: (item) => {
-                if (!item.endAt) return null
-
-                const now = dayjs()
-                const endAt = dayjs(item.endAt)
-                const diffInHours = endAt.diff(now, 'hour', true)
-                const diffDays = Math.ceil(diffInHours / 24)
-
-                if (diffDays <= 0) return 0
-
-                return diffDays
-            },
-        },
-
     },
     hooks: {
         validateInput: async ({ resolvedData, existingItem, context, operation }) => {

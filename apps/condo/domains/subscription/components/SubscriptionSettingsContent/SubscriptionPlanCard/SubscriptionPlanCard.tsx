@@ -146,7 +146,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
 
     const activePlanId = subscriptionContext?.subscriptionPlan?.id
     const isActivePlan = activePlanId === plan?.id
-    const isTrialExpired = activatedTrial?.daysRemaining === 0
+    const isTrialExpired = !!activatedTrial
 
     let badgeMessage: string | null = null
     let bgColor = colors.gray[7]
