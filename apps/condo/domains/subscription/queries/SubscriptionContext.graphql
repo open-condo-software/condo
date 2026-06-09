@@ -94,6 +94,10 @@ query getSubscriptionContextById($id: ID!) {
             canBePromoted
             trialDays
         }
+        subscriptionPlanPricingRule {
+            id
+            name
+        }
         invoice {
             id
             toPay

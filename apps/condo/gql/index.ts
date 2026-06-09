@@ -6215,6 +6215,10 @@ export const GetSubscriptionContextByIdDocument = gql`
       canBePromoted
       trialDays
     }
+    subscriptionPlanPricingRule {
+      id
+      name
+    }
     invoice {
       id
       toPay

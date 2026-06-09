@@ -411,12 +411,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         ? autoPaymentEndDate.format(autoPaymentEndDate.year() === currentYear ? 'D MMMM' : 'D MMMM YYYY')
         : formattedDate
 
+    const pricingRuleName = activeSubscriptionContext?.subscriptionPlanPricingRule?.name
+
     const dateMessage = useMemo(() => {
         if (isActivePlan && formattedDate) {
-            if (isCustomPrice) {
-                return `✅ ${intl.formatMessage({ id: 'subscription.planCard.custom.paidUntil' }, { date: formattedDate })}`
-            } else if (isFreeForPartner) {
+            if (isFreeForPartner) {
                 return `✅ ${FreeForPartnerMessage}`
+            } else if (isCustomPrice) {
+                return `✅ ${pricingRuleName ?? intl.formatMessage({ id: 'subscription.planCard.custom.paidUntil' }, { date: formattedDate })}`
             } else if (hasPaymentMethodForActivePlan && autoPaymentFormattedDate) {
                 return ` /${intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: autoPaymentFormattedDate })}`
             } else if (isNonTrialWithEndDate && endsInLessThan10Years) {
@@ -425,7 +427,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         } else if (!isCustomPrice && !isFreeForPartner) {
             return ` /${PeriodMessage}`
         }
-    }, [FreeForPartnerMessage, PeriodMessage, endsInLessThan10Years, formattedDate, hasPaymentMethodForActivePlan, intl, isActivePlan, isCustomPrice, isFreeForPartner, isNonTrialWithEndDate, autoPaymentFormattedDate])
+    }, [FreeForPartnerMessage, PeriodMessage, endsInLessThan10Years, formattedDate, hasPaymentMethodForActivePlan, intl, isActivePlan, isCustomPrice, isFreeForPartner, isNonTrialWithEndDate, autoPaymentFormattedDate, pricingRuleName])
 
 
     const displayPrice = useMemo(() => {
