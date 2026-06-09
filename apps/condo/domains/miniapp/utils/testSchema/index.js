@@ -1014,7 +1014,7 @@ async function updateTestB2CAppIntercomConfig (client, id, extraAttrs = {}) {
 }
 
 
-async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type = 'b2c', resident, nativeCallData = {}, b2cAppCallData = {} }) {
+async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type = 'b2c', resident, nativeCallData = {}, b2cAppCallData = {}, callerId }) {
     if (!admin) admin = await makeLoggedInAdminClient()    
     
     const callId = faker.datatype.uuid()
@@ -1026,6 +1026,7 @@ async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type 
         unitType: resident.unitType,
         callData: {
             callId,
+            callerId,
             ...type === 'b2c' 
                 ? { b2cAppCallData: { B2CAppContext: '', ...b2cAppCallData } }
                 : { 
