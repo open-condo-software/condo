@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
+const { z } = require('zod')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, NOT_FOUND } } = require('@open-condo/keystone/errors')
@@ -26,6 +27,7 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+
 
 
 const SERVER_URL = conf.SERVER_URL
@@ -109,6 +111,21 @@ function getSendDTMFTimeout () {
     return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
 }
 
+function isNonEmptyObject (obj) {
+    return typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).length > 0
+}
+
+const CUSTOM_CONTEXT_NATIVE_DATA_SCHEMA = z.object({
+    streamUrl: z.url().optional().catch(),
+    voipPanels: z.array(
+        z.object({
+            name: z.string().optional().catch(),
+            dtmfCommand: z.string(),
+            openUrl: z.string().optional().catch(),
+        }).catch()
+    ).optional().catch(() => ([])).transform((arr) => arr.filter(Boolean)),
+})
+
 function prepareVoIPCallStartMessageData ({ 
     callData, 
     b2cApp: { id: b2cAppId, name: b2cAppName },
@@ -118,6 +135,7 @@ function prepareVoIPCallStartMessageData ({
     customVoIPValues = {},
     hasSendDTMFUrl,
     sender,
+    customContext,
 }) {
     // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
     let preparedDataArgs = {
@@ -183,7 +201,33 @@ function prepareVoIPCallStartMessageData ({
         }
     }
 
-    for (const jsonKey of ['voipPanels', 'stunServers']) {
+    if (customContext?.data) {
+        if (isNonEmptyObject(customContext.data.B2CAppContext_spread)) {
+            preparedDataArgs.B2CAppContext = { ...preparedDataArgs.B2CAppContext, ...customContext.data.B2CAppContext_spread }
+        }
+        const { data: nativeData, success } = CUSTOM_CONTEXT_NATIVE_DATA_SCHEMA.safeParse(customContext.data.nativeData)
+        if (success) {
+            if (nativeData.streamUrl) {
+                preparedDataArgs.streamUrl = nativeData.streamUrl
+            }
+            const originalVoIPPanelsByDtmfCommand = (preparedDataArgs.voipPanels || []).reduce((byDtmf, panel) => {
+                byDtmf[panel.dtmfCommand] = panel
+            })
+            for (const voipPanel of nativeData.voipPanels) {
+                if (originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand]) {
+                    Object.assign(originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand], voipPanel)
+                } else {
+                    if (!preparedDataArgs.voipPanels) preparedDataArgs.voipPanels = []
+                    preparedDataArgs.voipPanels.push(voipPanel)
+                }
+            }
+            if (preparedDataArgs.voipPanels.length && !preparedDataArgs.voipDtfmCommand) {
+                preparedDataArgs.voipDtfmCommand = preparedDataArgs.voipPanels[0].dtmfCommand
+            }
+        }
+    }
+
+    for (const jsonKey of ['voipPanels', 'stunServers', 'B2CAppContext']) {
         if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey]) continue
         preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
     }
@@ -411,6 +455,20 @@ async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessage
     }, {})
 }
 
+async function getCustomB2CAppContext ({ context, propertyId, callerId }) {
+    if (!propertyId || !callerId) return null
+
+    return await CustomValue.getOne(context, {
+        customField: {
+            name: 'voipB2CAppContext',
+            modelName: 'Property',
+            deletedAt: null,
+        },
+        itemId: propertyId,
+        uniqKey: `sipFromUser:${callerId}`,
+    }, 'id data')
+}
+
 function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
     const sendMessageStats = sendMessagePromisesResults.map(promiseResult => {
         if (promiseResult.status === 'rejected') {
@@ -541,6 +599,8 @@ module.exports = {
     getLogInfoFn,
     checkLimits,
     getInitialLogContext,
+
+    getCustomB2CAppContext,
 
     RejectCallError,
 

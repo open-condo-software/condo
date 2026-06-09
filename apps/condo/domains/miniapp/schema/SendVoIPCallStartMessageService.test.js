@@ -24,6 +24,8 @@ const {
     createTestCustomValue,
     createTestAppMessageSetting,
     createTestCustomField,
+    prepareVoIPUser,
+    makeStartCallRequest,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { getCallStatus, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
 const {
@@ -843,5 +845,107 @@ describe('SendVoIPCallStartMessageService', () => {
                 Object.fromEntries(customFieldNames.map(fieldName => ([fieldName, customValue])))
             ))
         })
+
+        describe('bs', () => {
+
+            let customB2CAppContextField
+
+            beforeAll(async () => {
+                [customB2CAppContextField] = await createTestCustomField(admin, {
+                    name: 'voipB2CAppContext',
+                    modelName: 'Property',
+                    type: 'Json',
+                    validationRules: {
+                        'type': 'object',
+                        'properties': {
+                            'nativeData': {
+                                'type': 'object',
+                                'properties': {
+                                    'streamUrl': {
+                                        'type': 'string',
+                                        // 'format': 'uri', NOTE: says that this format is unknown, need to check why
+                                    },
+                                    'voipPanels': {
+                                        'type': 'array',
+                                        'items': {
+                                            'type': 'object',
+                                            'properties': {
+                                                'name': { 'type': 'string' },
+                                                'dtmfCommand': { 'type': 'string' },
+                                                'openUrl': { 'type': 'string' },
+                                            },
+                                            'required': ['dtmfCommand'],
+                                            'additionalProperties': false,
+                                        },
+                                    },
+                                },
+                                'additionalProperties': false,
+                            },
+                            'B2CAppContext_spread': {
+                                'type': 'object',
+                                'additionalProperties': true,
+                            },
+                        },
+                        //'required': ['nativeData', 'B2CAppContext_spread'],
+                        'additionalProperties': false,
+                    },
+                    isVisible: false,
+                    priority: 0,
+                    isUniquePerObject: false,
+                    staffCanRead: false,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                })
+            })
+
+            test('d', async () => {
+                const serviceUser = await makeClientWithServiceUser()
+                const [b2cApp] = await createTestB2CApp(admin)
+                const { organization, property } = await makeClientWithResidentAccessAndProperty()
+                await createTestB2CAppProperty(admin, b2cApp, { address: property.address, addressMeta: property.addressMeta })
+                const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+                await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+        
+                const [b2bApp] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
+                const [b2bAppAccessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true, canReadCustomValues: true, canManageCustomValues: true })
+                await createTestB2BAppAccessRight(admin, serviceUser.user, b2bApp, b2bAppAccessRightSet)
+
+                const callerId = faker.random.alphaNumeric(8)
+
+                await createTestCustomValue(serviceUser, customB2CAppContextField, organization, {
+                    sourceType: 'B2BApp',
+                    data: {
+                        B2CAppContext_spread: {
+                            data: { from: 'custom value' },
+                        },
+                    },
+                    itemId: property.id,
+                    sourceId: b2bApp.id,
+                    isUniquePerObject: false,
+                    uniqKey: `sipFromUser:${callerId}`,
+                })
+
+                const unitName = faker.random.alphaNumeric(3)
+                const unitType = FLAT_UNIT_TYPE
+
+                const { resident } = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
+
+                const { msg } = await makeStartCallRequest({ 
+                    admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, type: 'b2c', resident, 
+                    b2cAppCallData: {  B2CAppContext: { some: { default: 'data' } } },
+                    callerId,
+                })
+
+                expect(JSON.parse(msg.meta.data.B2CAppContext)).toEqual(expect.objectContaining({
+                    data: { from: 'custom value' },
+                    some: { default: 'data' },
+                }))
+
+            })
+
+        })
+
     })
+
 })
