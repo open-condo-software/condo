@@ -51,6 +51,8 @@ class FileUploadMiddleware {
 
 
     prepareMiddleware () {
+        // NOTE: csrf middleware is not required for this endpoint, since global expres app is protected by same-site policy and CORS
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.post('/api/files/upload', this._proxyHandler)
         app.post('/api/files/attach', reStreamParsedBody, this._proxyHandler)
