@@ -3,6 +3,8 @@ const get = require('lodash/get')
 const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+
 const getUnitsFromProperty = (property) => (
     [
         ...(get(property, ['map', 'sections'], []) || []),
@@ -15,7 +17,7 @@ const getUnitsFromProperty = (property) => (
 
 const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.units.map(unit => ({
     unitName: unit.label,
-    unitType: unit.unitType,
+    unitType: unit.unitType || FLAT_UNIT_TYPE,
 })))
 
 /**
