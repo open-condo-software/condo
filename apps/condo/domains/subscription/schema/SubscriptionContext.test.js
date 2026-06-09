@@ -602,6 +602,56 @@ describe('SubscriptionContext', () => {
                 expect(obj.id).toMatch(UUID_RE)
             })
 
+            test('cannot update subscription to DONE when another DONE subscription with same plan overlaps on dates', async () => {
+                // Create A as CREATED - no DONE overlaps yet
+                const [contextA] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-15',
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+
+                // Create B as DONE for overlapping dates - allowed because A is CREATED
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                })
+
+                // Updating A to DONE must fail - B is already DONE and overlaps
+                await expectToThrowGQLError(async () => {
+                    await updateTestSubscriptionContext(admin, contextA.id, {
+                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'OVERLAPPING_SUBSCRIPTION',
+                }, 'obj')
+            })
+
+            test('can update subscription to DONE when existing DONE subscription ends exactly at its startAt', async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-01',
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                })
+
+                const [contextB] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+
+                const [updated] = await updateTestSubscriptionContext(admin, contextB.id, {
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                })
+
+                expect(updated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            })
+
             test('allows creating subscription with overlapping dates if existing subscription is not DONE', async () => {
                 const startAt = dayjs().format('YYYY-MM-DD')
                 const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
