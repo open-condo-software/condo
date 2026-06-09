@@ -1034,6 +1034,59 @@ describe('Organization', () => {
             expect(org.subscription.activeSubscriptionContextId).toBeDefined()
         })
 
+        test('activeSubscriptionEndAt chains consecutive non-trial contexts of the same plan', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const endAt1 = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const endAt2 = dayjs().add(60, 'days').format('YYYY-MM-DD')
+            const endAt2WithBuffer = dayjs().add(60 + SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: endAt1,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: endAt1,
+                endAt: endAt2,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.activeSubscriptionEndAt).toBe(endAt2WithBuffer)
+        })
+
+        test('non-trial context in buffer period is still treated as active', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const endAt = dayjs().subtract(2, 'days').format('YYYY-MM-DD')
+            const endAtWithBuffer = dayjs(endAt).add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+                tickets: true,
+            })
+            const [context] = await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.activeSubscriptionContextId).toBe(context.id)
+            expect(org.subscription.activeSubscriptionEndAt).toBe(endAtWithBuffer)
+            expect(org.subscription.paymentsEndAt).toBe(endAtWithBuffer)
+            expect(org.subscription.ticketsEndAt).toBe(endAtWithBuffer)
+        })
+
         test('only selects activeSubscriptionContextId from service subscriptions', async () => {
             const [organization] = await createTestOrganization(admin)
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
