@@ -4,6 +4,7 @@ import { Check, Copy, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Dropdown, Markdown, Tooltip, Typography } from '@open-condo/ui'
 
+import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
 
 import styles from './AIChat.module.css'
@@ -124,11 +125,27 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
         <div className={`${styles.messageWrapper} ${message.role === 'user' ? styles.userMessage : styles.assistantMessage}`}>
             {message.role === 'user' ? (
                 <div className={styles.userMessageContainer}>
-                    {message.copyable === true && (
-                        <div className={styles.userMessageActions}>{copyButton}</div>
-                    )}
-                    <div className={styles.userMessageBubble}>
-                        <Typography.Text>{message.content.text}</Typography.Text>
+                    <div className={styles.userMessageRow}>
+                        {message.copyable === true && message.content.text?.trim() && (
+                            <div className={styles.userMessageActions}>{copyButton}</div>
+                        )}
+                        {(message.content.text?.trim() || message.content.attachments?.length) ? (
+                            <div className={styles.userMessageBubble}>
+                                {message.content.text?.trim() ? (
+                                    <Typography.Text>{message.content.text}</Typography.Text>
+                                ) : null}
+                                {message.content.attachments?.length ? (
+                                    <div className={styles.userMessageAttachments}>
+                                        {message.content.attachments.map((attachment, index) => (
+                                            <AIChatDocument
+                                                key={`${attachment.name}-${index}`}
+                                                name={attachment.name}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             ) : (

@@ -22,7 +22,7 @@
 
 .status {
   display: flex;
-  gap: 12px;
+  gap: var(--condo-global-spacing-12);
   align-items: center;
 }
 
