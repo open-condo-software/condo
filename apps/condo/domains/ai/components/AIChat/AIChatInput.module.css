@@ -1,5 +1,5 @@
 .input-container {
-  padding: 16px 24px;
+  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24);
   background: white;
   border-top: 1px solid #f0f0f0;
 }
@@ -20,13 +20,13 @@
 
 .attachments-container {
   max-height: 210px;
-  margin-bottom: 8px;
+  margin-bottom: var(--condo-global-spacing-8);
   overflow-y: auto;
 }
 
 .attachment-container {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--condo-global-spacing-4);
   width: 100%;
 }

@@ -1,9 +1,9 @@
 .root {
   display: flex;
-  gap: 8px;
+  gap: var(--condo-global-spacing-8);
   align-items: center;
   width: 100%;
-  min-height: 32px;
+  min-height: var(--condo-global-spacing-32);
 }
 
 .icon {
@@ -11,7 +11,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: var(--condo-global-spacing-24);
 }
 
 .file-name-row {
@@ -34,5 +34,5 @@
 
 .remove-button {
   flex-shrink: 0;
-  margin-left: 4px;
+  margin-left: var(--condo-global-spacing-4);
 }

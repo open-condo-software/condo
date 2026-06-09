@@ -61,13 +61,14 @@ export function useChatWithCondoAttachmentsConfig (): ChatWithCondoAttachmentsCo
         const maxFileSizeMbFromFlag = z.coerce.number().positive().safeParse(value.maxFileSizeMb)
         const maxFileSizeInMbFromFlag = z.coerce.number().positive().safeParse(value.maxFileSizeInMb)
 
-        const maxFileSizeMb = maxFileSizeBytesFromFlag.success
-            ? Math.max(1, Math.round(maxFileSizeBytesFromFlag.data / MB))
-            : maxFileSizeMbFromFlag.success
-                ? Math.max(1, Math.round(maxFileSizeMbFromFlag.data))
-                : maxFileSizeInMbFromFlag.success
-                    ? Math.max(1, Math.round(maxFileSizeInMbFromFlag.data))
-                    : DEFAULT_CONFIG.maxFileSizeMb
+        let maxFileSizeMb = DEFAULT_CONFIG.maxFileSizeMb
+        if (maxFileSizeBytesFromFlag.success) {
+            maxFileSizeMb = Math.max(1, Math.round(maxFileSizeBytesFromFlag.data / MB))
+        } else if (maxFileSizeMbFromFlag.success) {
+            maxFileSizeMb = Math.max(1, Math.round(maxFileSizeMbFromFlag.data))
+        } else if (maxFileSizeInMbFromFlag.success) {
+            maxFileSizeMb = Math.max(1, Math.round(maxFileSizeInMbFromFlag.data))
+        }
 
         return {
             mimeTypes: mimeTypes.length > 0 ? mimeTypes : DEFAULT_CONFIG.mimeTypes,

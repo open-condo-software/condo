@@ -12,7 +12,7 @@ import { EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME } from '@condo/domains/ai/consta
 import { useChatWithCondoAttachmentsConfig } from '@condo/domains/ai/hooks/useChatWithCondoAttachmentsConfig'
 import { analytics } from '@condo/domains/common/utils/analytics'
 
-import type { RcFile } from 'antd/es/upload/interface'
+import type { RcFile } from 'antd/lib/upload/interface'
 
 const { publicRuntimeConfig: { fileClientId } } = getConfig()
 
@@ -148,7 +148,7 @@ export function useAIChatAttachments ({ onFileListChange }: UseAIChatAttachments
                 throw new Error('Upload failed')
             }
 
-            void analytics.track('ai_assistant_attachment_upload', {
+            analytics.track('ai_assistant_attachment_upload', {
                 mime_type: (rcFile.type || '').replace(/\s/g, '').split(';')[0].toLowerCase(),
                 size: rcFile.size,
             })
