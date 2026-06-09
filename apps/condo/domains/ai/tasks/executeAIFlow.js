@@ -39,6 +39,8 @@ const ajv = new Ajv()
 
 const taskLogger = getLogger()
 
+const FILE_RECORD_FIELDS = 'id user { id } fileMimeType fileSize fileMeta { filename originalFilename mimetype meta { fileClientId sourceFileClientId modelNames } } fileAdapter'
+
 const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
     const task = executionAIFlowTask
     const executionAIFlowTaskId = task?.id
