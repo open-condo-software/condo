@@ -36,6 +36,21 @@ const INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE = 'incident_rewrite_text_for_
 const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
 const CHAT_WITH_CONDO_FLOW_TYPE = 'chat-with-condo'
 
+// Attachment constants
+const EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME = 'ExecutionAIFlowTaskFile'
+const CHAT_WITH_CONDO_MAX_ATTACHMENTS = 10
+const CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES = 50 * 1024 * 1024
+const CHAT_WITH_CONDO_ALLOWED_MIME_TYPES = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/csv',
+    'text/plain',
+    'application/vnd.ms-excel',
+    'application/msword',
+]
+const CHAT_WITH_CONDO_ALLOWED_FILE_EXTENSIONS = '.pdf,.docx,.xlsx,.csv,.txt,.doc,.xls'
+
 /**
  * list of hardcoded flow types
  *
@@ -225,6 +240,21 @@ const FLOW_META_SCHEMAS = {
                     },
                     required: ['userId', 'organizationId'],
                 },
+                attachments: {
+                    type: 'array',
+                    maxItems: CHAT_WITH_CONDO_MAX_ATTACHMENTS,
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' },
+                            mimeType: { type: 'string', enum: CHAT_WITH_CONDO_ALLOWED_MIME_TYPES },
+                            size: { type: 'number', maximum: CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES },
+                        },
+                        required: ['id', 'name', 'mimeType'],
+                        additionalProperties: false,
+                    },
+                },
             },
             required: ['userInput', 'userData'],
             additionalProperties: true,
@@ -294,4 +324,9 @@ module.exports = {
     FLOW_ADAPTERS,
     CHAT_WITH_CONDO_FLOW_TYPE,
     FLOW_TOKEN_SCOPES,
+    EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME,
+    CHAT_WITH_CONDO_MAX_ATTACHMENTS,
+    CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES,
+    CHAT_WITH_CONDO_ALLOWED_MIME_TYPES,
+    CHAT_WITH_CONDO_ALLOWED_FILE_EXTENSIONS,
 }

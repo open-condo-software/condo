@@ -21,6 +21,10 @@ const {
 
 const {
     TASK_STATUSES,
+    CHAT_WITH_CONDO_ALLOWED_MIME_TYPES,
+    CHAT_WITH_CONDO_MAX_ATTACHMENTS,
+    CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES,
+    CHAT_WITH_CONDO_FLOW_TYPE,
 } = require('@condo/domains/ai/constants')
 const { EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER } = require('@condo/domains/ai/schema/ExecutionAIFlowTask')
 const { executeAIFlow } = require('@condo/domains/ai/tasks/index')
@@ -528,6 +532,138 @@ describe('ExecutionAIFlowTask', () => {
                 expect(foundTask.meta).toEqual(expect.objectContaining({
                     response: expect.objectContaining(FAULTY_FLOWISE_PREDICTION_RESULT),
                 }))
+            })
+        })
+    })
+
+    describe('Attachments validation', () => {
+        test('chat-with-condo context accepts attachments metadata without url', async () => {
+            const task = await ExecutionAIFlowTaskForUser.create(userClient, {
+                dv: 1,
+                sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                user: { connect: { id: userClient.user.id } },
+                flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                context: {
+                    userInput: 'test',
+                    userData: {
+                        userId: userClient.user.id,
+                        organizationId: faker.datatype.uuid(),
+                    },
+                    attachments: [{
+                        id: faker.datatype.uuid(),
+                        name: 'report.pdf',
+                        mimeType: 'application/pdf',
+                        size: 1024,
+                    }],
+                },
+            })
+            const foundTask = await ExecutionAIFlowTask.getOne(adminClient, { id: task.id })
+
+            expect(task.context.attachments).toHaveLength(1)
+            expect(task.context.attachments[0]).not.toHaveProperty('url')
+            expect(foundTask.cleanContext.attachments[0]).not.toHaveProperty('url')
+        })
+
+        test('chat-with-condo rejects attachment with url in client context', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                    context: {
+                        userInput: 'test',
+                        userData: {
+                            userId: userClient.user.id,
+                            organizationId: faker.datatype.uuid(),
+                        },
+                        attachments: [{
+                            id: faker.datatype.uuid(),
+                            name: 'report.pdf',
+                            mimeType: 'application/pdf',
+                            url: 'https://example.com/secret',
+                        }],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+
+        test('chat-with-condo rejects unsupported attachment mimeType', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                    context: {
+                        userInput: 'test',
+                        userData: {
+                            userId: userClient.user.id,
+                            organizationId: faker.datatype.uuid(),
+                        },
+                        attachments: [{
+                            id: faker.datatype.uuid(),
+                            name: 'image.png',
+                            mimeType: 'image/png',
+                            size: 1024,
+                        }],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+
+        test('chat-with-condo rejects attachment with size above limit', async () => {
+            const safeMimeType = CHAT_WITH_CONDO_ALLOWED_MIME_TYPES[0]
+
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                    context: {
+                        userInput: 'test',
+                        userData: {
+                            userId: userClient.user.id,
+                            organizationId: faker.datatype.uuid(),
+                        },
+                        attachments: [
+                            {
+                                id: faker.datatype.uuid(),
+                                name: 'file1.pdf',
+                                mimeType: safeMimeType,
+                                size: CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES + 1,
+                            },
+                        ],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+
+        test('chat-with-condo rejects too many attachments', async () => {
+            const safeMimeType = CHAT_WITH_CONDO_ALLOWED_MIME_TYPES[0]
+            const attachments = Array.from({ length: CHAT_WITH_CONDO_MAX_ATTACHMENTS + 1 }, () => ({
+                id: faker.datatype.uuid(),
+                name: 'report.pdf',
+                mimeType: safeMimeType,
+                size: 1024,
+            }))
+
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                    context: {
+                        userInput: 'test',
+                        userData: {
+                            userId: userClient.user.id,
+                            organizationId: faker.datatype.uuid(),
+                        },
+                        attachments,
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
             })
         })
     })

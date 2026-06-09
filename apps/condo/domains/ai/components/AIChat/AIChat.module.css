@@ -7,15 +7,15 @@
 
 .header-spacer {
   flex-shrink: 0;
-  height: 72px;
+  height: var(--condo-global-spacing-72);
 }
 
 .messages-container {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 24px 24px;
+  gap: var(--condo-global-spacing-12);
+  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24) var(--condo-global-spacing-24);
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -41,7 +41,7 @@
 .welcome-message-configured {
   align-items: flex-start;
   justify-content: flex-start;
-  padding-top: 4px;
+  padding-top: var(--condo-global-spacing-4);
   text-align: left;
 }
 
@@ -61,7 +61,7 @@
   bottom: 0;
   left: 0;
   z-index: 2;
-  padding: 16px 24px;
+  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24);
   backdrop-filter: blur(20px);
 }
 
@@ -77,7 +77,15 @@
 
 .user-message-container {
   display: flex;
-  gap: 4px;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-8);
+  align-items: flex-end;
+  max-width: 100%;
+}
+
+.user-message-row {
+  display: flex;
+  gap: var(--condo-global-spacing-4);
   align-items: center;
   justify-content: flex-end;
   max-width: 100%;
@@ -93,12 +101,23 @@
 }
 
 .user-message-bubble {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-8);
+  align-items: flex-start;
   max-width: 100%;
-  padding: 6px 8px;
+  padding: var(--condo-global-spacing-4) var(--condo-global-spacing-8);
   background: var(--condo-global-color-white);
   border-radius: var(--condo-global-border-radius-medium);
   box-shadow: 0 1px 2px rgb(0 0 0 / 3%);
+}
+
+.user-message-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-4);
+  align-items: flex-start;
+  width: 100%;
 }
 
 .assistant-message {
@@ -109,7 +128,7 @@
 .assistant-message-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--condo-global-spacing-12);
   align-items: flex-start;
   justify-content: flex-start;
   max-width: 100%;
@@ -117,14 +136,14 @@
 
 .assistant-message-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--condo-global-spacing-4);
 }
 
 .assistant-suggestions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  gap: var(--condo-global-spacing-8);
+  margin-top: var(--condo-global-spacing-12);
 }
 
 .assistant-markdown {

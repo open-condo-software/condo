@@ -1,0 +1,38 @@
+.root {
+  display: flex;
+  gap: var(--condo-global-spacing-8);
+  align-items: center;
+  width: 100%;
+  min-height: var(--condo-global-spacing-32);
+}
+
+.icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--condo-global-spacing-24);
+}
+
+.file-name-row {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  align-items: center;
+  min-width: 0;
+}
+
+.base-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--condo-global-color-black);
+}
+
+.extension {
+  flex-shrink: 0;
+}
+
+.remove-button {
+  flex-shrink: 0;
+  margin-left: var(--condo-global-spacing-4);
+}

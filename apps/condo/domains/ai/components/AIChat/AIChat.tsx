@@ -6,9 +6,10 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Input, Markdown, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Markdown, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
+import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
 import { AI_CHAT_BUTTON_CONFIG } from '@condo/domains/common/constants/featureflags'
@@ -16,6 +17,7 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 import styles from './AIChat.module.css'
+import { AIChatInput } from './AIChatInput'
 import { AIChatMessage } from './AIChatMessage'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
@@ -115,9 +117,16 @@ function parseAiChatButtonConfigFromFlag (raw: unknown): AiChatButtonConfig | nu
     return { welcomeMessage, buttons }
 }
 
+export type MessageAttachmentDisplay = {
+    name: string
+    mimeType?: string
+    url?: string
+}
+
 export type MessageContent = {
     text: string
     suggestions?: string[]
+    attachments?: MessageAttachmentDisplay[]
 }
 
 export type Message = {
@@ -128,6 +137,14 @@ export type Message = {
     status?: 'sending' | 'sent' | 'error'
     executionAIFlowTaskId?: string
     copyable?: boolean
+}
+
+type ExecuteAIMessageOptions = {
+    additionalContext?: Record<string, unknown>
+    toolCallDepth?: number
+    messageId?: string | null
+    scenarioButtonId?: string | null
+    attachments?: AIChatAttachmentMeta[]
 }
 
 type AIChatProps = {
@@ -166,8 +183,6 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
-    const inputContainerRef = useRef<HTMLDivElement>(null)
-    const [inputContainerHeight, setInputContainerHeight] = useState(0)
 
     const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
         aiSessionId: aiSessionId,
@@ -220,6 +235,16 @@ export const AIChat: React.FC<AIChatProps> = ({
     const canExecuteAIFlow = useMemo(() => {
         return !(currentTaskId && loading)
     }, [currentTaskId, loading])
+
+    const attachments = useAIChatAttachments({
+        onFileListChange: () => inputRef.current?.focus(),
+    })
+    const attachmentsUploading = attachments ? attachments.uploading : false
+    const canSendWithAttachments = attachments ? attachments.canSendWithAttachments : false
+
+    const canSendMessage = useMemo(() => {
+        return Boolean(inputValue.trim() || canSendWithAttachments) && !attachmentsUploading
+    }, [inputValue, canSendWithAttachments, attachmentsUploading])
 
     const addMessage = useCallback((newMessage: Message) => {
         setMessages(prev => {
@@ -301,26 +326,18 @@ export const AIChat: React.FC<AIChatProps> = ({
         }, 100)
     }, [])
 
-    useEffect(() => {
-        if (!inputContainerRef.current) return
-
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                setInputContainerHeight(entry.contentRect.height)
-            }
-        })
-
-        observer.observe(inputContainerRef.current)
-        return () => observer.disconnect()
-    }, [])
-
     const executeAIMessage = useCallback(async (
         userInput: string,
-        additionalContext?: any,
-        toolCallDepth = 0,
-        messageId: string | null = null,
-        scenarioButtonId?: string | null,
+        options: ExecuteAIMessageOptions = {},
     ) => {
+        const {
+            additionalContext,
+            toolCallDepth = 0,
+            messageId = null,
+            scenarioButtonId = null,
+            attachments: attachmentsForRequest,
+        } = options
+
         if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
             addMessage({
                 id: `depth-error-${Date.now()}`,
@@ -354,6 +371,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                     organizationId: organization?.id,
                     ...additionalContext,
                 },
+                ...(attachmentsForRequest?.length ? { attachments: attachmentsForRequest } : {}),
                 ...(scenarioButtonId ? { button_id: scenarioButtonId } : {}),
             })
 
@@ -449,7 +467,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                         }))
 
                     if (allToolCallResults.length > 0) {
-                        await executeAIMessage('toolCalls:', { toolCalls: allToolCallResults }, toolCallDepth + 1, toolExecutionMessage.id)
+                        await executeAIMessage('toolCalls:', {
+                            additionalContext: { toolCalls: allToolCallResults },
+                            toolCallDepth: toolCallDepth + 1,
+                            messageId: toolExecutionMessage.id,
+                        })
                     }
                 } catch (error) {
                     changeMessage(toolExecutionMessage.id, {
@@ -472,18 +494,27 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute, toolDepthExceededMessage, noResponseMessage, executingToolsMessage, errorExecutingToolsMessage])
 
     const handleSendMessage = async () => {
-        if (!inputValue.trim() || loading || !user) return
+        const trimmedInput = inputValue.trim()
+        const canSend = (trimmedInput || canSendWithAttachments) && !loading && !attachmentsUploading && user
+        if (!canSend) return
 
+        const attachmentsToSend = attachments ? [...attachments.readyAttachments] : []
         const isFirstInSession = !messages.some((msg) => msg.role === 'user')
         void analytics.track('ai_assistant_message_send', {
             source: 'typed',
             is_first_in_session: isFirstInSession,
             location: typeof window !== 'undefined' ? window.location.href : '',
+            attachments_count: attachmentsToSend.length,
         })
 
         const userMessage: Message = {
             id: Date.now().toString(),
-            content: { text: inputValue.trim() },
+            content: {
+                text: trimmedInput,
+                ...(attachmentsToSend.length ? {
+                    attachments: attachmentsToSend.map(({ name, mimeType }) => ({ name, mimeType })),
+                } : {}),
+            },
             role: 'user',
             timestamp: new Date(),
             status: 'sent',
@@ -492,10 +523,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         addMessage(userMessage)
 
-        const currentInput = inputValue.trim()
         setInputValue('')
+        attachments?.resetAttachments()
 
-        await executeAIMessage(currentInput)
+        await executeAIMessage(trimmedInput, { attachments: attachmentsToSend })
     }
 
     const handleScenarioButtonClick = useCallback(async (buttonId: string, buttonName: string) => {
@@ -506,6 +537,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             source: 'scenario_button',
             is_first_in_session: isFirstInSession,
             location: typeof window !== 'undefined' ? window.location.href : '',
+            attachments_count: 0,
             button_id: buttonId,
             button_name: buttonName,
         })
@@ -520,7 +552,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         addMessage(userMessage)
-        await executeAIMessage(buttonName, undefined, 0, null, buttonId)
+        await executeAIMessage(buttonName, { scenarioButtonId: buttonId })
     }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
 
     const handleSuggestionButtonClick = useCallback(async (suggestedText: string) => {
@@ -531,6 +563,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             source: 'suggestion',
             is_first_in_session: isFirstInSession,
             location: typeof window !== 'undefined' ? window.location.href : '',
+            attachments_count: 0,
             button_name: suggestedText,
         })
 
@@ -547,12 +580,15 @@ export const AIChat: React.FC<AIChatProps> = ({
         await executeAIMessage(suggestedText)
     }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault()
-            handleSendMessage()
+    const handleComposerKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key !== 'Enter' || e.shiftKey) return
+
+        e.preventDefault()
+
+        if (canSendMessage && canExecuteAIFlow) {
+            void handleSendMessage()
         }
-    }
+    }, [canExecuteAIFlow, canSendMessage, handleSendMessage])
 
     return (
         <div className={styles.chatContainer}>
@@ -624,21 +660,19 @@ export const AIChat: React.FC<AIChatProps> = ({
                     ))
                 )}
                 <div ref={messagesEndRef} />
-                <div className={styles.inputSpacer} style={{ height: inputContainerHeight }} />
             </div>
 
-            <div ref={inputContainerRef} className={styles.inputContainer}>
-                <Input.TextArea
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    onSubmit={() => handleSendMessage()}
-                    placeholder={placeholder}
-                    disabled={!canExecuteAIFlow}
-                    autoSize={{ minRows: 1, maxRows: 4 }}
-                />
-            </div>
+            <AIChatInput
+                attachments={attachments}
+                canExecuteAIFlow={canExecuteAIFlow}
+                canSendMessage={canSendMessage}
+                inputRef={inputRef}
+                inputValue={inputValue}
+                onInputChange={setInputValue}
+                onInputKeyDown={handleComposerKeyDown}
+                onSendMessage={() => void handleSendMessage()}
+                placeholder={placeholder}
+            />
         </div>
     )
 }

@@ -1,7 +1,9 @@
 const Ajv = require('ajv')
 
 const conf = require('@open-condo/config')
+const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
@@ -11,6 +13,8 @@ const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
     FLOW_ADAPTERS: FLOW_ADAPTER_NAMES,
+    CHAT_WITH_CONDO_FLOW_TYPE,
+    EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME,
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
 const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
@@ -34,6 +38,8 @@ const FLOW_ADAPTERS = {
 const ajv = new Ajv()
 
 const taskLogger = getLogger()
+
+const FILE_RECORD_FIELDS = 'id user { id } fileMimeType fileSize fileMeta { filename originalFilename mimetype meta { fileClientId sourceFileClientId modelNames } } fileAdapter'
 
 const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
     const task = executionAIFlowTask
@@ -87,6 +93,65 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             locale: task.locale,
             aiSessionId: task.aiSessionId,
             ...additionalContext,
+        }
+
+        // TODO (DOMA-13305): Remove this when we persist attachments on a model and can fetch publicUrl via GraphQL.
+        if (
+            task.flowType === CHAT_WITH_CONDO_FLOW_TYPE
+            && Array.isArray(fullContext.attachments)
+            && fullContext.attachments.length > 0
+        ) {
+            const resolvedAttachments = []
+            
+            for (const attachment of fullContext.attachments) {
+                const fileRecord = await FileRecord.getOne(
+                    context.createContext({ skipAccessControl: true }),
+                    {
+                        id: attachment.id,
+                        deletedAt: null,
+                        user: { id: task.user.id },
+                    },
+                    FILE_RECORD_FIELDS,
+                )
+
+                if (!fileRecord) {
+                    throw new Error(`File not found or access denied: ${attachment.id}`)
+                }
+
+                const modelNames = fileRecord.fileMeta?.meta?.modelNames || []
+                if (!modelNames.includes(EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME)) {
+                    throw new Error(`File ${attachment.id} is not an ExecutionAIFlowTaskFile`)
+                }
+
+                const fileMeta = fileRecord.fileMeta || {}
+                const meta = fileMeta.meta || {}
+                const fileClientId = meta.sourceFileClientId || meta.fileClientId
+
+                if (!fileClientId || !fileMeta.filename) {
+                    throw new Error(`Invalid file metadata for: ${attachment.id}`)
+                }
+
+                const fileAdapter = new FileAdapter(fileClientId)
+                const originalFilename = fileMeta.originalFilename || attachment.name
+                const fileSize = Number(fileRecord.fileSize)
+
+                const url = fileAdapter.publicUrl({
+                    id: fileRecord.id,
+                    filename: fileMeta.filename,
+                    originalFilename,
+                    meta,
+                }, { id: task.user.id })
+
+                resolvedAttachments.push({
+                    id: attachment.id,
+                    name: originalFilename,
+                    mimeType: fileRecord.fileMimeType || fileMeta.mimetype,
+                    url,
+                    ...(fileSize ? { size: fileSize } : {}),
+                })
+            }
+
+            fullContext.attachments = resolvedAttachments
         }
 
         let prediction

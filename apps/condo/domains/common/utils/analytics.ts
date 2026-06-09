@@ -80,8 +80,14 @@ type AiAssistantMessageSendEventData = {
     source: 'typed' | 'scenario_button' | 'suggestion'
     is_first_in_session: boolean
     location: string
+    attachments_count: number
     button_id?: string
     button_name?: string
+}
+
+type AiAssistantAttachmentUploadEventData = {
+    mime_type: string
+    size: number
 }
 
 type AiSuggestionsFailureEventData = {
@@ -124,6 +130,7 @@ export type EventsData = {
     'ai_assistant_close': { aiSessionId: string }
     'ai_assistant_open_click': Record<string, never>
     'ai_assistant_message_send': AiAssistantMessageSendEventData
+    'ai_assistant_attachment_upload': AiAssistantAttachmentUploadEventData
     'ai_assistant_reset_history': { aiSessionId: string }
     'ai_suggestions_failure': AiSuggestionsFailureEventData
     'subscription_purchase_click': {
