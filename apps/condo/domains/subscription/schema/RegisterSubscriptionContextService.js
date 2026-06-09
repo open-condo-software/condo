@@ -47,7 +47,7 @@ const ERRORS = {
         variable: ['data', 'subscriptionPlanPricingRule'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
-        message: 'Subscription plan pricing rule not found or is hidden',
+        message: 'Subscription plan pricing rule not found',
         messageForUser: 'api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND',
     },
     INVALID_ORGANIZATION_TYPE: {
@@ -130,7 +130,6 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
 
                 const [pricingRule] = await find('SubscriptionPlanPricingRule', {
                     id: pricingRuleInput.id,
-                    isHidden: false,
                     deletedAt: null,
                 })
                 if (!pricingRule) {
@@ -140,7 +139,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 logger.info({ msg: 'Found pricing rule', data: { pricingRuleId: pricingRule.id, period: pricingRule.period, price: pricingRule.price } })
 
                 const plan = await getById('SubscriptionPlan', pricingRule.subscriptionPlan)
-                if (!plan || plan.isHidden || plan.deletedAt) {
+                if (!plan || plan.deletedAt) {
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 

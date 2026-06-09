@@ -58903,7 +58903,7 @@ type SubscriptionPlan {
   """
   planType: SubscriptionPlanPlanTypeType
 
-  """ Whether this plan is hidden and not available for purchase """
+  """ Whether this plan is hidden from front-end """
   isHidden: Boolean
 
   """ Number of trial days for this plan. If 0, trial activation is not available for this plan 
@@ -109839,7 +109839,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Subscription plan pricing rule not found or is hidden",
+    "message": "Subscription plan pricing rule not found",
     "messageForUser": "Subscription plan pricing rule not found or is hidden"
   }`
   
