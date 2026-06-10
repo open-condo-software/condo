@@ -55,16 +55,6 @@
   max-width: 100%;
 }
 
-.input-container {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 2;
-  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24);
-  backdrop-filter: blur(20px);
-}
-
 .input-spacer {
   flex-shrink: 0;
   height: 84px;
