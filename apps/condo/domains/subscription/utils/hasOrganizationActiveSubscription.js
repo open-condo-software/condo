@@ -1,5 +1,5 @@
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 

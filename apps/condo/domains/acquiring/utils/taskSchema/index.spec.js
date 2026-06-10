@@ -74,6 +74,7 @@ const {
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
     filterNotPayablePayment,
+    filterPaymentsByOrganizationSubscription,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
@@ -85,6 +86,8 @@ const {
     isLimitExceedForBillingReceipts,
     RETRY_COUNT,
 } = require('./index')
+
+const subscriptionUtils = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
 
 const offset = 0
 const pageSize = 10
@@ -2557,6 +2560,130 @@ describe('task schema queries', () => {
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPaymentContext argument')
             })
+        })
+    })
+
+    describe('filterPaymentsByOrganizationSubscription', () => {
+        afterEach(() => {
+            jest.restoreAllMocks()
+        })
+
+        const makePayment = (orgId) => ({
+            id: `payment-${orgId}`,
+            recurrentPaymentContext: {
+                id: `ctx-${orgId}`,
+                serviceConsumer: { organization: { id: orgId } },
+            },
+        })
+
+        it('should keep payments for organizations with active subscription', async () => {
+            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+
+            const payments = [makePayment('org-1'), makePayment('org-2')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(result).toHaveLength(2)
+        })
+
+        it('should remove payments for organizations without active subscription', async () => {
+            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(false)
+
+            const payments = [makePayment('org-1'), makePayment('org-2')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(result).toHaveLength(0)
+        })
+
+        it('should filter mixed: keep subscribed, remove unsubscribed', async () => {
+            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription')
+                .mockImplementation((ctx, orgId) => Promise.resolve(orgId === 'org-subscribed'))
+
+            const payments = [makePayment('org-subscribed'), makePayment('org-no-sub')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(result).toHaveLength(1)
+            expect(result[0].recurrentPaymentContext.serviceConsumer.organization.id).toBe('org-subscribed')
+        })
+
+        it('should return empty array for empty input', async () => {
+            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, [])
+            expect(result).toHaveLength(0)
+        })
+
+        it('should use provided cache to avoid redundant subscription checks', async () => {
+            const spy = jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+            const cache = new Map()
+
+            const payments = [makePayment('org-1'), makePayment('org-1')]
+            await filterPaymentsByOrganizationSubscription(adminContext, payments, cache)
+
+            expect(spy).toHaveBeenCalledTimes(1)
+        })
+    })
+
+    describe('getAllReadyToPayRecurrentPaymentContexts subscription filtering', () => {
+        let admin, date
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            date = dayjs()
+        })
+
+        afterEach(() => {
+            jest.restoreAllMocks()
+        })
+
+        it('should exclude contexts for organizations without active subscription', async () => {
+            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(false)
+
+            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
+            })
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[1].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[1].billingReceipts[0].category.id } },
+            })
+
+            const result = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id1, id2],
+            })
+
+            expect(result).toHaveLength(0)
+        })
+
+        it('should include contexts for organizations with active subscription', async () => {
+            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [{ id }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
+            })
+
+            const result = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id],
+            })
+
+            expect(result).toHaveLength(1)
         })
     })
 })
