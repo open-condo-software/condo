@@ -144,12 +144,15 @@ class MaxOauthRoutes {
 
     async _logoutAndRedirectToAuth (req, res, context, userType) {
         if (isAuthorized(req)) {
-            const { keystone } = await getSchemaCtx('User')
-            await keystone._sessionManager.endAuthedSession(req)
+            await context._sessionManager.endAuthedSession(req)
         }
         const reqUrl = new URL(req.url, 'https://_')
         const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`
-        return res.redirect(`${conf.RESIDENT_APP_DOMAIN}/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}`)
+        // NOTE: "authFlow=needAuth" tells resident-app auth page to show the phone form
+        // instead of restarting the Max auth flow (which would cause an infinite redirect loop).
+        // NOTE: resident-app must share session cookie parent domain with condo,
+        // otherwise condo will not see the session created after phone auth and this redirect loops.
+        return res.redirect(`${conf.RESIDENT_APP_DOMAIN}/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}&authFlow=needAuth`)
     }
 
     _validateParameters (req, res, next) {
