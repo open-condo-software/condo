@@ -284,7 +284,7 @@ async function createTestB2CApp (client, extraAttrs = {}) {
             modelNames: ['B2CApp'],
             dv: 1,
             sender,
-        }, client)
+        }, client, conf.SERVER_URL)
     }
 
     const attrs = {
@@ -347,7 +347,7 @@ async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
             modelNames: ['B2CAppBuild'],
             dv: 1,
             sender,
-        }, client)
+        }, client, conf.SERVER_URL)
     }
 
     const attrs = {

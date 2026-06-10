@@ -10,7 +10,7 @@ const { AwsFileAdapter, AWSFilesMiddleware } = require('@open-condo/keystone/fil
 const { SberCloudFileAdapter, OBSFilesMiddleware } = require('@open-condo/keystone/fileAdapter/sberCloudFileAdapter')
 
 const { DEFAULT_FILE_ADAPTER } = require('./constants')
-
+const { getFileServicePublicOrigin } = require('./origins')
 
 class NoFileAdapter {
 
@@ -155,11 +155,11 @@ class FileAdapter {
         if (!this.isConfigValid(conf, ['MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL'])) {
             return null
         }
-        const baseUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL']
+        const publicOrigin = getFileServicePublicOrigin()
         const config = {
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
-            path: `${baseUrl}${conf.MEDIA_URL}/${this.folder}`,
-            mediaPath: `${baseUrl}${conf.MEDIA_URL}`,
+            path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
+            mediaPath: `${publicOrigin}${conf.MEDIA_URL}`,
         }
 
         if (this.saveFileName) {
@@ -259,3 +259,4 @@ function getFileMetaAfterChange (fileAdapter, fieldPath = 'file') {
 module.exports = FileAdapter
 exports = module.exports
 exports.getFileMetaAfterChange = getFileMetaAfterChange
+exports.getFileServicePublicOrigin = getFileServicePublicOrigin
