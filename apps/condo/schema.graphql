@@ -85372,9 +85372,14 @@ input MobileFeatureConfigHistoryRecordsCreateInput {
 
 type ContentConfiguration {
   marketplace: MarketplaceContentConfigurationType
+  ticket: TicketContentConfigurationType
 }
 
 type MarketplaceContentConfigurationType {
+  appId: String!
+}
+
+type TicketContentConfigurationType {
   appId: String!
 }
 
