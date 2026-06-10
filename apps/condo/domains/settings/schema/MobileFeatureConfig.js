@@ -25,9 +25,14 @@ const CONTENT_CONFIGURATION_FIELD_NAME = 'ContentConfiguration'
 const CONTENT_CONFIGURATION_FIELD_TYPE = `
     type ${CONTENT_CONFIGURATION_FIELD_NAME} {
         marketplace: MarketplaceContentConfigurationType
+        tickets: TicketsContentConfigurationType
     }
 
     type MarketplaceContentConfigurationType {
+        appId: String!
+    }
+    
+    type TicketContentConfigurationType {
         appId: String!
     }
 `
