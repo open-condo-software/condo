@@ -114,7 +114,9 @@ describe('MaxOauthRoutes', () => {
     describe('startAuth', () => {
         const mockUserId = faker.random.alphaNumeric(10)
         const expectRedirectToCallback = expect.stringContaining(`max/auth/callback?botId=${RESIDENT_BOT_ID}`)
-        const expectRedirectToAuthPage = expect.stringMatching(/\/auth/)
+        // NOTE: "authFlow=needAuth" is required to show the phone form on resident-app auth page
+        // instead of restarting the Max auth flow (infinite redirect loop otherwise)
+        const expectRedirectToAuthPage = expect.stringMatching(/\/auth\?.*authFlow=needAuth/)
 
         const testCases = [
             {
