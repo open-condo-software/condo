@@ -147,7 +147,10 @@ class MaxOauthRoutes {
             await context._sessionManager.endAuthedSession(req)
         }
         const reqUrl = new URL(req.url, 'https://_')
-        const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`
+        // NOTE: Use reqUrl.search (not encodeURIComponent(searchParams)) to avoid double-encoding.
+        // Unlike the Telegram flow (which has a proxy that rewrites the "next" URL), the Max flow
+        // navigates directly to this condo URL, so condo must receive properly-decoded query params.
+        const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}${reqUrl.search}`
         // NOTE: "authFlow=needAuth" tells resident-app auth page to show the phone form
         // instead of restarting the Max auth flow (which would cause an infinite redirect loop).
         // NOTE: resident-app must share session cookie parent domain with condo,
