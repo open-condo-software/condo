@@ -140,3 +140,7 @@
   color: var(--condo-global-color-black);
   line-height: 1.6;
 }
+
+.assistant-markdown * {
+  margin-bottom: 8px !important;
+}
