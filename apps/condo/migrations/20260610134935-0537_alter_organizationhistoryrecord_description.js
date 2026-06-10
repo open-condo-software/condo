@@ -20,7 +20,7 @@ exports.down = async (knex) => {
 --
 -- Alter field description on organizationhistoryrecord
 --
-ALTER TABLE "OrganizationHistoryRecord" ALTER COLUMN "description" TYPE jsonb USING "description"::jsonb;
+ALTER TABLE "OrganizationHistoryRecord" ALTER COLUMN "description" TYPE jsonb USING to_jsonb("description");
 COMMIT;
 
     `)
