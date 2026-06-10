@@ -51,7 +51,6 @@
     "@open-keystone/fields": "^25.0.19",
     "@open-keystone/fields-authed-relationship": "^2.0.30",
     "@open-keystone/fields-markdown": "^7.0.19",
-    "@open-keystone/fields-wysiwyg-tinymce": "^7.0.19",
     "@open-keystone/file-adapters": "^7.1.7",
     "@open-keystone/keystone": "^19.4.32",
     "@open-keystone/server-side-graphql-client": "^2.1.5",

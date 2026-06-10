@@ -12,7 +12,6 @@ const {
     Virtual,
 } = require('@open-keystone/fields')
 const { Markdown } = require('@open-keystone/fields-markdown')
-const { Wysiwyg } = require('@open-keystone/fields-wysiwyg-tinymce')
 const { get, isObject, isString } = require('lodash')
 
 const {
@@ -72,7 +71,6 @@ function convertStringToTypes (schema) {
         Url,
         Uuid,
         Virtual,
-        Wysiwyg,
 
         // Custom types
         AddressPartWithType,

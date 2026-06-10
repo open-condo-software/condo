@@ -5830,7 +5830,7 @@ type OrganizationHistoryRecord {
   name: String
   type: String
   tin: String
-  description: JSON
+  description: String
   avatar: JSON
   meta: JSON
   phone: String
@@ -5929,10 +5929,24 @@ input OrganizationHistoryRecordWhereInput {
   tin_not_ends_with_i: String
   tin_in: [String]
   tin_not_in: [String]
-  description: JSON
-  description_not: JSON
-  description_in: [JSON]
-  description_not_in: [JSON]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
   avatar: JSON
   avatar_not: JSON
   avatar_in: [JSON]
@@ -6110,6 +6124,8 @@ enum SortOrganizationHistoryRecordsBy {
   type_DESC
   tin_ASC
   tin_DESC
+  description_ASC
+  description_DESC
   phone_ASC
   phone_DESC
   phoneNumberPrefix_ASC
@@ -6143,7 +6159,7 @@ input OrganizationHistoryRecordUpdateInput {
   name: String
   type: String
   tin: String
-  description: JSON
+  description: String
   avatar: JSON
   meta: JSON
   phone: String
@@ -6176,7 +6192,7 @@ input OrganizationHistoryRecordCreateInput {
   name: String
   type: String
   tin: String
-  description: JSON
+  description: String
   avatar: JSON
   meta: JSON
   phone: String

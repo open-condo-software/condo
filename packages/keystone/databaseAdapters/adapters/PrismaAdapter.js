@@ -1073,7 +1073,6 @@ function _addFieldToKnexSchema (fa, table, knex) {
         case 'EncryptedTextImplementation':
         case 'LocalizedText':
         case 'Slug':
-        case 'WysiwygImplementation':
             column = table.text(path)
             break
         case 'Integer':
