@@ -11,6 +11,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('./constants')
+const { getFileServicePublicOrigin } = require('./origins')
 
 
 const logger = getLogger('cloud-ru-file-adapter')
@@ -235,7 +236,10 @@ class SberCloudFileAdapter {
         if (searchParams) {
             qs = `?${searchParams}`
         }
-        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
+        const origin = ('meta' in props && props['meta']['fileClientId'])
+            ? getFileServicePublicOrigin()
+            : SERVER_URL
+        return `${origin}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {

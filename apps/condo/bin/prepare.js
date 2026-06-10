@@ -1,6 +1,11 @@
+const path = require('path')
+
 const set = require('lodash/set')
 
 const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers, safeExec, getAppEnvValue } = require('@open-condo/cli')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+
+const { User } = require('@condo/domains/user/utils/serverSchema')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
     const addressServiceUrl = await getAppServerUrl('address-service')
@@ -39,10 +44,29 @@ async function prepareSubscriptionPaymentRecipient (appName) {
 async function main () {
     // 1) add local admin users!
     const appName = 'condo'
-    await prepareAppEnvLocalAdminUsers(appName)
     await updateAppEnvAddressSuggestionConfig(appName)
     await updateAppEnvFileClients(appName)
     await prepareSubscriptionPaymentRecipient(appName)
+    await prepareAppEnvLocalAdminUsers(appName)
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
+
+    const adminEmail = await getAppEnvValue(appName, 'DEFAULT_TEST_ADMIN_IDENTITY')
+    const adminUser = await User.getOne(context, { email: adminEmail, isAdmin: true })
+    if (adminUser) {
+        await updateAppEnvFile(appName, 'FILE_UPLOAD_CONFIG', (prev) => {
+            const newValue = JSON.parse(prev || '{}')
+            if (!newValue.quota) {
+                newValue.quota = {}
+            }
+            if (!newValue.quota.whitelist) {
+                newValue.quota.whitelist = []
+            }
+            if (!newValue.quota.whitelist.includes(adminUser.id)) {
+                newValue.quota.whitelist.push(adminUser.id)
+            }
+            return JSON.stringify(newValue)
+        })
+    }
     console.log('done')
 }
 

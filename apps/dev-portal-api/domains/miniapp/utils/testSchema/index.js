@@ -33,7 +33,7 @@ const {
     UPDATE_OIDC_CLIENT_URL_MUTATION,
     REGISTER_APP_USER_SERVICE_MUTATION,
 } = require('@dev-portal-api/domains/miniapp/gql')
-const { UploadingFile } = require('@open-condo/keystone/test.utils')
+const { getUploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/constants/b2c")
@@ -101,13 +101,21 @@ function padWithRandomChars(str, minLength) {
 }
 
 async function createCondoB2CApp (client) {
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const logo = await getUploadingFile(FAKE_B2C_APP_LOGO_PATH, {
+        user: {id: client?.user?.id},
+        fileClientId: 'condo',
+        modelNames: ['B2CApp'],
+        dv: 1,
+        sender,
+    }, client, conf['CONDO_DOMAIN'])
     const attrs = {
         dv: 1,
-        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        sender,
         name: faker.commerce.productName(),
         developer: faker.company.name(),
         colorSchema: DEFAULT_COLOR_SCHEMA,
-        logo: new UploadingFile(FAKE_B2C_APP_LOGO_PATH),
+        logo
     }
 
     const obj = await CondoB2CApp.create(client, attrs)
@@ -135,12 +143,20 @@ async function updateCondoB2BApp(client, app, extraAttrs = {}) {
 }
 
 async function createCondoB2CAppBuild (client, app, extraAttrs = {}) {
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const data = await getUploadingFile(FAKE_BUILD_ASSET_PATH, {
+        user: {id: client?.user?.id},
+        fileClientId: 'condo',
+        modelNames: ['B2CAppBuild'],
+        dv: 1,
+        sender,
+    }, client, conf['CONDO_DOMAIN'])
     const attrs = {
         dv: 1,
-        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        sender,
         app: { connect: { id: app.id } },
         version: `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`,
-        data: new UploadingFile(FAKE_BUILD_ASSET_PATH),
+        data,
         ...extraAttrs
     }
 
@@ -261,6 +277,16 @@ async function createTestB2CApp (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = `${faker.commerce.product()}`
 
+    if (extraAttrs.logo && typeof extraAttrs.logo === 'string') {
+        extraAttrs.logo = await getUploadingFile(extraAttrs.logo, {
+            user: { id: client?.user?.id },
+            fileClientId: conf['FILE_CLIENT_ID'],
+            modelNames: ['B2CApp'],
+            dv: 1,
+            sender,
+        }, client, conf.SERVER_URL)
+    }
+
     const attrs = {
         dv: 1,
         sender,
@@ -310,13 +336,24 @@ async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
     if (!app || !app.id) throw new Error('no app.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const version = generateBuildVersion()
-    const data = new UploadingFile(FAKE_BUILD_ASSET_PATH)
+    extraAttrs.data = Object.hasOwn(extraAttrs, 'data')
+        ? extraAttrs.data
+        : FAKE_BUILD_ASSET_PATH
+
+    if (typeof extraAttrs.data === 'string') {
+        extraAttrs.data = await getUploadingFile(extraAttrs.data, {
+            user: { id: client?.user?.id },
+            fileClientId: conf['FILE_CLIENT_ID'],
+            modelNames: ['B2CAppBuild'],
+            dv: 1,
+            sender,
+        }, client, conf.SERVER_URL)
+    }
 
     const attrs = {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
-        data,
         version,
         ...extraAttrs,
     }

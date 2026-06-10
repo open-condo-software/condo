@@ -24,6 +24,11 @@ type LoggerType = {
 }
 
 type RelativeOrAbsoluteEndpoint = string
+type AuthorizationOptions = {
+    token?: string
+    tokenType?: 'Bearer' | 'Basic'
+    tokenHeader?: string
+}
 
 export type ProxyOptions = {
     /** Name of the proxy. Primarily used to set "via" header */
@@ -53,9 +58,15 @@ export type ProxyOptions = {
      * Must implement an error method that accepts any data type.
      */
     logger?: LoggerType
+    /**
+     * Function to extract authorization header from request.
+     * Can be async (e.g. for session-based token retrieval).
+     * @param req
+     */
+    authorization?: (req: IncomingMessage, res: ServerResponse) => AuthorizationOptions | Promise<AuthorizationOptions>
 }
 
-type ProxyHandler = (req: IncomingMessage, res: ServerResponse) => void
+type ProxyHandler = (req: IncomingMessage, res: ServerResponse) => void | Promise<void>
 
 export function createProxy (options: ProxyOptions): ProxyHandler {
     const {
@@ -74,6 +85,8 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         changeOrigin: true,
     })
 
+    const _asyncContext = new WeakMap<IncomingMessage, { auth: AuthorizationOptions | null }>()
+
     const trustProxyFn = ipProxying?.trustProxyFn ?? (() => false)
 
     proxy.on('proxyReq', (proxyReq, req) => {
@@ -88,6 +101,12 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
             for (const [headerName, headerValue] of Object.entries(headers)) {
                 proxyReq.setHeader(headerName, headerValue)
             }
+        }
+
+        const ctx = _asyncContext.get(req)
+        if (ctx && ctx.auth && ctx.auth.token) {
+            const { token, tokenType = 'Bearer', tokenHeader = 'Authorization' } = ctx.auth
+            proxyReq.setHeader(tokenHeader, `${tokenType} ${token}`)
         }
     })
     proxy.on('proxyRes', (proxyRes, _req, _res) => {
@@ -119,17 +138,30 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         }
     })
 
-    return function syncProxyHandler (req, res) {
+    function _throwErr (err: unknown, res: ServerResponse) {
+        // TODO: Add more complex loggers and standard error handling in next iterations
+        logger.error({ msg: 'Proxy error', err })
+        if (!res.headersSent) {
+            res.writeHead(502, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify({ errors: [{ message: 'Proxy error' }] }))
+        } else {
+            res.end()
+        }
+    }
+
+    return async function proxyHandler (req, res) {
+        try {
+            const auth = await options.authorization?.(req, res) ?? null
+            _asyncContext.set(req, { auth })
+
+        } catch (err) {
+            return _throwErr(err, res)
+        }
+
         proxy.web(req, res, {}, (err) => {
+            _asyncContext.delete(req)
             if (err) {
-                // TODO: Add more complex loggers and standard error handling in next iterations
-                logger.error({ msg: 'Proxy error', err })
-                if (!res.headersSent) {
-                    res.writeHead(502, { 'Content-Type': 'application/json' })
-                    res.end(JSON.stringify({ errors: [{ message: 'Proxy error' }] }))
-                } else {
-                    res.end()
-                }
+                _throwErr(err, res)
             }
         })
     }

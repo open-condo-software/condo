@@ -11,6 +11,7 @@ const { SERVER_URL, AWS_CONFIG } = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('./constants')
+const { getFileServicePublicOrigin } = require('./origins')
 
 const logger = getLogger('aws-s3-file-adapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 7 // 1 WEEK IN SECONDS FOR ANY PUBLIC URL
@@ -183,7 +184,10 @@ class AwsFileAdapter {
             qs = `?${searchParams}`
         }
 
-        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
+        const origin = ('meta' in props && props['meta']['fileClientId'])
+            ? getFileServicePublicOrigin()
+            : SERVER_URL
+        return `${origin}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {

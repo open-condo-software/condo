@@ -51,6 +51,12 @@ type OnAuthSuccessHandler<UserInfo extends Record<string, unknown> = Record<stri
     data: OIDCCallbackData<UserInfo>
 ) => void | Promise<void>
 
+type OIDCTokens = {
+    accessToken?: string
+    refreshToken?: string
+    idToken?: string
+}
+
 type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<string, never>> = {
     getSession: SessionGetter
     oidcConfig: OIDCClientConfig
@@ -149,6 +155,19 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
 
         res.writeHead(500, { 'Content-Type': 'text/plain' })
         res.end(`OIDC auth error: ${errId}`)
+    }
+
+    async extractOIDCTokensFromRequest (req: IncomingMessage, res: ServerResponse): Promise<OIDCTokens> {
+        const session = await this.getSession(req, res)
+        const rawAccessToken = session[OIDCMiddleware.OIDC_ACCESS_TOKEN_KEY]
+        const rawRefreshToken = session[OIDCMiddleware.OIDC_REFRESH_TOKEN_KEY]
+        const rawIdToken = session[OIDCMiddleware.OIDC_ID_TOKEN_KEY]
+
+        return {
+            accessToken: typeof rawAccessToken === 'string' ? rawAccessToken : undefined,
+            refreshToken: typeof rawRefreshToken === 'string' ? rawRefreshToken : undefined,
+            idToken: typeof rawIdToken === 'string' ? rawIdToken : undefined,
+        }
     }
 
     getAuthHandler (): RequestHandler {

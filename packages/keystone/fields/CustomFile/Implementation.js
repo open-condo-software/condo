@@ -58,14 +58,14 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     _getFileServiceBaseUrl (req) {
-        if (conf.FILE_SERVICE_URL) {
-            return conf.FILE_SERVICE_URL
-        }
-
         const host = req?.get?.('host') || req?.headers?.host
         if (host) {
             const protocol = req.protocol || (req.secure ? 'https' : 'http')
             return `${protocol}://${host}`
+        }
+
+        if (conf.FILE_SERVICE_URL) {
+            return conf.FILE_SERVICE_URL
         }
 
         // conf.SERVER_URL is cached at config init; read env for tests that override SERVER_URL
