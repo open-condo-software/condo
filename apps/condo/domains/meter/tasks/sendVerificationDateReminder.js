@@ -12,6 +12,7 @@ const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notifi
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
     return heads.map(head => {
@@ -244,6 +245,7 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
 
     // initialize context stuff
     const { keystone: context } = getSchemaCtx('Meter')
+    const subscriptionCache = new Map()
 
     // let's proceed meters page by page
     const pageSize = 100
@@ -256,9 +258,15 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
 
         if (meters.length > 0) {
             // connect residents to meter through the property field
-            const metersConnectedWithResidents = await joinResidentsToMeters(
+            const allMetersConnectedWithResidents = await joinResidentsToMeters(
                 { context, meters }
             )
+            const metersConnectedWithResidents = []
+            for (const item of allMetersConnectedWithResidents) {
+                if (await hasOrganizationActiveSubscription(context, item.meter.organization.id, subscriptionCache)) {
+                    metersConnectedWithResidents.push(item)
+                }
+            }
 
             // filter out meters that was already reminded
             const reminders = await filterSentReminders({
