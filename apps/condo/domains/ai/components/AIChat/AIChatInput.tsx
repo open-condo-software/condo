@@ -13,6 +13,7 @@ import type { UseAIChatAttachmentsResult } from '@condo/domains/ai/hooks/useAICh
 
 
 type AIChatInputProps = {
+    containerRef?: React.RefObject<HTMLDivElement>
     attachments: UseAIChatAttachmentsResult | null
     canExecuteAIFlow: boolean
     canSendMessage: boolean
@@ -25,6 +26,7 @@ type AIChatInputProps = {
 }
 
 export const AIChatInput: React.FC<AIChatInputProps> = ({
+    containerRef,
     attachments,
     canExecuteAIFlow,
     canSendMessage,
@@ -56,7 +58,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     }, [intl, attachments])
 
     return (
-        <div className={styles.inputContainer}>
+        <div ref={containerRef} className={styles.inputContainer}>
             <Space direction='vertical' size={8} width='100%'>
                 <div className={styles.attachmentsContainer}>
                     {attachments && attachments.fileList.length > 0 && (

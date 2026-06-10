@@ -183,6 +183,8 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
+    const inputContainerRef = useRef<HTMLDivElement>(null)
+    const [inputContainerHeight, setInputContainerHeight] = useState(0)
 
     const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
         aiSessionId: aiSessionId,
@@ -324,6 +326,19 @@ export const AIChat: React.FC<AIChatProps> = ({
         setTimeout(() => {
             inputRef.current?.focus()
         }, 100)
+    }, [])
+
+    useEffect(() => {
+        if (!inputContainerRef.current) return
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                setInputContainerHeight(entry.contentRect.height)
+            }
+        })
+
+        observer.observe(inputContainerRef.current)
+        return () => observer.disconnect()
     }, [])
 
     const executeAIMessage = useCallback(async (
@@ -660,9 +675,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                     ))
                 )}
                 <div ref={messagesEndRef} />
+                <div className={styles.inputSpacer} style={{ height: inputContainerHeight }} />
             </div>
 
             <AIChatInput
+                containerRef={inputContainerRef}
                 attachments={attachments}
                 canExecuteAIFlow={canExecuteAIFlow}
                 canSendMessage={canSendMessage}
