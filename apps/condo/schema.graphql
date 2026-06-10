@@ -109840,7 +109840,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Subscription plan pricing rule not found",
-    "messageForUser": "Subscription plan pricing rule not found or is hidden"
+    "messageForUser": "Subscription plan pricing rule not found"
   }`
   
   `{

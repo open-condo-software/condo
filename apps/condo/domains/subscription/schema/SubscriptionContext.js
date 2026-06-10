@@ -266,7 +266,9 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
             const item = { ...existingItem, ...resolvedData }
 
-            if (item.organization && item.subscriptionPlan && item.startAt && item.endAt) {
+            const shouldCheckOverlap = operation === 'create' || item.status === SUBSCRIPTION_CONTEXT_STATUS.DONE
+
+            if (shouldCheckOverlap && item.organization && item.subscriptionPlan && item.startAt && item.endAt) {
                 const overlapFilter = {
                     organization: { id: item.organization },
                     subscriptionPlan: { id: item.subscriptionPlan },

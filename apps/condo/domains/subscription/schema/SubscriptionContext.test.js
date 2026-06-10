@@ -630,6 +630,28 @@ describe('SubscriptionContext', () => {
                 }, 'obj')
             })
 
+            test('can update subscription to non-DONE status even when a DONE subscription with same plan overlaps', async () => {
+                const [contextA] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-01-01',
+                    endAt: '2024-02-15',
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                })
+
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: '2024-02-01',
+                    endAt: '2024-03-01',
+                    isTrial: false,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                })
+
+                const [updated] = await updateTestSubscriptionContext(admin, contextA.id, {
+                    status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+                })
+
+                expect(updated.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.ERROR)
+            })
+
             test('can update subscription to DONE when existing DONE subscription ends exactly at its startAt', async () => {
                 await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt: '2024-01-01',
