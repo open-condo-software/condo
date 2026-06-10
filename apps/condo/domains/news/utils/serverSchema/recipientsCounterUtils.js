@@ -3,19 +3,16 @@ const get = require('lodash/get')
 const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const getUnitsFromProperty = (property) => (
-    [
-        ...(get(property, ['map', 'sections'], []) || []),
-        ...(get(property, ['map', 'parking'], []) || []),
-    ].reduce((acc, section) => ([
-        ...acc,
-        ...getUnitsFromSection(section),
-    ]), []) || []
-)
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
-const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.units.map(unit => ({
+const getUnitsFromProperty = (property) => [
+    ...(get(property, ['map', 'sections'], []) || []).flatMap((section) => getUnitsFromSection(section, FLAT_UNIT_TYPE)),
+    ...(get(property, ['map', 'parking'], []) || []).flatMap((section) => getUnitsFromSection(section, PARKING_UNIT_TYPE)),
+]
+
+const getUnitsFromSection = (section, defaultUnitType = FLAT_UNIT_TYPE) => section.floors.flatMap(floor => floor.units.map(unit => ({
     unitName: unit.label,
-    unitType: unit.unitType,
+    unitType: unit.unitType || defaultUnitType,
 })))
 
 /**
