@@ -83,6 +83,7 @@ describe('BillingReceipt', () => {
     let account
     let integrationUser
     let integrationManager
+    let billingReceiptsImporter
     let anotherContext
     let anotherProperty
     let anotherAccount
@@ -113,6 +114,14 @@ describe('BillingReceipt', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         const { managerUserClient } = await makeOrganizationIntegrationManager({ context })
         integrationManager = managerUserClient
+        const { managerUserClient: importerUserClient } = await makeOrganizationIntegrationManager({
+            context,
+            employeeRoleArgs: {
+                canImportBillingReceipts: true,
+                canReadBillingReceipts: true,
+            },
+        })
+        billingReceiptsImporter = importerUserClient
     })
     describe('CRUD', () => {
         describe('Create', () => {
@@ -278,9 +287,23 @@ describe('BillingReceipt', () => {
                             })
                         })
                     })
-                    test('Integration manager cannot', async () => {
+                    test('Employee with canImportBillingReceipts cannot update non-deletedAt fields', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestBillingReceipt(integrationManager, receipt.id, payload)
+                            await updateTestBillingReceipt(billingReceiptsImporter, receipt.id, payload)
+                        })
+                    })
+                    test('Employee with canImportBillingReceipts can delete receipt', async () => {
+                        const [receiptToDelete] = await createTestBillingReceipt(admin, context, property, account)
+                        const [deletedReceipt] = await updateTestBillingReceipt(billingReceiptsImporter, receiptToDelete.id, {
+                            deletedAt: new Date().toISOString(),
+                        })
+                        expect(deletedReceipt).toBeDefined()
+                        expect(deletedReceipt.deletedAt).not.toBeNull()
+                    })
+                    test('Employee with canImportBillingReceipts cannot update receipt', async () => {
+                        const [receiptToDelete] = await createTestBillingReceipt(admin, context, property, account)
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestBillingReceipt(billingReceiptsImporter, receiptToDelete.id, { toPay: '0' })
                         })
                     })
                     test('Other users cannot', async () => {
@@ -355,6 +378,18 @@ describe('BillingReceipt', () => {
                         await expectToThrowAccessDeniedErrorToObjects(async () => {
                             await updateTestBillingReceipts(integrationManager, [payload])
                         })
+                    })
+                    test('Employee with canImportBillingReceipts can delete receipts', async () => {
+                        const [receiptToDelete] = await createTestBillingReceipt(admin, context, property, account)
+                        const [oneMoreReceiptToDelete] = await createTestBillingReceipt(admin, context, property, account)
+                        const [deletedReceipts] = await updateTestBillingReceipts(billingReceiptsImporter, [
+                            { id: receiptToDelete.id, data: { deletedAt: new Date().toISOString() } },
+                            { id: oneMoreReceiptToDelete.id, data: { deletedAt: new Date().toISOString() } },
+                        ])
+                        expect(deletedReceipts).toEqual([
+                            expect.objectContaining({ deletedAt: expect.any(String) }),
+                            expect.objectContaining({ deletedAt: expect.any(String) }),
+                        ])
                     })
                     test('Other users cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObjects(async () => {
@@ -665,9 +700,17 @@ describe('BillingReceipt', () => {
                             })
                         })
                     })
-                    test('Integration manager cannot', async () => {
+                    test('Employee with canImportBillingReceipts can delete receipt for same organization context', async () => {
+                        const [updatedReceipt] = await updateTestBillingReceipt(billingReceiptsImporter, receipt.id, payload)
+
+                        expect(updatedReceipt).toBeDefined()
+                        expect(updatedReceipt).toHaveProperty('deletedAt')
+                        expect(updatedReceipt.deletedAt).not.toBeNull()
+                    })
+                    test('Employee with canImportBillingReceipts cannot for another organization context', async () => {
+                        const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount)
                         await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestBillingReceipt(integrationManager, receipt.id, payload)
+                            await updateTestBillingReceipt(billingReceiptsImporter, anotherReceipt.id, payload)
                         })
                     })
                     test('Other users cannot', async () => {

@@ -3,7 +3,7 @@ import { css, Global } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Typography, Space, Table, Row, Col } from 'antd'
 import get from 'lodash/get'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -121,6 +121,10 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const [expanded, setExpanded] = useState(false)
     const handleRowExpand = () => setExpanded(!expanded)
+    const handleClose = useCallback(() => {
+        setExpanded(false)
+        onCancel()
+    }, [onCancel])
 
     const ModalFooter = () => {
         return (
@@ -134,7 +138,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         )
     }
 
-    if (!services || !services.length) return null
+    if (!visible || !services?.length) return null
 
     // TODO (savelevMatthew): Move modal to common width-expandable component?
     return (
@@ -142,10 +146,8 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
             {isDetailed && <Global styles={WideModalStyles}/>}
             <Modal
                 open={visible}
-                onCancel={() => {
-                    setExpanded(false)
-                    onCancel()
-                }}
+                onCancel={handleClose}
+                destroyOnClose
                 footer={<ModalFooter />}
                 className='services-modal'
                 title={modalTitleMessage}

@@ -3,11 +3,15 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { find } = require('@open-condo/keystone/schema')
 
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const {
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
-const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 async function canReadBillingReceipts (args) {
@@ -61,8 +65,57 @@ async function canReadSensitiveBillingReceiptData ({ authentication: { item: use
     return user.type !== RESIDENT
 }
 
+const SOFT_DELETE_ALLOWED_UPDATE_FIELDS = new Set(['dv', 'sender', 'deletedAt'])
+
+const isSoftDeleteInput = (data) => {
+    const target = data?.data || data
+    if (typeof target !== 'object' || target === null) return false
+
+    return !!target?.deletedAt &&
+        Object.keys(target).every(key => SOFT_DELETE_ALLOWED_UPDATE_FIELDS.has(key))
+}
+
+function isSoftDeleteUpdateRequest (originalInput) {
+    if (Array.isArray(originalInput)) {
+        return originalInput.every((itemInput) => isSoftDeleteInput(itemInput))
+    }
+    return isSoftDeleteInput(originalInput)
+}
+
+async function getOrganizationIdsFromReceiptIds (ids) {
+    if (!ids.length) return []
+    const receipts = await find('BillingReceipt', { id_in: ids, deletedAt: null })
+    // some receipts were already deleted
+    if (receipts.length !== ids.length) return []
+    const contextIds = Array.from(new Set(receipts.map(({ context }) => context)))
+    const contexts = await find('BillingIntegrationOrganizationContext', {
+        id_in: contextIds,
+        deletedAt: null,
+        organization: { deletedAt: null },
+    })
+    if (!contexts.length || contexts.length !== contextIds.length) {
+        return []
+    }
+    return Array.from(new Set(contexts.map(({ organization }) => organization)))
+}
+
 async function canManageBillingReceipts (args) {
-    return await canManageBillingEntityWithContext(args)
+    const { authentication: { item: user }, operation, context, itemId, itemIds, originalInput } = args
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+    if (user.type === STAFF && operation === 'update') {
+        if (!isSoftDeleteUpdateRequest(originalInput)) {
+            return false
+        }
+        const receiptIds = itemIds?.length ? itemIds : [itemId]
+        const organizationIds = await getOrganizationIdsFromReceiptIds(receiptIds)
+        if (!organizationIds.length) {
+            return false
+        }
+        return checkPermissionsInEmployedOrganizations(context, user, organizationIds, 'canImportBillingReceipts')
+    }
+    return canManageBillingEntityWithContext(args)
 }
 
 /*
