@@ -68,7 +68,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
         },
 
         isHidden: {
-            schemaDoc: 'Whether this plan is hidden and not available for purchase',
+            schemaDoc: 'Whether this plan is hidden from front-end',
             type: 'Checkbox',
             defaultValue: false,
             isRequired: true,

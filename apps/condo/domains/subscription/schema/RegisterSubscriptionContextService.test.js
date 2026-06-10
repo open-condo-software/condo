@@ -285,7 +285,7 @@ describe('RegisterSubscriptionContextService', () => {
             }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
         })
 
-        test('throws error if plan is hidden', async () => {
+        test('allows registration for hidden plan (isHidden only hides from frontend)', async () => {
             const [hiddenPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
@@ -298,13 +298,13 @@ describe('RegisterSubscriptionContextService', () => {
                 currencyCode: 'RUB',
             })
 
-            await expectToThrowGQLError(async () => {
-                await registerSubscriptionContextByTestClient(user, {
-                    organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: hiddenPlanRule.id },
-                    isTrial: true,
-                })
-            }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: hiddenPlanRule.id },
+                isTrial: true,
+            })
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.id).toBeDefined()
         })
 
         test('throws error if organization type does not match plan', async () => {

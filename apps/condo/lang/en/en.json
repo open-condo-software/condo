@@ -554,7 +554,7 @@
   "api.subscription.registerSubscriptionContext.INVALID_ORGANIZATION_TYPE": "Organization type does not match subscription plan organization type",
   "api.subscription.registerSubscriptionContext.NO_ACTIVE_SERVICE_SUBSCRIPTION": "Cannot subscribe to a feature plan without an active service subscription",
   "api.subscription.registerSubscriptionContext.ORGANIZATION_NOT_FOUND": "Organization not found",
-  "api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND": "Subscription plan pricing rule not found or is hidden",
+  "api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND": "Subscription plan pricing rule not found",
   "api.subscription.registerSubscriptionContext.TRIAL_ALREADY_USED": "Trial subscription for this plan was already activated",
   "api.subscription.registerSubscriptionContext.TRIAL_NOT_AVAILABLE": "Trial subscription is not available for this plan",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Additional quality control parameters must match the specified scoring",

@@ -554,7 +554,7 @@
   "api.subscription.registerSubscriptionContext.INVALID_ORGANIZATION_TYPE": "El tipo de organización no coincide con el tipo de organización del plan de suscripción",
   "api.subscription.registerSubscriptionContext.NO_ACTIVE_SERVICE_SUBSCRIPTION": "No se puede suscribir a un plan de funciones sin una suscripción de servicio activa",
   "api.subscription.registerSubscriptionContext.ORGANIZATION_NOT_FOUND": "Organización no encontrada",
-  "api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND": "La regla de precios del plan de suscripción no se encontró o está oculta",
+  "api.subscription.registerSubscriptionContext.PRICING_RULE_NOT_FOUND": "No se encontró la regla de precios del plan de suscripción",
   "api.subscription.registerSubscriptionContext.TRIAL_ALREADY_USED": "El período de prueba para este plan de suscripción ya fue activado",
   "api.subscription.registerSubscriptionContext.TRIAL_NOT_AVAILABLE": "El período de prueba no está disponible para este plan de suscripción",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Los parámetros adicionales de control de calidad deben coincidir con la evaluación especificada",

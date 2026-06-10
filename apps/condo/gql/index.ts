@@ -6064,7 +6064,6 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     }
     isTrial
     startAt
-    daysRemaining
     endAt
     createdAt
     bindingId
@@ -6216,6 +6215,10 @@ export const GetSubscriptionContextByIdDocument = gql`
       canBePromoted
       trialDays
     }
+    subscriptionPlanPricingRule {
+      id
+      name
+    }
     invoice {
       id
       toPay
@@ -6224,7 +6227,6 @@ export const GetSubscriptionContextByIdDocument = gql`
     createdAt
     startAt
     endAt
-    daysRemaining
     bindingId
     frozenPaymentInfo {
       paymentMethod {

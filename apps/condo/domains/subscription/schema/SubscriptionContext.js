@@ -199,24 +199,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        daysRemaining: {
-            schemaDoc: 'Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired',
-            type: 'Virtual',
-            graphQLReturnType: 'Int',
-            resolver: (item) => {
-                if (!item.endAt) return null
-
-                const now = dayjs()
-                const endAt = dayjs(item.endAt)
-                const diffInHours = endAt.diff(now, 'hour', true)
-                const diffDays = Math.ceil(diffInHours / 24)
-
-                if (diffDays <= 0) return 0
-
-                return diffDays
-            },
-        },
-
     },
     hooks: {
         validateInput: async ({ resolvedData, existingItem, context, operation }) => {
@@ -282,27 +264,29 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 throw new GQLError(ERRORS.RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION, context)
             }
 
-            if (operation === 'create') {
-                const organizationId = resolvedData.organization
-                const subscriptionPlanId = resolvedData.subscriptionPlan
-                const isTrial = !!resolvedData.isTrial
-                const startAt = resolvedData.startAt
-                const endAt = resolvedData.endAt
+            const item = { ...existingItem, ...resolvedData }
 
-                if (organizationId && subscriptionPlanId && startAt && endAt) {
-                    const overlappingSubscriptions = await find('SubscriptionContext', {
-                        organization: { id: organizationId },
-                        subscriptionPlan: { id: subscriptionPlanId },
-                        isTrial,
-                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                        deletedAt: null,
-                        startAt_lt: endAt,
-                        endAt_gt: startAt,
-                    })
+            const shouldCheckOverlap = operation === 'create' || item.status === SUBSCRIPTION_CONTEXT_STATUS.DONE
 
-                    if (overlappingSubscriptions.length > 0) {
-                        throw new GQLError(ERRORS.OVERLAPPING_SUBSCRIPTION, context)
-                    }
+            if (shouldCheckOverlap && item.organization && item.subscriptionPlan && item.startAt && item.endAt) {
+                const overlapFilter = {
+                    organization: { id: item.organization },
+                    subscriptionPlan: { id: item.subscriptionPlan },
+                    isTrial: !!item.isTrial,
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    deletedAt: null,
+                    startAt_lt: item.endAt,
+                    endAt_gt: item.startAt,
+                }
+
+                if (operation === 'update') {
+                    overlapFilter.id_not = existingItem.id
+                }
+
+                const overlappingSubscriptions = await find('SubscriptionContext', overlapFilter)
+
+                if (overlappingSubscriptions.length > 0) {
+                    throw new GQLError(ERRORS.OVERLAPPING_SUBSCRIPTION, context)
                 }
             }
 

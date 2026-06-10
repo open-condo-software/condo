@@ -46,7 +46,6 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         }
         isTrial
         startAt
-        daysRemaining
         endAt
         createdAt
         bindingId
@@ -95,6 +94,10 @@ query getSubscriptionContextById($id: ID!) {
             canBePromoted
             trialDays
         }
+        subscriptionPlanPricingRule {
+            id
+            name
+        }
         invoice {
             id
             toPay
@@ -103,7 +106,6 @@ query getSubscriptionContextById($id: ID!) {
         createdAt
         startAt
         endAt
-        daysRemaining
         bindingId
         frozenPaymentInfo {
             paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode }

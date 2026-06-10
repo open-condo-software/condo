@@ -7,6 +7,7 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS } from '@condo/domains/subscription/constants'
 
 import type { GetSubscriptionContextByIdQuery } from '@app/condo/gql/operation.types'
 import type { OrganizationSubscriptionFeatures } from '@app/condo/schema'
@@ -63,31 +64,19 @@ export const useOrganizationSubscription = () => {
         return new Date(subscriptionFeatures.activeSubscriptionEndAt) > new Date()
     }, [subscriptionFeatures])
 
-    const daysRemaining = useMemo<number>(() => {
-        if (!subscriptionFeatures?.activeSubscriptionEndAt) return 0
-        const endDateDayjs = dayjs(subscriptionFeatures.activeSubscriptionEndAt)
-        const now = dayjs()
-        const diff = endDateDayjs.diff(now, 'day', true)
-        return Math.max(0, Math.ceil(diff))
-    }, [subscriptionFeatures?.activeSubscriptionEndAt])
+    const activeSubscriptionEndAtWithoutBuffer = useMemo<dayjs.Dayjs | null>(() => {
+        if (!subscriptionFeatures?.activeSubscriptionEndAt) return null
+        const endAt = dayjs(subscriptionFeatures.activeSubscriptionEndAt)
+        if (subscriptionContext?.isTrial) return endAt
+        return endAt.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days')
+    }, [subscriptionFeatures?.activeSubscriptionEndAt, subscriptionContext?.isTrial])
 
     const isInBufferPeriod = useMemo<boolean>(() => {
         if (!subscriptionContext || subscriptionContext.isTrial) return false
-        if (!subscriptionContext.endAt) return false
-        
-        const originalEndDate = dayjs(subscriptionContext.endAt)
+        if (!activeSubscriptionEndAtWithoutBuffer || !subscriptionFeatures?.activeSubscriptionEndAt) return false
         const now = dayjs()
-        
-        return now.isAfter(originalEndDate) && daysRemaining > 0
-    }, [subscriptionContext, daysRemaining])
-
-    const daysRemainingWithoutBuffer = useMemo<number>(() => {
-        if (!subscriptionContext?.endAt) return 0
-        const endDateDayjs = dayjs(subscriptionContext.endAt)
-        const now = dayjs()
-        const diff = endDateDayjs.diff(now, 'day', true)
-        return Math.max(0, Math.ceil(diff))
-    }, [subscriptionContext?.endAt])
+        return now.isAfter(activeSubscriptionEndAtWithoutBuffer) && now.isBefore(dayjs(subscriptionFeatures.activeSubscriptionEndAt))
+    }, [subscriptionContext, activeSubscriptionEndAtWithoutBuffer, subscriptionFeatures?.activeSubscriptionEndAt])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeatureType): boolean => {
         if (!hasSubscriptionsFeature) return true
@@ -138,8 +127,7 @@ export const useOrganizationSubscription = () => {
         isB2BAppEnabled,
         subscriptionContext,
         activeSubscriptionEndAt: subscriptionFeatures?.activeSubscriptionEndAt || null,
-        daysRemaining,
-        daysRemainingWithoutBuffer,
+        activeSubscriptionEndAtWithoutBuffer,
         isInBufferPeriod,
         loading: orgLoading || plansLoading || featurePlansLoading || contextLoading,
         hasAvailablePlans,

@@ -58919,7 +58919,7 @@ type SubscriptionPlan {
   """
   planType: SubscriptionPlanPlanTypeType
 
-  """ Whether this plan is hidden and not available for purchase """
+  """ Whether this plan is hidden from front-end """
   isHidden: Boolean
 
   """ Number of trial days for this plan. If 0, trial activation is not available for this plan 
@@ -60445,10 +60445,6 @@ type SubscriptionContext {
   """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID 
   """
   frozenPaymentInfo: FrozenPaymentInfo
-
-  """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
-  """
-  daysRemaining: Int
   id: ID!
   v: Int
   createdAt: String
@@ -109859,8 +109855,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "Subscription plan pricing rule not found or is hidden",
-    "messageForUser": "Subscription plan pricing rule not found or is hidden"
+    "message": "Subscription plan pricing rule not found",
+    "messageForUser": "Subscription plan pricing rule not found"
   }`
   
   `{
