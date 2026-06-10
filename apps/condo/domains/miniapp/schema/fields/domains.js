@@ -6,6 +6,14 @@ const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls'
 
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 
+function getMappedTargetOrigin (sourceOrigin, appId, idx) {
+    const targetUrl = new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`))
+    if (new URL(sourceOrigin).protocol === 'wss:') {
+        targetUrl.protocol = 'wss:'
+    }
+    return targetUrl.origin
+}
+
 const OIDC_CLIENT_FIELD = {
     schemaDoc: 'Relation to OIDC configuration, which application use for authorization',
     type: 'Relationship',
@@ -22,7 +30,7 @@ const ADDITIONAL_DOMAINS_FIELD = {
     isRequired: true,
     defaultValue: [],
     hooks: {
-        validateInput: getGQLErrorValidator(z.array(z.url({ protocol: /^https$/ })), 'INVALID_MINIAPP_DOMAINS'),
+        validateInput: getGQLErrorValidator(z.array(z.url({ protocol: /^(https|wss)$/ })), 'INVALID_MINIAPP_DOMAINS'),
     },
 }
 
@@ -53,27 +61,46 @@ const MINIAPP_DOMAINS_FIELD = {
 
         const mapping = []
         const mappedOrigins = []
+        const mappedHostToIdx = new Map()
+
+        function addMapping (origin, preferredIdx) {
+            if (mappedOrigins.includes(origin)) return preferredIdx
+
+            const hostKey = new URL(origin).host
+            let targetIdx = preferredIdx
+            if (mappedHostToIdx.has(hostKey)) {
+                targetIdx = mappedHostToIdx.get(hostKey)
+            } else {
+                mappedHostToIdx.set(hostKey, preferredIdx)
+            }
+
+            mappedOrigins.push(origin)
+            mapping.push({
+                from: origin,
+                to: getMappedTargetOrigin(origin, item.id, targetIdx),
+            })
+
+            return targetIdx === preferredIdx ? preferredIdx + 1 : preferredIdx
+        }
 
         let idx = 2
         for (const redirectUri of oidcRedirectURIS) {
             if (!redirectUri) continue
-            const origin = (new URL(redirectUri)).origin
-            if (mappedOrigins.includes(origin)) continue
-            mappedOrigins.push(origin)
-            mapping.push({
-                from: origin,
-                to: new URL(replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-${idx}.miniapps`)).origin,
-            })
-            idx++
+            idx = addMapping((new URL(redirectUri)).origin, idx)
         }
 
         if (item.appUrl) {
             const origin = (new URL(item.appUrl)).origin
             if (!mappedOrigins.includes(origin)) {
+                const hostKey = new URL(origin).host
+                const targetIdx = mappedHostToIdx.has(hostKey) ? mappedHostToIdx.get(hostKey) : 1
+                if (!mappedHostToIdx.has(hostKey)) {
+                    mappedHostToIdx.set(hostKey, 1)
+                }
                 mappedOrigins.push(origin)
                 mapping.push({
                     from: origin,
-                    to: new URL(replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-1.miniapps`)).origin,
+                    to: getMappedTargetOrigin(origin, item.id, targetIdx),
                 })
             }
         }
@@ -82,14 +109,7 @@ const MINIAPP_DOMAINS_FIELD = {
 
         for (const domain of item.additionalDomains) {
             if (!domain) continue
-            const origin = (new URL(domain)).origin
-            if (mappedOrigins.includes(origin)) continue
-            mappedOrigins.push(origin)
-            mapping.push({
-                from: origin,
-                to: new URL(replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-${idx}.miniapps`)).origin,
-            })
-            idx++
+            idx = addMapping((new URL(domain)).origin, idx)
         }
 
         return { mapping }
