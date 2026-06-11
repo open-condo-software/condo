@@ -66,6 +66,7 @@ const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const subscriptionUtils = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
 
 const {
     getAllReadyToPayRecurrentPaymentContexts,
@@ -74,6 +75,7 @@ const {
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
     filterNotPayablePayment,
+    filterPaymentsByOrganizationSubscription,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
@@ -85,6 +87,11 @@ const {
     isLimitExceedForBillingReceipts,
     RETRY_COUNT,
 } = require('./index')
+
+
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => ({
+    createOrganizationSubscriptionChecker: jest.fn().mockReturnValue(jest.fn().mockResolvedValue(true)),
+}))
 
 const offset = 0
 const pageSize = 10
@@ -2557,6 +2564,131 @@ describe('task schema queries', () => {
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPaymentContext argument')
             })
+        })
+    })
+
+    describe('filterPaymentsByOrganizationSubscription', () => {
+        afterEach(() => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
+        })
+
+        const makePayment = (orgId) => ({
+            id: `payment-${orgId}`,
+            recurrentPaymentContext: {
+                id: `ctx-${orgId}`,
+                serviceConsumer: { organization: { id: orgId } },
+            },
+        })
+
+        it('should keep payments for organizations with active subscription', async () => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
+
+            const payments = [makePayment('org-1'), makePayment('org-2')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(result).toHaveLength(2)
+        })
+
+        it('should remove payments for organizations without active subscription', async () => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(false))
+
+            const payments = [makePayment('org-1'), makePayment('org-2')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(result).toHaveLength(0)
+        })
+
+        it('should filter mixed: keep subscribed, remove unsubscribed', async () => {
+            subscriptionUtils.createOrganizationSubscriptionChecker
+                .mockReturnValue(jest.fn().mockImplementation((ctx, orgId) => Promise.resolve(orgId === 'org-subscribed')))
+
+            const payments = [makePayment('org-subscribed'), makePayment('org-no-sub')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(result).toHaveLength(1)
+            expect(result[0].recurrentPaymentContext.serviceConsumer.organization.id).toBe('org-subscribed')
+        })
+
+        it('should return empty array for empty input', async () => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
+
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, [])
+            expect(result).toHaveLength(0)
+        })
+
+        it('should call hasOrganizationActiveSubscription for each payment', async () => {
+            const mockFn = jest.fn().mockResolvedValue(true)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(mockFn)
+
+            const payments = [makePayment('org-1'), makePayment('org-2'), makePayment('org-3')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+
+            expect(mockFn).toHaveBeenCalledTimes(3)
+            expect(result).toHaveLength(3)
+        })
+    })
+
+    describe('getAllReadyToPayRecurrentPaymentContexts subscription filtering', () => {
+        let admin, date
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            date = dayjs()
+        })
+
+        afterEach(() => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
+        })
+
+        it('should exclude contexts for organizations without active subscription', async () => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(false))
+
+            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
+            })
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[1].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[1].billingReceipts[0].category.id } },
+            })
+
+            const result = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id1, id2],
+            })
+
+            expect(result).toHaveLength(0)
+        })
+
+        it('should include contexts for organizations with active subscription', async () => {
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
+
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [{ id }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
+            })
+
+            const result = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id],
+            })
+
+            expect(result).toHaveLength(1)
         })
     })
 })

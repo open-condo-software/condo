@@ -2,6 +2,11 @@
  * @jest-environment node
  */
 
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
+
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
@@ -21,6 +26,8 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { notifyResidentsOnPayday } = require('@condo/domains/resident/tasks/notifyResidentsOnPayday')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -103,6 +110,29 @@ describe('Push notification on payday about unpaid receipts', () => {
             const messages = await getNewMessages({ userId: client.user.id })
             expect(messages).toHaveLength(1)
             expect(messages[0].uniqKey.slice(-10)).toEqual(closerPeriod)
+        })
+
+        describe('subscription check', () => {
+            afterEach(() => {
+                hasOrganizationActiveSubscription.mockResolvedValue(true)
+            })
+
+            it('should not send notification when organization has no active subscription', async () => {
+                hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+                const client = await makeClientWithResidentUser()
+                const [resident] = await createTestResident(admin, client.user, property)
+                await createTestServiceConsumer(admin, resident, organization, {
+                    accountNumber: account.number,
+                    acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
+                })
+                await createTestBillingReceipt(admin, context, billingProperty, account, { period })
+
+                await notifyResidentsOnPayday()
+
+                const messages = await getNewMessages({ userId: client.user.id })
+                expect(messages).toHaveLength(0)
+            })
         })
 
         it('has BillingReceipt with positive toPay field and has partial Payments', async () => {

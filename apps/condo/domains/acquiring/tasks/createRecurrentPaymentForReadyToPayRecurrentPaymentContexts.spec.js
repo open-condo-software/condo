@@ -1,6 +1,12 @@
 /**
  * @jest-environment node
  */
+
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -27,9 +33,12 @@ const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 
 const {
     createRecurrentPaymentForRecurrentPaymentContext,
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts,
 } = require('./createRecurrentPaymentForReadyToPayRecurrentPaymentContexts')
 
 
@@ -238,6 +247,31 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
             url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
+        })
+    })
+
+    describe('subscription check', () => {
+        afterEach(() => {
+            hasOrganizationActiveSubscription.mockResolvedValue(true)
+        })
+
+        it('should not create RecurrentPayment when organization has no active subscription', async () => {
+            hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+            })
+
+            await createRecurrentPaymentForReadyToPayRecurrentPaymentContexts()
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+            expect(recurrentPayments).toHaveLength(0)
         })
     })
 

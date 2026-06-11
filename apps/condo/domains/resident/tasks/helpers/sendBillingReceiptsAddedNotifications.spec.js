@@ -2,6 +2,11 @@
  * @jest-environment node
  */
 
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -19,9 +24,12 @@ const {
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers/sendBillingReceiptsAddedNotifications')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 const { User } = require('@condo/domains/user/utils/testSchema')
 
 jest.mock('@condo/domains/resident/constants/constants', () => {
@@ -814,6 +822,26 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const messages = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.billingReceiptId).toBe(receipts.find(r => r.period === '2024-01-01').id)
+        })
+    })
+
+    describe('sendBillingReceiptsAddedNotifications subscription check', () => {
+        afterEach(() => {
+            hasOrganizationActiveSubscription.mockResolvedValue(true)
+        })
+
+        it('should not send notification when organization has no active subscription', async () => {
+            hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } })
+
+            await sendBillingReceiptsAddedNotifications(dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+
+            const messages = await Message.getAll(admin, {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            })
+            expect(messages).toHaveLength(0)
         })
     })
 })

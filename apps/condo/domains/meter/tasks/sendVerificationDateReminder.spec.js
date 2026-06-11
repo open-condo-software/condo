@@ -2,6 +2,11 @@
  * @jest-environment node
  */
 
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
+
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
@@ -11,6 +16,8 @@ const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sen
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 
 
 const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
@@ -131,5 +138,28 @@ describe('Meter verification notification', () => {
             MESSAGE_FIELDS,
         )
         expect(messages).toHaveLength(2)
+    })
+
+    describe('subscription check', () => {
+        afterEach(() => {
+            hasOrganizationActiveSubscription.mockResolvedValue(true)
+        })
+
+        it('should not send notification when organization has no active subscription', async () => {
+            hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+            const { resident: { user: { id } } } = await makeClientWithResidentAndMeter({
+                verificationDate: dayjs().subtract('1', 'year').toISOString(),
+                nextVerificationDate: dayjs().add('15', 'day').toISOString(),
+            })
+
+            await sendVerificationDateReminder({ date: null, searchWindowDaysShift: 0, daysCount: 30 })
+
+            const messages = await MessageApi.getAll(keystone,
+                { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+                MESSAGE_FIELDS,
+            )
+            expect(messages).toHaveLength(0)
+        })
     })
 })

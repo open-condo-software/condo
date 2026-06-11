@@ -2,6 +2,11 @@
  * @jest-environment node
  */
 
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
+
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
@@ -23,6 +28,8 @@ const {
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 
 
 const { keystone } = index
@@ -318,5 +325,22 @@ describe('Submit meter readings push notification', () => {
         expect(messages).toHaveLength(1)
         expect(messages[0].type).toEqual(METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE)
         expect(messages[0].organization.id).toEqual(meter.organization.id)
+    })
+
+    describe('subscription check', () => {
+        afterEach(() => {
+            hasOrganizationActiveSubscription.mockResolvedValue(true)
+        })
+
+        it('should not send notification when organization has no active subscription', async () => {
+            hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+            const client = await prepareUserAndMeter({ nextVerificationDate: dayjs().add(1, 'year').toISOString() })
+
+            await sendSubmitMeterReadingsPushNotifications()
+
+            const messages = await getNewMessages({ userId: client.user.id, meterId: client.meter.id })
+            expect(messages).toHaveLength(0)
+        })
     })
 })
