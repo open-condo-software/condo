@@ -1,6 +1,11 @@
 /**
  * @jest-environment node
  */
+
+jest.mock('@condo/domains/subscription/utils/hasOrganizationActiveSubscription', () => ({
+    hasOrganizationActiveSubscription: jest.fn().mockResolvedValue(true),
+}))
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 
@@ -36,8 +41,11 @@ const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
 
+const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+
 const {
     chargeByRecurrentPaymentAndPaymentAdapter,
+    chargeRecurrentPayments,
 } = require('./chargeRecurrentPayments')
 
 const { keystone } = index
@@ -194,6 +202,26 @@ describe('charge-recurrent-payments', () => {
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
                 url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
+            })
+        })
+
+        describe('subscription check', () => {
+            afterEach(() => {
+                hasOrganizationActiveSubscription.mockResolvedValue(true)
+            })
+
+            it('should not charge payments when organization has no active subscription', async () => {
+                hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+                const [recurrentPayment] = await createTestRecurrentPayment(
+                    admin,
+                    getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+                )
+
+                await chargeRecurrentPayments()
+
+                const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+                expect(result.status).toEqual(RECURRENT_PAYMENT_INIT_STATUS)
             })
         })
 

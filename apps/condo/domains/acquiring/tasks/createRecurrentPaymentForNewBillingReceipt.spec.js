@@ -1,6 +1,11 @@
 /**
  * @jest-environment node
  */
+
+jest.mock('@condo/domains/subscription/utils/hasOrganizationActiveSubscription', () => ({
+    hasOrganizationActiveSubscription: jest.fn().mockResolvedValue(true),
+}))
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -31,8 +36,11 @@ const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
 
+const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+
 const {
     scanBillingReceiptsForRecurrentPaymentContext,
+    createRecurrentPaymentForNewBillingReceipt,
 } = require('./createRecurrentPaymentForNewBillingReceipt')
 
 const { keystone } = index
@@ -570,5 +578,32 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
 
         const ids = recurrentPayment.billingReceipts.map(receipt => receipt.id)
         expect(ids).toContain(billingReceipts[1].id)
+    })
+
+    describe('subscription check', () => {
+        afterEach(() => {
+            hasOrganizationActiveSubscription.mockResolvedValue(true)
+        })
+
+        it('should not create RecurrentPayment when organization has no active subscription', async () => {
+            hasOrganizationActiveSubscription.mockResolvedValue(false)
+
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+                autoPayReceipts: true,
+                paymentDay: null,
+            })
+
+            await createRecurrentPaymentForNewBillingReceipt()
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+            expect(recurrentPayments).toHaveLength(0)
+        })
     })
 })
