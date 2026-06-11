@@ -642,6 +642,7 @@ const MESSAGE_META = {
             voipPanels: { required: false },
             stunServers: { required: false },
             stun: { required: false },
+            voipIceServers: { required: false },
             codec: { required: false },
             address: { required: true },
             getVoIPCallStatusUrl: { required: false },

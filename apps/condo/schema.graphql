@@ -95242,6 +95242,15 @@ input SendVoIPCallStartMessageDataForCallHandlingByB2CApp {
   B2CAppContext: String!
 }
 
+input SendVoIPCallStartMessageDataIceServer {
+  """
+  Address for stun/turn/other server including protocol: "stun:...", "turn:...", "turns:..."
+  """
+  address: String!
+  login: String
+  password: String
+}
+
 input SendVoIPCallStartMessageDataForCallHandlingByNative {
   """Address of sip server, which device should connect to"""
   voipAddress: String!
@@ -95260,10 +95269,13 @@ input SendVoIPCallStartMessageDataForCallHandlingByNative {
   """
   Stun server urls. Are used to determine device public ip for media streams
   """
-  stunServers: [String!]
+  stunServers: [String!] @deprecated(reason: "Will be removed, use iceServers")
 
   """Preferred codec (usually vp8)"""
   codec: String
+
+  """Stun or turn servers which voip client will use"""
+  iceServers: [SendVoIPCallStartMessageDataIceServer!]
 }
 
 input SendVoIPCallStartMessageData {
@@ -110103,6 +110115,12 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "INVALID_CALL_META",
     "message": "\"callMeta\" exceeds maximum length of 1000"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_ICE_SERVERS",
+    "message": "\"iceServers\" contains addresses with not supported protocol (not one of \"stun:...\", \"turn:...\", \"turns:...\") and/or search params"
   }`
   """
   sendVoIPCallStartMessage(data: SendVoIPCallStartMessageInput!): SendVoIPCallStartMessageOutput

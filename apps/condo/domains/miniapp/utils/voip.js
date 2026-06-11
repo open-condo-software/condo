@@ -17,6 +17,12 @@ const MIN_CALL_ID_LENGTH = 1
 const MAX_CALL_ID_LENGTH = 300
 const VOIP_CALL_STATUS_JWT_SECRET = conf.VOIP_CALL_STATUS_JWT_SECRET || generateUUIDv4() // NOTE(YEgorLu): generateUUIDv4() is only to make testing easier. In prod you should set env
 
+const STUN_PROTOCOL = 'stun'
+const TURN_PROTOCOL = 'turn'
+const TURNS_PROTOCOL = 'turns'
+const ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS = [STUN_PROTOCOL, TURN_PROTOCOL, TURNS_PROTOCOL]
+const ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS = { 'transport': ['tcp'] }
+
 const MAX_CALL_META_LENGTH = 1000
 
 const CALL_ID_NOT_ALLOWED_CHARACTERS_REGEX = /[^a-zA-Z0-9\\/.,?_^&$\-+*]/
@@ -64,6 +70,42 @@ function isCallMetaValid (callMeta) {
     if (callMeta === null || callMeta === undefined) return true
     const length = typeof callMeta === 'string' ? callMeta.length : JSON.stringify(callMeta).length
     return length <= MAX_CALL_META_LENGTH
+}
+
+function isIceServersAddressesValid (iceServers) {
+    if (!iceServers?.length) return true
+    for (const iceServer of iceServers) {
+        if (!iceServer?.address) {
+            return false
+        }
+        const usedProtocol = ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS.find(protocol => iceServer.address.startsWith(`${protocol}:`))
+        if (!usedProtocol) {
+            return false
+        }
+
+        let url
+
+        try {
+            url = new URL(iceServer.address.replace(`${usedProtocol}:`, `${usedProtocol}://`))
+        } catch {
+            return false
+        }
+
+        for (const searchParamName of url.searchParams.keys()) {
+            const allowedValues = ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS[searchParamName]
+            if (!allowedValues?.length) {
+                return false
+            }
+
+            for (const searchParamValue of url.searchParams.getAll(searchParamName)) {
+                if (!allowedValues.includes(searchParamValue)) {
+                    return false
+                }
+            }
+        }
+    }
+
+    return true
 }
 
 function buildKey (b2cAppId, organizationId, addressKey, callId) {
@@ -153,9 +195,17 @@ module.exports = {
     buildCallStatusJWTToken,
     parseCallStatusJWTToken,
 
+    isIceServersAddressesValid,
+
     MIN_CALL_ID_LENGTH,
     MAX_CALL_ID_LENGTH,
     MAX_CALL_META_LENGTH,
 
     CALL_STATUS_TTL_IN_SECONDS,
+
+    STUN_PROTOCOL,
+    TURN_PROTOCOL,
+    TURNS_PROTOCOL,
+    ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS,
+    ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS,
 }

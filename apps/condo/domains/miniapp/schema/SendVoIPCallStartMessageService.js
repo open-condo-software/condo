@@ -25,7 +25,7 @@ const {
     sendMessageToUser,
     COMMON_VOIP_ERRORS,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken, isIceServersAddressesValid, ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -33,6 +33,9 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const redisGuard = new RedisGuard()
 
 const logger = getLogger()
+
+/** '"stun:...", "turn:...", ...' */
+const ALLOWED_ICE_SERVER_PROTOCOLS_COMMENT = ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS.map(protocol => `"${protocol}:..."`).join(', ')
 
 const SERVICE_NAME = 'sendVoIPCallStartMessage'
 const ERRORS = {
@@ -69,6 +72,13 @@ const ERRORS = {
         type: INVALID_CALL_META_ERROR,
         code: BAD_USER_INPUT,
         message: `"callMeta" exceeds maximum length of ${MAX_CALL_META_LENGTH}`,
+    },
+    INVALID_ICE_SERVERS: {
+        mutation: SERVICE_NAME,
+        variable: ['data', 'callData', 'nativeCallData', 'iceServers'],
+        type: 'INVALID_ICE_SERVERS',
+        code: BAD_USER_INPUT,
+        message: `"iceServers" contains addresses with not supported protocol (not one of ${ALLOWED_ICE_SERVER_PROTOCOLS_COMMENT}) and/or search params`,
     },
 }
 
@@ -107,6 +117,10 @@ function validateInput ({ context, logContext, args }) {
     if (!isCallMetaValid(callMeta)) {
         throw new GQLError(ERRORS.INVALID_CALL_META, context)
     }
+
+    if (nativeCallData && !isIceServersAddressesValid(nativeCallData.iceServers ?? [])) {
+        throw new GQLError(ERRORS.INVALID_ICE_SERVERS, context)
+    }
 }
 
 const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMessageService', {
@@ -135,6 +149,17 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
         },
         {
             access: true,
+            type: `input SendVoIPCallStartMessageDataIceServer {
+                """
+                Address for stun/turn/other server including protocol: ${ALLOWED_ICE_SERVER_PROTOCOLS_COMMENT}
+                """
+                address: String!,
+                login: String,
+                password: String,
+            }`,
+        },
+        {
+            access: true,
             type: `input SendVoIPCallStartMessageDataForCallHandlingByNative {
                 """
                 Address of sip server, which device should connect to
@@ -155,11 +180,15 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                 """
                 Stun server urls. Are used to determine device public ip for media streams
                 """
-                stunServers: [String!],
+                stunServers: [String!] @deprecated(reason: "Will be removed, use iceServers"),
                 """
                 Preferred codec (usually vp8)
                 """
                 codec: String
+                """
+                Stun or turn servers which voip client will use
+                """
+                iceServers: [SendVoIPCallStartMessageDataIceServer!]
             }`,
         },
         {
