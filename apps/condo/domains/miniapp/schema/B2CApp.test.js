@@ -277,6 +277,8 @@ describe('B2CApp', () => {
                     'http://example.com',
                     'http://api.example.com/path',
                     'http://localhost:3000',
+                    // ws:// is listed to verify validation rejects it - not used as a real connection
+                    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
                     'ws://socket.example.com',
                     
                     // Malformed URLs
