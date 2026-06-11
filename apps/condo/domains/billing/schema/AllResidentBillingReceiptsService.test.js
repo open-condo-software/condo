@@ -92,6 +92,7 @@ describe('AllResidentBillingReceiptsService', () => {
             await utils.registerExternalPayment({
                 accountNumber,
                 bankAccount: jsonReceipt.bankAccount,
+                period: jsonReceipt.period,
                 amount,
             })
             const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
