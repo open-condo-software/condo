@@ -91,13 +91,15 @@ const getNewPaymentsSum = async (receiptId) => {
     })
     const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
     const account = await getById('BillingAccount', receipt.account)
+    const receiver = await getById('BillingRecipient', receipt.receiver)
     if (billingContext && account) {
         const conditionsWithNoReceipt = [
-            { receipt_is_null: true },
             { invoice_is_null: true },
             { organization: { id: billingContext.organization } },
             { period: receipt.period },
             { accountNumber: account.number },
+            { recipientBankAccount: receiver.bankAccount },
+            { OR: [{ receipt_is_null: true }, { receipt: { deletedAt_not: null } }] },
             ...defaultConditions,
         ]
         const qrPayments = await find('Payment', {
