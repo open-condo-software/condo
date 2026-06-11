@@ -1,0 +1,10 @@
+# Temporary bootstrap schema for first maketypes run.
+# If you see this after setting up the app - it means 'maketypes' script didn't finish correctly
+# run 'yarn maketypes' from your miniapp's root
+
+scalar Upload
+
+type Query {
+  # Dummy field so schema is valid before generation
+  _empty: String
+}
