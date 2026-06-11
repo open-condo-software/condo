@@ -12,6 +12,7 @@ const {
     CALL_DATA_NOT_PROVIDED_ERROR,
     INVALID_CALL_META_ERROR,
     CALL_STATUS_STARTED,
+    NATIVE_VOIP_TYPE,
 } = require('@condo/domains/miniapp/constants')
 const {
     RejectCallError,
@@ -24,9 +25,10 @@ const {
     parseSendMessageResults,
     sendMessageToUser,
     COMMON_VOIP_ERRORS,
+    getVoipTypeByData,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
 const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
-const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { VOIP_INCOMING_CALL_MESSAGE_TYPE, VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE, VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -274,15 +276,34 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     const callStatusJwtToken = buildCallStatusJWTToken(callStatusIdentityParams)
 
                     // 4) Send messages
-                    /** @type {Array<Promise<{status, id, isDuplicateMessage}>>} */
+                    /** @type {Array<Promise<{ resident, contact, user, result: { status, id, isDuplicateMessage } | null, error: Error | null }>>} */
                     const sendMessagePromises = verifiedResidentsWithContacts
-                        .map(({ resident, contact, user }) => {
-                            return sendMessageToUser({ 
-                                voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE,
-                                context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
-                                dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
-                                callStatusJwtToken, hasSendDTMFUrl,
-                            })
+                        .map(async ({ resident, contact, user }) => {
+
+                            const voipType = getVoipTypeByData({ callData, customVoIPValues: customVoIPValuesByContactId[contact.id] })
+
+                            const pushTypes = [
+                                VOIP_INCOMING_CALL_MESSAGE_TYPE, 
+                                voipType === NATIVE_VOIP_TYPE ? VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE : VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE,
+                            ]
+                            const results = []
+
+                            for (const pushType of pushTypes) {
+                                let result = null
+                                let error = null
+                                try {
+                                    result = await sendMessageToUser({ 
+                                        voipMessageType: pushType,
+                                        context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
+                                        dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
+                                        callStatusJwtToken, hasSendDTMFUrl,
+                                    })
+                                } catch (err) {
+                                    error = err
+                                }
+                                results.push({ result, error })
+                            }
+                            return { resident, contact, user, results }
                         })
                 
                     // 5) Set call status in redis

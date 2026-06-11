@@ -24,6 +24,7 @@ const {
     TICKET_COMMENT_CREATED_TYPE,
     PASS_TICKET_CREATED_MESSAGE_TYPE,
     PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
@@ -33,12 +34,15 @@ const { getTokens, groupIntoParallelGroupsWithSequentialBatches } = require('@co
 
 const logger = getLogger()
 
+const PUSH_TYPE_RULE_ENABLED = 'enabled'
+const PUSH_TYPE_RULE_DISABLED = 'disabled'
 
 /**
  * @typedef PushAdapterSettings
  * @property {Record<string, string> | undefined} encryption - appId to encryptionVersion
  * @property {Record<string, string[]> | undefined} groups - groupName to ordered appIds in group
  * @property {Record<string, string[] | undefined>} transportPriorityByAppId - appId to transports array, if appId needs to be restricted to use specific transports
+ * @property {Record<string | '_global', Record<string, typeof PUSH_TYPE_RULE_DISABLED | typeof PUSH_TYPE_RULE_ENABLED>} pushTypeSwitchRulesByAppId - which push types to enable / disable globally or by appId of remote client
  */
 
 /** @type {PushAdapterSettings} */
@@ -50,6 +54,15 @@ const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
     PASS_TICKET_CREATED_MESSAGE_TYPE,
     PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
 ]
+
+const PUSH_TYPE_SWITCH_RULES_BY_APP_ID =  {
+    ...PUSH_ADAPTER_SETTINGS.pushTypeSwitchRulesByAppId,
+    _global: {
+        ...Object.fromEntries(TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.map(messageType => ([messageType, PUSH_TYPE_RULE_DISABLED]))),
+        [VOIP_INCOMING_CALL_MESSAGE_TYPE]: PUSH_TYPE_RULE_DISABLED,
+        ...PUSH_ADAPTER_SETTINGS.pushTypeSwitchRulesByAppId?._global,
+    },
+}
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
@@ -301,10 +314,6 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
 
-    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(message, 'type'))) {
-        return [false, { error: 'Disabled type for push transport' }]
-    }
-
     const pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.
@@ -318,6 +327,26 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     let container = { failureCount: 0, successCount: 0, responses: [] }
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
+    
+    const disabledBySettingsRecipients = recipients.filter(({ appId }) => {
+        const appSettings = PUSH_TYPE_SWITCH_RULES_BY_APP_ID[appId]?.[message.type]
+        const globalSettings = PUSH_TYPE_SWITCH_RULES_BY_APP_ID._global?.[message.type]
+        if (appSettings === PUSH_TYPE_RULE_DISABLED) return true
+        if (globalSettings === PUSH_TYPE_RULE_DISABLED) {
+            return appSettings !== PUSH_TYPE_RULE_ENABLED
+        }
+        return false
+    })
+    recipients = recipients.filter(recipient => !disabledBySettingsRecipients.includes(recipient))
+    container.failureCount += disabledBySettingsRecipients.length
+    container.responses.push(...disabledBySettingsRecipients.map(recipient => ({
+        success: false,
+        pushToken: recipient.token,
+        appId: recipient.appId,
+        pushType: recipient.pushType,
+        error: 'message type disabled by settings',
+    })))
+
     const invalidRecipients = recipients.filter(recipient => !recipient.notification || !recipient.data)
     recipients = recipients.filter(recipient => !invalidRecipients.includes(recipient))
 

@@ -1818,6 +1818,8 @@
   "notification.messages.VERIFY_USER_EMAIL.email.subject": "Verification",
   "notification.messages.VERIFY_USER_EMAIL.email.title": "Verification",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "Intercom call",
+  "notification.messages.VOIP_INCOMING_NATIVE_CALL_MESSAGE.push.title": "Intercom call",
+  "notification.messages.VOIP_INCOMING_B2C_APP_CALL_MESSAGE.push.title": "Intercom call",
   "onboarding.tourStep.tooltip.ticket.message": "Make sure the information is correct and create an ticket",
   "onboarding.tourStep.tooltip.ticket.title": "Multiple fields filled automatically",
   "organization.createOrganizationForm.cancelModal.message": "You’ll need to create an organization to access the platform. Your progress will be lost if you leave this page.",

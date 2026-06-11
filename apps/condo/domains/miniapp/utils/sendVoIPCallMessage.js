@@ -22,6 +22,8 @@ const {
     MESSAGE_META,
     VOIP_INCOMING_CALL_MESSAGE_TYPE, MESSAGE_SENDING_STATUS,
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
+    VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/serverSchema/helpers')
@@ -42,6 +44,8 @@ const POSSIBLE_CUSTOM_FIELD_NAMES_BY_MESSAGE_TYPE = VOIP_MESSAGE_TYPES.reduce((b
 
 const VOIP_MESSAGE_DATA_PREPARERS = {
     [VOIP_INCOMING_CALL_MESSAGE_TYPE]: prepareVoIPCallStartMessageData,
+    [VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE]: prepareVoIPCallStartMessageData,
+    [VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE]: prepareVoIPCallStartMessageData,
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: prepareVoIPCallCancelMessageData,
 }
 
@@ -129,19 +133,7 @@ function prepareVoIPCallStartMessageData ({
         callStatusJwtToken,
     }
 
-    const getVoIPCallStatusUrl = getGetVoIPCallStatusUrl({ dv: 1, sender, callStatusJwtToken })
-    const getVoIPCallStatusTimeout = getGetVoIPCallStatusTimeout()
-    if (getVoIPCallStatusUrl && getVoIPCallStatusTimeout) {
-        preparedDataArgs = {
-            ...preparedDataArgs,
-            getVoIPCallStatusUrl,
-            getVoIPCallStatusTimeout,
-        }
-    }
-
-    const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
-    const isB2CAppCallDataProvidedAndPreferredByCustomValue = !!callData.b2cAppCallData && customVoIPValues.voipType === B2C_APP_VOIP_TYPE
-    const needToPasteB2CAppCallData = isB2CAppCallDataIsOnlyOption || isB2CAppCallDataProvidedAndPreferredByCustomValue
+    const needToPasteB2CAppCallData = getVoipTypeByData({ callData, customVoIPValues }) === B2C_APP_VOIP_TYPE
 
     if (!needToPasteB2CAppCallData) {
         let voipType = customVoIPValues?.voipType || NATIVE_VOIP_TYPE
@@ -242,7 +234,7 @@ function prepareVoIPCallCancelMessageData ({
 async function sendMessageToUser (args) {
     const {
         voipMessageType,
-        context, resident, contact, user,
+        context, user,
         sender, dv,
     } = args
 
@@ -268,8 +260,7 @@ async function sendMessageToUser (args) {
         },
     }
 
-    const result = await sendMessage(context, messageAttrs)
-    return { resident, contact, user, result }
+    return await sendMessage(context, messageAttrs)
 }
 
 async function getVerifiedResidentsWithContacts ({ context, logContext, addressKey, unitName, unitType }) {
@@ -412,21 +403,27 @@ async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessage
 }
 
 function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
-    const sendMessageStats = sendMessagePromisesResults.map(promiseResult => {
-        if (promiseResult.status === 'rejected') {
-            return { success: false, error: promiseResult.reason }
-        } 
-        
-        const { user, resident, contact, result } = promiseResult.value
+    const { rejectedResults, resolvedResults } = sendMessagePromisesResults.reduce((acc, promiseResult) => {
+        if (promiseResult.status === 'rejected') acc.rejectedResults.push(promiseResult)
+        else acc.resolvedResults.push(promiseResult)
+        return acc
+    }, { rejectedResults: [], resolvedResults: [] })
 
+    const rejectedMessagesStats = rejectedResults.map(promiseResult => ({ success: false, results: [{ error: promiseResult.reason }] }))
+
+    const resolvedMessagesStats = resolvedResults.map(({ value: { user, resident, contact, results } }) => {
         const userData = { userId: user.id, contactId: contact.id, residentId: resident.id }
-        const sendMessageResult = { id: result?.id, status: result?.status, isDuplicateMessage: result?.isDuplicateMessage }
 
-        if (result.isDuplicateMessage || result.status !== MESSAGE_SENDING_STATUS) {
-            return { ...userData, result: sendMessageResult, success: false }
-        }
-        return { ...userData, result: sendMessageResult, success: true }
+        const sendMessageResults = results.map(({ result, error }) => {
+            if (error) return { success: false, error: error instanceof Error ? error.message : String(error) }
+            if (!result) return { success: false, error: 'no result' }
+            return { success: !result.isDuplicateMessage && result.status === MESSAGE_SENDING_STATUS, result: { id: result?.id, status: result?.status, isDuplicateMessage: result?.isDuplicateMessage } }
+        })
+
+        return { ...userData, result: sendMessageResults, success: true }
     })
+
+    const sendMessageStats = [...resolvedMessagesStats, ...rejectedMessagesStats]
 
     if (!logContext) return sendMessageStats
 
@@ -532,6 +529,14 @@ function getInitialLogContext ({ addressKey, unitName, unitType, app, callData }
     }
 }
 
+function getVoipTypeByData ({ callData, customVoIPValues }) {
+    const isB2CAppCallDataIsOnlyOption = !callData.nativeCallData
+    const isB2CAppCallDataProvidedAndPreferredByCustomValue = !!callData.b2cAppCallData && customVoIPValues?.voipType === B2C_APP_VOIP_TYPE
+    const needToPasteB2CAppCallData = isB2CAppCallDataIsOnlyOption || isB2CAppCallDataProvidedAndPreferredByCustomValue
+
+    return needToPasteB2CAppCallData ? B2C_APP_VOIP_TYPE : NATIVE_VOIP_TYPE
+}
+
 module.exports = {
     getVerifiedResidentsWithContacts,
     getAppInfo,
@@ -541,6 +546,7 @@ module.exports = {
     getLogInfoFn,
     checkLimits,
     getInitialLogContext,
+    getVoipTypeByData,
 
     RejectCallError,
 

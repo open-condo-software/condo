@@ -61,6 +61,8 @@ const MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE = 'MOBILE_APP_UPDATE_AVAILAB
 const CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE = 'CUSTOM_CONTENT_MESSAGE_EMAIL'
 const CUSTOM_CONTENT_MESSAGE_SMS_TYPE = 'CUSTOM_CONTENT_MESSAGE_SMS'
 const VOIP_INCOMING_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_CALL_MESSAGE'
+const VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_NATIVE_CALL_MESSAGE'
+const VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_B2C_APP_CALL_MESSAGE'
 const CANCELED_CALL_MESSAGE_PUSH_TYPE = 'CANCELED_CALL_MESSAGE_PUSH'
 const RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE'
@@ -649,6 +651,38 @@ const MESSAGE_META = {
             sendDTMFTimeout: { required: false },
         },
     },
+    [VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            B2CAppId: { required: true },
+            B2CAppName: { required: true },
+            residentId: { required: true },
+            callId: { required: false },
+            voipType: { required: false },
+            voipAddress: { required: false },
+            voipLogin: { required: false },
+            voipPassword: { required: false },
+            voipPanels: { required: false },
+            stunServers: { required: false },
+            codec: { required: false },
+            address: { required: true },
+        },
+    },
+    [VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            B2CAppId: { required: true },
+            B2CAppContext: { required: false },
+            B2CAppName: { required: true },
+            residentId: { required: true },
+            callId: { required: false },
+            address: { required: true },
+        },
+    },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
         dv: { required: true },
         title: { required: false },
@@ -995,6 +1029,22 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
         isVoIP: true,
     },
+    [VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE]: {
+        // NOTE: Any realtime calls must be prioritized
+        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+        isVoIP: true,
+    },
+    [VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE]: {
+        // NOTE: Any realtime calls must be prioritized
+        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+        isVoIP: true,
+    },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
         priority: MESSAGE_DELIVERY_FAST_PRIORITY,
         allowedTransports: [PUSH_TRANSPORT],
@@ -1248,6 +1298,8 @@ module.exports = {
     MESSAGE_DELIVERY_FAST_PRIORITY,
     MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_NATIVE_CALL_MESSAGE_TYPE,
+    VOIP_INCOMING_B2C_APP_CALL_MESSAGE_TYPE,
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
     B2C_APP_MESSAGE_PUSH_TYPE,
     APPLE_CONFIG_ENV,
