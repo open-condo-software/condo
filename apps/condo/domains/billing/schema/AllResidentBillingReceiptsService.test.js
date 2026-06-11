@@ -80,7 +80,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
     })
 
-    describe('External import contexts', async () => {
+    describe('External import contexts',  () => {
 
         test('should correctly calculate paid field', async () => {
             const amount = '1000'
