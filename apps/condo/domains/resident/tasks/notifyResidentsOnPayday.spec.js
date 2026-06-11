@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 
-jest.mock('@condo/domains/subscription/utils/hasOrganizationActiveSubscription', () => ({
-    hasOrganizationActiveSubscription: jest.fn().mockResolvedValue(true),
-}))
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
 
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
@@ -25,7 +26,8 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { notifyResidentsOnPayday } = require('@condo/domains/resident/tasks/notifyResidentsOnPayday')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 

@@ -69,15 +69,13 @@ async function chargeRecurrentPayments () {
     const { pageSize } = paginationConfiguration
     let offset = 0
     let hasMorePages = true
-    const subscriptionCache = new Map()
-
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
         logger.info({ msg: 'processing recurrent payments page', data: { page: Math.floor(offset / pageSize) } })
         // get page (can be empty)
         const page = await getReadyForProcessingPaymentsPage(context, pageSize, offset)
         const itemsWithPayableStatus = await filterNotPayablePayment(page)
-        const itemsWithActiveSubscription = await filterPaymentsByOrganizationSubscription(context, itemsWithPayableStatus, subscriptionCache)
+        const itemsWithActiveSubscription = await filterPaymentsByOrganizationSubscription(context, itemsWithPayableStatus)
 
         // process each page in parallel
         await processArrayOf(itemsWithActiveSubscription).inParallelWith(async (recurrentPayment) => {

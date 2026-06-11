@@ -66,6 +66,7 @@ const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const subscriptionUtils = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
 
 const {
     getAllReadyToPayRecurrentPaymentContexts,
@@ -87,7 +88,10 @@ const {
     RETRY_COUNT,
 } = require('./index')
 
-const subscriptionUtils = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => ({
+    createOrganizationSubscriptionChecker: jest.fn().mockReturnValue(jest.fn().mockResolvedValue(true)),
+}))
 
 const offset = 0
 const pageSize = 10
@@ -2565,7 +2569,7 @@ describe('task schema queries', () => {
 
     describe('filterPaymentsByOrganizationSubscription', () => {
         afterEach(() => {
-            jest.restoreAllMocks()
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
         })
 
         const makePayment = (orgId) => ({
@@ -2577,7 +2581,7 @@ describe('task schema queries', () => {
         })
 
         it('should keep payments for organizations with active subscription', async () => {
-            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
 
             const payments = [makePayment('org-1'), makePayment('org-2')]
             const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
@@ -2586,7 +2590,7 @@ describe('task schema queries', () => {
         })
 
         it('should remove payments for organizations without active subscription', async () => {
-            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(false)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(false))
 
             const payments = [makePayment('org-1'), makePayment('org-2')]
             const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
@@ -2595,8 +2599,8 @@ describe('task schema queries', () => {
         })
 
         it('should filter mixed: keep subscribed, remove unsubscribed', async () => {
-            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription')
-                .mockImplementation((ctx, orgId) => Promise.resolve(orgId === 'org-subscribed'))
+            subscriptionUtils.createOrganizationSubscriptionChecker
+                .mockReturnValue(jest.fn().mockImplementation((ctx, orgId) => Promise.resolve(orgId === 'org-subscribed')))
 
             const payments = [makePayment('org-subscribed'), makePayment('org-no-sub')]
             const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
@@ -2606,20 +2610,21 @@ describe('task schema queries', () => {
         })
 
         it('should return empty array for empty input', async () => {
-            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
 
             const result = await filterPaymentsByOrganizationSubscription(adminContext, [])
             expect(result).toHaveLength(0)
         })
 
-        it('should use provided cache to avoid redundant subscription checks', async () => {
-            const spy = jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
-            const cache = new Map()
+        it('should call hasOrganizationActiveSubscription for each payment', async () => {
+            const mockFn = jest.fn().mockResolvedValue(true)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(mockFn)
 
-            const payments = [makePayment('org-1'), makePayment('org-1')]
-            await filterPaymentsByOrganizationSubscription(adminContext, payments, cache)
+            const payments = [makePayment('org-1'), makePayment('org-2'), makePayment('org-3')]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
 
-            expect(spy).toHaveBeenCalledTimes(1)
+            expect(mockFn).toHaveBeenCalledTimes(3)
+            expect(result).toHaveLength(3)
         })
     })
 
@@ -2632,11 +2637,11 @@ describe('task schema queries', () => {
         })
 
         afterEach(() => {
-            jest.restoreAllMocks()
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
         })
 
         it('should exclude contexts for organizations without active subscription', async () => {
-            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(false)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(false))
 
             const { batches } = await makePayerWithMultipleConsumers(2, 1)
             const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
@@ -2666,7 +2671,7 @@ describe('task schema queries', () => {
         })
 
         it('should include contexts for organizations with active subscription', async () => {
-            jest.spyOn(subscriptionUtils, 'hasOrganizationActiveSubscription').mockResolvedValue(true)
+            subscriptionUtils.createOrganizationSubscriptionChecker.mockReturnValue(jest.fn().mockResolvedValue(true))
 
             const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const [{ id }] = await createTestRecurrentPaymentContext(admin, {

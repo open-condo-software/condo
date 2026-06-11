@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 
-jest.mock('@condo/domains/subscription/utils/hasOrganizationActiveSubscription', () => ({
-    hasOrganizationActiveSubscription: jest.fn().mockResolvedValue(true),
-}))
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
@@ -23,11 +24,12 @@ const {
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers/sendBillingReceiptsAddedNotifications')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
-const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers/sendBillingReceiptsAddedNotifications')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
-const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 const { User } = require('@condo/domains/user/utils/testSchema')
 
 jest.mock('@condo/domains/resident/constants/constants', () => {

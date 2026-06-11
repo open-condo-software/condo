@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 
-jest.mock('@condo/domains/subscription/utils/hasOrganizationActiveSubscription', () => ({
-    hasOrganizationActiveSubscription: jest.fn().mockResolvedValue(true),
-}))
+jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
+    const mockFn = jest.fn().mockResolvedValue(true)
+    return { createOrganizationSubscriptionChecker: () => mockFn }
+})
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
@@ -39,8 +40,8 @@ const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
-
-const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
 
 const {
     notifyRecurrentPaymentContext,

@@ -57,7 +57,7 @@ const { SERVICE_CONSUMER_FIELDS } = require('@condo/domains/resident/gql')
 const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
-const { hasOrganizationActiveSubscription } = require('@condo/domains/subscription/utils/hasOrganizationActiveSubscription')
+const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
 
 const RETRY_COUNT = 5
 
@@ -139,11 +139,11 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
         { sortBy: 'id_ASC', first: pageSize, skip: offset }
     )
 
-    const cache = new Map()
+    const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
     const filtered = []
     for (const ctx of contexts) {
         const organizationId = get(ctx, 'serviceConsumer.organization.id')
-        if (organizationId && await hasOrganizationActiveSubscription(context, organizationId, cache)) {
+        if (organizationId && await hasOrganizationActiveSubscription(context, organizationId)) {
             filtered.push(ctx)
         }
     }
@@ -699,11 +699,12 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
     await sendResultMessageSafely(context, recurrentPayment, false, errorCode)
 }
 
-async function filterPaymentsByOrganizationSubscription (context, recurrentPayments, cache) {
+async function filterPaymentsByOrganizationSubscription (context, recurrentPayments) {
+    const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
     const filtered = []
     for (const payment of recurrentPayments) {
         const organizationId = get(payment, 'recurrentPaymentContext.serviceConsumer.organization.id')
-        if (organizationId && await hasOrganizationActiveSubscription(context, organizationId, cache)) {
+        if (organizationId && await hasOrganizationActiveSubscription(context, organizationId)) {
             filtered.push(payment)
         }
     }
