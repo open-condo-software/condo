@@ -147,12 +147,13 @@ class MaxOauthRoutes {
             await context._sessionManager.endAuthedSession(req)
         }
         const reqUrl = new URL(req.url, 'https://_')
-        // NOTE: "authFlow=needAuth" tells resident-app auth page to show the phone form
-        // instead of restarting the Max auth flow (which would cause an infinite redirect loop).
-        // NOTE: resident-app must share session cookie parent domain with condo,
-        // otherwise condo will not see the session created after phone auth and this redirect loops.
         const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`
-        return res.redirect(`${conf.RESIDENT_APP_DOMAIN}/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}&authFlow=needAuth`)
+        // NOTE: Mirror the Telegram flow: redirect to a relative "/auth" so the resident-app
+        // Max proxy (/api/auth/max/proxy/*) can rewrite the "next" query param to its own path and
+        // inject "authFlow=needAuth". Keeping the browser on the resident-app domain is required so
+        // condo sees the session cookie created during phone auth (it is host-only, scoped to the
+        // resident-app host by the GraphQL proxy). A direct redirect to condo's domain would loop.
+        return res.redirect(`/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}`)
     }
 
     _validateParameters (req, res, next) {

@@ -114,9 +114,10 @@ describe('MaxOauthRoutes', () => {
     describe('startAuth', () => {
         const mockUserId = faker.random.alphaNumeric(10)
         const expectRedirectToCallback = expect.stringContaining(`max/auth/callback?botId=${RESIDENT_BOT_ID}`)
-        // NOTE: "authFlow=needAuth" is required to show the phone form on resident-app auth page
-        // instead of restarting the Max auth flow (infinite redirect loop otherwise)
-        const expectRedirectToAuthPage = expect.stringMatching(/\/auth\?.*authFlow=needAuth/)
+        // NOTE: Mirror the Telegram flow: condo redirects to a relative "/auth" with the "next" param.
+        // The resident-app Max proxy injects "authFlow=needAuth" and rewrites "next" to keep the browser
+        // on the resident-app domain (so condo sees the session cookie created during phone auth).
+        const expectRedirectToAuthPage = expect.stringMatching(/^\/auth\?next=.*userType=/)
 
         const testCases = [
             {
