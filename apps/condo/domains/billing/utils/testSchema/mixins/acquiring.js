@@ -3,6 +3,11 @@ const dayjs = require('dayjs')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
+    ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
+    ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+} = require('@condo/domains/acquiring/constants/integration')
+
+const {
     PAYMENT_DONE_STATUS,
     MULTIPAYMENT_DONE_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
@@ -17,6 +22,7 @@ const {
     updateTestPayment,
     updateTestMultiPayment,
     MultiPayment,
+    registerExternalPaymentsByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 
@@ -27,19 +33,49 @@ const AcquiringTestMixin = {
     dependsOn: [OrganizationTestMixin],
 
     async initMixin () {
-        const [acquiringIntegration] = await createTestAcquiringIntegration(this.clients.admin)
+        const [acquiringIntegration] = await createTestAcquiringIntegration(this.clients.admin, { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE })
+        const [externalImportIntegration] = await createTestAcquiringIntegration(this.clients.admin, { type: ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE })
         await createTestAcquiringIntegrationAccessRight(this.clients.admin, acquiringIntegration, this.clients.service.user)
+        await createTestAcquiringIntegrationAccessRight(this.clients.admin, externalImportIntegration, this.clients.service.user)
         this.acquiringIntegration = acquiringIntegration
+        this.externalImportIntegration = externalImportIntegration
         const [acquiringContext] = await createTestAcquiringIntegrationContext(this.clients.admin, this.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+        const [externalImportContext] = await createTestAcquiringIntegrationContext(this.clients.admin, this.organization, this.externalImportIntegration, { status: CONTEXT_FINISHED_STATUS })
         this.acquiringContext = acquiringContext
+        this.externalImportAcquiringContext = externalImportContext
     },
 
     async updateAcquiringContext (updateInput) {
-        return await updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
+        return updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
     },
 
     async updateAcquiringIntegration (updateInput) {
-        return await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
+        return updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
+    },
+
+    generateExternalPayment (extraAttrs) {
+        return {
+            accountNumber: faker.finance.account(),
+            tin: this.organization.tin,
+            bankAccount: faker.finance.account(),
+            routingNumber: '044525225',
+            address: faker.address.streetAddress(true),
+            period: dayjs().add(-1, 'month').format('YYYY-MM-01'),
+            transactionDate: new Date().toISOString(),
+            transactionId: faker.datatype.uuid(),
+            amount: '100.00',
+            paymentOrder: faker.random.numeric(5),
+            currencyCode: 'RUB',
+            ...extraAttrs,
+        }
+    },
+
+    async registerExternalPayment (paymentExtraAttrs = {}) {
+        const payload = {
+            acquiringIntegrationContext: { id: this.externalImportAcquiringContext.id },
+            payments: [this.generateExternalPayment(paymentExtraAttrs)],
+        }
+        return registerExternalPaymentsByTestClient(this.clients.service, payload)
     },
 
     async payForReceipt (receiptId, consumerId, amount) {
