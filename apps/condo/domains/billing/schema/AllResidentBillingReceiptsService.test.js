@@ -92,7 +92,7 @@ describe('AllResidentBillingReceiptsService', () => {
             await utils.registerExternalPayment({
                 accountNumber,
                 bankAccount: jsonReceipt.bankAccount,
-                period: jsonReceipt.period,
+                period: dayjs().add(-1, 'month').format('YYYY-MM-01'),
                 amount,
             })
             const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
