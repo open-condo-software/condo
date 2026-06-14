@@ -85,7 +85,7 @@ class MaxOauthRoutes {
             const identity = await getIdentity(context, maxAuthData, userType)
             const callbackUrl = this._buildUrlWithParams(`${conf.SERVER_URL}/api/max/auth/callback`, {
                 ...req.query,
-                redirectUrl: encodeURIComponent(redirectUrl),
+                redirectUrl: redirectUrl,
                 maxAuthData: req.query.maxAuthData,
                 botId: getBotId(req),
             })
