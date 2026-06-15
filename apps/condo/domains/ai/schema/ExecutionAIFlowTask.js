@@ -136,7 +136,6 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         cleanContext: {
             schemaDoc: 'Cleaned context for executing a request to AI. This field is managed by the system',
             type: 'Json',
-            sensitive: true,
             isRequired: true,
             access: {
                 create: false,
