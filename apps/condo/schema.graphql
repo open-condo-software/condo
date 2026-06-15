@@ -108601,6 +108601,9 @@ type Mutation {
   			"stun": {
   				"required": false
   			},
+  			"voipIceServers": {
+  				"required": false
+  			},
   			"codec": {
   				"required": false
   			},
