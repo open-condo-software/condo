@@ -128,12 +128,13 @@ async function loadBillingContextsByOrganizationIds (organizationIds) {
 }
 
 async function loadBillingIntegrationsByIds (integrationIds, context) {
+    const uniqueIntegrationIds = [...new Set(integrationIds)]
     const billingIntegrations = await find('BillingIntegration', {
-        id_in: [...new Set(integrationIds)],
+        id_in: uniqueIntegrationIds,
         deletedAt: null,
     })
 
-    if (integrationIds.length !== billingIntegrations.length) {
+    if (uniqueIntegrationIds.length !== billingIntegrations.length) {
         throw new GQLError(ERRORS.CANNOT_FIND_ALL_BILLING_INTEGRATION, context)
     }
     

@@ -81,6 +81,7 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
@@ -815,6 +816,39 @@ describe('RegisterMultiPaymentService', () => {
                         serviceConsumerId,
                     },
                 })
+            })
+
+            test('Should allow one billing integration for several billing contexts', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+
+                const [organization] = await registerNewOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, { id: batches[0].billingIntegration.id })
+                const [billingProperty] = await createTestBillingProperty(adminClient, billingContext, { address: property.address })
+                const [billingAccount] = await createTestBillingAccount(adminClient, billingContext, billingProperty)
+                const [receipt] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount)
+
+                const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, commonData.acquiringIntegration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [serviceConsumer] = await createTestServiceConsumer(adminClient, batches[0].resident, organization, {
+                    acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
+                    billingIntegrationContext: { connect: { id: billingContext.id } },
+                    accountNumber: billingAccount.number,
+                })
+
+                const payload =  [
+                    {
+                        serviceConsumer: { id: batches[0].serviceConsumer.id },
+                        receipts: [{ id: batches[0].billingReceipts[0].id }],
+                    },
+                    {
+                        serviceConsumer: { id: serviceConsumer.id },
+                        receipts: [{ id: receipt.id }],
+                    },
+                ]
+
+                await registerMultiPaymentByTestClient(commonData.client, payload)
             })
         })
         describe('RecurrentPaymentContext checks', () => {
