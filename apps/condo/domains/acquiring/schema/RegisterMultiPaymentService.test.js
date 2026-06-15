@@ -19,7 +19,6 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
@@ -830,7 +829,7 @@ describe('RegisterMultiPaymentService', () => {
                 const [receipt] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount)
 
                 const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, commonData.acquiringIntegration, {
-                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    status: CONTEXT_FINISHED_STATUS,
                 })
                 const [serviceConsumer] = await createTestServiceConsumer(adminClient, batches[0].resident, organization, {
                     acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
