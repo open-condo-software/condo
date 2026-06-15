@@ -41,7 +41,7 @@ const MESSAGE_SCHEMA = z.strictObject({
         requestId: z.optional(z.union([z.string(), z.number()])),
     })),
     type: z.string(),
-    version: z.regex(SEMVER_REGEXP),
+    version: z.string().check(z.regex(SEMVER_REGEXP)),
 })
 
 export class PostMessageController extends EventTarget {
