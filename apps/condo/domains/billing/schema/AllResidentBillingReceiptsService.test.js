@@ -57,6 +57,53 @@ describe('AllResidentBillingReceiptsService', () => {
         await utils.init()
     })
 
+    describe('Paid receipt recreation', () => {
+
+        test('should correctly calculate paid field', async () => {
+            const amount = '1000'
+            const accountNumber = faker.random.alphaNumeric(12)
+            const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: amount })
+            const [[{ id: wrongReceiptId }]] = await utils.createReceipts([jsonReceipt])
+            const resident = await utils.createResident()
+            const [{ id: consumerId }] = await utils.createServiceConsumer(resident, accountNumber)
+            await utils.payForReceipt(wrongReceiptId, consumerId, amount)
+            await updateTestBillingReceipt(utils.clients.admin, wrongReceiptId, { deletedAt: new Date().toISOString() })
+            const [[{ id: fixedReceiptId }]] = await utils.createReceipts([
+                utils.createJSONReceipt({ accountNumber, toPay: amount, bankAccount: jsonReceipt.bankAccount  }),
+            ])
+            const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                serviceConsumer: { resident: { id: resident.id }, accountNumber },
+            })
+            const receipt = receipts.find(({ id }) => id === fixedReceiptId)
+            expect(Number(receipt.paid)).toEqual(Number(amount))
+        })
+
+    })
+
+    describe('External import contexts',  () => {
+
+        test('should correctly calculate paid field', async () => {
+            const amount = '1000'
+            const accountNumber = faker.random.alphaNumeric(12)
+            const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: amount })
+            const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
+            const resident = await utils.createResident()
+            const [{ id: consumerId }] = await utils.createServiceConsumer(resident, accountNumber)
+            await utils.registerExternalPayment({
+                accountNumber,
+                bankAccount: jsonReceipt.bankAccount,
+                period: dayjs().add(-1, 'month').format('YYYY-MM-01'),
+                amount,
+            })
+            const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                serviceConsumer: { id: consumerId },
+            })
+            const receipt = receipts.find(({ id }) => id === receiptId)
+            expect(Number(receipt.paid)).toEqual(Number(amount))
+        })
+
+    })
+
     describe('Several organizations cases', () => {
 
         let anotherUtils
@@ -569,7 +616,7 @@ describe('AllResidentBillingReceiptsService', () => {
                             tin: organization.tin,
                         })
                         const [billingReceipt] = await createTestBillingReceipt(utils.clients.admin, billingIntegrationContext, billingProperty, billingAccount, {
-                            period: '2024-03-01',
+                            period: dayjs().add(-1, 'month').format('YYYY-MM-01'),
                             receiver: { connect: { id: billingRecipient.id } },
                             account: { connect: { id: billingAccount.id } },
                             recipient: createTestRecipient({
