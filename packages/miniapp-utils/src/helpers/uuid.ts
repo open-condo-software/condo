@@ -1,23 +1,31 @@
-import { randomBytes } from 'crypto'
-
 /**
  * Generates v4 UUIDs in both browser and Node environments
  * @example
  * const uuid = generateUUIDv4()
  */
 export function generateUUIDv4 (): string {
+    // globalThis.crypto is available in: browsers, ESM Node ≥ 15, CJS Node ≥ 15
+    const webCrypto = typeof globalThis !== 'undefined' ? globalThis.crypto : undefined
+
+    if (webCrypto && typeof webCrypto.randomUUID === 'function') {
+        return webCrypto.randomUUID()
+    }
+
     let randomValues: Uint8Array
 
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-        // Browser or Node.js (if Node 19+ supports crypto.randomUUID)
-        return crypto.randomUUID()
-    } else if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-        // Browser environment
+    if (webCrypto && typeof webCrypto.getRandomValues === 'function') {
         randomValues = new Uint8Array(16)
-        window.crypto.getRandomValues(randomValues)
+        webCrypto.getRandomValues(randomValues)
     } else {
-        // Node.js environment
-        randomValues = randomBytes(16)
+        // Fallback for CJS Node < 15 where globalThis.crypto is absent.
+        // Wrapped in try/catch so bundlers (webpack/esbuild) can tree-shake it safely.
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const { randomBytes } = require('crypto')
+            randomValues = randomBytes(16)
+        } catch {
+            throw new Error('No secure random source available in this environment')
+        }
     }
 
     // Setting the version (4) and variant (RFC4122)
