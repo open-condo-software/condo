@@ -93,19 +93,29 @@ const getNewPaymentsSum = async (receiptId) => {
     const account = await getById('BillingAccount', receipt.account)
     const receiver = await getById('BillingRecipient', receipt.receiver)
     if (billingContext && account && receiver?.bankAccount) {
-        const conditionsWithNoReceipt = [
+        const paymentBaseConditions = [
             { invoice_is_null: true },
             { organization: { id: billingContext.organization } },
             { period: receipt.period },
             { accountNumber: account.number },
             { recipientBankAccount: receiver.bankAccount },
-            { OR: [{ receipt_is_null: true }, { receipt: { deletedAt_not: null } }] },
             ...defaultConditions,
         ]
-        const qrPayments = await find('Payment', {
-            AND: conditionsWithNoReceipt,
-        })
-        payments = payments.concat(qrPayments)
+        const [qrPaymentsWithoutReceipt, paymentsWithDeletedReceipt] = await Promise.all([
+            find('Payment', {
+                AND: [
+                    ...paymentBaseConditions,
+                    { receipt_is_null: true },
+                ],
+            }),
+            find('Payment', {
+                AND: [
+                    ...paymentBaseConditions,
+                    { receipt: { deletedAt_not: null } },
+                ],
+            }),
+        ])
+        payments = payments.concat(qrPaymentsWithoutReceipt, paymentsWithDeletedReceipt)
     }
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
