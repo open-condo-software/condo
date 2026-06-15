@@ -1,5 +1,3 @@
-import { randomBytes } from 'crypto'
-
 /**
  * Generates v4 UUIDs in both browser and Node environments
  * @example
@@ -16,7 +14,9 @@ export function generateUUIDv4 (): string {
         randomValues = new Uint8Array(16)
         window.crypto.getRandomValues(randomValues)
     } else {
-        // Node.js environment
+        // Node.js < 19 environment
+        // Dynamic require keeps esbuild from resolving 'crypto' as a static module dep
+        const { randomBytes } = require('crypto')
         randomValues = randomBytes(16)
     }
 
