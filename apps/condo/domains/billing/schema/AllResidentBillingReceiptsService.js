@@ -220,6 +220,10 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 })
 
                 return Promise.all(processedReceipts.map(async receipt => {
+                    if (!receipt.isPayable) {
+                        // no need to calculate paid for archived receipts
+                        return { ...receipt, paid: '0', explicitFee: '0' }
+                    }
                     const billingCategory = receipt?.category || {}
                     const newPaid = await getNewPaymentsSum(receipt.id)
                     const organizationId = receipt?.serviceConsumer?.organization || null
