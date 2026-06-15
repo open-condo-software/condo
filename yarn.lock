@@ -550,7 +550,7 @@ __metadata:
     mkdirp: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -646,7 +646,7 @@ __metadata:
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -898,7 +898,7 @@ __metadata:
     wavesurfer.js: ^6.6.3
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xss: ^1.0.13
-    zod: ^4.0.8
+    zod: ^4.4.3
   peerDependencies:
     dd-trace: ^4.46.0
   languageName: unknown
@@ -943,7 +943,7 @@ __metadata:
     react-dom: ^18.3.1
     typescript: ^5.8.3
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -1022,7 +1022,7 @@ __metadata:
     ts-node: ^10.9.2
     typescript: ^5.8.3
     usehooks-ts: ^2.9.1
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -1481,7 +1481,7 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
     typescript: ^5.8.3
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -1772,7 +1772,7 @@ __metadata:
     usehooks-ts: ^3.1.0
     uuid: ^8.0.3
     yet-another-react-lightbox: ^3.31.0
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -11968,7 +11968,7 @@ __metadata:
     jsonwebtoken: ^9.0.0
     rimraf: ^6.0.1
     typescript: ^5.8.3
-    zod: ^4.0.8
+    zod: ^4.4.3
   languageName: unknown
   linkType: soft
 
@@ -12102,7 +12102,7 @@ __metadata:
     uuid: ^8.3.0
     validate.js: ^0.13.1
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-    zod: ^4.0.8
+    zod: ^4.4.3
   bin:
     keystone: ./bin/cli.js
   languageName: unknown
@@ -12159,7 +12159,7 @@ __metadata:
     ts-jest: ^29.4.0
     tsup: ^8.3.6
     typescript: ^5.8.3
-    zod: ^4.0.8
+    zod: ^4.4.3
   bin:
     migrator: dist/cli.js
   languageName: unknown
@@ -12192,7 +12192,7 @@ __metadata:
     tsup: ^8.4.0
     typescript: ^5.8.3
     webpack: ^5.99.9
-    zod: ^4.0.8
+    zod: ^4.4.3
   peerDependencies:
     "@apollo/client": ">=3.0.0"
     "@open-condo/bridge": ">=2.0.0"
@@ -12318,7 +12318,7 @@ __metadata:
     webpack: ^5.99.9
     webpack-cli: ^4.10.0
     webpack-merge: ^5.8.0
-    zod: ^4.0.8
+    zod: ^4.4.3
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"
@@ -50074,10 +50074,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^4.0.8":
-  version: 4.0.15
-  resolution: "zod@npm:4.0.15"
-  checksum: d52dc9df5ed7a066ac7c3193862a2aa2c48ee45476403a88ab1dbab8f701cec1c50d9309cf550e4531722737d0b2fad853c8e9a52a928c13a3cbb9ee3498daba
+"zod@npm:^4.4.3":
+  version: 4.4.3
+  resolution: "zod@npm:4.4.3"
+  checksum: bf236fdee7a5a5ec645eef5bfea3aad34e7df912931c2a23bc17e5b59882482751da42392916529da52ff9bc70f584797a5d496f1fb81f2d1a4c90fdd3922d2a
   languageName: node
   linkType: hard
 

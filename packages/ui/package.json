@@ -153,6 +153,6 @@
     "react-markdown": "^6",
     "react-phone-input-2": "^2.15.1",
     "remark-gfm": "^1",
-    "zod": "^4.0.8"
+    "zod": "^4.4.3"
   }
 }
