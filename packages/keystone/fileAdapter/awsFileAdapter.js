@@ -12,6 +12,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('./constants')
 const { getFileServicePublicOrigin } = require('./origins')
+const { serveStorageFile } = require('./serveStorageFile')
 
 const logger = getLogger('aws-s3-file-adapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 7 // 1 WEEK IN SECONDS FOR ANY PUBLIC URL
@@ -277,12 +278,11 @@ const awsRouterHandler = ({ keystone }) => {
                     filename: req.params.file,
                     originalFilename: req.query.original_filename,
                 })
-                if (req.get('shallow-redirect')) {
-                    res.status(200).json({ redirectUrl: url })
-                    return
-                }
 
-                return res.redirect(url)
+                return serveStorageFile(res, {
+                    signedUrl: url,
+                    shallowRedirect: req.get('shallow-redirect'),
+                })
             } else {
                 const pathArgs = req.path.split('/')
                 const appId = pathArgs[pathArgs.length - 2]
@@ -300,17 +300,15 @@ const awsRouterHandler = ({ keystone }) => {
                     return res.end()
                 }
 
-                const url = this.acl.generateUrl({
+                const url = acl.generateUrl({
                     filename: req.params.file,
                     originalFilename: req.query.original_filename,
                 })
 
-                if (req.get('shallow-redirect')) {
-                    res.status(200)
-                    return res.json({ redirectUrl: url })
-                }
-
-                return res.redirect(url)
+                return serveStorageFile(res, {
+                    signedUrl: url,
+                    shallowRedirect: req.get('shallow-redirect'),
+                })
             }
         } catch (err) {
             logger.error({ msg: 's3 route handler error', err })

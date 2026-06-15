@@ -12,6 +12,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('./constants')
 const { getFileServicePublicOrigin } = require('./origins')
+const { serveStorageFile } = require('./serveStorageFile')
 
 
 const logger = getLogger('cloud-ru-file-adapter')
@@ -351,23 +352,10 @@ const obsRouterHandler = ({ keystone }) => {
                     mimetype,
                 })
 
-                /*
-                * NOTE
-                * Problem:
-                *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
-                *   it is impossible to read the response of the request.
-                *
-                * Solution:
-                *   When adding the "shallow-redirect" header,
-                *   the redirect link to the file comes in json format and a second request is made to get the file.
-                *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
-                * */
-                if (req.get('shallow-redirect')) {
-                    res.status(200)
-                    return res.json({ redirectUrl: url })
-                }
-
-                return res.redirect(url)
+                return serveStorageFile(res, {
+                    signedUrl: url,
+                    shallowRedirect: req.get('shallow-redirect'),
+                })
             } else {
                 const pathArgs = req.path.split('/')
                 const appId = pathArgs[pathArgs.length - 2]
@@ -390,12 +378,10 @@ const obsRouterHandler = ({ keystone }) => {
                     originalFilename: req.query.original_filename,
                 })
 
-                if (req.get('shallow-redirect')) {
-                    res.status(200)
-                    return res.json({ redirectUrl: url })
-                }
-
-                return res.redirect(url)
+                return serveStorageFile(res, {
+                    signedUrl: url,
+                    shallowRedirect: req.get('shallow-redirect'),
+                })
             }
         } catch (err) {
             logger.error({ msg: 's3 route handler error', err })
