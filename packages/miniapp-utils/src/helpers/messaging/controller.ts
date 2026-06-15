@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 import { getClientErrorMessage } from './errors'
 import { registerBridgeEvents } from './events/bridge'
@@ -35,14 +35,14 @@ import type {
 const SEMVER_REGEXP = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
 
-const MESSAGE_SCHEMA = z.object({
+const MESSAGE_SCHEMA = z.strictObject({
     handler: z.string(),
-    params: z.record(z.string(), z.unknown()).and(z.object({
-        requestId: z.union([z.string(), z.number()]).optional(),
+    params: z.intersection(z.record(z.string(), z.unknown()), z.object({
+        requestId: z.optional(z.union([z.string(), z.number()])),
     })),
     type: z.string(),
-    version: z.string().regex(SEMVER_REGEXP),
-}).strict()
+    version: z.regex(SEMVER_REGEXP),
+})
 
 export class PostMessageController extends EventTarget {
     #registeredFrames: Record<FrameId, RegisteredFrame> = {}

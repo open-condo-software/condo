@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 import { ANALYTICS_HANDLER_NAME } from './components/_utils/analytics'
 export { sendAnalyticsClickEvent, sendAnalyticsCheckEvent, sendAnalyticsChangeEvent, extractChildrenContent } from './components/_utils/analytics'
@@ -7,11 +7,11 @@ import type { AnalyticsParams } from './components/_utils/analytics'
 
 // NOTE: catchall is used to validate basic properties values.
 // We don't want to validate "exact" shape of the event, since it can differ from version to version
-const analyticsEventSchema = z.object({
+const analyticsEventSchema = z.catchall(z.object({
     event: z.enum(['click', 'check', 'change']),
     component: z.string(),
     location: z.string(),
-}).catchall(z.union([z.string(), z.array(z.string()), z.number(), z.boolean(), z.undefined()]))
+}), z.union([z.string(), z.array(z.string()), z.number(), z.boolean(), z.undefined()]))
 
 const condoMessageDataSchema = z.strictObject({
     handler: z.literal(ANALYTICS_HANDLER_NAME),

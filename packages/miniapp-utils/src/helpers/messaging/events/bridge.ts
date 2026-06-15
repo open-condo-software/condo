@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 import type {
     GetAvailableMethodsParams,
@@ -144,7 +144,7 @@ export function registerBridgeEvents ({
     if (notificationsApi) {
         addHandler<ShowNotificationParams, ShowNotificationData>('condo-bridge', 'CondoWebAppShowNotification', '*', zodSchemaToValidator(z.strictObject({
             message: z.string(),
-            description: z.string().optional(),
+            description: z.optional(z.string()),
             type: z.enum(['success', 'error', 'warning', 'info']),
         })), ({ params }) => {
             notificationsApi(params)
@@ -156,8 +156,8 @@ export function registerBridgeEvents ({
         addHandler<ShowModalWindowParams, ShowModalWindowData>('condo-bridge', 'CondoWebAppShowModalWindow', '*', zodSchemaToValidator(z.strictObject({
             title: z.string(),
             url: z.url(),
-            size: z.enum(['big', 'small']).optional(),
-            initialHeight: z.number().optional(),
+            size: z.optional(z.enum(['big', 'small'])),
+            initialHeight: z.optional(z.number()),
         })), ({
             source,
             params,
@@ -213,8 +213,8 @@ export function registerBridgeEvents ({
         addHandler<UpdateModalWindowParams, UpdateModalWindowData>('condo-bridge', 'CondoWebAppUpdateModalWindow', '*', zodSchemaToValidator(z.strictObject({
             modalId: z.string(),
             data: z.strictObject({
-                title: z.string().optional(),
-                size: z.enum(['big', 'small']).optional(),
+                title: z.optional(z.string()),
+                size: z.optional(z.enum(['big', 'small'])),
             }),
         })), ({ params, storage }) => {
             const modalActions = storage.events.get(`modals:${params.modalId}`) as ReturnType<ModalsApi>

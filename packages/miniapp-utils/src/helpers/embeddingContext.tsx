@@ -1,6 +1,6 @@
 import { deleteCookie, getCookie, setCookie } from 'cookies-next'
 import React, { useEffect, useMemo, useState, createContext, useContext } from 'react'
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 import { generateUUIDv4 } from './uuid'
 
@@ -17,14 +17,14 @@ const EMBEDDING_CONTEXT_SCHEMA = z.strictObject({
     dv: z.literal(1),
     app: z.strictObject({
         id: z.string(),
-        version: z.string().optional(),
-        build: z.string().optional(),
+        version: z.optional(z.string()),
+        build: z.optional(z.string()),
     }),
     platform: z.enum(['iOS', 'Android', 'web']),
-    os: z.strictObject({
+    os: z.optional(z.strictObject({
         name: z.string(),
-        version: z.string().optional(),
-    }).optional(),
+        version: z.optional(z.string()),
+    })),
     device: z.strictObject({
         id: z.string(),
     }),

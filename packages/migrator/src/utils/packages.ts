@@ -1,14 +1,14 @@
 import { readFile } from 'fs/promises'
 
 import { glob } from 'glob'
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 const APP_NAME_REGEXP = /^@app\/[a-z0-9-]+$/
 
 const packageSchema = z.object({
     name: z.string(),
-    devDependencies: z.record(z.string(), z.string()).optional(),
-    dependencies: z.record(z.string(), z.string()).optional(),
+    devDependencies: z.optional(z.record(z.string(), z.string())),
+    dependencies: z.optional(z.record(z.string(), z.string())),
 })
 
 export type PackageInfoWithLocation = z.infer<typeof packageSchema> & {

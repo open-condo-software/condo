@@ -1,5 +1,5 @@
 import { generators, Issuer } from 'openid-client'
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 import { isSafeUrl } from './urls'
 import { generateUUIDv4 } from './uuid'

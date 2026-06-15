@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import proxyAddr from 'proxy-addr'
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 import { isInSubnet } from '../ip'
 

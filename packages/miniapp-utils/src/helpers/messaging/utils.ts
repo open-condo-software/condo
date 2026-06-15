@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { prettifyError } from 'zod/mini'
 
 import type { EventParams, ParamsValidator, RegisteredMiddleware, HandlerResult } from './types'
 
@@ -14,11 +14,15 @@ export function typeCheckerToValidator<T extends EventParams> (typeChecker: Type
     }
 }
 
-export function zodSchemaToValidator<T extends EventParams> (schema: z.ZodSchema<T>): ParamsValidator<T> {
+type SafeParseSchema<T> = {
+    safeParse(data: unknown): { success: true, data: T } | { success: false, error: Parameters<typeof prettifyError>[0] }
+}
+
+export function zodSchemaToValidator<T extends EventParams> (schema: SafeParseSchema<T>): ParamsValidator<T> {
     return (params: unknown) => {
         const result = schema.safeParse(params)
         if (!result.success) {
-            return { success: false, error: z.prettifyError(result.error) }
+            return { success: false, error: prettifyError(result.error) }
         }
 
         return { success: true, data: result.data }
