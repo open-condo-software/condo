@@ -92,7 +92,7 @@ const getNewPaymentsSum = async (receiptId) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
     const account = await getById('BillingAccount', receipt.account)
     const receiver = await getById('BillingRecipient', receipt.receiver)
-    if (billingContext && account) {
+    if (billingContext && account && receiver?.bankAccount) {
         const conditionsWithNoReceipt = [
             { invoice_is_null: true },
             { organization: { id: billingContext.organization } },
