@@ -16,7 +16,7 @@ const {
     CALL_NOT_FOUND_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2CAppProperty, CustomValue } = require('@condo/domains/miniapp/utils/serverSchema')
-const { CALL_STATUS_TTL_IN_SECONDS, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
+const { CALL_STATUS_TTL_IN_SECONDS, MIN_CALL_ID_LENGTH, MAX_CALL_ID_LENGTH, STUN_PROTOCOL } = require('@condo/domains/miniapp/utils/voip')
 const { GET_VOIP_CALL_STATUS_URL_PATH, SEND_DTMF_TO_B2C_APP_URL_PATH } = require('@condo/domains/miniapp/VoIPMiddleware')
 const {
     MESSAGE_META,
@@ -152,6 +152,13 @@ function prepareVoIPCallStartMessageData ({
             voipType = NATIVE_VOIP_TYPE
         }
 
+        const firstStunServerInIceCandidates = callData.nativeCallData.iceServers?.find(iceServer => 
+            iceServer.address.startsWith(`${STUN_PROTOCOL}:`)
+        )
+        const firstStunAddressFromIceCandidates = firstStunServerInIceCandidates?.address
+            ? firstStunServerInIceCandidates.address.slice(`${STUN_PROTOCOL}:`.length)
+            : null
+
         preparedDataArgs = {
             ...preparedDataArgs,
             voipType: voipType,
@@ -160,8 +167,8 @@ function prepareVoIPCallStartMessageData ({
             voipPassword: callData.nativeCallData.voipPassword,
             voipDtfmCommand: callData.nativeCallData.voipPanels?.[0]?.dtmfCommand,
             voipPanels: callData.nativeCallData.voipPanels,
-            stunServers: callData.nativeCallData.stunServers,
-            stun: callData.nativeCallData.stunServers?.[0],
+            voipIceServers: callData.nativeCallData.iceServers,
+            stun: firstStunAddressFromIceCandidates ? firstStunAddressFromIceCandidates : callData.nativeCallData.stunServers?.[0],
             codec: callData.nativeCallData.codec,
             ...omit(customVoIPValues, 'voipType'),
         }
@@ -183,7 +190,7 @@ function prepareVoIPCallStartMessageData ({
         }
     }
 
-    for (const jsonKey of ['voipPanels', 'stunServers']) {
+    for (const jsonKey of ['voipPanels', 'stunServers', 'voipIceServers']) {
         if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey]) continue
         preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
     }

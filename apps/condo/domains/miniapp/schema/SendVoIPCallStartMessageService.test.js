@@ -24,8 +24,10 @@ const {
     createTestCustomValue,
     createTestAppMessageSetting,
     createTestCustomField,
+    makeStartCallRequest,
+    prepareVoIPUser,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, MAX_CALL_META_LENGTH, MAX_CALL_ID_LENGTH, ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS, ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS, STUN_PROTOCOL } = require('@condo/domains/miniapp/utils/voip')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -276,6 +278,93 @@ describe('SendVoIPCallStartMessageService', () => {
                     })
                 }, ERRORS.INVALID_CALL_META)
             })
+        })
+
+        describe('voipIceServers', () => {
+            let b2cApp
+            let addressKey
+            let unitName
+            let unitType
+            let serviceUser
+            let organization
+            let property
+
+            beforeAll(async () => {
+                const [testB2CApp] = await createTestB2CApp(admin)
+                b2cApp = testB2CApp
+
+                const { property: testProperty, organization: testOrganization } = await makeClientWithResidentAccessAndProperty()
+                property = testProperty, organization = testOrganization
+                addressKey = testProperty.addressKey
+                await createTestB2CAppProperty(admin, b2cApp, { address: testProperty.address, addressMeta: testProperty.addressMeta })
+                serviceUser = await makeClientWithServiceUser()
+                const [rightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+                await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: rightSet.id } } })
+
+                unitName = faker.random.alphaNumeric(3)
+                unitType = FLAT_UNIT_TYPE
+            })
+
+            test('Accepts valid protocols and searchParams', async () => {
+                const { resident } = await prepareVoIPUser({
+                    admin, organization, property, unitName, unitType,
+                }) 
+
+                const iceServers = ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS
+                    .map(protocol => ({ address: `${protocol}:${faker.internet.domainName()}` }))
+                    .concat(
+                        Object.entries(ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS)
+                            .map(([searchParamName, searchParamValues]) => {
+                                const protocol = faker.helpers.arrayElement(ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS)
+                                const url = new URL(`${protocol}://${faker.internet.domainName()}`)
+                                for (const searchParamValue of searchParamValues) {
+                                    url.searchParams.append(searchParamName, searchParamValue)
+                                }
+                                return ({ address: `${protocol}:${url.host}${url.search}` })
+                            })
+                    )
+
+                const { result } = await makeStartCallRequest({
+                    admin, serviceUserClient: serviceUser,
+                    b2cAppId: b2cApp.id, type: 'native', resident, 
+                    nativeCallData: {
+                        iceServers,
+                    },
+                })
+
+                expect(result.createdMessagesCount).toEqual(1)
+            })
+
+            describe('Fails on not supported protocols and searchParams', () => {
+                let resident
+                beforeAll(async () => {
+                    const voipUser = await prepareVoIPUser({
+                        admin, organization, property, unitName, unitType,
+                    }) 
+                    resident = voipUser.resident
+                })
+
+                const INVALID_ICE_SERVERS = [
+                    { address: faker.random.alphaNumeric(8) },
+                    { address: faker.internet.url() },
+                    { address: `${STUN_PROTOCOL}:${faker.internet.url()}?${faker.helpers.arrayElement(Object.keys(ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS))}=${faker.random.alphaNumeric(8)}` },
+                    { address: `${STUN_PROTOCOL}:${faker.internet.url()}?${faker.random.alpha(3)}=${faker.random.alphaNumeric(3)}` },
+                ]
+
+                test.each(INVALID_ICE_SERVERS)('$address', async (iceServer) => {
+                    expectToThrowGQLErrorToResult(async () => {
+                        await makeStartCallRequest({
+                            admin, serviceUserClient: serviceUser,
+                            b2cAppId: b2cApp.id, type: 'native', resident, 
+                            nativeCallData: {
+                                iceServers: [iceServer],
+                            },
+                        })
+                    }, ERRORS.INVALID_ICE_SERVERS)
+                })
+
+            })
+
         })
     })
 
@@ -651,7 +740,6 @@ describe('SendVoIPCallStartMessageService', () => {
                     voipDtfmCommand: dataAttrs.nativeCallData.voipPanels[0].dtmfCommand,
                     voipPanels: JSON.stringify(dataAttrs.nativeCallData.voipPanels),
                     stun: dataAttrs.nativeCallData.stunServers[0],
-                    stunServers: JSON.stringify(dataAttrs.nativeCallData.stunServers),
                     codec: dataAttrs.nativeCallData.codec,
                 }
         
@@ -842,6 +930,48 @@ describe('SendVoIPCallStartMessageService', () => {
             expect(createdMessage.meta.data).toEqual(expect.objectContaining(
                 Object.fromEntries(customFieldNames.map(fieldName => ([fieldName, customValue])))
             ))
+        })
+
+        describe('stun / ice servers', () => {
+
+            test('populates "stun" field from "stunServers" or "iceServers"', async () => {
+                const unitName = faker.random.alphaNumeric(8)
+                const unitType = FLAT_UNIT_TYPE
+
+                const { resident } = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
+
+                const stunServer1 = 'stun-server-from-stun-servers.net'
+                const stunServer2 = 'stun-server-from-ice-servers.net'
+
+                const stunServers = [stunServer1]
+                const iceServers = [
+                    { address: 'turn:turn-server-from-ice-servers.net' },
+                    { address: `stun:${stunServer2}` },
+                ]
+
+                const { msg } = await makeStartCallRequest({ 
+                    admin, b2cAppId: b2cApp.id, resident, serviceUserClient: serviceUser, type: 'native', 
+                    nativeCallData: {
+                        stunServers,
+                        iceServers,
+                    },
+                })
+
+                // iceServers has priority
+                expect(msg.meta.data.stun).toEqual(stunServer2)
+
+                const { msg: anotherMsg } = await makeStartCallRequest({ 
+                    admin, b2cAppId: b2cApp.id, resident, serviceUserClient: serviceUser, type: 'native', 
+                    nativeCallData: {
+                        stunServers,
+                    },
+                })
+
+                // fallback to stunServers
+                expect(anotherMsg.meta.data.stun).toEqual(stunServer1)
+
+            })
+
         })
     })
 })

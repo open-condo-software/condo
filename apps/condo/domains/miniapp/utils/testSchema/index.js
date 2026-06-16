@@ -1019,7 +1019,7 @@ async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type 
     
     const callId = faker.datatype.uuid()
     const dtmfCommand = faker.random.alphaNumeric(4)
-    await sendVoIPCallStartMessageByTestClient(serviceUserClient, {
+    const [result] = await sendVoIPCallStartMessageByTestClient(serviceUserClient, {
         app: { id: b2cAppId },
         addressKey: resident.addressKey,
         unitName: resident.unitName,
@@ -1041,7 +1041,7 @@ async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type 
     })
     const [msg] = await Message.getAll(admin, { user: { id: resident.user.id || resident.user }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
     const callStatusJWTToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
-    return { callId, callStatusJWTToken, msg, dtmfCommand }
+    return { callId, callStatusJWTToken, msg, dtmfCommand, result }
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
