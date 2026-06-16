@@ -121,7 +121,7 @@ function isNonEmptyObject (obj) {
     return typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).length > 0
 }
 
-const CUSTOM_CONTEXT_NATIVE_DATA_SCHEMA = z.object({
+const CUSTOM_VOIP_DATA_FOR_CALLER_SCHEMA = z.object({
     streamUrl: z.url().optional().catch(),
     voipPanels: z.array(
         z.object({
@@ -222,7 +222,7 @@ function prepareVoIPCallStartMessageData ({
     }
 
     if (customVoIPDataForCaller) {
-        const { data: customVoIPData, success } = CUSTOM_CONTEXT_NATIVE_DATA_SCHEMA.safeParse(customVoIPDataForCaller)
+        const { data: customVoIPData, success } = CUSTOM_VOIP_DATA_FOR_CALLER_SCHEMA.safeParse(customVoIPDataForCaller)
         if (success) {
             if (customVoIPData.streamUrl) {
                 preparedDataArgs.streamUrl = customVoIPData.streamUrl
