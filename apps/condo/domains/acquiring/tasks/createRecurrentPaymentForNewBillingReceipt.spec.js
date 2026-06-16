@@ -17,6 +17,7 @@ const {
     RECURRENT_PAYMENT_INIT_STATUS,
     INSURANCE_BILLING_CATEGORY,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
+const { getAllReadyToPayRecurrentPaymentContexts, filterContextsByOrganizationSubscription } = require('@condo/domains/acquiring/utils/taskSchema')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
@@ -24,7 +25,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { DATE_FORMAT, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
+const { DATE_FORMAT, DATE_FORMAT_Z, getStartDates } = require('@condo/domains/common/utils/date')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
@@ -41,7 +42,6 @@ const {
 
 const {
     scanBillingReceiptsForRecurrentPaymentContext,
-    createRecurrentPaymentForNewBillingReceipt,
 } = require('./createRecurrentPaymentForNewBillingReceipt')
 
 const { keystone } = index
@@ -607,12 +607,12 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
                 paymentDay: null,
             })
 
-            await createRecurrentPaymentForNewBillingReceipt()
-
-            const recurrentPayments = await RecurrentPayment.getAll(admin, {
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, dayjs(), 100, 0, {
+                id_in: [recurrentPaymentContext.id],
+                autoPayReceipts: true,
             })
-            expect(recurrentPayments).toHaveLength(0)
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
+            expect(filtered).toHaveLength(0)
         })
 
         it('should create RecurrentPayment when organization has active payments subscription', async () => {
@@ -632,7 +632,18 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
             })
 
-            await createRecurrentPaymentForNewBillingReceipt()
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, dayjs(), 100, 0, {
+                id_in: [recurrentPaymentContext.id],
+                autoPayReceipts: true,
+            })
+            expect(page).toHaveLength(1)
+
+            const { prevMonthStart, thisMonthStart } = getStartDates()
+            await scanBillingReceiptsForRecurrentPaymentContext(
+                adminContext, recurrentPaymentContext,
+                [prevMonthStart, thisMonthStart],
+                prevMonthStart
+            )
 
             const recurrentPayments = await RecurrentPayment.getAll(admin, {
                 recurrentPaymentContext: { id: recurrentPaymentContext.id },

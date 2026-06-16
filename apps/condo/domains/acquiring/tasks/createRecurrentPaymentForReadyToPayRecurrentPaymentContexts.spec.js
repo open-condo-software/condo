@@ -16,6 +16,7 @@ const {
 const {
     RECURRENT_PAYMENT_INIT_STATUS, INSURANCE_BILLING_CATEGORY,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
+const { getAllReadyToPayRecurrentPaymentContexts, filterContextsByOrganizationSubscription } = require('@condo/domains/acquiring/utils/taskSchema')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
@@ -38,7 +39,6 @@ const {
 
 const {
     createRecurrentPaymentForRecurrentPaymentContext,
-    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts,
 } = require('./createRecurrentPaymentForReadyToPayRecurrentPaymentContexts')
 
 
@@ -274,12 +274,9 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
                 enabled: true,
             })
 
-            await createRecurrentPaymentForReadyToPayRecurrentPaymentContexts()
-
-            const recurrentPayments = await RecurrentPayment.getAll(admin, {
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
-            })
-            expect(recurrentPayments).toHaveLength(0)
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, dayjs(), 100, 0, { id_in: [recurrentPaymentContext.id] })
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
+            expect(filtered).toHaveLength(0)
         })
 
         it('should create RecurrentPayment when organization has active payments subscription', async () => {
@@ -297,7 +294,10 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
             })
 
-            await createRecurrentPaymentForReadyToPayRecurrentPaymentContexts()
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, dayjs(), 100, 0, { id_in: [recurrentPaymentContext.id] })
+            expect(page).toHaveLength(1)
+
+            await createRecurrentPaymentForRecurrentPaymentContext(adminContext, dayjs(), recurrentPaymentContext)
 
             const recurrentPayments = await RecurrentPayment.getAll(admin, {
                 recurrentPaymentContext: { id: recurrentPaymentContext.id },

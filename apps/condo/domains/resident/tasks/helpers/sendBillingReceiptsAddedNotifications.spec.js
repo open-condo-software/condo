@@ -10,7 +10,7 @@ const { makeLoggedInAdminClient, setFakeClientMode, setFeatureFlag } = require('
 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { createTestBillingCategory, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
@@ -20,7 +20,6 @@ const {
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers/sendBillingReceiptsAddedNotifications')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
@@ -841,11 +840,11 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
         it('should not send notification when organization has no active payments subscription', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } })
-            await updateTestBillingIntegrationOrganizationContext(admin, billingContext.id, {
-                lastReport: { finishTime: dayjs().toISOString(), period: dayjs().format('YYYY-MM-01'), totalReceipts: 1 },
-            })
 
-            await sendBillingReceiptsAddedNotifications(dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(
+                { ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id },
+                dayjs(receipt.createdAt).subtract(1, 'hour').toISOString()
+            )
 
             const messages = await Message.getAll(admin, {
                 user: { id: resident.user.id },
@@ -856,16 +855,16 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
         it('should send notification when organization has active payments subscription', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } })
-            await updateTestBillingIntegrationOrganizationContext(admin, billingContext.id, {
-                lastReport: { finishTime: dayjs().toISOString(), period: dayjs().format('YYYY-MM-01'), totalReceipts: 1 },
-            })
 
             await createTestSubscriptionContext(admin, { id: billingContext.organization.id }, planWithPayments, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
             })
 
-            await sendBillingReceiptsAddedNotifications(dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(
+                { ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id },
+                dayjs(receipt.createdAt).subtract(1, 'hour').toISOString()
+            )
 
             const messages = await Message.getAll(admin, {
                 user: { id: resident.user.id },

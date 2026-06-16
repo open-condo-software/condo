@@ -139,12 +139,7 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
         { sortBy: 'id_ASC', first: pageSize, skip: offset }
     )
 
-    const orgIds = contexts.map(ctx => get(ctx, 'serviceConsumer.organization.id')).filter(Boolean)
-    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
-    return contexts.filter(ctx => {
-        const organizationId = get(ctx, 'serviceConsumer.organization.id')
-        return organizationId && subscriptionMap.get(organizationId)
-    })
+    return contexts
 }
 
 async function getServiceConsumer (context, id) {
@@ -696,6 +691,16 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
     await sendResultMessageSafely(context, recurrentPayment, false, errorCode)
 }
 
+async function filterContextsByOrganizationSubscription (context, contexts) {
+    if (!contexts.length) return []
+    const orgIds = contexts.map(ctx => get(ctx, 'serviceConsumer.organization.id')).filter(Boolean)
+    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
+    return contexts.filter(ctx => {
+        const organizationId = get(ctx, 'serviceConsumer.organization.id')
+        return organizationId && subscriptionMap.get(organizationId)
+    })
+}
+
 async function filterPaymentsByOrganizationSubscription (context, recurrentPayments) {
     const orgIds = recurrentPayments.map(p => get(p, 'recurrentPaymentContext.serviceConsumer.organization.id')).filter(Boolean)
     const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
@@ -712,6 +717,7 @@ module.exports = {
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
     filterNotPayablePayment,
+    filterContextsByOrganizationSubscription,
     filterPaymentsByOrganizationSubscription,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
