@@ -5,7 +5,7 @@ const { getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/sc
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
-const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
 const logger = getLogger()
 
 const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
@@ -23,13 +23,14 @@ const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
 
     const { keystone } = getSchemaCtx('Organization')
     const context = await keystone.createContext({ skipAccessControl: true })
-    const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
+    const orgIds = BillingContexts.map(bc => get(bc, 'organization')).filter(Boolean)
+    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
     for (const billingContext of BillingContexts) {
         const lastReport = get(billingContext, 'lastReport.finishTime')
         if (!lastReport) continue
 
         const organizationId = get(billingContext, 'organization')
-        if (!(await hasOrganizationActiveSubscription(context, organizationId))) continue
+        if (!subscriptionMap.get(organizationId)) continue
 
         await sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(billingContext, lastSendDate)
     }

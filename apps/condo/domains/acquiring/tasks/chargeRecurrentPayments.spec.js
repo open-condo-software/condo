@@ -2,19 +2,17 @@
  * @jest-environment node
  */
 
-jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
-    const mockFn = jest.fn().mockResolvedValue(true)
-    return { createOrganizationSubscriptionChecker: () => mockFn }
-})
-
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
+
 
 const {
     RECURRENT_PAYMENT_INIT_STATUS,
@@ -32,6 +30,7 @@ const {
 const {
     createTestRecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
@@ -41,8 +40,11 @@ const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
-const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
-const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const {
     chargeByRecurrentPaymentAndPaymentAdapter,
@@ -207,13 +209,21 @@ describe('charge-recurrent-payments', () => {
         })
 
         describe('subscription check', () => {
-            afterEach(() => {
-                hasOrganizationActiveSubscription.mockResolvedValue(true)
+            let planWithPayments
+
+            beforeAll(async () => {
+                const [plan] = await createTestSubscriptionPlan(admin, { payments: true })
+                planWithPayments = plan
             })
 
-            it('should not charge payments when organization has no active subscription', async () => {
-                hasOrganizationActiveSubscription.mockResolvedValue(false)
+            afterAll(async () => {
+                await SubscriptionPlan.softDelete(admin, planWithPayments.id)
+            })
 
+            beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+            afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+            it('should not charge payments when organization has no active payments subscription', async () => {
                 const [recurrentPayment] = await createTestRecurrentPayment(
                     admin,
                     getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
@@ -223,6 +233,23 @@ describe('charge-recurrent-payments', () => {
 
                 const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
                 expect(result.status).toEqual(RECURRENT_PAYMENT_INIT_STATUS)
+            })
+
+            it('should charge payments when organization has active payments subscription', async () => {
+                await createTestSubscriptionContext(admin, { id: serviceConsumerBatch.serviceConsumer.organization.id }, planWithPayments, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                })
+
+                const [recurrentPayment] = await createTestRecurrentPayment(
+                    admin,
+                    getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+                )
+
+                await chargeRecurrentPayments()
+
+                const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+                expect(result.status).not.toEqual(RECURRENT_PAYMENT_INIT_STATUS)
             })
         })
 

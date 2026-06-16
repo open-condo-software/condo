@@ -17,7 +17,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
 
 
 dayjs.extend(isBetween)
@@ -135,7 +135,6 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     logger.info('Start sending submit meter notifications')
     // initialize context stuff
     const { keystone: context } = getSchemaCtx('Meter')
-    const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
     // let's load meters page by page
     const state = {
         pageSize: 100,
@@ -163,12 +162,9 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             pageSize: state.pageSize,
         })
         const allOrganizations = await readOrganizations({ context, meters })
-        const organizations = []
-        for (const org of allOrganizations) {
-            if (await hasOrganizationActiveSubscription(context, org.id)) {
-                organizations.push(org)
-            }
-        }
+        const orgIds = allOrganizations.map(org => org.id)
+        const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'meters')
+        const organizations = allOrganizations.filter(org => subscriptionMap.get(org.id))
         const reportingPeriods = await readMeterReportingPeriods({ context, organizations })
         const meterReadings = await readMeterReadings({ context, meters })
 

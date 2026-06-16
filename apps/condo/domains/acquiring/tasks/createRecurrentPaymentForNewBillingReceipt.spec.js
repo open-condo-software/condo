@@ -2,11 +2,6 @@
  * @jest-environment node
  */
 
-jest.mock('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker', () => {
-    const mockFn = jest.fn().mockResolvedValue(true)
-    return { createOrganizationSubscriptionChecker: () => mockFn }
-})
-
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -15,6 +10,7 @@ const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -27,6 +23,7 @@ const {
     RecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { DATE_FORMAT, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
@@ -36,8 +33,11 @@ const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
-const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
-const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const {
     scanBillingReceiptsForRecurrentPaymentContext,
@@ -582,13 +582,21 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
     })
 
     describe('subscription check', () => {
-        afterEach(() => {
-            hasOrganizationActiveSubscription.mockResolvedValue(true)
+        let planWithPayments
+
+        beforeAll(async () => {
+            const [plan] = await createTestSubscriptionPlan(admin, { payments: true })
+            planWithPayments = plan
         })
 
-        it('should not create RecurrentPayment when organization has no active subscription', async () => {
-            hasOrganizationActiveSubscription.mockResolvedValue(false)
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(admin, planWithPayments.id)
+        })
 
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+        it('should not create RecurrentPayment when organization has no active payments subscription', async () => {
             const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const [batch] = batches
 
@@ -605,6 +613,31 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
                 recurrentPaymentContext: { id: recurrentPaymentContext.id },
             })
             expect(recurrentPayments).toHaveLength(0)
+        })
+
+        it('should create RecurrentPayment when organization has active payments subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+            await updateTestBillingReceipt(admin, batch.billingReceipts[0].id, { period: dayjs().startOf('month').format('YYYY-MM-DD') })
+
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+                autoPayReceipts: true,
+                paymentDay: null,
+            })
+
+            await createTestSubscriptionContext(admin, { id: batch.serviceConsumer.organization.id }, planWithPayments, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+            })
+
+            await createRecurrentPaymentForNewBillingReceipt()
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+            expect(recurrentPayments.length).toBeGreaterThan(0)
         })
     })
 })

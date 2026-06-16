@@ -57,7 +57,7 @@ const { SERVICE_CONSUMER_FIELDS } = require('@condo/domains/resident/gql')
 const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
-const { createOrganizationSubscriptionChecker } = require('@condo/domains/subscription/utils/serverSchema/organizationSubscriptionChecker')
+const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
 
 const RETRY_COUNT = 5
 
@@ -139,15 +139,12 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
         { sortBy: 'id_ASC', first: pageSize, skip: offset }
     )
 
-    const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
-    const filtered = []
-    for (const ctx of contexts) {
+    const orgIds = contexts.map(ctx => get(ctx, 'serviceConsumer.organization.id')).filter(Boolean)
+    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
+    return contexts.filter(ctx => {
         const organizationId = get(ctx, 'serviceConsumer.organization.id')
-        if (organizationId && await hasOrganizationActiveSubscription(context, organizationId)) {
-            filtered.push(ctx)
-        }
-    }
-    return filtered
+        return organizationId && subscriptionMap.get(organizationId)
+    })
 }
 
 async function getServiceConsumer (context, id) {
@@ -700,15 +697,12 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
 }
 
 async function filterPaymentsByOrganizationSubscription (context, recurrentPayments) {
-    const hasOrganizationActiveSubscription = createOrganizationSubscriptionChecker()
-    const filtered = []
-    for (const payment of recurrentPayments) {
+    const orgIds = recurrentPayments.map(p => get(p, 'recurrentPaymentContext.serviceConsumer.organization.id')).filter(Boolean)
+    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
+    return recurrentPayments.filter(payment => {
         const organizationId = get(payment, 'recurrentPaymentContext.serviceConsumer.organization.id')
-        if (organizationId && await hasOrganizationActiveSubscription(context, organizationId)) {
-            filtered.push(payment)
-        }
-    }
-    return filtered
+        return organizationId && subscriptionMap.get(organizationId)
+    })
 }
 
 module.exports = {

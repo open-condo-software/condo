@@ -19,6 +19,7 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE, SEND_BILLING_RECEIPT_CHUNK_SIZE } = require('@condo/domains/resident/constants/constants')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
 
 const logger = getLogger()
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
@@ -94,6 +95,17 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     const contextId = get(context, 'id')
 
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
+
+    const organizationId = get(context, 'organization')
+    if (organizationId) {
+        const { keystone: kc } = getSchemaCtx('Organization')
+        const keystoneCtx = await kc.createContext({ skipAccessControl: true })
+        const subscriptionMap = await getOrganizationsSubscriptionMap(keystoneCtx, [organizationId], 'payments')
+        if (!subscriptionMap.get(organizationId)) {
+            logger.info({ msg: 'skipping: organization has no active payments subscription', data: { organizationId, contextId } })
+            return
+        }
+    }
 
     const redisClient = await getKVClient()
     const lastSendDate = await redisClient.get(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`) || lastSyncDate
