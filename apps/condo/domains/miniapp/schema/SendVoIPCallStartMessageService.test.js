@@ -1054,7 +1054,7 @@ describe('SendVoIPCallStartMessageService', () => {
                         'properties': {
                             'streamUrl': {
                                 'type': 'string',
-                                // 'format': 'uri', NOTE: says that this format is unknown, need to check why
+                                'format': 'uri',
                             },
                             'voipPanels': {
                                 'type': 'array',
@@ -1118,41 +1118,8 @@ describe('SendVoIPCallStartMessageService', () => {
                     expect.objectContaining({ dtmfCommand: '#2', name: voipPanelsCustom[0].name }),
                     expect.objectContaining({ dtmfCommand: '#4' }),
                 ])
-                
+
             })
-
-            // test('d', async () => {
-
-            //     const callerId = faker.random.alphaNumeric(8)
-
-            //     await createTestCustomValue(serviceUser, voipB2CAppContextField, organization, {
-            //         sourceType: 'B2BApp',
-            //         data: {
-            //             data: { from: 'custom value' },
-            //         },
-            //         itemId: property.id,
-            //         sourceId: b2bApp.id,
-            //         isUniquePerObject: false,
-            //         uniqKey: `${CALLER_ID_UNIQ_KEY_PREFIX}:${callerId}`,
-            //     })
-
-            //     const unitName = faker.random.alphaNumeric(3)
-            //     const unitType = FLAT_UNIT_TYPE
-
-            //     const { resident } = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
-
-            //     const { msg } = await makeStartCallRequest({ 
-            //         admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, type: 'b2c', resident, 
-            //         b2cAppCallData: {  B2CAppContext: { some: { default: 'data' } } },
-            //         callerId,
-            //     })
-
-            //     expect(JSON.parse(msg.meta.data.B2CAppContext)).toEqual(expect.objectContaining({
-            //         data: { from: 'custom value' },
-            //         some: { default: 'data' },
-            //     }))
-
-            // })
 
         })
 

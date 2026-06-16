@@ -3,6 +3,7 @@
  */
 
 const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
 const get = require('lodash/get')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
@@ -12,6 +13,7 @@ const access = require('@condo/domains/miniapp/access/CustomField')
 const { LOCALES } = require('@condo/domains/user/constants/common')
 
 const ajv = new Ajv()
+addFormats(ajv)
 
 const CONTACT_SCHEMA = 'Contact'
 const RESIDENT_SCHEMA = 'Resident'
