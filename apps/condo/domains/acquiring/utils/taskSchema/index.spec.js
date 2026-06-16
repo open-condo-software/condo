@@ -68,9 +68,15 @@ const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const {
     getAllReadyToPayRecurrentPaymentContexts,
+    filterContextsByOrganizationSubscription,
     getServiceConsumer,
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,
@@ -2605,15 +2611,23 @@ describe('task schema queries', () => {
     })
 
     describe('getAllReadyToPayRecurrentPaymentContexts subscription filtering', () => {
-        let admin, date
+        let admin, date, planWithPayments
 
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
             date = dayjs()
+            const [plan] = await createTestSubscriptionPlan(admin, { payments: true })
+            planWithPayments = plan
         })
 
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(admin, planWithPayments.id)
+        })
+
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
         it('should exclude contexts for organizations without active subscription', async () => {
-            setFeatureFlag(SUBSCRIPTIONS, true)
             const { batches } = await makePayerWithMultipleConsumers(2, 1)
             const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
                 enabled: true,
@@ -2634,12 +2648,12 @@ describe('task schema queries', () => {
                 billingCategory: { connect: { id: batches[1].billingReceipts[0].category.id } },
             })
 
-            const result = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
                 id_in: [id1, id2],
             })
-            setFeatureFlag(SUBSCRIPTIONS, false)
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
 
-            expect(result).toHaveLength(0)
+            expect(filtered).toHaveLength(0)
         })
 
         it('should include contexts for organizations with active subscription', async () => {
@@ -2653,12 +2667,17 @@ describe('task schema queries', () => {
                 serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
                 billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
             })
-
-            const result = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
-                id_in: [id],
+            await createTestSubscriptionContext(admin, { id: batches[0].serviceConsumer.organization.id }, planWithPayments, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
             })
 
-            expect(result).toHaveLength(1)
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id],
+            })
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
+
+            expect(filtered).toHaveLength(1)
         })
     })
 })
