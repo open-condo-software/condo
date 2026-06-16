@@ -182,6 +182,25 @@ describe('MaxRoutes', () => {
             expect(res.redirect.mock.calls[0][0].toString()).toEqual(expectedRedirect)
             expect(mockContext._sessionManager.endAuthedSession).toHaveBeenCalledTimes(expectedToEndSession ? 1 : 0)
         })
+
+        test('should encode redirectUrl before putting it into callback query param', async () => {
+            const originalRedirectUrl = 'https://app.example.com?foo=bar%20baz'
+            const expectedEncodedRedirectUrl = encodeURIComponent(originalRedirectUrl)
+
+            const user = { id: mockUserId, type: RESIDENT }
+            getIdentity.mockResolvedValueOnce({ user: { id: mockUserId, userType: RESIDENT } })
+
+            const { req, res, next } = createMockReqResNext({
+                userType: RESIDENT,
+                redirectUrl: originalRedirectUrl,
+                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+            }, user)
+
+            await routes.startAuth(req, res, next)
+
+            const callbackUrl = new URL(res.redirect.mock.calls[0][0].toString())
+            expect(callbackUrl.searchParams.get('redirectUrl')).toEqual(expectedEncodedRedirectUrl)
+        })
     })
 
     describe('completeAuth', () => {
@@ -201,6 +220,19 @@ describe('MaxRoutes', () => {
             expect(syncUser).toHaveBeenCalled()
             expect(User.getOne).toHaveBeenCalled()
             expect(next).not.toHaveBeenCalled()
+        })
+
+        test('should decode percent-encoded redirect url from callback query', async () => {
+            const redirectUrl = 'https://app.example.com?foo=bar%20baz'
+            const { req, res, next } = createMockReqResNext({
+                redirectUrl: encodeURIComponent(redirectUrl),
+                userType: MOCK_USER.type,
+                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+            })
+
+            await routes.completeAuth(req, res, next)
+
+            expect(res.redirect).toHaveBeenCalledWith(redirectUrl)
         })
 
         test('should return error for super users', async () => {
