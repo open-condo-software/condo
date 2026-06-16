@@ -84,8 +84,13 @@ async function main () {
 
     const devBotOptions = JSON.stringify({ type: 'service', password: devBotConfig.password, name: '[DEV-PORTAL] Dev bot' })
     const prodBotOptions = JSON.stringify({ type: 'service', password: prodBotConfig.password, name: '[DEV-PORTAL] Prod bot' })
-    await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(devBotConfig.email)} ${JSON.stringify(devBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
-    await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(prodBotConfig.email)} ${JSON.stringify(prodBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
+    const { stdout: devUserOut } = await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(devBotConfig.email)} ${JSON.stringify(devBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
+    const { stdout: prodUserOut } = await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(prodBotConfig.email)} ${JSON.stringify(prodBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
+
+    const devLines = devUserOut.trim().split('\n')
+    const prodLines = prodUserOut.trim().split('\n')
+    const { id: devBotId } = JSON.parse(devLines[devLines.length - 1])
+    const { id: prodBotId } = JSON.parse(prodLines[prodLines.length - 1])
 
     // STEP 5. Register OIDC client
     const portalWebDomain = await getAppEnvValue(APP_NAME, 'DEV_PORTAL_WEB_DOMAIN')
@@ -95,6 +100,24 @@ async function main () {
     const oidcConf = await prepareCondoAppOidcConfig(APP_NAME, { redirectUrl: [webRedirectUrl, apiRedirectUrl] })
     await updateAppEnvFile(APP_NAME, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify({ ...oidcConf, scope: 'openid phone' }))
     await updateAppEnvFile(APP_NAME, 'ENABLE_DIRECT_OIDC', 'true')
+
+    // STEP 6. Bypass file rate-limits
+    await updateAppEnvFile('condo', 'FILE_UPLOAD_CONFIG', (prev) => {
+        const newValue = JSON.parse(prev || '{}')
+        if (!newValue.quota) {
+            newValue.quota = {}
+        }
+        if (!newValue.quota.whitelist) {
+            newValue.quota.whitelist = []
+        }
+        if (!newValue.quota.whitelist.includes(devBotId)) {
+            newValue.quota.whitelist.push(devBotId)
+        }
+        if (!newValue.quota.whitelist.includes(prodBotId)) {
+            newValue.quota.whitelist.push(prodBotId)
+        }
+        return JSON.stringify(newValue)
+    })
 }
 
 main().then(() => {

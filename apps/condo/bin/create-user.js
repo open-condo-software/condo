@@ -25,25 +25,24 @@ async function main (args) {
 
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
-    console.info(`EMAIL: ${email}`)
+    const userData = { id: null, email, password: userPayload.password ?? null }
+
     const existingUser = await User.getOne(context, { email })
     userPayload.dv ??= 1
     userPayload.sender ??= { 'dv': 1, 'fingerprint': 'create-user-script' }
     let rightSetId
-    let userId
 
     if (!existingUser) {
         if (!userPayload.password) {
             userPayload.password = getRandomString()
-            console.info(`PASSWORD: ${userPayload.password}`)
+            userData.password = userPayload.password
         }
         userPayload.name ??= email.split('@')[0]
         const user = await User.create(context, {
             email,
             ...userPayload,
         }, 'id rightsSet { id }')
-        console.info('User created!')
-        userId = user.id
+        userData.id = user.id
         if (user.rightsSet) {
             rightSetId = user.rightsSet.id
         }
@@ -53,8 +52,7 @@ async function main (args) {
             userPayload,
             'id rightsSet { id }'
         )
-        console.info('User updated!')
-        userId = existingUser.id
+        userData.id = existingUser.id
         if (user.rightsSet) {
             rightSetId = user.rightsSet.id
         }
@@ -68,18 +66,19 @@ async function main (args) {
         }
         if (rightSetId) {
             await UserRightsSet.update(context, rightSetId, rightSetPayload)
-            console.info('UserRightsSet updated!')
         } else {
-            await User.update(context, userId, {
+            await User.update(context, userData.id, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'create-user-script' },
                 rightsSet: {
                     create: rightSetPayload,
                 },
             })
-            console.info('UserRightsSet created and linked!')
         }
     }
+
+    // NOTE: DON'T CHANGE OUTPUT OR IT WILL BREAK RELYING PREPARE SCRIPTS
+    console.log(JSON.stringify(userData))
 }
 
 main(process.argv.slice(2)).then(
