@@ -29,7 +29,7 @@ const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/s
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
-
+const CALLER_ID_UNIQ_KEY_PREFIX = 'CALLER_ID'
 const SERVER_URL = conf.SERVER_URL
 
 const VOIP_MESSAGE_TYPES = [
@@ -46,6 +46,12 @@ const VOIP_MESSAGE_DATA_PREPARERS = {
     [VOIP_INCOMING_CALL_MESSAGE_TYPE]: prepareVoIPCallStartMessageData,
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: prepareVoIPCallCancelMessageData,
 }
+
+const B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME = 'voipB2CAppContext_spread'
+const ALLOWED_B2C_APP_CONTEXT_CUSTOM_FIELD_NAMES = [
+    B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME,
+]
+const VOIP_CUSTOM_DATA_CUSTOM_FIELD_NAME = 'voipCustomData'
 
 const CACHE_TTL = {
     DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
@@ -135,7 +141,8 @@ function prepareVoIPCallStartMessageData ({
     customVoIPValues = {},
     hasSendDTMFUrl,
     sender,
-    customContext,
+    customB2CAppContextForCaller,
+    customVoIPDataForCaller,
 }) {
     // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
     let preparedDataArgs = {
@@ -208,19 +215,23 @@ function prepareVoIPCallStartMessageData ({
         }
     }
 
-    if (customContext?.data) {
-        if (isNonEmptyObject(customContext.data.B2CAppContext_spread)) {
-            preparedDataArgs.B2CAppContext = { ...preparedDataArgs.B2CAppContext, ...customContext.data.B2CAppContext_spread }
+    if (customB2CAppContextForCaller) {
+        if (isNonEmptyObject(customB2CAppContextForCaller[B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME])) {
+            preparedDataArgs.B2CAppContext = { ...preparedDataArgs.B2CAppContext, ...customB2CAppContextForCaller[B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME] }
         }
-        const { data: nativeData, success } = CUSTOM_CONTEXT_NATIVE_DATA_SCHEMA.safeParse(customContext.data.nativeData)
+    }
+
+    if (customVoIPDataForCaller) {
+        const { data: customVoIPData, success } = CUSTOM_CONTEXT_NATIVE_DATA_SCHEMA.safeParse(customVoIPDataForCaller)
         if (success) {
-            if (nativeData.streamUrl) {
-                preparedDataArgs.streamUrl = nativeData.streamUrl
+            if (customVoIPData.streamUrl) {
+                preparedDataArgs.streamUrl = customVoIPData.streamUrl
             }
             const originalVoIPPanelsByDtmfCommand = (preparedDataArgs.voipPanels || []).reduce((byDtmf, panel) => {
                 byDtmf[panel.dtmfCommand] = panel
-            })
-            for (const voipPanel of nativeData.voipPanels) {
+                return byDtmf
+            }, {})
+            for (const voipPanel of customVoIPData.voipPanels) {
                 if (originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand]) {
                     Object.assign(originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand], voipPanel)
                 } else {
@@ -235,7 +246,7 @@ function prepareVoIPCallStartMessageData ({
     }
 
     for (const jsonKey of ['voipPanels', 'stunServers', 'B2CAppContext', 'voipIceServers']) {
-        if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey]) continue
+        if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey] || typeof preparedDataArgs[jsonKey] !== 'object') continue
         preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
     }
 
@@ -287,6 +298,8 @@ function prepareVoIPCallCancelMessageData ({
  * sender,
  * dv,
  * hasSendDTMFUrl,
+ * customB2CAppContextForCaller,
+ * customVoIPDataForCaller,
  * }} args 
  * @returns 
  */
@@ -462,18 +475,38 @@ async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessage
     }, {})
 }
 
-async function getCustomB2CAppContext ({ context, propertyId, callerId }) {
+async function getCustomB2CAppContextForCaller ({ context, propertyId, callerId }) {
     if (!propertyId || !callerId) return null
 
-    return await CustomValue.getOne(context, {
+    const values = await CustomValue.getAll(context, {
         customField: {
-            name: 'voipB2CAppContext',
+            name_in: ALLOWED_B2C_APP_CONTEXT_CUSTOM_FIELD_NAMES,
             modelName: 'Property',
             deletedAt: null,
         },
         itemId: propertyId,
-        uniqKey: `sipFromUser:${callerId}`,
+        uniqKey: `${CALLER_ID_UNIQ_KEY_PREFIX}:${callerId}`,
+    }, 'id data customField { name }')
+
+    return values.reduce((byFieldName, value) => {
+        if (!byFieldName[value.customField.name]) byFieldName[value.customField.name] = value.data // NOTE(YEgorLu): For now 1 custom value = 1 custom field name
+        return byFieldName
+    }, {})
+}
+
+async function getCustomVoIPDataForCaller ({ context, propertyId, callerId }) {
+    if (!propertyId || !callerId) return null
+
+    const value = await CustomValue.getOne(context, {
+        customField: {
+            name: VOIP_CUSTOM_DATA_CUSTOM_FIELD_NAME,
+            modelName: 'Property',
+            deletedAt: null,
+        },
+        itemId: propertyId,
+        uniqKey: `${CALLER_ID_UNIQ_KEY_PREFIX}:${callerId}`,
     }, 'id data')
+    return value?.data
 }
 
 function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
@@ -602,14 +635,19 @@ module.exports = {
     getAppInfo,
     sendMessageToUser,
     parseSendMessageResults,
-    getCustomVoIPValuesByContacts,
     getLogInfoFn,
     checkLimits,
     getInitialLogContext,
 
-    getCustomB2CAppContext,
+    getCustomVoIPValuesByContacts,
+    getCustomB2CAppContextForCaller,
+    getCustomVoIPDataForCaller,
 
     RejectCallError,
 
     COMMON_VOIP_ERRORS,
+    CALLER_ID_UNIQ_KEY_PREFIX,
+    VOIP_CUSTOM_DATA_CUSTOM_FIELD_NAME,
+    B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME,
+    ALLOWED_B2C_APP_CONTEXT_CUSTOM_FIELD_NAMES,
 }
