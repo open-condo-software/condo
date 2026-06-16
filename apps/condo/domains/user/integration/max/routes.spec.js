@@ -31,7 +31,7 @@ const { faker } = require('@faker-js/faker')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { MaxOauthRoutes } = require('@condo/domains/user/integration/max/routes')
+const { MaxRoutes } = require('@condo/domains/user/integration/max/routes')
 const { syncUser, getIdentity } = require('@condo/domains/user/integration/max/sync/syncUser')
 const { ERRORS, HttpError } = require('@condo/domains/user/integration/max/utils/errors')
 const { getMaxAuthDataValidationError, isRedirectUrlValid } = require('@condo/domains/user/integration/max/utils/validations')
@@ -84,7 +84,7 @@ function createMockContext (token) {
     }
 }
 
-describe('MaxOauthRoutes', () => {
+describe('MaxRoutes', () => {
     const MOCK_AUTH_TOKEN = faker.random.alphaNumeric(10)
     const MOCK_USER = {
         id: faker.random.alphaNumeric(10),
@@ -104,7 +104,7 @@ describe('MaxOauthRoutes', () => {
         getMaxAuthDataValidationError.mockReturnValue(null)
         isRedirectUrlValid.mockImplementation(jest.requireActual('@condo/domains/user/integration/max/utils/validations').isRedirectUrlValid)
 
-        routes = new MaxOauthRoutes()
+        routes = new MaxRoutes()
     })
 
     afterEach(() => {

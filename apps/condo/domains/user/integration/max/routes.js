@@ -66,7 +66,7 @@ class BotsConfigProvider {
     }
 }
 
-class MaxOauthRoutes {
+class MaxRoutes {
     /** @type {BotsConfigProvider} */
     _provider
 
@@ -225,5 +225,5 @@ class MaxOauthRoutes {
 }
 
 module.exports = {
-    MaxOauthRoutes,
+    MaxRoutes,
 }
