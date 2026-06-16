@@ -152,7 +152,7 @@ class MaxRoutes {
         // Max proxy (/api/auth/max/proxy/*) can rewrite the "next" query param to its own path and
         // inject "authFlow=needAuth". Keeping the browser on the resident-app domain is required so
         // condo sees the session cookie created during phone auth (it is host-only, scoped to the
-        // resident-app host by the GraphQL proxy). A direct redirect to condo's domain would loop.
+        // resident-app host by the GraphQL proxy). A direct redirect to resident-app's domain would loop.
         return res.redirect(`/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}`)
     }
 

@@ -26,7 +26,7 @@ const ERRORS = {
     NOT_SUPPORTED_USER_TYPE: {
         type: 'NOT_SUPPORTED_USER_TYPE',
         code: BAD_USER_INPUT,
-        message: 'this user type is not supported for bot',
+        message: 'this user type is not supported for max bot',
     },
     MAX_AUTH_DATA_MISSING: {
         type: 'MAX_AUTH_DATA_MISSING',
@@ -36,12 +36,12 @@ const ERRORS = {
     INVALID_REDIRECT_URL: {
         type: 'INVALID_REDIRECT_URL',
         code: BAD_USER_INPUT,
-        message: 'this redirect url is not supported for bot',
+        message: 'this redirect url is not supported for max bot',
     },
     SUPER_USERS_NOT_ALLOWED: {
         type: 'SUPER_USERS_NOT_ALLOWED',
         code: FORBIDDEN,
-        message: 'you can\'t authorize super users with this bot',
+        message: 'you can\'t authorize super users with this max bot',
     },
     ACCESS_DENIED: {
         type: 'ACCESS_DENIED',
@@ -56,7 +56,7 @@ const ERRORS = {
     INVALID_BOT_ID: {
         type: 'INVALID_BOT_ID',
         code: BAD_USER_INPUT,
-        message: 'you trying to log in via unsupported bot',
+        message: 'you trying to log in via unsupported max bot',
     },
     INVALID_CONFIG: {
         type: 'INVALID_CONFIG',
