@@ -8,11 +8,16 @@ const {
     createTestB2CApp,
     createTestB2CAppBuild,
     publishB2CAppByTestClient,
+    createCondoB2CApp,
+    createCondoB2CAppBuild,
+    updateCondoB2CApp,
+    importB2CAppByTestClient,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
     makeLoggedInSupportClient,
     makeRegisteredAndLoggedInUser,
+    makeLoggedInCondoAdminClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
 describe('GetB2CAppInfoService', () => {
@@ -67,10 +72,40 @@ describe('GetB2CAppInfoService', () => {
                 })
             })
         })
-        test('Anonymous cannot get any app  info', async () => {
+        test('Anonymous cannot get any app info', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await getB2CAppInfoByTestClient(anonymous, b2cApp)
             })
+        })
+    })
+    describe('Build version', () => {
+        let condoAdmin
+        beforeAll(async () => {
+            condoAdmin = await makeLoggedInCondoAdminClient()
+        })
+        test('Must omit hash-suffix if published with zip-modification', async () => {
+            const [app] = await createTestB2CApp(b2cUser)
+            const [appBuild] = await createTestB2CAppBuild(b2cUser, app)
+            await publishB2CAppByTestClient(b2cUser, app, { info: true, build: { id: appBuild.id } })
+            const publishedApp = await B2CApp.getOne(b2cUser, { id: app.id })
+
+            const [info] = await getB2CAppInfoByTestClient(b2cUser, publishedApp)
+
+            expect(info.currentBuild.version).toBe(appBuild.version)
+        })
+        test('Must show original version if created directly in condo', async () => {
+            const [condoApp] = await createCondoB2CApp(condoAdmin)
+            const [condoBuild] = await createCondoB2CAppBuild(condoAdmin, condoApp, { version: 'my-custom-version' })
+            await updateCondoB2CApp(condoAdmin, condoApp, { currentBuild: { connect: { id: condoBuild.id } } })
+
+            const [app] = await createTestB2CApp(b2cUser)
+            await importB2CAppByTestClient(support, app, condoApp)
+            const importedApp = await B2CApp.getOne(b2cUser, { id: app.id })
+
+            const [info] = await getB2CAppInfoByTestClient(b2cUser, importedApp)
+
+            expect(info.currentBuild.version).toBe(condoBuild.version)
+            expect(Object.keys(info.currentBuild).toSorted()).toEqual(['id', 'version'].toSorted())
         })
     })
 })
