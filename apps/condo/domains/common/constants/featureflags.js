@@ -60,6 +60,7 @@ const UI_HIDE_USER_LINKS = 'ui-hide-user-links'
 const UI_HIDE_LAYOUT_HEADER = 'ui-hide-layout-header'
 const UI_HIDE_LAYOUT_SIDE_MENU = 'ui-hide-layout-sideMenu'
 const UI_HIDE_PAID_FEATURES = 'ui-hide-paid-features'
+const UI_BILLING_SPP_COMBINED_PAGE = 'ui-billing-spp-combined-page'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -124,4 +125,5 @@ module.exports = {
     UI_HIDE_LAYOUT_HEADER,
     UI_HIDE_LAYOUT_SIDE_MENU,
     UI_HIDE_PAID_FEATURES,
+    UI_BILLING_SPP_COMBINED_PAGE,
 }

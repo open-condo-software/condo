@@ -331,6 +331,8 @@
   "accrualsAndPayments.payments.type.registry.uploadedRecords": "Number of entries",
   "accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message": "We will display them here as soon as they are generated.",
   "accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.title": "There are no payment registries yet",
+  "accrualsAndPayments.combined.doma.label": "Doma+",
+  "accrualsAndPayments.combined.settings.message": "Integration settings will be shown here.",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Selecting a billing",
   "accrualsAndPayments.setup.noReturn": "At this point it is impossible to go back to this step",
   "accrualsAndPayments.setup.setupAcquiringStep.title": "Acceptance of the offer",

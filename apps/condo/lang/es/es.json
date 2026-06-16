@@ -331,6 +331,8 @@
   "accrualsAndPayments.payments.type.registry.uploadedRecords": "Número de entradas",
   "accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message": "Los mostraremos aquí tan pronto como se formen.",
   "accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.title": "Hasta el momento no hay registros de pago",
+  "accrualsAndPayments.combined.doma.label": "Doma+",
+  "accrualsAndPayments.combined.settings.message": "La configuración de integración se mostrará aquí.",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Elegir facturación",
   "accrualsAndPayments.setup.noReturn": "No es posible volver a este paso en este momento",
   "accrualsAndPayments.setup.setupAcquiringStep.title": "Aceptación de oferta",

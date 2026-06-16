@@ -331,6 +331,8 @@
   "accrualsAndPayments.payments.type.registry.uploadedRecords": "Кол-во записей",
   "accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message": "Отобразим их здесь, как только они будут сформированы.",
   "accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.title": "Пока реестров оплат нет",
+  "accrualsAndPayments.combined.doma.label": "Дома+",
+  "accrualsAndPayments.combined.settings.message": "Здесь будут отображаться настройки интеграции.",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Выбор биллинга",
   "accrualsAndPayments.setup.noReturn": "На данном этапе вернуться к этому шагу невозможно",
   "accrualsAndPayments.setup.setupAcquiringStep.title": "Акцепт оферты",
