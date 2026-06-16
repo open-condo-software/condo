@@ -117,8 +117,13 @@ function getSendDTMFTimeout () {
     return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
 }
 
+function isObject (obj) {
+    return z.record(z.string(), z.unknown()).safeParse(obj).success
+}
+
 function isNonEmptyObject (obj) {
-    return typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).length > 0
+    if (!isObject) return false
+    return Object.keys(obj).length > 0
 }
 
 const CUSTOM_VOIP_DATA_FOR_CALLER_SCHEMA = z.object({
@@ -129,7 +134,7 @@ const CUSTOM_VOIP_DATA_FOR_CALLER_SCHEMA = z.object({
             dtmfCommand: z.string(),
             openUrl: z.string().optional().catch(),
         }).catch()
-    ).optional().catch(() => ([])).transform((arr) => arr.filter(Boolean)),
+    ).optional().catch(() => ([])).transform((arrOrUndefined) => Array.isArray(arrOrUndefined) ? arrOrUndefined.filter(Boolean) : arrOrUndefined),
 })
 
 function prepareVoIPCallStartMessageData ({ 
@@ -190,7 +195,7 @@ function prepareVoIPCallStartMessageData ({
             voipAddress: callData.nativeCallData.voipAddress,
             voipLogin: callData.nativeCallData.voipLogin,
             voipPassword: callData.nativeCallData.voipPassword,
-            voipDtfmCommand: callData.nativeCallData.voipPanels?.[0]?.dtmfCommand,
+            voipDtfmCommand: callData.nativeCallData.voipPanels[0]?.dtmfCommand,
             voipPanels: callData.nativeCallData.voipPanels,
             voipIceServers: callData.nativeCallData.iceServers,
             stun: firstStunAddressFromIceCandidates ? firstStunAddressFromIceCandidates : callData.nativeCallData.stunServers?.[0],
@@ -216,7 +221,7 @@ function prepareVoIPCallStartMessageData ({
     }
 
     if (customB2CAppContextForCaller) {
-        if (isNonEmptyObject(customB2CAppContextForCaller[B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME])) {
+        if (isObject(preparedDataArgs.B2CAppContext) && isNonEmptyObject(customB2CAppContextForCaller[B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME])) {
             preparedDataArgs.B2CAppContext = { ...preparedDataArgs.B2CAppContext, ...customB2CAppContextForCaller[B2C_APP_CONTEXT_SPREAD_CUSTOM_FIELD_NAME] }
         }
     }
@@ -227,20 +232,24 @@ function prepareVoIPCallStartMessageData ({
             if (customVoIPData.streamUrl) {
                 preparedDataArgs.streamUrl = customVoIPData.streamUrl
             }
-            const originalVoIPPanelsByDtmfCommand = (preparedDataArgs.voipPanels || []).reduce((byDtmf, panel) => {
-                byDtmf[panel.dtmfCommand] = panel
-                return byDtmf
-            }, {})
-            for (const voipPanel of customVoIPData.voipPanels) {
-                if (originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand]) {
-                    Object.assign(originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand], voipPanel)
-                } else {
-                    if (!preparedDataArgs.voipPanels) preparedDataArgs.voipPanels = []
-                    preparedDataArgs.voipPanels.push(voipPanel)
+
+            if (customVoIPData.voipPanels) {
+                const originalVoIPPanelsByDtmfCommand = preparedDataArgs.voipPanels.reduce((byDtmf, panel) => {
+                    byDtmf[panel.dtmfCommand] = panel
+                    return byDtmf
+                }, {})
+                for (const voipPanel of customVoIPData.voipPanels) {
+                    if (originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand]) {
+                        Object.assign(originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand], voipPanel)
+                    } else {
+                        if (!preparedDataArgs.voipPanels) preparedDataArgs.voipPanels = []
+                        preparedDataArgs.voipPanels.push(voipPanel)
+                    }
                 }
-            }
-            if (preparedDataArgs.voipPanels.length && !preparedDataArgs.voipDtfmCommand) {
-                preparedDataArgs.voipDtfmCommand = preparedDataArgs.voipPanels[0].dtmfCommand
+            
+                if (preparedDataArgs.voipPanels.length && !preparedDataArgs.voipDtfmCommand) {
+                    preparedDataArgs.voipDtfmCommand = preparedDataArgs.voipPanels[0].dtmfCommand
+                }
             }
         }
     }
