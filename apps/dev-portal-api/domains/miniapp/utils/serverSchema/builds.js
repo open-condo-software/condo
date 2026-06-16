@@ -19,7 +19,7 @@ function generateB2CAppBuildHash () {
     if (DISABLE_BUILD_RESTREAMING) return null
 
     return crypto.createHash('sha256').update(JSON.stringify({
-        scripts: B2C_APP_BUILD_INJECTED_SCRIPTS.toSorted(),
+        scripts: B2C_APP_BUILD_INJECTED_SCRIPTS,
         // TODO: take device permissions into account once we support generation of native config
         permissions: [],
     })).digest('hex')

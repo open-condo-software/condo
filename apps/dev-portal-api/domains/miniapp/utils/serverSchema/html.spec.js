@@ -57,6 +57,18 @@ describe('html utils', () => {
             expect(result).toBe(`<html><head>${TAGS}<noscript><!-- <head> --></noscript></head></html>`)
         })
 
+        test('injects after uppercase <HEAD>', () => {
+            const input = '<html><HEAD><title>App</title></HEAD></html>'
+            const result = injectScriptTags(input, TAGS)
+            expect(result).toBe(`<html><HEAD>${TAGS}<title>App</title></HEAD></html>`)
+        })
+
+        test('injects after mixed-case <Head>', () => {
+            const input = '<html><Head lang="en"><title>App</title></Head></html>'
+            const result = injectScriptTags(input, TAGS)
+            expect(result).toBe(`<html><Head lang="en">${TAGS}<title>App</title></Head></html>`)
+        })
+
         test('handles self-closing-like <head/> gracefully (treats > as end of tag)', () => {
             const input = '<html><head/><body></body></html>'
             const result = injectScriptTags(input, TAGS)
