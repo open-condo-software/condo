@@ -118,9 +118,6 @@ async function main () {
         }
         return JSON.stringify(newValue)
     })
-
-    await updateAppEnvFile('condo', 'CONDO_DEV_BOT_ID', devBotId)
-    await updateAppEnvFile(APP_NAME, 'CONDO_PROD_BOT_ID', prodBotId)
 }
 
 main().then(() => {
