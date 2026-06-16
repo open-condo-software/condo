@@ -18,6 +18,9 @@ const CONTENT_CONFIGURATION_SCHEMA = z.object({
     marketplace: z.object({
         appId: z.string(),
     }).optional(),
+    ticket: z.object({
+        appId: z.string(),
+    }).optional(),
 }).strict()
 
 const CONTENT_CONFIGURATION_FIELD_NAME = 'ContentConfiguration'
@@ -25,15 +28,20 @@ const CONTENT_CONFIGURATION_FIELD_NAME = 'ContentConfiguration'
 const CONTENT_CONFIGURATION_FIELD_TYPE = `
     type ${CONTENT_CONFIGURATION_FIELD_NAME} {
         marketplace: MarketplaceContentConfigurationType
+        ticket: TicketContentConfigurationType
     }
 
     type MarketplaceContentConfigurationType {
         appId: String!
     }
+    
+    type TicketContentConfigurationType {
+        appId: String!
+    }
 `
 
 const contentConfigurationValidator = CONTENT_CONFIGURATION_SCHEMA
-const CONTENT_CONFIGURATION_GRAPHQL_ADMIN_FRAGMENT = '{ marketplace { appId } }'
+const CONTENT_CONFIGURATION_GRAPHQL_ADMIN_FRAGMENT = '{ marketplace { appId } ticket { appId } }'
 
 const ERRORS = {
     TICKET_SUBMITTING_PHONES_NOT_CONFIGURED: {
