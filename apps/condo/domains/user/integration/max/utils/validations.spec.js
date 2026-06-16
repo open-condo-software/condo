@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const { faker } = require('@faker-js/faker')
 
 const { ERRORS } = require('./errors')
-const { getMaxAuthDataValidationError, getOauthConfigValidationError, isRedirectUrlValid } = require('./validations')
+const { getMaxAuthDataValidationError, getConfigValidationError, isRedirectUrlValid } = require('./validations')
 
 // Max uses the same prefix as Telegram for the secret key
 const MAX_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
@@ -182,7 +182,7 @@ describe('validations', () => {
         })
     })
 
-    describe('getOauthConfigValidationError', () => {
+    describe('getConfigValidationError', () => {
 
         const validConfig = [
             {
@@ -194,11 +194,11 @@ describe('validations', () => {
         ]
 
         test('should return null for a valid config', () => {
-            expect(getOauthConfigValidationError(validConfig)).toBeNull()
+            expect(getConfigValidationError(validConfig)).toBeNull()
         })
 
         test('should return null for an empty config array', () => {
-            expect(getOauthConfigValidationError([])).toBeNull()
+            expect(getConfigValidationError([])).toBeNull()
         })
 
         test('should return null for multiple valid configs', () => {
@@ -211,7 +211,7 @@ describe('validations', () => {
                     allowedUserType: 'staff',
                 },
             ]
-            expect(getOauthConfigValidationError(multiConfig)).toBeNull()
+            expect(getConfigValidationError(multiConfig)).toBeNull()
         })
 
         test('should return error for duplicate botIds', () => {
@@ -219,7 +219,7 @@ describe('validations', () => {
                 ...validConfig,
                 { ...validConfig[0] },
             ]
-            const error = getOauthConfigValidationError(duplicateConfig)
+            const error = getConfigValidationError(duplicateConfig)
             expect(error).toMatchObject({ type: ERRORS.INVALID_CONFIG.type })
             expect(error.data.reason).toMatch(/Duplicate bot ids/)
         })
@@ -230,7 +230,7 @@ describe('validations', () => {
             test.each(requiredFields)('should return error when "%s" is missing', (field) => {
                 const incompleteConfig = [{ ...validConfig[0] }]
                 delete incompleteConfig[0][field]
-                const error = getOauthConfigValidationError(incompleteConfig)
+                const error = getConfigValidationError(incompleteConfig)
                 expect(error).toMatchObject({ type: ERRORS.INVALID_CONFIG.type })
                 expect(error.data.reason).toContain(field)
             })
@@ -238,28 +238,28 @@ describe('validations', () => {
 
         test('should return error when allowedRedirectUrls is not an array', () => {
             const badConfig = [{ ...validConfig[0], allowedRedirectUrls: 'https://example.com' }]
-            const error = getOauthConfigValidationError(badConfig)
+            const error = getConfigValidationError(badConfig)
             expect(error).toMatchObject({ type: ERRORS.INVALID_CONFIG.type })
             expect(error.data.reason).toContain('allowedRedirectUrls')
         })
 
         test('should return error when allowedRedirectUrls contains an invalid URL', () => {
             const badConfig = [{ ...validConfig[0], allowedRedirectUrls: ['not-a-valid-url'] }]
-            const error = getOauthConfigValidationError(badConfig)
+            const error = getConfigValidationError(badConfig)
             expect(error).toMatchObject({ type: ERRORS.INVALID_CONFIG.type })
             expect(error.data.reason).toContain('allowedRedirectUrls')
         })
 
         test('should return error when allowedUserType is empty', () => {
             const badConfig = [{ ...validConfig[0], allowedUserType: '' }]
-            const error = getOauthConfigValidationError(badConfig)
+            const error = getConfigValidationError(badConfig)
             expect(error).toMatchObject({ type: ERRORS.INVALID_CONFIG.type })
             expect(error.data.reason).toContain('allowedUserType')
         })
 
         test('should return error when allowedUserType is not a string', () => {
             const badConfig = [{ ...validConfig[0], allowedUserType: 42 }]
-            const error = getOauthConfigValidationError(badConfig)
+            const error = getConfigValidationError(badConfig)
             expect(error).toMatchObject({ type: ERRORS.INVALID_CONFIG.type })
             expect(error.data.reason).toContain('allowedUserType')
         })

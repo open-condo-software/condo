@@ -15,7 +15,7 @@ const {
 const { getIdentity } = require('./sync/syncUser')
 const { ERRORS, HttpError } = require('./utils/errors')
 const { parseBotId, getBotId } = require('./utils/params')
-const { getOauthConfigValidationError, isValidTelegramMiniAppInitParams } = require('./utils/validations')
+const { getConfigValidationError, isValidTelegramMiniAppInitParams } = require('./utils/validations')
 
 const logger = getLogger()
 
@@ -41,7 +41,7 @@ class BotsConfigProvider {
             let telegramOauthConfig
             telegramOauthConfig = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
                 .map(conf => ({ ...conf, botId: parseBotId(conf.botToken) }))
-            const validationError = getOauthConfigValidationError(telegramOauthConfig)
+            const validationError = getConfigValidationError(telegramOauthConfig)
             if (validationError) {
                 const err = new HttpError(validationError)
                 logger.error({ msg: 'telegram oauth config error', err })

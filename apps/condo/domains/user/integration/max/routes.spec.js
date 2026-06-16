@@ -5,7 +5,7 @@ jest.mock('@condo/domains/user/integration/max/utils/validations')
 jest.mock('@open-condo/config', () => {
     const conf = jest.requireActual('@open-condo/config')
     const mockConfig = jest.fn().mockImplementation((_, name) => {
-        if (name === 'MAX_OAUTH_CONFIG') {
+        if (name === 'MAX_CONFIG') {
             return JSON.stringify([
                 {
                     botId: '123456',

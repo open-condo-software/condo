@@ -15,7 +15,7 @@ const {
 const { getIdentity } = require('./sync/syncUser')
 const { ERRORS, HttpError } = require('./utils/errors')
 const { getBotId } = require('./utils/params')
-const { getOauthConfigValidationError } = require('./utils/validations')
+const { getConfigValidationError } = require('./utils/validations')
 
 const logger = getLogger()
 
@@ -38,16 +38,16 @@ class BotsConfigProvider {
     constructor () {
         try {
             this.isValid = true
-            let maxOauthConfig
-            maxOauthConfig = JSON.parse(conf.MAX_OAUTH_CONFIG || '[]')
-            const validationError = getOauthConfigValidationError(maxOauthConfig)
+            let maxConfig
+            maxConfig = JSON.parse(conf.MAX_CONFIG || '[]')
+            const validationError = getConfigValidationError(maxConfig)
             if (validationError) {
                 const err = new HttpError(validationError)
-                logger.error({ msg: 'max oauth config error', err })
+                logger.error({ msg: 'max config error', err })
                 this.isValid = false
                 this.validationError = err
             }
-            for (const config of maxOauthConfig) {
+            for (const config of maxConfig) {
                 this.configs[config.botId] = config
             }
         } catch (err) {

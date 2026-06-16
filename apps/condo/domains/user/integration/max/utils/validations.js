@@ -133,13 +133,13 @@ function getMaxAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
     return null
 }
 
-function getOauthConfigValidationError (oauthConfig) {
-    const uniqueBotIds = new Set(oauthConfig.map(conf => conf.botId))
-    if (uniqueBotIds.size !== oauthConfig.length) {
-        const duplicateNames = [...uniqueBotIds].filter(botId => oauthConfig.filter(conf => conf.botId === botId).length > 1)
+function getConfigValidationError (maxConfig) {
+    const uniqueBotIds = new Set(maxConfig.map(conf => conf.botId))
+    if (uniqueBotIds.size !== maxConfig.length) {
+        const duplicateNames = [...uniqueBotIds].filter(botId => maxConfig.filter(conf => conf.botId === botId).length > 1)
         return { ...ERRORS.INVALID_CONFIG, data: { reason: `Duplicate bot ids: "${duplicateNames.join('", "')}"` } }
     }
-    for (const [index, config] of oauthConfig.entries()) {
+    for (const [index, config] of maxConfig.entries()) {
         for (const key of CONFIG_REQUIRED_FIELDS) {
             if (!Object.hasOwn(config, key)) {
                 return { ...ERRORS.INVALID_CONFIG, data: { reason: `Missing required field "${key}" at index ${index}` } }
@@ -185,6 +185,6 @@ function isRedirectUrlValid (allowedUrls, requestUrl) {
 
 module.exports = {
     getMaxAuthDataValidationError,
-    getOauthConfigValidationError,
+    getConfigValidationError,
     isRedirectUrlValid,
 }

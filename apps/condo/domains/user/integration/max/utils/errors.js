@@ -61,7 +61,7 @@ const ERRORS = {
     INVALID_CONFIG: {
         type: 'INVALID_CONFIG',
         code: INTERNAL_ERROR,
-        message: 'env "MAX_OAUTH_CONFIG" is invalid',
+        message: 'env "MAX_CONFIG" is invalid',
     },
 }
 
