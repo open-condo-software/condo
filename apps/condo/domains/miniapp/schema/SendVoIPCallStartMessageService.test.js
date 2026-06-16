@@ -324,7 +324,7 @@ describe('SendVoIPCallStartMessageService', () => {
                             })
                     )
 
-                const [result] = await makeStartCallRequest({
+                const { result } = await makeStartCallRequest({
                     admin, serviceUserClient: serviceUser,
                     b2cAppId: b2cApp.id, type: 'native', resident, 
                     nativeCallData: {
