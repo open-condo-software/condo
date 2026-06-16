@@ -740,7 +740,6 @@ describe('SendVoIPCallStartMessageService', () => {
                     voipDtfmCommand: dataAttrs.nativeCallData.voipPanels[0].dtmfCommand,
                     voipPanels: JSON.stringify(dataAttrs.nativeCallData.voipPanels),
                     stun: dataAttrs.nativeCallData.stunServers[0],
-                    stunServers: JSON.stringify(dataAttrs.nativeCallData.stunServers),
                     codec: dataAttrs.nativeCallData.codec,
                 }
         
