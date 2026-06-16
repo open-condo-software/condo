@@ -8,6 +8,7 @@ const {
 } = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
 const {
     getAllReadyToPayRecurrentPaymentContexts,
+    filterContextsByOrganizationSubscription,
     sendTomorrowPaymentNotificationSafely,
     sendTomorrowPaymentNoReceiptsNotificationSafely,
     sendTomorrowPaymentLimitExceedNotificationSafely,
@@ -73,9 +74,10 @@ async function notifyBeforeRecurrentPaymentDate () {
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, tomorrowDate, pageSize, offset)
+        const filteredPage = await filterContextsByOrganizationSubscription(context, page)
 
         // process each page in parallel
-        await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
+        await processArrayOf(filteredPage).inParallelWith(async (recurrentPaymentContext) => {
             try {
                 await notifyRecurrentPaymentContext(context, tomorrowDate, recurrentPaymentContext)
             } catch (err) {

@@ -20,6 +20,7 @@ const {
 const {
     getReadyForProcessingPaymentsPage,
     filterNotPayablePayment,
+    filterPaymentsByOrganizationSubscription,
     registerMultiPayment,
     setRecurrentPaymentAsFailed,
     setRecurrentPaymentAsSuccess,
@@ -68,16 +69,16 @@ async function chargeRecurrentPayments () {
     const { pageSize } = paginationConfiguration
     let offset = 0
     let hasMorePages = true
-
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
         logger.info({ msg: 'processing recurrent payments page', data: { page: Math.floor(offset / pageSize) } })
         // get page (can be empty)
         const page = await getReadyForProcessingPaymentsPage(context, pageSize, offset)
         const itemsWithPayableStatus = await filterNotPayablePayment(page)
+        const itemsWithActiveSubscription = await filterPaymentsByOrganizationSubscription(context, itemsWithPayableStatus)
 
         // process each page in parallel
-        await processArrayOf(itemsWithPayableStatus).inParallelWith(async (recurrentPayment) => {
+        await processArrayOf(itemsWithActiveSubscription).inParallelWith(async (recurrentPayment) => {
             try {
                 // first step create multi payment
                 const {

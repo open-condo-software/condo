@@ -5,8 +5,9 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
 const {
     MeterReadingSource,
@@ -23,6 +24,11 @@ const {
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 
 const { keystone } = index
@@ -318,5 +324,43 @@ describe('Submit meter readings push notification', () => {
         expect(messages).toHaveLength(1)
         expect(messages[0].type).toEqual(METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE)
         expect(messages[0].organization.id).toEqual(meter.organization.id)
+    })
+
+    describe('subscription check', () => {
+        let planWithMeters
+
+        beforeAll(async () => {
+            const [plan] = await createTestSubscriptionPlan(adminClient, { meters: true })
+            planWithMeters = plan
+        })
+
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(adminClient, planWithMeters.id)
+        })
+
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+        it('should not send notification when organization has no active meters subscription', async () => {
+            const client = await prepareUserAndMeter({ nextVerificationDate: dayjs().add(1, 'year').toISOString() })
+
+            await sendSubmitMeterReadingsPushNotifications()
+
+            const messages = await getNewMessages({ userId: client.user.id, meterId: client.meter.id })
+            expect(messages).toHaveLength(0)
+        })
+
+        it('should send notification when organization has active meters subscription', async () => {
+            const client = await prepareUserAndMeter({ nextVerificationDate: dayjs().add(1, 'year').toISOString() })
+            await createTestSubscriptionContext(adminClient, client.organization, planWithMeters, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+            })
+
+            await sendSubmitMeterReadingsPushNotifications()
+
+            const messages = await getNewMessages({ userId: client.user.id, meterId: client.meter.id })
+            expect(messages).toHaveLength(1)
+        })
     })
 })

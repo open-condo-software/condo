@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -9,6 +10,7 @@ const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -25,6 +27,7 @@ const {
     createTestRecurrentPaymentContext,
     registerMultiPaymentByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
@@ -34,9 +37,15 @@ const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const {
     notifyRecurrentPaymentContext,
+    notifyBeforeRecurrentPaymentDate,
 } = require('./notifyBeforeRecurrentPaymentDate')
 
 
@@ -334,6 +343,73 @@ describe('notify-before-recurrent-payment-date', () => {
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
             url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
+        })
+    })
+
+    describe('subscription check', () => {
+        let planWithPayments
+
+        beforeAll(async () => {
+            const [plan] = await createTestSubscriptionPlan(admin, { payments: true })
+            planWithPayments = plan
+        })
+
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(admin, planWithPayments.id)
+        })
+
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+        it('should not send notification when organization has no active payments subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+
+            await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+                paymentDay: dayjs().add(1, 'day').date(),
+            })
+
+            await notifyBeforeRecurrentPaymentDate()
+
+            const notifications = await Message.getAll(adminContext, {
+                type_in: [
+                    RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+                    RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+                    RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+                ],
+                user: { id: batch.resident.user.id },
+            }, MESSAGE_FIELDS)
+            expect(notifications).toHaveLength(0)
+        })
+
+        it('should send notification when organization has active payments subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+
+            await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+                paymentDay: dayjs().add(1, 'day').date(),
+            })
+
+            await createTestSubscriptionContext(admin, { id: batch.serviceConsumer.organization.id }, planWithPayments, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+            })
+
+            await notifyBeforeRecurrentPaymentDate()
+
+            const notifications = await Message.getAll(adminContext, {
+                type_in: [
+                    RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+                    RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+                    RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+                ],
+                user: { id: batch.resident.user.id },
+            }, MESSAGE_FIELDS)
+            expect(notifications.length).toBeGreaterThan(0)
         })
     })
 })

@@ -5,13 +5,18 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
-
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
 
@@ -131,5 +136,56 @@ describe('Meter verification notification', () => {
             MESSAGE_FIELDS,
         )
         expect(messages).toHaveLength(2)
+    })
+
+    describe('subscription check', () => {
+        let admin, planWithMeters
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            const [plan] = await createTestSubscriptionPlan(admin, { meters: true })
+            planWithMeters = plan
+        })
+
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(admin, planWithMeters.id)
+        })
+
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+        it('should not send notification when organization has no active meters subscription', async () => {
+            const { resident: { user: { id } } } = await makeClientWithResidentAndMeter({
+                verificationDate: dayjs().subtract('1', 'year').toISOString(),
+                nextVerificationDate: dayjs().add('15', 'day').toISOString(),
+            })
+
+            await sendVerificationDateReminder({ date: null, searchWindowDaysShift: 0, daysCount: 30 })
+
+            const messages = await MessageApi.getAll(keystone,
+                { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+                MESSAGE_FIELDS,
+            )
+            expect(messages).toHaveLength(0)
+        })
+
+        it('should send notification when organization has active meters subscription', async () => {
+            const { resident: { user: { id } }, organization } = await makeClientWithResidentAndMeter({
+                verificationDate: dayjs().subtract('1', 'year').toISOString(),
+                nextVerificationDate: dayjs().add('15', 'day').toISOString(),
+            })
+            await createTestSubscriptionContext(admin, organization, planWithMeters, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+            })
+
+            await sendVerificationDateReminder({ date: null, searchWindowDaysShift: 0, daysCount: 30 })
+
+            const messages = await MessageApi.getAll(keystone,
+                { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+                MESSAGE_FIELDS,
+            )
+            expect(messages).toHaveLength(1)
+        })
     })
 })

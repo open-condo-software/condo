@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
@@ -9,17 +10,20 @@ const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const {
     RECURRENT_PAYMENT_INIT_STATUS, INSURANCE_BILLING_CATEGORY,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
+const { getAllReadyToPayRecurrentPaymentContexts, filterContextsByOrganizationSubscription } = require('@condo/domains/acquiring/utils/taskSchema')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     RecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -27,6 +31,11 @@ const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const {
     createRecurrentPaymentForRecurrentPaymentContext,
@@ -238,6 +247,62 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
             url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
+        })
+    })
+
+    describe('subscription check', () => {
+        let planWithPayments
+
+        beforeAll(async () => {
+            const [plan] = await createTestSubscriptionPlan(admin, { payments: true })
+            planWithPayments = plan
+        })
+
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(admin, planWithPayments.id)
+        })
+
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+        it('should not create RecurrentPayment when organization has no active payments subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+            })
+
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, dayjs(), 100, 0, { id_in: [recurrentPaymentContext.id] })
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
+            expect(filtered).toHaveLength(0)
+        })
+
+        it('should create RecurrentPayment when organization has active payments subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+            await updateTestBillingReceipt(admin, batch.billingReceipts[0].id, { period: dayjs().startOf('month').format('YYYY-MM-DD') })
+
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batch),
+                enabled: true,
+            })
+
+            await createTestSubscriptionContext(admin, { id: batch.serviceConsumer.organization.id }, planWithPayments, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+            })
+
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, dayjs(), 100, 0, { id_in: [recurrentPaymentContext.id] })
+            expect(page).toHaveLength(1)
+
+            await createRecurrentPaymentForRecurrentPaymentContext(adminContext, dayjs(), recurrentPaymentContext)
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+            expect(recurrentPayments.length).toBeGreaterThan(0)
         })
     })
 

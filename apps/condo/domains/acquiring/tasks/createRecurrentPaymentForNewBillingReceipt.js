@@ -12,6 +12,7 @@ const {
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAllReadyToPayRecurrentPaymentContexts,
+    filterContextsByOrganizationSubscription,
     getReceiptsForServiceConsumer,
     sendTomorrowPaymentNotificationSafely,
     sendTomorrowPaymentLimitExceedNotificationSafely,
@@ -102,9 +103,10 @@ async function createRecurrentPaymentForNewBillingReceipt () {
             autoPayReceipts: true,
         }
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, dayjs(), pageSize, offset, extraArgs)
+        const filteredPage = await filterContextsByOrganizationSubscription(context, page)
 
         // process each page in parallel
-        await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
+        await processArrayOf(filteredPage).inParallelWith(async (recurrentPaymentContext) => {
             try {
                 await scanBillingReceiptsForRecurrentPaymentContext(context, recurrentPaymentContext, periods, lastDt)
             } catch (err) {

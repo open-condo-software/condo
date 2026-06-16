@@ -57,6 +57,7 @@ const { SERVICE_CONSUMER_FIELDS } = require('@condo/domains/resident/gql')
 const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
+const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
 
 const RETRY_COUNT = 5
 
@@ -127,16 +128,18 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
         autoPayReceipts: true,
     } : { ...paymentDayCondition, autoPayReceipts: false }
 
-    return await RecurrentPaymentContext.getAll(
+    const contexts = await RecurrentPaymentContext.getAll(
         context, {
             enabled: true,
             deletedAt: null,
             ...triggerCondition,
             ...extraArgs,
         },
-        'id serviceConsumer { id } billingCategory { id } enabled paymentDay autoPayReceipts',
+        'id serviceConsumer { id organization { id } } billingCategory { id } enabled paymentDay autoPayReceipts',
         { sortBy: 'id_ASC', first: pageSize, skip: offset }
     )
+
+    return contexts
 }
 
 async function getServiceConsumer (context, id) {
@@ -295,7 +298,7 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
         deletedAt: null,
         ...extraArgs,
     },
-    'id status tryCount billingReceipts { id } recurrentPaymentContext { id }',
+    'id status tryCount billingReceipts { id } recurrentPaymentContext { id serviceConsumer { organization { id } } }',
     { sortBy: 'id_ASC', first: pageSize, skip: offset },
     )
 }
@@ -688,6 +691,25 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
     await sendResultMessageSafely(context, recurrentPayment, false, errorCode)
 }
 
+async function filterContextsByOrganizationSubscription (context, contexts) {
+    if (!contexts.length) return []
+    const orgIds = contexts.map(ctx => get(ctx, 'serviceConsumer.organization.id')).filter(Boolean)
+    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
+    return contexts.filter(ctx => {
+        const organizationId = get(ctx, 'serviceConsumer.organization.id')
+        return organizationId && subscriptionMap.get(organizationId)
+    })
+}
+
+async function filterPaymentsByOrganizationSubscription (context, recurrentPayments) {
+    const orgIds = recurrentPayments.map(p => get(p, 'recurrentPaymentContext.serviceConsumer.organization.id')).filter(Boolean)
+    const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
+    return recurrentPayments.filter(payment => {
+        const organizationId = get(payment, 'recurrentPaymentContext.serviceConsumer.organization.id')
+        return organizationId && subscriptionMap.get(organizationId)
+    })
+}
+
 module.exports = {
     getAllReadyToPayRecurrentPaymentContexts,
     getServiceConsumer,
@@ -695,6 +717,8 @@ module.exports = {
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
     filterNotPayablePayment,
+    filterContextsByOrganizationSubscription,
+    filterPaymentsByOrganizationSubscription,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,

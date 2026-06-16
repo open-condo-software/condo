@@ -11,6 +11,7 @@ const {
     setFakeClientMode,
     catchErrorFrom,
     makeLoggedInAdminClient,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -51,6 +52,7 @@ const {
     BillingReceipt,
 } = require('@condo/domains/billing/utils/serverSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
@@ -66,14 +68,21 @@ const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const {
+    SubscriptionPlan,
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+} = require('@condo/domains/subscription/utils/testSchema')
 
 const {
     getAllReadyToPayRecurrentPaymentContexts,
+    filterContextsByOrganizationSubscription,
     getServiceConsumer,
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
     filterNotPayablePayment,
+    filterPaymentsByOrganizationSubscription,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
@@ -2557,6 +2566,118 @@ describe('task schema queries', () => {
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPaymentContext argument')
             })
+        })
+    })
+
+    describe('filterPaymentsByOrganizationSubscription', () => {
+        let orgId1, orgId2
+
+        beforeAll(async () => {
+            const { batches: b1 } = await makePayerWithMultipleConsumers(1, 1)
+            const { batches: b2 } = await makePayerWithMultipleConsumers(1, 1)
+            orgId1 = b1[0].serviceConsumer.organization.id
+            orgId2 = b2[0].serviceConsumer.organization.id
+        })
+
+        const makePayment = (orgId) => ({
+            id: `payment-${orgId}`,
+            recurrentPaymentContext: {
+                id: `ctx-${orgId}`,
+                serviceConsumer: { organization: { id: orgId } },
+            },
+        })
+
+        it('should keep payments for organizations with active subscription', async () => {
+            const payments = [makePayment(orgId1), makePayment(orgId2)]
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+            expect(result).toHaveLength(2)
+        })
+
+        describe('when SUBSCRIPTIONS flag is enabled', () => {
+            beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+            afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+            it('should remove payments for organizations without active subscription', async () => {
+                const payments = [makePayment(orgId1), makePayment(orgId2)]
+                const result = await filterPaymentsByOrganizationSubscription(adminContext, payments)
+                expect(result).toHaveLength(0)
+            })
+        })
+
+        it('should return empty array for empty input', async () => {
+            const result = await filterPaymentsByOrganizationSubscription(adminContext, [])
+            expect(result).toHaveLength(0)
+        })
+    })
+
+    describe('getAllReadyToPayRecurrentPaymentContexts subscription filtering', () => {
+        let admin, date, planWithPayments
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            date = dayjs()
+            const [plan] = await createTestSubscriptionPlan(admin, { payments: true })
+            planWithPayments = plan
+        })
+
+        afterAll(async () => {
+            await SubscriptionPlan.softDelete(admin, planWithPayments.id)
+        })
+
+        beforeEach(() => { setFeatureFlag(SUBSCRIPTIONS, true) })
+        afterEach(() => { setFeatureFlag(SUBSCRIPTIONS, false) })
+
+        it('should exclude contexts for organizations without active subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
+            })
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[1].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[1].billingReceipts[0].category.id } },
+            })
+
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id1, id2],
+            })
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
+
+            expect(filtered).toHaveLength(0)
+        })
+
+        it('should include contexts for organizations with active subscription', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [{ id }] = await createTestRecurrentPaymentContext(admin, {
+                enabled: true,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: date.date(),
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batches[0].serviceConsumer.id } },
+                billingCategory: { connect: { id: batches[0].billingReceipts[0].category.id } },
+            })
+            await createTestSubscriptionContext(admin, { id: batches[0].serviceConsumer.organization.id }, planWithPayments, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+            })
+
+            const page = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, 10, 0, {
+                id_in: [id],
+            })
+            const filtered = await filterContextsByOrganizationSubscription(adminContext, page)
+
+            expect(filtered).toHaveLength(1)
         })
     })
 })

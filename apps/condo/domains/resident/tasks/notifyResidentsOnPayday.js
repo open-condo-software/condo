@@ -15,6 +15,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE, BILLING_RECEIPT_ADDED_TYPE, BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE, BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE, BILLING_RECEIPT_AVAILABLE_TYPE, BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
 
 
 const logger = getLogger()
@@ -108,8 +109,12 @@ async function notifyResidentsOnPayday () {
         if (consumers.length !== state.consumersChunkSize) state.hasMoreConsumers = false
         state.consumersOffset += consumers.length
 
+        const orgIds = consumers.map(c => c.organization.id)
+        const subscriptionMap = await getOrganizationsSubscriptionMap(context, orgIds, 'payments')
         for (const consumer of consumers) {
             try {
+                if (!subscriptionMap.get(consumer.organization.id)) continue
+
                 const accountNumber = get(consumer, ['accountNumber'])
                 const receipts = await loadListByChunks({
                     context,

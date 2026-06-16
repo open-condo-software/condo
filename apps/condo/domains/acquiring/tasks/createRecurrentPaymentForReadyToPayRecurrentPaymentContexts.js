@@ -11,6 +11,7 @@ const {
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAllReadyToPayRecurrentPaymentContexts,
+    filterContextsByOrganizationSubscription,
     getReceiptsForServiceConsumer,
     sendNoReceiptsToProceedNotificationSafely,
 } = require('@condo/domains/acquiring/utils/taskSchema')
@@ -66,9 +67,10 @@ async function createRecurrentPaymentForReadyToPayRecurrentPaymentContexts () {
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, date, pageSize, offset)
+        const filteredPage = await filterContextsByOrganizationSubscription(context, page)
 
         // process each page in parallel
-        await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
+        await processArrayOf(filteredPage).inParallelWith(async (recurrentPaymentContext) => {
             try {
                 await createRecurrentPaymentForRecurrentPaymentContext(context, date, recurrentPaymentContext)
             } catch (err) {
