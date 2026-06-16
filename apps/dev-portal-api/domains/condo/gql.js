@@ -8,7 +8,7 @@ const CondoB2CAppBuildGql = generateGqlQueries('B2CAppBuild', '{ id }')
 const CondoB2CAppPropertyGql = generateGqlQueries('B2CAppProperty', '{ id address deletedAt app { importId importRemoteSystem } }')
 const CondoOIDCClientGql = generateGqlQueries('OidcClient', '{ id clientId payload name isEnabled }')
 const CondoB2CAppAccessRightGql = generateGqlQueries('B2CAppAccessRight', '{ id app { id } user { id } }')
-const CondoB2CAppWithInfoGql = generateGqlQueries('B2CApp', '{ id currentBuild { id version } }')
+const CondoB2CAppWithInfoGql = generateGqlQueries('B2CApp', '{ id currentBuild { id version importId importRemoteSystem } }')
 
 module.exports = {
     CondoB2BAppGql,
