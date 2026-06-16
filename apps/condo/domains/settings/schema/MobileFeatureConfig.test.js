@@ -363,7 +363,7 @@ describe('MobileFeatureConfig', () => {
             })
 
             describe('contentConfiguration field validation', () => {
-                test('should accept valid contentConfiguration with marketplace', async () => {
+                test('should accept valid contentConfiguration with marketplace and ticket', async () => {
                     const [organization] = await createTestOrganization(admin)
 
                     const [obj] = await createTestMobileFeatureConfig(admin, organization, {
@@ -371,11 +371,17 @@ describe('MobileFeatureConfig', () => {
                             marketplace: {
                                 appId: '1234-1234-1234-1234',
                             },
+                            ticket: {
+                                appId: '1234-1234-1234-1234',
+                            },
                         },
                     })
 
                     expect(obj.contentConfiguration).toEqual({
                         marketplace: {
+                            appId: '1234-1234-1234-1234',
+                        },
+                        ticket: {
                             appId: '1234-1234-1234-1234',
                         },
                     })
