@@ -12,7 +12,7 @@ function getRedirectUrl (req) {
     }
     const isSafe = isSafeUrl(redirectUrl)
     if (!isSafe) return null
-    // Note: isRedirectUrlValid will decodeURIComponent, so we return as-is
+    
     return redirectUrl
 }
 
