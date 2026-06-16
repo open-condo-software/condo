@@ -135,6 +135,20 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     const appUrlField = getEnvironmentalFieldName(environment, 'appUrl')
     const appUrl = app[appUrlField]
 
+    const logoPayload = app.logo ? {
+        stream: got.stream(app.logo.publicUrl),
+        filename: app.logo.originalFilename,
+        mimetype: app.logo.mimetype,
+        modelName: 'B2CApp',
+    } : {
+        stream: fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH),
+        filename: 'default-logo.png',
+        mimetype: 'image/png',
+        modelName: 'B2CApp',
+    }
+
+    const logo = await serverClient.uploadFile(logoPayload)
+
     // Step 1. Prepare payload
     const appPayload = {
         ...extractDevicePermissionsForCondo(app, environment),
@@ -143,14 +157,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         name: app.name,
         developer: app.developer || app.createdBy.name,
         colorSchema: DEFAULT_COLOR_SCHEMA,
-        logo: app.logo
-            ? serverClient.createUploadFile({
-                stream: got.stream(app.logo.publicUrl),
-                filename: app.logo.originalFilename,
-            })
-            : serverClient.createUploadFile({
-                stream: fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH),
-            }),
+        logo,
         appUrl,
         importId: app.id,
         importRemoteSystem: REMOTE_SYSTEM,
@@ -252,6 +259,15 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
                 version: build.version,
             },
         })
+
+        const buildStream = got.stream(build.data.publicUrl)
+        const data = await serverClient.uploadFile({
+            stream: buildStream,
+            filename: build.data.originalFilename,
+            mimetype: build.data.mimetype,
+            modelName: 'B2CAppBuild',
+        })
+
         buildToUpdate = await serverClient.createModel({
             modelGql: CondoB2CAppBuildGql,
             createInput: {
@@ -259,12 +275,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
                 sender,
                 app: { connect: { id: condoApp.id } },
                 version: build.version,
-                data: serverClient.createUploadFile({
-                    stream: got.stream(build.data.publicUrl),
-                    filename: build.data.originalFilename,
-                    mimetype: build.data.mimetype,
-                    encoding: build.data.encoding,
-                }),
+                data,
                 importId: build.id,
                 importRemoteSystem: REMOTE_SYSTEM,
             },

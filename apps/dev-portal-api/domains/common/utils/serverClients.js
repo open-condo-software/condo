@@ -2,6 +2,7 @@ const get = require('lodash/get')
 
 const { ApolloServerClient } = require('@open-condo/apollo-server-client')
 const conf = require('@open-condo/config')
+const { uploadFilesFromServer } = require('@open-condo/files/server')
 const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
@@ -72,6 +73,30 @@ class CondoClient extends ApolloServerClient {
         }
 
         return objs.length ? objs[0] : null
+    }
+
+    async uploadFile ({ stream, modelName, filename, mimetype }) {
+        if (!this.userId || !this.authToken) {
+            await this.signIn()
+        }
+
+        const dvSender = this.dvSender()
+
+        const [file] = await uploadFilesFromServer({
+            fileClientId: conf['FILE_CLIENT_ID'],
+            userId: this.userId,
+            fingerprint: dvSender.sender.fingerprint,
+            files: [{
+                stream,
+                filename,
+                mimetype,
+            }],
+            modelNames: [modelName],
+            serverUrl: new URL(this.endpoint).origin,
+            authorization: `Bearer ${this.authToken}`,
+        })
+
+        return file
     }
 }
 
