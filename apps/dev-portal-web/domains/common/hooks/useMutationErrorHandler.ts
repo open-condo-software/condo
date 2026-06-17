@@ -24,13 +24,17 @@ const ConstraintErrorSchema = z.object({
     message: z.string().includes('violates unique constraint'),
 })
 
-export type ErrorHandler = (error: ApolloError) => void
+export type ErrorHandler = (error: ApolloError | unknown) => void
 
 type UseMutationErrorHandlerArgs = {
     form?: FormInstance
     typeToFieldMapping?: Record<string, string>
     constraintToMessageMapping?: Record<string, string>
     errorHandlers?: Record<string, (errorMessage: string) => void>
+}
+
+function _isGQLError (error: unknown): error is ApolloError {
+    return 'graphQLErrors' in (error as ApolloError)
 }
 
 /**
@@ -47,46 +51,54 @@ export function useMutationErrorHandler (opts: UseMutationErrorHandlerArgs = {})
     const { form, typeToFieldMapping, constraintToMessageMapping, errorHandlers } = opts
 
     return useCallback((error) => {
-        let messageToShow = error.message
+
+        let messageToShow = undefined
         let bypassNotification = false
-        for (const graphQLError of error.graphQLErrors) {
-            let errorMessage: string | undefined
-            let errorType:  string | undefined
 
-            const gqlErrorParseResult = GQLErrorSchema.safeParse(graphQLError)
+        if ((error instanceof Error)) {
+            messageToShow = error.message
+            if (_isGQLError(error)) {
+                for (const graphQLError of error.graphQLErrors) {
+                    let errorMessage: string | undefined
+                    let errorType:  string | undefined
 
-            if (gqlErrorParseResult.success) {
-                const { extensions: { type, message, messageForUser } } = gqlErrorParseResult.data
-                errorMessage = messageForUser || message
-                errorType = type
+                    const gqlErrorParseResult = GQLErrorSchema.safeParse(graphQLError)
 
-            } else {
-                const constraintErrorParseResult = ConstraintErrorSchema.safeParse(graphQLError)
-                if (constraintErrorParseResult.success) {
-                    const { message } = constraintErrorParseResult.data
-                    // NOTE: message includes '... violates unique constraint "constraint_name"'
-                    const constraintName = (message.split(' ').pop() as string).slice(1, -1)
-                    errorType = constraintName
-                    errorMessage = get(constraintToMessageMapping, constraintName, DefaultConstraintErrorDescription)
-                }
-            }
+                    if (gqlErrorParseResult.success) {
+                        const { extensions: { type, message, messageForUser } } = gqlErrorParseResult.data
+                        errorMessage = messageForUser || message
+                        errorType = type
 
-            if (errorMessage) {
-                if (errorType && form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(errorType)) {
-                    bypassNotification = true
-                    const fieldName = typeToFieldMapping[errorType]
-                    form.setFields([{
-                        name: fieldName,
-                        errors: [errorMessage],
-                    }])
-                } else if (errorType && errorHandlers && errorHandlers.hasOwnProperty(errorType)) {
-                    bypassNotification = true
-                    errorHandlers[errorType](errorMessage)
-                } else {
-                    messageToShow = errorMessage
+                    } else {
+                        const constraintErrorParseResult = ConstraintErrorSchema.safeParse(graphQLError)
+                        if (constraintErrorParseResult.success) {
+                            const { message } = constraintErrorParseResult.data
+                            // NOTE: message includes '... violates unique constraint "constraint_name"'
+                            const constraintName = (message.split(' ').pop() as string).slice(1, -1)
+                            errorType = constraintName
+                            errorMessage = get(constraintToMessageMapping, constraintName, DefaultConstraintErrorDescription)
+                        }
+                    }
+
+                    if (errorMessage) {
+                        if (errorType && form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(errorType)) {
+                            bypassNotification = true
+                            const fieldName = typeToFieldMapping[errorType]
+                            form.setFields([{
+                                name: fieldName,
+                                errors: [errorMessage],
+                            }])
+                        } else if (errorType && errorHandlers && errorHandlers.hasOwnProperty(errorType)) {
+                            bypassNotification = true
+                            errorHandlers[errorType](errorMessage)
+                        } else {
+                            messageToShow = errorMessage
+                        }
+                    }
                 }
             }
         }
+
         if (!bypassNotification) {
             notification.error({ message: ServerErrorMessage, description: messageToShow })
         }

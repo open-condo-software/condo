@@ -6,6 +6,7 @@ import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { upload as uploadFiles } from '@open-condo/files'
+import type { UploadFileResult } from '@open-condo/files'
 import { PlusCircle } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -151,21 +152,31 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
         },
     })
 
-    const handleUploadBuild = useCallback((values: BuildFormValues) => {
+    const handleUploadBuild = useCallback(async (values: BuildFormValues) => {
         const fileObj = values.data[0].originFileObj
         if (!fileObj || !user?.id) return
         setIsUploading(true)
-        uploadFiles({
-            serverUrl: serviceUrl,
-            files: [fileObj],
-            meta: {
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-                user: { id: user.id },
-                fileClientId,
-                modelNames: ['B2CAppBuild'],
-            },
-        }).then(({ files }) => createB2CAppBuildMutation({
+        let files: Array<UploadFileResult> = []
+        try {
+            const { files: uploadedFiles } = await uploadFiles({
+                serverUrl: serviceUrl,
+                files: [fileObj],
+                meta: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    user: { id: user.id },
+                    fileClientId,
+                    modelNames: ['B2CAppBuild'],
+                },
+            })
+            files = uploadedFiles
+        } catch (e) {
+            onError(e)
+            setIsUploading(false)
+            return
+        }
+
+        await createB2CAppBuildMutation({
             variables: {
                 data: {
                     dv: 1,
@@ -175,8 +186,8 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                     app: { connect: { id } },
                 },
             },
-        })).finally(() => setIsUploading(false))
-    }, [createB2CAppBuildMutation, id, user?.id])
+        }).finally(() => setIsUploading(false))
+    }, [createB2CAppBuildMutation, id, onError, user?.id])
 
     const handlePaginationChange = useCallback((newPage: number) => {
         router.replace({ query: { ...router.query, p: newPage } },  undefined, { locale: router.locale })

@@ -5,6 +5,7 @@ import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
 import { upload as uploadFiles } from '@open-condo/files'
+import type { UploadFileResult } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Typography, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -120,23 +121,32 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
         const fileObj = values.mainIcon[0].originFileObj
         if (!fileObj) return
 
-        const { files } = await uploadFiles({
-            serverUrl: serviceUrl,
-            files: [fileObj],
-            meta: {
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-                user: { id: user.id },
-                fileClientId,
-                modelNames: ['B2CApp'],
-            },
-            attach: {
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-                itemId: id,
-                modelName: 'B2CApp',
-            },
-        })
+        let files: Array<UploadFileResult> = []
+
+        try {
+            const { files: uploadedFiles } = await uploadFiles({
+                serverUrl: serviceUrl,
+                files: [fileObj],
+                meta: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    user: { id: user.id },
+                    fileClientId,
+                    modelNames: ['B2CApp'],
+                },
+                attach: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    itemId: id,
+                    modelName: 'B2CApp',
+                },
+            })
+            files = uploadedFiles
+        } catch (e) {
+            onError(e)
+            return
+        }
+
 
         if (files.length) {
             updateB2CAppMutation({
@@ -150,7 +160,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
                 },
             })
         }
-    }, [id, updateB2CAppMutation, user?.id])
+    }, [id, onError, updateB2CAppMutation, user?.id])
 
     return (
         <Form
