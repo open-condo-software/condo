@@ -17,6 +17,7 @@
     "@open-condo/billing": "workspace:^",
     "@open-condo/cli": "workspace:^",
     "@open-condo/config": "workspace:^",
+    "@open-condo/files": "workspace:^",
     "@open-condo/icons": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",

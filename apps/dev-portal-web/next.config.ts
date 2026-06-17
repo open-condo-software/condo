@@ -32,6 +32,9 @@ const ENVIRONMENTS_URIS = JSON.parse(conf['ENVIRONMENTS_URIS'] || '{}')
 
 const MARKDOWN_GUIDE_URL = conf['MARKDOWN_GUIDE_URL'] || (conf['CONDO_DOMAIN'] ? `${conf['CONDO_DOMAIN']}/ui/index.html?path=/story/components-markdown--default` : null)
 
+// NOTE: FILES
+const FILE_CLIENT_ID = conf['FILE_CLIENT_ID'] || 'dev-portal-api'
+
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
@@ -54,6 +57,7 @@ const nextConfig: NextConfig = {
         dataProcessingConsentUrl,
         runtimeTranslations: RUNTIME_TRANSLATIONS,
         markdownGuideUrl: MARKDOWN_GUIDE_URL,
+        fileClientId: FILE_CLIENT_ID,
     },
     serverRuntimeConfig: {
         proxyName: GRAPHQL_PROXY_NAME,
