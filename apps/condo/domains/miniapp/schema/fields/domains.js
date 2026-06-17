@@ -63,45 +63,31 @@ const MINIAPP_DOMAINS_FIELD = {
         const mappedOrigins = []
         const mappedHostToIdx = new Map()
 
-        function addMapping (origin, preferredIdx) {
-            if (mappedOrigins.includes(origin)) return preferredIdx
-
-            const hostKey = new URL(origin).host
-            let targetIdx = preferredIdx
-            if (mappedHostToIdx.has(hostKey)) {
-                targetIdx = mappedHostToIdx.get(hostKey)
-            } else {
-                mappedHostToIdx.set(hostKey, preferredIdx)
-            }
-
+        function addMapping (origin, idx) {
             mappedOrigins.push(origin)
+            const host = (new URL(origin)).host
+            if (!mappedHostToIdx.has(host)) {
+                mappedHostToIdx.set(host, idx)
+            }
             mapping.push({
                 from: origin,
-                to: getMappedTargetOrigin(origin, item.id, targetIdx),
+                to: getMappedTargetOrigin(origin, item.id, idx),
             })
-
-            return targetIdx === preferredIdx ? preferredIdx + 1 : preferredIdx
         }
 
         let idx = 2
         for (const redirectUri of oidcRedirectURIS) {
             if (!redirectUri) continue
-            idx = addMapping((new URL(redirectUri)).origin, idx)
+            const origin = (new URL(redirectUri)).origin
+            if (mappedOrigins.includes(origin)) continue
+            addMapping(origin, idx)
+            idx++
         }
 
         if (item.appUrl) {
             const origin = (new URL(item.appUrl)).origin
             if (!mappedOrigins.includes(origin)) {
-                const hostKey = new URL(origin).host
-                const targetIdx = mappedHostToIdx.has(hostKey) ? mappedHostToIdx.get(hostKey) : 1
-                if (!mappedHostToIdx.has(hostKey)) {
-                    mappedHostToIdx.set(hostKey, 1)
-                }
-                mappedOrigins.push(origin)
-                mapping.push({
-                    from: origin,
-                    to: getMappedTargetOrigin(origin, item.id, targetIdx),
-                })
+                addMapping(origin, 1)
             }
         }
 
@@ -109,7 +95,12 @@ const MINIAPP_DOMAINS_FIELD = {
 
         for (const domain of item.additionalDomains) {
             if (!domain) continue
-            idx = addMapping((new URL(domain)).origin, idx)
+            const origin = (new URL(domain)).origin
+            if (mappedOrigins.includes(origin)) continue
+
+            const host = (new URL(origin)).host
+            const targetIdx = mappedHostToIdx.has(host) ? mappedHostToIdx.get(host) : idx++
+            addMapping(origin, targetIdx)
         }
 
         return { mapping }
