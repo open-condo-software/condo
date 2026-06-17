@@ -5,7 +5,7 @@ const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
 const { ERRORS } = require('./errors')
-const { MaxMiniAppInitParamsSchema, MaxMiniAppInitParamsUserSchema } = require('./schemas')
+const { XmaMiniAppInitParamsSchema, XmaMiniAppInitParamsUserSchema } = require('./schemas')
 
 const ALLOWED_TIME_SINCE_AUTH_IN_SECONDS = 5 * 60 // 5 min
 const CONFIG_REQUIRED_FIELDS = [
@@ -14,22 +14,22 @@ const CONFIG_REQUIRED_FIELDS = [
     'allowedUserType',
     'allowedRedirectUrls',
 ]
-// NOTE: Max uses the same prefix as Telegram for the secret key
-const MAX_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
+// NOTE: XMA uses the same prefix as Telegram for the secret key
+const XMA_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
 
 const ajv = new Ajv({ allowUnionTypes: true })
 addFormats(ajv)
 const loginDataValidator = ajv.compile({
     type: 'object',
-    anyOf: [MaxMiniAppInitParamsSchema],
+    anyOf: [XmaMiniAppInitParamsSchema],
 })
-const maxMiniAppInitParamsValidator = ajv.compile({
+const xmaMiniAppInitParamsValidator = ajv.compile({
     type: 'object',
-    anyOf: [MaxMiniAppInitParamsSchema],
+    anyOf: [XmaMiniAppInitParamsSchema],
 })
 const userDataValidator = ajv.compile({
     type: 'object',
-    anyOf: [MaxMiniAppInitParamsUserSchema],
+    anyOf: [XmaMiniAppInitParamsUserSchema],
 })
 
 /** @typedef {{
@@ -40,7 +40,7 @@ const userDataValidator = ajv.compile({
  photo_url: string,
  auth_date: string,
  hash: string
- }} MaxAuthData
+ }} XmaAuthData
  */
 
 /** @typedef {{
@@ -50,7 +50,7 @@ const userDataValidator = ajv.compile({
  language_code: string,
  photo_url: string,
  username: string
- }} MaxMiniAppInitParamsUser
+ }} XmaMiniAppInitParamsUser
   */
 
 /** @typedef {{
@@ -67,28 +67,28 @@ const userDataValidator = ajv.compile({
  chat_instance: string,
  hash: string,
  query_id: string,
- receiver: MaxMiniAppInitParamsUser,
+ receiver: XmaMiniAppInitParamsUser,
  start_param: string,
  user: string,
- }} MaxMiniAppInitData
+ }} XmaMiniAppInitData
  */
 
 /**
- * Validates that max oauth data was received by provided bot
- * @link https://dev.max.ru/docs/webapps/validation
- * @param {MaxAuthData | MaxMiniAppInitData} data - maxAuthData
+ * Validates that xma oauth data was received by provided bot
+ * @link https://dev.m**.ru/docs/webapps/validation
+ * @param {XmaAuthData | XmaMiniAppInitData} data - xmaAuthData
  * @param {string} botToken
  * @param {number} secondsSinceAuth - time limit for authorization to be valid
  * @returns {null | { type, code, message }} error message
  */
-function getMaxAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
+function getXmaAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
     // 1. Check that data contains all and only allowed fields
     const isValid = loginDataValidator(data)
     if (!isValid) {
         return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
     }
 
-    const isMiniAppInitData = maxMiniAppInitParamsValidator(data)
+    const isMiniAppInitData = xmaMiniAppInitParamsValidator(data)
     if (isMiniAppInitData) {
         try {
             if (!userDataValidator(JSON.parse(data.user))) {
@@ -105,13 +105,13 @@ function getMaxAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
     }
 
     // 3. Build secret key using bot token
-    // Max uses the same prefix as Telegram for the secret key
+    // XMA uses the same prefix as Telegram for the secret key
     // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
-    const secret = crypto.createHmac('sha256', MAX_WEB_APP_DATA_SECRET_PREFIX) // NOSONAR — public API prefix per https://dev.max.ru/docs/webapps/validation, not a secret
+    const secret = crypto.createHmac('sha256', XMA_WEB_APP_DATA_SECRET_PREFIX) // NOSONAR — public API prefix per https://dev.m**.ru/docs/webapps/validation, not a secret
         .update(botToken.trim())
         .digest()
 
-    // 4. Build check string from max auth data
+    // 4. Build check string from xma auth data
     const checkString = Object.keys(data)
         .sort() // NOSONAR — deterministic ASCII sort required by signature spec, localeCompare would break validation
         .filter((k) => ![ 'hash' ].includes(k))
@@ -133,13 +133,13 @@ function getMaxAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
     return null
 }
 
-function getConfigValidationError (maxConfig) {
-    const uniqueBotIds = new Set(maxConfig.map(conf => conf.botId))
-    if (uniqueBotIds.size !== maxConfig.length) {
-        const duplicateNames = [...uniqueBotIds].filter(botId => maxConfig.filter(conf => conf.botId === botId).length > 1)
+function getConfigValidationError (xmaConfig) {
+    const uniqueBotIds = new Set(xmaConfig.map(conf => conf.botId))
+    if (uniqueBotIds.size !== xmaConfig.length) {
+        const duplicateNames = [...uniqueBotIds].filter(botId => xmaConfig.filter(conf => conf.botId === botId).length > 1)
         return { ...ERRORS.INVALID_CONFIG, data: { reason: `Duplicate bot ids: "${duplicateNames.join('", "')}"` } }
     }
-    for (const [index, config] of maxConfig.entries()) {
+    for (const [index, config] of xmaConfig.entries()) {
         for (const key of CONFIG_REQUIRED_FIELDS) {
             if (!Object.hasOwn(config, key)) {
                 return { ...ERRORS.INVALID_CONFIG, data: { reason: `Missing required field "${key}" at index ${index}` } }
@@ -188,7 +188,8 @@ function isRedirectUrlValid (allowedUrls, requestUrl) {
 
 
 module.exports = {
-    getMaxAuthDataValidationError,
+    getXmaAuthDataValidationError,
     getConfigValidationError,
     isRedirectUrlValid,
+    XMA_WEB_APP_DATA_SECRET_PREFIX,
 }

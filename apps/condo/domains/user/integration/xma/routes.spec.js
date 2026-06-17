@@ -1,11 +1,11 @@
 jest.mock('@open-condo/keystone/schema')
 jest.mock('@condo/domains/user/utils/serverSchema')
-jest.mock('@condo/domains/user/integration/max/sync/syncUser')
-jest.mock('@condo/domains/user/integration/max/utils/validations')
+jest.mock('@condo/domains/user/integration/xma/sync/syncUser')
+jest.mock('@condo/domains/user/integration/xma/utils/validations')
 jest.mock('@open-condo/config', () => {
     const conf = jest.requireActual('@open-condo/config')
     const mockConfig = jest.fn().mockImplementation((_, name) => {
-        if (name === 'MAX_CONFIG') {
+        if (name === 'XMA_CONFIG') {
             return JSON.stringify([
                 {
                     botId: '123456',
@@ -31,17 +31,17 @@ const { faker } = require('@faker-js/faker')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { MaxRoutes } = require('@condo/domains/user/integration/max/routes')
-const { syncUser, getIdentity } = require('@condo/domains/user/integration/max/sync/syncUser')
-const { ERRORS, HttpError } = require('@condo/domains/user/integration/max/utils/errors')
-const { getMaxAuthDataValidationError, isRedirectUrlValid } = require('@condo/domains/user/integration/max/utils/validations')
+const { XmaRoutes } = require('@condo/domains/user/integration/xma/routes')
+const { syncUser, getIdentity } = require('@condo/domains/user/integration/xma/sync/syncUser')
+const { ERRORS, HttpError } = require('@condo/domains/user/integration/xma/utils/errors')
+const { getXmaAuthDataValidationError, isRedirectUrlValid } = require('@condo/domains/user/integration/xma/utils/validations')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const RESIDENT_BOT_ID = '123456'
 const ALLOWED_REDIRECT_URLS = ['https://example.com', 'https://app.example.com']
-// maxAuthData as it appears in req.query: a percent-encoded query string
-// _getMaxAuthData does decodeURIComponent(maxAuthDataQP) then feeds it to URLSearchParams
-const MOCK_MAX_AUTH_DATA_QP = 'user=%7B%22id%22%3A1%7D&auth_date=1234567890&hash=abc'
+// xmaAuthData as it appears in req.query: a percent-encoded query string
+// _getXmaAuthData does decodeURIComponent(xmaAuthDataQP) then feeds it to URLSearchParams
+const MOCK_XMA_AUTH_DATA_QP = 'user=%7B%22id%22%3A1%7D&auth_date=1234567890&hash=abc'
 
 function expectResultError (res, error) {
     expect(res.status).toHaveBeenCalledWith(error.statusCode)
@@ -54,7 +54,7 @@ function createMockReqResNext (query = {}, user = null) {
         query: { botId: RESIDENT_BOT_ID, ...query },
         session: { save: jest.fn(), regenerate: jest.fn(() => null) },
         user,
-        url: '/api/max/auth?botId=123456',
+        url: '/api/xma/auth?botId=123456',
     }
     const res = {
         redirect: jest.fn(),
@@ -84,7 +84,7 @@ function createMockContext (token) {
     }
 }
 
-describe('MaxRoutes', () => {
+describe('XmaRoutes', () => {
     const MOCK_AUTH_TOKEN = faker.random.alphaNumeric(10)
     const MOCK_USER = {
         id: faker.random.alphaNumeric(10),
@@ -101,10 +101,10 @@ describe('MaxRoutes', () => {
         getSchemaCtx.mockReturnValue({ keystone: mockContext })
         User.getOne.mockImplementation(async () => ({ ...MOCK_USER }))
         syncUser.mockResolvedValue({ id: MOCK_USER.id })
-        getMaxAuthDataValidationError.mockReturnValue(null)
-        isRedirectUrlValid.mockImplementation(jest.requireActual('@condo/domains/user/integration/max/utils/validations').isRedirectUrlValid)
+        getXmaAuthDataValidationError.mockReturnValue(null)
+        isRedirectUrlValid.mockImplementation(jest.requireActual('@condo/domains/user/integration/xma/utils/validations').isRedirectUrlValid)
 
-        routes = new MaxRoutes()
+        routes = new XmaRoutes()
     })
 
     afterEach(() => {
@@ -113,9 +113,9 @@ describe('MaxRoutes', () => {
 
     describe('startAuth', () => {
         const mockUserId = faker.random.alphaNumeric(10)
-        const expectRedirectToCallback = expect.stringContaining(`max/auth/callback?botId=${RESIDENT_BOT_ID}`)
+        const expectRedirectToCallback = expect.stringContaining(`xma/auth/callback?botId=${RESIDENT_BOT_ID}`)
         // NOTE: Mirror the Telegram flow: condo redirects to a relative "/auth" with the "next" param.
-        // The resident-app Max proxy injects "authFlow=needAuth" and rewrites "next" to keep the browser
+        // The resident-app XMA proxy injects "authFlow=needAuth" and rewrites "next" to keep the browser
         // on the resident-app domain (so condo sees the session cookie created during phone auth).
         const expectRedirectToAuthPage = expect.stringMatching(/^\/auth\?next=.*userType=/)
 
@@ -174,7 +174,7 @@ describe('MaxRoutes', () => {
             const { req, res, next } = createMockReqResNext({
                 userType: RESIDENT,
                 redirectUrl: ALLOWED_REDIRECT_URLS[0],
-                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
                 ...query,
             }, user)
             getIdentity.mockResolvedValueOnce(identity)
@@ -193,7 +193,7 @@ describe('MaxRoutes', () => {
             const { req, res, next } = createMockReqResNext({
                 userType: RESIDENT,
                 redirectUrl: originalRedirectUrl,
-                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
             }, user)
 
             await routes.startAuth(req, res, next)
@@ -210,7 +210,7 @@ describe('MaxRoutes', () => {
             const { req, res, next } = createMockReqResNext({
                 redirectUrl,
                 userType: MOCK_USER.type,
-                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
             })
 
             await routes.completeAuth(req, res, next)
@@ -227,7 +227,7 @@ describe('MaxRoutes', () => {
             const { req, res, next } = createMockReqResNext({
                 redirectUrl: encodeURIComponent(redirectUrl),
                 userType: MOCK_USER.type,
-                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
             })
 
             await routes.completeAuth(req, res, next)
@@ -239,7 +239,7 @@ describe('MaxRoutes', () => {
             const { req, res, next } = createMockReqResNext({
                 redirectUrl: ALLOWED_REDIRECT_URLS[0],
                 userType: MOCK_USER.type,
-                maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
             })
             User.getOne.mockResolvedValueOnce({
                 ...MOCK_USER,
@@ -260,7 +260,7 @@ describe('MaxRoutes', () => {
                 reqResNextParams: {
                     redirectUrl: 'https://invalid.com',
                     userType: MOCK_USER.type,
-                    maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                    xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
                 },
                 expectedError: ERRORS.INVALID_REDIRECT_URL,
             },
@@ -269,7 +269,7 @@ describe('MaxRoutes', () => {
                 reqResNextParams: {
                     redirectUrl: ALLOWED_REDIRECT_URLS[0],
                     userType: STAFF,
-                    maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                    xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
                 },
                 expectedError: ERRORS.NOT_SUPPORTED_USER_TYPE,
             },
@@ -278,9 +278,9 @@ describe('MaxRoutes', () => {
                 reqResNextParams: {
                     redirectUrl: ALLOWED_REDIRECT_URLS[0],
                     userType: MOCK_USER.type,
-                    maxAuthData: MOCK_MAX_AUTH_DATA_QP,
+                    xmaAuthData: MOCK_XMA_AUTH_DATA_QP,
                 },
-                beforeCall: () => getMaxAuthDataValidationError.mockReturnValueOnce(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID),
+                beforeCall: () => getXmaAuthDataValidationError.mockReturnValueOnce(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID),
                 expectedError: ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID,
             },
         ]

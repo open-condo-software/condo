@@ -3,15 +3,15 @@ const crypto = require('crypto')
 const { faker } = require('@faker-js/faker')
 
 const { ERRORS } = require('./errors')
-const { getMaxAuthDataValidationError, getConfigValidationError, isRedirectUrlValid } = require('./validations')
+const { getXmaAuthDataValidationError, getConfigValidationError, isRedirectUrlValid } = require('./validations')
 
-// Max uses the same prefix as Telegram for the secret key
-const MAX_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
+// XMA uses the same prefix as Telegram for the secret key
+const XMA_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
 
 function generateValidHash (data, botToken) {
-    // There only test (no real) data and 'sha256', 'WebAppData' is publicly available by max
+    // There only test (no real) data and 'sha256', 'WebAppData' is publicly available by xma
     // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
-    const secret = crypto.createHmac('sha256', MAX_WEB_APP_DATA_SECRET_PREFIX)
+    const secret = crypto.createHmac('sha256', XMA_WEB_APP_DATA_SECRET_PREFIX)
         .update(botToken.trim())
         .digest()
 
@@ -28,7 +28,7 @@ function generateValidHash (data, botToken) {
 
 describe('validations', () => {
 
-    describe('getMaxAuthDataValidationError', () => {
+    describe('getXmaAuthDataValidationError', () => {
 
         const mockBotToken = faker.random.alphaNumeric(30)
         const mockAuthDate = Math.floor(Date.now() / 1000)
@@ -40,7 +40,7 @@ describe('validations', () => {
                 first_name: 'Test',
                 last_name: 'User',
                 username: 'testuser',
-                photo_url: 'https://max.ru/i/userpic/123/test.jpg',
+                photo_url: 'https://m**.ru/i/userpic/123/test.jpg',
             }),
             auth_date: mockAuthDate.toString(),
             hash: '',
@@ -51,7 +51,7 @@ describe('validations', () => {
                 const validData = { ...baseInitData }
                 validData.hash = generateValidHash(validData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(validData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(validData, mockBotToken)
                 expect(validationError).toBeNull()
             })
 
@@ -63,7 +63,7 @@ describe('validations', () => {
                 }
                 validData.hash = generateValidHash(validData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(validData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(validData, mockBotToken)
                 expect(validationError).toBeNull()
             })
 
@@ -74,7 +74,7 @@ describe('validations', () => {
                 }
                 validData.hash = generateValidHash(validData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(validData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(validData, mockBotToken)
                 expect(validationError).toBeNull()
             })
         })
@@ -90,7 +90,7 @@ describe('validations', () => {
                         incompleteData.hash = generateValidHash(incompleteData, mockBotToken)
                     }
 
-                    const validationError = getMaxAuthDataValidationError(incompleteData, mockBotToken)
+                    const validationError = getXmaAuthDataValidationError(incompleteData, mockBotToken)
                     expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
                 })
             })
@@ -107,7 +107,7 @@ describe('validations', () => {
                 }
                 dataWithEmptyOptionalFields.hash = generateValidHash(dataWithEmptyOptionalFields, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(dataWithEmptyOptionalFields, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(dataWithEmptyOptionalFields, mockBotToken)
                 expect(validationError).toBeNull()
             })
 
@@ -115,7 +115,7 @@ describe('validations', () => {
                 const invalidData = { ...baseInitData, user: 'not-valid-json' }
                 invalidData.hash = generateValidHash(invalidData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(invalidData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(invalidData, mockBotToken)
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
             })
 
@@ -124,7 +124,7 @@ describe('validations', () => {
                 const invalidData = { ...baseInitData, user: JSON.stringify(userWithoutId) }
                 invalidData.hash = generateValidHash(invalidData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(invalidData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(invalidData, mockBotToken)
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
             })
         })
@@ -137,7 +137,7 @@ describe('validations', () => {
                 }
                 expiredData.hash = generateValidHash(expiredData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(expiredData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(expiredData, mockBotToken)
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
             })
 
@@ -149,7 +149,7 @@ describe('validations', () => {
                 }
                 expiredData.hash = generateValidHash(expiredData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(expiredData, mockBotToken, customTimeLimit)
+                const validationError = getXmaAuthDataValidationError(expiredData, mockBotToken, customTimeLimit)
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
             })
         })
@@ -160,7 +160,7 @@ describe('validations', () => {
                 tamperedData.hash = generateValidHash(tamperedData, mockBotToken)
                 tamperedData.hash = tamperedData.hash.slice(0, -1) + 'x'
 
-                const validationError = getMaxAuthDataValidationError(tamperedData, mockBotToken)
+                const validationError = getXmaAuthDataValidationError(tamperedData, mockBotToken)
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
             })
 
@@ -168,7 +168,7 @@ describe('validations', () => {
                 const validData = { ...baseInitData }
                 validData.hash = generateValidHash(validData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(validData, 'wrong_bot_token')
+                const validationError = getXmaAuthDataValidationError(validData, 'wrong_bot_token')
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
             })
 
@@ -176,7 +176,7 @@ describe('validations', () => {
                 const validData = { ...baseInitData }
                 validData.hash = generateValidHash(validData, mockBotToken)
 
-                const validationError = getMaxAuthDataValidationError(validData, '')
+                const validationError = getXmaAuthDataValidationError(validData, '')
                 expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
             })
         })

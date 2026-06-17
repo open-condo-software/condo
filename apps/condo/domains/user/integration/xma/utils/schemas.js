@@ -1,4 +1,4 @@
-const MaxMiniAppInitParamsUserSchema = {
+const XmaMiniAppInitParamsUserSchema = {
     type: 'object',
     required: ['id'],
     properties: {
@@ -12,7 +12,7 @@ const MaxMiniAppInitParamsUserSchema = {
     additionalProperties: false,
 }
 
-const MaxMiniAppInitParamsSchema = {
+const XmaMiniAppInitParamsSchema = {
     type: 'object',
     required: ['user', 'auth_date', 'hash'],
     properties: {
@@ -26,7 +26,7 @@ const MaxMiniAppInitParamsSchema = {
         chat_instance: { type: 'string' },
         hash: { type: 'string' },
         query_id: { type: ['string', 'number'] },
-        receiver: MaxMiniAppInitParamsUserSchema,
+        receiver: XmaMiniAppInitParamsUserSchema,
         start_param: { type: 'string' },
         user: { type: 'string' },
     },
@@ -34,6 +34,6 @@ const MaxMiniAppInitParamsSchema = {
 }
 
 module.exports = {
-    MaxMiniAppInitParamsSchema,
-    MaxMiniAppInitParamsUserSchema,
+    XmaMiniAppInitParamsSchema,
+    XmaMiniAppInitParamsUserSchema,
 }

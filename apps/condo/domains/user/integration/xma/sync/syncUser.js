@@ -1,5 +1,5 @@
-const { MAX_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
-const { ERRORS, HttpError } = require('@condo/domains/user/integration/max/utils/errors')
+const { XMA_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
+const { ERRORS, HttpError } = require('@condo/domains/user/integration/xma/utils/errors')
 const {
     UserExternalIdentity,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -7,27 +7,27 @@ const {
 const dv = 1
 const sender = { dv, fingerprint: 'user-external-identity-router' }
 
-const linkUser = async (context, user, maxAuthData, userType) => {
+const linkUser = async (context, user, xmaAuthData, userType) => {
     await UserExternalIdentity.create(context, {
         dv,
         sender,
         user: { connect: { id: user.id } },
-        identityId: maxAuthData.id,
-        identityType: MAX_IDP_TYPE,
+        identityId: xmaAuthData.id,
+        identityType: XMA_IDP_TYPE,
         userType,
-        meta: maxAuthData,
+        meta: xmaAuthData,
     })
 
     return user
 }
 
 const registerUser = async (context, userInfo, userType) => {
-    throw new Error('YOU CAN\'T REGISTER USER USING MAX ')
+    throw new Error('YOU CAN\'T REGISTER USER USING XMA ')
 }
 
 const getIdentity = async (context, userInfo, userType) => {
     return await UserExternalIdentity.getOne(context, {
-        identityType: MAX_IDP_TYPE,
+        identityType: XMA_IDP_TYPE,
         identityId: userInfo.id,
         // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
         deletedAt: null,
@@ -58,7 +58,7 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
         return { id }
     }
 
-    // case 3: user is not registered, and we can't register account for him with max
+    // case 3: user is not registered, and we can't register account for him with xma
     if (!authenticatedUser) {
         throw new HttpError(ERRORS.USER_IS_NOT_REGISTERED)
     }
