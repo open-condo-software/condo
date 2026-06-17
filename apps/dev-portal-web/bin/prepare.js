@@ -18,6 +18,8 @@ async function main () {
     // Generic proxy for API
     const { proxyId: apiProxyId, proxySecret: apiProxySecret } = await registerAppProxy('dev-portal-api', 'dev-portal-web-api')
     await updateAppEnvFile(APP_NAME, 'API_PROXY_CONFIG', JSON.stringify({ proxyId: apiProxyId, proxySecret: apiProxySecret }))
+
+    await updateAppEnvFile(APP_NAME, 'FILE_CLIENT_ID', 'dev-portal-api')
 }
 
 main().then(() => {

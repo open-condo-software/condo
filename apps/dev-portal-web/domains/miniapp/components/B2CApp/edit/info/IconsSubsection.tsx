@@ -1,11 +1,15 @@
 import { Upload, Row, Col, Form, notification } from 'antd'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
+import { upload as uploadFiles } from '@open-condo/files'
+import type { UploadFileResult } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Typography, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
+
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { UploadText } from '@/domains/miniapp/components/UploadText'
@@ -19,6 +23,7 @@ import {
 } from '@/domains/miniapp/constants/common'
 import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
+import { useAuth } from '@/domains/user/utils/auth'
 
 import { B2CAppCard } from './B2CAppCard'
 import styles from './IconsSubsection.module.css'
@@ -27,6 +32,10 @@ import type { RowProps } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 
 import { GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
+
+const {
+    publicRuntimeConfig: { serviceUrl, fileClientId },
+} = getConfig()
 
 const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
 const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [24, 24]
@@ -73,6 +82,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     const RulesWarningText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.warning.description' })
     const UploadImageMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.actions.uploadImage' })
 
+    const { user } = useAuth()
     const { data } = useGetB2CAppQuery({ variables: { id } })
 
     const name = get(data, ['app', 'name'], '') as string
@@ -106,20 +116,51 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
         },
     })
 
-    const handleIconSave = useCallback((values: IconsFormValues) => {
-        if (values.mainIcon.length) {
+    const handleIconSave = useCallback(async (values: IconsFormValues) => {
+        if (!values.mainIcon.length || !user?.id) return
+        const fileObj = values.mainIcon[0].originFileObj
+        if (!fileObj) return
+
+        let files: Array<UploadFileResult> = []
+
+        try {
+            const { files: uploadedFiles } = await uploadFiles({
+                serverUrl: serviceUrl,
+                files: [fileObj],
+                meta: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    user: { id: user.id },
+                    fileClientId,
+                    modelNames: ['B2CApp'],
+                },
+                attach: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    itemId: id,
+                    modelName: 'B2CApp',
+                },
+            })
+            files = uploadedFiles
+        } catch (e) {
+            onError(e)
+            return
+        }
+
+
+        if (files.length) {
             updateB2CAppMutation({
                 variables: {
                     id,
                     data: {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
-                        logo: values.mainIcon[0].originFileObj,
+                        logo: files[0],
                     },
                 },
             })
         }
-    }, [id, updateB2CAppMutation])
+    }, [id, onError, updateB2CAppMutation, user?.id])
 
     return (
         <Form

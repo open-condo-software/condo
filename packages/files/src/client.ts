@@ -1,7 +1,7 @@
 export interface FileMeta {
-    dv: 1
+    dv: number
     sender: {
-        dv: 1
+        dv: number
         fingerprint: string
     }
     user: {
@@ -15,9 +15,9 @@ export interface FileMeta {
 }
 
 export interface InlineAttachPayload {
-    dv: 1
+    dv: number
     sender: {
-        dv: 1
+        dv: number
         fingerprint: string
     }
     itemId: string
