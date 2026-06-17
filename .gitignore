@@ -48,6 +48,9 @@ ignore.*
 .kmigratorknex.schema.json
 
 .vscode
+.windsurf
+.devin
+
 .werf_secret_key
 /bin/werf
 
