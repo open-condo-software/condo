@@ -16667,6 +16667,9 @@ type BillingRecipientHistoryRecord {
   _label_: String
   importId: String
   context: String
+  category: String
+  addressKey: String
+  commission: String
   tin: String
   iec: String
   bic: String
@@ -16718,6 +16721,36 @@ input BillingRecipientHistoryRecordWhereInput {
   context_not: String
   context_in: [String]
   context_not_in: [String]
+  category: String
+  category_not: String
+  category_in: [String]
+  category_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  commission: String
+  commission_not: String
+  commission_lt: String
+  commission_lte: String
+  commission_gt: String
+  commission_gte: String
+  commission_in: [String]
+  commission_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -16987,6 +17020,10 @@ input BillingRecipientHistoryRecordWhereUniqueInput {
 enum SortBillingRecipientHistoryRecordsBy {
   importId_ASC
   importId_DESC
+  addressKey_ASC
+  addressKey_DESC
+  commission_ASC
+  commission_DESC
   tin_ASC
   tin_DESC
   iec_ASC
@@ -17028,6 +17065,9 @@ enum SortBillingRecipientHistoryRecordsBy {
 input BillingRecipientHistoryRecordUpdateInput {
   importId: String
   context: String
+  category: String
+  addressKey: String
+  commission: String
   tin: String
   iec: String
   bic: String
@@ -17061,6 +17101,9 @@ input BillingRecipientHistoryRecordsUpdateInput {
 input BillingRecipientHistoryRecordCreateInput {
   importId: String
   context: String
+  category: String
+  addressKey: String
+  commission: String
   tin: String
   iec: String
   bic: String
@@ -17107,6 +17150,15 @@ type BillingRecipient {
 
   """ Integration context """
   context: BillingIntegrationOrganizationContext
+
+  """ Category of recipient """
+  category: BillingCategory
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Commission of recipient """
+  commission: String
 
   """ Tax Identification Number """
   tin: String
@@ -17192,6 +17244,34 @@ input BillingRecipientWhereInput {
   importId_not_in: [String]
   context: BillingIntegrationOrganizationContextWhereInput
   context_is_null: Boolean
+  category: BillingCategoryWhereInput
+  category_is_null: Boolean
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  commission: String
+  commission_not: String
+  commission_lt: String
+  commission_lte: String
+  commission_gt: String
+  commission_gte: String
+  commission_in: [String]
+  commission_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -17443,6 +17523,12 @@ enum SortBillingRecipientsBy {
   importId_DESC
   context_ASC
   context_DESC
+  category_ASC
+  category_DESC
+  addressKey_ASC
+  addressKey_DESC
+  commission_ASC
+  commission_DESC
   tin_ASC
   tin_DESC
   iec_ASC
@@ -17484,6 +17570,9 @@ enum SortBillingRecipientsBy {
 input BillingRecipientUpdateInput {
   importId: String
   context: BillingIntegrationOrganizationContextRelateToOneInput
+  category: BillingCategoryRelateToOneInput
+  addressKey: String
+  commission: String
   tin: String
   iec: String
   bic: String
@@ -17514,6 +17603,9 @@ input BillingRecipientsUpdateInput {
 input BillingRecipientCreateInput {
   importId: String
   context: BillingIntegrationOrganizationContextRelateToOneInput
+  category: BillingCategoryRelateToOneInput
+  addressKey: String
+  commission: String
   tin: String
   iec: String
   bic: String

@@ -18,6 +18,26 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         importId: IMPORT_ID_FIELD,
         context: INTEGRATION_CONTEXT_FIELD,
 
+        category: {
+            schemaDoc: 'Category of recipient',
+            type: 'Relationship',
+            ref: 'BillingCategory',
+            isRequired: false,
+        },
+
+        addressKey: {
+            schemaDoc: 'The unique key of the address',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        commission: {
+            schemaDoc: 'Commission of recipient',
+            type: 'Decimal',
+            knexOptions: { scale: 2 },
+            isRequired: false,
+        },
+
         tin: {
             schemaDoc: 'Tax Identification Number',
             type: 'Text',
