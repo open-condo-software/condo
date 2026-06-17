@@ -154,11 +154,14 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                 if (!firstResponse.ok) throw new Error('Failed to download file')
 
                 const redirectUrl = await getRedirectUrl(firstResponse)
-                await fetch(redirectUrl, {
-                    credentials: 'include',
-                })
-
-                setUrl(redirectUrl)
+                if (redirectUrl) {
+                    await fetch(redirectUrl, {
+                        credentials: 'include',
+                    })
+                    setUrl(redirectUrl)
+                } else {
+                    setUrl(src)
+                }
             } catch (e) {
                 console.error(e)
                 setUrl(src)
