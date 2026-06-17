@@ -1,7 +1,7 @@
 export interface FileMeta {
-    dv: 1
+    dv: number
     sender: {
-        dv: 1
+        dv: number
         fingerprint: string
     }
     user: {
