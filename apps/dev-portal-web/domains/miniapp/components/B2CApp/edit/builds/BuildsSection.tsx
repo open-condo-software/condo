@@ -1,9 +1,11 @@
 import { Table, Row, Col, RowProps, Form, Upload } from 'antd'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { upload as uploadFiles } from '@open-condo/files'
 import { PlusCircle } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -25,6 +27,7 @@ import { useFileSizeFormatter } from '@/domains/miniapp/hooks/useFileSizeFormatt
 import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
+import { useAuth } from '@/domains/user/utils/auth'
 import { INVALID_MIMETYPE } from '@dev-portal-api/domains/common/constants/errors'
 import { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-portal-api/domains/miniapp/constants/constraints'
 import { INVALID_BUILD_VERSION } from '@dev-portal-api/domains/miniapp/constants/errors'
@@ -38,6 +41,9 @@ import {
     useAllB2CAppBuildsQuery,
 } from '@/gql'
 
+const {
+    publicRuntimeConfig: { serviceUrl, fileClientId },
+} = getConfig()
 
 const ROW_BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
 const ROW_BUILDS_GUTTER: RowProps['gutter'] = [40, 40]
@@ -91,6 +97,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     })
 
     const { persistor } = useCachePersistor()
+    const { user } = useAuth()
 
     const [isUploading, setIsUploading] = useState(false)
 
@@ -145,19 +152,31 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     })
 
     const handleUploadBuild = useCallback((values: BuildFormValues) => {
+        const fileObj = values.data[0].originFileObj
+        if (!fileObj || !user?.id) return
         setIsUploading(true)
-        createB2CAppBuildMutation({
+        uploadFiles({
+            serverUrl: serviceUrl,
+            files: [fileObj],
+            meta: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                user: { id: user.id },
+                fileClientId,
+                modelNames: ['B2CAppBuild'],
+            },
+        }).then(({ files }) => createB2CAppBuildMutation({
             variables: {
                 data: {
                     dv: 1,
                     sender: getClientSideSenderInfo(),
                     version: values.version,
-                    data: values.data[0].originFileObj,
+                    data: files[0],
                     app: { connect: { id } },
                 },
             },
-        }).finally(() => setIsUploading(false))
-    }, [createB2CAppBuildMutation, id])
+        })).finally(() => setIsUploading(false))
+    }, [createB2CAppBuildMutation, id, user?.id])
 
     const handlePaginationChange = useCallback((newPage: number) => {
         router.replace({ query: { ...router.query, p: newPage } },  undefined, { locale: router.locale })
