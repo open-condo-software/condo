@@ -288,8 +288,8 @@ describe('MaxRoutes', () => {
         test.each(testCases)('$name', async ({ reqResNextParams, expectedError, beforeCall }) => {
             const { req, res, next } = createMockReqResNext(reqResNextParams)
             await beforeCall?.()
-            await expect(async () => await routes._validateParameters(req, res, next))
-                .rejects.toThrow(new HttpError(expectedError))
+            expect(() => routes._validateParameters(req, res, next))
+                .toThrow(new HttpError(expectedError))
             expect(res.redirect).not.toHaveBeenCalled()
         })
     })

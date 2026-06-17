@@ -150,7 +150,11 @@ function getConfigValidationError (maxConfig) {
         }
         for (const [urlIndex, url] of config.allowedRedirectUrls.entries()) {
             try {
-                new URL(url)
+                const parsed = new URL(url)
+                const normalized = `${parsed.origin}${parsed.pathname === '/' ? '' : parsed.pathname}`
+                if (url !== normalized) {
+                    return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls[${urlIndex}]" should be normalized to "${normalized}" at index ${index}` } }
+                }
             } catch {
                 return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls[${urlIndex}]" is not a valid URL at index ${index}` } }
             }
