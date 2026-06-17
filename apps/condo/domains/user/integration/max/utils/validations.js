@@ -107,13 +107,13 @@ function getMaxAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
     // 3. Build secret key using bot token
     // Max uses the same prefix as Telegram for the secret key
     // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
-    const secret = crypto.createHmac('sha256', MAX_WEB_APP_DATA_SECRET_PREFIX)
+    const secret = crypto.createHmac('sha256', MAX_WEB_APP_DATA_SECRET_PREFIX) // NOSONAR — public API prefix per https://dev.max.ru/docs/webapps/validation, not a secret
         .update(botToken.trim())
         .digest()
 
     // 4. Build check string from max auth data
     const checkString = Object.keys(data)
-        .sort()
+        .sort() // NOSONAR — deterministic ASCII sort required by signature spec, localeCompare would break validation
         .filter((k) => ![ 'hash' ].includes(k))
         .map(k => (`${k}=${data[k]}`))
         .join('\n')
