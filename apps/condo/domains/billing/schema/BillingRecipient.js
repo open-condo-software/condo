@@ -23,6 +23,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             type: 'Relationship',
             ref: 'BillingCategory',
             isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         addressKey: {
