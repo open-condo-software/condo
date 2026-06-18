@@ -18,12 +18,11 @@ const {
     MESSAGE_TRANSPORTS,
     EMAIL_TRANSPORT,
     SMS_TRANSPORT,
-    TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
-    REGION_MESSENGER_TRANSPORT,
+    WEBHOOK_TRANSPORT,
 } = require('./constants/constants')
 
 const LANG_DIR_RELATED = '../../lang'
@@ -136,13 +135,13 @@ function renderDefaultTemplate (message, locale) {
     }
 }
 
-function getTelegramTemplate (locale, messageType) {
+function getWebhookTemplate (locale, messageType) {
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const telegramTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const telegramTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${WEBHOOK_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const telegramHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const telegramHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${WEBHOOK_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     let templatePathText = null
     let templatePathHtml = null
@@ -161,7 +160,7 @@ function getTelegramTemplate (locale, messageType) {
 
     if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
 
-    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${TELEGRAM_TRANSPORT}"`)
+    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${WEBHOOK_TRANSPORT}"`)
 }
 
 /**
@@ -193,7 +192,7 @@ function translationStringKeyForPushBody (messageType) {
  * @returns {string}
  */
 function translationStringKeyForTelegramUrlMessage (messageType) {
-    return `notification.messages.${messageType}.${TELEGRAM_TRANSPORT}.urlMessage`
+    return `notification.messages.${messageType}.${WEBHOOK_TRANSPORT}.urlMessage`
 }
 
 function normalizeSMSText (text) {
@@ -234,11 +233,11 @@ function translateObjectItems (obj, locale) {
 }
 
 /**
- * Renders message template for Telegram
+ * Renders message template for webhook
  */
-function telegramRenderer ({ message, env }) {
+function webhookRenderer ({ message, env }) {
     const { lang: locale, type, meta } = message
-    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
+    const { templatePathText, templatePathHtml } = getWebhookTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {}
 
@@ -257,7 +256,10 @@ function telegramRenderer ({ message, env }) {
         ret.inlineKeyboard = [[{ text, url }]]
     }
 
-    return ret
+    return {
+        title: 'title',
+        body: JSON.stringify(ret),
+    }
 }
 
 /**
@@ -352,30 +354,6 @@ function pushRenderer ({ message, env, additionalParams }) {
     }
 }
 
-function regionMessengerTemplate ({ message, env } ){
-    const { lang: locale, type, meta } = message
-    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
-    const messageTranslated = substituteTranslations(message, locale)
-    const ret = {}
-
-    if (templatePathText) {
-        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
-    }
-
-    if (templatePathHtml) {
-        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
-    }
-
-    const text = i18n(translationStringKeyForTelegramUrlMessage(type), { locale, meta: messageTranslated.meta })
-    const url = meta?.data?.url
-
-    if (url && text) {
-        ret.inlineKeyboard = [[{ text, url }]]
-    }
-
-    return ret
-}
-
 /**
  * Template environment variable type
  * @typedef {Object} MessageTemplateEnvironment
@@ -389,9 +367,8 @@ function regionMessengerTemplate ({ message, env } ){
 const MESSAGE_TRANSPORTS_RENDERERS = {
     [SMS_TRANSPORT]: smsRenderer,
     [EMAIL_TRANSPORT]: emailRenderer,
-    [TELEGRAM_TRANSPORT]: telegramRenderer,
+    [WEBHOOK_TRANSPORT]: webhookRenderer,
     [PUSH_TRANSPORT]: pushRenderer,
-    [REGION_MESSENGER_TRANSPORT]: regionMessengerTemplate,
 }
 
 const TRANSPORT_RENDERER_KEYS = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)
