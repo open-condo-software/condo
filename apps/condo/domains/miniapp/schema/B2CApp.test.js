@@ -452,10 +452,30 @@ describe('B2CApp', () => {
                 },
                 {
                     pattern: 'wss',
-                    isSupported: false,
+                    isSupported: true,
                 },
                 {
                     pattern: 'ws',
+                    isSupported: true,
+                },
+                {
+                    // NOTE: custom deeplink scheme
+                    pattern: 'myapp',
+                    isSupported: true,
+                },
+                {
+                    // NOTE: deeplink scheme with digits and hyphens
+                    pattern: 'com.example.app',
+                    isSupported: true,
+                },
+                {
+                    // NOTE: wildcard protocol
+                    pattern: '*',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: protocol starting with digit (invalid per RFC 3986)
+                    pattern: '1app',
                     isSupported: false,
                 },
             ]
