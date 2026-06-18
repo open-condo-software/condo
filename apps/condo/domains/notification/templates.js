@@ -221,8 +221,17 @@ function translationStringKeyForPushBody (messageType) {
  * @returns {string}
  */
 function translationStringKeyForTelegramUrlMessage (messageType) {
+    return `notification.messages.${messageType}.${TELEGRAM_TRANSPORT}.urlMessage`
+}
+
+/**
+ * @param {string} messageType
+ * @returns {string}
+ */
+function translationStringKeyForWebhookUrlMessage (messageType) {
     return `notification.messages.${messageType}.${WEBHOOK_TRANSPORT}.urlMessage`
 }
+
 
 function normalizeSMSText (text) {
     return unescape(text).replace(SMS_FORBIDDEN_SYMBOLS_REGEXP, '*')
@@ -305,7 +314,7 @@ function webhookRenderer ({ message, env }) {
         ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
     }
 
-    const text = i18n(translationStringKeyForTelegramUrlMessage(type), { locale, meta: messageTranslated.meta })
+    const text = i18n(translationStringKeyForWebhookUrlMessage(type), { locale, meta: messageTranslated.meta })
     const url = meta?.data?.url
 
     if (url && text) {
