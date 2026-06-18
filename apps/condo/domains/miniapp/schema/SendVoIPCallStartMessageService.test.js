@@ -976,9 +976,12 @@ describe('SendVoIPCallStartMessageService', () => {
 
         })
 
-        describe('bs', () => {
-
-            let customB2CAppContextField
+        describe('Custom values', () => {
+            let serviceUser
+            let b2cApp
+            let b2bApp
+            let organization
+            let property
 
             beforeAll(async () => {
                 serviceUser = await makeClientWithServiceUser();

@@ -144,7 +144,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
             access: true,
             type: `input SendVoIPCallStartMessageDataForCallHandlingByB2CApp {
                 """
-                Data that will be provided to B2CApp. If it is not string or number, will be turned into JSON string
+                Data that will be provided to B2CApp. Object values will be serialized to a JSON string before sending.
                 """
                 B2CAppContext: JSON!,
             }`,
@@ -207,7 +207,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                 """
                 callMeta: JSON,
                 """
-                Identifier of caller device. Used to retriev additional info from custom fields related to this device.
+                Identifier of caller device. Used to retrieve additional info from custom fields related to this device.
                 """
                 callerDeviceId: String,
                 """
