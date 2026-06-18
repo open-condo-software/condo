@@ -394,7 +394,7 @@ describe('MobileFeatureConfig', () => {
                         contentConfiguration: {},
                     })
 
-                    expect(obj.contentConfiguration).toEqual({ marketplace: null })
+                    expect(obj.contentConfiguration).toEqual({ marketplace: null, ticket: null })
                 })
 
                 test('should reject contentConfiguration with invalid marketplace appId type', async () => {
@@ -432,6 +432,7 @@ describe('MobileFeatureConfig', () => {
                         marketplace: {
                             appId: 'com.updated.app',
                         },
+                        ticket: null,
                     })
                 })
             })
