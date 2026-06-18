@@ -7,10 +7,12 @@ const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls'
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 
 function getMappedTargetOrigin (sourceOrigin, appId, idx) {
+    const sourceUrl = new URL(sourceOrigin)
     const targetUrl = new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`))
-    if (new URL(sourceOrigin).protocol === 'wss:') {
-        targetUrl.protocol = 'wss:'
-    }
+
+    // NOTE: we need to preserve the protocol of the source origin
+    targetUrl.protocol = sourceUrl.protocol
+
     return targetUrl.origin
 }
 
