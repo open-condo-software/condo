@@ -1,0 +1,19 @@
+{%- if message.meta.data.passTicketType == "guest" -%}
+<b>Новый пропуск на гостя №{{ message.meta.data.number }}</b>
+Организация: {{ message.meta.data.organizationName }}
+Адрес: {{ message.meta.data.propertyAddress }}
+Помещение: {{ message.meta.data.unit }}
+Заявитель: {{ message.meta.data.client }}
+Гость: {{ message.meta.data.guest }}
+Дата посещения: {{ message.meta.data.openAt }}
+Комментарий: {{ message.meta.data.comment }}
+{%- else -%}
+<b>Новый пропуск на транспорт №{{ message.meta.data.number }}</b>
+Организация: {{ message.meta.data.organizationName }}
+Адрес: {{ message.meta.data.propertyAddress }}
+Помещение: {{ message.meta.data.unit }}
+Заявитель: {{ message.meta.data.client }}
+Госномер: {{ message.meta.data.vehicle }}
+Дата посещения: {{ message.meta.data.openAt }}
+Комментарий: {{ message.meta.data.comment }}
+{% endif %}

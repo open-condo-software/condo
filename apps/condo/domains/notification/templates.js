@@ -23,6 +23,7 @@ const {
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     WEBHOOK_TRANSPORT,
+    TELEGRAM_TRANSPORT,
 } = require('./constants/constants')
 
 const LANG_DIR_RELATED = '../../lang'
@@ -135,6 +136,34 @@ function renderDefaultTemplate (message, locale) {
     }
 }
 
+function getTelegramTemplate (locale, messageType) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const telegramTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const telegramHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+
+    let templatePathText = null
+    let templatePathHtml = null
+
+    if (fs.existsSync(telegramTextTemplatePath)) {
+        templatePathText = telegramTextTemplatePath
+    }
+
+    if (fs.existsSync(telegramHtmlTemplatePath)) {
+        templatePathHtml = telegramHtmlTemplatePath
+    }
+
+    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
+        templatePathText = defaultTemplatePath
+    }
+
+    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
+
+    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${TELEGRAM_TRANSPORT}"`)
+}
+
 function getWebhookTemplate (locale, messageType) {
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
@@ -230,6 +259,33 @@ function translateObjectItems (obj, locale) {
     }
 
     return keys.reduce(handleItem, {})
+}
+
+/**
+ * Renders message template for telegram
+ */
+function telegramRenderer ({ message, env }) {
+    const { lang: locale, type, meta } = message
+    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
+    const messageTranslated = substituteTranslations(message, locale)
+    const ret = {}
+
+    if (templatePathText) {
+        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+    }
+
+    if (templatePathHtml) {
+        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    const text = i18n(translationStringKeyForTelegramUrlMessage(type), { locale, meta: messageTranslated.meta })
+    const url = meta?.data?.url
+
+    if (url && text) {
+        ret.inlineKeyboard = [[{ text, url }]]
+    }
+
+    return ret
 }
 
 /**
@@ -367,6 +423,7 @@ function pushRenderer ({ message, env, additionalParams }) {
 const MESSAGE_TRANSPORTS_RENDERERS = {
     [SMS_TRANSPORT]: smsRenderer,
     [EMAIL_TRANSPORT]: emailRenderer,
+    [TELEGRAM_TRANSPORT]: telegramRenderer,
     [WEBHOOK_TRANSPORT]: webhookRenderer,
     [PUSH_TRANSPORT]: pushRenderer,
 }
