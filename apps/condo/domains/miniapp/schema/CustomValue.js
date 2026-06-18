@@ -3,6 +3,7 @@
  */
 
 const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
 const get = require('lodash/get')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
@@ -22,6 +23,7 @@ const { ALLOWED_TYPES, ALLOWED_SCHEMAS } = require('./CustomField')
 
 
 const ajv = new Ajv()
+addFormats(ajv)
 
 const B2B_APP_SOURCE_TYPE = 'B2BApp'
 

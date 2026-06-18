@@ -95255,8 +95255,10 @@ input SendVoIPCallStartMessageVoIPPanelParameters {
 }
 
 input SendVoIPCallStartMessageDataForCallHandlingByB2CApp {
-  """Data that will be provided to B2CApp. May be stringified JSON"""
-  B2CAppContext: String!
+  """
+  Data that will be provided to B2CApp. Object values will be serialized to a JSON string before sending.
+  """
+  B2CAppContext: JSON!
 }
 
 input SendVoIPCallStartMessageDataIceServer {
@@ -95307,6 +95309,11 @@ input SendVoIPCallStartMessageData {
   Meta information which helps you identify call. Not used right now. Will be sent to you server on answer button press.
   """
   callMeta: JSON
+
+  """
+  Identifier of caller device. Used to retrieve additional info from custom fields related to this device.
+  """
+  callerDeviceId: String
 
   """
   If you want your B2CApp to handle incoming VoIP call, provide this argument.

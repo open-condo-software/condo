@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
+const { z } = require('zod')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, NOT_FOUND } } = require('@open-condo/keystone/errors')
@@ -28,6 +29,7 @@ const { getOldestNonDeletedProperty } = require('@condo/domains/property/utils/s
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
+const CALLER_DEVICE_ID_UNIQ_KEY_PREFIX = 'CALLER_DEVICE_ID'
 const SERVER_URL = conf.SERVER_URL
 
 const VOIP_MESSAGE_TYPES = [
@@ -50,6 +52,8 @@ const CACHE_TTL = {
     [VOIP_INCOMING_CALL_MESSAGE_TYPE]: 2,
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: 2,
 }
+
+const ANY_RECORD_SCHEMA = z.record(z.union([z.string(), z.number()]), z.unknown())
 
 const GLOBAL_SEND_VOIP_MESSAGE_WINDOW_IN_SECODS = 60 * 60 // 1 minute
 // 1 intercom ~ 1 call per 15 seconds (judged by call span) ~ 4 calls per minute max
@@ -109,6 +113,41 @@ function getSendDTMFTimeout () {
     return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
 }
 
+function isObject (obj) {
+    return ANY_RECORD_SCHEMA.safeParse(obj).success
+}
+
+function isNonEmptyObject (obj) {
+    if (!isObject(obj)) return false
+    return Object.keys(obj).length > 0
+}
+
+const VOIP_DEVICE_DATA_CUSTOM_FIELD_NAME = 'voipDeviceData'
+
+const VOIP_DEVICE_DATA_CUSTOM_VALUE_SCHEMA = z.object({
+    streamUrl: z.url().optional().catch(),
+    voipPanels: z.array(
+        z.object({
+            name: z.string().optional().catch(),
+            dtmfCommand: z.string(),
+            openUrl: z.string().optional().catch(),
+        }).catch()
+    ).optional().catch(() => ([])).transform((arrOrUndefined) => Array.isArray(arrOrUndefined) ? arrOrUndefined.filter(Boolean) : arrOrUndefined),
+})
+
+const VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_FIELD_NAME = 'voipDeviceB2CAppContext'
+
+const VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHOD_SPREAD = 'spread'
+const VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHODS = [
+    VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHOD_SPREAD,
+]
+
+
+const VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_VALUE_SCHEMA = z.object({
+    data: z.record(z.union([z.string(), z.number()]), z.unknown()).default({}).catch({}),
+    injectMethod: z.union(VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHODS.map(method => z.literal(method))).optional().default(VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHOD_SPREAD), // NOTE(YEgorLu): if need to add different injection, { ...a, ...b } by default
+})
+
 function prepareVoIPCallStartMessageData ({ 
     callData, 
     b2cApp: { id: b2cAppId, name: b2cAppName },
@@ -118,6 +157,8 @@ function prepareVoIPCallStartMessageData ({
     customVoIPValues = {},
     hasSendDTMFUrl,
     sender,
+    voipDeviceB2CAppContext,
+    voipDeviceData,
 }) {
     // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
     let preparedDataArgs = {
@@ -165,7 +206,7 @@ function prepareVoIPCallStartMessageData ({
             voipAddress: callData.nativeCallData.voipAddress,
             voipLogin: callData.nativeCallData.voipLogin,
             voipPassword: callData.nativeCallData.voipPassword,
-            voipDtfmCommand: callData.nativeCallData.voipPanels?.[0]?.dtmfCommand,
+            voipDtfmCommand: callData.nativeCallData.voipPanels[0]?.dtmfCommand,
             voipPanels: callData.nativeCallData.voipPanels,
             voipIceServers: callData.nativeCallData.iceServers,
             stun: firstStunAddressFromIceCandidates ? firstStunAddressFromIceCandidates : callData.nativeCallData.stunServers?.[0],
@@ -182,6 +223,32 @@ function prepareVoIPCallStartMessageData ({
             preparedDataArgs.sendDTMFTimeout = getSendDTMFTimeout()
         }
 
+        const { data: parsedVoipDeviceData, success: isVoipDeviceDataSuccess } = VOIP_DEVICE_DATA_CUSTOM_VALUE_SCHEMA.safeParse(voipDeviceData)
+        if (isVoipDeviceDataSuccess) {
+            if (parsedVoipDeviceData.streamUrl) {
+                preparedDataArgs.streamUrl = parsedVoipDeviceData.streamUrl
+            }
+
+            if (parsedVoipDeviceData.voipPanels) {
+                const originalVoIPPanelsByDtmfCommand = preparedDataArgs.voipPanels.reduce((byDtmf, panel) => {
+                    byDtmf[panel.dtmfCommand] = panel
+                    return byDtmf
+                }, {})
+                for (const voipPanel of parsedVoipDeviceData.voipPanels) {
+                    if (originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand]) {
+                        Object.assign(originalVoIPPanelsByDtmfCommand[voipPanel.dtmfCommand], voipPanel)
+                    } else {
+                        if (!preparedDataArgs.voipPanels) preparedDataArgs.voipPanels = []
+                        preparedDataArgs.voipPanels.push(voipPanel)
+                    }
+                }
+            
+                if (preparedDataArgs.voipPanels.length && !preparedDataArgs.voipDtfmCommand) {
+                    preparedDataArgs.voipDtfmCommand = preparedDataArgs.voipPanels[0].dtmfCommand
+                }
+            }
+        }
+
         preparedDataArgs = { ...preparedDataArgs, ...omit(customVoIPValues, 'voipType') }
     } else {
         preparedDataArgs = {
@@ -190,8 +257,15 @@ function prepareVoIPCallStartMessageData ({
         }
     }
 
-    for (const jsonKey of ['voipPanels', 'stunServers', 'voipIceServers']) {
-        if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey]) continue
+    const { data: parsedVoipDeviceB2CAppContext, success: isVoipDeviceB2CAppContextSuccess } = VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_VALUE_SCHEMA.safeParse(voipDeviceB2CAppContext)
+    if (isVoipDeviceB2CAppContextSuccess) {
+        if (isObject(preparedDataArgs.B2CAppContext) && isNonEmptyObject(parsedVoipDeviceB2CAppContext.data)) {
+            preparedDataArgs.B2CAppContext = { ...parsedVoipDeviceB2CAppContext.data, ...preparedDataArgs.B2CAppContext }
+        }
+    }
+
+    for (const jsonKey of ['voipPanels', 'stunServers', 'B2CAppContext', 'voipIceServers']) {
+        if (!preparedDataArgs[jsonKey] || customVoIPValues[jsonKey] || typeof preparedDataArgs[jsonKey] !== 'object') continue
         preparedDataArgs[jsonKey] = JSON.stringify(preparedDataArgs[jsonKey])
     }
 
@@ -243,6 +317,8 @@ function prepareVoIPCallCancelMessageData ({
  * sender,
  * dv,
  * hasSendDTMFUrl,
+ * voipDeviceB2CAppContext
+ * voipDeviceData,
  * }} args 
  * @returns 
  */
@@ -418,6 +494,37 @@ async function getCustomVoIPValuesByContacts ({ context, contactIds, voipMessage
     }, {})
 }
 
+async function getVoIPDeviceB2CAppContext ({ context, propertyId, callerDeviceId }) {
+    if (!propertyId || !callerDeviceId) return null
+
+    const value = await CustomValue.getOne(context, {
+        customField: {
+            name: VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_FIELD_NAME,
+            modelName: 'Property',
+            deletedAt: null,
+        },
+        itemId: propertyId,
+        uniqKey: `${CALLER_DEVICE_ID_UNIQ_KEY_PREFIX}:${callerDeviceId}`,
+    }, 'id data')
+
+    return value?.data
+}
+
+async function getVoIPDeviceData ({ context, propertyId, callerDeviceId }) {
+    if (!propertyId || !callerDeviceId) return null
+
+    const value = await CustomValue.getOne(context, {
+        customField: {
+            name: VOIP_DEVICE_DATA_CUSTOM_FIELD_NAME,
+            modelName: 'Property',
+            deletedAt: null,
+        },
+        itemId: propertyId,
+        uniqKey: `${CALLER_DEVICE_ID_UNIQ_KEY_PREFIX}:${callerDeviceId}`,
+    }, 'id data')
+    return value?.data
+}
+
 function parseSendMessageResults ({ logContext, sendMessagePromisesResults }) {
     const sendMessageStats = sendMessagePromisesResults.map(promiseResult => {
         if (promiseResult.status === 'rejected') {
@@ -544,12 +651,19 @@ module.exports = {
     getAppInfo,
     sendMessageToUser,
     parseSendMessageResults,
-    getCustomVoIPValuesByContacts,
     getLogInfoFn,
     checkLimits,
     getInitialLogContext,
 
+    getCustomVoIPValuesByContacts,
+    getVoIPDeviceB2CAppContext,
+    getVoIPDeviceData,
+
     RejectCallError,
 
     COMMON_VOIP_ERRORS,
+    CALLER_DEVICE_ID_UNIQ_KEY_PREFIX,
+    VOIP_DEVICE_DATA_CUSTOM_FIELD_NAME,
+    VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_FIELD_NAME,
+    VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHODS,
 }

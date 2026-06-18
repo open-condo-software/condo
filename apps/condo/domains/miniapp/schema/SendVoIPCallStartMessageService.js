@@ -24,6 +24,8 @@ const {
     parseSendMessageResults,
     sendMessageToUser,
     COMMON_VOIP_ERRORS,
+    getVoIPDeviceB2CAppContext,
+    getVoIPDeviceData,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
 const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken, isIceServersAddressesValid, ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -142,9 +144,9 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
             access: true,
             type: `input SendVoIPCallStartMessageDataForCallHandlingByB2CApp {
                 """
-                Data that will be provided to B2CApp. May be stringified JSON
+                Data that will be provided to B2CApp. Object values will be serialized to a JSON string before sending.
                 """
-                B2CAppContext: String!,
+                B2CAppContext: JSON!,
             }`,
         },
         {
@@ -204,6 +206,10 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                 Meta information which helps you identify call. Not used right now. Will be sent to you server on answer button press.
                 """
                 callMeta: JSON,
+                """
+                Identifier of caller device. Used to retrieve additional info from custom fields related to this device.
+                """
+                callerDeviceId: String,
                 """
                 If you want your B2CApp to handle incoming VoIP call, provide this argument.
                 """
@@ -291,6 +297,9 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     await checkLimits({ redisGuard, serviceName: SERVICE_NAME, voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, logContext, b2cAppId, addressKey, unitName, unitType })
 
                     const customVoIPValuesByContactId = await getCustomVoIPValuesByContacts({ voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE, context, contactIds: [...new Set(verifiedResidentsWithContacts.map(({ contact }) => contact.id))] })
+
+                    const voipDeviceB2CAppContext = await getVoIPDeviceB2CAppContext({ context, propertyId: property.id, callerDeviceId: callData.callerDeviceId })
+                    const voipDeviceData = await getVoIPDeviceData({ context, propertyId: property.id, callerDeviceId: callData.callerDeviceId })
                 
                     const callStatusToken = generateCallStatusToken()
                     const callStatusIdentityParams = {
@@ -310,7 +319,8 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                                 voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                                 context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
-                                callStatusJwtToken, hasSendDTMFUrl,
+                                callStatusJwtToken, hasSendDTMFUrl, 
+                                voipDeviceB2CAppContext, voipDeviceData,
                             })
                         })
                 

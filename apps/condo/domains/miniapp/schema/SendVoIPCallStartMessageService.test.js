@@ -10,6 +10,7 @@ const {
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { NATIVE_VOIP_TYPE, B2C_APP_VOIP_TYPE, CALL_STATUS_STARTED } = require('@condo/domains/miniapp/constants')
+const { VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_FIELD_NAME, VOIP_DEVICE_DATA_CUSTOM_FIELD_NAME, CALLER_DEVICE_ID_UNIQ_KEY_PREFIX, VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHODS } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
 const {
     createTestB2CApp,
     sendVoIPCallStartMessageByTestClient,
@@ -41,6 +42,7 @@ const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendVoIPCallStartMessageService')
+
 
 
 async function prepareUser ({ admin, organization, property, unitName, unitType }) {
@@ -973,5 +975,163 @@ describe('SendVoIPCallStartMessageService', () => {
             })
 
         })
+
+        describe('Custom values', () => {
+            let serviceUser
+            let b2cApp
+            let b2bApp
+            let organization
+            let property
+
+            beforeAll(async () => {
+                serviceUser = await makeClientWithServiceUser();
+                [b2cApp] = await createTestB2CApp(admin)
+                const clientWithEntities = await makeClientWithResidentAccessAndProperty()
+                organization = clientWithEntities.organization
+                property = clientWithEntities.property
+
+                await createTestB2CAppProperty(admin, b2cApp, { address: property.address, addressMeta: property.addressMeta })
+                const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true })
+                await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } });
+
+        
+                [b2bApp] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
+                const [b2bAppAccessRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true, canReadCustomValues: true, canManageCustomValues: true })
+                await createTestB2BAppAccessRight(admin, serviceUser.user, b2bApp, b2bAppAccessRightSet)
+            })
+
+            test(`${VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_FIELD_NAME} allows to extend B2CAppContext`, async () => {
+                const [voipB2CAppContextField] = await createTestCustomField(admin, {
+                    name: VOIP_DEVICE_B2C_APP_CONTEXT_CUSTOM_FIELD_NAME,
+                    modelName: 'Property',
+                    type: 'Json',
+                    validationRules: {
+                        'type': 'object',
+                        'properties': {
+                            'data': { type: 'object', 'additionalProperties': true },
+                            'injectMethod': { enum: VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHODS },
+                        },
+                        'required': ['data', 'injectMethod'],
+                        'additionalProperties': false,
+                    },
+                    isVisible: false,
+                    priority: 0,
+                    isUniquePerObject: false,
+                    staffCanRead: false,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                })
+
+                const callerDeviceId = faker.random.alphaNumeric(8)
+
+                await createTestCustomValue(serviceUser, voipB2CAppContextField, organization, {
+                    sourceType: 'B2BApp',
+                    data: {
+                        data: { data: { from: 'custom value' } },
+                        injectMethod: VOIP_DEVICE_B2C_APP_CONTEXT_INJECT_METHODS[0],
+                    },
+                    itemId: property.id,
+                    sourceId: b2bApp.id,
+                    isUniquePerObject: false,
+                    uniqKey: `${CALLER_DEVICE_ID_UNIQ_KEY_PREFIX}:${callerDeviceId}`,
+                })
+
+                const unitName = faker.random.alphaNumeric(3)
+                const unitType = FLAT_UNIT_TYPE
+
+                const { resident } = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
+
+                const { msg } = await makeStartCallRequest({ 
+                    admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, type: 'b2c', resident, 
+                    b2cAppCallData: {  B2CAppContext: { some: { default: 'data' } } },
+                    callerDeviceId,
+                })
+
+                expect(JSON.parse(msg.meta.data.B2CAppContext)).toEqual(expect.objectContaining({
+                    data: { from: 'custom value' },
+                    some: { default: 'data' },
+                }))
+            })
+
+            test(`${VOIP_DEVICE_DATA_CUSTOM_FIELD_NAME} allows to extend native fields`, async () => {
+                const [voipCustomDataField] = await createTestCustomField(admin, {
+                    name: VOIP_DEVICE_DATA_CUSTOM_FIELD_NAME,
+                    modelName: 'Property',
+                    type: 'Json',
+                    validationRules: {
+                        'type': 'object',
+                        'properties': {
+                            'streamUrl': {
+                                'type': 'string',
+                                'format': 'uri',
+                            },
+                            'voipPanels': {
+                                'type': 'array',
+                                'items': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'name': { 'type': 'string' },
+                                        'dtmfCommand': { 'type': 'string' },
+                                        'openUrl': { 'type': 'string' },
+                                    },
+                                    'required': ['dtmfCommand'],
+                                    'additionalProperties': false,
+                                },
+                            },
+                        },
+                    },
+                    isVisible: false,
+                    priority: 0,
+                    isUniquePerObject: false,
+                    staffCanRead: false,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                })
+
+                const callerDeviceId = faker.random.alphaNumeric(8)
+
+                const voipPanelsInput = [
+                    { name: '1', dtmfCommand: '#1' },
+                    { name: '2', dtmfCommand: '#2' },
+                ]
+
+                const voipPanelsCustom = [
+                    { dtmfCommand: '#2', name: 'second' }, // found by dtmf -> changes name
+                    { dtmfCommand: '#4' }, // not found by dtmf -> append
+                    { dtmfCommand: '#1', openUrl: faker.internet.url() }, // found by dtmf -> adds openUrl
+                ]
+
+                await createTestCustomValue(serviceUser, voipCustomDataField, organization, {
+                    sourceType: 'B2BApp',
+                    data: {
+                        voipPanels: voipPanelsCustom,
+                    },
+                    itemId: property.id,
+                    sourceId: b2bApp.id,
+                    isUniquePerObject: false,
+                    uniqKey: `${CALLER_DEVICE_ID_UNIQ_KEY_PREFIX}:${callerDeviceId}`,
+                })
+
+                const unitName = faker.random.alphaNumeric(3)
+                const unitType = FLAT_UNIT_TYPE
+
+                const { resident } = await prepareVoIPUser({ admin, organization, property, unitName, unitType })
+
+                const { msg } = await makeStartCallRequest({ 
+                    admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, type: 'native', resident, 
+                    nativeCallData: { voipPanels: voipPanelsInput },
+                    callerDeviceId,
+                })
+
+                expect(JSON.parse(msg.meta.data.voipPanels)).toEqual([
+                    expect.objectContaining({ dtmfCommand: '#1', openUrl: voipPanelsCustom[2].openUrl }),
+                    expect.objectContaining({ dtmfCommand: '#2', name: voipPanelsCustom[0].name }),
+                    expect.objectContaining({ dtmfCommand: '#4' }),
+                ])
+
+            })
+
+        })
+
     })
+
 })
