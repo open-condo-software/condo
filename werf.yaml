@@ -439,7 +439,7 @@ docker:
 ---
 image: classifiers_api
 fromImage: python-base
-fromCacheVersion: "4"
+fromCacheVersion: "3"
 git:
   - add: /
     to: /app
@@ -455,13 +455,10 @@ shell:
   install:
   - "cd /app/apps/classifiers-api"
   - "pip install -r requirements.txt"
-  - "python bin/download_nltk_data.py --data-dir /app/apps/classifiers-api/nltk_data"
-  - "chown -R app:app /app/apps/classifiers-api/nltk_data"
 
 docker:
   ENV:
     LANG: C.UTF-8
-    NLTK_DATA: /app/apps/classifiers-api/nltk_data
 ---
 image: address_service
 fromImage: deps
