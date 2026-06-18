@@ -1,0 +1,11 @@
+.pageWrapper :global(.condo-tabs),
+.pageWrapper :global(.condo-tabs-content),
+.pageWrapper :global(.condo-tabs-tabpane),
+.pageWrapper :global(.page-content) {
+    height: 100%;
+}
+
+.pageWrapper :global(.condo-tabs-nav),
+.pageWrapper :global(.condo-tabs-nav-wrap) {
+    min-height: 48px;
+}

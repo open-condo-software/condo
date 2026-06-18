@@ -51092,6 +51092,7 @@ enum UserHelpRequestTypeType {
   integrationSetup
   activateSubscription
   activateBanking
+  billingSettingsChange
 }
 
 input SubscriptionPlanPricingRuleRelateToOneInput {

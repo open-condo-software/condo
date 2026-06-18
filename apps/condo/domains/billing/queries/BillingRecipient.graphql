@@ -1,0 +1,18 @@
+query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
+    recipients: allBillingRecipients(
+        where: {
+            deletedAt: null
+            context: {
+                deletedAt: null
+                organization: $organization
+            }
+        }
+        first: 100
+        sortBy: [createdAt_ASC]
+    ) {
+        id
+        bankAccount
+        bic
+        tin
+    }
+}
