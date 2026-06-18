@@ -478,6 +478,31 @@ describe('B2CApp', () => {
                     pattern: '1app',
                     isSupported: false,
                 },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'javascript',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'vbscript',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'data',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'file',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'blob',
+                    isSupported: false,
+                },
             ]
 
             const portPatterns = [

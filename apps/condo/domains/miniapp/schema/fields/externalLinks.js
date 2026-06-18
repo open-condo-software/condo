@@ -3,6 +3,7 @@ const { z } = require('zod')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 
 const CUSTOM_PROTOCOL_REGEXP = /^[a-z][a-z0-9+\-.]*$/i
+const BLOCKED_PROTOCOLS = new Set(['javascript', 'vbscript', 'data', 'file', 'blob', 'about', 'chrome', 'chrome-extension'])
 const SUB_DOMAIN_REGEXP = /^[a-z0-9-]{1,63}$/i
 const PARAMETER_REGEXP = /^:[a-z_][a-z0-9_]*[*+?]?$/i
 const PATH_NAME_PART_REGEXP = /^([a-z0-9-_]|%[0-9a-f]{2})+$/i
@@ -44,6 +45,7 @@ function validatePattern (strPattern) {
     const pattern = new URLPattern(strPattern)
     if (pattern.hash !== '*' || pattern.search !== '*') throw new Error('Patterns with hash or search are unsupported!')
     if (!CUSTOM_PROTOCOL_REGEXP.test(pattern.protocol)) throw new Error('Only exact protocols without wildcards or regexp are allowed')
+    if (BLOCKED_PROTOCOLS.has(pattern.protocol.toLowerCase())) throw new Error(`Protocol "${pattern.protocol}" is not allowed`)
     if (pattern.port && !PORT_REGEXP.test(pattern.port)) throw new Error('Port patterns are unsupported')
     if (pattern.username !== '*' || pattern.password  !== '*') throw new Error('Patterns with username or password are unsupported')
     _validateHostName(pattern.hostname)
