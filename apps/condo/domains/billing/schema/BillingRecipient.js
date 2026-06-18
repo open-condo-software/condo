@@ -18,6 +18,33 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         importId: IMPORT_ID_FIELD,
         context: INTEGRATION_CONTEXT_FIELD,
 
+        category: {
+            schemaDoc: 'Recipient category',
+            type: 'Relationship',
+            ref: 'BillingCategory',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        addressKey: {
+            schemaDoc: 'The unique key of the address',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        commission: {
+            schemaDoc: 'Recipient commission',
+            type: 'Decimal',
+            knexOptions: { scale: 2 },
+            isRequired: false,
+        },
+
+        routingNumber: {
+            schemaDoc: 'The routing transit number for the bank account',
+            type: 'Text',
+            isRequired: false,
+        },
+
         tin: {
             schemaDoc: 'Tax Identification Number',
             type: 'Text',
@@ -31,7 +58,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         },
 
         bic: {
-            schemaDoc: 'Bank Identification Code',
+            schemaDoc: '[DEPRECATED] Bank Identification Code',
             type: 'Text',
             isRequired: true,
         },
