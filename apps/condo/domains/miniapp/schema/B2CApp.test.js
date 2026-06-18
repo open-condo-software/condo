@@ -25,6 +25,10 @@ function expectedAppDomain (appId, idx) {
     return new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`)).origin
 }
 
+function expectedAppWebSocketDomain (appId, idx) {
+    return expectedAppDomain(appId, idx).replace(/^https?:/, 'wss:')
+}
+
 function _generateCombinations (options) {
     const keys = Object.keys(options)
     const total = Object.values(options).map(variants => variants.length).reduce((acc, cur) => acc * cur, 1)
@@ -247,6 +251,15 @@ describe('B2CApp', () => {
                 expect(app.additionalDomains).toEqual(payload.additionalDomains)
             })
 
+            test('should accept wss URLs', async () => {
+                const payload = {
+                    additionalDomains: ['wss://socket.example.com'],
+                }
+                const [app] = await createTestB2CApp(support, payload)
+                expect(app).toBeDefined()
+                expect(app.additionalDomains).toEqual(payload.additionalDomains)
+            })
+
             describe('should reject invalid URLs', () => {
                 const invalidUrls = [
                     // Non-URLs (strings)
@@ -260,10 +273,12 @@ describe('B2CApp', () => {
                     'data:text/plain;base64,SGVsbG8=',
                     'mailto:user@example.com',
                     
-                    // HTTP URLs (not HTTPS)
+                    // HTTP/WS URLs (only HTTPS/WSS allowed)
                     'http://example.com',
                     'http://api.example.com/path',
                     'http://localhost:3000',
+                    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
+                    'ws://socket.example.com',
                     
                     // Malformed URLs
                     'https://',
@@ -740,6 +755,62 @@ describe('B2CApp', () => {
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
                     { from: 'https://same.example.com', to: expectedAppDomain(app.id, 2) },
                     { from: 'https://different.example.com', to: expectedAppDomain(app.id, 3) },
+                ]))
+            })
+
+            test('should not generate ws mappings without explicit additionalDomains entry', async () => {
+                const [app] = await createTestB2CApp(support, {
+                    appUrl: 'https://main.example.com/app',
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toEqual([
+                    { from: 'https://main.example.com', to: expectedAppDomain(app.id, 1) },
+                ])
+            })
+
+            test('should generate wss mapping when explicitly specified in additionalDomains', async () => {
+                const [app] = await createTestB2CApp(support, {
+                    additionalDomains: ['wss://socket.example.com'],
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toEqual([
+                    { from: 'wss://socket.example.com', to: expectedAppWebSocketDomain(app.id, 3) },
+                ])
+            })
+
+            test('should use same target index for https and wss on the same host', async () => {
+                const [app] = await createTestB2CApp(support, {
+                    additionalDomains: ['https://example.com', 'wss://example.com'],
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(2)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://example.com', to: expectedAppDomain(app.id, 3) },
+                    { from: 'wss://example.com', to: expectedAppWebSocketDomain(app.id, 3) },
+                ]))
+            })
+
+            test('should reuse host index from oidc when wss additional domain matches', async () => {
+                const [oidcClient, { payload }] = await createTestOidcClient(support)
+                await updateTestOidcClient(support, oidcClient.id, {
+                    payload: {
+                        ...payload,
+                        redirect_uris: ['https://backend.example.com/callback'],
+                    },
+                })
+
+                const [app] = await createTestB2CApp(support, {
+                    additionalDomains: ['wss://backend.example.com'],
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://backend.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'wss://backend.example.com', to: expectedAppWebSocketDomain(app.id, 2) },
                 ]))
             })
         })
