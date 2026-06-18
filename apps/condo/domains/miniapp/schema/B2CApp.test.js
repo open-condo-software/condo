@@ -452,10 +452,55 @@ describe('B2CApp', () => {
                 },
                 {
                     pattern: 'wss',
-                    isSupported: false,
+                    isSupported: true,
                 },
                 {
                     pattern: 'ws',
+                    isSupported: true,
+                },
+                {
+                    // NOTE: custom deeplink scheme
+                    pattern: 'myapp',
+                    isSupported: true,
+                },
+                {
+                    // NOTE: deeplink scheme with digits and hyphens
+                    pattern: 'com.example.app',
+                    isSupported: true,
+                },
+                {
+                    // NOTE: wildcard protocol
+                    pattern: '*',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: protocol starting with digit (invalid per RFC 3986)
+                    pattern: '1app',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'javascript',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'vbscript',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'data',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'file',
+                    isSupported: false,
+                },
+                {
+                    // NOTE: blocked dangerous scheme
+                    pattern: 'blob',
                     isSupported: false,
                 },
             ]
