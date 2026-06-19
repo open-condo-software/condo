@@ -25,7 +25,7 @@ const ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS = { 'transport': ['tcp'] }
 
 const MAX_CALL_META_LENGTH = 1000
 
-const CALL_ID_NOT_ALLOWED_CHARACTERS_REGEX = /[^a-zA-Z0-9\\/.,?_^&$\-+*]/
+const CALL_ID_NOT_ALLOWED_CHARACTERS_REGEX = /[^a-zA-Z0-9\\/.,?_^&$\-+*@~]/
 
 const CALL_STATUS_SCHEMA = z.object({
     status: z.union(Object.values(CALL_STATUSES).map(v => z.literal(v))),
