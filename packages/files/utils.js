@@ -344,11 +344,12 @@ function parserHandler ({ processRequestOptions } = {}) {
  * @param {object} meta       - validated upload meta (dv, sender, fileClientId, modelNames, organization?, …)
  * @param {string} userId     - ID of the user owning the upload (caller is responsible for verifying identity)
  * @param {object} [inlineAttach] - optional inline-attach payload
+ * @param {object} [req] - optional express request, passed to GQLError for logging
  * @returns {Promise<Array>}  - array of { id, signature, originalFilename, … }
  */
-async function processFileUpload ({ keystone, appClients, files, meta, userId, inlineAttach }) {
+async function processFileUpload ({ keystone, appClients, files, meta, userId, inlineAttach, req }) {
     const appClient = appClients?.[meta.fileClientId]
-    if (!appClient) throw new Error(`Unknown fileClientId "${meta.fileClientId}"`)
+    if (!appClient) throw new GQLError(ERRORS.INVALID_APP_ID, { req })
 
     const fileAdapter = new FileAdapter(meta['fileClientId'])
     const context = keystone.createContext({ skipAccessControl: true })
@@ -419,7 +420,7 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
     } else {
         // validate modelName against meta.modelNames
         if (!Array.isArray(meta.modelNames) || !meta.modelNames.includes(inlineAttach.modelName)) {
-            throw new Error(`modelName "${inlineAttach.modelName}" is not allowed by meta.modelNames`)
+            throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
         }
 
         // Attach all uploaded files to the same item/model
@@ -474,7 +475,7 @@ function fileStorageHandler ({ keystone, appClients }) {
 
         try {
             // req.user.id is the session-verified identity; do not substitute meta.user.id here
-            const result = await processFileUpload({ keystone, appClients, files, meta, userId: req.user.id, inlineAttach })
+            const result = await processFileUpload({ keystone, appClients, files, meta, userId: req.user.id, inlineAttach, req })
             res.json({ data: { files: result } })
         } catch (err) {
             next(err)
@@ -564,6 +565,79 @@ function fileShareHandler ({ keystone, appClients }) {
     }
 }
 
+/**
+ * Core file attach logic, shared between the HTTP attach handler and server-side tasks.
+ *
+ * For HTTP requests, pass `userId: req.user.id` (session-verified identity).
+ * For server-side tasks, omit `userId` — the owner is taken from the verified signature
+ * payload (trusted because it's signed with the app secret).
+ *
+ * @param {object} keystone - Keystone app instance
+ * @param {object} appClients - parsed FILE_UPLOAD_CONFIG clients map
+ * @param {object} payload - { modelName, itemId, signature, fileClientId, dv, sender }
+ * @param {string} [userId] - explicit owner id (overrides the one embedded in the signature)
+ * @param {object} [req] - optional express request, passed to GQLError for logging
+ * @returns {Promise<{ signature: string }>} - public signature with full file meta
+ */
+async function processFileAttach ({ keystone, appClients, payload, userId, req }) {
+    const { modelName, itemId, signature, fileClientId, dv, sender } = payload
+
+    const appClient = appClients?.[fileClientId]
+    if (!appClient) throw new GQLError(ERRORS.INVALID_APP_ID, { req })
+
+    let decryptedData
+    try {
+        decryptedData = await jwt.verify(signature, appClient.secret, { algorithm: 'HS256' })
+    } catch (e) {
+        throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
+    }
+
+    // In HTTP flow the owner is the session user; in server flow it's taken from the signed payload
+    const ownerId = userId || decryptedData?.user?.id
+    if (!ownerId) throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
+    const user = { id: ownerId }
+
+    const context = keystone.createContext({ skipAccessControl: true })
+    const fileRecord = await FileRecord.getOne(context, { id: decryptedData.id, user }, `id attachments ${FILE_RECORD_ATTACHMENTS} fileMeta ${FILE_RECORD_META_FIELDS}`)
+
+    if (!fileRecord) throw new GQLError(ERRORS.FILE_NOT_FOUND, { req })
+
+    const fileMeta = fileRecord.fileMeta
+
+    if (!fileMeta.meta.modelNames.includes(modelName)) {
+        throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
+    }
+
+    if (fileMeta.meta.fileClientId !== fileClientId) {
+        throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
+    }
+
+    const originalAttachments = fileRecord.attachments?.attachments
+
+    const newAttachment = {
+        modelName, id: itemId, fileClientId: fileClientId, user: { id: ownerId },
+    }
+    const resultAttachments = Array.isArray(originalAttachments)
+        ? [...originalAttachments, newAttachment]
+        : [newAttachment]
+
+    const file = await FileRecord.update(context, fileRecord.id, {
+        dv, sender,
+        attachments: {
+            attachments: resultAttachments,
+        },
+    }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+
+    // Return full public meta for file. It can finally be saved to the database at the client / application side
+    return {
+        signature: jwt.sign(
+            file.fileMeta,
+            appClient.secret,
+            { expiresIn: '5m', algorithm: 'HS256' }
+        ),
+    }
+}
+
 function fileAttachHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
         const {
@@ -576,69 +650,13 @@ function fileAttachHandler ({ keystone, appClients }) {
             return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
         }
 
-        const { modelName, itemId, signature, fileClientId, dv, sender } = data
-
-        if (!(fileClientId in (appClients || {}))) {
-            return next(new GQLError(ERRORS.INVALID_APP_ID, { req }))
-        }
-
-        let decryptedData
-
         try {
-            decryptedData = await jwt.verify(signature, appClients[fileClientId].secret, { algorithm: 'HS256' })
-        } catch (e) {
-            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+            // req.user.id is the session-verified identity; do not substitute the signature owner here
+            const file = await processFileAttach({ keystone, appClients, payload: data, userId: req.user.id, req })
+            res.json({ data: { file } })
+        } catch (err) {
+            next(err)
         }
-
-        const user = { id: req.user.id }
-
-        const context = keystone.createContext({ skipAccessControl: true })
-        const fileRecord = await FileRecord.getOne(context, { id: decryptedData.id, user }, `id attachments ${FILE_RECORD_ATTACHMENTS} fileMeta ${FILE_RECORD_META_FIELDS}`)
-
-        if (!fileRecord) {
-            return next(new GQLError(ERRORS.FILE_NOT_FOUND, { req }))
-        }
-
-        const fileMeta = fileRecord.fileMeta
-
-        if (!fileMeta.meta.modelNames.includes(modelName)) {
-            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
-        }
-
-        if (fileMeta.meta.fileClientId !== fileClientId) {
-            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
-        }
-
-        const originalAttachments = fileRecord.attachments?.attachments
-
-
-        const newAttachment = {
-            modelName, id: itemId, fileClientId: fileClientId, user: { id: user.id },
-        }
-        const resultAttachments = Array.isArray(originalAttachments)
-            ? [...originalAttachments, newAttachment]
-            : [newAttachment]
-
-        const file = await FileRecord.update(context, fileRecord.id, {
-            dv, sender,
-            attachments: {
-                attachments: resultAttachments,
-            },
-        }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
-        const appClient = appClients[fileClientId]
-
-        // Return full public meta for file. It's finally can save to the database at the client / application side
-        res.json({
-            data: {
-                file: {
-                    signature: jwt.sign(
-                        file.fileMeta,
-                        appClient.secret,
-                        { expiresIn: '5m', algorithm: 'HS256' }
-                    ),
-                },
-            },
-        })
     }
 }
 
@@ -662,6 +680,7 @@ module.exports = {
 
     // core logic (for server-side use without HTTP)
     processFileUpload,
+    processFileAttach,
 
     __test__: {
         MetaSchema,
