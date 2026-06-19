@@ -25,7 +25,6 @@ const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-
 const METER_REPORTING_PERIOD_STRICT_RULE = 'meter-reporting-period-strict-rule'
 const CHECK_TLS_CLIENT_CERT = 'check-tls-client-cert-config'
 const ADD_SECTION_FLOOR = 'add-section-floor'
-const ACQUIRING_PAYMENTS_FILES_TABLE = 'acquiring-payments-files-table'
 const TICKET_NOTIFICATIONS_USER_CACHE = 'ticket-notifications-user-cache'
 const TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS = 'ticket-notifications-excluded-organizations'
 const HIDE_ORGANIZATION_REQUESTS = 'hide-organization-requests'
@@ -91,7 +90,6 @@ module.exports = {
     SUBSCRIPTIONS,
     CHECK_TLS_CLIENT_CERT,
     ADD_SECTION_FLOOR,
-    ACQUIRING_PAYMENTS_FILES_TABLE,
     TICKET_NOTIFICATIONS_USER_CACHE,
     TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS,
     HIDE_ORGANIZATION_REQUESTS,

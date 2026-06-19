@@ -2,26 +2,26 @@ import { useGetB2BAppsWithBillingTabEmbeddingConfigQuery } from '@app/condo/gql'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Radio, Tabs } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
-import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
+import { VIEW_TYPES, ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY } from '@condo/domains/billing/constants/constants'
+import { DEFAULT_COMBINED_VIEW_TYPES, useCombinedViewAvailability } from '@condo/domains/billing/hooks/useCombinedViewAvailability'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 
-const VIEW_TYPES = [PAYMENT_TYPES.registry, PAYMENT_TYPES.list]
 const { publicRuntimeConfig: { registryUploadIntegrationId } } = getConfig()
 
 type ExtensionTabType = {
@@ -50,14 +50,14 @@ const IframeTab: React.FC<RegistryIframeProps> = ({ appUrl, shortDescription, is
     return <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize/>
 }
 
-export const CombinedViewSwitch: React.FC<{ activeTab: string }> = ({ activeTab }) => {
+export const CombinedViewSwitch: React.FC<{ activeTab: string, availableTypes: ViewTypes[] }> = ({ activeTab, availableTypes }) => {
     const intl = useIntl()
     const PaymentsTypeListTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.list' })
     const PaymentsTypeRegistryTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry' })
 
     const router = useRouter()
     const { type } = parseQuery(router.query)
-    const activeType = VIEW_TYPES.includes(type as PaymentTypes) ? type : PAYMENT_TYPES.registry
+    const activeType = availableTypes.includes(type as ViewTypes) ? type : availableTypes[0]
 
     const handleRadioChange = useCallback(async (event) => {
         await updateQuery(
@@ -69,16 +69,20 @@ export const CombinedViewSwitch: React.FC<{ activeTab: string }> = ({ activeTab 
 
     return (
         <Radio.Group optionType='button' value={activeType} onChange={handleRadioChange}>
-            <Radio
-                key={PAYMENT_TYPES.registry}
-                value={PAYMENT_TYPES.registry}
-                label={PaymentsTypeRegistryTitle}
-            />
-            <Radio
-                key={PAYMENT_TYPES.list}
-                value={PAYMENT_TYPES.list}
-                label={PaymentsTypeListTitle}
-            />
+            {availableTypes.includes(VIEW_TYPES.registry) && (
+                <Radio
+                    key={VIEW_TYPES.registry}
+                    value={VIEW_TYPES.registry}
+                    label={PaymentsTypeRegistryTitle}
+                />
+            )}
+            {availableTypes.includes(VIEW_TYPES.list) && (
+                <Radio
+                    key={VIEW_TYPES.list}
+                    value={VIEW_TYPES.list}
+                    label={PaymentsTypeListTitle}
+                />
+            )}
         </Radio.Group>
     )
 }
@@ -93,7 +97,7 @@ export const CombinedMainContent: React.FC = () => {
 
     const router = useRouter()
     const { tab, type } = parseQuery(router.query)
-    const { billingContexts } = useBillingAndAcquiringContexts()
+    const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const hasLastReport = billingContexts.some(({ lastReport }) => !!lastReport)
 
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
@@ -131,7 +135,16 @@ export const CombinedMainContent: React.FC = () => {
         ...extensionTabKeys,
     ].filter(Boolean), [canReadBillingReceipts, canReadPayments, extensionTabKeys])
     const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs[0], [availableTabs, tab])
-    const activeType = VIEW_TYPES.includes(type as PaymentTypes) ? type : PAYMENT_TYPES.registry
+    const {
+        availableTypesByTab,
+        availableTypesForActiveTab,
+        activeType,
+    } = useCombinedViewAvailability({
+        activeTab,
+        type,
+        billingContexts,
+        acquiringContexts,
+    })
 
     const registryUploadApp = useMemo(() => (
         billingIntegrationsExtensionTabs.find(({ integrationId }) => integrationId === registryUploadIntegrationId)
@@ -139,25 +152,39 @@ export const CombinedMainContent: React.FC = () => {
 
     const isExtensionTabActive = extensionTabKeys.includes(activeTab)
 
+    useEffect(() => {
+        if (isExtensionTabActive) return
+        if (!type || type !== activeType) {
+            updateQuery(
+                router,
+                { newParameters: { tab: activeTab, type: activeType } },
+                { resetOldParameters: true, routerAction: 'replace', shallow: true }
+            )
+        }
+    }, [activeTab, activeType, isExtensionTabActive, router, type])
+
     const handleTabChange = useCallback(async (activeTab) => {
+        const nextAvailableTypes = availableTypesByTab[activeTab] || DEFAULT_COMBINED_VIEW_TYPES
+        const nextType = nextAvailableTypes.includes(type as ViewTypes) ? type : nextAvailableTypes[0]
+
         await updateQuery(
             router,
-            { newParameters: { tab: activeTab, type: activeType } },
+            { newParameters: { tab: activeTab, type: nextType } },
             { resetOldParameters: true, routerAction: 'replace', shallow: true }
         )
-    }, [activeType, router])
+    }, [availableTypesByTab, router, type])
 
     const items = useMemo<Array<TabItem>>(() => {
         const result: Array<TabItem> = [
             canReadPayments && {
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
-                children: <PaymentsTab type={activeType as PaymentTypes} />,
+                children: <PaymentsTab type={activeType as ViewTypes} />,
             },
             canReadBillingReceipts && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,
-                children: activeType === PAYMENT_TYPES.registry
+                children: activeType === VIEW_TYPES.registry
                     ? <IframeTab
                         appUrl={registryUploadApp?.appUrl}
                         appId={registryUploadApp?.id}
@@ -195,7 +222,9 @@ export const CombinedMainContent: React.FC = () => {
             onChange={handleTabChange}
             items={items}
             destroyInactiveTabPane
-            tabBarExtraContent={!isExtensionTabActive && <CombinedViewSwitch activeTab={activeTab} />}
+            tabBarExtraContent={!isExtensionTabActive && availableTypesForActiveTab.length > 1 && (
+                <CombinedViewSwitch activeTab={activeTab} availableTypes={availableTypesForActiveTab} />
+            )}
         />
     )
 }
