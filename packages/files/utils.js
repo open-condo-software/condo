@@ -332,127 +332,153 @@ function parserHandler ({ processRequestOptions } = {}) {
     }
 }
 
+/**
+ * Core file storage logic, shared between the HTTP upload handler and server-side tasks.
+ *
+ * For HTTP requests, pass `userId: req.user.id` (session-verified identity).
+ * For server-side tasks, pass `userId` from a trusted server context.
+ *
+ * @param {object} keystone - Keystone app instance
+ * @param {object} appClients - parsed FILE_UPLOAD_CONFIG clients map
+ * @param {Array}  files      - array of { createReadStream, filename, mimetype, encoding, size, filepath? }
+ * @param {object} meta       - validated upload meta (dv, sender, fileClientId, modelNames, organization?, …)
+ * @param {string} userId     - ID of the user owning the upload (caller is responsible for verifying identity)
+ * @param {object} [inlineAttach] - optional inline-attach payload
+ * @returns {Promise<Array>}  - array of { id, signature, originalFilename, … }
+ */
+async function processFileUpload ({ keystone, appClients, files, meta, userId, inlineAttach }) {
+    const appClient = appClients?.[meta.fileClientId]
+    if (!appClient) throw new Error(`Unknown fileClientId "${meta.fileClientId}"`)
+
+    const fileAdapter = new FileAdapter(meta['fileClientId'])
+    const context = keystone.createContext({ skipAccessControl: true })
+    const savedFiles = await Promise.all(
+        files.map(file =>
+            fileAdapter.save({
+                stream: file.createReadStream(),
+                filename: file.filename,
+                mimetype: file.mimetype,
+                encoding: file.encoding,
+                id: generateUUIDv4(),
+                fileAdapter: FileAdapter.type(),
+                meta,
+            })
+        )
+    )
+
+    // clean tmp files
+    files.map(file => {
+        if (file.filepath) {
+            fs.promises.unlink(file.filepath).catch(() => {})
+        }
+    })
+
+    const organizationId = meta?.organization?.id
+
+    const createdFiles = await FileRecord.createMany(
+        context,
+        savedFiles.map((data, index) => ({
+            data: {
+                fileMeta: {
+                    ...data,
+                    originalFilename: files[index].filename,
+                    mimetype: files[index].mimetype,
+                    size: String(files[index].size),
+                    encoding: files[index].encoding,
+                    fileAdapter: FileAdapter.type(),
+                    meta,
+                },
+                dv: meta.dv,
+                sender: meta.sender,
+                user: { connect: { id: userId } },
+                ...(organizationId && { organization: { connect: { id: organizationId } } }),
+                fileAdapter: FileAdapter.type(),
+                fileSize: String(files[index].size),
+                fileMimeType: files[index].mimetype,
+            },
+        })),
+        `id fileMeta ${FILE_RECORD_META_FIELDS}`
+    )
+    const fileRecords = await FileRecord.updateMany(context,
+        createdFiles.map(e => ({
+            id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
+        })), `id fileMeta { originalFilename meta ${FILE_RECORD_USER_META} }`)
+
+    let result = []
+    if (!inlineAttach) {
+        // classic behavior
+        result = fileRecords.map((file, index) => ({
+            id: file.id,
+            signature: jwt.sign(
+                { id: file.id, mimetype: files[index].mimetype, ...file.fileMeta.meta },
+                appClient.secret,
+                { expiresIn: '5m', algorithm: 'HS256' }
+            ),
+            originalFilename: file.fileMeta.originalFilename,
+        }))
+    } else {
+        // validate modelName against meta.modelNames
+        if (!Array.isArray(meta.modelNames) || !meta.modelNames.includes(inlineAttach.modelName)) {
+            throw new Error(`modelName "${inlineAttach.modelName}" is not allowed by meta.modelNames`)
+        }
+
+        // Attach all uploaded files to the same item/model
+        result = await Promise.all(fileRecords.map(async (fileRecord, index) => {
+            const fileMeta = fileRecord.fileMeta
+            const originalAttachments = fileRecord.attachments?.attachments
+
+            const newAttachment = {
+                modelName: inlineAttach.modelName,
+                id: inlineAttach.itemId,
+                fileClientId: meta.fileClientId,
+                user: { id: userId },
+            }
+            const resultAttachments = Array.isArray(originalAttachments)
+                ? [...originalAttachments, newAttachment]
+                : [newAttachment]
+
+            const updated = await FileRecord.update(context, fileRecord.id, {
+                dv: inlineAttach.dv,
+                sender: inlineAttach.sender,
+                attachments: { attachments: resultAttachments },
+            }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+
+            return {
+                id: updated.id,
+                signature: jwt.sign(
+                    { id: updated.id, mimetype: files[index].mimetype, ...fileMeta.meta },
+                    appClient.secret,
+                    { expiresIn: '5m', algorithm: 'HS256' }
+                ),
+                attached: true,
+                publicSignature: jwt.sign(
+                    updated.fileMeta,
+                    appClient.secret,
+                    { expiresIn: '5m', algorithm: 'HS256' }
+                ),
+            }
+        }))
+    }
+
+    return result
+}
+
 function fileStorageHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
         const { [fileMetaSymbol]: meta, files, inlineAttach } = req
-        const appClient = appClients ? appClients[meta.fileClientId] : undefined
 
         if (!(meta['fileClientId'] in (appClients || {}))) {
             const error = new GQLError(ERRORS.INVALID_APP_ID, { req })
             return next(error)
         }
 
-        const fileAdapter = new FileAdapter(meta['fileClientId'])
-        const context = keystone.createContext({ skipAccessControl: true })
-        const savedFiles = await Promise.all(
-            files.map(file =>
-                fileAdapter.save({
-                    stream: file.createReadStream(),
-                    filename: file.filename,
-                    mimetype: file.mimetype,
-                    encoding: file.encoding,
-                    id: generateUUIDv4(),
-                    fileAdapter: FileAdapter.type(),
-                    meta,
-                })
-            )
-        )
-
-        // clean tmp files
-        files.map(file => {
-            if (file.filepath) {
-                fs.promises.unlink(file.filepath).catch(() => {})
-            }
-        })
-
-        const organizationId = meta?.organization?.id
-
-        const createdFiles = await FileRecord.createMany(
-            context,
-            savedFiles.map((data, index) => ({
-                data: {
-                    fileMeta: {
-                        ...data,
-                        originalFilename: files[index].filename,
-                        mimetype: files[index].mimetype,
-                        size: String(files[index].size),
-                        encoding: files[index].encoding,
-                        fileAdapter: FileAdapter.type(),
-                        meta,
-                    },
-                    dv: meta.dv,
-                    sender: meta.sender,
-                    user: { connect: { id: req.user.id } },
-                    ...(organizationId && { organization: { connect: { id: organizationId } } }),
-                    fileAdapter: FileAdapter.type(),
-                    fileSize: String(files[index].size),
-                    fileMimeType: files[index].mimetype,
-                },
-            })),
-            `id fileMeta ${FILE_RECORD_META_FIELDS}`
-        )
-        const fileRecords = await FileRecord.updateMany(context,
-            createdFiles.map(e => ({
-                id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
-            })), `id fileMeta { originalFilename meta ${FILE_RECORD_USER_META} }`)
-
-        let result = []
-        if (!inlineAttach) {
-            // classic behavior
-            result = fileRecords.map((file, index) => ({
-                id: file.id,
-                signature: jwt.sign(
-                    { id: file.id, mimetype: files[index].mimetype, ...file.fileMeta.meta },
-                    appClient.secret,
-                    { expiresIn: '5m', algorithm: 'HS256' }
-                ),
-                originalFilename: file.fileMeta.originalFilename,
-            }))
-        } else {
-            // validate modelName against meta.modelNames
-            if (!Array.isArray(meta.modelNames) || !meta.modelNames.includes(inlineAttach.modelName)) {
-                return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
-            }
-
-            // Attach all uploaded files to the same item/model
-            result = await Promise.all(fileRecords.map(async (fileRecord, index) => {
-                const fileMeta = fileRecord.fileMeta
-                const originalAttachments = fileRecord.attachments?.attachments
-
-                const newAttachment = {
-                    modelName: inlineAttach.modelName,
-                    id: inlineAttach.itemId,
-                    fileClientId: meta.fileClientId,
-                    user: { id: req.user.id },
-                }
-                const resultAttachments = Array.isArray(originalAttachments)
-                    ? [...originalAttachments, newAttachment]
-                    : [newAttachment]
-
-                const updated = await FileRecord.update(context, fileRecord.id, {
-                    dv: inlineAttach.dv,
-                    sender: inlineAttach.sender,
-                    attachments: { attachments: resultAttachments },
-                }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
-
-                return {
-                    id: updated.id,
-                    signature: jwt.sign(
-                        { id: updated.id, mimetype: files[index].mimetype, ...fileMeta.meta },
-                        appClient.secret,
-                        { expiresIn: '5m', algorithm: 'HS256' }
-                    ),
-                    attached: true,
-                    publicSignature: jwt.sign(
-                        updated.fileMeta,
-                        appClient.secret,
-                        { expiresIn: '5m', algorithm: 'HS256' }
-                    ),
-                }
-            }))
+        try {
+            // req.user.id is the session-verified identity; do not substitute meta.user.id here
+            const result = await processFileUpload({ keystone, appClients, files, meta, userId: req.user.id, inlineAttach })
+            res.json({ data: { files: result } })
+        } catch (err) {
+            next(err)
         }
-
-        res.json({ data: { files: result } })
     }
 }
 
@@ -633,6 +659,9 @@ module.exports = {
     fileStorageHandler,
     fileShareHandler,
     fileAttachHandler,
+
+    // core logic (for server-side use without HTTP)
+    processFileUpload,
 
     __test__: {
         MetaSchema,
