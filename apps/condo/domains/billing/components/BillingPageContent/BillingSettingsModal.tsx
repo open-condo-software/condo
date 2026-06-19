@@ -137,6 +137,34 @@ export const BillingSettingsModal: React.FC<BillingSettingsModalProps> = ({ open
     })
     const recipientsToRender = isExpanded ? recipients : visibleRecipients
     const isSubmitDisabled = !requestMessage?.trim() || !canCreateHelpRequest
+    let recipientsContent = null
+
+    if (!recipientsLoading) {
+        recipientsContent = recipients.length ? (
+            <Row gutter={LIST_ROW_GUTTER}>
+                {recipientsToRender.map((recipient) => (
+                    <Col key={recipient.id} span={FULL_WIDTH_SPAN}>
+                        <RecipientDetailsBlock recipient={recipient} />
+                    </Col>
+                ))}
+                {hiddenRecipients.length > 0 && (
+                    <Col span={FULL_WIDTH_SPAN}>
+                        <Button
+                            type='primary'
+                            minimal
+                            compact
+                            onClick={handleToggleExpanded}
+                            icon={isExpanded ? <ChevronUp size='small' /> : <ChevronDown size='small' />}
+                        >
+                            {expandButtonText}
+                        </Button>
+                    </Col>
+                )}
+            </Row>
+        ) : (
+            <Typography.Text type='secondary'>{NoDataMessage}</Typography.Text>
+        )
+    }
 
     return (
         <FormWithAction
@@ -182,30 +210,7 @@ export const BillingSettingsModal: React.FC<BillingSettingsModalProps> = ({ open
                                     <Typography.Title level={4}>{MoneyDestinationTitle}</Typography.Title>
                                 </Col>
                                 <Col span={FULL_WIDTH_SPAN}>
-                                    {recipientsLoading ? null : recipients.length ? (
-                                        <Row gutter={LIST_ROW_GUTTER}>
-                                            {recipientsToRender.map((recipient) => (
-                                                <Col key={recipient.id} span={FULL_WIDTH_SPAN}>
-                                                    <RecipientDetailsBlock recipient={recipient} />
-                                                </Col>
-                                            ))}
-                                            {hiddenRecipients.length > 0 && (
-                                                <Col span={FULL_WIDTH_SPAN}>
-                                                    <Button
-                                                        type='primary'
-                                                        minimal
-                                                        compact
-                                                        onClick={handleToggleExpanded}
-                                                        icon={isExpanded ? <ChevronUp size='small' /> : <ChevronDown size='small' />}
-                                                    >
-                                                        {expandButtonText}
-                                                    </Button>
-                                                </Col>
-                                            )}
-                                        </Row>
-                                    ) : (
-                                        <Typography.Text type='secondary'>{NoDataMessage}</Typography.Text>
-                                    )}
+                                    {recipientsContent}
                                 </Col>
                             </Row>
                         </Col>

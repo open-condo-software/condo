@@ -174,6 +174,21 @@ export const CombinedMainContent: React.FC = () => {
         )
     }, [availableTypesByTab, router, type])
 
+    const accrualsTabContent = useMemo(() => {
+        if (activeType === VIEW_TYPES.registry) {
+            return (
+                <IframeTab
+                    appUrl={registryUploadApp?.appUrl}
+                    appId={registryUploadApp?.id}
+                    shortDescription={registryUploadApp?.shortDescription}
+                    isB2BApp={registryUploadApp?.isB2BApp}
+                />
+            )
+        }
+
+        return hasLastReport ? <AccrualsTab /> : <EmptyContent />
+    }, [activeType, hasLastReport, registryUploadApp])
+
     const items = useMemo<Array<TabItem>>(() => {
         const result: Array<TabItem> = [
             canReadPayments && {
@@ -184,14 +199,7 @@ export const CombinedMainContent: React.FC = () => {
             canReadBillingReceipts && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,
-                children: activeType === VIEW_TYPES.registry
-                    ? <IframeTab
-                        appUrl={registryUploadApp?.appUrl}
-                        appId={registryUploadApp?.id}
-                        shortDescription={registryUploadApp?.shortDescription}
-                        isB2BApp={registryUploadApp?.isB2BApp}
-                    />
-                    : (hasLastReport ? <AccrualsTab /> : <EmptyContent />),
+                children: accrualsTabContent,
             },
         ].filter(Boolean) as Array<TabItem>
 
@@ -213,7 +221,7 @@ export const CombinedMainContent: React.FC = () => {
         })
 
         return result
-    }, [AccrualsTabTitle, PaymentsTabTitle, activeType, canReadBillingReceipts, canReadPayments, extensionAppTabs, hasLastReport, registryUploadApp])
+    }, [AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, activeType, canReadBillingReceipts, canReadPayments, extensionAppTabs])
 
     return (
         <Tabs
