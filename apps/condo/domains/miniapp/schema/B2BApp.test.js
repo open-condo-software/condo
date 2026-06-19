@@ -24,8 +24,16 @@ const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants
 const { SubscriptionPlan, createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
-function expectedAppDomain (appId, idx) {
-    return new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`)).origin
+function expectedAppDomain (appId, idx, urlWhichWasReplaced = 'https://_.com') {
+    const target = new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`))
+    if (urlWhichWasReplaced) {
+        // NOTE(YEgorLu): conf['SERVER_URL'] in tests is "http". 
+        // By logic expected app domain takes protocol from additional url. 
+        // Tests use https and wss protocols in these urls.
+        // So let's apply https by default
+        target.protocol = new URL(urlWhichWasReplaced).protocol
+    }
+    return target.origin
 }
 
 describe('B2BApp', () => {
