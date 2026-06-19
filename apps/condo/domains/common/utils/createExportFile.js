@@ -80,7 +80,7 @@ async function buildExportFile ({ templatePath, replaces, options }) {
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const content = await render(path.resolve(templatePath), replaces, options)
     const stream = Readable.from(content)
-    return { stream }
+    return { stream, size: content.length }
 }
 
 module.exports = {

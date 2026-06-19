@@ -1,0 +1,12 @@
+mutation createUserHelpRequestFile($data: UserHelpRequestFileCreateInput!) {
+    userHelpRequestFile: createUserHelpRequestFile(data: $data) {
+        id
+        userHelpRequest { id }
+        file {
+            id
+            originalFilename
+            publicUrl
+            mimetype
+        }
+    }
+}

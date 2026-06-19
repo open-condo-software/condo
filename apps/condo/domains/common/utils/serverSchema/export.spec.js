@@ -5,6 +5,12 @@
 const { faker } = require('@faker-js/faker')
 const fill = require('lodash/fill')
 
+// The CSV export uploads the resulting file via the new signature-based flow.
+// These unit tests only cover the batching/iteration logic, so the upload is stubbed out.
+jest.mock('@open-condo/files/server', () => ({
+    uploadFilesFromServer: jest.fn(async () => ([{ signature: 'test-signature' }])),
+}))
+
 const { exportRecordsAsCsvFile } = require('./export')
 
 const { EXPORT_TYPE_TICKETS } = require('../exportToExcel')
@@ -50,6 +56,7 @@ describe('export', () => {
             id: faker.datatype.uuid(),
             status: 'processing',
             totalRecordsCount,
+            user: { id: faker.datatype.uuid() },
         }
         const context = mockContext()
         const taskServerUtils = mockServerUtilsFor(task)

@@ -55,7 +55,7 @@ const buildExportFile = async ({ rows, task }) => {
         headerMessage = `${i18n('excelExport.header.contacts.forPeriod', { locale })} ${formatDate(createdAtGte)} — ${formatDate(createdAtLte)}`
     }
 
-    const { stream } = await buildExportExcelFile({
+    const { stream, size } = await buildExportExcelFile({
         templatePath: './domains/contact/templates/ContactsExportTemplate.xlsx',
         replaces: {
             header: headerMessage,
@@ -69,6 +69,7 @@ const buildExportFile = async ({ rows, task }) => {
 
     return {
         stream,
+        size,
         filename: `contacts_${dayjs().format('DD_MM')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,

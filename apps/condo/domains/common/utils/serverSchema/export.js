@@ -6,6 +6,7 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { uploadFilesFromServer } = require('@open-condo/files/server')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
@@ -18,6 +19,7 @@ const { getHeadersTranslations } = require('../exportToExcel')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const CSV_DELIMITER = ';'
+const FILE_CLIENT_ID = conf['FILE_CLIENT_ID']
 
 const logger = getLogger()
 
@@ -39,6 +41,43 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) =>
         resolve(uploadData)
     })
     return uploadInput
+}
+
+/**
+ * Uploads an export file to the file server (new signature-based flow) and returns the input
+ * for a `File` field of an export task. The returned value is `{ signature, originalFilename, mimetype }`;
+ * the task's `CustomFile.beforeChange` then attaches the file (server-side, via skipAccessControl).
+ *
+ * Replaces the legacy `buildUploadInputFrom` (graphql-upload stream) for export tasks.
+ *
+ * @param {Object} args
+ * @param args.context - Keystone context (worker, skipAccessControl)
+ * @param {{ stream: Readable, filename: string, mimetype: string, encoding?: string, size?: number }} args.file
+ * @param args.taskServerUtils - server utils of the export task (provides gql.SINGULAR_FORM as model name)
+ * @param {string} args.taskId - export task id (owner is read from its `user` field)
+ * @param {{ dv: number, fingerprint: string }} args.sender
+ * @returns {Promise<{ signature: string, originalFilename: string, mimetype: string }>}
+ */
+const uploadExportFile = async ({ context, file, taskServerUtils, taskId, sender }) => {
+    const { stream, filename, mimetype, encoding, size } = file
+    const modelName = taskServerUtils.gql.SINGULAR_FORM
+
+    const task = await taskServerUtils.getOne(context, { id: taskId }, 'id user { id }')
+    const userId = task?.user?.id
+    if (!userId) {
+        throw new Error(`Cannot upload export file: ${modelName} with id "${taskId}" has no related user`)
+    }
+
+    const [uploaded] = await uploadFilesFromServer({
+        skipAccessControl: true,
+        fileClientId: FILE_CLIENT_ID,
+        userId,
+        fingerprint: sender?.fingerprint,
+        modelNames: [modelName],
+        files: [{ stream, filename, mimetype, encoding, size }],
+    })
+
+    return { signature: uploaded.signature, originalFilename: filename, mimetype }
 }
 
 /**
@@ -145,7 +184,13 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
 
-    const file = buildUploadInputFrom(await buildExportFile(rows))
+    const file = await uploadExportFile({
+        context,
+        file: await buildExportFile(rows),
+        taskServerUtils,
+        taskId,
+        sender: baseAttrs?.sender,
+    })
 
     await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
@@ -180,9 +225,13 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     writeStream.close()
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
-    const file = buildUploadInputFrom({
-        stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
-        meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
+    const { size } = fs.statSync(filename)
+    const file = await uploadExportFile({
+        context,
+        file: { stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8', size },
+        taskServerUtils,
+        taskId,
+        sender: baseAttrs?.sender,
     })
 
     return await taskServerUtils.update(context, taskId, {
