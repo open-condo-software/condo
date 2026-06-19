@@ -474,7 +474,6 @@ function fileStorageHandler ({ keystone, appClients }) {
         }
 
         try {
-            // req.user.id is the session-verified identity; do not substitute meta.user.id here
             const result = await processFileUpload({ keystone, appClients, files, meta, userId: req.user.id, inlineAttach, req })
             res.json({ data: { files: result } })
         } catch (err) {
@@ -592,10 +591,8 @@ async function processFileAttach ({ keystone, appClients, payload, userId, req }
         throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
     }
 
-    // In HTTP flow the owner is the session user; in server flow it's taken from the signed payload
-    const ownerId = userId || decryptedData?.user?.id
-    if (!ownerId) throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
-    const user = { id: ownerId }
+    if (!userId) throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
+    const user = { id: userId }
 
     const context = keystone.createContext({ skipAccessControl: true })
     const fileRecord = await FileRecord.getOne(context, { id: decryptedData.id, user }, `id attachments ${FILE_RECORD_ATTACHMENTS} fileMeta ${FILE_RECORD_META_FIELDS}`)
@@ -615,7 +612,7 @@ async function processFileAttach ({ keystone, appClients, payload, userId, req }
     const originalAttachments = fileRecord.attachments?.attachments
 
     const newAttachment = {
-        modelName, id: itemId, fileClientId: fileClientId, user: { id: ownerId },
+        modelName, id: itemId, fileClientId: fileClientId, user: { id: userId },
     }
     const resultAttachments = Array.isArray(originalAttachments)
         ? [...originalAttachments, newAttachment]
@@ -651,7 +648,6 @@ function fileAttachHandler ({ keystone, appClients }) {
         }
 
         try {
-            // req.user.id is the session-verified identity; do not substitute the signature owner here
             const file = await processFileAttach({ keystone, appClients, payload: data, userId: req.user.id, req })
             res.json({ data: { file } })
         } catch (err) {
@@ -678,7 +674,6 @@ module.exports = {
     fileShareHandler,
     fileAttachHandler,
 
-    // core logic (for server-side use without HTTP)
     processFileUpload,
     processFileAttach,
 

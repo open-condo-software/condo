@@ -236,9 +236,6 @@ class CustomFile extends FileWithUTF8Name.implementation {
             dv: 1, sender: resolvedData.sender,
         }
 
-        // Server-side / worker context (no req, no session): attach directly via Keystone,
-        // bypassing the HTTP /api/files/attach call which would fail without authorization.
-        // The file owner is taken from the verified signature payload inside attachFileFromServer.
         if (context?.skipAccessControl) {
             try {
                 const { signature } = await attachFileFromServer({
@@ -247,6 +244,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     itemId,
                     fileClientId,
                     fingerprint: resolvedData.sender?.fingerprint,
+                    userId: signatureData?.user?.id,
                     skipAccessControl: true,
                 })
                 const data = jwt.verify(signature, this._getSecretForSignature(signature), { algorithms: ['HS256'] })

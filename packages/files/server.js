@@ -61,8 +61,7 @@ function verifyUploadSignature (signature, fileClientId) {
  *
  * By default makes HTTP request to /api/files/upload endpoint (server-to-server).
  * Pass `skipAccessControl: true` to bypass HTTP entirely and use Keystone directly —
- * only works within the same process where Keystone is running (same guarantee as
- * `keystone.createContext({ skipAccessControl: true })`).
+ * only works within the same process where Keystone is running.
  *
  * @param {Object} options
  * @param {string} options.fileClientId - File client ID from config
@@ -181,9 +180,7 @@ async function uploadFilesFromServer ({
  *
  * By default makes HTTP request to /api/files/attach endpoint (server-to-server).
  * Pass `skipAccessControl: true` to bypass HTTP entirely and use Keystone directly —
- * only works within the same process where Keystone is running (same guarantee as
- * `keystone.createContext({ skipAccessControl: true })`). In that mode the file owner
- * is taken from the verified signature payload.
+ * only works within the same process where Keystone is running.
  *
  * @param {Object} options
  * @param {string} options.signature - Upload/share signature from upload or share operation
@@ -202,6 +199,7 @@ async function attachFileFromServer ({
     itemId,
     fileClientId,
     fingerprint,
+    userId,
     skipAccessControl = false,
     serverUrl,
     authorization,
@@ -223,7 +221,7 @@ async function attachFileFromServer ({
 
         const { keystone } = await getSchemaCtx('FileRecord')
 
-        return processFileAttach({ keystone, appClients, payload })
+        return processFileAttach({ keystone, appClients, payload, userId })
     }
 
     const baseUrl = serverUrl || getServerUrl()
