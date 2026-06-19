@@ -1,6 +1,6 @@
 import { useCreateUserHelpRequestMutation, useGetOrganizationBillingRecipientsQuery } from '@app/condo/gql'
 import { BillingRecipient as BillingRecipientType, UserHelpRequestTypeType } from '@app/condo/schema'
-import { Col, Form, Row } from 'antd'
+import { Col, Form, Row, notification } from 'antd'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
@@ -49,6 +49,7 @@ export const BillingSettingsModal: React.FC<BillingSettingsModalProps> = ({ open
     const RequestChangesPlaceholder = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.requestChanges.placeholder' })
     const RequestChangesButtonLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.requestChanges.submit' })
     const NoDataMessage = intl.formatMessage({ id: 'NoData' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
     const integrationParametersDataSource = useBillingSettingsIntegrationParameters()
 
     const [form] = Form.useForm()
@@ -97,25 +98,37 @@ export const BillingSettingsModal: React.FC<BillingSettingsModalProps> = ({ open
             throw new Error('Cannot create billing settings change request without organization and phone')
         }
 
-        await createUserHelpRequest({
-            variables: {
-                data: {
-                    type: UserHelpRequestTypeType.BillingSettingsChange,
-                    organization: { connect: { id: organization.id } },
-                    phone: user.phone,
-                    email: user?.email ?? null,
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    meta: {
-                        message,
-                        source: 'combinedBillingSettingsModal',
+        try {
+            await createUserHelpRequest({
+                variables: {
+                    data: {
+                        type: UserHelpRequestTypeType.BillingSettingsChange,
+                        organization: { connect: { id: organization.id } },
+                        phone: user.phone,
+                        email: user?.email ?? null,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        meta: {
+                            message,
+                            source: 'combinedBillingSettingsModal',
+                        },
                     },
                 },
-            },
-        })
+            })
+        } catch (error) {
+            notification.error({
+                message: (
+                    <Typography.Title level={4}>
+                        {ServerErrorMessage}
+                    </Typography.Title>
+                ),
+                description: error instanceof Error ? error.message : ServerErrorMessage,
+            })
+            throw error
+        }
 
         handleClose()
-    }, [createUserHelpRequest, handleClose, organization?.id, user?.email, user?.phone])
+    }, [ServerErrorMessage, createUserHelpRequest, handleClose, organization?.id, user?.email, user?.phone])
 
     const expandButtonText = isExpanded ? CollapseButtonLabel : intl.formatMessage({
         id: 'accrualsAndPayments.combined.settings.showMoreAccounts',

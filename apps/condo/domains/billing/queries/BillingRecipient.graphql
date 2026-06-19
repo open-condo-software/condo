@@ -1,9 +1,7 @@
 query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
     recipients: allBillingRecipients(
         where: {
-            deletedAt: null
             context: {
-                deletedAt: null
                 organization: $organization
             }
         }

@@ -6,7 +6,6 @@ import { colors } from '@open-condo/ui/colors'
 
 import {
     CONTEXT_ERROR_STATUS as ACQUIRING_CONTEXT_ERROR_STATUS,
-    CONTEXT_FINISHED_STATUS as ACQUIRING_CONTEXT_FINISHED_STATUS,
     CONTEXT_IN_PROGRESS_STATUS as ACQUIRING_CONTEXT_IN_PROGRESS_STATUS,
     CONTEXT_VERIFICATION_STATUS as ACQUIRING_CONTEXT_VERIFICATION_STATUS,
 } from '@condo/domains/acquiring/constants/context'
@@ -155,10 +154,7 @@ export const useBillingHeaderTags = (): {
     }, [billingContexts, sppBillingId])
 
     const platformPartnerContext = useMemo(() => {
-        return acquiringContexts.find(({ integration, status }) => (
-            integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE
-            && status === ACQUIRING_CONTEXT_FINISHED_STATUS
-        )) || null
+        return acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE) || null
     }, [acquiringContexts])
 
     const combinedHeaderTags = useMemo(() => {
