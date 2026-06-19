@@ -1,4 +1,5 @@
 const conf = require('@open-condo/config')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -13,7 +14,7 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 const { getIdentity } = require('./sync/syncUser')
-const { ERRORS, HttpError } = require('./utils/errors')
+const { ERRORS } = require('./utils/errors')
 const { getBotId } = require('./utils/params')
 const { getConfigValidationError } = require('./utils/validations')
 
@@ -35,14 +36,14 @@ class BotsConfigProvider {
     isValid
     validationError
     configs = {}
-    constructor () {
+    constructor (context) {
         try {
             this.isValid = true
             let xmaConfig
             xmaConfig = JSON.parse(conf.XMA_CONFIG || '[]')
             const validationError = getConfigValidationError(xmaConfig)
             if (validationError) {
-                const err = new HttpError(validationError)
+                const err = new GQLError(validationError, context)
                 logger.error({ msg: 'xma config error', err })
                 this.isValid = false
                 this.validationError = err
@@ -71,7 +72,9 @@ class XmaRoutes {
     _provider
 
     constructor () {
-        this._provider = new BotsConfigProvider()
+        const { keystone: context } = getSchemaCtx('User')
+        this.context = context
+        this._provider = new BotsConfigProvider(context)
     }
 
     async startAuth (req, res, next) {
@@ -81,8 +84,8 @@ class XmaRoutes {
                 userType,
                 xmaAuthData,
             } = this._validateParameters(req, res, next)
-            const { keystone: context } = await getSchemaCtx('User')
-            const identity = await getIdentity(context, xmaAuthData, userType)
+            
+            const identity = await getIdentity(this.context, xmaAuthData, userType)
             const callbackUrl = this._buildUrlWithParams(`${conf.SERVER_URL}/api/xma/auth/callback`, {
                 ...req.query,
                 redirectUrl: encodeURIComponent(redirectUrl),
@@ -91,12 +94,12 @@ class XmaRoutes {
             })
             if (identity) {
                 if (isAuthorized(req) && (!isUserWithRightType(req, userType) || isSuperUser(req) || identity.user.id !== req.user.id)) {
-                    return await this._logoutAndRedirectToAuth(req, res, context, userType)
+                    return await this._logoutAndRedirectToAuth(req, res, userType)
                 }
                 return res.redirect(callbackUrl)
             }
             if (!isAuthorized(req) || !isUserWithRightType(req, userType) || isSuperUser(req)) {
-                return await this._logoutAndRedirectToAuth(req, res, context, userType)
+                return await this._logoutAndRedirectToAuth(req, res, userType)
             }
             return res.redirect(callbackUrl)
         } catch (err) {
@@ -112,22 +115,21 @@ class XmaRoutes {
                 xmaAuthData,
             } = this._validateParameters(req, res, next)
             // sync user
-            const { keystone: context } = await getSchemaCtx('User')
-            const { id } = await syncUser({ authenticatedUser: req.user, userInfo: xmaAuthData, context, userType })
+            const { id } = await syncUser({ authenticatedUser: req.user, userInfo: xmaAuthData, context: this.context, userType })
             // authorize user
-            await this.authorizeUser(req, context, id)
+            await this.authorizeUser(req, id)
             return res.redirect(decodeURIComponent(redirectUrl))
         } catch (error) {
             return this._processError(res, error, next)
         }
     }
 
-    async authorizeUser (req, context, userId) {
+    async authorizeUser (req, userId) {
         // auth session
         const botId = getBotId(req)
-        const user = await User.getOne(context, { id: userId }, 'id type isSupport isAdmin rightsSet')
+        const user = await User.getOne(this.context, { id: userId }, 'id type isSupport isAdmin rightsSet')
         if (isSuperUser({ user })) {
-            throw new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED)
+            throw new GQLError(ERRORS.SUPER_USERS_NOT_ALLOWED, this.context)
         }
         const { keystone } = await getSchemaCtx('User')
         await keystone._sessionManager.startAuthedSession(req, {
@@ -142,9 +144,9 @@ class XmaRoutes {
         await req.session.save()
     }
 
-    async _logoutAndRedirectToAuth (req, res, context, userType) {
+    async _logoutAndRedirectToAuth (req, res, userType) {
         if (isAuthorized(req)) {
-            await context._sessionManager.endAuthedSession(req)
+            await this.context._sessionManager.endAuthedSession(req)
         }
         const reqUrl = new URL(req.url, 'https://_')
         const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`
@@ -163,10 +165,10 @@ class XmaRoutes {
         const redirectUrl = getRedirectUrl(req)
         const userType = getUserType(req)
         if (!isRedirectUrlValid(config.allowedRedirectUrls, redirectUrl)) {
-            throw new HttpError(ERRORS.INVALID_REDIRECT_URL)
+            throw new GQLError(ERRORS.INVALID_REDIRECT_URL, this.context)
         }
         if (!userType || !config.allowedUserType || config.allowedUserType.toLowerCase() !== userType.toLowerCase()) {
-            throw new HttpError(ERRORS.NOT_SUPPORTED_USER_TYPE)
+            throw new GQLError(ERRORS.NOT_SUPPORTED_USER_TYPE, this.context)
         }
         const { xmaAuthData } = this._getXmaAuthData(req)
         return {
@@ -175,22 +177,18 @@ class XmaRoutes {
     }
 
     _processError (res, error, next) {
-        const errMsg = 'xmaOauth error'
-        if (error instanceof HttpError && error.statusCode < 500) {
-            logger.error({ msg: errMsg, reqId: res.req.id, data: { error: error.toJSON(), stack: error.stack } })
-            return res.status(error.statusCode).json({ error: error.toJSON() })
-        }
-        logger.error({ msg: errMsg, reqId: res.req.id, err: error })
-        return next(error)
+        logger.error({ msg: 'xmaAuth error', reqId: res.req.id, err: error })
+
+        throw error
     }
     
     _validateBotId (req) {
         if (!this._provider.isValid) {
-            throw this._provider.validationError ? this._provider.validationError : new HttpError(ERRORS.INVALID_CONFIG)
+            throw this._provider.validationError ? this._provider.validationError : new GQLError(ERRORS.INVALID_CONFIG, this.context)
         }
         const botId = getBotId(req)
         if (!this._provider.isValidBotId(botId)) {
-            throw new HttpError(ERRORS.INVALID_BOT_ID)
+            throw new GQLError(ERRORS.INVALID_BOT_ID, this.context)
         }
     }
 
@@ -201,11 +199,11 @@ class XmaRoutes {
         try {
             xmaAuthData = Object.fromEntries(new URLSearchParams(decodeURIComponent(xmaAuthDataQP)).entries())
         } catch {
-            throw new HttpError(ERRORS.XMA_AUTH_DATA_MISSING)
+            throw new GQLError(ERRORS.XMA_AUTH_DATA_MISSING, this.context)
         }
         const xmaAuthDataValidationError = getXmaAuthDataValidationError(xmaAuthData, config.botToken)
         if (xmaAuthDataValidationError) {
-            throw new HttpError(xmaAuthDataValidationError)
+            throw new GQLError(xmaAuthDataValidationError, this.context)
         }
         // Note: XMA init data contains user as JSON string
         if (xmaAuthData.user && typeof xmaAuthData.user === 'string') {

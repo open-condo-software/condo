@@ -29,11 +29,12 @@ jest.mock('@open-condo/config', () => {
 const { faker } = require('@faker-js/faker')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { expectToThrowRawGQLError } = require('@open-condo/keystone/test.utils')
 
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { XmaRoutes } = require('@condo/domains/user/integration/xma/routes')
 const { syncUser, getIdentity } = require('@condo/domains/user/integration/xma/sync/syncUser')
-const { ERRORS, HttpError } = require('@condo/domains/user/integration/xma/utils/errors')
+const { ERRORS } = require('@condo/domains/user/integration/xma/utils/errors')
 const { getXmaAuthDataValidationError, isRedirectUrlValid } = require('@condo/domains/user/integration/xma/utils/validations')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
@@ -43,10 +44,6 @@ const ALLOWED_REDIRECT_URLS = ['https://example.com', 'https://app.example.com']
 // _getXmaAuthData does decodeURIComponent(xmaAuthDataQP) then feeds it to URLSearchParams
 const MOCK_XMA_AUTH_DATA_QP = 'user=%7B%22id%22%3A1%7D&auth_date=1234567890&hash=abc'
 
-function expectResultError (res, error) {
-    expect(res.status).toHaveBeenCalledWith(error.statusCode)
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error }))
-}
 
 function createMockReqResNext (query = {}, user = null) {
     const req = {
@@ -246,8 +243,10 @@ describe('XmaRoutes', () => {
                 isSupport: true,
             })
 
-            await routes.completeAuth(req, res, next)
-            expectResultError(res, new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED).toJSON())
+            await expectToThrowRawGQLError(async () => {
+                await routes.completeAuth(req, res, next)
+            }, ERRORS.SUPER_USERS_NOT_ALLOWED)
+
             expect(res.redirect).not.toHaveBeenCalled()
         })
     })
@@ -288,8 +287,9 @@ describe('XmaRoutes', () => {
         test.each(testCases)('$name', async ({ reqResNextParams, expectedError, beforeCall }) => {
             const { req, res, next } = createMockReqResNext(reqResNextParams)
             await beforeCall?.()
-            expect(() => routes._validateParameters(req, res, next))
-                .toThrow(new HttpError(expectedError))
+            await expectToThrowRawGQLError(async () => {
+                await routes._validateParameters(req, res, next)
+            }, expectedError)
             expect(res.redirect).not.toHaveBeenCalled()
         })
     })
@@ -311,8 +311,9 @@ describe('XmaRoutes', () => {
 
             test.each(users)('isSupport:$isSupport isAdmin:$isAdmin type:$type rightsSet:$rightsSet', async (user) => {
                 User.getOne.mockResolvedValueOnce(user)
-                await expect(async () => await routes.authorizeUser(req, mockContext, user.id))
-                    .rejects.toThrow(new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED))
+                await expectToThrowRawGQLError(async () => {
+                    await routes.authorizeUser(req, mockContext, user.id)
+                }, ERRORS.SUPER_USERS_NOT_ALLOWED)
                 expect(res.redirect).not.toHaveBeenCalled()
             })
         })

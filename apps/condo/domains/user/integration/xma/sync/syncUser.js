@@ -1,5 +1,7 @@
+const { GQLError } = require('@open-condo/keystone/errors')
+
 const { XMA_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
-const { ERRORS, HttpError } = require('@condo/domains/user/integration/xma/utils/errors')
+const { ERRORS } = require('@condo/domains/user/integration/xma/utils/errors')
 const {
     UserExternalIdentity,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -21,10 +23,6 @@ const linkUser = async (context, user, xmaAuthData, userType) => {
     return user
 }
 
-const registerUser = async (context, userInfo, userType) => {
-    throw new Error('YOU CAN\'T REGISTER USER USING XMA ')
-}
-
 const getIdentity = async (context, userInfo, userType) => {
     return await UserExternalIdentity.getOne(context, {
         identityType: XMA_IDP_TYPE,
@@ -37,7 +35,7 @@ const getIdentity = async (context, userInfo, userType) => {
 
 const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (authenticatedUser?.deletedAt) {
-        throw new HttpError(ERRORS.USER_IS_NOT_REGISTERED)
+        throw new GQLError(ERRORS.USER_IS_NOT_REGISTERED, context)
     }
 
     // try to find linked identities
@@ -53,22 +51,22 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (userIdentity) {
         const { user: { id } } = userIdentity
         if (authenticatedUser && (authenticatedUser.id !== id || authenticatedUser.type !== userIdentity.userType)) {
-            throw new HttpError(ERRORS.ACCESS_DENIED)
+            throw new GQLError(ERRORS.ACCESS_DENIED, context)
         }
         return { id }
     }
 
     // case 3: user is not registered, and we can't register account for him with xma
     if (!authenticatedUser) {
-        throw new HttpError(ERRORS.USER_IS_NOT_REGISTERED)
+        throw new GQLError(ERRORS.USER_IS_NOT_REGISTERED, context)
     }
 
     // case 4: user already registered and have no linked identity
     if (authenticatedUser.type !== userType) {
-        throw new HttpError(ERRORS.NOT_SUPPORTED_USER_TYPE)
+        throw new GQLError(ERRORS.NOT_SUPPORTED_USER_TYPE, context)
     }
     if (authenticatedUser.isAdmin || authenticatedUser.isSupport || authenticatedUser.rightsSet) {
-        throw new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED)
+        throw new GQLError(ERRORS.SUPER_USERS_NOT_ALLOWED, context)
     }
     // proceed link & auth
     return await linkUser(context, authenticatedUser, userInfo, userType)

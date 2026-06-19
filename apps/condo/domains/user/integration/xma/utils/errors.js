@@ -65,20 +65,4 @@ const ERRORS = {
     },
 }
 
-class HttpError extends Error {
-    constructor (error) {
-        super(error.message)
-        Object.assign(this, error)
-        this.statusCode = HTTP_STATUS_BY_CODE[this.code || BAD_USER_INPUT]
-        Error.captureStackTrace(this, this.constructor)
-    }
-
-    toJSON () {
-        return Object.assign({ message: this.message }, this)
-    }
-}
-
-module.exports = {
-    ERRORS,
-    HttpError,
-}
+module.exports = { ERRORS }
