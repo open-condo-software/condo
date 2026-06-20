@@ -31,6 +31,7 @@ export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource
         const hasBankPartnerContext = billingContexts.some(({ integration }) => integration?.id === sppBillingId)
         const platformPartnerContext = acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
         const hasFinishedPlatformPartnerContext = platformPartnerContext?.status === ACQUIRING_CONTEXT_FINISHED_STATUS
+            && Boolean(platformPartnerContext.reason?.trim())
 
         const sourceValues: string[] = []
         const destinationValues: string[] = []
