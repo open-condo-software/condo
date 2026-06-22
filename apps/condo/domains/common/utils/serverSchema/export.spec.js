@@ -5,8 +5,6 @@
 const { faker } = require('@faker-js/faker')
 const fill = require('lodash/fill')
 
-// The CSV export uploads the resulting file via the new signature-based flow.
-// These unit tests only cover the batching/iteration logic, so the upload is stubbed out.
 jest.mock('@open-condo/files/server', () => ({
     uploadFilesFromServer: jest.fn(async () => ([{ signature: 'test-signature' }])),
 }))

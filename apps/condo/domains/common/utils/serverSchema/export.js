@@ -43,23 +43,7 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) =>
     return uploadInput
 }
 
-/**
- * Uploads an export file to the file server (new signature-based flow) and returns the input
- * for a `File` field of an export task. The returned value is `{ signature, originalFilename, mimetype }`;
- * the task's `CustomFile.beforeChange` then attaches the file (server-side, via skipAccessControl).
- *
- * Replaces the legacy `buildUploadInputFrom` (graphql-upload stream) for export tasks.
- *
- * @param {Object} args
- * @param args.context - Keystone context (worker, skipAccessControl)
- * @param {{ stream: Readable, filename: string, mimetype: string, encoding?: string, size?: number }} args.file
- * @param args.taskServerUtils - server utils of the export task (provides gql.SINGULAR_FORM as model name)
- * @param {string} args.taskId - export task id (owner is read from its `user` field)
- * @param {{ dv: number, fingerprint: string }} args.sender
- * @returns {Promise<{ signature: string, originalFilename: string, mimetype: string }>}
- */
 const uploadExportFile = async ({ context, file, taskServerUtils, taskId, sender }) => {
-    const { stream, filename, mimetype, encoding, size } = file
     const modelName = taskServerUtils.gql.SINGULAR_FORM
 
     const task = await taskServerUtils.getOne(context, { id: taskId }, 'id user { id }')
@@ -74,10 +58,10 @@ const uploadExportFile = async ({ context, file, taskServerUtils, taskId, sender
         userId,
         fingerprint: sender?.fingerprint,
         modelNames: [modelName],
-        files: [{ stream, filename, mimetype, encoding, size }],
+        files: [file],
     })
 
-    return { signature: uploaded.signature, originalFilename: filename, mimetype }
+    return { signature: uploaded.signature, originalFilename: file.filename }
 }
 
 /**
