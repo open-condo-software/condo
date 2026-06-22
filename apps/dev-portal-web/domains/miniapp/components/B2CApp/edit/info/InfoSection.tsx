@@ -3,10 +3,9 @@ import { useIntl } from 'react-intl'
 
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { EnvironmentInfoSubsection } from '@/domains/miniapp/components/B2CApp/edit/info/EnvironmentInfoSubsection'
-
+import { EntrypointsSubsection } from '@/domains/miniapp/components/Info/EntrypointsSubsection'
 
 import { CommonInfoSubsection } from './CommonInfoSubsection'
-import { EntrypointsSubsection } from './EntrypointsSubsection'
 import { IconsSubsection } from './IconsSubsection'
 
 import { B2CAppTypeType, useGetB2CAppQuery } from '@/gql'
@@ -14,7 +13,7 @@ import { B2CAppTypeType, useGetB2CAppQuery } from '@/gql'
 export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const CommonInfoSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.commonInfo.subtitle' })
-    const EntryPointsSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.entrypoints.subtitle' })
+    const EntryPointsSubtitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.info.entrypoints.subtitle' })
     const EnvironmentInfoSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.subtitle' })
     const AppIconsSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.subtitle' })
 
@@ -29,7 +28,7 @@ export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
             </SubSection>
             {Boolean(data?.app?.type === B2CAppTypeType.Web) && (
                 <SubSection title={EntryPointsSubtitle}>
-                    <EntrypointsSubsection id={id}/>
+                    <EntrypointsSubsection id={id} type='b2c'/>
                 </SubSection>
             )}
             <SubSection title={EnvironmentInfoSubtitle}>
