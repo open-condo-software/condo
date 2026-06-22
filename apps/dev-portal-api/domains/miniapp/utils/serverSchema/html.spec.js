@@ -98,6 +98,28 @@ describe('html utils', () => {
                 const cspEnd = result.indexOf(csp) + csp.length
                 expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
             })
+
+            test('detects CSP with uppercase http-equiv value', () => {
+                const csp = '<meta http-equiv="CONTENT-SECURITY-POLICY" content="default-src \'self\'">'
+                const input = `<html><head>${csp}<title>App</title></head></html>`
+                const result = injectScriptTags(input, TAGS)
+                const cspEnd = result.indexOf(csp) + csp.length
+                expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
+            })
+
+            test('detects CSP with mixed-case http-equiv value', () => {
+                const csp = '<meta http-equiv="content-security-policy" content="default-src \'self\'">'
+                const input = `<html><head>${csp}<title>App</title></head></html>`
+                const result = injectScriptTags(input, TAGS)
+                const cspEnd = result.indexOf(csp) + csp.length
+                expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
+            })
+
+            test('does not treat unrelated meta tags as CSP', () => {
+                const input = '<html><head><meta charset="utf-8"><title>App</title></head></html>'
+                const result = injectScriptTags(input, TAGS)
+                expect(result).toBe(`<html><head>${TAGS}<meta charset="utf-8"><title>App</title></head></html>`)
+            })
         })
     })
 })

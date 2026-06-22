@@ -12,7 +12,8 @@ function injectScriptTags (content, scriptTags) {
     try {
         const root = parse(content)
 
-        const cspTag = root.querySelector('meta[http-equiv="Content-Security-Policy"]')
+        const cspTag = root.querySelectorAll('meta')
+            .find((meta) => (meta.getAttribute('http-equiv') || '').toLowerCase() === 'content-security-policy')
         if (cspTag) {
             cspTag.insertAdjacentHTML('afterend', scriptTags)
             return root.toString()
