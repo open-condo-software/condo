@@ -36,7 +36,7 @@ const {
     B2C_APP_DEFAULT_LOGO_PATH,
     PUBLISH_REQUEST_APPROVED_STATUS,
 } = require('@dev-portal-api/domains/miniapp/constants/publishing')
-const { generateB2CAppBuildHash, getB2CAppBuildStream } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/builds')
+const { prepareB2CAppBuildMetadata, getB2CAppBuildStream } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/builds')
 const {
     B2CApp,
     B2CAppBuild,
@@ -119,12 +119,6 @@ function getAppStaticUrl ({ condoApp, serverClient }) {
     const port = condoUrl.port
 
     return `${condoUrl.protocol}//${domainParts.join('.')}${port ? `:${port}` : ''}`
-}
-
-function getBuildSignature () {
-    return crypto.createHash('sha256').update(JSON.stringify({
-        scripts: [],
-    })).digest('hex')
 }
 
 async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
@@ -251,7 +245,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     return updatedCondoApp
 }
 
-async function publishBuildChanges ({ buildVersion, buildKey, build, condoBuild, app, condoApp, context, args, serverClient }) {
+async function publishBuildChanges ({ build, buildMeta, condoBuild, app, condoApp, context, args, serverClient }) {
     const { data: { dv, sender, environment } } = args
     const exportIdField = getExportIdField(environment)
     const exportId = build[exportIdField]
@@ -268,7 +262,10 @@ async function publishBuildChanges ({ buildVersion, buildKey, build, condoBuild,
             },
         })
 
-        const buildStream = getB2CAppBuildStream(build.data.publicUrl)
+        const buildStream = getB2CAppBuildStream(build.data.publicUrl, buildMeta)
+        const condoBuildVersion = [build.version, buildMeta.hash].filter(Boolean).join('-')
+        const condoBuildImportId = [build.id, buildMeta.hash].filter(Boolean).join('-')
+
         const data = await serverClient.uploadFile({
             stream: buildStream,
             filename: build.data.originalFilename,
@@ -282,9 +279,9 @@ async function publishBuildChanges ({ buildVersion, buildKey, build, condoBuild,
                 dv,
                 sender,
                 app: { connect: { id: condoApp.id } },
-                version: buildVersion,
+                version: condoBuildVersion,
                 data,
-                importId: buildKey,
+                importId: condoBuildImportId,
                 importRemoteSystem: REMOTE_SYSTEM,
             },
         })
@@ -591,9 +588,8 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         throw new GQLError(ERRORS.BUILD_NOT_FOUND, context)
                     }
 
-                    const buildMetaHash = generateB2CAppBuildHash()
-                    const buildKey = [build.id, buildMetaHash].filter(Boolean).join('-')
-                    const buildVersion = [build.version, buildMetaHash].filter(Boolean).join('-')
+                    const buildMeta = await prepareB2CAppBuildMetadata()
+                    const buildKey = [build.id, buildMeta.hash].filter(Boolean).join('-')
 
                     const condoBuild = await serverClient.findExportedModel({
                         modelGql: CondoB2CAppBuildGql,
@@ -602,8 +598,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                     })
 
                     await publishBuildChanges({
-                        buildVersion,
-                        buildKey,
+                        buildMeta,
                         build,
                         condoBuild,
                         app,

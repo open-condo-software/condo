@@ -1,6 +1,6 @@
 const { injectScriptTags } = require('./html')
 
-const TAGS = '<script src="https://cdn.example.com/sdk.js"></script>'
+const TAGS = '<script src="www/cordova-bridge-adapter.js"></script>'
 
 describe('html utils', () => {
     describe('injectScriptTags', () => {
@@ -69,10 +69,61 @@ describe('html utils', () => {
             expect(result).toBe(`<html><Head lang="en">${TAGS}<title>App</title></Head></html>`)
         })
 
-        test('handles self-closing-like <head/> gracefully (treats > as end of tag)', () => {
+        test('handles self-closing-like <head/> gracefully', () => {
             const input = '<html><head/><body></body></html>'
             const result = injectScriptTags(input, TAGS)
-            expect(result).toBe(`<html><head/>${TAGS}<body></body></html>`)
+            expect(result).toBe(`<html><head>${TAGS}</head><body></body></html>`)
+        })
+
+        describe('CSP meta tag present', () => {
+            test('inserts script tags after CSP meta tag', () => {
+                const csp = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'">'
+                const input = `<html><head>${csp}<title>App</title></head></html>`
+                const result = injectScriptTags(input, TAGS)
+                expect(result).toBe(`<html><head>${csp}${TAGS}<title>App</title></head></html>`)
+            })
+
+            test('does not modify CSP tag content', () => {
+                const csp = '<meta http-equiv="Content-Security-Policy" content="script-src \'nonce-abc\'">'
+                const input = `<html><head>${csp}</head></html>`
+                const result = injectScriptTags(input, TAGS)
+                expect(result.includes(csp)).toBe(true)
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+                expect(result.indexOf(TAGS)).toBe(result.indexOf(csp) + csp.length)
+            })
+
+            test('inserts after CSP even when CSP is not the first child', () => {
+                const csp = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'">'
+                const input = `<html><head><title>App</title>${csp}<link rel="stylesheet" href="a.css"></head></html>`
+                const result = injectScriptTags(input, TAGS)
+                const cspEnd = result.indexOf(csp) + csp.length
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+                expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
+            })
+
+            test('detects CSP with uppercase http-equiv value', () => {
+                const csp = '<meta http-equiv="CONTENT-SECURITY-POLICY" content="default-src \'self\'">'
+                const input = `<html><head>${csp}<title>App</title></head></html>`
+                const result = injectScriptTags(input, TAGS)
+                const cspEnd = result.indexOf(csp) + csp.length
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+                expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
+            })
+
+            test('detects CSP with mixed-case http-equiv value', () => {
+                const csp = '<meta http-equiv="content-security-policy" content="default-src \'self\'">'
+                const input = `<html><head>${csp}<title>App</title></head></html>`
+                const result = injectScriptTags(input, TAGS)
+                const cspEnd = result.indexOf(csp) + csp.length
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+                expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
+            })
+
+            test('does not treat unrelated meta tags as CSP', () => {
+                const input = '<html><head><meta charset="utf-8"><title>App</title></head></html>'
+                const result = injectScriptTags(input, TAGS)
+                expect(result).toBe(`<html><head>${TAGS}<meta charset="utf-8"><title>App</title></head></html>`)
+            })
         })
     })
 })
