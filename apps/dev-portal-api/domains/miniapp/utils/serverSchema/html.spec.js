@@ -88,6 +88,7 @@ describe('html utils', () => {
                 const input = `<html><head>${csp}</head></html>`
                 const result = injectScriptTags(input, TAGS)
                 expect(result.includes(csp)).toBe(true)
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
                 expect(result.indexOf(TAGS)).toBe(result.indexOf(csp) + csp.length)
             })
 
@@ -96,6 +97,7 @@ describe('html utils', () => {
                 const input = `<html><head><title>App</title>${csp}<link rel="stylesheet" href="a.css"></head></html>`
                 const result = injectScriptTags(input, TAGS)
                 const cspEnd = result.indexOf(csp) + csp.length
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
                 expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
             })
 
@@ -104,6 +106,7 @@ describe('html utils', () => {
                 const input = `<html><head>${csp}<title>App</title></head></html>`
                 const result = injectScriptTags(input, TAGS)
                 const cspEnd = result.indexOf(csp) + csp.length
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
                 expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
             })
 
@@ -112,6 +115,7 @@ describe('html utils', () => {
                 const input = `<html><head>${csp}<title>App</title></head></html>`
                 const result = injectScriptTags(input, TAGS)
                 const cspEnd = result.indexOf(csp) + csp.length
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
                 expect(result.slice(cspEnd, cspEnd + TAGS.length)).toBe(TAGS)
             })
 
