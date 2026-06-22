@@ -2,7 +2,6 @@ const fs = require('fs')
 
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
-const Upload = require('graphql-upload/Upload.js')
 const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -25,23 +24,6 @@ const logger = getLogger()
 
 // Rough solution to offload server in case of exporting many thousands of records
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
-
-const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) => {
-    const uploadData = {
-        createReadStream: () => {
-            return stream
-        },
-        filename,
-        mimetype,
-        encoding,
-        meta,
-    }
-    const uploadInput = new Upload()
-    uploadInput.promise = new Promise(resolve => {
-        resolve(uploadData)
-    })
-    return uploadInput
-}
 
 const uploadExportFile = async ({ context, file, taskServerUtils, taskId, sender }) => {
     const modelName = taskServerUtils.gql.SINGULAR_FORM
@@ -228,5 +210,5 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 module.exports = {
     exportRecordsAsXlsxFile,
     exportRecordsAsCsvFile,
-    buildUploadInputFrom,
+    uploadExportFile,
 }
