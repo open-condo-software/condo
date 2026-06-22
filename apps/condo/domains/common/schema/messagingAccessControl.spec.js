@@ -4,6 +4,7 @@ const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
 const { buildOrganizationTopic } = require('@open-condo/messaging')
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('@open-condo/messaging/topic')
 const { NatsSubscriptionRelay } = require('@open-condo/messaging/adapters/nats')
 const {
     decodeNatsJwt,
@@ -380,39 +381,38 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
 
         it('revoked user gets error when creating new relay via this service', async () => {
             const USER_B = 'revoke-test-user-2'
-            await relayService.revokeUser(USER_B)
+            const serverConn = await connect({
+                servers: BROKER_URL,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
+                name: 'admin-revoke-e2e',
+            })
 
             let nc
             try {
+                serverConn.publish(`${ADMIN_REVOKE_PREFIX}.${USER_B}`)
+                await serverConn.flush()
+                await new Promise(resolve => setTimeout(resolve, 200))
+
                 const token = createToken(ORG_A, USER_B)
                 nc = await connectWithToken(token, 'revoke-new-relay')
                 const jc = JSONCodec()
 
-                // With a single relay service instance, the queue group has one member,
-                // so all requests are handled by this instance. Retry is only needed
-                // as a safety margin for timing.
-                let gotRejected = false
-                for (let attempt = 0; attempt < 10; attempt++) {
-                    const deliverInbox = createInbox()
-                    try {
-                        const response = await nc.request(
-                            `_MESSAGING.subscribe.${USER_B}.condo.user.${USER_B}.notification`,
-                            jc.encode({ deliverInbox }),
-                            { timeout: 3000 }
-                        )
-                        const data = jc.decode(response.data)
-                        if (data.status === 'error' && data.reason === 'access revoked') {
-                            gotRejected = true
-                            break
-                        }
-                    } catch {
-                        // timeout — retry
-                    }
-                }
-                expect(gotRejected).toBe(true)
+                const deliverInbox = createInbox()
+                const response = await nc.request(
+                    `_MESSAGING.subscribe.${USER_B}.condo.user.${USER_B}.notification`,
+                    jc.encode({ deliverInbox }),
+                    { timeout: 5000 }
+                )
+                const data = jc.decode(response.data)
+                expect(data.status).toBe('error')
+                expect(data.reason).toBe('access revoked')
             } finally {
+                serverConn.publish(`${ADMIN_UNREVOKE_PREFIX}.${USER_B}`)
+                await serverConn.flush()
                 relayService.unrevokeUser(USER_B)
                 if (nc) await nc.close()
+                await serverConn.close()
             }
         })
 
