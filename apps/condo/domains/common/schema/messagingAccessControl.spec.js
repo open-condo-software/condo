@@ -4,7 +4,6 @@ const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
 const { buildOrganizationTopic } = require('@open-condo/messaging')
-const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('@open-condo/messaging/topic')
 const { NatsSubscriptionRelay } = require('@open-condo/messaging/adapters/nats')
 const {
     decodeNatsJwt,
@@ -12,6 +11,7 @@ const {
     createAuthResponseJwt,
     computePermissions,
 } = require('@open-condo/messaging/adapters/nats')
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('@open-condo/messaging/topic')
 
 const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
