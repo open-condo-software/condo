@@ -27,7 +27,7 @@ const {
 } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { getEnvironmentalFieldName } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
-const { generateB2CAppBuildHash } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/builds')
+const { prepareB2CAppBuildMetadata } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/builds')
 const {
     publishB2CAppByTestClient,
     createTestB2CApp,
@@ -585,7 +585,8 @@ describe('PublishB2CAppService', () => {
                 expect(apiBuild.developmentExportId).not.toBeNull()
 
                 const condoBuild = await CondoB2CAppBuild.getOne(condoAdmin, { id: apiBuild.developmentExportId })
-                const expectedImportId = [apiBuild.id, generateB2CAppBuildHash()].filter(Boolean).join('-')
+                const buildMeta = await prepareB2CAppBuildMetadata()
+                const expectedImportId = [apiBuild.id, buildMeta.hash].filter(Boolean).join('-')
                 expect(condoBuild).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
                 expect(condoBuild).toHaveProperty('importId', expectedImportId)
 
@@ -668,7 +669,8 @@ describe('PublishB2CAppService', () => {
                 const apiApp = await B2CApp.getOne(admin, { id: app.id })
                 const apiBuild = await B2CAppBuild.getOne(admin, { id: build.id })
                 const condoBuild = await CondoB2CAppBuild.getOne(condoAdmin, { id: apiBuild.developmentExportId })
-                const expectedVersion = [apiBuild.version, generateB2CAppBuildHash()].filter(Boolean).join('-')
+                const buildMeta = await prepareB2CAppBuildMetadata()
+                const expectedVersion = [apiBuild.version, buildMeta.hash].filter(Boolean).join('-')
                 expect(condoBuild).toHaveProperty('version', expectedVersion)
                 expect(condoBuild).toHaveProperty(['app', 'id'], apiApp.developmentExportId)
             })
@@ -676,7 +678,8 @@ describe('PublishB2CAppService', () => {
                 const [firstResult] = await publishB2CAppByTestClient(user, app, { build: { id: build.id } })
                 expect(firstResult).toHaveProperty('success', true)
 
-                const firstImportId = [build.id, generateB2CAppBuildHash()].filter(Boolean).join('-')
+                const buildMeta = await prepareB2CAppBuildMetadata()
+                const firstImportId = [build.id, buildMeta.hash].filter(Boolean).join('-')
                 const firstCondoBuild = await CondoB2CAppBuild.getOne(condoAdmin, { importId: firstImportId, importRemoteSystem: REMOTE_SYSTEM })
                 expect(firstCondoBuild).toHaveProperty('id')
 
@@ -687,7 +690,7 @@ describe('PublishB2CAppService', () => {
                 const [secondResult] = await publishB2CAppByTestClient(user, app, { build: { id: secondBuild.id } })
                 expect(secondResult).toHaveProperty('success', true)
 
-                const secondImportId = [secondBuild.id, generateB2CAppBuildHash()].filter(Boolean).join('-')
+                const secondImportId = [secondBuild.id, buildMeta.hash].filter(Boolean).join('-')
                 const secondCondoBuild = await CondoB2CAppBuild.getOne(condoAdmin, { importId: secondImportId, importRemoteSystem: REMOTE_SYSTEM })
                 expect(secondCondoBuild).toHaveProperty('id')
 
@@ -914,7 +917,8 @@ describe('PublishB2CAppService', () => {
 
             const condoApp = await CondoB2CApp.getOne(condoAdmin, { importId: app.id, importRemoteSystem: REMOTE_SYSTEM })
             expect(condoApp).toHaveProperty('id')
-            const buildImportId = [build.id, generateB2CAppBuildHash()].filter(Boolean).join('-')
+            const buildMeta = await prepareB2CAppBuildMetadata()
+            const buildImportId = [build.id, buildMeta.hash].filter(Boolean).join('-')
             const condoBuild = await CondoB2CAppBuild.getOne(condoAdmin, { importId: buildImportId, importRemoteSystem: REMOTE_SYSTEM })
             expect(condoBuild).toHaveProperty('id')
             expect(condoBuild).toHaveProperty(['app', 'id'], condoApp.id)
