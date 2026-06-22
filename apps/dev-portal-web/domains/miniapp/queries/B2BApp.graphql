@@ -1,3 +1,8 @@
+fragment B2BAppEntryPoints on B2BApp {
+    developmentAppUrl
+    productionAppUrl
+}
+
 fragment B2BAppFragment on B2BApp {
     __typename
     id
@@ -12,6 +17,7 @@ fragment B2BAppFragment on B2BApp {
     }
     developmentExportId
     productionExportId
+    ...B2BAppEntryPoints
 }
 
 query getB2BApp($id: ID!) {

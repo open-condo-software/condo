@@ -13,10 +13,14 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 import type { RowProps } from 'antd'
 
 import {
+    useGetB2BAppQuery,
     useGetB2CAppQuery,
     AppEnvironment,
+    B2BAppEntryPointsFragment,
     B2CAppEntryPointsFragment,
+    useUpdateB2BAppMutation,
     useUpdateB2CAppMutation,
+    GetB2BAppDocument,
     GetB2CAppDocument,
 } from '@/gql'
 
@@ -26,17 +30,29 @@ const EXAMPLES: Record<AppEnvironment, string> = {
     [AppEnvironment.Development]: 'https://my-app.test.example.com',
     [AppEnvironment.Production]: 'https://my-app.example.com',
 }
+const B2C_APP_TYPE = 'b2c'
+const B2B_APP_TYPE = 'b2b'
+type EntrypointsFormValues = Omit<B2CAppEntryPointsFragment, '__typename'> & Omit<B2BAppEntryPointsFragment, '__typename'>
+type EntrypointsSubsectionProps = {
+    id: string
+    type: typeof B2C_APP_TYPE | typeof B2B_APP_TYPE
+}
 
-type EntrypointsFormValues = Omit<B2CAppEntryPointsFragment, '__typename'>
-
-export const EntrypointsSubsection: React.FC<{ id: string }> = ({ id }) => {
+export const EntrypointsSubsection: React.FC<EntrypointsSubsectionProps> = ({ id, type }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
     const [form] = Form.useForm()
 
-    const variables = { id }
+    const variables = useMemo(() => ({ id }), [id])
 
-    const { data } = useGetB2CAppQuery({ variables })
+    const { data: b2cApp } = useGetB2CAppQuery({ variables, skip: type !== 'b2c' })
+    const { data: b2bApp } = useGetB2BAppQuery({ variables, skip: type !== 'b2b' })
+
+    const appData = useMemo(() => type === B2C_APP_TYPE
+        ? b2cApp
+        : b2bApp,
+    [b2cApp, b2bApp, type])
+
     const { remoteUrlValidator } = useValidations()
 
     const initialValues = useMemo(() => {
@@ -44,11 +60,11 @@ export const EntrypointsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
         for (const environment of Object.values(AppEnvironment)) {
             const fieldName = `${environment}AppUrl` as const
-            result[fieldName] = get(data, ['app', fieldName])
+            result[fieldName] = get(appData, ['app', fieldName])
         }
 
         return result
-    }, [data])
+    }, [appData])
 
     const FormItems = useMemo(() => {
         const nullNormalizer = (value: unknown) => {
@@ -57,7 +73,7 @@ export const EntrypointsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
         return (Object.values(AppEnvironment).map(environment => {
             const StandLabel = intl.formatMessage({ id: `global.miniapp.environments.${environment}.label.genitive` })
-            const ItemLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.entrypoints.form.items.appUrl.label' }, {
+            const ItemLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.info.entrypoints.form.items.appUrl.label' }, {
                 environment: StandLabel.toLowerCase(),
             })
             return (
@@ -76,33 +92,42 @@ export const EntrypointsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const onCompleted = useMutationCompletedHandler()
     const onError = useMutationErrorHandler()
+    const refetchQueries = useMemo(() => type === 'b2c'
+        ? [{ query: GetB2CAppDocument, variables }]
+        : [{ query: GetB2BAppDocument, variables }],
+    [type, variables])
+
     const [updateB2CAppMutation] = useUpdateB2CAppMutation({
-        refetchQueries: [
-            {
-                query: GetB2CAppDocument,
-                variables,
-            },
-        ],
+        refetchQueries,
+        onError,
+        onCompleted,
+    })
+    const [updateB2BAppMutation] = useUpdateB2BAppMutation({
+        refetchQueries,
         onError,
         onCompleted,
     })
 
+
     const handleSubmit = useCallback((values: EntrypointsFormValues) => {
-        updateB2CAppMutation({
-            variables: {
-                id,
-                data: {
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    ...values,
-                },
+        const variables = {
+            id,
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                ...values,
             },
-        })
-    }, [id, updateB2CAppMutation])
+        }
+        if (type === B2C_APP_TYPE) {
+            void updateB2CAppMutation({ variables })
+        } else {
+            void updateB2BAppMutation({ variables })
+        }
+    }, [id, type, updateB2BAppMutation, updateB2CAppMutation])
 
     return (
         <Form
-            name='update-b2c-app-entrypoints-form'
+            name={`update-${type}-app-entrypoints-form`}
             layout='vertical'
             form={form}
             initialValues={initialValues}

@@ -133,6 +133,9 @@
   "pages.apps.any.id.notifications.successPublish.title": "Изменения опубликованы",
   "pages.apps.any.id.notifications.colorCopied.title": "Цвет скопирован",
 
+  "pages.apps.any.id.sections.info.entrypoints.subtitle": "Точки входа",
+  "pages.apps.any.id.sections.info.entrypoints.form.items.appUrl.label": "Точка входа для {environment}",
+
   "pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title": "Необходима верификация",
   "pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification": "Для получения разрешения на публикацию приложения на {environment} необходимо пройти дополнительную верификацию, включающую в себя тестирование приложения, заключение партнерского договора, а также дополнительную проверку материалов о приложении.",
   "pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps": "После нажатия кнопки «{action}» с вами свяжется наш специалист по телефону, указанному при регистрации, или в партнерском чате в случае наличия такового. Статус прохождения верификации можно будет отслеживать на данной странице.",
@@ -230,6 +233,12 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.placeholder": "Например: «Автоматизация обращений жителей» или «Контроль работы подрядчиков»",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Коротко опишите, что делает сервис и какую пользу он приносит (5–10 слов)",
 
+  "pages.apps.b2b.id.sections.info.environmentInfo.subtitle": "Информация об окружениях",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.stand.label": "Выберите окружение",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.label": "ID приложения на выбранном стенде",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.placeholder": "Появится после публикации",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.environmentUri.label": "Адрес стенда",
+
   "pages.apps.b2b.id.sections.organizations.title": "Подключенные организации",
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Управление организациями пока недоступно",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Для просмотра и управления организациями опубликуйте данное приложение на соответствующем стенде",
@@ -263,8 +272,6 @@
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label": "Название приложения",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.label": "Разработчик",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.placeholder": "Название компании",
-  "pages.apps.b2c.id.sections.info.entrypoints.subtitle": "Точки входа",
-  "pages.apps.b2c.id.sections.info.entrypoints.form.items.appUrl.label": "Точка входа для {environment}",
   "pages.apps.b2c.id.sections.info.environmentInfo.subtitle": "Информация об окружениях",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.stand.label": "Выберите окружение",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.appId.label": "ID приложения на выбранном стенде",

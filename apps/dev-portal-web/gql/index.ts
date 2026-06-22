@@ -5941,21 +5941,23 @@ export type AllB2CAppsQueryVariables = Exact<{
 
 export type AllB2CAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null, b2cMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
-export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
+export type B2BAppEntryPointsFragment = { __typename?: 'B2BApp', developmentAppUrl?: string | null, productionAppUrl?: string | null };
+
+export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
 
 export type GetB2BAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2BAppMutationVariables = Exact<{
   data: B2BAppCreateInput;
 }>;
 
 
-export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type UpdateB2BAppMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -5963,7 +5965,7 @@ export type UpdateB2BAppMutationVariables = Exact<{
 }>;
 
 
-export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type AllB2BAppContextsQueryVariables = Exact<{
   data: AllB2BAppContextsInput;
@@ -6187,6 +6189,12 @@ export type SignOutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type SignOutMutation = { __typename?: 'Mutation', unauthenticateUser?: { __typename?: 'unauthenticateUserOutput', success?: boolean | null } | null };
 
+export const B2BAppEntryPointsFragmentDoc = gql`
+    fragment B2BAppEntryPoints on B2BApp {
+  developmentAppUrl
+  productionAppUrl
+}
+    `;
 export const B2BAppFragmentFragmentDoc = gql`
     fragment B2BAppFragment on B2BApp {
   __typename
@@ -6202,8 +6210,9 @@ export const B2BAppFragmentFragmentDoc = gql`
   }
   developmentExportId
   productionExportId
+  ...B2BAppEntryPoints
 }
-    `;
+    ${B2BAppEntryPointsFragmentDoc}`;
 export const B2CAppPermissionsFragmentDoc = gql`
     fragment B2CAppPermissions on B2CApp {
   developmentFullscreenAllowed

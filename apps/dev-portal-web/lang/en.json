@@ -133,6 +133,9 @@
   "pages.apps.any.id.notifications.successPublish.title": "Changes have been published",
   "pages.apps.any.id.notifications.colorCopied.title": "Color copied",
 
+  "pages.apps.any.id.sections.info.entrypoints.subtitle": "App entrypoints",
+  "pages.apps.any.id.sections.info.entrypoints.form.items.appUrl.label": "App entrypoint for {environment}",
+
   "pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title": "Verification required",
   "pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification": "To receive permission to publish the app to this stand, you must pass additional verification, which includes testing the app, entering into a partnership agreement, and additional verification of information about the app.",
   "pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps": "After clicking the «{action}» button, you will be contacted by our specialist on the phone number specified during registration, or in the partner chat in case of availability. You will be able to track the status of verification on this page.",
@@ -229,6 +232,12 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.placeholder": "For example: \"Resident appeals automation\" or \"Contractor work control\"",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Briefly describe what the service does and what benefit it provides (5–10 words)",
 
+  "pages.apps.b2b.id.sections.info.environmentInfo.subtitle": "Environment info",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.stand.label": "Select the environment",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.label": "App ID on the selected environment",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.placeholder": "Will appear after publishing",
+  "pages.apps.b2b.id.sections.info.environmentInfo.form.items.environmentUri.label": "Environment URI",
+
   "pages.apps.b2b.id.sections.organizations.title": "Connected organizations",
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organization management is not available yet",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Publish this application at the relevant stand to view and manage organizations",
@@ -262,8 +271,6 @@
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label": "App name",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.label": "Developer",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.placeholder": "Company name",
-  "pages.apps.b2c.id.sections.info.entrypoints.subtitle": "App entrypoints",
-  "pages.apps.b2c.id.sections.info.entrypoints.form.items.appUrl.label": "App entrypoint for {environment}",
   "pages.apps.b2c.id.sections.info.environmentInfo.subtitle": "Environment info",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.stand.label": "Select the environment",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.appId.label": "App ID on the selected environment",
