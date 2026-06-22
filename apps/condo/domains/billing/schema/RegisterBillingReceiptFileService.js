@@ -4,9 +4,9 @@
 const { get, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { uploadFilesFromServer } = require('@open-condo/files/server')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT  } } = require('@open-condo/keystone/errors')
 const { DEFAULT_FILE_ADAPTER } = require('@open-condo/keystone/fileAdapter/constants')
-const { uploadFilesFromServer } = require('@open-condo/files/server')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptFileService')

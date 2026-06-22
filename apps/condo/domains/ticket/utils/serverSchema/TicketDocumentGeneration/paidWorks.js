@@ -13,12 +13,12 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { uploadExportFile } = require('@condo/domains/common/utils/serverSchema/export')
-const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/serverSchema')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
+const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/serverSchema')
 
 const logger = getLogger()
 
