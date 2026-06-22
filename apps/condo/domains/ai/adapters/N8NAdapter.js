@@ -50,7 +50,7 @@ class N8NAdapter extends AbstractAdapter {
                 method: 'POST',
                 body: JSON.stringify({ context }),
                 abortRequestTimeout: N8N_DEFAULT_TIMEOUT,
-                maxRetries: 3,
+                maxRetries: 2,
                 timeoutBetweenRequests: N8N_DEFAULT_IN_BETWEEN_TIMEOUT,
             }
         )
