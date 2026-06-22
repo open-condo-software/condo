@@ -1,14 +1,9 @@
-import getConfig from 'next/config'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import type { ListProps } from '@open-condo/ui'
 
-import { CONTEXT_FINISHED_STATUS as ACQUIRING_CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
-import { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } from '@condo/domains/acquiring/constants/integration'
-import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
-
-const { publicRuntimeConfig: { sppConfig } } = getConfig()
+import { useBillingPartnerContexts } from '@condo/domains/billing/hooks/useBillingPartnerContexts'
 
 function addUniqueValue (values: string[], nextValue?: string | null): void {
     if (!nextValue || values.includes(nextValue)) return
@@ -18,27 +13,28 @@ function addUniqueValue (values: string[], nextValue?: string | null): void {
 
 export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource'] => {
     const intl = useIntl()
-    const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
+    const {
+        billingContexts,
+        sppBillingContext,
+        activePlatformPartnerContext,
+    } = useBillingPartnerContexts()
 
     const SourceLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.source' })
     const DestinationLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.destination' })
-    const BankPartnerLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.bankPartner.label' as FormatjsIntl.Message['ids'] })
-    const BankPartnerDestinationLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.destination.bankPartner' as FormatjsIntl.Message['ids'] })
-    const PlatformPartnerDestinationLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.destination.platformPartner' as FormatjsIntl.Message['ids'] })
 
     return useMemo(() => {
-        const sppBillingId = sppConfig?.BillingIntegrationId || null
-        const hasBankPartnerContext = billingContexts.some(({ integration }) => integration?.id === sppBillingId)
-        const platformPartnerContext = acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
-        const hasFinishedPlatformPartnerContext = platformPartnerContext?.status === ACQUIRING_CONTEXT_FINISHED_STATUS
-            && Boolean(platformPartnerContext.reason?.trim())
-
         const sourceValues: string[] = []
         const destinationValues: string[] = []
+        const sppBillingId = sppBillingContext?.integration?.id
+        const bankPartnerName = sppBillingContext?.integration?.name
+        const platformPartnerName = activePlatformPartnerContext?.integration?.name
 
-        if (hasBankPartnerContext) {
-            addUniqueValue(sourceValues, BankPartnerLabel)
-            addUniqueValue(destinationValues, BankPartnerDestinationLabel)
+        if (bankPartnerName) {
+            addUniqueValue(sourceValues, bankPartnerName)
+            addUniqueValue(destinationValues, intl.formatMessage(
+                { id: 'accrualsAndPayments.combined.settings.destination.partnerBanks' },
+                { partnerName: bankPartnerName },
+            ))
         }
 
         billingContexts.forEach(({ integration }) => {
@@ -48,8 +44,11 @@ export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource
             addUniqueValue(sourceValues, integration?.name)
         })
 
-        if (hasFinishedPlatformPartnerContext) {
-            addUniqueValue(destinationValues, PlatformPartnerDestinationLabel)
+        if (platformPartnerName) {
+            addUniqueValue(destinationValues, intl.formatMessage(
+                { id: 'accrualsAndPayments.combined.settings.destination.partner' },
+                { partnerName: platformPartnerName },
+            ))
         }
 
         return [
@@ -63,12 +62,12 @@ export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource
             },
         ]
     }, [
-        BankPartnerDestinationLabel,
-        BankPartnerLabel,
         DestinationLabel,
-        PlatformPartnerDestinationLabel,
         SourceLabel,
-        acquiringContexts,
+        activePlatformPartnerContext?.integration?.name,
         billingContexts,
+        intl,
+        sppBillingContext?.integration?.id,
+        sppBillingContext?.integration?.name,
     ])
 }

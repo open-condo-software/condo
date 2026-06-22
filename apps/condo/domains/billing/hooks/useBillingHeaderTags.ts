@@ -1,4 +1,3 @@
-import getConfig from 'next/config'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -9,16 +8,10 @@ import {
     CONTEXT_IN_PROGRESS_STATUS as ACQUIRING_CONTEXT_IN_PROGRESS_STATUS,
     CONTEXT_VERIFICATION_STATUS as ACQUIRING_CONTEXT_VERIFICATION_STATUS,
 } from '@condo/domains/acquiring/constants/context'
-import { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } from '@condo/domains/acquiring/constants/integration'
-import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { CONTEXT_IN_PROGRESS_STATUS as BILLING_CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/billing/constants/constants'
+import { useBillingPartnerContexts } from '@condo/domains/billing/hooks/useBillingPartnerContexts'
 
 import type { AcquiringIntegrationContext, BillingIntegrationOrganizationContext } from '@app/condo/schema'
-
-
-const {
-    publicRuntimeConfig: { sppConfig },
-} = getConfig()
 
 type HeaderTagStatus = 'default' | 'warning' | 'error'
 
@@ -112,14 +105,16 @@ export const useBillingHeaderTags = (): {
     combinedHeaderTags: BillingHeaderTag[]
 } => {
     const intl = useIntl()
-    const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
+    const {
+        billingContexts,
+        sppBillingContext,
+        platformPartnerContext,
+        activePlatformPartnerContext,
+    } = useBillingPartnerContexts()
 
     const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' })
-    const BankPartnerTagTitle = intl.formatMessage({ id: 'accrualsAndPayments.combined.bankPartner.label' as FormatjsIntl.Message['ids'] })
-    const PlatformPartnerTagTitle = intl.formatMessage({ id: 'accrualsAndPayments.combined.platformPartner.label' as FormatjsIntl.Message['ids'] })
-    const InProgressTooltipMessage = intl.formatMessage({ id: 'accrualsAndPayments.combined.tag.inProgress' as FormatjsIntl.Message['ids'] })
-
-    const sppBillingId = sppConfig?.BillingIntegrationId || null
+    const InProgressTooltipMessage = intl.formatMessage({ id: 'accrualsAndPayments.combined.tag.inProgress' })
+    const sppBillingId = sppBillingContext?.integration?.id || null
 
     const allBillingTags = useMemo(() => {
         return billingContexts
@@ -147,28 +142,18 @@ export const useBillingHeaderTags = (): {
         }))
     }, [ErrorStatusMessage, allBillingTags, billingContexts, intl])
 
-    const sppBillingContext = useMemo(() => {
-        if (!sppBillingId) return null
-
-        return billingContexts.find(({ integration }) => integration?.id === sppBillingId) || null
-    }, [billingContexts, sppBillingId])
-
-    const platformPartnerContext = useMemo(() => {
-        return acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE) || null
-    }, [acquiringContexts])
-
     const combinedHeaderTags = useMemo(() => {
         const tags = [...combinedBillingTags]
         const bankPartnerTag = getCustomBillingTag({
             context: sppBillingContext,
             key: 'custom-bank-partner',
-            label: BankPartnerTagTitle,
+            label: sppBillingContext?.integration?.name || '',
             inProgressMessage: InProgressTooltipMessage,
         })
         const platformPartnerTag = getCustomBillingTag({
             context: platformPartnerContext,
             key: 'custom-platform-partner',
-            label: PlatformPartnerTagTitle,
+            label: activePlatformPartnerContext?.integration?.name || platformPartnerContext?.integration?.name || '',
             inProgressMessage: InProgressTooltipMessage,
         })
 
@@ -176,7 +161,13 @@ export const useBillingHeaderTags = (): {
         if (platformPartnerTag) tags.push(platformPartnerTag)
 
         return tags.map(mapTagConfigToHeaderTag)
-    }, [BankPartnerTagTitle, InProgressTooltipMessage, PlatformPartnerTagTitle, combinedBillingTags, platformPartnerContext, sppBillingContext])
+    }, [
+        InProgressTooltipMessage,
+        activePlatformPartnerContext?.integration?.name,
+        combinedBillingTags,
+        platformPartnerContext,
+        sppBillingContext,
+    ])
 
     return {
         legacyHeaderTags,
