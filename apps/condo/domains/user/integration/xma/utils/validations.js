@@ -1,5 +1,5 @@
-const crypto = require('crypto')
-const { URL } = require('url')
+const crypto = require('node:crypto')
+const { URL } = require('node:url')
 
 const { ERRORS } = require('./errors')
 const { XmaMiniAppInitParamsSchema, XmaMiniAppInitParamsUserSchema } = require('./schemas')
@@ -82,7 +82,7 @@ function getXmaAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
     }
     
     // 2. Check that data is not outdated
-    if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
+    if ((Math.floor(Date.now() / 1000) - Number.parseInt(data.auth_date)) > secondsSinceAuth) {
         return ERRORS.VALIDATION_AUTH_DATA_EXPIRED
     }
 
