@@ -1,9 +1,6 @@
 const crypto = require('crypto')
 const { URL } = require('url')
 
-const Ajv = require('ajv')
-const addFormats = require('ajv-formats')
-
 const { ERRORS } = require('./errors')
 const { XmaMiniAppInitParamsSchema, XmaMiniAppInitParamsUserSchema } = require('./schemas')
 
@@ -16,21 +13,6 @@ const CONFIG_REQUIRED_FIELDS = [
 ]
 // NOTE: XMA uses the same prefix as Telegram for the secret key
 const XMA_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
-
-const ajv = new Ajv({ allowUnionTypes: true })
-addFormats(ajv)
-const loginDataValidator = ajv.compile({
-    type: 'object',
-    anyOf: [XmaMiniAppInitParamsSchema],
-})
-const xmaMiniAppInitParamsValidator = ajv.compile({
-    type: 'object',
-    anyOf: [XmaMiniAppInitParamsSchema],
-})
-const userDataValidator = ajv.compile({
-    type: 'object',
-    anyOf: [XmaMiniAppInitParamsUserSchema],
-})
 
 /** @typedef {{
  id: string,
@@ -83,15 +65,15 @@ const userDataValidator = ajv.compile({
  */
 function getXmaAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
     // 1. Check that data contains all and only allowed fields
-    const isValid = loginDataValidator(data)
+    const isValid = XmaMiniAppInitParamsSchema.safeParse(data).success
     if (!isValid) {
         return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
     }
 
-    const isMiniAppInitData = xmaMiniAppInitParamsValidator(data)
+    const isMiniAppInitData = XmaMiniAppInitParamsSchema.safeParse(data).success
     if (isMiniAppInitData) {
         try {
-            if (!userDataValidator(JSON.parse(data.user))) {
+            if (!XmaMiniAppInitParamsUserSchema.safeParse(JSON.parse(data.user)).success) {
                 return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
             }
         } catch (err) {
