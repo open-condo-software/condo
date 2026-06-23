@@ -16,7 +16,7 @@ const { parseAndValidateFileMetaSignature, validateFileUploadSignature } = requi
 const { HTTPStatusByGQLErrorCode } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getKVClient } = require('@open-condo/keystone/kv')
-const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }
 
 async function expectGQLErrorResponse (response, errorFields) {
@@ -36,7 +36,9 @@ async function expectGQLErrorResponse (response, errorFields) {
     })
 }
 
-const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganization) => {
+const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganization, entryPoint) => {
+    setFakeClientMode(entryPoint, { excludeApps: ['NextApp', 'AdminUIApp'] })
+
     const appClients = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients
     const fileClientId = Object.keys(appClients)[0]
     let serverUrl
