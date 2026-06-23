@@ -33,8 +33,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const router = useRouter()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
-    const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
+    const DateTitle = intl.formatMessage({ id: 'Date' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
     const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
@@ -58,17 +57,9 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
 
         const columns = {
             depositedDate: {
-                title: DepositedDateTitle,
+                title: DateTitle,
                 key: 'depositedDate',
                 dataIndex: ['depositedDate'],
-                sorter: true,
-                width: '11%',
-                render: getDateRender(intl, String(search)),
-            },
-            transferDate: {
-                title: TransferDateTitle,
-                key: 'transferDate',
-                dataIndex: ['transferDate'],
                 sorter: true,
                 width: '11%',
                 render: getDateRender(intl, String(search)),
@@ -131,5 +122,5 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
         }
 
         return Object.values(columns).filter(Boolean)
-    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.acquiringContexts, options.posIntegrationContext, options.lastTestingPosReceipt, PaymentSourceTitle, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
+    }, [filters, DateTitle, intl, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.acquiringContexts, options.posIntegrationContext, options.lastTestingPosReceipt, PaymentSourceTitle, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
 }
