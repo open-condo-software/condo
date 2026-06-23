@@ -1,6 +1,7 @@
 import { Document, Packer, Paragraph, TextRun } from 'docx'
 
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
 export type ExportAIMessageFormat = 'txt' | 'pdf' | 'docx'
 const AI_EXPORT_FILE_NAME_PREFIX = 'ai-answer'
@@ -81,13 +82,15 @@ export async function exportAIMessage (options: ExportAIMessageOptions): Promise
 
     if (options.format === 'txt') {
         if (!options.text) return
-        await exportPlainText(options.text, safeFileNameBase)
+        const plainText = stripMarkdown(options.text, { collapseLineBreaks: false })
+        await exportPlainText(plainText, safeFileNameBase)
         return
     }
 
     if (options.format === 'docx') {
         if (!options.text) return
-        await exportDocx(options.text, safeFileNameBase)
+        const plainText = stripMarkdown(options.text, { collapseLineBreaks: false })
+        await exportDocx(plainText, safeFileNameBase)
         return
     }
 
