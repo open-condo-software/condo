@@ -188,6 +188,7 @@ async function uploadFilesFromServer ({
  * @param {string} options.itemId - Target model record ID
  * @param {string} options.fileClientId - File client ID
  * @param {string} options.fingerprint - Sender fingerprint
+ * @param {string} options.userId - ID of the user who owns the file (required — must match the owner recorded at upload time)
  * @param {boolean} [options.skipAccessControl=false] - Use Keystone directly instead of HTTP (same-server only)
  * @param {string} [options.serverUrl] - Optional server URL override (defaults to SERVER_URL or FILE_SERVER_URL from env)
  * @param {string} [options.authorization] - Optional authorization value, that'll be used as value in headers.Authorization for authentication (service-to-service calls)

@@ -45,10 +45,10 @@ const useCreate = (attrs?: Partial<UserHelpRequestFileCreateInput>, onComplete?:
 
             if (fileClientId && user?.id && fileField && !('signature' in fileField)) {
                 const maybeFile = (fileField as UploadFile)?.originFileObj || fileField
-                if (maybeFile && 'name' in maybeFile && 'type' in maybeFile) {
+                if (maybeFile instanceof File) {
                     const uploadResult = await uploadFiles({
                         ...(fileServerUrl ? { serverUrl: fileServerUrl } : {}),
-                        files: [maybeFile as File],
+                        files: [maybeFile],
                         meta: buildMeta({
                             userId: user.id,
                             fileClientId,
