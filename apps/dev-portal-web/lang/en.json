@@ -117,6 +117,14 @@
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Amount",
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Fee",
 
+  "components.miniapp.mediaUpload.actions.upload": "Upload",
+  "components.miniapp.mediaUpload.actions.replace": "Change",
+  "components.miniapp.mediaUpload.actions.save": "Save",
+  "components.miniapp.mediaUpload.restrictions.mimetype.label": "Format",
+  "components.miniapp.mediaUpload.restrictions.size.label": "Size",
+  "components.miniapp.mediaUpload.restrictions.colors.label": "Colors",
+  "components.miniapp.mediaUpload.restrictions.any.placeholder": "any",
+
   "components.miniapp.recentAppsPopover.recentApps.title": "Recently created",
 
   "pages.docs.path.menu.title": "Navigation",
@@ -237,6 +245,10 @@
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.label": "App ID on the selected environment",
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.placeholder": "Will appear after publishing",
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.environmentUri.label": "Environment URI",
+
+  "pages.apps.b2b.id.sections.info.media.subtitle": "Icons and media",
+  "pages.apps.b2b.id.sections.info.media.items.main.title": "Main app icon",
+  "pages.apps.b2b.id.sections.info.media.items.main.description": "Used for the app card in the \"Services\" section",
 
   "pages.apps.b2b.id.sections.organizations.title": "Connected organizations",
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organization management is not available yet",

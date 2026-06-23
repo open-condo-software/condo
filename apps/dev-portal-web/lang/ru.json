@@ -117,6 +117,14 @@
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Сумма",
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Комиссия",
 
+  "components.miniapp.mediaUpload.actions.upload": "Загрузить",
+  "components.miniapp.mediaUpload.actions.replace": "Заменить",
+  "components.miniapp.mediaUpload.actions.save": "Сохранить",
+  "components.miniapp.mediaUpload.restrictions.mimetype.label": "Формат",
+  "components.miniapp.mediaUpload.restrictions.size.label": "Размер",
+  "components.miniapp.mediaUpload.restrictions.colors.label": "Цвет",
+  "components.miniapp.mediaUpload.restrictions.any.placeholder": "любой",
+
   "components.miniapp.recentAppsPopover.recentApps.title": "Недавно созданные",
 
   "pages.docs.path.menu.title": "Навигация",
@@ -238,6 +246,11 @@
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.label": "ID приложения на выбранном стенде",
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.placeholder": "Появится после публикации",
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.environmentUri.label": "Адрес стенда",
+
+  "pages.apps.b2b.id.sections.info.media.subtitle": "Иконки и медиа",
+  "pages.apps.b2b.id.sections.info.media.items.main.title": "Главная иконка приложения",
+  "pages.apps.b2b.id.sections.info.media.items.main.description": "Используется для карточки приложения в разделе «Сервисы»",
+
 
   "pages.apps.b2b.id.sections.organizations.title": "Подключенные организации",
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Управление организациями пока недоступно",
