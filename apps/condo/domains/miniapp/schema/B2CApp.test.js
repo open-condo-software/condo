@@ -98,7 +98,7 @@ describe('B2CApp', () => {
             })
             test('Anonymous cannot', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestB2CApp(anonymous)
+                    await createTestB2CApp(anonymous, { logo: null })
                 })
             })
         })

@@ -233,7 +233,9 @@ async function createTestB2CApp (client, extraAttrs = {}) {
         developer: faker.name.firstName(),
         isHidden: true,
         colorSchema,
-        logo: await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2CApp'], dv: 1, sender }, client),
+        logo: 'logo' in extraAttrs
+            ? extraAttrs.logo
+            : await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2CApp'], dv: 1, sender }, client),
         ...extraAttrs,
     }
     const obj = await B2CApp.create(client, attrs)
@@ -296,7 +298,9 @@ async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
         sender,
         app: { connect: { id: app.id } },
         version,
-        data: await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/archive.zip'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2CAppBuild'], dv: 1, sender }, client),
+        data: 'data' in extraAttrs
+            ? extraAttrs.data
+            : await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/archive.zip'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2CAppBuild'], dv: 1, sender }, client),
         ...extraAttrs,
     }
     const obj = await B2CAppBuild.create(client, attrs)
@@ -367,7 +371,9 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
         subtitle,
         textVariant,
         backgroundColor,
-        backgroundImage: await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2BAppPromoBlock'], dv: 1, sender }, client),
+        backgroundImage: 'backgroundImage' in extraAttrs
+            ? extraAttrs.backgroundImage
+            : await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2BAppPromoBlock'], dv: 1, sender }, client),
         targetUrl,
         ...extraAttrs,
     }

@@ -214,7 +214,7 @@ describe('MarketItemFile', () => {
             })
             test('can\'t create', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestMarketItemFile(client, { id: 'id' })
+                    await createTestMarketItemFile(client, { id: 'id' }, { file: null })
                 })
             })
 

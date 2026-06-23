@@ -126,7 +126,7 @@ describe('MarketCategory', () => {
         describe('anonymous', () => {
             test('can\'t create', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestMarketCategory(anonymous)
+                    await createTestMarketCategory(anonymous, { image: null })
                 })
             })
 

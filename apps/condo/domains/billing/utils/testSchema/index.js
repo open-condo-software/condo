@@ -520,12 +520,17 @@ async function createTestBillingReceiptFile (client, receipt, context, extraAttr
     const receiptConnection = receipt ? { receipt: { connect: { id: receipt.id } } } : {}
     const contextConnection = { context: { connect: { id: context.id } } }
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const fileMeta = { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['BillingReceiptFile'], dv: 1, sender }
+    const sensitiveDataFile = 'sensitiveDataFile' in extraAttrs
+        ? extraAttrs.sensitiveDataFile
+        : await getUploadingFile(PRIVATE_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['BillingReceiptFile'], dv: 1, sender }, client)
+    const publicDataFile = 'publicDataFile' in extraAttrs
+        ? extraAttrs.publicDataFile
+        : await getUploadingFile(PUBLIC_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['BillingReceiptFile'], dv: 1, sender }, client)
     const attrs = {
         dv: 1,
         sender,
-        sensitiveDataFile: await getUploadingFile(PRIVATE_FILE, fileMeta, client),
-        publicDataFile: await getUploadingFile(PUBLIC_FILE, fileMeta, client),
+        sensitiveDataFile,
+        publicDataFile,
         controlSum: faker.random.alphaNumeric(20),
         ...receiptConnection,
         ...contextConnection,

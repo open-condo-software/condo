@@ -101,7 +101,7 @@ describe('PaymentsFile', () => {
 
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestPaymentsFile(anonymous, context)
+                    await createTestPaymentsFile(anonymous, context, { file: null })
                 })
             })
 

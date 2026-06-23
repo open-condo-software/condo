@@ -43,7 +43,9 @@ async function createTestMarketCategory (client, extraAttrs = {}) {
         dv: 1,
         sender,
         name: sender.fingerprint,
-        image: await getUploadingFile(TEST_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['MarketCategory'], dv: 1, sender }, client),
+        image: 'image' in extraAttrs
+            ? extraAttrs.image
+            : await getUploadingFile(TEST_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['MarketCategory'], dv: 1, sender }, client),
         mobileSettings: { bgColor: '#fff', titleColor: '#fff' },
         ...extraAttrs,
     }
@@ -218,7 +220,9 @@ async function createTestMarketItemFile (client, marketItem, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        file: await getUploadingFile(TEST_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['MarketItemFile'], dv: 1, sender }, client),
+        file: 'file' in extraAttrs
+            ? extraAttrs.file
+            : await getUploadingFile(TEST_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['MarketItemFile'], dv: 1, sender }, client),
         marketItem: { connect: { id: marketItem.id } },
         ...extraAttrs,
     }
