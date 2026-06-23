@@ -115,6 +115,32 @@ function getXmaAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
     return null
 }
 
+function getConfigItemValidationReason (config, index) {
+    for (const key of CONFIG_REQUIRED_FIELDS) {
+        if (!Object.hasOwn(config, key)) {
+            return `Missing required field "${key}" at index ${index}`
+        }
+    }
+    if (!Array.isArray(config.allowedRedirectUrls)) {
+        return `Field "allowedRedirectUrls" should be array at index ${index}`
+    }
+    for (const [urlIndex, url] of config.allowedRedirectUrls.entries()) {
+        try {
+            const parsed = new URL(url)
+            const normalized = `${parsed.origin}${parsed.pathname === '/' ? '' : parsed.pathname}`
+            if (url !== normalized) {
+                return `Field "allowedRedirectUrls[${urlIndex}]" should be normalized to "${normalized}" at index ${index}`
+            }
+        } catch {
+            return `Field "allowedRedirectUrls[${urlIndex}]" is not a valid URL at index ${index}`
+        }
+    }
+    if (typeof config.allowedUserType !== 'string' || !config.allowedUserType) {
+        return `Field "allowedUserType" must be a non-empty string at index ${index}`
+    }
+    return null
+}
+
 function getConfigValidationError (xmaConfig) {
     const uniqueBotIds = new Set(xmaConfig.map(conf => conf.botId))
     if (uniqueBotIds.size !== xmaConfig.length) {
@@ -122,27 +148,9 @@ function getConfigValidationError (xmaConfig) {
         return { ...ERRORS.INVALID_CONFIG, data: { reason: `Duplicate bot ids: "${duplicateNames.join('", "')}"` } }
     }
     for (const [index, config] of xmaConfig.entries()) {
-        for (const key of CONFIG_REQUIRED_FIELDS) {
-            if (!Object.hasOwn(config, key)) {
-                return { ...ERRORS.INVALID_CONFIG, data: { reason: `Missing required field "${key}" at index ${index}` } }
-            }
-        }
-        if (!Array.isArray(config.allowedRedirectUrls)) {
-            return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls" should be array at index ${index}` } }
-        }
-        for (const [urlIndex, url] of config.allowedRedirectUrls.entries()) {
-            try {
-                const parsed = new URL(url)
-                const normalized = `${parsed.origin}${parsed.pathname === '/' ? '' : parsed.pathname}`
-                if (url !== normalized) {
-                    return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls[${urlIndex}]" should be normalized to "${normalized}" at index ${index}` } }
-                }
-            } catch {
-                return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls[${urlIndex}]" is not a valid URL at index ${index}` } }
-            }
-        }
-        if (typeof config.allowedUserType !== 'string' || !config.allowedUserType) {
-            return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedUserType" must be a non-empty string at index ${index}` } }
+        const reason = getConfigItemValidationReason(config, index)
+        if (reason) {
+            return { ...ERRORS.INVALID_CONFIG, data: { reason } }
         }
     }
     return null
