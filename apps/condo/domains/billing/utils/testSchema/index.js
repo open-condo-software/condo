@@ -12,7 +12,7 @@ const get = require('lodash/get')
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, getUploadingFile } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
@@ -520,11 +520,12 @@ async function createTestBillingReceiptFile (client, receipt, context, extraAttr
     const receiptConnection = receipt ? { receipt: { connect: { id: receipt.id } } } : {}
     const contextConnection = { context: { connect: { id: context.id } } }
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const fileMeta = { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['BillingReceiptFile'], dv: 1, sender }
     const attrs = {
         dv: 1,
         sender,
-        sensitiveDataFile:  new UploadingFile(PRIVATE_FILE),
-        publicDataFile:  new UploadingFile(PUBLIC_FILE),
+        sensitiveDataFile: await getUploadingFile(PRIVATE_FILE, fileMeta, client),
+        publicDataFile: await getUploadingFile(PUBLIC_FILE, fileMeta, client),
         controlSum: faker.random.alphaNumeric(20),
         ...receiptConnection,
         ...contextConnection,
