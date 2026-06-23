@@ -142,7 +142,7 @@ async function sendDTMFCode ({ context, url, callId, dtmfCode, accessToken }) {
     }
 
     if (!response) {
-        logger.error({ msg: 'sendDTMFCode result', err: 'no response' })
+        logger.error({ msg: 'sendDTMFCode result', err: new Error('no response') })
         throw new GQLError(ERRORS.UNKNOWN_ERROR, context)
     }
 
