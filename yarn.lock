@@ -23720,15 +23720,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.3.2":
-  version: 3.3.3
-  resolution: "dompurify@npm:3.3.3"
+"dompurify@npm:3.4.11":
+  version: 3.4.11
+  resolution: "dompurify@npm:3.4.11"
   dependencies:
     "@types/trusted-types": ^2.0.7
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: 2ba5b40129259836f1e6c98e99d16608d34c7f4ad6ba457ac8c932f0e2c8e0e7c27561d25fcabf97e695eec57fd5eef1c065b324a542e5125631d4f768af2736
+  checksum: f96ec0f1ea763779ee0c08e05015422d600c14d4e0a6dd4b21cfb4ac30082c333534c2092206d55fcf9597f9750622facdaf295463b3f826b38569c928d16f19
   languageName: node
   linkType: hard
 
