@@ -25,26 +25,6 @@
   display: none;
 }
 
-.welcome-message {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 200px;
-}
-
-.welcome-message-legacy {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.welcome-message-configured {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-top: var(--condo-global-spacing-4);
-  text-align: left;
-}
-
 .scenario-button-tooltip-wrap {
   display: inline-block;
   max-width: 100%;

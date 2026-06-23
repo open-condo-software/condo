@@ -2,16 +2,15 @@ import { useApolloClient } from '@apollo/client'
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Markdown, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Tooltip } from '@open-condo/ui'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
-import { AI_CHAT_BUTTON_CONFIG } from '@condo/domains/common/constants/featureflags'
+import { useChatWithCondoButtonConfig } from '@condo/domains/ai/hooks/useChatWithCondoButtonConfig'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
@@ -20,21 +19,11 @@ import { AIChatInput } from './AIChatInput'
 import { AIChatMessage } from './AIChatMessage'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
+const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
 
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
 
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
-
-type AiChatScenarioButton = {
-    button_id: string
-    button_name: string
-    button_description: string
-}
-
-type AiChatButtonConfig = {
-    welcomeMessage: string
-    buttons: AiChatScenarioButton[]
-}
 
 const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
 
@@ -77,40 +66,6 @@ function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
             ? 'service_text_leaked'
             : (parsedSuggestions.length === 0 ? 'empty_after_parse' : undefined),
     }
-}
-
-function parseAiChatButtonConfigFromFlag (raw: unknown): AiChatButtonConfig | null {
-    let value = raw
-    if (typeof raw === 'string') {
-        try {
-            value = JSON.parse(raw)
-        } catch {
-            return null
-        }
-    }
-    if (!value || typeof value !== 'object') {
-        return null
-    }
-    const obj = value as Record<string, unknown>
-    const welcomeMessage = typeof obj.welcome_message === 'string' ? obj.welcome_message.trim() : ''
-
-    const buttonsRaw = Array.isArray(obj.buttons) ? obj.buttons : []
-    const buttons: AiChatScenarioButton[] = buttonsRaw
-        .map((item: unknown) => {
-            const row = item as Record<string, unknown>
-            const buttonId = row?.button_id !== undefined && row?.button_id !== null
-                ? String(row.button_id).trim()
-                : ''
-            const buttonName = typeof row?.button_name === 'string' ? row.button_name.trim() : ''
-            const buttonDescription = typeof row?.button_description === 'string' ? row.button_description.trim() : ''
-            return { button_id: buttonId, button_name: buttonName, button_description: buttonDescription }
-        })
-        .filter((b) => b.button_id && b.button_name)
-
-    if (!welcomeMessage && buttons.length === 0) {
-        return null
-    }
-    return { welcomeMessage, buttons }
 }
 
 export type MessageAttachmentDisplay = {
@@ -161,12 +116,21 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { useFlagValue } = useFeatureFlags()
-    const chatButtonConfigRaw = useFlagValue<Record<string, unknown>>(AI_CHAT_BUTTON_CONFIG)
-    const chatButtonConfig = useMemo(
-        () => parseAiChatButtonConfigFromFlag(chatButtonConfigRaw),
-        [chatButtonConfigRaw],
-    )
+    const buttonConfig = useChatWithCondoButtonConfig()
+    const scenarioButtons = buttonConfig?.buttons ?? []
+    const welcomeDisplayMessage = useMemo<Message | null>(() => {
+        const text = (buttonConfig?.welcomeMessage || welcomeMessage).trim()
+        if (!text) {
+            return null
+        }
+        return {
+            id: WELCOME_UI_MESSAGE_ID,
+            role: 'assistant',
+            content: { text },
+            timestamp: new Date(0),
+            status: 'sent',
+        }
+    }, [buttonConfig?.welcomeMessage, welcomeMessage])
 
     const client = useApolloClient()
 
@@ -513,71 +477,49 @@ export const AIChat: React.FC<AIChatProps> = ({
         <div className={styles.chatContainer}>
             <div className={`${styles.messagesContainer} comment-body`}>
                 <div className={styles.headerSpacer} />
-                {messages.length === 0 ? (
-                    chatButtonConfig ? (
-                        <div className={`${styles.welcomeMessage} ${styles.welcomeMessageConfigured} empty-container`}>
-                            <Space direction='vertical' size={16} align='start'>
-                                <div className={`${styles.messageWrapper} ${styles.assistantMessage}`}>
-                                    <div className={styles.assistantMessageContainer}>
-                                        {chatButtonConfig.welcomeMessage ? (
-                                            <div className={styles.assistantMarkdown}>
-                                                <Markdown type='inline'>{chatButtonConfig.welcomeMessage}</Markdown>
-                                            </div>
-                                        ) : (
-                                            <Typography.Text type='secondary'>{welcomeMessage}</Typography.Text>
-                                        )}
-                                    </div>
-                                </div>
-                                {chatButtonConfig.buttons.length > 0 && (
-                                    <div className={styles.assistantSuggestions}>
-                                        {chatButtonConfig.buttons.map((btn) => {
-                                            const scenarioButton = (
-                                                <Button
-                                                    type='primary'
-                                                    size='medium'
-                                                    disabled={!canExecuteAIFlow}
-                                                    onClick={() => void handleScenarioButtonClick(btn.button_id, btn.button_name)}
-                                                >
-                                                    {btn.button_name}
-                                                </Button>
-                                            )
-                                            return btn.button_description ? (
-                                                <Tooltip
-                                                    key={btn.button_id}
-                                                    title={btn.button_description}
-                                                    getPopupContainer={(trigger) => trigger.parentElement || trigger}
-                                                >
-                                                    <span className={styles.scenarioButtonTooltipWrap}>
-                                                        {scenarioButton}
-                                                    </span>
-                                                </Tooltip>
-                                            ) : (
-                                                <React.Fragment key={btn.button_id}>{scenarioButton}</React.Fragment>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-                            </Space>
-                        </div>
-                    ) : (
-                        <div className={`${styles.welcomeMessage} ${styles.welcomeMessageLegacy} empty-container`}>
-                            <Space direction='vertical' align='center' size={16}>
-                                <Typography.Text type='secondary'>
-                                    {welcomeMessage}
-                                </Typography.Text>
-                            </Space>
-                        </div>
-                    )
-                ) : (
-                    messages.map((message) => (
-                        <AIChatMessage
-                            key={message.id}
-                            message={message}
-                            onSuggestionClick={handleSuggestionButtonClick}
-                            canExecuteAIFlow={canExecuteAIFlow}
-                        />
-                    ))
+                {welcomeDisplayMessage && (
+                    <AIChatMessage
+                        message={welcomeDisplayMessage}
+                        canExecuteAIFlow={canExecuteAIFlow}
+                    />
                 )}
+                {scenarioButtons.length > 0 && (
+                    <div className={styles.assistantSuggestions}>
+                        {scenarioButtons.map((btn) => {
+                            const scenarioButton = (
+                                <Button
+                                    type='primary'
+                                    size='medium'
+                                    disabled={!canExecuteAIFlow}
+                                    onClick={() => void handleScenarioButtonClick(btn.buttonId, btn.buttonName)}
+                                >
+                                    {btn.buttonName}
+                                </Button>
+                            )
+                            return btn.buttonDescription ? (
+                                <Tooltip
+                                    key={btn.buttonId}
+                                    title={btn.buttonDescription}
+                                    getPopupContainer={(trigger) => trigger.parentElement || trigger}
+                                >
+                                    <span className={styles.scenarioButtonTooltipWrap}>
+                                        {scenarioButton}
+                                    </span>
+                                </Tooltip>
+                            ) : (
+                                <React.Fragment key={btn.buttonId}>{scenarioButton}</React.Fragment>
+                            )
+                        })}
+                    </div>
+                )}
+                {messages.map((message) => (
+                    <AIChatMessage
+                        key={message.id}
+                        message={message}
+                        onSuggestionClick={handleSuggestionButtonClick}
+                        canExecuteAIFlow={canExecuteAIFlow}
+                    />
+                ))}
                 <div ref={messagesEndRef} />
                 <div className={styles.inputSpacer} style={{ height: inputContainerHeight }} />
             </div>
