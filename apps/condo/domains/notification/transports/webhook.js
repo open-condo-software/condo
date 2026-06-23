@@ -24,7 +24,7 @@ async function prepareMessageToSend (message) {
 }
 
 /**
- * Send a Region Messenger notification via webhook
+ * Send a webhook notification via webhook
  * @param notification
  * @param message
  * @param data
@@ -32,14 +32,14 @@ async function prepareMessageToSend (message) {
  * @param remoteClient
  * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
  */
-async function send ({ notification, message, data, user, remoteClient } = {}) {
+async function send ({ notification, data, user, remoteClient } = {}) {
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
 
-    const regionMessengerTokens = await getTokens(userId, remoteClientId)
+    const pushTokens = await getTokens(userId, remoteClientId)
 
-    if (!regionMessengerTokens.length) {
-        return [false, { error: 'No region messenger tokens available.' }]
+    if (!pushTokens.length) {
+        return [false, { error: 'No tokens available.' }]
     }
 
     const tokens = []
@@ -49,7 +49,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}) {
     const appIds = {}
     const metaByToken = {}
 
-    for (const tokenData of regionMessengerTokens) {
+    for (const tokenData of pushTokens) {
         tokens.push(tokenData.token)
         notificationByToken[tokenData.token] = notification
         dataByToken[tokenData.token] = data
