@@ -132,6 +132,7 @@
     "@xmldom/xmldom": "^0.8.12",
     "js-cookie": "^3.0.8",
     "@whatwg-node/fetch/undici": "5.28.5",
-    "undici": "7.28.0"
+    "undici": "7.28.0",
+    "posthog-js/dompurify": "3.4.11"
   }
 }
