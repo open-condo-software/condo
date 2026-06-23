@@ -2509,6 +2509,7 @@
   "pages.condo.notification.unsubscribed.Description": "You will not receiving receipts on email",
   "pages.condo.notification.unsubscribed.PageTitle": "Subscription canceled",
   "pages.condo.payments.TotalSum": "Total (per period)",
+  "pages.condo.payments.summary.count": "payments count",
   "pages.condo.payments.billingAddress": "Billing address",
   "pages.condo.payments.createAcquiringLabel": "Go to the application",
   "pages.condo.payments.createBillingLabel": "View list of integrations",

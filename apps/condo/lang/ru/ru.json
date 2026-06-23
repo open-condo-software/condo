@@ -2509,6 +2509,7 @@
   "pages.condo.notification.unsubscribed.Description": "На вашу почту больше не будут приходить квитанции",
   "pages.condo.notification.unsubscribed.PageTitle": "Подписка отменена",
   "pages.condo.payments.TotalSum": "Всего (за период)",
+  "pages.condo.payments.summary.count": "кол-во платежей",
   "pages.condo.payments.billingAddress": "Платежный адрес",
   "pages.condo.payments.createAcquiringLabel": "Перейти к оформлению заявки",
   "pages.condo.payments.createBillingLabel": "Посмотреть список интеграций",

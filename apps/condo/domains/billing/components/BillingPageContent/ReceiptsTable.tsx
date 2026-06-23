@@ -28,10 +28,10 @@ import { BillingReceiptForOrganization as BillingReceiptForOrganizationGQL } fro
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 import { BillingReceiptForOrganization } from '@condo/domains/billing/utils/clientSchema'
+import { BillingTableFiltersContainer } from '@condo/domains/common/components/BillingTableFiltersContainer'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
@@ -410,7 +410,7 @@ export const ReceiptsTable: React.FC = () => {
         <>
             <Row gutter={ITEMS_GUTTER}>
                 <Col span={24}>
-                    <TableFiltersContainer>
+                    <BillingTableFiltersContainer>
                         <Row gutter={FILTERS_GUTTER}>
                             <Col xs={24} md={7}>
                                 <Input
@@ -422,7 +422,7 @@ export const ReceiptsTable: React.FC = () => {
                             </Col>
                             <Col xs={24} md={8}>{periodMetaSelect}</Col>
                         </Row>
-                    </TableFiltersContainer>
+                    </BillingTableFiltersContainer>
                 </Col>
                 <Col span={24}>
                     <Table<BillingReceiptType>

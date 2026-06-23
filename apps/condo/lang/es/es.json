@@ -2507,6 +2507,7 @@
   "pages.condo.notification.unsubscribed.Description": "Los recibos ya no se enviarán a su correo electrónico",
   "pages.condo.notification.unsubscribed.PageTitle": "Suscripción cancelada",
   "pages.condo.payments.TotalSum": "Total (del período)",
+  "pages.condo.payments.summary.count": "cantidad de pagos",
   "pages.condo.payments.billingAddress": "Dirección de facturación",
   "pages.condo.payments.createAcquiringLabel": "Proceder a crear una solicitud",
   "pages.condo.payments.createBillingLabel": "Ver una lista de integraciones",

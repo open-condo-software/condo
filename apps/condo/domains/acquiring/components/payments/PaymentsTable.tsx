@@ -13,7 +13,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography, Button, Tour } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
+import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
 import styles from '@condo/domains/acquiring/components/payments/PaymentsTable.module.css'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
@@ -26,13 +26,13 @@ import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
+import { BillingTableFiltersContainer } from '@condo/domains/common/components/BillingTableFiltersContainer'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import {
     MultipleFilterContextProvider,
@@ -49,40 +49,9 @@ const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
-const ROW_GUTTER: [Gutter, Gutter] = [0, 30]
+const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
-const SUM_BAR_COL_GUTTER: [Gutter, Gutter] = [40, 0]
 const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
-
-interface IPaymentsSumInfoProps {
-    title: string
-    message: string
-    currencyCode: string
-    type?: 'success' | 'warning'
-    loading: boolean
-}
-
-export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
-    title,
-    message,
-    currencyCode = defaultCurrencyCode,
-    type,
-    loading,
-}) => {
-    const intl = useIntl()
-
-    return (
-        <Space direction='horizontal' size={10}>
-            <Typography.Text type='secondary'>{title}</Typography.Text>
-            <Typography.Text
-                {...{ type }}
-                strong={true}
-            >
-                {loading ? '…' : getMoneyRender(intl, currencyCode)(message)}
-            </Typography.Text>
-        </Space>
-    )
-}
 
 
 interface PaymentsTableContentProps {
@@ -104,7 +73,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
-
+    const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts[0]
 
@@ -224,11 +193,40 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         return sortedObjs
     }, [objs, lastTestingPosReceipt])
 
+    const paymentsSummaryItems = useMemo(() => ([
+        {
+            key: 'total',
+            label: TotalsSumTitle,
+            value: getMoneyRender(intl, currencyCode)(sumAllPayments?.result?.sum),
+            loading: allPaymentsLoading,
+        },
+        {
+            key: 'done',
+            label: DoneSumTitle,
+            value: getMoneyRender(intl, currencyCode)(sumDonePayments?.result?.sum),
+            loading: donePaymentsLoading,
+            type: 'success' as const,
+        },
+        {
+            key: 'withdrawn',
+            label: WithdrawnSumTitle,
+            value: getMoneyRender(intl, currencyCode)(sumWithdrawnPayments?.result?.sum),
+            loading: withdrawnPaymentsLoading,
+            type: 'warning' as const,
+        },
+        {
+            key: 'count',
+            label: PaymentsCountTitle,
+            value: count || 0,
+            loading,
+        },
+    ]), [TotalsSumTitle, intl, currencyCode, sumAllPayments?.result?.sum, allPaymentsLoading, DoneSumTitle, sumDonePayments?.result?.sum, donePaymentsLoading, WithdrawnSumTitle, sumWithdrawnPayments?.result?.sum, withdrawnPaymentsLoading, PaymentsCountTitle, count, loading])
+
     return (
         <Tour.Provider>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
-                    <TableFiltersContainer>
+                    <BillingTableFiltersContainer>
                         <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}>
                             <Col flex='auto'>
                                 <Row gutter={TAP_BAR_ROW_GUTTER}>
@@ -267,54 +265,25 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                                 </Row>
                             </Col>
                         </Row>
-                    </TableFiltersContainer>
+                    </BillingTableFiltersContainer>
                 </Col>
 
-                <Col span={24}>
-                    <PaymentsSumTable>
-                        <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
-                            <Col>
-                                <PaymentsSumInfo
-                                    title={TotalsSumTitle}
-                                    message={get(sumAllPayments, 'result.sum')}
-                                    currencyCode={currencyCode}
-                                    loading={allPaymentsLoading}
-                                />
-                            </Col>
-                            <Col>
-                                <PaymentsSumInfo
-                                    title={DoneSumTitle}
-                                    message={get(sumDonePayments, 'result.sum')}
-                                    currencyCode={currencyCode}
-                                    type='success'
-                                    loading={donePaymentsLoading}
-                                />
-                            </Col>
-                            <Col>
-                                <PaymentsSumInfo
-                                    title={WithdrawnSumTitle}
-                                    message={get(sumWithdrawnPayments, 'result.sum')}
-                                    currencyCode={currencyCode}
-                                    type='warning'
-                                    loading={withdrawnPaymentsLoading}
-                                />
-                            </Col>
-                        </Row>
-                    </PaymentsSumTable>
-                </Col>
 
                 <Col span={24}>
-                    <Table
-                        loading={loading || isLastTestingPosReceiptLoading}
-                        dataSource={sortedDataSource}
-                        totalRows={count}
-                        columns={tableColumns}
-                        onRow={(record) => {
-                            if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
-                                return { style: { backgroundColor: colors.orange[1] } }
-                            }
-                        }}
-                    />
+                    <Space size={8} direction='vertical'>
+                        <PaymentsSummary items={paymentsSummaryItems} />
+                        <Table
+                            loading={loading || isLastTestingPosReceiptLoading}
+                            dataSource={sortedDataSource}
+                            totalRows={count}
+                            columns={tableColumns}
+                            onRow={(record) => {
+                                if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
+                                    return { style: { backgroundColor: colors.orange[1] } }
+                                }
+                            }}
+                        />
+                    </Space>
                 </Col>
                 <Col span={24}>
                     <ExportToExcelActionBar
