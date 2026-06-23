@@ -50,8 +50,7 @@ const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
-const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
+const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [8, 20]
 
 
 interface PaymentsTableContentProps {
@@ -227,42 +226,32 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
                     <BillingTableFiltersContainer>
-                        <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}>
-                            <Col flex='auto'>
-                                <Row gutter={TAP_BAR_ROW_GUTTER}>
-                                    <Col xs={24} lg={8}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            value={search}
-                                            onChange={(e) => {
-                                                handleSearchChange(e.target.value)
-                                            }}
-                                            allowClear
-                                            suffix={<Search size='medium' color={colors.gray[7]} />}
-                                        />
-                                    </Col>
-                                    <Col xs={24} lg={DATE_PICKER_COL_LAYOUT}>
-                                        <DateRangePicker
-                                            value={dateRange || dateFallback}
-                                            onChange={handleDateChange}
-                                            placeholder={[StartDateMessage, EndDateMessage]}
-                                        />
-                                    </Col>
-                                </Row>
+                        <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}  align='middle'>
+                            <Col flex={breakpoints.DESKTOP_SMALL ? 'auto' : '100%'}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    value={search}
+                                    onChange={(e) => {
+                                        handleSearchChange(e.target.value)
+                                    }}
+                                    allowClear
+                                    suffix={<Search size='medium' color={colors.gray[7]} />}
+                                />
                             </Col>
-                            <Col offset={breakpoints.DESKTOP_SMALL && 1}>
-                                <Row justify='end' align='middle'>
-                                    {
-                                        appliedFiltersCount > 0 && (
-                                            <Col onClick={onReset}>
-                                                <ResetFiltersModalButton />
-                                            </Col>
-                                        )
-                                    }
-                                    <Col>
-                                        <OpenFiltersButton />
-                                    </Col>
-                                </Row>
+                            <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'}>
+                                <DateRangePicker
+                                    value={dateRange || dateFallback}
+                                    onChange={handleDateChange}
+                                    placeholder={[StartDateMessage, EndDateMessage]}
+                                />
+                            </Col>
+                            {appliedFiltersCount > 0 && (
+                                <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'} onClick={onReset}>
+                                    <ResetFiltersModalButton />
+                                </Col>
+                            )}
+                            <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'}>
+                                <OpenFiltersButton showLabel={false} />
                             </Col>
                         </Row>
                     </BillingTableFiltersContainer>

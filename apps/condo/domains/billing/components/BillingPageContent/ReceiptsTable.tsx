@@ -45,7 +45,7 @@ const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 const SORTABLE_PROPERTIES = ['toPay']
 const INPUT_STYLE: CSSProperties = { width: '18em' }
 const ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
-const FILTERS_GUTTER: RowProps['gutter'] = [16, 20]
+const FILTERS_GUTTER: RowProps['gutter'] = [8, 20]
 const ASC = 'ASC'
 const DESC = 'DESC'
 const PERIOD_FILTER_KEY = 'period'
@@ -412,7 +412,7 @@ export const ReceiptsTable: React.FC = () => {
                 <Col span={24}>
                     <BillingTableFiltersContainer>
                         <Row gutter={FILTERS_GUTTER}>
-                            <Col xs={24} md={7}>
+                            <Col flex='auto'>
                                 <Input
                                     placeholder={SearchPlaceholder}
                                     onChange={(e) => {handleSearchChange(e.target.value)}}
@@ -420,7 +420,7 @@ export const ReceiptsTable: React.FC = () => {
                                     allowClear
                                 />
                             </Col>
-                            <Col xs={24} md={8}>{periodMetaSelect}</Col>
+                            <Col flex='none'>{periodMetaSelect}</Col>
                         </Row>
                     </BillingTableFiltersContainer>
                 </Col>
