@@ -1,5 +1,5 @@
 import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
-import { Col, Row, Space } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -10,7 +10,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Typography, Button, Tour } from '@open-condo/ui'
+import { Modal, Typography, Button, Tour, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
@@ -259,7 +259,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
 
 
                 <Col span={24}>
-                    <Space size={8} direction='vertical'>
+                    <Space size={8} direction='vertical' width='100%'>
                         <PaymentsSummary items={paymentsSummaryItems} />
                         <Table
                             loading={loading || isLastTestingPosReceiptLoading}
