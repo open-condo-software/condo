@@ -30,13 +30,11 @@ export const useRecipientDetails = (recipient: BillingRecipientType): ListProps[
             },
             {
                 label: CategoryLabel,
-                //TODO(@abshnko): use recipient.category when it's added
-                value: '-',
+                value: recipient.category?.name || NoDataMessage,
             },
             {
                 label: FeeLabel,
-                //TODO(@abshnko): use recipient.commission when it's added
-                value: '-',
+                value: recipient.commission || NoDataMessage,
             },
         ]
 
