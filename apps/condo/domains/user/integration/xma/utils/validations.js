@@ -76,7 +76,7 @@ function getXmaAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOW
             if (!XmaMiniAppInitParamsUserSchema.safeParse(JSON.parse(data.user)).success) {
                 return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
             }
-        } catch (err) {
+        } catch (err) { // NOSONAR
             return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
         }
     }
@@ -168,12 +168,12 @@ function isRedirectUrlValid (allowedUrls, requestUrl) {
     try {
         const decoded = decodeURIComponent(requestUrl)
         url = new URL(decoded)
-    } catch (e) {
+    } catch (e) { // NOSONAR
         return false
     }
     const urlForCheck = `${url.origin}${url.pathname === '/' ? '' : url.pathname}`
-    const result = allowedUrls.indexOf(urlForCheck) !== -1
-    return result
+    
+    return allowedUrls.includes(urlForCheck)
 }
 
 
