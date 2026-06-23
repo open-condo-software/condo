@@ -130,6 +130,8 @@
     "protobufjs": "7.5.5",
     "next": "^15.5.18",
     "@xmldom/xmldom": "^0.8.12",
-    "js-cookie": "^3.0.8"
+    "js-cookie": "^3.0.8",
+    "@whatwg-node/fetch/undici": "5.28.5",
+    "undici": "7.28.0"
   }
 }
