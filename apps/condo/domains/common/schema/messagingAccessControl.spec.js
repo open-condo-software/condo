@@ -397,7 +397,6 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                 nc = await connectWithToken(token, 'revoke-new-relay')
                 const jc = JSONCodec()
 
-                await relayService.revokeUser(USER_B)
                 serverConn.publish(`${ADMIN_REVOKE_PREFIX}.${USER_B}`)
                 await serverConn.flush()
 
