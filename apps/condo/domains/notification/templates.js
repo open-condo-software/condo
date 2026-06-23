@@ -224,15 +224,6 @@ function translationStringKeyForTelegramUrlMessage (messageType) {
     return `notification.messages.${messageType}.${TELEGRAM_TRANSPORT}.urlMessage`
 }
 
-/**
- * @param {string} messageType
- * @returns {string}
- */
-function translationStringKeyForWebhookUrlMessage (messageType) {
-    return `notification.messages.${messageType}.${WEBHOOK_TRANSPORT}.urlMessage`
-}
-
-
 function normalizeSMSText (text) {
     return unescape(text).replace(SMS_FORBIDDEN_SYMBOLS_REGEXP, '*')
 }
@@ -271,7 +262,7 @@ function translateObjectItems (obj, locale) {
 }
 
 /**
- * Renders message template for telegram
+ * Renders message template for Telegram
  */
 function telegramRenderer ({ message, env }) {
     const { lang: locale, type, meta } = message
@@ -301,7 +292,7 @@ function telegramRenderer ({ message, env }) {
  * Renders message template for webhook
  */
 function webhookRenderer ({ message, env }) {
-    const { lang: locale, type, meta } = message
+    const { lang: locale, type } = message
     const { templatePathText, templatePathHtml } = getWebhookTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {}
@@ -312,13 +303,6 @@ function webhookRenderer ({ message, env }) {
 
     if (templatePathHtml) {
         ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
-    }
-
-    const text = i18n(translationStringKeyForWebhookUrlMessage(type), { locale, meta: messageTranslated.meta })
-    const url = meta?.data?.url
-
-    if (url && text) {
-        ret.inlineKeyboard = [[{ text, url }]]
     }
 
     return {

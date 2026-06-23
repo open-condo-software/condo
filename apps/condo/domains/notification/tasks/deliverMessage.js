@@ -27,11 +27,11 @@ const {
     TELEGRAM_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
-const webhookAdapter = require('@condo/domains/notification/transports//webhook')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
 const smsAdapter = require('@condo/domains/notification/transports/sms')
 const telegramAdapter = require('@condo/domains/notification/transports/telegram')
+const webhookAdapter = require('@condo/domains/notification/transports/webhook')
 const {
     Message,
     checkMessageTypeInBlackList,
