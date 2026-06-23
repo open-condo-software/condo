@@ -29,12 +29,15 @@ export const MediaSubsection: React.FC<{ id: string }> = () => {
             { value: B2C_LOGO_MAIN_COLOR, textColor: 'white' },
             { value: B2C_LOGO_SECONDARY_COLOR, textColor: 'black' },
         ],
+        mimetypes: ['image/webp', 'image/png'],
+        maxFileSize: 1024 * 1024 * 2,
     }), [])
 
     return (
         <Row gutter={MEDIA_GUTTER}>
             <Col span={FULL_SPAN_COL}>
                 <MediaUpload
+                    formName='update-b2b-app-logo-form'
                     title={MainIconTitle}
                     description={MainIconDescription}
                     restrictions={mainIconRestrictions}
