@@ -24,7 +24,7 @@ const linkUser = async (context, user, xmaAuthData, userType) => {
 }
 
 const getIdentity = async (context, userInfo, userType) => {
-    return await UserExternalIdentity.getOne(context, {
+    return UserExternalIdentity.getOne(context, {
         identityType: XMA_IDP_TYPE,
         identityId: userInfo.id,
         // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects

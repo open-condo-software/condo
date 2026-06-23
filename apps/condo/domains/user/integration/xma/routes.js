@@ -131,7 +131,7 @@ class XmaRoutes {
         if (isSuperUser({ user })) {
             throw new GQLError(ERRORS.SUPER_USERS_NOT_ALLOWED, this.context)
         }
-        const { keystone } = await getSchemaCtx('User')
+        const { keystone } = getSchemaCtx('User')
         await keystone._sessionManager.startAuthedSession(req, {
             item: { id: user.id },
             list: keystone.lists['User'],
