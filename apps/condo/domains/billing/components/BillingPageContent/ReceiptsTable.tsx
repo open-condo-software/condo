@@ -1,5 +1,5 @@
 import { BillingReceipt as BillingReceiptType, BillingReceiptWhereInput, SortBillingReceiptsBy, TourStepTypeType } from '@app/condo/schema'
-import { Col, Row, Space, type RowProps } from 'antd'
+import { Col, Row, type RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -21,6 +21,7 @@ import {
     RowSelectionState,
     Table,
     TableRef,
+    Space,
 } from '@open-condo/ui'
 
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
@@ -39,6 +40,7 @@ import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
+import { ReportMessage } from './ReportMessage'
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
@@ -425,20 +427,23 @@ export const ReceiptsTable: React.FC = () => {
                     </BillingTableFiltersContainer>
                 </Col>
                 <Col span={24}>
-                    <Table<BillingReceiptType>
-                        id='billing-receipts-table'
-                        dataSource={dataSource}
-                        columns={mainTableColumns}
-                        pageSize={DEFAULT_PAGE_SIZE}
-                        onTableStateChange={updateUrlQuery}
-                        initialTableState={initialTableState}
-                        columnLabels={columnLabels}
-                        rowSelectionOptions={rowSelectionOptions}
-                        getRowId={getRowId}
-                        onTableReady={onTableReady}
-                        onRowClick={onRowClick}
-                        ref={tableRef}
-                    />
+                    <Space size={8} direction='vertical' width='100%'>
+                        <ReportMessage/>
+                        <Table<BillingReceiptType>
+                            id='billing-receipts-table'
+                            dataSource={dataSource}
+                            columns={mainTableColumns}
+                            pageSize={DEFAULT_PAGE_SIZE}
+                            onTableStateChange={updateUrlQuery}
+                            initialTableState={initialTableState}
+                            columnLabels={columnLabels}
+                            rowSelectionOptions={rowSelectionOptions}
+                            getRowId={getRowId}
+                            onTableReady={onTableReady}
+                            onRowClick={onRowClick}
+                            ref={tableRef}
+                        />
+                    </Space>
                 </Col>
                 {canManageReceipts && selectedRowsCount > 0 && (
                     <Col span={24}>

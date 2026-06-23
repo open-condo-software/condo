@@ -47,7 +47,7 @@ export const ReportMessage: React.FC = () => {
         const uploadMessage = `${DataWasUploadedPrefixMessage} ${ReportDateMessage}${DataWasUploadedSuffixMessage} ${ReportTimeMessage}`
         return (
             <>
-                <Typography.Text type='warning' size='medium'>
+                <Typography.Text type='secondary' size='medium'>
                     {uploadMessage}
                 </Typography.Text>
                 &nbsp;

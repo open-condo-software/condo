@@ -7,7 +7,6 @@ import { Alert, ActionBar } from '@open-condo/ui'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { ReceiptsTable } from './ReceiptsTable'
-import { ReportMessage } from './ReportMessage'
 
 import type { RowProps } from 'antd'
 
@@ -24,9 +23,6 @@ export const AccrualsTab: React.FC<AccrualsTabProps> = ({ uploadComponent }) => 
 
     return (
         <Row gutter={SECTION_GUTTER}>
-            <Col span={FULL_SPAN}>
-                <ReportMessage/>
-            </Col>
             {Boolean(problem) && (
                 <Col span={FULL_SPAN}>
                     <Alert type='error' message={problem.title} description={problem.message} showIcon/>
