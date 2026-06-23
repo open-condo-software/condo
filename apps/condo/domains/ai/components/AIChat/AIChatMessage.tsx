@@ -6,6 +6,7 @@ import { Button, Dropdown, Markdown, Tooltip, Typography } from '@open-condo/ui'
 
 import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
 import styles from './AIChat.module.css'
 
@@ -46,7 +47,9 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
         if (copied) return
 
         try {
-            await navigator.clipboard.writeText(message.content.text)
+            await navigator.clipboard.writeText(
+                stripMarkdown(message.content.text, { collapseLineBreaks: false }),
+            )
             setCopied(true)
 
             setTimeout(() => setCopied(false), COPY_RESET_TIMEOUT_MS)
