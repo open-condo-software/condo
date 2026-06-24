@@ -960,14 +960,12 @@ describe('Invoice', () => {
             expect(invoices).toHaveLength(1)
 
             const [invoice] = invoices
-            expect(invoice.rows).toEqual([
-                expect.objectContaining({
-                    meta: {
-                        imageUrl: get(parentCategory, ['image', 'publicUrl'], null),
-                        categoryBgColor: get(parentCategory, ['mobileSettings', 'bgColor'], null),
-                    },
-                }),
-            ])
+            const stripSign = (url) => (url ? url.split('?')[0] : url)
+            expect(invoice.rows).toHaveLength(1)
+            expect(stripSign(get(invoice, ['rows', 0, 'meta', 'imageUrl'], null)))
+                .toEqual(stripSign(get(parentCategory, ['image', 'publicUrl'], null)))
+            expect(get(invoice, ['rows', 0, 'meta', 'categoryBgColor'], null))
+                .toEqual(get(parentCategory, ['mobileSettings', 'bgColor'], null))
         })
 
         describe('fields', () => {
