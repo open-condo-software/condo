@@ -14,7 +14,7 @@ require('@condo/domains/common/utils/testSchema/env').mockEnv({
                     voipPanels: z.string(),
                     voipType: z.literal('sip'),
                     voipIceServers: z.string(),
-                }).loose.toJSONSchema(),
+                }).loose().toJSONSchema(),
             },
         },
     },
