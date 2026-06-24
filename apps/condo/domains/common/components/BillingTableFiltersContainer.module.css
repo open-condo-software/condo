@@ -1,11 +1,11 @@
 .container {
-    max-width: calc(100% + 48px);
-    border-radius: 12px;
-    padding: 8px;
-    background-color: #F2F3F7;
+  max-width: calc(100% + 48px);
+  padding: 8px;
+  background-color: #f2f3f7;
+  border-radius: 12px;
 }
 
 .disabled {
-    opacity: 0.5;
-    pointer-events: none;
+  opacity: 0.5;
+  pointer-events: none;
 }
