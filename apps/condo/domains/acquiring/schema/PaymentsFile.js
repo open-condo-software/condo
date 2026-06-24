@@ -36,7 +36,7 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         },
 
         number: {
-            schemaDoc: 'The file number within organization',
+            schemaDoc: 'The file number within organization context',
             type: 'AutoIncrementInteger',
             isRequired: true,
             autoIncrementScopeFields: ['context'],
