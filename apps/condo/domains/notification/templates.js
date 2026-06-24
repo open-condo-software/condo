@@ -258,23 +258,48 @@ function telegramRenderer ({ message, env }) {
 /**
  * Renders message template for webhook
  */
-function webhookRenderer ({ message, env }) {
+function webhookRenderer ({ message, env, additionalParams }) {
     const { lang: locale, type } = message
-    const { templatePathText, templatePathHtml } = getMessageTemplate(locale, type, WEBHOOK_TRANSPORT)
+    const renderFormat = additionalParams?.renderFormat || 'html'
     const messageTranslated = substituteTranslations(message, locale)
-    const ret = {}
 
-    if (templatePathText) {
-        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
-    }
+    switch (renderFormat) {
+        case 'json':
+            return {
+                title: type,
+                body: JSON.stringify({
+                    type,
+                    meta: messageTranslated.meta,
+                    lang: locale,
+                }),
+            }
 
-    if (templatePathHtml) {
-        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
-    }
+        case 'text': {
+            const { templatePathText } = getMessageTemplate(locale, type, WEBHOOK_TRANSPORT)
+            const text = templatePathText
+                ? unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+                : JSON.stringify(messageTranslated.meta)
+            return {
+                title: type,
+                body: text,
+            }
+        }
 
-    return {
-        title: 'title',
-        body: JSON.stringify(ret),
+        case 'html':
+        default: {
+            const { templatePathText, templatePathHtml } = getMessageTemplate(locale, type, WEBHOOK_TRANSPORT)
+            const ret = {}
+            if (templatePathText) {
+                ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+            }
+            if (templatePathHtml) {
+                ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+            }
+            return {
+                title: type,
+                body: JSON.stringify(ret),
+            }
+        }
     }
 }
 
