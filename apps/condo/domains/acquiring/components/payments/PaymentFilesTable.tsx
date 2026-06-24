@@ -13,11 +13,10 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { Download, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Checkbox } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
-import { PaymentsSumInfo } from '@condo/domains/acquiring/components/payments/PaymentsTable'
+import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
@@ -25,10 +24,11 @@ import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
+import { BillingTableFiltersContainer } from '@condo/domains/common/components/BillingTableFiltersContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -43,10 +43,8 @@ const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 const DEBOUNCE_TIMEOUT = 400
 
-const ROW_GUTTER: [Gutter, Gutter] = [0, 30]
-const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
-const SUM_BAR_COL_GUTTER: [Gutter, Gutter] = [40, 0]
-const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
+const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
+const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [8, 20]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
 
 
@@ -56,6 +54,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
+    const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
     const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const DownloadRegistriesMessage = intl.formatMessage({ id: 'Download' })
 
@@ -187,61 +186,61 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         ),
     }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
+    const paymentsSummaryItems = useMemo(() => ([
+        {
+            key: 'total',
+            label: TotalsSumTitle,
+            value: getMoneyRender(intl, currencyCode)(sumAllPayments?.result?.sum),
+            loading: sumAllPaymentsLoading,
+        },
+        {
+            key: 'count',
+            label: PaymentsCountTitle,
+            value: sumAllPayments?.result?.paymentsCountSum ?? 0,
+            loading: sumAllPaymentsLoading,
+        },
+    ]), [PaymentsCountTitle, TotalsSumTitle, currencyCode, intl, sumAllPayments?.result?.paymentsCountSum, sumAllPayments?.result?.sum, sumAllPaymentsLoading])
+
 
     return (
         <Row gutter={ROW_GUTTER} align='middle' justify='center'>
             <Col span={24}>
-                <TableFiltersContainer>
-                    <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}>
-                        <Col flex='auto'>
-                            <Row gutter={TAP_BAR_ROW_GUTTER}>
-                                <Col xs={24} lg={8}>
-                                    <Input
-                                        placeholder={SearchPlaceholder}
-                                        value={search}
-                                        onChange={(e) => {
-                                            handleSearchChange(e.target.value)
-                                        }}
-                                        allowClear
-                                        suffix={<Search size='medium' color={colors.gray[7]} />}
-                                    />
-                                </Col>
-                                <Col xs={24} lg={DATE_PICKER_COL_LAYOUT}>
-                                    <DateRangePicker
-                                        value={dateRange || dateFallback}
-                                        onChange={handleDateChange}
-                                        placeholder={[StartDateMessage, EndDateMessage]}
-                                    />
-                                </Col>
-                            </Row>
+                <BillingTableFiltersContainer>
+                    <Row gutter={TAP_BAR_ROW_GUTTER} justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'}>
+                        <Col flex={breakpoints.DESKTOP_SMALL ? 'auto' : '100%'}>
+                            <Input
+                                placeholder={SearchPlaceholder}
+                                value={search}
+                                onChange={(e) => {
+                                    handleSearchChange(e.target.value)
+                                }}
+                                allowClear
+                                suffix={<Search size='medium' color={colors.gray[7]} />}
+                            />
                         </Col>
-                    </Row>
-                </TableFiltersContainer>
-            </Col>
-
-            <Col span={24}>
-                <PaymentsSumTable>
-                    <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
-                        <Col>
-                            <PaymentsSumInfo
-                                title={TotalsSumTitle}
-                                message={sumAllPayments?.result?.sum}
-                                currencyCode={currencyCode}
-                                loading={sumAllPaymentsLoading}
+                        <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'}>
+                            <DateRangePicker
+                                value={dateRange || dateFallback}
+                                onChange={handleDateChange}
+                                placeholder={[StartDateMessage, EndDateMessage]}
                             />
                         </Col>
                     </Row>
-                </PaymentsSumTable>
+                </BillingTableFiltersContainer>
             </Col>
 
+
             <Col span={24}>
-                <Table
-                    loading={loading}
-                    dataSource={paymentsFiles}
-                    totalRows={total}
-                    columns={tableColumns}
-                    rowSelection={rowSelection}
-                />
+                <Space size={8} direction='vertical'>
+                    <PaymentsSummary items={paymentsSummaryItems} />
+                    <Table
+                        loading={loading}
+                        dataSource={paymentsFiles}
+                        totalRows={total}
+                        columns={tableColumns}
+                        rowSelection={rowSelection}
+                    />
+                </Space>
             </Col>
             <Col span={24}>
                 {!loading && total > 0 && selectedRegistryKeys.length > 0 && (

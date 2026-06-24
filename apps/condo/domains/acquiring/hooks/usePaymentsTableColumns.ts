@@ -33,8 +33,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const router = useRouter()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
-    const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
+    const DateTitle = intl.formatMessage({ id: 'Date' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
     const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
@@ -53,36 +52,30 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
         search = Array.isArray(search) ? null : search
 
         const stringSearch = getTextRender(String(search))
+        const hasSourceColumn = Boolean(options.acquiringContexts?.length > 1)
+        const hasPosReceiptUrlColumn = Boolean(options.posIntegrationContext)
 
         const columns = {
             depositedDate: {
-                title: DepositedDateTitle,
+                title: DateTitle,
                 key: 'depositedDate',
                 dataIndex: ['depositedDate'],
                 sorter: true,
-                width: '11em',
-                render: getDateRender(intl, String(search)),
-            },
-            transferDate: {
-                title: TransferDateTitle,
-                key: 'transferDate',
-                dataIndex: ['transferDate'],
-                sorter: true,
-                width: '11em',
+                width: '11%',
                 render: getDateRender(intl, String(search)),
             },
             account: {
                 title: AccountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
-                width: '8em',
+                width: '8%',
                 render: stringSearch,
             },
             address: {
                 title: AddressTitle,
                 key: 'rawAddress',
                 dataIndex: 'rawAddress',
-                width: '20em',
+                width: '20%',
                 sorter: true,
                 render: stringSearch,
             },
@@ -90,14 +83,14 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 title: StatusTitle,
                 key: 'status',
                 dataIndex: 'status',
-                width: '8em',
+                width: '8%',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             order: {
                 title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 key: 'order',
                 dataIndex: 'order',
-                width: '8em',
+                width: '8%',
                 render: stringSearch,
             },
             amount: {
@@ -105,16 +98,16 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(intl, currencyCode),
-                width: '10em',
+                width: '10%',
                 sorter: true,
             },
-            source: options.acquiringContexts?.length > 1 ? {
+            source: hasSourceColumn ? {
                 title: PaymentSourceTitle,
                 key: 'integration',
                 dataIndex: ['context', 'integration', 'name'],
-                width: '7em',
+                width: '7%',
             } : null,
-            posReceiptUrl: options.posIntegrationContext ? {
+            posReceiptUrl: hasPosReceiptUrlColumn ? {
                 title: PosReceiptColumnTitle,
                 key: 'posReceiptUrl',
                 dataIndex: 'posReceiptUrl',
@@ -124,10 +117,10 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                     verifyDescription: PosReceiptVerifyDescription,
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
-                width: '8em',
+                width: '8%',
             } : undefined,
         }
 
         return Object.values(columns).filter(Boolean)
-    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.acquiringContexts, options.posIntegrationContext, options.lastTestingPosReceipt, PaymentSourceTitle, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
+    }, [filters, DateTitle, intl, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.acquiringContexts, options.posIntegrationContext, options.lastTestingPosReceipt, PaymentSourceTitle, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
 }

@@ -4,13 +4,12 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { RadioGroup, Tabs, Radio } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
-import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
+import { VIEW_TYPES, ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
 import { BillingTabTourStep } from '@condo/domains/billing/components/BillingPageContent/BillingTabTourStep'
@@ -19,14 +18,13 @@ import { EmptyContent } from '@condo/domains/billing/components/BillingPageConte
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
-import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
 import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 
 type PaymentTypeSwitchProps = {
-    defaultValue: PaymentTypes
+    defaultValue: ViewTypes
     activeTab: string
 }
 
@@ -40,17 +38,17 @@ export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitch
     const PaymentsTypeRegistryTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry' })
 
     const router = useRouter()
-    const type = get(router.query, 'type', PAYMENT_TYPES.list) as string
+    const type = get(router.query, 'type', VIEW_TYPES.list) as string
 
-    const isListSelected = type === PAYMENT_TYPES.list
-    const isRegistrySelected = type === PAYMENT_TYPES.registry
+    const isListSelected = type === VIEW_TYPES.list
+    const isRegistrySelected = type === VIEW_TYPES.registry
 
-    const [value, setValue] = useState<PaymentTypes>(PAYMENT_TYPES.list)
+    const [value, setValue] = useState<ViewTypes>(VIEW_TYPES.list)
     useEffect(() => {
         if (isListSelected) {
-            setValue(PAYMENT_TYPES.list)
+            setValue(VIEW_TYPES.list)
         } else if (isRegistrySelected) {
-            setValue(PAYMENT_TYPES.registry)
+            setValue(VIEW_TYPES.registry)
         }
     }, [isListSelected, isRegistrySelected, setValue])
 
@@ -68,13 +66,13 @@ export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitch
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>
             <Radio
-                key={PAYMENT_TYPES.list}
-                value={PAYMENT_TYPES.list}
+                key={VIEW_TYPES.list}
+                value={VIEW_TYPES.list}
                 label={PaymentsTypeListTitle}
             />
             <Radio
-                key={PAYMENT_TYPES.registry}
-                value={PAYMENT_TYPES.registry}
+                key={VIEW_TYPES.registry}
+                value={VIEW_TYPES.registry}
                 label={PaymentsTypeRegistryTitle}
             />
         </RadioGroup>
@@ -141,8 +139,6 @@ export const MainContent: React.FC<MainContentProps> = ({
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
     const hasLastReport = billingContexts.find(({ lastReport }) => !!lastReport)
 
-    const { useFlag } = useFeatureFlags()
-    const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
     const tourStepsConfig = useTourStepsConfig()
 
     const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
@@ -202,7 +198,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 onChange={onTabChange}
                 items={items}
                 destroyInactiveTabPane
-                tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
+                tabBarExtraContent={currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={VIEW_TYPES.list} activeTab={currentTab} />}
             />
             {extensionAppTabs.map(({ id }) => {
                 const tourStep = tourStepsConfig[id]

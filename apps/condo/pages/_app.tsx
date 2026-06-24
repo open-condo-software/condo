@@ -322,7 +322,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-billing',
                     path: 'billing',
-                    icon: AllIcons['Wallet'],
+                    icon: AllIcons['Ruble'],
                     label: 'global.section.accrualsAndPayments',
                     // NOTE: For SPP users billing is available after first receipts-load finished
                     access: isSPPOrg

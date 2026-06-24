@@ -1,5 +1,5 @@
 import { BillingReceipt as BillingReceiptType, BillingReceiptWhereInput, SortBillingReceiptsBy, TourStepTypeType } from '@app/condo/schema'
-import { Col, Row, Space, type RowProps } from 'antd'
+import { Col, Row, type RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -21,6 +21,7 @@ import {
     RowSelectionState,
     Table,
     TableRef,
+    Space,
 } from '@open-condo/ui'
 
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
@@ -28,10 +29,10 @@ import { BillingReceiptForOrganization as BillingReceiptForOrganizationGQL } fro
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 import { BillingReceiptForOrganization } from '@condo/domains/billing/utils/clientSchema'
+import { BillingTableFiltersContainer } from '@condo/domains/common/components/BillingTableFiltersContainer'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
@@ -39,13 +40,14 @@ import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
+import { ReportMessage } from './ReportMessage'
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['toPay']
 const INPUT_STYLE: CSSProperties = { width: '18em' }
 const ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
-const FILTERS_GUTTER: RowProps['gutter'] = [16, 20]
+const FILTERS_GUTTER: RowProps['gutter'] = [8, 20]
 const ASC = 'ASC'
 const DESC = 'DESC'
 const PERIOD_FILTER_KEY = 'period'
@@ -410,9 +412,9 @@ export const ReceiptsTable: React.FC = () => {
         <>
             <Row gutter={ITEMS_GUTTER}>
                 <Col span={24}>
-                    <TableFiltersContainer>
+                    <BillingTableFiltersContainer>
                         <Row gutter={FILTERS_GUTTER}>
-                            <Col xs={24} md={7}>
+                            <Col flex='auto'>
                                 <Input
                                     placeholder={SearchPlaceholder}
                                     onChange={(e) => {handleSearchChange(e.target.value)}}
@@ -420,25 +422,28 @@ export const ReceiptsTable: React.FC = () => {
                                     allowClear
                                 />
                             </Col>
-                            <Col xs={24} md={8}>{periodMetaSelect}</Col>
+                            <Col flex='none'>{periodMetaSelect}</Col>
                         </Row>
-                    </TableFiltersContainer>
+                    </BillingTableFiltersContainer>
                 </Col>
                 <Col span={24}>
-                    <Table<BillingReceiptType>
-                        id='billing-receipts-table'
-                        dataSource={dataSource}
-                        columns={mainTableColumns}
-                        pageSize={DEFAULT_PAGE_SIZE}
-                        onTableStateChange={updateUrlQuery}
-                        initialTableState={initialTableState}
-                        columnLabels={columnLabels}
-                        rowSelectionOptions={rowSelectionOptions}
-                        getRowId={getRowId}
-                        onTableReady={onTableReady}
-                        onRowClick={onRowClick}
-                        ref={tableRef}
-                    />
+                    <Space size={8} direction='vertical' width='100%'>
+                        <ReportMessage/>
+                        <Table<BillingReceiptType>
+                            id='billing-receipts-table'
+                            dataSource={dataSource}
+                            columns={mainTableColumns}
+                            pageSize={DEFAULT_PAGE_SIZE}
+                            onTableStateChange={updateUrlQuery}
+                            initialTableState={initialTableState}
+                            columnLabels={columnLabels}
+                            rowSelectionOptions={rowSelectionOptions}
+                            getRowId={getRowId}
+                            onTableReady={onTableReady}
+                            onRowClick={onRowClick}
+                            ref={tableRef}
+                        />
+                    </Space>
                 </Col>
                 {canManageReceipts && selectedRowsCount > 0 && (
                     <Col span={24}>

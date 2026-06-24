@@ -769,7 +769,12 @@ const AppliedFiltersCounter = styled.div`
 
 const FILTERS_BUTTON_WRAPPER_STYLES: CSSProperties = { position: 'relative' }
 
-const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
+type FiltersButtonProps = {
+    setIsMultipleFiltersModalVisible: (visible: boolean) => void
+    showLabel?: boolean
+}
+
+const FiltersButton: React.FC<FiltersButtonProps> = ({ setIsMultipleFiltersModalVisible, showLabel = true }) => {
     const intl = useIntl()
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
 
@@ -786,7 +791,7 @@ const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
                 onClick={handleOpenMultipleFilter}
                 icon={<Filter size='medium'/>}
                 data-cy='ticket__filters-button'
-                children={FiltersButtonLabel}
+                children={showLabel ? FiltersButtonLabel : undefined}
             />
             {
                 appliedFiltersCount > 0 ? (
@@ -809,7 +814,7 @@ type UseMultipleFiltersModalInput<F = unknown> = Pick<MultipleFiltersModalProps,
 type UseMultipleFiltersModalOutput = {
     MultipleFiltersModal: React.FC
     ResetFiltersModalButton: typeof ResetFiltersModalButton
-    OpenFiltersButton: React.FC
+    OpenFiltersButton: React.FC<Pick<FiltersButtonProps, 'showLabel'>>
     appliedFiltersCount: number
 }
 
@@ -842,9 +847,9 @@ export function useMultipleFiltersModal <F> ({
         <ResetFiltersModalButton handleReset={onReset} {...props} />
     ), [onReset])
 
-    const OpenFiltersButton = useCallback(() => (
-        <FiltersButton setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible} />
-    ), [])
+    const OpenFiltersButton = useCallback(({ showLabel = true }: Pick<FiltersButtonProps, 'showLabel'>) => (
+        <FiltersButton setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible} showLabel={showLabel} />
+    ), [setIsMultipleFiltersModalVisible])
 
     return useMemo(() => ({ MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, OpenFiltersButton, appliedFiltersCount }), [MultipleFiltersModal, OpenFiltersButton, ResetFilterButton, appliedFiltersCount])
 }

@@ -1192,6 +1192,56 @@ export type GetBillingReceiptsByPropertyCountQueryHookResult = ReturnType<typeof
 export type GetBillingReceiptsByPropertyCountLazyQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountLazyQuery>;
 export type GetBillingReceiptsByPropertyCountSuspenseQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountSuspenseQuery>;
 export type GetBillingReceiptsByPropertyCountQueryResult = Apollo.QueryResult<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>;
+export const GetOrganizationBillingRecipientsDocument = gql`
+    query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
+  recipients: allBillingRecipients(
+    where: {context: {organization: $organization}}
+    first: 100
+    sortBy: [createdAt_ASC]
+  ) {
+    id
+    bankAccount
+    bic
+    tin
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationBillingRecipientsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationBillingRecipientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationBillingRecipientsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationBillingRecipientsQuery({
+ *   variables: {
+ *      organization: // value for 'organization'
+ *   },
+ * });
+ */
+export function useGetOrganizationBillingRecipientsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables> & ({ variables: Types.GetOrganizationBillingRecipientsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>(GetOrganizationBillingRecipientsDocument, options);
+      }
+export function useGetOrganizationBillingRecipientsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>(GetOrganizationBillingRecipientsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrganizationBillingRecipientsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>;
+export function useGetOrganizationBillingRecipientsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationBillingRecipientsQuery | undefined, Types.GetOrganizationBillingRecipientsQueryVariables>;
+export function useGetOrganizationBillingRecipientsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>(GetOrganizationBillingRecipientsDocument, options);
+        }
+export type GetOrganizationBillingRecipientsQueryHookResult = ReturnType<typeof useGetOrganizationBillingRecipientsQuery>;
+export type GetOrganizationBillingRecipientsLazyQueryHookResult = ReturnType<typeof useGetOrganizationBillingRecipientsLazyQuery>;
+export type GetOrganizationBillingRecipientsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationBillingRecipientsSuspenseQuery>;
+export type GetOrganizationBillingRecipientsQueryResult = Apollo.QueryResult<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>;
 export const GetProcessingTasksDocument = gql`
     query getProcessingTasks($userId: ID!, $createdAtGte: String!) {
   allTicketDocumentGenerationTasks(

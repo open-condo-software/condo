@@ -193,6 +193,13 @@ export type GetBillingReceiptsByPropertyCountQueryVariables = Types.Exact<{
 
 export type GetBillingReceiptsByPropertyCountQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetOrganizationBillingRecipientsQueryVariables = Types.Exact<{
+  organization: Types.OrganizationWhereInput;
+}>;
+
+
+export type GetOrganizationBillingRecipientsQuery = { __typename?: 'Query', recipients?: Array<{ __typename?: 'BillingRecipient', id: string, bankAccount?: string | null, bic?: string | null, tin?: string | null } | null> | null };
+
 export type GetProcessingTasksQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   createdAtGte: Types.Scalars['String']['input'];

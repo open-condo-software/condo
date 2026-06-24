@@ -1,0 +1,7 @@
+.integration-parameters-list :global(.condo-list-item .condo-typography) {
+  max-width: 60%;
+}
+
+.recipient-details-list :global(.condo-list-item:first-child > .condo-typography:first-child) {
+  font-weight: 600;
+}
