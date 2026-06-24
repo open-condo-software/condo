@@ -1,49 +1,59 @@
 const get = require('lodash/get')
 const pick = require('lodash/pick')
 
+const conf = require('@open-condo/config')
+
 const { WebhookAdapter } = require('@condo/domains/notification/adapters/webhookAdapter')
-const { WEBHOOK_TRANSPORT } = require('@condo/domains/notification/constants/constants')
+const { WEBHOOK_TRANSPORT, WEBHOOK_CONFIG_ENV } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { getTokens } = require('@condo/domains/notification/utils/serverSchema/push/helpers')
 
+const WEBHOOK_CONFIG = conf[WEBHOOK_CONFIG_ENV] ? JSON.parse(conf[WEBHOOK_CONFIG_ENV]) : null
 const Adapter = new WebhookAdapter()
 
-async function prepareMessageToSend (message) {
-    const { user, remoteClient } = message
-    const { id: notificationId, type, createdAt } = message
+function getRenderFormatForMessage (appId, messageType) {
+    if (!WEBHOOK_CONFIG || !WEBHOOK_CONFIG[appId]) return 'html'
 
-    const originalNotification = await renderTemplate(WEBHOOK_TRANSPORT, message)
+    const configForApp = WEBHOOK_CONFIG[appId]
+    const webhookConfig = configForApp.urls?.find(urlConfig =>
+        urlConfig.messageTypes?.includes(messageType)
+    )
 
-    return {
-        message,
-        notification: originalNotification,
-        data: { ...get(message, ['meta', 'data'], {}), notificationId, type, messageCreatedAt: createdAt },
-        user: pick(user, ['id']),
-        remoteClient,
-    }
+    return webhookConfig?.renderFormat || 'html'
 }
 
-/**
- * Send a webhook notification via webhook
- * @param notification
- * @param message
- * @param data
- * @param user
- * @param remoteClient
- * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
- */
-async function send ({ notification, data, user, remoteClient } = {}) {
+async function prepareMessageToSend (message) {
+    const { user, remoteClient, type: messageType } = message
+    const { id: notificationId, createdAt } = message
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
 
     const pushTokens = await getTokens(userId, remoteClientId)
 
-    if (!pushTokens.length) {
+    const notificationByToken = {}
+
+    for (const tokenData of pushTokens) {
+        const renderFormat = getRenderFormatForMessage(tokenData.appId, messageType)
+        const notification = await renderTemplate(WEBHOOK_TRANSPORT, message, { renderFormat })
+        notificationByToken[tokenData.token] = notification
+    }
+
+    return {
+        message,
+        notificationByToken,
+        data: { ...get(message, ['meta', 'data'], {}), notificationId, type: messageType, messageCreatedAt: createdAt },
+        user: pick(user, ['id']),
+        remoteClient,
+        pushTokens,
+    }
+}
+
+async function send ({ notificationByToken, data, pushTokens } = {}) {
+    if (!pushTokens || !pushTokens.length) {
         return [false, { error: 'No tokens available.' }]
     }
 
     const tokens = []
-    const notificationByToken = {}
     const dataByToken = {}
     const pushTypes = {}
     const appIds = {}
@@ -51,7 +61,6 @@ async function send ({ notification, data, user, remoteClient } = {}) {
 
     for (const tokenData of pushTokens) {
         tokens.push(tokenData.token)
-        notificationByToken[tokenData.token] = notification
         dataByToken[tokenData.token] = data
         pushTypes[tokenData.token] = 'default'
         appIds[tokenData.token] = tokenData.appId
