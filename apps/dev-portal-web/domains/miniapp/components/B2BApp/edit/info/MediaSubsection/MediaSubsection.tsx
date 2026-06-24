@@ -9,6 +9,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { MediaUpload } from '@/domains/miniapp/components/MediaUpload'
+import { B2B_LOGO_MAX_FILE_SIZE_IN_BYTES, B2B_LOGO_ALLOWED_MIMETYPES, DEFAULT_B2B_LOGO_URL } from '@/domains/miniapp/constants/common'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 import { useAuth } from '@/domains/user/utils/auth'
 
@@ -35,13 +36,13 @@ export const MediaSubsection: React.FC<{ id: string }> = ({ id }) => {
     const { user } = useAuth()
 
     const mainIconRestrictions: MediaRestrictions = useMemo(() => ({
-        mimetypes: ['image/webp', 'image/png'],
-        maxFileSize: 1024 * 1024 * 2,
+        mimetypes: B2B_LOGO_ALLOWED_MIMETYPES,
+        maxFileSize: B2B_LOGO_MAX_FILE_SIZE_IN_BYTES,
     }), [])
 
     const logoPreview: PreviewRender = useCallback((items) => {
-        const logoUrl = items[0]?.previewUrl
-        return <B2BAppCard img={logoUrl ?? data?.app?.logo?.publicUrl} title={data?.app?.name ?? ''} description={data?.app?.shortDescription} />
+        const logoUrl = items[0]?.previewUrl ?? data?.app?.logo?.publicUrl ?? DEFAULT_B2B_LOGO_URL
+        return <B2BAppCard img={logoUrl} title={data?.app?.name ?? ''} description={data?.app?.shortDescription} />
     }, [data?.app?.logo?.publicUrl, data?.app?.name, data?.app?.shortDescription])
 
     const onError = useMutationErrorHandler()

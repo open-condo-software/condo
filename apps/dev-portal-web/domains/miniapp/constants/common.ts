@@ -1,8 +1,11 @@
+export const DEFAULT_B2B_LOGO_URL = '/icons/b2b.png'
 export const DEFAULT_B2C_LOGO_URL = '/icons/b2c.png'
 export const B2C_LOGO_SIZE = 126
 export const B2C_LOGO_MAIN_COLOR = '#82879F'
 export const B2C_LOGO_SECONDARY_COLOR = '#D0D3E5'
+export const B2B_LOGO_ALLOWED_MIMETYPES = ['image/webp', 'image/png']
 export const B2C_LOGO_ALLOWED_MIMETYPES = ['image/png']
+export const B2B_LOGO_MAX_FILE_SIZE_IN_BYTES = 2 * 1024 * 1024   // 2 Mb in bytes
 export const B2C_LOGO_MAX_FILE_SIZE_IN_BYTES = 1024 * 1024   // 1 Mb in bytes
 export const B2C_BUILD_ALLOWED_MIMETYPES  = [
     // Official mimetype for zip archives, which is used in many Unix OS

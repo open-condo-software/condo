@@ -6,7 +6,7 @@ import { Button, Card, Typography, Space } from '@open-condo/ui'
 
 import styles from './B2BAppCard.module.css'
 
-type AppCardProps = { img?: string, title: string, description?: string | null }
+type AppCardProps = { img: string, title: string, description?: string | null }
 
 const CARD_BODY_PADDINGS = 20
 const CARD_HEAD_PADDINGS = '32px 40px'
@@ -14,14 +14,13 @@ const TEXT_MARGIN = 8
 const BUTTON_MARGIN = 16
 const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
 const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: 60 }
-const FALLBACK_IMAGE_URL = '/icons/b2b.png'
 
-const AppCardTitle: React.FC<{ img?: string }> = ({ img }) => {
+const AppCardTitle: React.FC<{ img: string }> = ({ img }) => {
     return (
         <div className={styles.logoContainer}>
             <Image
-                src={img ?? FALLBACK_IMAGE_URL}
-                fallback={FALLBACK_IMAGE_URL}
+                src={img}
+                fallback={img}
                 preview={false}
                 style={IMAGE_STYLES}
                 draggable={false}
