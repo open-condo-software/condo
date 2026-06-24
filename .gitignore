@@ -47,6 +47,7 @@ ignore.*
 .kmigratorknex.connection.json
 .kmigratorknex.schema.json
 
+.agents
 .vscode
 .windsurf
 .devin
