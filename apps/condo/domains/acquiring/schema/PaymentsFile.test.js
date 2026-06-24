@@ -390,4 +390,31 @@ describe('PaymentsFile', () => {
             })
         })
     })
+
+    describe('number autoincrement', () => {
+        test('should increment number for each new file', async () => {
+            const [context1] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const [context2] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            
+            const [file1] = await createTestPaymentsFile(admin, context1)
+            const [file2] = await createTestPaymentsFile(admin, context1)
+            const [file3] = await createTestPaymentsFile(admin, context2)
+            const [file4] = await createTestPaymentsFile(admin, context1)
+            
+            expect(file1.number).toBe(1)
+            expect(file2.number).toBe(2)
+            expect(file3.number).toBe(1)
+            expect(file4.number).toBe(3)
+        })
+
+        test('should not calculate autoincrement number if it is already set', async () => {
+            const [context1] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            
+            const [file1] = await createTestPaymentsFile(admin, context1, { number: 100500 })
+            const [file2] = await createTestPaymentsFile(admin, context1)
+            
+            expect(file1.number).toBe(100500)
+            expect(file2.number).toBe(100501)
+        })
+    })
 })

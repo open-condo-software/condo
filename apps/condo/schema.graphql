@@ -67295,7 +67295,7 @@ type PaymentsFileHistoryRecord {
   """
   _label_: String
   context: String
-  number: String
+  number: JSON
   paymentOrder: String
   file: JSON
   bankAccount: String
@@ -67331,24 +67331,10 @@ input PaymentsFileHistoryRecordWhereInput {
   context_not: String
   context_in: [String]
   context_not_in: [String]
-  number: String
-  number_not: String
-  number_contains: String
-  number_not_contains: String
-  number_starts_with: String
-  number_not_starts_with: String
-  number_ends_with: String
-  number_not_ends_with: String
-  number_i: String
-  number_not_i: String
-  number_contains_i: String
-  number_not_contains_i: String
-  number_starts_with_i: String
-  number_not_starts_with_i: String
-  number_ends_with_i: String
-  number_not_ends_with_i: String
-  number_in: [String]
-  number_not_in: [String]
+  number: JSON
+  number_not: JSON
+  number_in: [JSON]
+  number_not_in: [JSON]
   paymentOrder: String
   paymentOrder_not: String
   paymentOrder_contains: String
@@ -67592,8 +67578,6 @@ input PaymentsFileHistoryRecordWhereUniqueInput {
 }
 
 enum SortPaymentsFileHistoryRecordsBy {
-  number_ASC
-  number_DESC
   paymentOrder_ASC
   paymentOrder_DESC
   bankAccount_ASC
@@ -67638,7 +67622,7 @@ enum SortPaymentsFileHistoryRecordsBy {
 
 input PaymentsFileHistoryRecordUpdateInput {
   context: String
-  number: String
+  number: JSON
   paymentOrder: String
   file: JSON
   bankAccount: String
@@ -67673,7 +67657,7 @@ input PaymentsFileHistoryRecordsUpdateInput {
 
 input PaymentsFileHistoryRecordCreateInput {
   context: String
-  number: String
+  number: JSON
   paymentOrder: String
   file: JSON
   bankAccount: String
@@ -67725,8 +67709,8 @@ type PaymentsFile {
   """ Link to Acquiring Integration Context """
   context: AcquiringIntegrationContext
 
-  """ The number of payments registry file """
-  number: String
+  """ The file number within organization context """
+  number: Int
 
   """ Numeric id to define the money transaction """
   paymentOrder: String
@@ -67799,24 +67783,14 @@ input PaymentsFileWhereInput {
   OR: [PaymentsFileWhereInput]
   context: AcquiringIntegrationContextWhereInput
   context_is_null: Boolean
-  number: String
-  number_not: String
-  number_contains: String
-  number_not_contains: String
-  number_starts_with: String
-  number_not_starts_with: String
-  number_ends_with: String
-  number_not_ends_with: String
-  number_i: String
-  number_not_i: String
-  number_contains_i: String
-  number_not_contains_i: String
-  number_starts_with_i: String
-  number_not_starts_with_i: String
-  number_ends_with_i: String
-  number_not_ends_with_i: String
-  number_in: [String]
-  number_not_in: [String]
+  number: Int
+  number_not: Int
+  number_lt: Int
+  number_lte: Int
+  number_gt: Int
+  number_gte: Int
+  number_in: [Int]
+  number_not_in: [Int]
   paymentOrder: String
   paymentOrder_not: String
   paymentOrder_contains: String
@@ -68074,7 +68048,7 @@ enum SortPaymentsFilesBy {
 
 input PaymentsFileUpdateInput {
   context: AcquiringIntegrationContextRelateToOneInput
-  number: String
+  number: Int
   paymentOrder: String
   file: FileMeta
   bankAccount: String
@@ -68106,7 +68080,7 @@ input PaymentsFilesUpdateInput {
 
 input PaymentsFileCreateInput {
   context: AcquiringIntegrationContextRelateToOneInput
-  number: String
+  number: Int
   paymentOrder: String
   file: FileMeta
   bankAccount: String
