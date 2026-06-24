@@ -4,13 +4,14 @@ const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
 const { buildOrganizationTopic } = require('@open-condo/messaging')
-const { NatsSubscriptionRelay } = require('@open-condo/messaging/adapters/nats')
 const {
-    decodeNatsJwt,
-    createUserJwt,
-    createAuthResponseJwt,
     computePermissions,
+    createAuthResponseJwt,
+    createUserJwt,
+    decodeNatsJwt,
+    NatsSubscriptionRelay,
 } = require('@open-condo/messaging/adapters/nats')
+const { ADMIN_REVOKE_PREFIX, ADMIN_UNREVOKE_PREFIX } = require('@open-condo/messaging/topic')
 
 const MESSAGING_CONFIG = conf.MESSAGING_CONFIG ? JSON.parse(conf.MESSAGING_CONFIG) : {}
 
@@ -352,7 +353,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1)
 
             // Cleanup
-            relayService.unrevokeUser(userId)
+            await relayService.unrevokeUser(userId)
         })
 
         it('revokeUser adds to revokedUsers even with no active relays', async () => {
@@ -362,7 +363,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             expect(count).toBe(0)
             expect(relayService.revokedUsers.has(userId)).toBe(true)
 
-            relayService.unrevokeUser(userId)
+            await relayService.unrevokeUser(userId)
         })
 
         it('unrevokeUser removes from revokedUsers set', async () => {
@@ -370,7 +371,7 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
             await relayService.revokeUser(userId)
             expect(relayService.revokedUsers.has(userId)).toBe(true)
 
-            relayService.unrevokeUser(userId)
+            await relayService.unrevokeUser(userId)
             expect(relayService.revokedUsers.has(userId)).toBe(false)
         })
     })
@@ -380,25 +381,34 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
 
         it('revoked user gets error when creating new relay via this service', async () => {
             const USER_B = 'revoke-test-user-2'
-            await relayService.revokeUser(USER_B)
+            await relayService.unrevokeUser(USER_B)
+
+            const serverConn = await connect({
+                servers: BROKER_URL,
+                user: MESSAGING_CONFIG.serverUser,
+                pass: MESSAGING_CONFIG.serverPassword,
+                name: 'admin-revoke-e2e',
+            })
 
             let nc
             try {
+                // Connect before revoking so worker auth callout does not reject the connection.
                 const token = createToken(ORG_A, USER_B)
                 nc = await connectWithToken(token, 'revoke-new-relay')
                 const jc = JSONCodec()
 
-                // With a single relay service instance, the queue group has one member,
-                // so all requests are handled by this instance. Retry is only needed
-                // as a safety margin for timing.
+                serverConn.publish(`${ADMIN_REVOKE_PREFIX}.${USER_B}`)
+                await serverConn.flush()
+
+                // Poll until a relay instance that processed revocation responds with the expected error.
                 let gotRejected = false
-                for (let attempt = 0; attempt < 10; attempt++) {
+                for (let attempt = 0; attempt < 20; attempt++) {
                     const deliverInbox = createInbox()
                     try {
                         const response = await nc.request(
                             `_MESSAGING.subscribe.${USER_B}.condo.user.${USER_B}.notification`,
                             jc.encode({ deliverInbox }),
-                            { timeout: 3000 }
+                            { timeout: 2000 }
                         )
                         const data = jc.decode(response.data)
                         if (data.status === 'error' && data.reason === 'access revoked') {
@@ -406,13 +416,16 @@ describe('Messaging PUB-gated Relay Access Control Integration', () => {
                             break
                         }
                     } catch {
-                        // timeout — retry
+                        // no responder or not yet revoked on the handling relay instance — retry
                     }
                 }
                 expect(gotRejected).toBe(true)
             } finally {
-                relayService.unrevokeUser(USER_B)
+                serverConn.publish(`${ADMIN_UNREVOKE_PREFIX}.${USER_B}`)
+                await serverConn.flush()
+                await relayService.unrevokeUser(USER_B)
                 if (nc) await nc.close()
+                await serverConn.close()
             }
         })
 
