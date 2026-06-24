@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl'
 
 import { Button, Card, Typography, Space } from '@open-condo/ui'
 
-import styles from './AppCard.module.css'
+import styles from './B2BAppCard.module.css'
 
 type AppCardProps = { img?: string, title: string, description?: string | null }
 
@@ -30,7 +30,7 @@ const AppCardTitle: React.FC<{ img?: string }> = ({ img }) => {
     )
 }
 
-export const AppCard: React.FC<AppCardProps> = ({ img, title, description }) => {
+export const B2BAppCard: React.FC<AppCardProps> = ({ img, title, description }) => {
     const intl = useIntl()
     const MoreMessage = intl.formatMessage({ id: 'components.miniapp.appCard.actions.more' })
 

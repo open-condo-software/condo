@@ -31,6 +31,7 @@ export type PreviewItem = {
 }
 
 export type PreviewRender = (items: Array<PreviewItem>) => React.ReactNode
+export type SaveHandler = (files: Array<UploadFile>) => Promise<void>
 
 export type MediaUploadProps = {
     formName: string
@@ -39,6 +40,7 @@ export type MediaUploadProps = {
     maxFiles?: number
     restrictions?: MediaRestrictions
     renderPreview: PreviewRender
+    onSave?: SaveHandler
 }
 
 const ColorSpan: React.FC<{ value: string, textColor: 'black' | 'white', bgColor: string }> = ({ value, textColor, bgColor })=> {
@@ -62,6 +64,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
     maxFiles = 1,
     restrictions,
     renderPreview,
+    onSave,
 }) => {
     const intl = useIntl()
     const UploadAction = intl.formatMessage({ id: 'components.miniapp.mediaUpload.actions.upload' })
@@ -120,8 +123,17 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
         })
     }, [])
 
+    const handleSave = useCallback(async () => {
+        await onSave?.(currentFiles)
+        setCurrentFiles([])
+        setPreviewState(prev => {
+            prev.forEach(item => URL.revokeObjectURL(item.previewUrl))
+            return []
+        })
+    }, [currentFiles, onSave])
+
     return (
-        <Form name={formName}>
+        <Form name={formName} onFinish={handleSave}>
             <div className={styles.uploadContainer}>
                 <div className={styles.infoContainer}>
                     <Typography.Title level={4} ellipsis type='secondary'>

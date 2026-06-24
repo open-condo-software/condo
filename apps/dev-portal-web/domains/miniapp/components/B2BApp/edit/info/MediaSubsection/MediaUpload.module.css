@@ -14,14 +14,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 16px;
+  margin: 20px 0;
 }
 
 .upload-actions-container {
   display: flex;
   flex-direction: row;
   gap: 16px;
-  margin-top: 16px;
 }
 
 .restrictions-container {
