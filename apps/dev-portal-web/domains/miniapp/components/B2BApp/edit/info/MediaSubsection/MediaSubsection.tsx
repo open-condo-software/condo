@@ -47,7 +47,7 @@ export const MediaSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const onError = useMutationErrorHandler()
     const onCompleted = useMutationCompletedHandler()
-    const [updateB2CAppMutation] = useUpdateB2BAppMutation({
+    const [updateB2BAppMutation] = useUpdateB2BAppMutation({
         refetchQueries: [
             {
                 query: GetB2BAppDocument,
@@ -85,11 +85,11 @@ export const MediaSubsection: React.FC<{ id: string }> = ({ id }) => {
             files = uploadedFiles
         } catch (e) {
             onError(e)
-            return
+            throw e
         }
 
         if (files.length) {
-            await updateB2CAppMutation({
+            const result = await updateB2BAppMutation({
                 variables: {
                     id,
                     data: {
@@ -99,8 +99,9 @@ export const MediaSubsection: React.FC<{ id: string }> = ({ id }) => {
                     },
                 },
             })
+            if (result.errors?.length) throw result.errors[0]
         }
-    }, [id, onError, updateB2CAppMutation, user?.id])
+    }, [id, onError, updateB2BAppMutation, user?.id])
 
     return (
         <Row gutter={MEDIA_GUTTER}>

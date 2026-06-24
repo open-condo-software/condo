@@ -295,7 +295,7 @@
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.placeholder": "Will appear after publishing",
   "pages.apps.b2c.id.sections.info.icons.subtitle": "App icons",
   "pages.apps.b2c.id.sections.info.icons.items.main.title": "Main application icon",
-  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Used in to display on the home screen of the resident's mobile and web apps",
+  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Used to display on the home screen of the resident's mobile and web apps",
   "pages.apps.b2c.id.sections.info.icons.warning.description": "In case of non-compliance with the specified requirements, the application will not be allowed before subsequent publication on the product environment, previously published application may be hidden completely or have the icon removed without prior notice.",
 
   "pages.apps.b2c.id.sections.builds.title": "App builds",

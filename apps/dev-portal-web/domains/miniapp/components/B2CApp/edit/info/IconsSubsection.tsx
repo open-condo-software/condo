@@ -1,4 +1,3 @@
-import { Upload, Row, Col, Form, notification } from 'antd'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import React, { useCallback, useMemo } from 'react'
@@ -7,13 +6,10 @@ import { useIntl } from 'react-intl'
 import { upload as uploadFiles } from '@open-condo/files'
 import type { UploadFileResult } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Button, Typography, Alert } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
-
+import { Alert } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { MediaUpload } from '@/domains/miniapp/components/MediaUpload'
-import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
     DEFAULT_B2C_LOGO_URL,
     B2C_LOGO_SIZE,
@@ -22,7 +18,6 @@ import {
     B2C_LOGO_ALLOWED_MIMETYPES,
     B2C_LOGO_MAX_FILE_SIZE_IN_BYTES,
 } from '@/domains/miniapp/constants/common'
-import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 import { useAuth } from '@/domains/user/utils/auth'
 
@@ -50,14 +45,8 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     const name = get(data, ['app', 'name'], '') as string
     const logo = get(data, ['app', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL) as string
 
-    const [form] = Form.useForm()
-
-    const onCompletedInform = useMutationCompletedHandler()
+    const onCompleted = useMutationCompletedHandler()
     const onError = useMutationErrorHandler()
-    const onCompleted = useCallback(() => {
-        onCompletedInform()
-        form.resetFields()
-    }, [form, onCompletedInform])
     const [updateB2CAppMutation] = useUpdateB2CAppMutation({
         refetchQueries: [
             {
@@ -97,12 +86,11 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
             files = uploadedFiles
         } catch (e) {
             onError(e)
-            return
+            throw e
         }
 
-
         if (files.length) {
-            updateB2CAppMutation({
+            const result = await updateB2CAppMutation({
                 variables: {
                     id,
                     data: {
@@ -112,6 +100,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
                     },
                 },
             })
+            if (result.errors?.length) throw result.errors[0]
         }
     }, [id, onError, updateB2CAppMutation, user?.id])
 

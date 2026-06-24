@@ -1,5 +1,5 @@
 import { notification, Form, Upload } from 'antd'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Download } from '@open-condo/icons'
@@ -84,6 +84,16 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
     const [currentFiles, setCurrentFiles] = useState<Array<UploadFile>>([])
     const [previewState, setPreviewState] = useState<Array<PreviewItem>>([])
 
+    useEffect(() => {
+        const items = currentFiles
+            .filter(f => f.originFileObj)
+            .map(f => ({ file: f, previewUrl: URL.createObjectURL(f.originFileObj as File) }))
+        setPreviewState(items)
+        return () => {
+            items.forEach(item => URL.revokeObjectURL(item.previewUrl))
+        }
+    }, [currentFiles])
+
     const beforeUpload = useFileValidator({
         restrictMimeTypes: restrictions?.mimetypes,
         sizeLimit: restrictions?.maxFileSize,
@@ -115,27 +125,21 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
         if (!restrictions?.colors) return AnyPlaceholder
         return restrictions.colors.flatMap((color, idx) => {
             const component = <ColorSpan key={color.value} value={color.value} textColor={color.textColor} bgColor={color.value} />
-            return idx !== 0 ? component : [component, <span key={color.value + 'colon'} className={styles.colon}>,</span>]
+            return idx === 0 ? component : [<span key={color.value + 'colon'} className={styles.colon}>,</span>, component]
         })
     }, [AnyPlaceholder, restrictions?.colors])
 
     const handleFileChange: Required<UploadProps>['onChange'] = useCallback((info) => {
         setCurrentFiles(info.fileList)
-        setPreviewState(prev => {
-            prev.forEach(item => URL.revokeObjectURL(item.previewUrl))
-            return info.fileList
-                .filter(f => f.originFileObj)
-                .map(f => ({ file: f, previewUrl: URL.createObjectURL(f.originFileObj as File) }))
-        })
     }, [])
 
     const handleSave = useCallback(async () => {
-        await onSave?.(currentFiles)
+        try {
+            await onSave?.(currentFiles)
+        } catch {
+            return
+        }
         setCurrentFiles([])
-        setPreviewState(prev => {
-            prev.forEach(item => URL.revokeObjectURL(item.previewUrl))
-            return []
-        })
     }, [currentFiles, onSave])
 
     return (
