@@ -8,13 +8,13 @@ import { upload as uploadFiles } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { MediaUpload } from '@/domains/miniapp/components/MediaUpload'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 import { useAuth } from '@/domains/user/utils/auth'
 
 import { B2BAppCard } from './B2BAppCard'
-import { MediaUpload } from './MediaUpload'
 
-import type { MediaRestrictions, PreviewRender, SaveHandler } from './MediaUpload'
+import type { MediaRestrictions, PreviewRender, SaveHandler } from '@/domains/miniapp/components/MediaUpload'
 import type { RowProps } from 'antd'
 
 import { GetB2BAppDocument, useGetB2BAppQuery, useUpdateB2BAppMutation } from '@/gql'

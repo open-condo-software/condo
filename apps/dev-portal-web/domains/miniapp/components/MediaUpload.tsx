@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Download } from '@open-condo/icons'
-import { Typography, Button } from '@open-condo/ui'
+import { Typography, Button, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
@@ -32,6 +32,7 @@ export type PreviewItem = {
 
 export type PreviewRender = (items: Array<PreviewItem>) => React.ReactNode
 export type SaveHandler = (files: Array<UploadFile>) => Promise<void>
+export type Guide = { url: string, label?: string }
 
 export type MediaUploadProps = {
     formName: string
@@ -40,6 +41,8 @@ export type MediaUploadProps = {
     maxFiles?: number
     restrictions?: MediaRestrictions
     renderPreview: PreviewRender
+    guide?: Guide
+    warning?: React.ReactNode
     onSave?: SaveHandler
 }
 
@@ -65,6 +68,8 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
     restrictions,
     renderPreview,
     onSave,
+    guide,
+    warning,
 }) => {
     const intl = useIntl()
     const UploadAction = intl.formatMessage({ id: 'components.miniapp.mediaUpload.actions.upload' })
@@ -74,6 +79,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
     const MimetypeLabel = intl.formatMessage({ id: 'components.miniapp.mediaUpload.restrictions.mimetype.label' })
     const SizeLabel = intl.formatMessage({ id: 'components.miniapp.mediaUpload.restrictions.size.label' })
     const ColorsLabel = intl.formatMessage({ id: 'components.miniapp.mediaUpload.restrictions.colors.label' })
+    const DefaultGuideLabel = intl.formatMessage({ id: 'components.miniapp.mediaUpload.restrictions.guide.label' })
 
     const [currentFiles, setCurrentFiles] = useState<Array<UploadFile>>([])
     const [previewState, setPreviewState] = useState<Array<PreviewItem>>([])
@@ -173,10 +179,19 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                             <Typography.Text type='secondary' size='small'>{ColorsLabel}<span className={styles.colon}>:</span></Typography.Text>
                             <Typography.Text size='small'>{ColorsValue}</Typography.Text>
                         </span>
+                        {guide && (
+                            <span className={styles.guideLinkContainer}>
+                                <Typography.Link size='small' href={guide.url} target='_blank'>{guide.label ?? DefaultGuideLabel}</Typography.Link>
+                            </span>
+                        )}
                     </div>
                 </div>
                 <hr className={styles.divider}/>
-                <Button type='primary' htmlType='submit' disabled={!currentFiles.length}>{SaveAction}</Button>
+                <Space direction='vertical' size={16}>
+                    {Boolean(warning) && warning}
+                    <Button type='primary' htmlType='submit' disabled={!currentFiles.length}>{SaveAction}</Button>
+                </Space>
+
             </div>
         </Form>
     )

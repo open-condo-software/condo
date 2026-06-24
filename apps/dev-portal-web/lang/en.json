@@ -125,6 +125,7 @@
   "components.miniapp.mediaUpload.restrictions.mimetype.label": "Format",
   "components.miniapp.mediaUpload.restrictions.size.label": "Size",
   "components.miniapp.mediaUpload.restrictions.colors.label": "Colors",
+  "components.miniapp.mediaUpload.restrictions.guide.label": "Design resources",
   "components.miniapp.mediaUpload.restrictions.any.placeholder": "any",
 
   "components.miniapp.recentAppsPopover.recentApps.title": "Recently created",
@@ -293,11 +294,8 @@
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.label": "Current build",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.placeholder": "Will appear after publishing",
   "pages.apps.b2c.id.sections.info.icons.subtitle": "App icons",
-  "pages.apps.b2c.id.sections.info.icons.actions.uploadImage": "Upload image",
   "pages.apps.b2c.id.sections.info.icons.items.main.title": "Main application icon",
-  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Used in to display on the home screen of the resident's mobile app. Must be in {format} format, have a size of {size} pixels, and adhere to the following color palette: {mainColor} as the primary color and {secondaryColor} as the secondary color.",
-  "pages.apps.b2c.id.sections.info.icons.items.main.guide.text": "To see examples of icons along with a style guide, check out our {link}.",
-  "pages.apps.b2c.id.sections.info.icons.items.main.guide.link": "designer resources",
+  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Used in to display on the home screen of the resident's mobile and web apps",
   "pages.apps.b2c.id.sections.info.icons.warning.description": "In case of non-compliance with the specified requirements, the application will not be allowed before subsequent publication on the product environment, previously published application may be hidden completely or have the icon removed without prior notice.",
 
   "pages.apps.b2c.id.sections.builds.title": "App builds",

@@ -1,7 +1,7 @@
 import { Upload, Row, Col, Form, notification } from 'antd'
 import get from 'lodash/get'
 import getConfig from 'next/config'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { upload as uploadFiles } from '@open-condo/files'
@@ -12,6 +12,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { MediaUpload } from '@/domains/miniapp/components/MediaUpload'
 import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
     DEFAULT_B2C_LOGO_URL,
@@ -26,10 +27,8 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 import { useAuth } from '@/domains/user/utils/auth'
 
 import { B2CAppCard } from './B2CAppCard'
-import styles from './IconsSubsection.module.css'
 
-import type { RowProps } from 'antd'
-import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
+import type { PreviewRender, MediaRestrictions, SaveHandler } from '@/domains/miniapp/components/MediaUpload'
 
 import { GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
 
@@ -37,50 +36,13 @@ const {
     publicRuntimeConfig: { serviceUrl, fileClientId },
 } = getConfig()
 
-const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
-const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [24, 24]
-const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [48, 48]
-const FULL_COL_SPAN = 24
 const ICONS_STYLE_GUIDE_LINK = 'https://www.figma.com/file/kcIVFtPIEZCADGkqHGPoiW/B2C-mini-apps-%E2%80%94-guide-for-partners?type=design&node-id=980%3A410&mode=design&t=KufWfS9FTHDDl0xH-1'
-
-function getFormFile (e: UploadChangeParam) {
-    return e.fileList
-}
-
-type IconsFormValues = {
-    mainIcon: Array<UploadFile>
-}
-
-const ColorSpan: React.FC<{ children: string, color: string, bg: string }> = ({ color, children, bg })=> {
-    const intl = useIntl()
-    const ColorCopiedMessage = intl.formatMessage({ id: 'pages.apps.any.id.notifications.colorCopied.title' })
-
-    const handleClick = useCallback(() => {
-        if (typeof navigator !== 'undefined') {
-            navigator.clipboard.writeText(children)
-            notification.success({ message: ColorCopiedMessage })
-        }
-    }, [ColorCopiedMessage, children])
-
-    return <span style={{ color, backgroundColor: bg }} className={styles.colorSelection} onClick={handleClick}>{children}</span>
-}
 
 export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const SaveButtonLabel = intl.formatMessage({ id: 'global.actions.save' })
     const MainIconTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.title' })
-    const MainIconDescription = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.description' }, {
-        format: <Typography.Text size='medium' strong>png</Typography.Text>,
-        size: <Typography.Text size='medium' strong>{B2C_LOGO_SIZE}×{B2C_LOGO_SIZE}</Typography.Text>,
-        mainColor: <ColorSpan color={colors.white} bg={B2C_LOGO_MAIN_COLOR}>{B2C_LOGO_MAIN_COLOR}</ColorSpan>,
-        secondaryColor: <ColorSpan color={colors.black} bg={B2C_LOGO_SECONDARY_COLOR}>{B2C_LOGO_SECONDARY_COLOR}</ColorSpan>,
-    })
-    const IconGuideLinkText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.guide.link' })
-    const IconGuideText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.guide.text' }, {
-        link: <Typography.Link href={ICONS_STYLE_GUIDE_LINK} target='_blank'>{IconGuideLinkText}</Typography.Link>,
-    })
+    const MainIconDescription = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.description' })
     const RulesWarningText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.warning.description' })
-    const UploadImageMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.actions.uploadImage' })
 
     const { user } = useAuth()
     const { data } = useGetB2CAppQuery({ variables: { id } })
@@ -107,18 +69,9 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
         onCompleted,
     })
 
-    const beforeUpload = useFileValidator({
-        restrictMimeTypes: B2C_LOGO_ALLOWED_MIMETYPES,
-        sizeLimit: B2C_LOGO_MAX_FILE_SIZE_IN_BYTES,
-        dimensionsLimit: {
-            max: { width: B2C_LOGO_SIZE, height: B2C_LOGO_SIZE },
-            min: { width: B2C_LOGO_SIZE, height: B2C_LOGO_SIZE },
-        },
-    })
-
-    const handleIconSave = useCallback(async (values: IconsFormValues) => {
-        if (!values.mainIcon.length || !user?.id) return
-        const fileObj = values.mainIcon[0].originFileObj
+    const handleIconSave: SaveHandler = useCallback(async (uploadedFiles) => {
+        if (!uploadedFiles.length || !user?.id) return
+        const fileObj = uploadedFiles[0].originFileObj
         if (!fileObj) return
 
         let files: Array<UploadFileResult> = []
@@ -162,56 +115,39 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
         }
     }, [id, onError, updateB2CAppMutation, user?.id])
 
+    const iconGuide = useMemo(() => ({
+        url: ICONS_STYLE_GUIDE_LINK,
+    }), [])
+
+    const iconRestrictions: MediaRestrictions = useMemo(() => ({
+        mimetypes: B2C_LOGO_ALLOWED_MIMETYPES,
+        maxFileSize: B2C_LOGO_MAX_FILE_SIZE_IN_BYTES,
+        size: { width: { min: B2C_LOGO_SIZE, max: B2C_LOGO_SIZE }, height: { min: B2C_LOGO_SIZE, max: B2C_LOGO_SIZE } },
+        colors: [{ value: B2C_LOGO_MAIN_COLOR, textColor: 'white' }, { value: B2C_LOGO_SECONDARY_COLOR, textColor: 'black' }],
+    }), [])
+
+    const iconPreview: PreviewRender = useCallback((items) => {
+        const logoUrl = items[0]?.previewUrl ?? logo ?? DEFAULT_B2C_LOGO_URL
+        return <B2CAppCard logo={logoUrl} name={name} />
+    }, [logo, name])
+
     return (
-        <Form
-            name='update-b2c-app-icons-form'
-            form={form}
-            onFinish={handleIconSave}
-        >
-            <Row gutter={FORM_BUTTON_ROW_GUTTER}>
-                <Col span={FULL_COL_SPAN}>
-                    <Row gutter={ICON_WARNING_ROW_GUTTER}>
-                        <Col span={FULL_COL_SPAN} className={styles.subSectionContainer}>
-                            <div className={styles.subSectionContainer}>
-                                <B2CAppCard name={name} logo={logo}/>
-                                <Row gutter={ROW_ICONS_CONTENT_GUTTER}>
-                                    <Col span={FULL_COL_SPAN}>
-                                        <Typography.Title type='secondary' level={4}>{MainIconTitle}</Typography.Title>
-                                    </Col>
-                                    <Col span={FULL_COL_SPAN}>
-                                        <Typography.Paragraph size='medium'>{MainIconDescription}</Typography.Paragraph>
-                                        <Typography.Paragraph size='medium'>{IconGuideText}</Typography.Paragraph>
-                                    </Col>
-                                    <Col span={FULL_COL_SPAN}>
-                                        <Form.Item name='mainIcon' valuePropName='fileList' getValueFromEvent={getFormFile}>
-                                            <Upload
-                                                listType='picture'
-                                                beforeUpload={beforeUpload}
-                                                maxCount={1}
-                                                multiple={false}
-                                            >
-                                                <UploadText>{UploadImageMessage}</UploadText>
-                                            </Upload>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </div>
-                        </Col>
-                        <Col span={FULL_COL_SPAN}>
-                            <Alert
-                                showIcon
-                                type='warning'
-                                description={RulesWarningText}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={FULL_COL_SPAN}>
-                    <Button type='primary' htmlType='submit'>
-                        {SaveButtonLabel}
-                    </Button>
-                </Col>
-            </Row>
-        </Form>
+        <MediaUpload
+            formName='update-b2c-app-icons-form'
+            title={MainIconTitle}
+            description={MainIconDescription}
+            renderPreview={iconPreview}
+            restrictions={iconRestrictions}
+            maxFiles={1}
+            onSave={handleIconSave}
+            warning={(
+                <Alert
+                    showIcon
+                    type='warning'
+                    description={RulesWarningText}
+                />
+            )}
+            guide={iconGuide}
+        />
     )
 }

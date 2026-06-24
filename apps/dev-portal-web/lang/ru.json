@@ -125,6 +125,7 @@
   "components.miniapp.mediaUpload.restrictions.mimetype.label": "Формат",
   "components.miniapp.mediaUpload.restrictions.size.label": "Размер",
   "components.miniapp.mediaUpload.restrictions.colors.label": "Цвет",
+  "components.miniapp.mediaUpload.restrictions.guide.label": "Материалы для дизайнеров",
   "components.miniapp.mediaUpload.restrictions.any.placeholder": "любой",
 
   "components.miniapp.recentAppsPopover.recentApps.title": "Недавно созданные",
@@ -295,11 +296,8 @@
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.label": "Текущая сборка",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.placeholder": "Появится после публикации",
   "pages.apps.b2c.id.sections.info.icons.subtitle": "Иконки приложения",
-  "pages.apps.b2c.id.sections.info.icons.actions.uploadImage": "Загрузить изображение",
   "pages.apps.b2c.id.sections.info.icons.items.main.title": "Главная иконка приложения",
-  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format}, иметь размер {size} пикселей и соблюдать следующую цветовую палитру: {mainColor} в качестве основного цвета и {secondaryColor} в качестве дополнительного.",
-  "pages.apps.b2c.id.sections.info.icons.items.main.guide.text": "Посмотреть примеры иконок вместе со стайл-гайдом можно в наших {link}.",
-  "pages.apps.b2c.id.sections.info.icons.items.main.guide.link": "материалах для дизайнеров",
+  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Используется в для отображения на главном экране мобильного приложения жителя и веб-кабинета жителя",
   "pages.apps.b2c.id.sections.info.icons.warning.description": "В случае несоблюдения указанных требований приложение не будет допущено до последующей публикации на продуктовый стенд, ранее опубликованное приложение может быть скрыто полностью или с него может быть удалена иконка без предварительного уведомления.",
 
   "pages.apps.b2c.id.sections.builds.title": "Сборки приложения",
