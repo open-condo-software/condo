@@ -313,7 +313,7 @@ const PaymentsTable: React.FC = (props) => {
     const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
 
     return (
-        <Space size={0} direction='vertical'>
+        <Space size={0} direction='vertical' width='100%'>
             {areAlertLoading && (
                 <div className={styles.loaderContainer}>
                     <Loader size='large' fill/>
