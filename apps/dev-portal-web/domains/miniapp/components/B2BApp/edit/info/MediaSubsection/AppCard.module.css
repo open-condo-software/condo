@@ -1,0 +1,21 @@
+.app-card {
+  width: 100%;
+  max-width: 250px;
+}
+
+.card-text-space {
+  height: 100px;
+}
+
+.body-space {
+  width: 100%;
+}
+
+.logo-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+}

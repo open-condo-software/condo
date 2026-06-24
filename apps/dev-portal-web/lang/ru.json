@@ -117,6 +117,8 @@
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Сумма",
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Комиссия",
 
+  "components.miniapp.appCard.actions.more": "Подробнее",
+
   "components.miniapp.mediaUpload.actions.upload": "Загрузить",
   "components.miniapp.mediaUpload.actions.replace": "Заменить",
   "components.miniapp.mediaUpload.actions.save": "Сохранить",

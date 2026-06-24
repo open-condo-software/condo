@@ -10,7 +10,7 @@ import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 
 import styles from './MediaUpload.module.css'
 
-import type  { UploadFile, UploadProps } from 'antd'
+import type { UploadFile, UploadProps } from 'antd'
 
 const DESCRIPTION_ELLIPSIS_CONFIG = { rows: 3 } as const
 
@@ -25,12 +25,20 @@ export type MediaRestrictions = {
     maxFileSize?: number
     colors?: Array<ColorDescription>
 }
+export type PreviewItem = {
+    file: UploadFile
+    previewUrl: string
+}
+
+export type PreviewRender = (items: Array<PreviewItem>) => React.ReactNode
+
 export type MediaUploadProps = {
     formName: string
     title: string
     description: string
     maxFiles?: number
     restrictions?: MediaRestrictions
+    renderPreview: PreviewRender
 }
 
 const ColorSpan: React.FC<{ value: string, textColor: 'black' | 'white', bgColor: string }> = ({ value, textColor, bgColor })=> {
@@ -48,11 +56,12 @@ const ColorSpan: React.FC<{ value: string, textColor: 'black' | 'white', bgColor
 }
 
 export const MediaUpload: React.FC<MediaUploadProps> = ({
-    title,
     formName,
+    title,
     description,
     maxFiles = 1,
     restrictions,
+    renderPreview,
 }) => {
     const intl = useIntl()
     const UploadAction = intl.formatMessage({ id: 'components.miniapp.mediaUpload.actions.upload' })
@@ -63,7 +72,8 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
     const SizeLabel = intl.formatMessage({ id: 'components.miniapp.mediaUpload.restrictions.size.label' })
     const ColorsLabel = intl.formatMessage({ id: 'components.miniapp.mediaUpload.restrictions.colors.label' })
 
-    const [currentFiles, setCurrentFiles] = useState <Array<UploadFile>>([])
+    const [currentFiles, setCurrentFiles] = useState<Array<UploadFile>>([])
+    const [previewState, setPreviewState] = useState<Array<PreviewItem>>([])
 
     const beforeUpload = useFileValidator({
         restrictMimeTypes: restrictions?.mimetypes,
@@ -102,56 +112,60 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
 
     const handleFileChange: Required<UploadProps>['onChange'] = useCallback((info) => {
         setCurrentFiles(info.fileList)
+        setPreviewState(prev => {
+            prev.forEach(item => URL.revokeObjectURL(item.previewUrl))
+            return info.fileList
+                .filter(f => f.originFileObj)
+                .map(f => ({ file: f, previewUrl: URL.createObjectURL(f.originFileObj as File) }))
+        })
     }, [])
 
     return (
         <Form name={formName}>
-            <Form.Item name='values'>
-                <div className={styles.uploadContainer}>
-                    <div className={styles.infoContainer}>
-                        <Typography.Title level={4} ellipsis type='secondary'>
-                            {title}
-                        </Typography.Title>
-                        <Typography.Paragraph
-                            size='medium'
-                            ellipsis={DESCRIPTION_ELLIPSIS_CONFIG}
-                        >
-                            {description}
-                        </Typography.Paragraph>
-                    </div>
-                    <div className={styles.previewContainer}>
-                        <span>1</span>
-                    </div>
-                    <div className={styles.uploadActionsContainer}>
-                        <Upload
-                            showUploadList={false}
-                            maxCount={maxFiles}
-                            beforeUpload={beforeUpload}
-                            onChange={handleFileChange}
-                        >
-                            <Button type='secondary' size='medium' icon={<Download size='small'/>}>
-                                {UploadButtonText}
-                            </Button>
-                        </Upload>
-                        <div className={styles.restrictionsContainer}>
-                            <span>
-                                <Typography.Text type='secondary' size='small'>{MimetypeLabel}<span className={styles.colon}>:</span></Typography.Text>
-                                <Typography.Text size='small'>{MimetypesValue}</Typography.Text>
-                            </span>
-                            <span>
-                                <Typography.Text type='secondary' size='small'>{SizeLabel}<span className={styles.colon}>:</span></Typography.Text>
-                                <Typography.Text size='small'>{SizeValue}</Typography.Text>
-                            </span>
-                            <span>
-                                <Typography.Text type='secondary' size='small'>{ColorsLabel}<span className={styles.colon}>:</span></Typography.Text>
-                                <Typography.Text size='small'>{ColorsValue}</Typography.Text>
-                            </span>
-                        </div>
-                    </div>
-                    <hr className={styles.divider}/>
-                    <Button type='primary' disabled={!currentFiles.length}>{SaveAction}</Button>
+            <div className={styles.uploadContainer}>
+                <div className={styles.infoContainer}>
+                    <Typography.Title level={4} ellipsis type='secondary'>
+                        {title}
+                    </Typography.Title>
+                    <Typography.Paragraph
+                        size='medium'
+                        ellipsis={DESCRIPTION_ELLIPSIS_CONFIG}
+                    >
+                        {description}
+                    </Typography.Paragraph>
                 </div>
-            </Form.Item>
+                <div className={styles.previewContainer}>
+                    {renderPreview(previewState)}
+                </div>
+                <div className={styles.uploadActionsContainer}>
+                    <Upload
+                        showUploadList={false}
+                        maxCount={maxFiles}
+                        beforeUpload={beforeUpload}
+                        onChange={handleFileChange}
+                    >
+                        <Button type='secondary' size='medium' icon={<Download size='small'/>}>
+                            {UploadButtonText}
+                        </Button>
+                    </Upload>
+                    <div className={styles.restrictionsContainer}>
+                        <span>
+                            <Typography.Text type='secondary' size='small'>{MimetypeLabel}<span className={styles.colon}>:</span></Typography.Text>
+                            <Typography.Text size='small'>{MimetypesValue}</Typography.Text>
+                        </span>
+                        <span>
+                            <Typography.Text type='secondary' size='small'>{SizeLabel}<span className={styles.colon}>:</span></Typography.Text>
+                            <Typography.Text size='small'>{SizeValue}</Typography.Text>
+                        </span>
+                        <span>
+                            <Typography.Text type='secondary' size='small'>{ColorsLabel}<span className={styles.colon}>:</span></Typography.Text>
+                            <Typography.Text size='small'>{ColorsValue}</Typography.Text>
+                        </span>
+                    </div>
+                </div>
+                <hr className={styles.divider}/>
+                <Button type='primary' htmlType='submit' disabled={!currentFiles.length}>{SaveAction}</Button>
+            </div>
         </Form>
     )
 }

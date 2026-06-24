@@ -117,6 +117,8 @@
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Amount",
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Fee",
 
+  "components.miniapp.appCard.actions.more": "Learn more",
+
   "components.miniapp.mediaUpload.actions.upload": "Upload",
   "components.miniapp.mediaUpload.actions.replace": "Change",
   "components.miniapp.mediaUpload.actions.save": "Save",
