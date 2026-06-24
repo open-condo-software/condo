@@ -23,6 +23,9 @@ export function useMarkdownLengthValidation ({
 }: ValidateOptions): FormRule {
     return useMemo(() => ({
         validator: (_, value) => {
+            if (typeof value !== 'string') {
+                return Promise.resolve()
+            }
             const cleanedValue = replaceHeaders(value, minHeaderLevel, maxHeaderLevel)
 
             if (cleanedValue !== value) {

@@ -1,0 +1,50 @@
+.upload-container {
+  padding: 20px;
+  border: 1px solid var(--condo-global-color-gray-5);
+  border-radius: var(--condo-global-border-radius-large);
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.upload-actions-container {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.restrictions-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.divider {
+  margin: 16px 0;
+  border-block-start: 1px solid var(--condo-global-color-gray-5);
+  border-block-end: none;
+}
+
+.color-span {
+  padding: 2px 4px;
+  font-weight: var(--condo-global-font-weight-semibold);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.colon {
+  margin-right: 4px;
+}
+
+.guide-link-container {
+  margin-top: 8px;
+}

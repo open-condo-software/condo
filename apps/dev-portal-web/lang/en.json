@@ -117,6 +117,17 @@
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Amount",
   "components.docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Fee",
 
+  "components.miniapp.appCard.actions.more": "Learn more",
+
+  "components.miniapp.mediaUpload.actions.upload": "Upload",
+  "components.miniapp.mediaUpload.actions.replace": "Change",
+  "components.miniapp.mediaUpload.actions.save": "Save",
+  "components.miniapp.mediaUpload.restrictions.mimetype.label": "Format",
+  "components.miniapp.mediaUpload.restrictions.size.label": "Size",
+  "components.miniapp.mediaUpload.restrictions.colors.label": "Colors",
+  "components.miniapp.mediaUpload.restrictions.guide.label": "Design resources",
+  "components.miniapp.mediaUpload.restrictions.any.placeholder": "any",
+
   "components.miniapp.recentAppsPopover.recentApps.title": "Recently created",
 
   "pages.docs.path.menu.title": "Navigation",
@@ -238,6 +249,10 @@
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.appId.placeholder": "Will appear after publishing",
   "pages.apps.b2b.id.sections.info.environmentInfo.form.items.environmentUri.label": "Environment URI",
 
+  "pages.apps.b2b.id.sections.info.media.subtitle": "Icons and media",
+  "pages.apps.b2b.id.sections.info.media.items.main.title": "Main app icon",
+  "pages.apps.b2b.id.sections.info.media.items.main.description": "Used for the app card in the \"Services\" section",
+
   "pages.apps.b2b.id.sections.organizations.title": "Connected organizations",
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organization management is not available yet",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Publish this application at the relevant stand to view and manage organizations",
@@ -279,11 +294,8 @@
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.label": "Current build",
   "pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.placeholder": "Will appear after publishing",
   "pages.apps.b2c.id.sections.info.icons.subtitle": "App icons",
-  "pages.apps.b2c.id.sections.info.icons.actions.uploadImage": "Upload image",
   "pages.apps.b2c.id.sections.info.icons.items.main.title": "Main application icon",
-  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Used in to display on the home screen of the resident's mobile app. Must be in {format} format, have a size of {size} pixels, and adhere to the following color palette: {mainColor} as the primary color and {secondaryColor} as the secondary color.",
-  "pages.apps.b2c.id.sections.info.icons.items.main.guide.text": "To see examples of icons along with a style guide, check out our {link}.",
-  "pages.apps.b2c.id.sections.info.icons.items.main.guide.link": "designer resources",
+  "pages.apps.b2c.id.sections.info.icons.items.main.description": "Used to display on the home screen of the resident's mobile and web apps",
   "pages.apps.b2c.id.sections.info.icons.warning.description": "In case of non-compliance with the specified requirements, the application will not be allowed before subsequent publication on the product environment, previously published application may be hidden completely or have the icon removed without prior notice.",
 
   "pages.apps.b2c.id.sections.builds.title": "App builds",
