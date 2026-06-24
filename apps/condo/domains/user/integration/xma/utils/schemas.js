@@ -10,7 +10,7 @@ const XmaMiniAppInitParamsUserSchema = z.object({
 }).strict()
 
 const XmaMiniAppInitParamsSchema = z.object({
-    auth_date: z.string().regex(/^[\d]+$/),
+    auth_date: z.string().regex(/^[0-9]+$/),
     can_send_after: z.number().optional(),
     chat: z.string().optional(),
     chat_type: z.enum(['sender', 'private', 'group', 'supergroup', 'channel']).optional(),
