@@ -67709,7 +67709,7 @@ type PaymentsFile {
   """ Link to Acquiring Integration Context """
   context: AcquiringIntegrationContext
 
-  """ The file number within organization """
+  """ The file number within organization context """
   number: Int
 
   """ Numeric id to define the money transaction """
