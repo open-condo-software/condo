@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
+const z = require('zod')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -39,10 +40,31 @@ const logger = getLogger()
  * @property {Record<string, string> | undefined} encryption - appId to encryptionVersion
  * @property {Record<string, string[]> | undefined} groups - groupName to ordered appIds in group
  * @property {Record<string, string[] | undefined>} transportPriorityByAppId - appId to transports array, if appId needs to be restricted to use specific transports
+ * @property {Record<string, Record<string, Parameters<typeof z.fromJSONSchema>[0]>>} pushDataValidatorsByAppId
  */
 
 /** @type {PushAdapterSettings} */
 const PUSH_ADAPTER_SETTINGS = JSON.parse(conf.PUSH_ADAPTER_SETTINGS || '{}')
+
+const PUSH_DATA_VALIDATORS_BY_APP_ID = Object.fromEntries(
+    Object.entries(PUSH_ADAPTER_SETTINGS.pushDataValidatorsByAppId || {})
+        .map(([appId, zodJSONSchemaByMessageType]) => {
+            return [
+                appId,
+                Object.fromEntries(
+                    Object.entries(zodJSONSchemaByMessageType || {}).map(([messageType, zodJSONSchema]) => {
+                        let zodValidator
+                        try {
+                            zodValidator = z.fromJSONSchema(zodJSONSchema, { defaultTarget: 'draft-2020-12' })
+                        } catch (err) {
+                            logger.error({ msg: 'parse PUSH_ADAPTER_SETTINGS.pushDataValidatorsByAppId error', err, data: { appId, messageType } })
+                        }
+                        return [messageType, zodValidator]
+                    })
+                ),
+            ]
+        })
+)
 
 const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
     TICKET_CREATED_TYPE,
@@ -305,7 +327,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
         return [false, { error: 'Disabled type for push transport' }]
     }
 
-    const pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
+    let pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.
     const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(message, 'type'))
@@ -316,6 +338,20 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     }
 
     let container = { failureCount: 0, successCount: 0, responses: [] }
+
+    const pushTokensWhichDidNotPassValidation = !message.type
+        ? []
+        : pushTokens.filter(pushToken => PUSH_DATA_VALIDATORS_BY_APP_ID[pushToken.appId]?.[message.type]?.safeParse(data)?.success === false)
+    pushTokens = pushTokens.filter(pushToken => !pushTokensWhichDidNotPassValidation.includes(pushToken))
+
+    container.failureCount += pushTokensWhichDidNotPassValidation.length
+    container.responses.push(...pushTokensWhichDidNotPassValidation.map(pushToken => ({
+        success: false,
+        pushToken: pushToken.token,
+        appId: pushToken.appId,
+        pushType: pushToken.pushType,
+        error: 'message data validation error', // NOTE(YEgorLu): not putting here actual error, as it will be big. Take config and Message.meta.data to find what went wrong if error is unexpected
+    })))
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
     const invalidRecipients = recipients.filter(recipient => !recipient.notification || !recipient.data)
