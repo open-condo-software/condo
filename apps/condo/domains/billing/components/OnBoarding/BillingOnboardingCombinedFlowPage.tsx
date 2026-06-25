@@ -35,7 +35,7 @@ type BillingOnboardingPageProps = {
     withVerification?: boolean
 }
 
-export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ onFinish, withVerification }) => {
+export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPageProps> = ({ onFinish, withVerification }) => {
     const intl = useIntl()
     const BillingSelectTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseBillingStep.title' })
     const PageTitleCombinedFlow = 'Настройка платежей для физлиц'
@@ -69,7 +69,7 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
     const [currentStep] = useOnboardingProgress(withVerification)
 
     const stepItems: Array<StepItem> = useMemo(() => {
-        const steps: Array<StepItem> = isCombinedFlow ? 
+        const steps: Array<StepItem> = isCombinedFlow ?
             [
                 { title: ChooseChannelsTitle },
                 { title: IntegrationSetupTitle, breakPoint: true  },
