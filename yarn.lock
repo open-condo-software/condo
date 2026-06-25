@@ -1053,8 +1053,6 @@ __metadata:
   dependencies:
     "@ecom-gateway/domains": "link:./domains"
     "@faker-js/faker": ^8.4.1
-    "@graphql-codegen/cli": ^6.2.0
-    "@graphql-codegen/typescript": ^5.0.9
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
     "@open-condo/apollo-server-client": "workspace:^"
@@ -1066,7 +1064,6 @@ __metadata:
     cross-env: ^7.0.3
     express: ^4.21.2
     graphql: ^16.10.0
-    graphql-tag: ^2.12.6
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
