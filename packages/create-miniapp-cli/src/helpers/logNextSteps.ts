@@ -43,6 +43,14 @@ export const logNextSteps = async ({
         logger.info('  Please extend werf.yaml in shell/setup block to add the steps you need.')
     }
 
-    logger.info('GIT next steps:')
+    logger.info('GIT next steps to add your miniapp as a submodule:')
+    logger.info(`  cd apps/${projectName}`)
+    logger.info('  git init')
+    logger.info('  git remote add origin <your repo url>')
+    logger.info('  git add .')
+    logger.info('  git commit -m "initial scaffold"')
+    logger.info('  git push -u origin HEAD')
+    logger.info('  cd ../..')
     logger.info(`  git submodule add <your repo url> apps/${projectName}`)
+    logger.info(`  git submodule absorbgitdirs apps/${projectName}`)
 }
