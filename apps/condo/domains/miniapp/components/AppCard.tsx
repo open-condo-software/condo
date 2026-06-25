@@ -3,7 +3,7 @@ import { Space, Image } from 'antd'
 import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Typography, Button } from '@open-condo/ui'
+import { Button, Card, Typography } from '@open-condo/ui'
 
 import { AppLabelTag } from './AppLabelTag'
 
@@ -28,12 +28,13 @@ type AppCardTitleProps = {
 }
 
 type AppCardProps = {
-    connected: boolean
+    connected?: boolean
     name: string
     description?: string
     logoUrl?: AppCardTitleProps['logoUrl']
     label?: AppCardTitleProps['label']
     onClick?: () => void
+    noExtendedInfo?: boolean
 }
 
 const AppCardTitleWrapper = styled.div`
@@ -77,6 +78,7 @@ export const AppCard: React.FC<AppCardProps> = ({
     description,
     label,
     onClick,
+    noExtendedInfo,
 }) => {
     const intl = useIntl()
     const ButtonLabel = connected
@@ -100,12 +102,14 @@ export const AppCard: React.FC<AppCardProps> = ({
                         {description}
                     </Typography.Paragraph>
                 </Space>
-                <Button
-                    type='secondary'
-                    block
-                >
-                    {ButtonLabel}
-                </Button>
+                { noExtendedInfo ? null : 
+                    <Button
+                        type='secondary'
+                        block
+                    >
+                        {ButtonLabel}
+                    </Button>
+                }
             </Space>
         </Card>
     )

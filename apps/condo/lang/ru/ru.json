@@ -1307,6 +1307,7 @@
   "global.receiver": "Получатель",
   "global.section.SPP": "Платежи от физлиц",
   "global.section.accrualsAndPayments": "Начисления и оплаты",
+  "global.section.accrualsAndPaymentsCombined": "Платежи от физлиц",
   "global.section.analytics": "Аналитика",
   "global.section.contacts": "Жители",
   "global.section.controlRoom": "Заявки",

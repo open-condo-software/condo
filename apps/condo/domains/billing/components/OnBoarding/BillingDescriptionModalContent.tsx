@@ -24,6 +24,7 @@ type BillingDescriptionModalContentProps = {
     integrationType: typeof INTEGRATION_TYPE_BILLING | typeof INTEGRATION_TYPE_B2B_APP
     setupButtonLabel?: string
     onCompleted?: () => void
+    noSetupButton?: boolean
 }
 
 const MODAL_PIC_GAP: RowProps['gutter'] = [40, 40]
@@ -43,6 +44,7 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
     integrationType,
     setupButtonLabel,
     servicePrice,
+    noSetupButton,
     onCompleted,
 }) => {
     const intl = useIntl()
@@ -84,9 +86,11 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
                             <Typography.Text type='secondary'>{isBilling ? receiptsLoadingTime : servicePrice}</Typography.Text>
                         </div>
                     )}
-                    <Button type='primary' onClick={handleSetup} disabled={loading}>
-                        {setupButtonLabel || SetupButtonLabel}
-                    </Button>
+                    { noSetupButton ? null :
+                        <Button type='primary' onClick={handleSetup} disabled={loading}>
+                            {setupButtonLabel || SetupButtonLabel}
+                        </Button>
+                    }
                 </Space>
             </Col>
         </Row>
