@@ -77,6 +77,7 @@ jobs:
           WERF_SET_CI_PROPERTY_AI_ASSISTANT_URL: "global.ci_property_ai_assistant_url=property-ai-assistant.d.doma.ai"
           WERF_SET_CI_B2B_PAYMENTS_GATEWAY_URL: "global.ci_b2b_payments_gateway_url=b2b-payments-gateway.d.doma.ai"
           WERF_SET_CI_DEBT_MANAGEMENT_URL: "global.ci_debt_management_url=debt-management.d.doma.ai"
+          WERF_SET_CI_ECOM_GATEWAY_URL: "global.ci_ecom_gateway_url=ecom-gateway.d.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=development"
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"

@@ -82,3 +82,6 @@
 [submodule "apps/debt-management"]
 	path = apps/debt-management
 	url = git@github.com:open-condo-software/condo-debt-management.git
+[submodule "apps/ecom-gateway"]
+	path = apps/ecom-gateway
+	url = git@github.com:open-condo-software/condo-ecom-gateway.git
