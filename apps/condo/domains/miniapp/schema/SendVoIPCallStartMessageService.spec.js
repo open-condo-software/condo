@@ -4,6 +4,7 @@ const { z } = require('zod')
 const APP_ID_ONLY_NATIVE_VOIP = `only_native_${faker.random.alphaNumeric(8)}`
 
 require('@condo/domains/common/utils/testSchema/env').mockEnv({
+    TESTS_FAKE_WORKER_MODE: true,
     PUSH_ADAPTER_SETTINGS: {
         pushDataValidatorsByAppId: {
             [APP_ID_ONLY_NATIVE_VOIP]: {
