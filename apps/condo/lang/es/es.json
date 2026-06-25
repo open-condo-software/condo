@@ -1307,6 +1307,7 @@
   "global.receiver": "Receptor",
   "global.section.SPP": "Pagos de personas físicas",
   "global.section.accrualsAndPayments": "Pagos y cobros",
+  "global.section.accrualsAndPaymentsCombined": "Pagos y cobros",
   "global.section.analytics": "Analítica",
   "global.section.contacts": "Vecinos",
   "global.section.controlRoom": "Incidencias",

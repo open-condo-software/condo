@@ -26,7 +26,7 @@ const {
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
-const { STATIC_FILE_FIELD, BILLING_FILE_ADAPTER } = require('./fields/common')
+const { STATIC_FILE_FIELD, BILLING_FILE_ADAPTER, DISPLAY_PRIORITY_FIELD } = require('./fields/common')
 
 const logoMetaAfterChange = getFileMetaAfterChange(BILLING_FILE_ADAPTER, 'logo')
 const bannerPromoMetaAfterChange = getFileMetaAfterChange(BILLING_FILE_ADAPTER, 'bannerPromoImage')
@@ -50,6 +50,8 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             adminDoc: 'Appears on the integration card',
             ...SHORT_DESCRIPTION_FIELD,
         },
+
+        displayPriority: DISPLAY_PRIORITY_FIELD,
 
         targetDescription: {
             adminDoc: 'Short text describing integration target group. Like The type of organization for which this integration is best suited. Appears in banner under the title in the integration modal',
