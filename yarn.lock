@@ -1052,7 +1052,7 @@ __metadata:
   resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
   dependencies:
     "@ecom-gateway/domains": "link:./domains"
-    "@faker-js/faker": ^8.4.1
+    "@faker-js/faker": ^7.6.0
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
     "@open-condo/apollo-server-client": "workspace:^"
