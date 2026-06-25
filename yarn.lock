@@ -1054,12 +1054,13 @@ __metadata:
     "@employee-bot/domains": "link:./domains"
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
+    "@maxhub/max-bot-api": ^0.2.2
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/node": ^24
-    axios: ^1.15.0
     commander: 14.0.1
     express: ^4.17.1
     graphql: ^16.10.0
