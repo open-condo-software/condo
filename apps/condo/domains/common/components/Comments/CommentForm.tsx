@@ -1,7 +1,7 @@
 import { Form, FormInstance, InputRef } from 'antd'
 import classNames from 'classnames'
 import cookie from 'js-cookie'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -229,25 +229,21 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const isInputDisable = sending || generateCommentLoading || rewriteTextLoading
 
-    const MemoizedUploadComponent = useCallback((props) => {
+    // NOTE: antd couples the upload trigger with the file list, so we hide the trigger
+    // in the list block and click its file input from the toolbar button.
+    const fileListRef = useRef<HTMLDivElement>(null)
+    const triggerFileSelect = useCallback(() => {
+        const fileInput = fileListRef.current?.querySelector<HTMLInputElement>('input[type="file"]')
+        fileInput?.click()
+    }, [])
+
+    const MemoizedUploadComponent = useCallback(() => {
         return (
             <UploadComponent
                 initialFileList={editableCommentFiles}
-                UploadButton={
-                    <Tooltip title={UploadTooltipText} placement='top' key='copyButton'>
-                        <Button
-                            type='secondary'
-                            size='medium'
-                            minimal
-                            compact
-                            disabled={props.isInputDisable}
-                            icon={<Paperclip size='small' />}
-                        />
-                    </Tooltip>}
-                uploadProps={ <Paperclip size='large' /> }
             />
         )
-    }, [UploadComponent, UploadTooltipText, editableCommentFiles])
+    }, [UploadComponent, editableCommentFiles])
 
     const initialCommentFormValues = useMemo(() => ({
         [fieldName]: initialValue,
@@ -356,7 +352,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             action={actionWithSyncComments}
             resetOnComplete={true}
         >
-            <div className={classNames(styles.commentTextAreaWrapper, filesCount > 0 ? styles.withFile : '')}>
+            <div className={styles.commentTextAreaWrapper}>
                 <Form.Item
                     name={fieldName}
                     rules={validations.comment}
@@ -385,10 +381,17 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             onSubmit={()=>handelSendMessage(commentForm)}
                             onChange={(event) => setCommentValue(event.target.value)}
                             bottomPanelUtils={[
-                                <MemoizedUploadComponent
-                                    key='uploadButton'
-                                    isInputDisable={isInputDisable}
-                                />,
+                                <Tooltip title={UploadTooltipText} placement='top' key='uploadButton'>
+                                    <Button
+                                        minimal
+                                        compact
+                                        type='secondary'
+                                        size='medium'
+                                        disabled={isInputDisable}
+                                        onClick={triggerFileSelect}
+                                        icon={<Paperclip size='small' />}
+                                    />
+                                </Tooltip>,
                                 <Tooltip
                                     title={copied ? CopiedTooltipText : CopyTooltipText }
                                     placement='top'
@@ -436,6 +439,9 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                         />
                     </AIInputNotification>
                 </Form.Item>
+                <div ref={fileListRef} className={styles.commentFilesList}>
+                    <MemoizedUploadComponent />
+                </div>
             </div>
         </FormWithAction>
     )

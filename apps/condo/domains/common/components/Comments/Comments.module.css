@@ -126,8 +126,22 @@
   }
 }
 
-.comment-text-area-wrapper.with-file {
-  padding-bottom: 44px;
+.comment-files-list {
+  position: relative;
+}
+
+.comment-files-list :global(.ant-upload-select) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.comment-files-list :global(.ant-upload-list.ant-upload-list-text) {
+  max-height: 15vh;
+  overflow-y: auto;
 }
 
 .rewrite-text-button :global(.condo-btn-loading-icon) {
