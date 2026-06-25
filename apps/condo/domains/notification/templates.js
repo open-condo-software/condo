@@ -288,16 +288,16 @@ function webhookRenderer ({ message, env, additionalParams }) {
         case 'html':
         default: {
             const { templatePathText, templatePathHtml } = getMessageTemplate(locale, type, WEBHOOK_TRANSPORT)
-            const ret = {}
+            const renderedTemplates = {}
             if (templatePathText) {
-                ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+                renderedTemplates.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
             }
             if (templatePathHtml) {
-                ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+                renderedTemplates.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
             }
             return {
                 title: type,
-                body: JSON.stringify(ret),
+                body: JSON.stringify(renderedTemplates),
             }
         }
     }
