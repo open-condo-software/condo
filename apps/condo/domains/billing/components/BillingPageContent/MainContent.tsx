@@ -17,9 +17,13 @@ import { BillingTabTourStep } from '@condo/domains/billing/components/BillingPag
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
+import { SetupTab } from '@condo/domains/billing/components/BillingPageContent/SetupTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
-import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
+import {
+    ACQUIRING_PAYMENTS_FILES_TABLE,
+    UI_BILLING_SPP_COMBINED_PAGE,
+} from '@condo/domains/common/constants/featureflags'
 import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
@@ -98,14 +102,18 @@ export const MainContent: React.FC<MainContentProps> = ({
     uploadComponent,
 }) => {
     const intl = useIntl()
+
     const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })
     const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
+    const AccrualsSetupTabTitle = 'Платежи и начисления'
 
     const userOrganization = useOrganization()
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
+    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
     const { billingContexts } = useBillingAndAcquiringContexts()
+
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         return billingContexts
             .filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage)
@@ -143,6 +151,7 @@ export const MainContent: React.FC<MainContentProps> = ({
 
     const { useFlag } = useFeatureFlags()
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
+    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
     const tourStepsConfig = useTourStepsConfig()
 
     const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
@@ -162,7 +171,23 @@ export const MainContent: React.FC<MainContentProps> = ({
     }, [])
 
     const items = useMemo(() => {
-        const result: Array<TabItem> = [
+        const result: Array<TabItem> = isCombinedFlow ? [
+            canManageIntegrations && billingContexts.length === 0 && {
+                label: AccrualsSetupTabTitle,
+                key: ACCRUALS_TAB_KEY,
+                children:  <SetupTab />,
+            },
+            canReadBillingReceipts && billingContexts.length !== 0 && {
+                label: AccrualsTabTitle,
+                key: ACCRUALS_TAB_KEY,
+                children: hasLastReport ? <AccrualsTab uploadComponent={uploadComponent} /> : <EmptyContent uploadComponent={uploadComponent} />,
+            },
+            canReadPayments && billingContexts.length !== 0 && {
+                label: PaymentsTabTitle,
+                key: PAYMENTS_TAB_KEY,
+                children: <PaymentsTab type={currentType} />,
+            },
+        ] : [
             canReadBillingReceipts && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,

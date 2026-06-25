@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -12,6 +13,7 @@ import { BillingAndAcquiringContext } from '@condo/domains/billing/components/Bi
 import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -20,6 +22,10 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 const AccrualsAndPaymentsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
+
+    const { useFlag } = useFeatureFlags()
+
+    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
 
     const userOrganization = useOrganization()
     const orgId = userOrganization?.organization?.id ?? null
@@ -57,7 +63,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
         )
     }
 
-    if (billingContexts.length && acquiringContexts.length) {
+    if (billingContexts.length && acquiringContexts.length || isCombinedFlow) {
         return (
             <BillingAndAcquiringContext.Provider value={providerValue}>
                 <BillingPageContent/>

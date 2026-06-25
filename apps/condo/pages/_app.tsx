@@ -55,7 +55,7 @@ import { SurveysQueue } from '@condo/domains/common/components/surveys/SurveyQue
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE, UI_HIDE_PAID_FEATURES, UI_LEGAL_INFO } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, UI_HIDE_PAID_FEATURES, UI_LEGAL_INFO, UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -170,6 +170,8 @@ const ANT_DEFAULT_LOCALE = enUS
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
+
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const { persistor } = useCachePersistor()
 
@@ -326,15 +328,23 @@ const MenuItems: React.FC = () => {
                     label: 'global.section.accrualsAndPayments',
                     // NOTE: For SPP users billing is available after first receipts-load finished
                     access: isSPPOrg
-                        ? hasAccessToBilling && anyReceiptsLoaded
-                        : hasAccessToBilling,
+                        ? hasAccessToBilling && anyReceiptsLoaded && !isCombinedFlow
+                        : hasAccessToBilling && !isCombinedFlow,
+                },
+                {
+                    id: 'menu-item-billing',
+                    path: 'billing',
+                    icon: AllIcons['Wallet'],
+                    label: 'global.section.accrualsAndPaymentsCombined',
+                    // NOTE: For SPP users billing is available after first receipts-load finished
+                    access: hasAccessToBilling && isCombinedFlow,
                 },
                 {
                     id: 'menu-item-service-provider-profile',
                     path: 'service-provider-profile',
                     icon: AllIcons['Sber'],
                     label: 'global.section.SPP',
-                    access: hasAccessToBilling && sppBillingId && isSPPOrg,
+                    access: hasAccessToBilling && !isCombinedFlow && sppBillingId && isSPPOrg,
                 },
             ].filter(checkItemAccess),
         },

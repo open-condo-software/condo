@@ -26,9 +26,18 @@ const RAW_DATA_FIELD = {
     isRequired: false,
 }
 
+
+const DISPLAY_PRIORITY_FIELD = {
+    schemaDoc: 'The number used to determine the position of the integration among the others. ',
+    type: 'Integer',
+    isRequired: true,
+    defaultValue: 1,
+}
+
 module.exports = {
     STATIC_FILE_FIELD,
     BILLING_FILE_ADAPTER,
     PERIOD_FIELD,
     RAW_DATA_FIELD,
+    DISPLAY_PRIORITY_FIELD,
 }

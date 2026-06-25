@@ -1298,6 +1298,7 @@
   "global.receiver": "Receiver",
   "global.section.SPP": "Payments from individuals",
   "global.section.accrualsAndPayments": "Accruals and payments",
+  "global.section.accrualsAndPaymentsCombined": "Accruals and payments",
   "global.section.analytics": "Analytics",
   "global.section.contacts": "Contacts",
   "global.section.controlRoom": "Tickets",

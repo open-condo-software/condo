@@ -3,6 +3,7 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag, Space } from '@open-condo/ui'
@@ -11,10 +12,10 @@ import { useBreakpoints } from '@open-condo/ui/hooks'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'
-
 
 const StyledPageWrapper = styled(PageWrapper)`
      & .condo-tabs, & .condo-tabs-content, & .condo-tabs-tabpane, & .page-content {
@@ -27,7 +28,14 @@ const StyledPageWrapper = styled(PageWrapper)`
 
 export const BillingPageContent: React.FC = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
+    const PageTitleOrdinaryFlow = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
+    const PageTitleCombinedFlow = 'Платежи от физлиц'
+
+    const { useFlag } = useFeatureFlags()
+
+    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
+    const PageTitle = isCombinedFlow ? PageTitleCombinedFlow : PageTitleOrdinaryFlow
+
 
     const { billingContexts } = useBillingAndAcquiringContexts()
     const breakpoints = useBreakpoints()
