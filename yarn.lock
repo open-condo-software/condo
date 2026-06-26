@@ -1067,6 +1067,7 @@ __metadata:
     https-proxy-agent: ^7.0.1
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
+    jsonwebtoken: ^9.0.0
     lodash: ^4.17.21
     node-telegram-bot-api: ^0.66.0
     openid-client: 5.7.1
