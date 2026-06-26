@@ -220,6 +220,7 @@ jobs:
               - 'packages/webhooks/**'
             ecom-gateway:
               - 'apps/ecom-gateway/**'
+              - 'packages/**'
 
   lint:
     name: Lint source code
