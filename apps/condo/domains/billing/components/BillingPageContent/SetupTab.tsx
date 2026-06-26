@@ -1,5 +1,5 @@
 import { Row, Col } from 'antd'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import React, { CSSProperties } from 'react'
 
 import { Space, Typography, Button } from '@open-condo/ui'
@@ -19,7 +19,7 @@ const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 
 
 export const SetupTab: React.FC = () => {
-
+    const router = useRouter()
     const SetupIsNotCompletedTitle = 'Пока платежей и начислений нет'
     const SetupIsNotCompletedMessage = 'Настройте раздел'
     const StartSetupTitle = 'Настроить раздел'
@@ -33,7 +33,7 @@ export const SetupTab: React.FC = () => {
                         <Typography.Text type='secondary'>{SetupIsNotCompletedMessage}</Typography.Text>
                     </Space>
                     <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
-                        <Button type='primary' onClick={() => Router.push('/billing/setup')}>
+                        <Button type='primary' onClick={() => router.push('/billing/setup?step=0')}>
                             {StartSetupTitle}
                         </Button>
                     </Space>

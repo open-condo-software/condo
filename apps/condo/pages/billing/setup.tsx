@@ -13,6 +13,7 @@ import { BillingAndAcquiringContext } from '@condo/domains/billing/components/Bi
 import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
 import { BillingOnboardingCombinedFlowPage } from '@condo/domains/billing/components/OnBoarding/BillingOnboardingCombinedFlowPage'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -25,6 +26,8 @@ const SetupBillingPage: PageComponentType = () => {
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
 
     const { useFlag } = useFeatureFlags()
+    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
+
 
     const userOrganization = useOrganization()
     const orgId = userOrganization?.organization?.id ?? null
@@ -51,6 +54,9 @@ const SetupBillingPage: PageComponentType = () => {
     }, [acquiringContexts])
 
     const providerValue = useMemo(() => ({ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }), [acquiringContexts, billingContexts, refetchBilling])
+    if (!isCombinedFlow) {
+        return <AccessDeniedPage /> 
+    }
 
     if (acquiringLoading || billingLoading || acquiringError || acquiringLoading) {
         return (
@@ -65,6 +71,7 @@ const SetupBillingPage: PageComponentType = () => {
     const withVerification = (onlineProcessingAcquiringContext && onlineProcessingAcquiringContext.status === CONTEXT_VERIFICATION_STATUS) ||
         orgType === SERVICE_PROVIDER_TYPE
 
+    
     return (
         <BillingOnboardingCombinedFlowPage onFinish={handleFinishSetup} withVerification={withVerification}/>
     )

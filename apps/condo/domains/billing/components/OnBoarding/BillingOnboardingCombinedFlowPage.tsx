@@ -69,23 +69,18 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
     const [currentStep] = useOnboardingProgress(withVerification)
 
     const stepItems: Array<StepItem> = useMemo(() => {
-        const steps: Array<StepItem> = isCombinedFlow ?
+        const steps: Array<StepItem> =
             [
                 { title: ChooseChannelsTitle },
                 { title: IntegrationSetupTitle, breakPoint: true  },
                 { title: BankIntegrationSetupTitle, breakPoint: true  },
                 { title: AcceptOfferTitle, breakPoint: true  },
-            ] :
-            [
-                { title: BillingSelectTitle },
-                { title: SetupBillingTitle, breakPoint: true },
-                { title: SetupAcquiringTitle, breakPoint: true },
             ]
         if (withVerification) {
             steps.push({ title: VerificationTitle })
         }
         return steps
-    }, [isCombinedFlow, BillingSelectTitle, SetupBillingTitle, SetupAcquiringTitle, withVerification, VerificationTitle])
+    }, [withVerification, VerificationTitle])
 
     const handleReturn = useCallback((newStep: number) => {
         router.push({ query: { ...router.query, step: newStep } }, undefined, { shallow: true })
@@ -107,7 +102,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
         if (isCombinedFlow) {
             return <ChooseChannels/>
         } else {
-            return <SelectBilling/>
+            return <SelectBilling />
         }
     }, [currentStep, isCombinedFlow, onFinish])
 
