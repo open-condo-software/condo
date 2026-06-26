@@ -21,6 +21,7 @@ const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC UR
 const SAFE_INLINE_MIMETYPES = [
     'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp', 'image/x-icon',
     'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+    'application/pdf',
 ]
 
 class SberCloudObsAcl {
@@ -376,6 +377,7 @@ const obsRouterHandler = ({ keystone }) => {
                 const url = Acl.generateUrl({
                     filename: req.params.file,
                     originalFilename: req.query.original_filename,
+                    mimetype: meta.mimetype,
                 })
 
                 return serveStorageFile(res, {
