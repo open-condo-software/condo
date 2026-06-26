@@ -956,6 +956,7 @@ async function prepareVoIPUser ({ admin, organization, property, unitName, unitT
     })
 
     return {
+        userClient,
         user: userClient.user,
         contact,
         resident,
