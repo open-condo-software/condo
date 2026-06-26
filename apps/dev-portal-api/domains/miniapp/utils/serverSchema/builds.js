@@ -53,7 +53,10 @@ async function prepareB2CAppBuildMetadata () {
     }))
 
     const signObject = {
-        dv: 1,
+        // NOTE: no version was used for "regexp based no CSP inject latest" approach
+        // v: 1 was used for html-parser approach (find tags via parser, inject via parser)
+        // v: 2 is used for hybrid approach (find tags via parser, inject via slice)
+        v: 2,
         scripts: scripts.map(({ name, version, injectPath }) => `${name}:${version}:${injectPath}`),
         permissions: [],
     }
