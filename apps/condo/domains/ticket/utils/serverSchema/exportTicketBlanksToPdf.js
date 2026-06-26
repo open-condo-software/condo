@@ -9,7 +9,7 @@ const PDFMake = require('pdfmake')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { COMPLETED } = require('@condo/domains/common/constants/export')
-const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
+const { uploadExportFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
@@ -554,25 +554,23 @@ const exportTicketBlanksToPdf = async ({ context, task, baseAttrs, where, sortBy
 
     const { stream } = await createPdfForTicketBlanks({ tickets, blankOptions, locale, timeZone })
 
-    const fileInput = {
-        stream,
-        filename: `ticket_blanks_${formatDate({ timeZone, format: 'DD_MM_YYYY__HH_mm_ss' })}.pdf`,
-        mimetype: PDF_FILE_META.mimetype,
-        encoding: PDF_FILE_META.encoding,
-        meta: {
-            listkey: 'TicketExportTask',
-            // Id of first record will be used by `OBSFilesMiddleware` to determine permission to access exported file
-            // NOTE: Permissions check on access to exported file will be replaced to checking access on `ExportTicketsTask`
-            id: taskId,
+    const file = await uploadExportFile({
+        context,
+        file: {
+            stream,
+            filename: `ticket_blanks_${formatDate({ timeZone, format: 'DD_MM_YYYY__HH_mm_ss' })}.pdf`,
+            mimetype: PDF_FILE_META.mimetype,
+            encoding: PDF_FILE_META.encoding,
         },
-    }
-
-    const fileUploadInput = buildUploadInputFrom(fileInput)
+        taskServerUtils: TicketExportTask,
+        taskId,
+        sender: baseAttrs?.sender,
+    })
 
     await TicketExportTask.update(context, taskId, {
         ...baseAttrs,
         status: COMPLETED,
-        file: fileUploadInput,
+        file,
     })
 }
 

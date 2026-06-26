@@ -182,7 +182,7 @@ describe('BillingReceiptFile', () => {
 
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestBillingReceiptFile(anonymous, receiptByAdmin, context)
+                    await createTestBillingReceiptFile(anonymous, receiptByAdmin, context, { sensitiveDataFile: null, publicDataFile: null })
                 })
             })
         })

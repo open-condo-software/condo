@@ -14,7 +14,7 @@ const get = require('lodash/get')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, getUploadingFile } = require('@open-condo/keystone/test.utils')
 const {
     WebhookPayload,
     createTestWebhookPayload,
@@ -563,7 +563,9 @@ async function createTestPaymentsFile (client, context, extraAttrs = {}) {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
-        file: new UploadingFile(FILE),
+        file: 'file' in extraAttrs
+            ? extraAttrs.file
+            : await getUploadingFile(FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['PaymentsFile'], dv: 1, sender }, client),
         bankAccount: faker.random.alphaNumeric(8),
         paymentPeriodStartDate: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
         paymentPeriodEndDay: dayjs(faker.date.recent()).format('YYYY-MM-DD'),

@@ -8,7 +8,7 @@ const get = require('lodash/get')
 const capitalize = require('lodash/capitalize')
 const path = require('path')
 const conf = require('@open-condo/config')
-const { UploadingFile } = require('@open-condo/keystone/test.utils')
+const { getUploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
@@ -225,7 +225,6 @@ async function createTestB2CApp (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const colorSchema = { main: '#fff', secondary: '#123321' }
-    const logoFile = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
 
     const attrs = {
         dv: 1,
@@ -234,7 +233,9 @@ async function createTestB2CApp (client, extraAttrs = {}) {
         developer: faker.name.firstName(),
         isHidden: true,
         colorSchema,
-        logo: logoFile,
+        logo: 'logo' in extraAttrs
+            ? extraAttrs.logo
+            : await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2CApp'], dv: 1, sender }, client),
         ...extraAttrs,
     }
     const obj = await B2CApp.create(client, attrs)
@@ -291,14 +292,15 @@ async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
     if (!app || !app.id) throw new Error('no app.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const version = `${faker.datatype.number(20)}.${faker.datatype.number(500)}.${faker.datatype.number(99999)}`
-    const data = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/archive.zip'))
 
     const attrs = {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
         version,
-        data,
+        data: 'data' in extraAttrs
+            ? extraAttrs.data
+            : await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/archive.zip'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2CAppBuild'], dv: 1, sender }, client),
         ...extraAttrs,
     }
     const obj = await B2CAppBuild.create(client, attrs)
@@ -360,7 +362,6 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
     const backgroundColor = randomChoice(['hex', 'grad']) === 'hex'
         ? randomHex()
         : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`
-    const backgroundImage = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
     const targetUrl = faker.internet.url()
 
     const attrs = {
@@ -370,7 +371,9 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
         subtitle,
         textVariant,
         backgroundColor,
-        backgroundImage,
+        backgroundImage: 'backgroundImage' in extraAttrs
+            ? extraAttrs.backgroundImage
+            : await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['B2BAppPromoBlock'], dv: 1, sender }, client),
         targetUrl,
         ...extraAttrs,
     }

@@ -5,31 +5,29 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
+const { uploadExportFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
+const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/serverSchema')
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
 
-    const { stream } = await buildExportFile({
+    const { stream, size } = await buildExportFile({
         templatePath: `./domains/ticket/templates/ticketDocumentGenerationTemplates/completionWorks/${locale}.docx`,
         replaces: documentData,
     })
 
     return {
         stream,
+        size,
         filename: `completion_works_ticket_${ticket.id}_${dayjs().tz(timeZone).format('DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
-        meta: {
-            listkey: 'TicketDocumentGenerationTask',
-            id,
-        },
     }
 }
 
@@ -134,7 +132,13 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
 
     switch (format) {
         case TICKET_DOCUMENT_GENERATION_TASK_FORMAT.DOCX: {
-            fileUploadInput = buildUploadInputFrom(await buildExportWordFile({ task, documentData, locale, timeZone }))
+            fileUploadInput = await uploadExportFile({
+                context,
+                file: await buildExportWordFile({ task, documentData, locale, timeZone }),
+                taskServerUtils: TicketDocumentGenerationTask,
+                taskId: task.id,
+                sender: baseAttrs?.sender,
+            })
             break
         }
 

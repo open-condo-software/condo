@@ -8,7 +8,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, waitFor, UploadingFile } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor, getUploadingFile } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 
 const { PROPERTIES_CATEGORY } = require('@condo/domains/common/constants/menuCategories')
@@ -181,7 +181,7 @@ describe('AllMiniAppsService', () => {
                 icon: 'House',
                 label: APP_NEW_LABEL,
                 menuCategory: PROPERTIES_CATEGORY,
-                logo: new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')),
+                logo: await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: support.user.id }, fileClientId: 'condo', modelNames: ['B2BApp'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, support),
             })
             const [data] = await allMiniAppsByTestClient(employee, organization)
             expect(data).toEqual(expect.arrayContaining([

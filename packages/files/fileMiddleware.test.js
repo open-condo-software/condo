@@ -6,6 +6,12 @@ const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
 const { FileRecord } = require('@open-condo/files/schema/utils/testSchema')
+const {
+    uploadFilesFromServer,
+    attachFileFromServer,
+    verifyUploadSignature,
+    verifyPublicSignature,
+} = require('@open-condo/files/server')
 const { parseAndValidateFileMetaSignature, validateFileUploadSignature } = require('@open-condo/files/utils')
 const { HTTPStatusByGQLErrorCode } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -387,6 +393,31 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     })
                 })
 
+                test('skipAccessControl: throws when files array is empty', async () => {
+                    const user = await createTestUser()
+                    await expect(uploadFilesFromServer({
+                        skipAccessControl: true,
+                        fileClientId,
+                        userId: user.user.id,
+                        fingerprint: 'test-runner',
+                        modelNames: ['SomeModel'],
+                        files: [],
+                    })).rejects.toThrow('non-empty array')
+                })
+
+                test('skipAccessControl: rejects inline attach to a model not in modelNames', async () => {
+                    const user = await createTestUser()
+                    await expect(uploadFilesFromServer({
+                        skipAccessControl: true,
+                        fileClientId,
+                        userId: user.user.id,
+                        fingerprint: 'test-runner',
+                        modelNames: ['SomeModel'],
+                        files: [{ buffer: filestream, filename: 'dino.png', mimetype: 'image/png' }],
+                        attach: { itemId: faker.datatype.uuid(), modelName: 'AnotherModel', ...DV_AND_SENDER },
+                    })).rejects.toThrow()
+                })
+
             })
 
             describe('share', () => {
@@ -748,6 +779,69 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 })
             })
 
+            test('skipAccessControl: uploadFilesFromServer returns upload signature without model context', async () => {
+                const user = await createTestUser()
+                const [file] = await uploadFilesFromServer({
+                    skipAccessControl: true,
+                    fileClientId,
+                    userId: user.user.id,
+                    fingerprint: 'test-runner',
+                    modelNames: ['SomeModel'],
+                    files: [{ buffer: filestream, filename: 'dino.png', mimetype: 'image/png' }],
+                })
+
+                expect(file).toEqual({
+                    id: file.id,
+                    signature: file.signature,
+                    originalFilename: 'dino.png',
+                })
+                expect(file.attached).toBeUndefined()
+                expect(file.publicSignature).toBeUndefined()
+
+                const payload = verifyUploadSignature(file.signature, fileClientId)
+                expect(validateFileUploadSignature(payload).success).toBeTruthy()
+                expect(payload).toEqual(expect.objectContaining({
+                    id: file.id,
+                    mimetype: 'image/png',
+                    fileClientId,
+                    modelNames: ['SomeModel'],
+                    user: { id: user.user.id },
+                }))
+            })
+
+            test('skipAccessControl: creates FileRecord owned by the user with no attachments', async () => {
+                const user = await createTestUser()
+                const [file] = await uploadFilesFromServer({
+                    skipAccessControl: true,
+                    fileClientId,
+                    userId: user.user.id,
+                    fingerprint: 'test-runner',
+                    modelNames: ['SomeModel'],
+                    files: [{ buffer: filestream, filename: 'dino.png', mimetype: 'image/png' }],
+                })
+
+                const fileRecord = await FileRecord.getOne(admin, { id: file.id })
+                expect(fileRecord.user.id).toEqual(user.user.id)
+                expect(fileRecord.fileMimeType).toEqual('image/png')
+                expect(fileRecord.attachments).toBeNull()
+            })
+
+            test('skipAccessControl: connects the organization when organizationId is provided', async () => {
+                const user = await createTestUser()
+                const [file] = await uploadFilesFromServer({
+                    skipAccessControl: true,
+                    fileClientId,
+                    userId: user.user.id,
+                    fingerprint: 'test-runner',
+                    modelNames: ['SomeModel'],
+                    organizationId: organization[0].id,
+                    files: [{ buffer: filestream, filename: 'dino.png', mimetype: 'image/png' }],
+                })
+
+                const fileRecord = await FileRecord.getOne(admin, { id: file.id })
+                expect(fileRecord.organization.id).toEqual(organization[0].id)
+            })
+
             test('stores mimetype from file content', async () => {
                 const user = await createTestUser()
                 const form = new FormData()
@@ -838,6 +932,24 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
 
                 expect(result.status).toEqual(200)
                 expect(json.data.files).toHaveLength(2)
+            })
+
+            test('skipAccessControl: uploading multiple files at once', async () => {
+                const user = await createTestUser()
+                const result = await uploadFilesFromServer({
+                    skipAccessControl: true,
+                    fileClientId,
+                    userId: user.user.id,
+                    fingerprint: 'test-runner',
+                    modelNames: ['SomeModel'],
+                    files: [
+                        { buffer: filestream, filename: 'dino.png', mimetype: 'image/png' },
+                        { buffer: filestream, filename: 'dino2.png', mimetype: 'image/png' },
+                    ],
+                })
+
+                expect(result).toHaveLength(2)
+                expect(result.map(f => f.originalFilename)).toEqual(['dino.png', 'dino2.png'])
             })
 
             test('file sharing flow', async () => {
@@ -975,6 +1087,38 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 expect(success).toBeTruthy()
             })
 
+            test('skipAccessControl: attachFileFromServer attaches a file uploaded without model context', async () => {
+                const user = await createTestUser()
+                const [uploaded] = await uploadFilesFromServer({
+                    skipAccessControl: true,
+                    fileClientId,
+                    userId: user.user.id,
+                    fingerprint: 'test-runner',
+                    modelNames: ['SomeModel'],
+                    files: [{ buffer: filestream, filename: 'dino.png', mimetype: 'image/png' }],
+                })
+
+                const itemId = faker.datatype.uuid()
+                const attached = await attachFileFromServer({
+                    skipAccessControl: true,
+                    signature: uploaded.signature,
+                    modelName: 'SomeModel',
+                    itemId,
+                    fileClientId,
+                    fingerprint: 'test-runner',
+                    userId: user.user.id,
+                })
+
+                expect(attached).toHaveProperty('signature')
+                const publicPayload = verifyPublicSignature(attached.signature, fileClientId)
+                expect(parseAndValidateFileMetaSignature(publicPayload).success).toBeTruthy()
+
+                const fileRecord = await FileRecord.getOne(admin, { id: uploaded.id })
+                expect(fileRecord.attachments.attachments).toEqual([
+                    expect.objectContaining({ modelName: 'SomeModel', id: itemId, user: { id: user.user.id } }),
+                ])
+            })
+
             test('upload with inline attach should immediately attach and return publicSignature', async () => {
                 const user = await createTestUser()
                 const modelName = 'SomeModel'
@@ -1021,6 +1165,35 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 const publicPayload = jwt.verify(file.publicSignature, secret, { algorithms: ['HS256'] })
                 const { success } = parseAndValidateFileMetaSignature(publicPayload)
                 expect(success).toBeTruthy()
+            })
+
+            test('skipAccessControl: uploadFilesFromServer with inline attach returns publicSignature', async () => {
+                const user = await createTestUser()
+                const itemId = faker.datatype.uuid()
+                const [file] = await uploadFilesFromServer({
+                    skipAccessControl: true,
+                    fileClientId,
+                    userId: user.user.id,
+                    fingerprint: 'test-runner',
+                    modelNames: ['SomeModel'],
+                    files: [{ buffer: filestream, filename: 'dino.png', mimetype: 'image/png' }],
+                    attach: { itemId, modelName: 'SomeModel', ...DV_AND_SENDER },
+                })
+
+                expect(file).toEqual(expect.objectContaining({
+                    id: file.id,
+                    signature: file.signature,
+                    attached: true,
+                    publicSignature: expect.any(String),
+                }))
+
+                const attachedPayload = verifyPublicSignature(file.publicSignature, fileClientId)
+                expect(parseAndValidateFileMetaSignature(attachedPayload).success).toBeTruthy()
+
+                const fileRecord = await FileRecord.getOne(admin, { id: file.id })
+                expect(fileRecord.attachments.attachments).toEqual([
+                    expect.objectContaining({ modelName: 'SomeModel', id: itemId, user: { id: user.user.id } }),
+                ])
             })
 
             test('upload with inline attach for multiple files should attach all and return publicSignature per file', async () => {

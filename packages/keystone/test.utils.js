@@ -92,7 +92,8 @@ async function getUploadingFile (filePath, fileMeta, user, serverUrl) {
 
     const form = new FormData()
     form.append('file', fs.readFileSync(filePath), path.basename(filePath))
-    form.append('meta', JSON.stringify(fileMeta))
+    // NOTE: fileClientId must match a client configured in FILE_UPLOAD_CONFIG, so we always use the one from env
+    form.append('meta', JSON.stringify({ ...fileMeta, fileClientId: fileClient }))
 
     const response = await user.fetch(fileServiceUrl, {
         method: 'POST',
@@ -100,6 +101,9 @@ async function getUploadingFile (filePath, fileMeta, user, serverUrl) {
     })
     const json = await response.json()
 
+    if (!json?.data?.files?.[0]) {
+        throw new Error(`getUploadingFile: file upload failed: ${JSON.stringify(json)}`)
+    }
     return json.data.files[0]
 }
 

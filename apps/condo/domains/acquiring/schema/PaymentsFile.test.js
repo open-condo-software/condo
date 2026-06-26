@@ -12,7 +12,7 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectValuesOfCommonFields,
-    expectToThrowUniqueConstraintViolationError, UploadingFile, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowUniqueConstraintViolationError, getUploadingFile, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -101,7 +101,7 @@ describe('PaymentsFile', () => {
 
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestPaymentsFile(anonymous, context)
+                    await createTestPaymentsFile(anonymous, context, { file: null })
                 })
             })
 
@@ -292,17 +292,22 @@ describe('PaymentsFile', () => {
             await createTestAcquiringIntegrationAccessRight(admin, integration, service.user)
             const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const fileMeta = { user: { id: service.user.id }, fileClientId: 'condo', modelNames: ['PaymentsFile'], dv: 1, sender }
+            const [file1, file2] = await Promise.all([
+                getUploadingFile(FILE, fileMeta, service),
+                getUploadingFile(FILE, fileMeta, service),
+            ])
             const payload = [
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
-                    file: new UploadingFile(FILE),
+                    file: file1,
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
                 } },
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
-                    file: new UploadingFile(FILE),
+                    file: file2,
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
@@ -322,17 +327,22 @@ describe('PaymentsFile', () => {
             const service = await makeClientWithServiceUser()
             const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const fileMeta = { user: { id: service.user.id }, fileClientId: 'condo', modelNames: ['PaymentsFile'], dv: 1, sender }
+            const [file1, file2] = await Promise.all([
+                getUploadingFile(FILE, fileMeta, service),
+                getUploadingFile(FILE, fileMeta, service),
+            ])
             const payload = [
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
-                    file: new UploadingFile(FILE),
+                    file: file1,
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
                 } },
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
-                    file: new UploadingFile(FILE),
+                    file: file2,
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },

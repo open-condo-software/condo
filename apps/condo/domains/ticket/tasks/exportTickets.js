@@ -203,7 +203,7 @@ const buildExportFile = async ({ rows, task }) => {
     const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
     const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
-    const { stream } = await _buildExportFile({
+    const { stream, size } = await _buildExportFile({
         templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
         replaces: {
             header: headerMessage,
@@ -223,6 +223,7 @@ const buildExportFile = async ({ rows, task }) => {
     })
     return {
         stream,
+        size,
         filename: `tickets_${dayjs().format('DD_MM')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,

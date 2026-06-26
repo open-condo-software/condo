@@ -6,7 +6,7 @@
 const { faker } = require('@faker-js/faker')
 const path = require('path')
 const conf = require('@open-condo/config')
-const { UploadingFile } = require('@open-condo/keystone/test.utils')
+const { getUploadingFile } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
@@ -43,7 +43,9 @@ async function createTestMarketCategory (client, extraAttrs = {}) {
         dv: 1,
         sender,
         name: sender.fingerprint,
-        image: new UploadingFile(TEST_FILE),
+        image: 'image' in extraAttrs
+            ? extraAttrs.image
+            : await getUploadingFile(TEST_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['MarketCategory'], dv: 1, sender }, client),
         mobileSettings: { bgColor: '#fff', titleColor: '#fff' },
         ...extraAttrs,
     }
@@ -218,7 +220,9 @@ async function createTestMarketItemFile (client, marketItem, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        file: new UploadingFile(TEST_FILE),
+        file: 'file' in extraAttrs
+            ? extraAttrs.file
+            : await getUploadingFile(TEST_FILE, { user: { id: client.user.id }, fileClientId: 'condo', modelNames: ['MarketItemFile'], dv: 1, sender }, client),
         marketItem: { connect: { id: marketItem.id } },
         ...extraAttrs,
     }

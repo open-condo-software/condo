@@ -5,6 +5,10 @@
 const { faker } = require('@faker-js/faker')
 const fill = require('lodash/fill')
 
+jest.mock('@open-condo/files/server', () => ({
+    uploadFilesFromServer: jest.fn(async () => ([{ signature: 'test-signature' }])),
+}))
+
 const { exportRecordsAsCsvFile } = require('./export')
 
 const { EXPORT_TYPE_TICKETS } = require('../exportToExcel')
@@ -50,6 +54,7 @@ describe('export', () => {
             id: faker.datatype.uuid(),
             status: 'processing',
             totalRecordsCount,
+            user: { id: faker.datatype.uuid() },
         }
         const context = mockContext()
         const taskServerUtils = mockServerUtilsFor(task)

@@ -3,6 +3,7 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
+const { attachFileFromServer } = require('@open-condo/files/server')
 const { validateFileUploadSignature } = require('@open-condo/files/utils')
 const { GQLError, GQLErrorCode: { INTERNAL_ERROR, BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
@@ -233,6 +234,27 @@ class CustomFile extends FileWithUTF8Name.implementation {
             signature: fileNewFlow.signature,
             fileClientId: fileClientId,
             dv: 1, sender: resolvedData.sender,
+        }
+
+        if (context?.skipAccessControl) {
+            try {
+                const { signature } = await attachFileFromServer({
+                    signature: fileNewFlow.signature,
+                    modelName: listKey,
+                    itemId,
+                    fileClientId,
+                    fingerprint: resolvedData.sender?.fingerprint,
+                    userId: signatureData?.user?.id,
+                    skipAccessControl: true,
+                })
+                const data = jwt.verify(signature, this._getSecretForSignature(signature), { algorithms: ['HS256'] })
+                resolvedData[this.path] = omit(data, ['iat', 'exp'])
+            } catch (err) {
+                logger.error({ msg: 'unexpected file attach error (skipAccessControl)', err })
+                if (err instanceof GQLError) throw err
+                throw new GQLError(ERRORS.INTERNAL_ERROR, context)
+            }
+            return
         }
 
         let attachResult

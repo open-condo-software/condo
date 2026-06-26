@@ -623,6 +623,13 @@ export type UpdateTourStepMutationVariables = Types.Exact<{
 
 export type UpdateTourStepMutation = { __typename?: 'Mutation', tourStep?: { __typename?: 'TourStep', id: string } | null };
 
+export type CreateUserHelpRequestFileMutationVariables = Types.Exact<{
+  data: Types.UserHelpRequestFileCreateInput;
+}>;
+
+
+export type CreateUserHelpRequestFileMutation = { __typename?: 'Mutation', userHelpRequestFile?: { __typename?: 'UserHelpRequestFile', id: string, userHelpRequest?: { __typename?: 'UserHelpRequest', id: string } | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null, mimetype?: string | null } | null } | null };
+
 export type AcceptOrRejectOrganizationEmployeeRequestMutationVariables = Types.Exact<{
   data: Types.AcceptOrRejectOrganizationEmployeeRequestInput;
 }>;

@@ -2,10 +2,10 @@ const fs = require('fs')
 
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
-const Upload = require('graphql-upload/Upload.js')
 const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { uploadFilesFromServer } = require('@open-condo/files/server')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
@@ -18,27 +18,32 @@ const { getHeadersTranslations } = require('../exportToExcel')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const CSV_DELIMITER = ';'
+const FILE_CLIENT_ID = conf['FILE_CLIENT_ID']
 
 const logger = getLogger()
 
 // Rough solution to offload server in case of exporting many thousands of records
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
 
-const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) => {
-    const uploadData = {
-        createReadStream: () => {
-            return stream
-        },
-        filename,
-        mimetype,
-        encoding,
-        meta,
+const uploadExportFile = async ({ context, file, taskServerUtils, taskId, sender }) => {
+    const modelName = taskServerUtils.gql.SINGULAR_FORM
+
+    const task = await taskServerUtils.getOne(context, { id: taskId }, 'id user { id }')
+    const userId = task?.user?.id
+    if (!userId) {
+        throw new Error(`Cannot upload export file: ${modelName} with id "${taskId}" has no related user`)
     }
-    const uploadInput = new Upload()
-    uploadInput.promise = new Promise(resolve => {
-        resolve(uploadData)
+
+    const [uploaded] = await uploadFilesFromServer({
+        skipAccessControl: true,
+        fileClientId: FILE_CLIENT_ID,
+        userId,
+        fingerprint: sender?.fingerprint,
+        modelNames: [modelName],
+        files: [file],
     })
-    return uploadInput
+
+    return { signature: uploaded.signature, originalFilename: file.filename }
 }
 
 /**
@@ -145,7 +150,13 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
 
-    const file = buildUploadInputFrom(await buildExportFile(rows))
+    const file = await uploadExportFile({
+        context,
+        file: await buildExportFile(rows),
+        taskServerUtils,
+        taskId,
+        sender: baseAttrs?.sender,
+    })
 
     await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
@@ -180,9 +191,13 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     writeStream.close()
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
-    const file = buildUploadInputFrom({
-        stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
-        meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
+    const { size } = fs.statSync(filename)
+    const file = await uploadExportFile({
+        context,
+        file: { stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8', size },
+        taskServerUtils,
+        taskId,
+        sender: baseAttrs?.sender,
     })
 
     return await taskServerUtils.update(context, taskId, {
@@ -195,5 +210,5 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 module.exports = {
     exportRecordsAsXlsxFile,
     exportRecordsAsCsvFile,
-    buildUploadInputFrom,
+    uploadExportFile,
 }

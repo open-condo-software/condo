@@ -7,7 +7,7 @@ const path = require('path')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, getUploadingFile, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -93,7 +93,7 @@ describe('B2CAppBuild', () => {
             })
             test('Anonymous cannot', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestB2CAppBuild(anonymous, app)
+                    await createTestB2CAppBuild(anonymous, app, { data: null })
                 })
             })
         })
@@ -233,7 +233,7 @@ describe('B2CAppBuild', () => {
         test('Cannot accept non-zip archive file', async () => {
             await expectToThrowGQLError(async () => {
                 await createTestB2CAppBuild(admin, app, {
-                    data: new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')),
+                    data: await getUploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'), { user: { id: admin.user.id }, fileClientId: 'condo', modelNames: ['B2CAppBuild'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, admin),
                 })
             }, {
                 code: 'BAD_USER_INPUT',

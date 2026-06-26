@@ -73,7 +73,7 @@ const buildExportFile = async ({ task, rows }) => {
         ? `${i18n('excelExport.headers.meters.forPeriod.title', { locale })} ${formatDate(dateGte, timeZone)} — ${formatDate(dateLte, timeZone)}`
         : i18n('excelExport.headers.meters.title', { locale })
 
-    const { stream } = await buildExportExcelFile({
+    const { stream, size } = await buildExportExcelFile({
         templatePath: './domains/meter/templates/MeterReadingsExportTemplate.xlsx',
         replaces: {
             header: headerMessage,
@@ -87,6 +87,7 @@ const buildExportFile = async ({ task, rows }) => {
 
     return {
         stream,
+        size,
         filename: `meterReadings_${dayjs().format('DD_MM')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,

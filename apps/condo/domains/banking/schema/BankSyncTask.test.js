@@ -14,7 +14,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE,  expectToThrowGQLError, ca
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    UploadingFile,
+    getUploadingFile,
 } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -76,7 +76,7 @@ describe('BankSyncTask', () => {
                 const [obj, attrs] = await createTestBankSyncTask(adminClient, organization, {
                     account: { connect: { id: account.id } },
                     integrationContext: { connect: { id: integrationContext.id } },
-                    file: new UploadingFile(pathToCorrectFile),
+                    file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
                 })
 
                 expectValuesOfCommonFields(obj, attrs, adminClient)
@@ -277,13 +277,13 @@ describe('BankSyncTask', () => {
                 const [objCreated] = await createTestBankSyncTask(adminClient, organization, {
                     account: { connect: { id: account.id } },
                     integrationContext: { connect: { id: integrationContext.id } },
-                    file: new UploadingFile(pathToCorrectFile),
+                    file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
                 })
 
                 // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestBankSyncTask(adminClient, objCreated.id, {
-                        file: new UploadingFile(pathToCorrectFile),
+                        file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
                     })
                 }, ({ errors }) =>{
                     expect(errors[0].message).toContain('Field "file" is not defined by type "BankSyncTaskUpdateInput"')
@@ -550,7 +550,7 @@ describe('BankSyncTask', () => {
                 account: { connect: { id: account2.id } },
                 integrationContext: { connect: { id: integrationContext.id } },
                 property: { connect: { id: property.id } },
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
             await waitFor(async () => {
                 const task = await BankSyncTask.getOne(adminClient, {
@@ -625,7 +625,7 @@ describe('BankSyncTask', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             const [first1cTask] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
                 options: {
                     type: _1C_CLIENT_BANK_EXCHANGE,
                 },
@@ -651,7 +651,7 @@ describe('BankSyncTask', () => {
             expect(anotherBankIntegrationOrganizationContext).toBeDefined()
 
             const [secondSbbolTask] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
                 options: {
                     type: _1C_CLIENT_BANK_EXCHANGE,
                 },
@@ -664,7 +664,7 @@ describe('BankSyncTask', () => {
 
             await expectToThrowGQLError(async () => {
                 await createTestBankSyncTask(adminClient, organization, {
-                    file: new UploadingFile(pathToCorrectFile),
+                    file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
                 })
             }, errors.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT)
         })
@@ -691,7 +691,7 @@ describe('BankSyncTask', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -754,7 +754,7 @@ describe('BankSyncTask', () => {
             })
 
             await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -787,7 +787,7 @@ describe('BankSyncTask', () => {
             })
 
             await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -832,7 +832,7 @@ describe('BankSyncTask', () => {
             expect(obj0).not.toBeDefined()
 
             const [firstTask] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -849,7 +849,7 @@ describe('BankSyncTask', () => {
             expect(obj1.integration.id).toEqual(BANK_INTEGRATION_IDS['1CClientBankExchange'])
 
             const [secondTask] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -870,7 +870,7 @@ describe('BankSyncTask', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             const [task1] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             let transactions
@@ -897,7 +897,7 @@ describe('BankSyncTask', () => {
             })
 
             const [task2] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -929,7 +929,7 @@ describe('BankSyncTask', () => {
             })
 
             const [task] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -944,7 +944,7 @@ describe('BankSyncTask', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             const [task] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToInvalidFile),
+                file: await getUploadingFile(pathToInvalidFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {
@@ -959,7 +959,7 @@ describe('BankSyncTask', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             let bankAccount
@@ -975,7 +975,7 @@ describe('BankSyncTask', () => {
             })
 
             const [task] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
+                file: await getUploadingFile(pathToCorrectFile, { organization: { id: organization.id }, user: { id: adminClient.user.id }, fileClientId: 'condo', modelNames: ['BankSyncTask'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, adminClient),
             })
 
             await waitFor(async () => {

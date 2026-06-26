@@ -53,7 +53,7 @@ describe('B2BAppPromoBlock', () => {
             })
             test('Anonymous cannot', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestB2BAppPromoBlock(anonymous)
+                    await createTestB2BAppPromoBlock(anonymous, { backgroundImage: null })
                 })
             })
         })

@@ -7,7 +7,7 @@ const path = require('path')
 const { faker } = require('@faker-js/faker')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, UploadingFile, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, getUploadingFile, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -214,7 +214,7 @@ describe('MarketItemFile', () => {
             })
             test('can\'t create', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestMarketItemFile(client, { id: 'id' })
+                    await createTestMarketItemFile(client, { id: 'id' }, { file: null })
                 })
             })
 
@@ -314,7 +314,7 @@ describe('MarketItemFile', () => {
             const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
             await expectToThrowGQLError(async () => {
                 await createTestMarketItemFile(admin, marketItem, {
-                    file: new UploadingFile(TEST_FILE),
+                    file: await getUploadingFile(TEST_FILE, { user: { id: admin.user.id }, fileClientId: 'condo', modelNames: ['MarketItemFile'], dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }, admin),
                 })
             }, {
                 code: 'BAD_USER_INPUT',

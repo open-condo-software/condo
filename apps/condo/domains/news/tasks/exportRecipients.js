@@ -19,7 +19,7 @@ const { buildExportFile: buildExportExcelFile, EXCEL_FILE_META } = require('@con
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
+const { uploadExportFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItemRecipientsExportTask } = require('@condo/domains/news/utils/serverSchema')
 const { getUnitsFromProperty } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
@@ -40,7 +40,7 @@ const buildExportFile = async ({ rows, locale }) => {
         return [...acc, row]
     }, [])
 
-    const { stream } = await buildExportExcelFile({
+    const { stream, size } = await buildExportExcelFile({
         templatePath: './domains/news/templates/NewsRecipientsExportTemplate.xlsx',
         replaces: {
             header: HeaderMessage,
@@ -54,6 +54,7 @@ const buildExportFile = async ({ rows, locale }) => {
 
     return {
         stream,
+        size,
         filename: `residents_${dayjs().format('DD_MM')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,
@@ -195,7 +196,13 @@ async function exportRecipients (taskId) {
 
         const unitsData = [...recipientsByNewsItemsScope, ...recipientsByOrganization]
 
-        const file = buildUploadInputFrom(await buildExportFile({ rows: unitsData, locale }))
+        const file = await uploadExportFile({
+            context,
+            file: await buildExportFile({ rows: unitsData, locale }),
+            taskServerUtils: NewsItemRecipientsExportTask,
+            taskId,
+            sender: dvAndSender.sender,
+        })
         await NewsItemRecipientsExportTask.update(context, taskId, { ...dvAndSender, status: COMPLETED, file })
 
     } catch (err) {

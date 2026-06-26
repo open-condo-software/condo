@@ -120,7 +120,7 @@ const buildExportFile = async ({ task, rows }) => {
         ? `${i18n('excelExport.headers.incidents.forPeriod.title', { locale })} ${formatDate(createdAtGte, timeZone)} — ${formatDate(createdAtLte, timeZone)}`
         : i18n('excelExport.headers.incidents.title', { locale })
 
-    const { stream } = await buildExportExcelFile({
+    const { stream, size } = await buildExportExcelFile({
         templatePath: './domains/ticket/templates/IncidentsExportTemplate.xlsx',
         replaces: {
             header: headerMessage,
@@ -134,6 +134,7 @@ const buildExportFile = async ({ task, rows }) => {
 
     return {
         stream,
+        size,
         filename: `incidents_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,

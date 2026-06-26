@@ -1,10 +1,13 @@
+const { Readable } = require('stream')
+
 const FormData = require('form-data')
 const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { parseAndValidateFileMetaSignature, validateFileUploadSignature } = require('./utils')
+const { parseAndValidateFileMetaSignature, validateFileUploadSignature, processFileUpload, processFileAttach } = require('./utils')
 
 
 function getClientSecret (fileClientId) {
@@ -55,19 +58,23 @@ function verifyUploadSignature (signature, fileClientId) {
 
 /**
  * Upload files from server-side code (e.g., in tasks, services, etc.).
- * Makes HTTP request to /api/files/upload endpoint.
+ *
+ * By default makes HTTP request to /api/files/upload endpoint (server-to-server).
+ * Pass `skipAccessControl: true` to bypass HTTP entirely and use Keystone directly —
+ * only works within the same process where Keystone is running.
  *
  * @param {Object} options
  * @param {string} options.fileClientId - File client ID from config
  * @param {string} options.userId - User ID who owns the files
  * @param {string} options.fingerprint - Sender fingerprint
- * @param {Array<{stream: Readable, filename: string, mimetype: string, encoding?: string, size?: number}>} options.files - Files to upload
+ * @param {Array<{stream?: Readable, buffer?: Buffer, filename: string, mimetype: string, encoding?: string, size?: number}>} options.files - Files to upload
  * @param {string[]} options.modelNames - Allowed model names
  * @param {string} [options.organizationId] - Optional organization ID
  * @param {Object} [options.attach] - Optional inline attach: { itemId, modelName, dv, sender }
+ * @param {boolean} [options.skipAccessControl=false] - Use Keystone directly instead of HTTP (same-server only)
  * @param {string} [options.serverUrl] - Optional server URL override (defaults to SERVER_URL or FILE_SERVER_URL from env)
  * @param {string} [options.authorization] - Optional authorization value, that'll be used as value in headers.Authorization for authentication (service-to-service calls)
- * @returns {Promise<Array<{id: string, signature: string, attached?: boolean, publicSignature?: string}>>}
+ * @returns {Promise<Array<{id: string, signature: string, originalFilename: string, attached?: boolean, publicSignature?: string}>>}
  */
 async function uploadFilesFromServer ({
     fileClientId,
@@ -77,6 +84,7 @@ async function uploadFilesFromServer ({
     modelNames,
     organizationId,
     attach,
+    skipAccessControl = false,
     serverUrl,
     authorization,
 }) {
@@ -84,7 +92,6 @@ async function uploadFilesFromServer ({
         throw new Error('uploadFilesFromServer: "files" must be a non-empty array')
     }
 
-    const baseUrl = serverUrl || getServerUrl()
     const meta = {
         dv: 1,
         sender: { dv: 1, fingerprint },
@@ -94,6 +101,36 @@ async function uploadFilesFromServer ({
         ...(organizationId && { organization: { id: organizationId } }),
     }
 
+    if (skipAccessControl) {
+        const raw = conf['FILE_UPLOAD_CONFIG']
+        if (!raw) throw new Error('FILE_UPLOAD_CONFIG is not set')
+        const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw
+        const appClients = cfg?.clients
+
+        const { keystone } = await getSchemaCtx('FileRecord')
+
+        const normalizedFiles = files.map((file) => {
+            let createReadStream
+            if (file.stream) {
+                createReadStream = () => file.stream
+            } else if (file.buffer) {
+                createReadStream = () => Readable.from(file.buffer)
+            } else {
+                throw new Error('File must have either stream or buffer property')
+            }
+            return {
+                createReadStream,
+                filename: file.filename,
+                mimetype: file.mimetype,
+                encoding: file.encoding || 'binary',
+                size: file.size ?? (file.buffer ? file.buffer.length : 0),
+            }
+        })
+
+        return processFileUpload({ keystone, appClients, files: normalizedFiles, meta, userId, inlineAttach: attach })
+    }
+
+    const baseUrl = serverUrl || getServerUrl()
     const form = new FormData()
 
     for (const file of files) {
@@ -140,7 +177,10 @@ async function uploadFilesFromServer ({
 
 /**
  * Attach a previously uploaded/shared file to a model from server-side code.
- * Makes HTTP request to /api/files/attach endpoint.
+ *
+ * By default makes HTTP request to /api/files/attach endpoint (server-to-server).
+ * Pass `skipAccessControl: true` to bypass HTTP entirely and use Keystone directly —
+ * only works within the same process where Keystone is running.
  *
  * @param {Object} options
  * @param {string} options.signature - Upload/share signature from upload or share operation
@@ -148,6 +188,8 @@ async function uploadFilesFromServer ({
  * @param {string} options.itemId - Target model record ID
  * @param {string} options.fileClientId - File client ID
  * @param {string} options.fingerprint - Sender fingerprint
+ * @param {string} options.userId - ID of the user who owns the file (required — must match the owner recorded at upload time)
+ * @param {boolean} [options.skipAccessControl=false] - Use Keystone directly instead of HTTP (same-server only)
  * @param {string} [options.serverUrl] - Optional server URL override (defaults to SERVER_URL or FILE_SERVER_URL from env)
  * @param {string} [options.authorization] - Optional authorization value, that'll be used as value in headers.Authorization for authentication (service-to-service calls)
  * @returns {Promise<{signature: string}>} - Public signature for the attached file
@@ -158,11 +200,11 @@ async function attachFileFromServer ({
     itemId,
     fileClientId,
     fingerprint,
+    userId,
+    skipAccessControl = false,
     serverUrl,
     authorization,
 }) {
-    const baseUrl = serverUrl || getServerUrl()
-
     const payload = {
         dv: 1,
         sender: { dv: 1, fingerprint },
@@ -171,6 +213,19 @@ async function attachFileFromServer ({
         fileClientId,
         signature,
     }
+
+    if (skipAccessControl) {
+        const raw = conf['FILE_UPLOAD_CONFIG']
+        if (!raw) throw new Error('FILE_UPLOAD_CONFIG is not set')
+        const cfg = typeof raw === 'string' ? JSON.parse(raw) : raw
+        const appClients = cfg?.clients
+
+        const { keystone } = await getSchemaCtx('FileRecord')
+
+        return processFileAttach({ keystone, appClients, payload, userId })
+    }
+
+    const baseUrl = serverUrl || getServerUrl()
 
     const headers = {
         'Content-Type': 'application/json',

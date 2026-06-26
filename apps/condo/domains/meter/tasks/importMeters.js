@@ -3,11 +3,15 @@ const { Readable } = require('stream')
 const Upload = require('graphql-upload/Upload.js')
 const { get, isEmpty } = require('lodash')
 
+const conf = require('@open-condo/config')
+const { uploadFilesFromServer } = require('@open-condo/files/server')
 const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
 const { ROWS_COUNT_LIMIT, ROWS_COUNT_LIMIT_EXCEEDED } = require('@open-condo/keystone/file/constants')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
+
+const FILE_CLIENT_ID = conf['FILE_CLIENT_ID']
 
 const {
     DOMA_EXCEL,
@@ -46,26 +50,24 @@ function createUpload (content, filename, mimetype) {
     return upload
 }
 
-async function failWithErrorFile (context, taskId, content, format) {
+async function failWithErrorFile (context, taskId, userId, content, format) {
     const filename = format === DOMA_EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
     const mimetype = format === DOMA_EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv'
 
-    // update status and save error file
-    const updated = await MeterReadingsImportTask.update(context, taskId, {
+    const [uploaded] = await uploadFilesFromServer({
+        skipAccessControl: true,
+        fileClientId: FILE_CLIENT_ID,
+        userId,
+        fingerprint: dvAndSender.sender.fingerprint,
+        modelNames: ['MeterReadingsImportTask'],
+        files: [{ buffer: content, filename, mimetype, encoding: 'utf-8', size: content.length }],
+    })
+
+    await MeterReadingsImportTask.update(context, taskId, {
         ...dvAndSender,
         status: ERROR,
-        errorFile: await createUpload(content, filename, mimetype),
-    }, 'errorFile { filename }')
-
-    // update file meta in order to make file accessible for user download request
-    if (fileAdapter.acl && fileAdapter.acl.setMeta) {
-        const filename = get(updated, 'errorFile.filename')
-
-        await fileAdapter.acl.setMeta(
-            `${METER_READINGS_IMPORT_TASK_FOLDER_NAME}/${filename}`,
-            { listkey: 'MeterReadingsImportTask', id: taskId },
-        )
-    }
+        errorFile: { signature: uploaded.signature, originalFilename: uploaded.originalFilename },
+    })
 }
 
 /**
@@ -146,7 +148,7 @@ async function importMeters (taskId, rowsLimit = ROWS_COUNT_LIMIT) {
             }, 'id')
         } else {
             const errorFileContent = await importer.generateErrorFile()
-            await failWithErrorFile(context, taskId, errorFileContent, format)
+            await failWithErrorFile(context, taskId, user.id, errorFileContent, format)
         }
     } catch (err) {
         let errorMessage = get(err, 'errors[0].extensions.messageForUser', get(err, 'message'))

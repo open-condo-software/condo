@@ -4019,6 +4019,48 @@ export function useUpdateTourStepMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateTourStepMutationHookResult = ReturnType<typeof useUpdateTourStepMutation>;
 export type UpdateTourStepMutationResult = Apollo.MutationResult<Types.UpdateTourStepMutation>;
 export type UpdateTourStepMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTourStepMutation, Types.UpdateTourStepMutationVariables>;
+export const CreateUserHelpRequestFileDocument = gql`
+    mutation createUserHelpRequestFile($data: UserHelpRequestFileCreateInput!) {
+  userHelpRequestFile: createUserHelpRequestFile(data: $data) {
+    id
+    userHelpRequest {
+      id
+    }
+    file {
+      id
+      originalFilename
+      publicUrl
+      mimetype
+    }
+  }
+}
+    `;
+export type CreateUserHelpRequestFileMutationFn = Apollo.MutationFunction<Types.CreateUserHelpRequestFileMutation, Types.CreateUserHelpRequestFileMutationVariables>;
+
+/**
+ * __useCreateUserHelpRequestFileMutation__
+ *
+ * To run a mutation, you first call `useCreateUserHelpRequestFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateUserHelpRequestFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createUserHelpRequestFileMutation, { data, loading, error }] = useCreateUserHelpRequestFileMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateUserHelpRequestFileMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateUserHelpRequestFileMutation, Types.CreateUserHelpRequestFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateUserHelpRequestFileMutation, Types.CreateUserHelpRequestFileMutationVariables>(CreateUserHelpRequestFileDocument, options);
+      }
+export type CreateUserHelpRequestFileMutationHookResult = ReturnType<typeof useCreateUserHelpRequestFileMutation>;
+export type CreateUserHelpRequestFileMutationResult = Apollo.MutationResult<Types.CreateUserHelpRequestFileMutation>;
+export type CreateUserHelpRequestFileMutationOptions = Apollo.BaseMutationOptions<Types.CreateUserHelpRequestFileMutation, Types.CreateUserHelpRequestFileMutationVariables>;
 export const AcceptOrRejectOrganizationEmployeeRequestDocument = gql`
     mutation acceptOrRejectOrganizationEmployeeRequest($data: AcceptOrRejectOrganizationEmployeeRequestInput!) {
   request: acceptOrRejectOrganizationEmployeeRequest(data: $data) {
