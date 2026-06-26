@@ -1330,7 +1330,7 @@ docker:
 ---
 image: ecom_gateway
 fromImage: deps
-fromCacheVersion: "5"
+fromCacheVersion: "1"
 git:
   - add: /
     to: /app
