@@ -162,7 +162,6 @@ describe('SendVoIPCallStartMessageService spec', () => {
                 async function waitForMessageResponses ({ messageId, successResponseAppIds, failureResponseAppIds }) {
                     await waitFor(async () => {
                         const sentOldNativeMessage = await Message.getOne(admin, { id: messageId })
-                        console.error('Message', JSON.stringify(sentOldNativeMessage, null, 2))
                         
                         const responses = sentOldNativeMessage.processingMeta.transportsMeta?.[0]?.deliveryMetadata?.responses ?? []
                         

@@ -142,6 +142,7 @@ async function sendDTMFCode ({ context, url, callId, dtmfCode, accessToken }) {
     }
 
     if (!response) {
+        logger.error({ msg: 'sendDTMFCode result', err: new Error('no response') })
         throw new GQLError(ERRORS.UNKNOWN_ERROR, context)
     }
 
@@ -155,11 +156,12 @@ async function sendDTMFCode ({ context, url, callId, dtmfCode, accessToken }) {
         if (response.status === 404) {
             error = ERRORS.CALL_NOT_FOUND
         }
-
-        throw new GQLError(error, context)
     }
 
     logger.info({ msg: 'sendDTMFCode result', data: { responseJSON, status: response?.status } })
+    if (error) {
+        throw new GQLError(error, context)
+    }
 }
 
 const SendDTMFToB2CAppService = new GQLCustomSchema('SendDTMFToB2CAppService', {
