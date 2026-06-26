@@ -2,6 +2,7 @@ import { SortBillingIntegrationOrganizationContextsBy, SortBillingIntegrationsBy
 import styled from '@emotion/styled'
 import { Row, Col, Space } from 'antd'
 import get from 'lodash/get'
+import Router from 'next/router'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -17,6 +18,8 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { MIN_CARD_WIDTH, AppCard } from '@condo/domains/miniapp/components/AppCard'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
+
+import { useIntegrationContext } from '@condo/domains/billing/hooks/useIntegrationContext'
 
 import type { RowProps  } from 'antd'
 
@@ -139,6 +142,13 @@ export const ChooseChannels: React.FC = () => {
                 : [...prev, acquiringId]
         })
     }, [])
+    const { loading, handleSetupClick } = useIntegrationContext({ integrationType: INTEGRATION_TYPE_BILLING, integrationId: chosenBillingId })
+
+
+    const moveToTheNextStep = useCallback(async () => {
+        await handleSetupClick()
+        await router.push('/billing/setup?step=1')
+    }, [handleSetupClick, router])
 
     const { objs: connectedContexts, loading: ctxLoading, error: ctxError } = BillingContext.useObjects({
         where: {
@@ -273,6 +283,8 @@ export const ChooseChannels: React.FC = () => {
                         key='submit'
                         type='primary'
                         htmlType='submit'
+                        loading={loading}
+                        onClick={moveToTheNextStep}
                     >
                         Далее
                     </Button>
