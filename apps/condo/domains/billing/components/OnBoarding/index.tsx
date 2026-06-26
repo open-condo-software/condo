@@ -4,7 +4,6 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Steps } from '@open-condo/ui'
@@ -13,10 +12,7 @@ import type { StepItem } from '@open-condo/ui'
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 
-import { ChooseChannels } from './ChooseChannels'
-import styles from './index.module.css'
 import { SelectBilling } from './SelectBilling'
 import { SetupAcquiring } from './SetupAcquiring'
 import { SetupBilling } from './SetupBilling'
@@ -37,24 +33,12 @@ type BillingOnboardingPageProps = {
 
 export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ onFinish, withVerification }) => {
     const intl = useIntl()
+    const PageTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.title' })
     const BillingSelectTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseBillingStep.title' })
-    const PageTitleCombinedFlow = 'Настройка платежей для физлиц'
-    const PageTitleOrdinaryFlow = intl.formatMessage({ id: 'accrualsAndPayments.setup.title' })
-
     const SetupBillingTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupBillingStep.title' })
     const SetupAcquiringTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupAcquiringStep.title' })
     const VerificationTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationStep.title' })
     const StepNoReturnMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.noReturn' })
-    const ChooseChannelsTitle = 'Каналы для публикации' //intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseChannelsTitle' })
-    const IntegrationSetupTitle = 'Настройка интеграции' //intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseChannelsTitle' })
-    const BankIntegrationSetupTitle = 'Настройка Сбера' //intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseChannelsTitle' })
-    const AcceptOfferTitle = 'Подписание оферты' //intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseChannelsTitle' })
-
-    const { useFlag } = useFeatureFlags()
-
-    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
-
-    const PageTitle = isCombinedFlow ? PageTitleCombinedFlow : PageTitleOrdinaryFlow
 
     const userOrganization = useOrganization()
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
@@ -69,23 +53,22 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
     const [currentStep] = useOnboardingProgress(withVerification)
 
     const stepItems: Array<StepItem> = useMemo(() => {
-        const steps: Array<StepItem> = isCombinedFlow ? 
-            [
-                { title: ChooseChannelsTitle },
-                { title: IntegrationSetupTitle, breakPoint: true  },
-                { title: BankIntegrationSetupTitle, breakPoint: true  },
-                { title: AcceptOfferTitle, breakPoint: true  },
-            ] :
-            [
-                { title: BillingSelectTitle },
-                { title: SetupBillingTitle, breakPoint: true },
-                { title: SetupAcquiringTitle, breakPoint: true },
-            ]
+        const steps: Array<StepItem> = [
+            { title: BillingSelectTitle },
+            { title: SetupBillingTitle, breakPoint: true },
+            { title: SetupAcquiringTitle, breakPoint: true },
+        ]
         if (withVerification) {
             steps.push({ title: VerificationTitle })
         }
         return steps
-    }, [isCombinedFlow, BillingSelectTitle, SetupBillingTitle, SetupAcquiringTitle, withVerification, VerificationTitle])
+    }, [
+        withVerification,
+        BillingSelectTitle,
+        SetupBillingTitle,
+        SetupAcquiringTitle,
+        VerificationTitle,
+    ])
 
     const handleReturn = useCallback((newStep: number) => {
         router.push({ query: { ...router.query, step: newStep } }, undefined, { shallow: true })
@@ -104,12 +87,9 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
         } else if (currentStep === 3) {
             return <Verification/>
         }
-        if (isCombinedFlow) {
-            return <ChooseChannels/>
-        } else {
-            return <SelectBilling/>
-        }
-    }, [currentStep, isCombinedFlow, onFinish])
+
+        return <SelectBilling/>
+    }, [currentStep, onFinish])
 
     if (!canManageIntegrations) {
         return <AccessDeniedPage />
@@ -130,7 +110,6 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
                                 items={stepItems}
                                 current={currentStep}
                                 noReturnMessage={StepNoReturnMessage}
-                                className={isCombinedFlow ? styles['compact-steps'] : ''}
                             />
                         </Col>
                         <Col span={FULL_COL_SPAN}>

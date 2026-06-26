@@ -217,7 +217,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
+    }, [isCombinedFlow, canManageIntegrations, billingContexts.length, canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
 
     return (
         <>
