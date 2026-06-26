@@ -75,6 +75,12 @@ describe('html utils', () => {
             expect(result).toBe(`<html><head>${TAGS}</head><body></body></html>`)
         })
 
+        test('handles self-closing <head/> with attributes', () => {
+            const input = '<html><head lang="ru"/><body></body></html>'
+            const result = injectScriptTags(input, TAGS)
+            expect(result).toBe(`<html><head lang="ru">${TAGS}</head><body></body></html>`)
+        })
+
         describe('CSP meta tag present', () => {
             test('inserts script tags after CSP meta tag', () => {
                 const csp = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'">'
@@ -123,6 +129,56 @@ describe('html utils', () => {
                 const input = '<html><head><meta charset="utf-8"><title>App</title></head></html>'
                 const result = injectScriptTags(input, TAGS)
                 expect(result).toBe(`<html><head>${TAGS}<meta charset="utf-8"><title>App</title></head></html>`)
+            })
+        })
+
+        describe('malformed HTML preservation', () => {
+            test('preserves <body> tag with attributes when HTML contains unclosed tags', () => {
+                const input = [
+                    '<!DOCTYPE html>',
+                    '<html><head><title>App</title></head>',
+                    '<body class="main" style="font-size:12px;">',
+                    '<ul>',
+                    '  <li><a href="#"><b>Unclosed bold</a></li>',
+                    '</ul>',
+                    '</body></html>',
+                ].join('\n')
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+                const result = injectScriptTags(input, TAGS)
+                expect(result).toBe([
+                    '<!DOCTYPE html>',
+                    `<html><head>${TAGS}<title>App</title></head>`,
+                    '<body class="main" style="font-size:12px;">',
+                    '<ul>',
+                    '  <li><a href="#"><b>Unclosed bold</a></li>',
+                    '</ul>',
+                    '</body></html>',
+                ].join('\n'))
+            })
+
+            test('does not strip HTML comments', () => {
+                const input = '<html><head><!-- jQuery library --><title>App</title></head><body></body></html>'
+                const result = injectScriptTags(input, TAGS)
+                expect(result).toBe(`<html><head>${TAGS}<!-- jQuery library --><title>App</title></head><body></body></html>`)
+            })
+
+            test('preserves all original content when HTML has unclosed tags in body', () => {
+                const input = [
+                    '<!DOCTYPE html>',
+                    '<html><head><title>App</title></head>',
+                    '<body class="container" style="font-family: sans-serif;">',
+                    '<div><a href="#"><b>Unclosed</a></div>',
+                    '</body></html>',
+                ].join('\n')
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+                const result = injectScriptTags(input, TAGS)
+                expect(result).toBe([
+                    '<!DOCTYPE html>',
+                    `<html><head>${TAGS}<title>App</title></head>`,
+                    '<body class="container" style="font-family: sans-serif;">',
+                    '<div><a href="#"><b>Unclosed</a></div>',
+                    '</body></html>',
+                ].join('\n'))
             })
         })
     })
