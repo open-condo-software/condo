@@ -143,6 +143,7 @@ describe('html utils', () => {
                     '</ul>',
                     '</body></html>',
                 ].join('\n')
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
                 const result = injectScriptTags(input, TAGS)
                 expect(result).toBe([
                     '<!DOCTYPE html>',
@@ -169,6 +170,7 @@ describe('html utils', () => {
                     '<div><a href="#"><b>Unclosed</a></div>',
                     '</body></html>',
                 ].join('\n')
+                // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
                 const result = injectScriptTags(input, TAGS)
                 expect(result).toBe([
                     '<!DOCTYPE html>',
