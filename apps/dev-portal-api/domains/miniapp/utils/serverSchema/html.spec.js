@@ -75,6 +75,12 @@ describe('html utils', () => {
             expect(result).toBe(`<html><head>${TAGS}</head><body></body></html>`)
         })
 
+        test('handles self-closing <head/> with attributes', () => {
+            const input = '<html><head lang="ru"/><body></body></html>'
+            const result = injectScriptTags(input, TAGS)
+            expect(result).toBe(`<html><head lang="ru">${TAGS}</head><body></body></html>`)
+        })
+
         describe('CSP meta tag present', () => {
             test('inserts script tags after CSP meta tag', () => {
                 const csp = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'">'

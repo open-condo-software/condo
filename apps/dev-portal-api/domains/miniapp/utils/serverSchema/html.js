@@ -5,6 +5,10 @@ function _prependScriptsRegexp (content, scriptTags) {
     if (!headMatch) return content
     const headEnd = content.indexOf('>', headMatch.index)
     if (headEnd === -1) return content
+    // Self-closing <head/> — normalize to <head ...>...</head>, preserving attributes.
+    if (content[headEnd - 1] === '/') {
+        return content.slice(0, headEnd - 1) + '>' + scriptTags + '</head>' + content.slice(headEnd + 1)
+    }
     return content.slice(0, headEnd + 1) + scriptTags + content.slice(headEnd + 1)
 }
 
@@ -25,8 +29,7 @@ function injectScriptTags (content, scriptTags) {
 
         const head = root.querySelector('head')
         if (head) {
-            const openTagEnd = content.indexOf('>', head.range[0]) + 1
-            return content.slice(0, openTagEnd) + scriptTags + content.slice(openTagEnd)
+            return _prependScriptsRegexp(content, scriptTags)
         }
 
         return content
