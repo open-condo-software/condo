@@ -18,11 +18,12 @@ const {
     MESSAGE_TRANSPORTS,
     EMAIL_TRANSPORT,
     SMS_TRANSPORT,
-    TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
+    WEBHOOK_TRANSPORT,
+    TELEGRAM_TRANSPORT,
 } = require('./constants/constants')
 
 const LANG_DIR_RELATED = '../../lang'
@@ -135,30 +136,25 @@ function renderDefaultTemplate (message, locale) {
     }
 }
 
-function getTelegramTemplate (locale, messageType) {
-    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
-    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const telegramTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const telegramHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+function getMessageTemplate (locale, messageType, transport) {
+    const baseDir = path.resolve(__dirname, LANG_DIR_RELATED, locale, 'messages', messageType)
 
-    let templatePathText = null
-    let templatePathHtml = null
-
-    if (fs.existsSync(telegramTextTemplatePath)) {
-        templatePathText = telegramTextTemplatePath
+    const paths = {
+        text: path.resolve(baseDir, `${transport}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`),
+        html: path.resolve(baseDir, `${transport}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`),
+        default: path.resolve(baseDir, DEFAULT_TEMPLATE_FILE_NAME),
     }
 
-    if (fs.existsSync(telegramHtmlTemplatePath)) {
-        templatePathHtml = telegramHtmlTemplatePath
+    let templatePathText = fs.existsSync(paths.text) ? paths.text : null
+    const templatePathHtml = fs.existsSync(paths.html) ? paths.html : null
+
+    if (!templatePathText && !templatePathHtml && fs.existsSync(paths.default)) {
+        templatePathText = paths.default
     }
 
-    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
-        templatePathText = defaultTemplatePath
+    if (templatePathText || templatePathHtml) {
+        return { templatePathText, templatePathHtml }
     }
-
-    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
 
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${TELEGRAM_TRANSPORT}"`)
 }
@@ -237,7 +233,7 @@ function translateObjectItems (obj, locale) {
  */
 function telegramRenderer ({ message, env }) {
     const { lang: locale, type, meta } = message
-    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
+    const { templatePathText, templatePathHtml } = getMessageTemplate(locale, type, TELEGRAM_TRANSPORT)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {}
 
@@ -257,6 +253,54 @@ function telegramRenderer ({ message, env }) {
     }
 
     return ret
+}
+
+/**
+ * Renders message template for webhook
+ */
+function webhookRenderer ({ message, env, additionalParams }) {
+    const { lang: locale, type } = message
+    const renderFormat = additionalParams?.renderFormat || 'html'
+    const messageTranslated = substituteTranslations(message, locale)
+
+    switch (renderFormat) {
+        case 'json':
+            return {
+                title: type,
+                body: JSON.stringify({
+                    type,
+                    meta: messageTranslated.meta,
+                    lang: locale,
+                }),
+            }
+
+        case 'text': {
+            const { templatePathText } = getMessageTemplate(locale, type, WEBHOOK_TRANSPORT)
+            const text = templatePathText
+                ? unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+                : JSON.stringify(messageTranslated.meta)
+            return {
+                title: type,
+                body: text,
+            }
+        }
+
+        case 'html':
+        default: {
+            const { templatePathText, templatePathHtml } = getMessageTemplate(locale, type, WEBHOOK_TRANSPORT)
+            const renderedTemplates = {}
+            if (templatePathText) {
+                renderedTemplates.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+            }
+            if (templatePathHtml) {
+                renderedTemplates.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+            }
+            return {
+                title: type,
+                body: JSON.stringify(renderedTemplates),
+            }
+        }
+    }
 }
 
 /**
@@ -365,6 +409,7 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
     [SMS_TRANSPORT]: smsRenderer,
     [EMAIL_TRANSPORT]: emailRenderer,
     [TELEGRAM_TRANSPORT]: telegramRenderer,
+    [WEBHOOK_TRANSPORT]: webhookRenderer,
     [PUSH_TRANSPORT]: pushRenderer,
 }
 

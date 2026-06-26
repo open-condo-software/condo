@@ -26,6 +26,7 @@ const CONFIG_SCHEMA = z.record(
                 url: z.string(),
                 secret: z.string().optional(),
                 messageTypes: z.array(z.string().min(1)),
+                renderFormat: z.string().optional(),
             })
         ).min(1),
     })
