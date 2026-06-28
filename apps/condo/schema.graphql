@@ -60864,6 +60864,7 @@ type AcquiringIntegrationHistoryRecord {
   logo: JSON
   shortDescription: String
   displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: String
@@ -60941,6 +60942,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   displayPriority_gte: Int
   displayPriority_in: [Int]
   displayPriority_not_in: [Int]
+  setupTitle: String
+  setupTitle_not: String
+  setupTitle_contains: String
+  setupTitle_not_contains: String
+  setupTitle_starts_with: String
+  setupTitle_not_starts_with: String
+  setupTitle_ends_with: String
+  setupTitle_not_ends_with: String
+  setupTitle_i: String
+  setupTitle_not_i: String
+  setupTitle_contains_i: String
+  setupTitle_not_contains_i: String
+  setupTitle_starts_with_i: String
+  setupTitle_not_starts_with_i: String
+  setupTitle_ends_with_i: String
+  setupTitle_not_ends_with_i: String
+  setupTitle_in: [String]
+  setupTitle_not_in: [String]
   setupUrl: String
   setupUrl_not: String
   setupUrl_contains: String
@@ -61162,6 +61181,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   shortDescription_DESC
   displayPriority_ASC
   displayPriority_DESC
+  setupTitle_ASC
+  setupTitle_DESC
   setupUrl_ASC
   setupUrl_DESC
   isHidden_ASC
@@ -61205,6 +61226,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   logo: JSON
   shortDescription: String
   displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: String
@@ -61240,6 +61262,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   logo: JSON
   shortDescription: String
   displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: String
@@ -61329,6 +61352,9 @@ type AcquiringIntegration {
   """ The number used to determine the position of the integration among the others.  
   """
   displayPriority: Int
+
+  """ Title for the settings tab """
+  setupTitle: String
 
   """ Url to setup page of acquiring integration """
   setupUrl: String
@@ -61444,6 +61470,24 @@ input AcquiringIntegrationWhereInput {
   displayPriority_gte: Int
   displayPriority_in: [Int]
   displayPriority_not_in: [Int]
+  setupTitle: String
+  setupTitle_not: String
+  setupTitle_contains: String
+  setupTitle_not_contains: String
+  setupTitle_starts_with: String
+  setupTitle_not_starts_with: String
+  setupTitle_ends_with: String
+  setupTitle_not_ends_with: String
+  setupTitle_i: String
+  setupTitle_not_i: String
+  setupTitle_contains_i: String
+  setupTitle_not_contains_i: String
+  setupTitle_starts_with_i: String
+  setupTitle_not_starts_with_i: String
+  setupTitle_ends_with_i: String
+  setupTitle_not_ends_with_i: String
+  setupTitle_in: [String]
+  setupTitle_not_in: [String]
   setupUrl: String
   setupUrl_not: String
   setupUrl_contains: String
@@ -61626,6 +61670,8 @@ enum SortAcquiringIntegrationsBy {
   shortDescription_DESC
   displayPriority_ASC
   displayPriority_DESC
+  setupTitle_ASC
+  setupTitle_DESC
   setupUrl_ASC
   setupUrl_DESC
   isHidden_ASC
@@ -61671,6 +61717,7 @@ input AcquiringIntegrationUpdateInput {
   logo: FileMeta
   shortDescription: String
   displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: AcquiringIntegrationTypeType
@@ -61704,6 +61751,7 @@ input AcquiringIntegrationCreateInput {
   logo: FileMeta
   shortDescription: String
   displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: AcquiringIntegrationTypeType
