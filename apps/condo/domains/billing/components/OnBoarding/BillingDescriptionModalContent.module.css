@@ -1,0 +1,16 @@
+.banner-wrapper :global(.condo-promo-block) {
+  position: relative;
+}
+
+.banner-wrapper :global(.condo-promo-block-image-container) {
+  position: absolute;
+  right: 50px;
+  bottom: 0;
+  width: auto;
+  height: auto;
+}
+
+.banner-wrapper :global(.condo-promo-block-image-container > img) {
+  width: 365px;
+  height: auto;
+}

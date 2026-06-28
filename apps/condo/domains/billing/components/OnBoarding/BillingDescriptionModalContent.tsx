@@ -9,6 +9,8 @@ import { useIntegrationContext } from '@condo/domains/billing/hooks/useIntegrati
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } from '@condo/domains/miniapp/constants'
 
+import styles from './BillingDescriptionModalContent.module.css'
+
 import type { RowProps } from 'antd'
 
 type BillingDescriptionModalContentProps = {
@@ -65,13 +67,15 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
     return (
         <Row gutter={MODAL_PIC_GAP} ref={setRef}>
             <Col span={FULL_SPAN}>
-                <Banner
-                    title={name}
-                    subtitle={targetDescription}
-                    backgroundColor={bannerColor}
-                    imgUrl={bannerPromoImageUrl}
-                    {...PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS[bannerTextColor]}
-                />
+                <div className={styles['banner-wrapper']}>
+                    <Banner
+                        title={name}
+                        subtitle={targetDescription}
+                        backgroundColor={bannerColor}
+                        imgUrl={bannerPromoImageUrl}
+                        {...PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS[bannerTextColor]}
+                    />
+                </div>
             </Col>
             <Col span={FULL_SPAN / cols}>
                 <Markdown>
