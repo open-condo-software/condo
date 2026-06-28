@@ -2,24 +2,23 @@ import { SortBillingIntegrationOrganizationContextsBy, SortBillingIntegrationsBy
 import styled from '@emotion/styled'
 import { Row, Col, Space } from 'antd'
 import get from 'lodash/get'
-import Router from 'next/router'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Checkbox, Modal, Radio, Typography } from '@open-condo/ui'
 
-import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
+import { CONTEXT_FINISHED_STATUS as ACQUIRING_CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS as ACQUIRING_CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/acquiring/constants/context'
+import { useIntegrationContexts } from '@condo/domains/acquiring/hooks/useIntegrationContexts'
+import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingDescriptionModalContent } from '@condo/domains/billing/components/OnBoarding/BillingDescriptionModalContent'
-import { INTEGRATION_TYPE_BILLING } from '@condo/domains/billing/constants/constants'
+import { CONTEXT_FINISHED_STATUS as BILLING_CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS as BILLING_CONTEXT_IN_PROGRESS_STATUS, INTEGRATION_TYPE_BILLING } from '@condo/domains/billing/constants/constants'
+import { useIntegrationContext } from '@condo/domains/billing/hooks/useIntegrationContext'
 import useSelectBillingPromoBanner from '@condo/domains/billing/hooks/useSelectBillingPromoBanner'
 import { BillingIntegrationOrganizationContext as BillingContext, BillingIntegration } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { MIN_CARD_WIDTH, AppCard } from '@condo/domains/miniapp/components/AppCard'
-import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
-
-import { useIntegrationContext } from '@condo/domains/billing/hooks/useIntegrationContext'
 
 import type { RowProps  } from 'antd'
 
@@ -133,7 +132,7 @@ export const ChooseChannels: React.FC = () => {
 
     const [chosenAcquirings, setChosenAcquirings] = useState<string[]>([])
     const [chosenBillingId, setChosenBillingId] = useState<string | null>(null)
-    const isDefaultAcquiringsSelected = useRef(false)
+    const isDefaultSelectionsApplied = useRef(false)
 
     const handleToggleAcquiring = useCallback((acquiringId: string) => {
         setChosenAcquirings((prev) => {
@@ -142,18 +141,30 @@ export const ChooseChannels: React.FC = () => {
                 : [...prev, acquiringId]
         })
     }, [])
-    const { loading, handleSetupClick } = useIntegrationContext({ integrationType: INTEGRATION_TYPE_BILLING, integrationId: chosenBillingId })
+    const { loading: billingLoading, handleSetupClick: handleBillingSetupClick } = useIntegrationContext({ integrationType: INTEGRATION_TYPE_BILLING, integrationId: chosenBillingId })
+    const { loading: acquiringLoading, handleSetupClick: handleAcquiringSetupClick } = useIntegrationContexts({ integrationIds: chosenAcquirings })
 
 
     const moveToTheNextStep = useCallback(async () => {
-        await handleSetupClick()
+        await handleBillingSetupClick()
+        await handleAcquiringSetupClick()
         await router.push('/billing/setup?step=1')
-    }, [handleSetupClick, router])
+    }, [handleAcquiringSetupClick, handleBillingSetupClick, router])
 
     const { objs: connectedContexts, loading: ctxLoading, error: ctxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
-            status: CONTEXT_FINISHED_STATUS,
+            status: BILLING_CONTEXT_FINISHED_STATUS,
+        },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
+    })
+    const { objs: activeBillingContexts, loading: activeBillingContextsLoading, error: activeBillingContextsError } = BillingContext.useObjects({
+        where: {
+            organization: { id: orgId },
+            status_in: [BILLING_CONTEXT_IN_PROGRESS_STATUS, BILLING_CONTEXT_FINISHED_STATUS],
         },
         sortBy: [
             SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
@@ -177,17 +188,28 @@ export const ChooseChannels: React.FC = () => {
             SortAcquiringIntegrationsBy.DisplayPriorityAsc,
         ],
     })
+    const { objs: activeAcquiringContexts, loading: activeAcquiringContextsLoading, error: activeAcquiringContextsError } = AcquiringContext.useObjects({
+        where: {
+            organization: { id: orgId },
+            status_in: [ACQUIRING_CONTEXT_IN_PROGRESS_STATUS, ACQUIRING_CONTEXT_FINISHED_STATUS],
+        },
+    })
 
     useEffect(() => {
-        if (acquiringsLoading || isDefaultAcquiringsSelected.current) return
-        setChosenAcquirings(acquirings.map(({ id }) => id))
-        isDefaultAcquiringsSelected.current = true
-    }, [acquirings, acquiringsLoading])
+        if (activeBillingContextsLoading || activeAcquiringContextsLoading || isDefaultSelectionsApplied.current) return
 
-    useEffect(() => {
-        if (billingsLoading || chosenBillingId || !billings[0]?.id) return
-        setChosenBillingId(billings[0].id)
-    }, [billings, billingsLoading, chosenBillingId])
+        const activeAcquiringIntegrationIds = Array.from(
+            new Set(activeAcquiringContexts.map(({ integration }) => integration?.id).filter(Boolean))
+        )
+        const chosenAcquiringIds = activeAcquiringIntegrationIds.length > 0
+            ? activeAcquiringIntegrationIds
+            : acquirings.map(({ id }) => id)
+        const chosenBillingIntegrationId = activeBillingContexts[0]?.integration?.id || billings[0]?.id || null
+
+        setChosenAcquirings(chosenAcquiringIds)
+        setChosenBillingId(chosenBillingIntegrationId)
+        isDefaultSelectionsApplied.current = true
+    }, [acquirings, activeAcquiringContexts, activeAcquiringContextsLoading, activeBillingContexts, activeBillingContextsLoading, billings])
 
     const connectedCtx = connectedContexts[0] || null
     const connectedContextId = get(connectedCtx, 'id', null)
@@ -222,11 +244,11 @@ export const ChooseChannels: React.FC = () => {
     }, [router, ctxLoading, ctxError, connectedContextId])
 
 
-    if (ctxError || billingsError || acquiringsError) {
-        return <Typography.Title>{ctxError || billingsError || acquiringsError}</Typography.Title>
+    if (ctxError || activeBillingContextsError || billingsError || acquiringsError || activeAcquiringContextsError) {
+        return <Typography.Title>{ctxError || activeBillingContextsError || billingsError || acquiringsError || activeAcquiringContextsError}</Typography.Title>
     }
 
-    if (ctxLoading || billingsLoading || acquiringsLoading) {
+    if (ctxLoading || activeBillingContextsLoading || billingsLoading || acquiringsLoading || activeAcquiringContextsLoading) {
         return <Loader fill size='large'/>
     }
 
@@ -281,7 +303,7 @@ export const ChooseChannels: React.FC = () => {
                         key='submit'
                         type='primary'
                         htmlType='submit'
-                        loading={loading}
+                        loading={billingLoading || acquiringLoading}
                         onClick={moveToTheNextStep}
                     >
                         Далее

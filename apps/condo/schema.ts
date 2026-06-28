@@ -86,6 +86,8 @@ export type AcquiringIntegration = {
   newId?: Maybe<Scalars['String']['output']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  Title for the settings tab  */
+  setupTitle?: Maybe<Scalars['String']['output']>;
   /**  Url to setup page of acquiring integration  */
   setupUrl?: Maybe<Scalars['String']['output']>;
   /**  Short description / catch phrase providing information about integration functionality. Will be shown on integration's card  */
@@ -1177,6 +1179,7 @@ export type AcquiringIntegrationCreateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
@@ -1218,6 +1221,7 @@ export type AcquiringIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['JSON']['output']>;
   sender?: Maybe<Scalars['JSON']['output']>;
+  setupTitle?: Maybe<Scalars['String']['output']>;
   setupUrl?: Maybe<Scalars['String']['output']>;
   shortDescription?: Maybe<Scalars['String']['output']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']['output']>;
@@ -1248,6 +1252,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
@@ -1284,6 +1289,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
@@ -1443,6 +1449,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   sender_not?: InputMaybe<Scalars['JSON']['input']>;
   sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1598,6 +1622,7 @@ export type AcquiringIntegrationUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
@@ -1731,6 +1756,24 @@ export type AcquiringIntegrationWhereInput = {
   sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
   sender_not?: InputMaybe<SenderFieldInput>;
   sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -92835,6 +92878,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  SetupTitleAsc = 'setupTitle_ASC',
+  SetupTitleDesc = 'setupTitle_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
@@ -92880,6 +92925,8 @@ export enum SortAcquiringIntegrationsBy {
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  SetupTitleAsc = 'setupTitle_ASC',
+  SetupTitleDesc = 'setupTitle_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
