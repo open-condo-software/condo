@@ -53,6 +53,12 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
 
         displayPriority: DISPLAY_PRIORITY_FIELD,
 
+        setupTitle: {
+            schemaDoc: 'Title for the settings tab',
+            type: 'Text',
+            isRequired: false,
+        },
+
         setupUrl: {
             ...IFRAME_URL_FIELD,
             schemaDoc: 'Url to setup page of acquiring integration',
@@ -88,7 +94,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         hostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
         },
 
         supportedBillingIntegrationsGroup: {
