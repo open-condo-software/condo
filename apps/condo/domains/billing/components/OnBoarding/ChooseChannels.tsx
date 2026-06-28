@@ -180,14 +180,12 @@ export const ChooseChannels: React.FC = () => {
 
     useEffect(() => {
         if (acquiringsLoading || isDefaultAcquiringsSelected.current) return
-
         setChosenAcquirings(acquirings.map(({ id }) => id))
         isDefaultAcquiringsSelected.current = true
     }, [acquirings, acquiringsLoading])
 
     useEffect(() => {
         if (billingsLoading || chosenBillingId || !billings[0]?.id) return
-
         setChosenBillingId(billings[0].id)
     }, [billings, billingsLoading, chosenBillingId])
 
