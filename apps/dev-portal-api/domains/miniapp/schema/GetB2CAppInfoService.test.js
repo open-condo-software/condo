@@ -47,6 +47,7 @@ describe('GetB2CAppInfoService', () => {
                 id: b2cApp.developmentExportId,
                 environment: DEV_ENVIRONMENT,
                 currentBuild: { id: expect.stringContaining(''), version: build.version },
+                isGlobal: false,
             })
         })
         test('Support can get app info of any app', async () => {
@@ -55,6 +56,7 @@ describe('GetB2CAppInfoService', () => {
                 id: b2cApp.developmentExportId,
                 environment: DEV_ENVIRONMENT,
                 currentBuild: { id: expect.stringContaining(''), version: build.version },
+                isGlobal: false,
             })
         })
         describe('User', () => {
@@ -64,6 +66,7 @@ describe('GetB2CAppInfoService', () => {
                     id: b2cApp.developmentExportId,
                     environment: DEV_ENVIRONMENT,
                     currentBuild: { id: expect.stringContaining(''), version: build.version },
+                    isGlobal: false,
                 })
             })
             test('Cannot for other apps', async () => {
@@ -92,6 +95,7 @@ describe('GetB2CAppInfoService', () => {
             const [info] = await getB2CAppInfoByTestClient(b2cUser, publishedApp)
 
             expect(info.currentBuild.version).toBe(appBuild.version)
+            expect(info).toHaveProperty('isGlobal', false)
         })
         test('Must show original version if created directly in condo', async () => {
             const [condoApp] = await createCondoB2CApp(condoAdmin)
@@ -106,6 +110,21 @@ describe('GetB2CAppInfoService', () => {
 
             expect(info.currentBuild.version).toBe(condoBuild.version)
             expect(Object.keys(info.currentBuild).toSorted()).toEqual(['id', 'version'].toSorted())
+            expect(info).toHaveProperty('isGlobal', false)
+        })
+    })
+    describe('isGlobal field', () => {
+        test('Returns true for global app', async () => {
+            const [app] = await createTestB2CApp(b2cUser)
+            const [appBuild] = await createTestB2CAppBuild(b2cUser, app)
+            await publishB2CAppByTestClient(b2cUser, app, { info: true, build: { id: appBuild.id } })
+            const publishedApp = await B2CApp.getOne(b2cUser, { id: app.id })
+
+            const condoAdmin = await makeLoggedInCondoAdminClient()
+            await updateCondoB2CApp(condoAdmin, { id: publishedApp.developmentExportId }, { isGlobal: true })
+
+            const [info] = await getB2CAppInfoByTestClient(b2cUser, publishedApp)
+            expect(info).toHaveProperty('isGlobal', true)
         })
     })
 })

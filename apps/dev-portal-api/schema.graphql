@@ -7283,6 +7283,7 @@ type GetB2CAppInfoOutput {
   id: String!
   environment: AppEnvironment!
   currentBuild: B2CAppCurrentBuild
+  isGlobal: Boolean!
 }
 
 input AppWhereUniqueInput {

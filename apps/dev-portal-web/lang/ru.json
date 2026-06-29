@@ -329,6 +329,7 @@
   "pages.apps.b2c.id.sections.properties.table.search.placeholder": "Поиск по адресу",
   "pages.apps.b2c.id.sections.properties.table.empty.message": "Приложение нигде не отображается",
   "pages.apps.b2c.id.sections.properties.table.empty.search.message": "Адресов не найдено",
+  "pages.apps.b2c.id.sections.properties.table.global.hint": "Глобальное приложение отображается на любом адресе",
   "pages.apps.b2c.id.sections.properties.actions.addProperty": "Добавить адрес",
   "pages.apps.b2c.id.sections.properties.newPropertyModal.title": "Добавление нового адреса",
   "pages.apps.b2c.id.sections.properties.newPropertyModal.info.description": "После добавления адреса, выбранное мини-приложение станет доступным для всех жителей, зарегистрированных по этому адресу на соответствующем стенде",

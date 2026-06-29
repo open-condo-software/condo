@@ -6,5 +6,6 @@ query getB2CAppInfo($data: GetB2CAppInfoInput!) {
             id
             version
         }
+        isGlobal
     }
 }
