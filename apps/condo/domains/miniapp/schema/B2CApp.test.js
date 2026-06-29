@@ -16,6 +16,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls')
 
+const { TICKETS_NATIVE_APP_FEATURE, NEWS_NATIVE_APP_FEATURE, INVALID_NATIVE_APP_FEATURES_ERROR } = require('@condo/domains/miniapp/constants')
 const { B2CApp, createTestB2CApp, updateTestB2CApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { SubscriptionPlan, createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
@@ -895,6 +896,49 @@ describe('B2CApp', () => {
 
                 const appData = await B2CApp.getOne(support, { id: app.id })
                 expect(appData.subscriptionPlans).toEqual([])
+            })
+        })
+    })
+    describe('Fields', () => {
+        describe('isGlobal', () => {
+            test('App can be made global', async () => {
+                const [app] = await createTestB2CApp(admin, { isGlobal: true })
+                expect(app).toHaveProperty('isGlobal', true)
+            })
+        })
+        describe('nativeAppFeatures', () => {
+            test('Can be created with a single feature', async () => {
+                const [app] = await createTestB2CApp(admin, { nativeAppFeatures: [TICKETS_NATIVE_APP_FEATURE] })
+                expect(app).toHaveProperty('nativeAppFeatures', [TICKETS_NATIVE_APP_FEATURE])
+            })
+            test('Can be created with multiple features', async () => {
+                const features = [TICKETS_NATIVE_APP_FEATURE, NEWS_NATIVE_APP_FEATURE]
+                const [app] = await createTestB2CApp(admin, { nativeAppFeatures: features })
+                expect(app).toHaveProperty('nativeAppFeatures', features)
+            })
+            test('Cannot be created with empty array', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestB2CApp(admin, { nativeAppFeatures: [] })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: INVALID_NATIVE_APP_FEATURES_ERROR,
+                })
+            })
+            test('Can be filtered by non-null to find apps implementing any feature', async () => {
+                const [appWithFeatures] = await createTestB2CApp(admin, { nativeAppFeatures: [TICKETS_NATIVE_APP_FEATURE] })
+                const [appWithoutFeatures] = await createTestB2CApp(admin)
+
+                const apps = await B2CApp.getAll(admin, { nativeAppFeatures_not: null })
+                const ids = apps.map(a => a.id)
+
+                expect(ids).toContain(appWithFeatures.id)
+                expect(ids).not.toContain(appWithoutFeatures.id)
+
+                const appsWithoutFeatures = await B2CApp.getAll(admin, { nativeAppFeatures: null })
+                const idsWithoutFeatures = appsWithoutFeatures.map(a => a.id)
+
+                expect(idsWithoutFeatures).not.toContain(appWithFeatures.id)
+                expect(idsWithoutFeatures).toContain(appWithoutFeatures.id)
             })
         })
     })
