@@ -222,7 +222,7 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                         type='primary'
                         icon={<PlusCircle size='medium'/>}
                         onClick={showCreatePropertyModal}
-                        disabled={isGlobal}
+                        disabled={isGlobal || appDataLoading}
                     >
                         {AddAddressLabel}
                     </Button>
