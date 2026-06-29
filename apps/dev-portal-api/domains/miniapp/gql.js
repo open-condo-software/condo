@@ -92,7 +92,7 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
 
 const GET_B2C_APP_INFO_QUERY = gql`
     query getB2CAppInfoById ($data: GetB2CAppInfoInput!) {
-        result: getB2CAppInfo(data: $data) { id environment currentBuild { id version } }
+        result: getB2CAppInfo(data: $data) { id environment currentBuild { id version } isGlobal }
     }
 `
 

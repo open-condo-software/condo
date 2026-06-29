@@ -25,7 +25,7 @@ const GetB2CAppInfoService = new GQLCustomSchema('GetB2CAppInfoService', {
         },
         {
             access: true,
-            type: 'type GetB2CAppInfoOutput { id: String!, environment: AppEnvironment!, currentBuild: B2CAppCurrentBuild }',
+            type: 'type GetB2CAppInfoOutput { id: String!, environment: AppEnvironment!, currentBuild: B2CAppCurrentBuild, isGlobal: Boolean! }',
         },
     ],
     
@@ -53,7 +53,7 @@ const GetB2CAppInfoService = new GQLCustomSchema('GetB2CAppInfoService', {
                 const currentBuild = b2cApp.currentBuild
 
                 if (!currentBuild || !currentBuild.importId || !currentBuild.importRemoteSystem) {
-                    return { id: b2cApp.id, environment, currentBuild }
+                    return { id: b2cApp.id, environment, currentBuild, isGlobal: b2cApp.isGlobal }
                 }
 
                 const buildImportId = currentBuild.importId // <uuid> or <uuid>-<hash>
@@ -74,7 +74,7 @@ const GetB2CAppInfoService = new GQLCustomSchema('GetB2CAppInfoService', {
                     currentBuild.version = currentBuild.version.slice(0, -importIdSuffix.length - 1)
                 }
 
-                return { id: b2cApp.id, environment, currentBuild }
+                return { id: b2cApp.id, environment, currentBuild, isGlobal: b2cApp.isGlobal }
             },
         },
     ],
