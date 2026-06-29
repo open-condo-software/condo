@@ -90,7 +90,7 @@ function setupGracefulShutdown ({
 
         try {
             state.draining = true
-            logger.info({ msg: 'graceful-shutdown:begin', data: { reason: signal } })
+            logger.info({ msg: 'start graceful shutdown', data: { reason: signal } })
 
             if (drainWaitMs > 0) {
                 await sleepFn(drainWaitMs)
@@ -100,7 +100,7 @@ function setupGracefulShutdown ({
                 try {
                     server.close()
                 } catch (err) {
-                    logger.warn({ msg: 'server-close-failed', err })
+                    logger.warn({ msg: 'server close failed', err })
                 }
             }
 
@@ -124,18 +124,18 @@ function setupGracefulShutdown ({
                         sleepFn(KEYSTONE_DISCONNECT_TIMEOUT_MS),
                     ])
                 } catch (err) {
-                    logger.error({ msg: 'keystone-disconnect-error', err })
+                    logger.error({ msg: 'keystone disconnect error', err })
                 }
             }
 
             logger.info({
-                msg: 'graceful-shutdown:done',
+                msg: 'done',
                 data: { inflight: state.inflight, openSockets: openSockets.size },
             })
             await flushLogs()
             exitFn(0)
         } catch (err) {
-            logger.error({ msg: 'graceful-shutdown:failed', err })
+            logger.error({ msg: 'graceful shutdown failed', err })
             await flushLogs()
             exitFn(1)
         }
