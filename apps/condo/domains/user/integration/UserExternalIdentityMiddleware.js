@@ -6,6 +6,7 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegram/routes')
+const { XmaRoutes } = require('@condo/domains/user/integration/xma/routes')
 
 const { PassportAuthRouter } = require('./passport')
 
@@ -37,6 +38,11 @@ class UserExternalIdentityMiddleware {
         const telegramOauthRoutes = new TelegramOauthRoutes()
         app.get('/api/tg/auth', telegramOauthRoutes.startAuth.bind(telegramOauthRoutes))
         app.get('/api/tg/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
+
+        // xma oauth routes
+        const xmaRoutes = new XmaRoutes()
+        app.get('/api/xma/auth', xmaRoutes.startAuth.bind(xmaRoutes))
+        app.get('/api/xma/auth/callback', xmaRoutes.completeAuth.bind(xmaRoutes))
 
         const passportRouter = PassportAuthRouter.init()
         passportRouter.addPassportRoutes(app, keystone)

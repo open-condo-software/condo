@@ -142,7 +142,7 @@ function getTgAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOWE
     return null
 }
 
-function getOauthConfigValidationError (oauthConfig) {
+function getConfigValidationError (oauthConfig) {
     const uniqueBotIds = new Set(oauthConfig.map(conf => conf.botId))
     if (uniqueBotIds.size !== oauthConfig.length) {
         const duplicateNames = [...uniqueBotIds].filter(botId => oauthConfig.filter(conf => conf.botId === botId).length > 1)
@@ -185,7 +185,7 @@ function isRedirectUrlValid (allowedUrls, requestUrl) {
 
 module.exports = {
     getTgAuthDataValidationError,
-    getOauthConfigValidationError,
+    getConfigValidationError,
     isValidTelegramMiniAppInitParams,
     isRedirectUrlValid,
 }
