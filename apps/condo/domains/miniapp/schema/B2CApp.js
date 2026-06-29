@@ -21,6 +21,7 @@ const {
     IFRAME_URL_FIELD,
     SUBSCRIPTION_PLANS_FIELD_B2C,
 } = require('@condo/domains/miniapp/schema/fields/integration')
+const { NATIVE_APP_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/nativeAppFeatures')
 
 const { OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD, ADDITIONAL_DOMAINS_FIELD } = require('./fields/domains')
 
@@ -45,6 +46,14 @@ const B2CApp = new GQLListSchema('B2CApp', {
         },
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
+        isGlobal: {
+            schemaDoc:
+                'Whether the application is available for all addresses bypassing B2CAppProperty filter',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+        },
+        nativeAppFeatures: NATIVE_APP_FEATURES_FIELD,
         subscriptionPlans: SUBSCRIPTION_PLANS_FIELD_B2C,
         colorSchema: COLOR_SCHEMA_FIELD,
         appUrl: IFRAME_URL_FIELD,

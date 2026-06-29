@@ -74868,6 +74868,8 @@ type B2CAppHistoryRecord {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isGlobal: Boolean
+  nativeAppFeatures: JSON
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -74964,6 +74966,12 @@ input B2CAppHistoryRecordWhereInput {
   developer_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  isGlobal: Boolean
+  isGlobal_not: Boolean
+  nativeAppFeatures: JSON
+  nativeAppFeatures_not: JSON
+  nativeAppFeatures_in: [JSON]
+  nativeAppFeatures_not_in: [JSON]
   colorSchema: JSON
   colorSchema_not: JSON
   colorSchema_in: [JSON]
@@ -75151,6 +75159,8 @@ enum SortB2CAppHistoryRecordsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
+  isGlobal_ASC
+  isGlobal_DESC
   appUrl_ASC
   appUrl_DESC
   isFullscreenAllowed_ASC
@@ -75199,6 +75209,8 @@ input B2CAppHistoryRecordUpdateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isGlobal: Boolean
+  nativeAppFeatures: JSON
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -75242,6 +75254,8 @@ input B2CAppHistoryRecordCreateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isGlobal: Boolean
+  nativeAppFeatures: JSON
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -75276,6 +75290,12 @@ input B2CAppHistoryRecordCreateInput {
 
 input B2CAppHistoryRecordsCreateInput {
   data: B2CAppHistoryRecordCreateInput
+}
+
+enum B2CAppNativeFeature {
+  Tickets
+  News
+  Payments
 }
 
 type AppColorSchemaField {
@@ -75336,6 +75356,14 @@ type B2CApp {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
+
+  """ Whether the application is available for all addresses bypassing B2CAppProperty filter 
+  """
+  isGlobal: Boolean
+
+  """ List of native resident app features that this B2C app can replace. Can be one or more of the following: [Tickets, News, Payments] 
+  """
+  nativeAppFeatures: [B2CAppNativeFeature!]
 
   """ Virtual field that returns all active SubscriptionPlans that include this miniapp. Returns array of SubscriptionPlan objects where this app is in enabledB2CApps. Empty array means the app is available to all organizations without subscription. 
   """
@@ -75499,6 +75527,12 @@ input B2CAppWhereInput {
   developer_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  isGlobal: Boolean
+  isGlobal_not: Boolean
+  nativeAppFeatures: [B2CAppNativeFeature!]
+  nativeAppFeatures_not: [B2CAppNativeFeature!]
+  nativeAppFeatures_in: [[B2CAppNativeFeature!]]
+  nativeAppFeatures_not_in: [[B2CAppNativeFeature!]]
   colorSchema: AppColorSchemaFieldInput
   colorSchema_not: AppColorSchemaFieldInput
   colorSchema_in: [AppColorSchemaFieldInput]
@@ -75669,6 +75703,8 @@ enum SortB2CAppsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
+  isGlobal_ASC
+  isGlobal_DESC
   appUrl_ASC
   appUrl_DESC
   oidcClient_ASC
@@ -75725,6 +75761,8 @@ input B2CAppUpdateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isGlobal: Boolean
+  nativeAppFeatures: [B2CAppNativeFeature!]
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
   additionalDomains: [String!]
@@ -75766,6 +75804,8 @@ input B2CAppCreateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isGlobal: Boolean
+  nativeAppFeatures: [B2CAppNativeFeature!]
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
   additionalDomains: [String!]

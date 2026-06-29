@@ -73,7 +73,7 @@ const B2B_ACCESSES_SERVICES_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVA
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } accessRightSet { id deletedAt ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} } ${COMMON_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
-const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } additionalDomains domains { mapping { from to } } subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
+const B2C_APP_FIELDS = `{ name isGlobal isHidden colorSchema { main secondary } currentBuild { id } additionalDomains domains { mapping { from to } } nativeAppFeatures subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
 const B2C_APP_ACCESS_RIGHT_FIELDS = `{ user { id } app { id } accessRightSet { id } ${COMMON_FIELDS} }`
