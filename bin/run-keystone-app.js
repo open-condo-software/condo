@@ -126,7 +126,15 @@ async function main () {
         logger.info({ msg: 'start', data: { PORT, SPORT, SERVER_URL } })
     }
 
-    setupGracefulShutdown({ app, keystone, httpServer, httpsServer })
+    setupGracefulShutdown({
+        app,
+        keystone,
+        httpServer,
+        httpsServer,
+        beforeExit: IS_ENABLE_DD_TRACE
+            ? () => tracer.shutdown()
+            : undefined,
+    })
 
     return { keystone, app, httpServer, httpsServer }
 }

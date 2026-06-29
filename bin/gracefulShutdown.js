@@ -12,6 +12,7 @@ const SHUTDOWN_SIGNALS = ['SIGTERM', 'SIGINT', 'SIGQUIT']
  * @property {{ disconnect?: () => Promise<void> }} [keystone]
  * @property {import('http').Server} [httpServer]
  * @property {import('https').Server} [httpsServer]
+ * @property {() => Promise<void>} [beforeExit]
  * @property {(code?: number) => never} [exitFn]
  * @property {(ms: number) => Promise<void>} [sleepFn]
  * @property {number} [forceTimeoutMs]
@@ -19,13 +20,15 @@ const SHUTDOWN_SIGNALS = ['SIGTERM', 'SIGINT', 'SIGQUIT']
  */
 
 /**
+ * Sync write before process.exit — pino buffer may not flush in time.
+ * @param {{ msg: string, data?: Record<string, unknown>, err?: Error }} entry
+ */
+function writeSyncLog (entry) {
+    process.stderr.write(`${JSON.stringify(entry)}\n`)
+}
+
+/**
  * Registers graceful shutdown handlers for HTTP(S) servers.
- *
- * Shutdown sequence:
- * 1. Mark app as draining (readiness probe starts failing).
- * 2. Wait for load balancers to stop sending new traffic.
- * 3. Stop accepting new connections and wait for in-flight requests.
- * 4. Close remaining sockets, disconnect Keystone, exit.
  *
  * @param {GracefulShutdownOptions} options
  */
@@ -34,6 +37,7 @@ function setupGracefulShutdown ({
     keystone,
     httpServer,
     httpsServer,
+    beforeExit,
     exitFn = (code) => process.exit(code),
     sleepFn = (ms) => new Promise(resolve => setTimeout(resolve, ms)),
     forceTimeoutMs = parseInt(process.env.GRACEFUL_SHUTDOWN_TIMEOUT || String(DEFAULT_FORCE_TIMEOUT_MS)),
@@ -43,6 +47,7 @@ function setupGracefulShutdown ({
     const state = app.locals._grace || (app.locals._grace = { draining: false, inflight: 0 })
     const servers = [httpServer, httpsServer].filter(Boolean)
     const openSockets = new Set()
+    const shutdownDeadlineMs = drainWaitMs + forceTimeoutMs + KEYSTONE_DISCONNECT_TIMEOUT_MS + 5000
 
     for (const server of servers) {
         server.on('connection', (socket) => {
@@ -84,65 +89,110 @@ function setupGracefulShutdown ({
         })
     }
 
+    async function finishShutdown (exitCode, reason) {
+        const entry = {
+            msg: 'done',
+            data: {
+                inflight: state.inflight,
+                openSockets: openSockets.size,
+                reason,
+            },
+        }
+
+        writeSyncLog(entry)
+        logger.info(entry)
+        await flushLogs()
+        exitFn(exitCode)
+    }
+
+    async function runShutdownSteps (signal) {
+        state.draining = true
+        logger.info({ msg: 'start graceful shutdown', data: { reason: signal } })
+
+        if (drainWaitMs > 0) {
+            await sleepFn(drainWaitMs)
+        }
+
+        for (const server of servers) {
+            try {
+                server.close()
+            } catch (err) {
+                logger.warn({ msg: 'server close failed', err })
+            }
+        }
+
+        const inflightDeadline = Date.now() + forceTimeoutMs
+        while (state.inflight > 0 && Date.now() < inflightDeadline) {
+            await sleepFn(INFLIGHT_POLL_INTERVAL_MS)
+        }
+
+        for (const socket of openSockets) {
+            try {
+                socket.destroy()
+            } catch {
+                // ignore error
+            }
+        }
+
+        if (beforeExit) {
+            await Promise.race([
+                beforeExit(),
+                sleepFn(KEYSTONE_DISCONNECT_TIMEOUT_MS),
+            ])
+        }
+
+        if (keystone?.disconnect) {
+            try {
+                await Promise.race([
+                    keystone.disconnect(),
+                    sleepFn(KEYSTONE_DISCONNECT_TIMEOUT_MS),
+                ])
+            } catch (err) {
+                logger.error({ msg: 'keystone disconnect error', err })
+            }
+        }
+    }
+
     async function runShutdown (signal) {
         if (isShuttingDown) return
         isShuttingDown = true
 
+        let exitCode = 0
+        let reason = 'completed'
+
         try {
-            state.draining = true
-            logger.info({ msg: 'start graceful shutdown', data: { reason: signal } })
+            let timedOut = false
+            let deadlineTimer
 
-            if (drainWaitMs > 0) {
-                await sleepFn(drainWaitMs)
-            }
-
-            for (const server of servers) {
-                try {
-                    server.close()
-                } catch (err) {
-                    logger.warn({ msg: 'server close failed', err })
-                }
-            }
-
-            const inflightDeadline = Date.now() + forceTimeoutMs
-            while (state.inflight > 0 && Date.now() < inflightDeadline) {
-                await sleepFn(INFLIGHT_POLL_INTERVAL_MS)
-            }
-
-            for (const socket of openSockets) {
-                try {
-                    socket.destroy()
-                } catch {
-                    // ignore error
-                }
-            }
-
-            if (keystone?.disconnect) {
-                try {
-                    await Promise.race([
-                        keystone.disconnect(),
-                        sleepFn(KEYSTONE_DISCONNECT_TIMEOUT_MS),
-                    ])
-                } catch (err) {
-                    logger.error({ msg: 'keystone disconnect error', err })
-                }
-            }
-
-            logger.info({
-                msg: 'done',
-                data: { inflight: state.inflight, openSockets: openSockets.size },
+            const deadlinePromise = new Promise(resolve => {
+                deadlineTimer = setTimeout(() => {
+                    timedOut = true
+                    resolve()
+                }, shutdownDeadlineMs)
             })
-            await flushLogs()
-            exitFn(0)
+
+            try {
+                await Promise.race([runShutdownSteps(signal), deadlinePromise])
+            } finally {
+                clearTimeout(deadlineTimer)
+            }
+
+            if (timedOut) reason = 'deadline'
         } catch (err) {
-            logger.error({ msg: 'graceful shutdown failed', err })
-            await flushLogs()
-            exitFn(1)
+            exitCode = 1
+            reason = 'failed'
+            const entry = { msg: 'graceful shutdown failed', err }
+            writeSyncLog(entry)
+            logger.error(entry)
         }
+
+        await finishShutdown(exitCode, reason)
     }
 
     for (const signal of SHUTDOWN_SIGNALS) {
-        process.on(signal, () => runShutdown(signal))
+        process.on(signal, () => {
+            void runShutdown(signal)
+        })
     }
 
     return {
