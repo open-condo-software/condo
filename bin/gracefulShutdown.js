@@ -72,51 +72,73 @@ function setupGracefulShutdown ({
 
     let isShuttingDown = false
 
+    async function flushLogs () {
+        if (typeof logger.flush !== 'function') return
+
+        await new Promise(resolve => {
+            const timeout = setTimeout(resolve, 1000)
+            logger.flush(() => {
+                clearTimeout(timeout)
+                resolve()
+            })
+        })
+    }
+
     async function runShutdown (signal) {
         if (isShuttingDown) return
         isShuttingDown = true
 
-        state.draining = true
-        logger.info({ msg: 'graceful-shutdown:begin', data: { reason: signal } })
+        try {
+            state.draining = true
+            logger.info({ msg: 'graceful-shutdown:begin', data: { reason: signal } })
 
-        if (drainWaitMs > 0) {
-            await sleepFn(drainWaitMs)
-        }
-
-        for (const server of servers) {
-            try {
-                server.close()
-            } catch (err) {
-                logger.warn({ msg: 'server-close-failed', err })
+            if (drainWaitMs > 0) {
+                await sleepFn(drainWaitMs)
             }
-        }
 
-        const inflightDeadline = Date.now() + forceTimeoutMs
-        while (state.inflight > 0 && Date.now() < inflightDeadline) {
-            await sleepFn(INFLIGHT_POLL_INTERVAL_MS)
-        }
-
-        for (const socket of openSockets) {
-            try {
-                socket.destroy()
-            } catch {
-                // ignore error
+            for (const server of servers) {
+                try {
+                    server.close()
+                } catch (err) {
+                    logger.warn({ msg: 'server-close-failed', err })
+                }
             }
-        }
 
-        if (keystone?.disconnect) {
-            try {
-                await Promise.race([
-                    keystone.disconnect(),
-                    sleepFn(KEYSTONE_DISCONNECT_TIMEOUT_MS),
-                ])
-            } catch (err) {
-                logger.error({ msg: 'keystone-disconnect-error', err })
+            const inflightDeadline = Date.now() + forceTimeoutMs
+            while (state.inflight > 0 && Date.now() < inflightDeadline) {
+                await sleepFn(INFLIGHT_POLL_INTERVAL_MS)
             }
-        }
 
-        logger.info({ msg: 'graceful-shutdown:done' })
-        exitFn(0)
+            for (const socket of openSockets) {
+                try {
+                    socket.destroy()
+                } catch {
+                    // ignore error
+                }
+            }
+
+            if (keystone?.disconnect) {
+                try {
+                    await Promise.race([
+                        keystone.disconnect(),
+                        sleepFn(KEYSTONE_DISCONNECT_TIMEOUT_MS),
+                    ])
+                } catch (err) {
+                    logger.error({ msg: 'keystone-disconnect-error', err })
+                }
+            }
+
+            logger.info({
+                msg: 'graceful-shutdown:done',
+                data: { inflight: state.inflight, openSockets: openSockets.size },
+            })
+            await flushLogs()
+            exitFn(0)
+        } catch (err) {
+            logger.error({ msg: 'graceful-shutdown:failed', err })
+            await flushLogs()
+            exitFn(1)
+        }
     }
 
     for (const signal of SHUTDOWN_SIGNALS) {
