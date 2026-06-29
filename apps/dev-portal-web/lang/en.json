@@ -327,6 +327,7 @@
   "pages.apps.b2c.id.sections.properties.table.search.placeholder": "Search by address",
   "pages.apps.b2c.id.sections.properties.table.empty.message": "The application is not displayed anywhere",
   "pages.apps.b2c.id.sections.properties.table.empty.search.message": "No addresses found",
+  "pages.apps.b2c.id.sections.properties.table.global.hint": "Global application is displayed on any address",
   "pages.apps.b2c.id.sections.properties.actions.addProperty": "Add a new address",
   "pages.apps.b2c.id.sections.properties.newPropertyModal.title": "Adding a new address",
   "pages.apps.b2c.id.sections.properties.newPropertyModal.info.description": "Once an address is added, the selected mini-application will become available to all residents registered at that address in the corresponding environment",

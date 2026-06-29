@@ -6085,7 +6085,7 @@ export type GetB2CAppInfoQueryVariables = Exact<{
 }>;
 
 
-export type GetB2CAppInfoQuery = { __typename?: 'Query', info?: { __typename?: 'GetB2CAppInfoOutput', id: string, environment: AppEnvironment, currentBuild?: { __typename?: 'B2CAppCurrentBuild', id: string, version: string } | null } | null };
+export type GetB2CAppInfoQuery = { __typename?: 'Query', info?: { __typename?: 'GetB2CAppInfoOutput', id: string, environment: AppEnvironment, isGlobal: boolean, currentBuild?: { __typename?: 'B2CAppCurrentBuild', id: string, version: string } | null } | null };
 
 export type GetOidcClientQueryVariables = Exact<{
   data: GetOidcClientInput;
@@ -7107,6 +7107,7 @@ export const GetB2CAppInfoDocument = gql`
       id
       version
     }
+    isGlobal
   }
 }
     `;

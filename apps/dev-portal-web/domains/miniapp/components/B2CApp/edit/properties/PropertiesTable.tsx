@@ -7,7 +7,7 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Button } from '@open-condo/ui'
+import { Button, Tooltip } from '@open-condo/ui'
 
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
@@ -23,6 +23,7 @@ import { CreatePropertyModal } from './CreatePropertyModal'
 import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
 
+import { useGetB2CAppInfoQuery } from '@/gql'
 import { AllB2CAppPropertiesDocument, useAllB2CAppPropertiesQuery, useDeleteB2CAppPropertyMutation } from '@/gql'
 
 
@@ -55,6 +56,7 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const AddAddressLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.actions.addProperty' })
     const SearchPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.search.placeholder' })
     const EmptySearchMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.empty.search.message' })
+    const GlobalAppHintMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.global.hint' })
 
     const [isCreatePropertyModalOpen, setIsCreatePropertyModalOpen] = useState(false)
     const showCreatePropertyModal = useCallback(() => {
@@ -71,6 +73,15 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const page = getCurrentPage(p)
 
     const debouncedSearch = useDebouncedSearch()
+
+    const { data: appData, loading: appDataLoading } = useGetB2CAppInfoQuery({
+        variables: {
+            data: {
+                app: { id },
+                environment,
+            },
+        },
+    })
 
     const onError = useMutationErrorHandler()
     const [deleteProperty] = useDeleteB2CAppPropertyMutation({
@@ -145,7 +156,12 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const properties = (data?.properties?.objs || []).filter(nonNull)
     const total = data?.properties?.meta.count || 0
 
-    const EmptyMessage = debouncedSearch ? EmptySearchMessage : EmptyTableMessage
+    const EmptyMessage = useMemo(() => {
+        if (debouncedSearch) return EmptySearchMessage
+        if (appData?.info?.isGlobal) return GlobalAppHintMessage
+
+        return EmptyTableMessage
+    }, [EmptySearchMessage, EmptyTableMessage, GlobalAppHintMessage, appData?.info?.isGlobal, debouncedSearch])
 
     useEffect(() => {
         if (!loading) {
@@ -159,6 +175,18 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const handlePaginationChange = useCallback((newPage: number) => {
         router.replace({ query: { ...router.query, p: newPage } },  undefined, { locale: router.locale })
     }, [router])
+
+    const isGlobal = appData?.info?.isGlobal
+    const ButtonContainer = useCallback(({ children }: { children: React.ReactNode }) => {
+        if (isGlobal) {
+            return (
+                <Tooltip title={GlobalAppHintMessage}>
+                    <span>{children}</span>
+                </Tooltip>
+            )
+        }
+        return <>{children}</>
+    }, [GlobalAppHintMessage, isGlobal])
 
     return (
         <Row gutter={BUTTON_GUTTER}>
@@ -174,7 +202,7 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                             dataSource={properties}
                             bordered
                             locale={{ emptyText: <EmptyTableFiller message={EmptyMessage} /> }}
-                            loading={loading}
+                            loading={loading || appDataLoading}
                             pagination={{
                                 pageSize: DEFAULT_PAGE_SIZE,
                                 position: PAGINATION_POSITION,
@@ -189,7 +217,16 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                 </Row>
             </Col>
             <Col span={FULL_COL_SPAN}>
-                <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={showCreatePropertyModal}>{AddAddressLabel}</Button>
+                <ButtonContainer>
+                    <Button
+                        type='primary'
+                        icon={<PlusCircle size='medium'/>}
+                        onClick={showCreatePropertyModal}
+                        disabled={isGlobal || appDataLoading}
+                    >
+                        {AddAddressLabel}
+                    </Button>
+                </ButtonContainer>
                 {isCreatePropertyModalOpen && (
                     <CreatePropertyModal
                         appId={id}
