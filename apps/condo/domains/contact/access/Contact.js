@@ -17,15 +17,19 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, RESIDENT } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadContacts (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user }, listKey, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    
+
     if (user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     if (user.type === SERVICE) {
         return await canReadObjectsAsB2BAppServiceUser(args)

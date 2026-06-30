@@ -11,6 +11,7 @@ const {
     canReadObjectsAsB2BAppServiceUser,
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
@@ -29,12 +30,15 @@ const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadTicketComments (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user }, listKey, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     if (user.type === SERVICE) {
         const accessFilter = await canReadObjectsAsB2BAppServiceUser(args)

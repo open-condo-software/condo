@@ -4,12 +4,16 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadTicketChanges ({ authentication: { item: user }, context }) {
+async function canReadTicketChanges ({ authentication: { item: user }, listKey, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    
+
     if (user.isSupport || user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
 

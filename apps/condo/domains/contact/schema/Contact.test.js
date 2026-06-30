@@ -15,7 +15,13 @@ const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/propert
 const { makeClientWithProperty, createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { createTestPhone, createTestEmail, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestPhone,
+    createTestEmail,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestUserRightsSet,
+    updateTestUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Contact', () => {
@@ -570,6 +576,35 @@ describe('Contact', () => {
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, { canReadContacts: false })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [obj] = await createTestContact(adminClient, organization, property)
+
+            const readContact = await Contact.getOne(userClient, { id: obj.id })
+
+            expect(readContact).toBeUndefined()
+        })
+
+        test('can be read by user with canReadContacts in UserRightsSet', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [rightsSet] = await createTestUserRightsSet(adminClient, { canReadContacts: true })
+            await updateTestUser(adminClient, userClient.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [obj] = await createTestContact(adminClient, organization, property)
+
+            const readContact = await Contact.getOne(userClient, { id: obj.id })
+
+            expect(readContact).toBeDefined()
+            expect(readContact.id).toEqual(obj.id)
+        })
+
+        test('cannot be read by user without canReadContacts in UserRightsSet', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [rightsSet] = await createTestUserRightsSet(adminClient, { canReadContacts: false })
+            await updateTestUser(adminClient, userClient.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+            const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const [obj] = await createTestContact(adminClient, organization, property)
 

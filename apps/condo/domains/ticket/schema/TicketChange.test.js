@@ -36,7 +36,11 @@ const {
     createTestTicketObserver,
     updateTestTicketObserver,
 } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestUserRightsSet,
+    updateTestUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { createTestTicket } = require('../utils/testSchema')
@@ -284,6 +288,39 @@ describe('TicketChange', () => {
                 const objs = await TicketChange.getAll(client, {
                     ticket: { id: ticket.id },
                 })
+
+                expect(objs).toHaveLength(0)
+            })
+        })
+
+        describe('user with direct access (UserRightsSet): read TicketChange', () => {
+            it('can read ticket changes when canReadTicketChanges is true in UserRightsSet', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [rightsSet] = await createTestUserRightsSet(admin, { canReadTicketChanges: true })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+                await updateTestTicket(admin, ticket.id, { details: faker.lorem.sentence() })
+
+                const objs = await TicketChange.getAll(client, { ticket: { id: ticket.id } })
+
+                expect(objs.length).toBeGreaterThan(0)
+                expect(objs[0].ticket.id).toEqual(ticket.id)
+            })
+
+            it('cannot read ticket changes when canReadTicketChanges is false in UserRightsSet', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [rightsSet] = await createTestUserRightsSet(admin, { canReadTicketChanges: false })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+                await updateTestTicket(admin, ticket.id, { details: faker.lorem.sentence() })
+
+                const objs = await TicketChange.getAll(client, { ticket: { id: ticket.id } })
 
                 expect(objs).toHaveLength(0)
             })
