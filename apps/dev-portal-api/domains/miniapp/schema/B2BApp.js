@@ -8,9 +8,11 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { B2B_APP_CATEGORIES, OTHER_CATEGORY } = require('@condo/domains/miniapp/constants')
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const { FileAdapter, getFileMetaAfterChange, getMimeTypesValidator } = require('@dev-portal-api/domains/common/utils/files')
-const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
+
+const { getEnvironmentalFields } = require('./fields/environmental')
+const { OIDC_CLIENT_ID_FIELD } = require('./fields/oidcClientId')
 
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2BApps/logos', true)
@@ -64,13 +66,12 @@ const B2BApp = new GQLListSchema('B2BApp', {
             options: B2B_APP_CATEGORIES,
             defaultValue: OTHER_CATEGORY,
         },
-        ...Object.fromEntries(AVAILABLE_ENVIRONMENTS.map(environment => [
-            `${environment}AppUrl`, {
-                schemaDoc: `Web app entrypoint URL for ${environment} environment, which is used to open app in WebView or IFrame`,
-                type: 'Text',
-                isRequired: false,
-            },
-        ])),
+        ...getEnvironmentalFields('appUrl', {
+            schemaDoc: 'Web app entrypoint URL for {environment} environment, which is used to open app in WebView or IFrame',
+            type: 'Text',
+            isRequired: false,
+        }),
+        ...getEnvironmentalFields('oidcClientId', OIDC_CLIENT_ID_FIELD),
     },
     hooks: {
         afterChange: LOGO_META_AFTER_CHANGE,
