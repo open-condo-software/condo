@@ -98,7 +98,7 @@ const GET_B2C_APP_INFO_QUERY = gql`
 
 const GET_OIDC_CLIENT_QUERY = gql`
     query getGetOIDCClient ($data: GetOIDCClientInput!) {
-        result: OIDCClient(data: $data) { id clientId redirectUri }
+        result: OIDCClient(data: $data) { id clientId redirectUri isEnabled }
     }
 `
 
