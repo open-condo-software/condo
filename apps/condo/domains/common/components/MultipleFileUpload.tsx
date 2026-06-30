@@ -117,6 +117,7 @@ export const useMultipleFileUploadHook = ({
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     const [filesCount, setFilesCount] = useState(initialFileList.length)
+    const clearFileListRef = useRef<(() => void) | null>(null)
     // Todo(zuch): without ref modifiedFiles dissappears on submit
     const modifiedFilesRef = useRef(modifiedFiles)
     useEffect(() => {
@@ -142,6 +143,7 @@ export const useMultipleFileUploadHook = ({
 
     const resetModifiedFiles = useCallback(async () => {
         dispatch({ type: 'reset' })
+        clearFileListRef.current?.()
     }, [])
 
     const initialValues = useMemo(() => ({
@@ -157,6 +159,7 @@ export const useMultipleFileUploadHook = ({
                 initialCreateValues={initialValues}
                 Model={Model}
                 updateFileList={dispatch}
+                clearFileListRef={clearFileListRef}
                 {...props}
             />
         )
@@ -250,6 +253,7 @@ interface IMultipleFileUploadProps {
     UploadButton?: React.ReactNode
     uploadProps?: UploadProps
     onFileListChange?: (fileList) => void
+    clearFileListRef?: React.MutableRefObject<(() => void) | null>
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -267,6 +271,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         UploadButton,
         uploadProps = {},
         onFileListChange,
+        clearFileListRef,
     } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
@@ -275,6 +280,12 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         const convertedFiles = convertFilesToUploadFormat(fileList)
         setListFiles(convertedFiles)
     }, [fileList])
+
+    useEffect(() => {
+        if (clearFileListRef) {
+            clearFileListRef.current = () => setListFiles([])
+        }
+    }, [clearFileListRef])
 
     const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
 
