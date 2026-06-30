@@ -3019,6 +3019,8 @@ type UserRightsSetHistoryRecord {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketComments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadResidents: Boolean
@@ -3144,6 +3146,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadTicketAutoAssignments_not: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments_not: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketChanges_not: Boolean
+  canReadTicketComments: Boolean
+  canReadTicketComments_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -3345,6 +3351,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadTicketAutoAssignments_DESC
   canManageTicketAutoAssignments_ASC
   canManageTicketAutoAssignments_DESC
+  canReadTicketChanges_ASC
+  canReadTicketChanges_DESC
+  canReadTicketComments_ASC
+  canReadTicketComments_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -3450,6 +3460,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketComments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadResidents: Boolean
@@ -3529,6 +3541,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketComments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadResidents: Boolean
@@ -3713,6 +3727,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "TicketAutoAssignment" similar to support users 
   """
   canManageTicketAutoAssignments: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "TicketChange" as support / admin users do 
+  """
+  canReadTicketChanges: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "TicketComment" as support / admin users do 
+  """
+  canReadTicketComments: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "Property" as support / admin users do 
   """
@@ -3927,6 +3949,10 @@ input UserRightsSetWhereInput {
   canReadTicketAutoAssignments_not: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments_not: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketChanges_not: Boolean
+  canReadTicketComments: Boolean
+  canReadTicketComments_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -4108,6 +4134,10 @@ enum SortUserRightsSetsBy {
   canReadTicketAutoAssignments_DESC
   canManageTicketAutoAssignments_ASC
   canManageTicketAutoAssignments_DESC
+  canReadTicketChanges_ASC
+  canReadTicketChanges_DESC
+  canReadTicketComments_ASC
+  canReadTicketComments_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -4213,6 +4243,8 @@ input UserRightsSetUpdateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketComments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadResidents: Boolean
@@ -4289,6 +4321,8 @@ input UserRightsSetCreateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadTicketChanges: Boolean
+  canReadTicketComments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadResidents: Boolean

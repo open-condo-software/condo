@@ -35,7 +35,12 @@ const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSc
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithResidentUser,
+    createTestUserRightsSet,
+    updateTestUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS: TicketCommmentErrors } = require('./TicketComment')
 
@@ -449,6 +454,31 @@ describe('TicketComment', () => {
                 const [comment] = await createTestTicketComment(admin, ticket, admin.user)
 
                 const readTicketComment = await TicketComment.getOne(clientWithoutCanReadTicket, { id: comment.id })
+                expect(readTicketComment).toBeUndefined()
+            })
+
+            it('can be read by user with canReadTicketComments in UserRightsSet', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [rightsSet] = await createTestUserRightsSet(admin, { canReadTicketComments: true })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [comment] = await createTestTicketComment(admin, ticket, admin.user)
+
+                const readTicketComment = await TicketComment.getOne(client, { id: comment.id })
+                expect(readTicketComment).toBeDefined()
+                expect(readTicketComment.id).toEqual(comment.id)
+            })
+
+            it('cannot be read by user without canReadTicketComments in UserRightsSet', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [rightsSet] = await createTestUserRightsSet(admin, { canReadTicketComments: false })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [comment] = await createTestTicketComment(admin, ticket, admin.user)
+
+                const readTicketComment = await TicketComment.getOne(client, { id: comment.id })
                 expect(readTicketComment).toBeUndefined()
             })
 

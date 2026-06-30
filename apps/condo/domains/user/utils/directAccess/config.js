@@ -55,6 +55,8 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Ticket domain
         'Ticket',
         'TicketAutoAssignment',
+        { schemaName: 'TicketChange', readonly: true },
+        { schemaName: 'TicketComment', readonly: true },
 
         // Property domain
         'Property',

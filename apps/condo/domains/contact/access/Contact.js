@@ -24,7 +24,7 @@ async function canReadContacts (args) {
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    
+
     if (user.isAdmin) return {}
 
     if (user.type === SERVICE) {
