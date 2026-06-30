@@ -3015,7 +3015,6 @@ type UserRightsSetHistoryRecord {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadContacts: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -3139,8 +3138,6 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
-  canReadContacts: Boolean
-  canReadContacts_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -3346,8 +3343,6 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
-  canReadContacts_ASC
-  canReadContacts_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -3461,7 +3456,6 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadContacts: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -3543,7 +3537,6 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadContacts: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -3718,10 +3711,6 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Organization" similar to support users 
   """
   canManageOrganizations: Boolean
-
-  """ Enables a user with the given UserRightsSet to view all entities of model "Contact" as support / admin users do 
-  """
-  canReadContacts: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
   """
@@ -3952,8 +3941,6 @@ input UserRightsSetWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
-  canReadContacts: Boolean
-  canReadContacts_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -4139,8 +4126,6 @@ enum SortUserRightsSetsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
-  canReadContacts_ASC
-  canReadContacts_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -4254,7 +4239,6 @@ input UserRightsSetUpdateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadContacts: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -4333,7 +4317,6 @@ input UserRightsSetCreateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadContacts: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean

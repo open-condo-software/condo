@@ -52,9 +52,6 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Organization domain
         'Organization',
 
-        // Contact domain
-        { schemaName: 'Contact', readonly: true },
-
         // Ticket domain
         'Ticket',
         'TicketAutoAssignment',
