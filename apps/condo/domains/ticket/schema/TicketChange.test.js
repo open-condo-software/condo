@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
     expectToThrowGraphQLRequestErrors,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
@@ -298,16 +299,18 @@ describe('TicketChange', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization)
-                const [rightsSet] = await createTestUserRightsSet(admin, { canReadTicketChanges: true })
+                const [rightsSet] = await createTestUserRightsSet(admin, { canReadTickets: true, canReadTicketChanges: true })
                 await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
 
                 const [ticket] = await createTestTicket(admin, organization, property)
                 await updateTestTicket(admin, ticket.id, { details: faker.lorem.sentence() })
 
-                const objs = await TicketChange.getAll(client, { ticket: { id: ticket.id } })
+                await waitFor(async () => {
+                    const objs = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
 
-                expect(objs.length).toBeGreaterThan(0)
-                expect(objs[0].ticket.id).toEqual(ticket.id)
+                    expect(objs.length).toBeGreaterThan(0)
+                    expect(objs[0].ticket.id).toEqual(ticket.id)
+                })
             })
 
             it('cannot read ticket changes when canReadTicketChanges is false in UserRightsSet', async () => {
