@@ -11,7 +11,6 @@ const {
     canReadObjectsAsB2BAppServiceUser,
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
@@ -27,6 +26,7 @@ const {
     getTicketFieldsMatchesResidentFieldsQuery,
 } = require('@condo/domains/ticket/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadTicketComments (args) {
