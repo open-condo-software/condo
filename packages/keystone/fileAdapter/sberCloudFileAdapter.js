@@ -264,18 +264,18 @@ const obsRouterHandler = ({ keystone }) => {
 
     return async function (req, res, next) {
         try {
-            if (!req.user) {
+            const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
+            if (!hasSign && !req.user) {
                 res.status(403)
                 return res.end()
             }
+
             const meta = await Acl.getMeta(req.params.file)
 
             if (isEmpty(meta)) {
                 res.status(404)
                 return res.end()
             }
-
-            const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
 
             // Legacy download
             if (!hasSign) {
