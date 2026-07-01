@@ -14,3 +14,7 @@
   width: 365px;
   height: auto;
 }
+
+.banner-wrapper :global(.condo-promo-block-text-container > .condo-typography-ellipsis-multiple-line:last-child) {
+  -webkit-line-clamp: 3 !important;
+}

@@ -1,13 +1,15 @@
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 import { UUID_REGEXP } from '@condo/domains/common/constants/regexps'
 
-export function useOnboardingProgress (withVerification?: boolean): [number, string] {
-    const totalSteps = withVerification ? 4 : 3
-    const allowedSteps = Array.from({ length: totalSteps }).map((_, idx) => `${idx}`)
+export function useOnboardingProgress (withVerification?: boolean, totalStepsOverride?: number): [number, string] {
+    const totalSteps = totalStepsOverride ?? (withVerification ? 4 : 3)
+    const allowedSteps = useMemo(() => {
+        return Array.from({ length: totalSteps }).map((_, idx) => `${idx}`)
+    }, [totalSteps])
     const router = useRouter()
     const [currentStep, setCurrentStep] = useState(0)
     const [currentBilling, setCurrentBilling] = useState<string>(null)
@@ -28,7 +30,7 @@ export function useOnboardingProgress (withVerification?: boolean): [number, str
             setCurrentBilling(null)
         }
 
-    }, [router.query])
+    }, [allowedSteps, router.query])
 
     return [currentStep, currentBilling]
 }
