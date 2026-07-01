@@ -238,10 +238,7 @@ class SberCloudFileAdapter {
         if (searchParams) {
             qs = `?${searchParams}`
         }
-        const origin = ('meta' in props && props['meta']['fileClientId'])
-            ? getFileServicePublicOrigin()
-            : SERVER_URL
-        return `${origin}/api/files/${folder}/${filename}${qs}`
+        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {
