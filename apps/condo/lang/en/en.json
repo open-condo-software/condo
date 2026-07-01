@@ -383,7 +383,6 @@
   "ai.chat.fetchFailed": "Failed to fetch data: {error}",
   "ai.chat.resetHistory": "Reset Chat History",
   "ai.chat.saveConversation": "Save Conversation",
-  "ai.chat.errorExecutingTools": "Error executing tools: {error}",
   "ai.chat.noResponse": "Response unavailable",
   "ai.chat.attachments.attach": "Attach file",
   "ai.chat.attachments.tooltip.addFilesTitle": "Add files",
