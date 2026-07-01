@@ -1,6 +1,6 @@
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const OIDC_CLIENT_FIELDS = '{ id clientId payload isEnabled deletedAt }'
+const OIDC_CLIENT_FIELDS = '{ id clientId name payload isEnabled deletedAt }'
 
 const CondoB2BAppGql = generateGqlQueries('B2BApp', `{ id oidcClient ${OIDC_CLIENT_FIELDS} }`)
 const CondoB2BAppContextGql = generateGqlQueries('B2BAppContext', '{ id status deletedAt organization { id name tin deletedAt } app { importId importRemoteSystem } }')

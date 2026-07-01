@@ -103,6 +103,7 @@ describe('GetOIDCClientService', () => {
             expect(readClient).toEqual({
                 id: b2cOIDCClient.id,
                 clientId: b2cOIDCClient.clientId,
+                name: expect.any(String),
                 redirectUri: b2cOIDCClient.redirectUri,
                 isEnabled: expect.any(Boolean),
             })

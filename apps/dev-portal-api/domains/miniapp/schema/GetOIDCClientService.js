@@ -21,6 +21,7 @@ function formatOIDCClient (oidcClient) {
     return {
         id: oidcClient.id,
         clientId: oidcClient.clientId,
+        name: oidcClient.name ?? null,
         redirectUri: oidcClient.payload.redirect_uris[0],
         isEnabled: oidcClient.isEnabled,
     }
@@ -38,7 +39,7 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
         },
         {
             access: true,
-            type: 'type OIDCClient { id: String!, clientId: String!, redirectUri: String!, isEnabled: Boolean! }',
+            type: 'type OIDCClient { id: String!, clientId: String!, name: String, redirectUri: String!, isEnabled: Boolean! }',
         },
     ],
     
