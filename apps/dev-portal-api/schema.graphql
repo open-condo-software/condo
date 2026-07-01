@@ -7379,9 +7379,14 @@ input GetOIDCClientInput {
   environment: AppEnvironment!
 }
 
+input GetAllOIDCClientsInput {
+  environment: AppEnvironment!
+}
+
 type OIDCClient {
   id: String!
   clientId: String!
+  name: String
   redirectUri: String!
   isEnabled: Boolean!
 }
@@ -7406,6 +7411,7 @@ input GenerateOIDCClientSecretInput {
   sender: SenderFieldInput!
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
+  clientId: String
 }
 
 input UpdateOIDCClientUrlInput {
@@ -7414,6 +7420,7 @@ input UpdateOIDCClientUrlInput {
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
   redirectUri: String!
+  clientId: String
 }
 
 enum AppType {
@@ -7779,6 +7786,7 @@ type Query {
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
   getB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
   OIDCClient(data: GetOIDCClientInput!): OIDCClient
+  allOIDCClients(data: GetAllOIDCClientsInput!): [OIDCClient!]
 
   """The version of the Keystone application serving this API."""
   appVersion: String
