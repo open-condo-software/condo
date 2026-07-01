@@ -9,8 +9,6 @@
 **/codegen.yaml
 
 *.png
-# temporary add yarnrc
-.yarnrc.yml
 
 # yarn berry
 .pnp.*
@@ -29,3 +27,7 @@ ignore.*
 
 README.md
 apps/**/docs/**/*.mdx
+
+# todo(AleX83Xpert) remove next lines
+.yarnrc.yml
+*test.yml
