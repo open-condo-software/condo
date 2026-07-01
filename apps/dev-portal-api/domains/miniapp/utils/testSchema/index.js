@@ -28,6 +28,7 @@ const {
     GET_B2C_APP_INFO_QUERY,
 
     GET_OIDC_CLIENT_QUERY,
+    GET_ALL_OIDC_CLIENTS_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
@@ -596,6 +597,15 @@ async function getB2CAppInfoByTestClient(client, app, environment = DEV_ENVIRONM
     return [data.result, attrs]
 }
 
+async function getAllOIDCClientsByTestClient(client, environment = DEV_ENVIRONMENT) {
+    if (!client) throw new Error('no client')
+
+    const attrs = { environment }
+    const { data, errors } = await client.query(GET_ALL_OIDC_CLIENTS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function getOIDCClientByTestClient(client, app, environment = DEV_ENVIRONMENT) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
@@ -737,7 +747,7 @@ module.exports = {
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
 
-    getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
+    getAllOIDCClientsByTestClient, getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
     registerAppUserServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

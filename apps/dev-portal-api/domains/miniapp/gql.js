@@ -98,7 +98,13 @@ const GET_B2C_APP_INFO_QUERY = gql`
 
 const GET_OIDC_CLIENT_QUERY = gql`
     query getGetOIDCClient ($data: GetOIDCClientInput!) {
-        result: OIDCClient(data: $data) { id clientId redirectUri isEnabled }
+        result: OIDCClient(data: $data) { id clientId name redirectUri isEnabled }
+    }
+`
+
+const GET_ALL_OIDC_CLIENTS_QUERY = gql`
+    query getAllOIDCClients ($data: GetAllOIDCClientsInput!) {
+        result: allOIDCClients(data: $data) { id clientId name redirectUri isEnabled }
     }
 `
 
@@ -148,6 +154,7 @@ module.exports = {
     GET_B2C_APP_INFO_QUERY,
 
     GET_OIDC_CLIENT_QUERY,
+    GET_ALL_OIDC_CLIENTS_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
