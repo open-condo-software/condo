@@ -390,8 +390,6 @@
   "ai.chat.attachments.tooltip.textOnly": "Only text from files will be used",
   "ai.chat.attachments.maxFiles": "You can attach up to {max} files",
   "ai.chat.attachments.unsupportedType": "This file type is not supported",
-  "ai.tools.error.unknown": "Unknown error occurred",
-  "ai.tools.error.unsupported": "Tool call \"{toolName}\" is not supported",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No payments to export",
   "api.acquiring.multiPayment.FULL_PAYMENT_AMOUNT_MISMATCH": "Cannot pay amount that is different from receipt's to pay amount when paying for receipt with given category",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Receipts and invoices are forbidden to be together",
