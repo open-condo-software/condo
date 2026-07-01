@@ -13,6 +13,9 @@ import styles from './BillingDescriptionModalContent.module.css'
 
 import type { RowProps } from 'antd'
 
+const DEFAULT_BILLING_BANNER_IMAGE_PATH = '/billing/banner.webp'
+
+
 type BillingDescriptionModalContentProps = {
     id: string
     name: string
@@ -72,7 +75,7 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
                         title={name}
                         subtitle={targetDescription}
                         backgroundColor={bannerColor}
-                        imgUrl={bannerPromoImageUrl}
+                        imgUrl={bannerPromoImageUrl || DEFAULT_BILLING_BANNER_IMAGE_PATH }
                         {...PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS[bannerTextColor]}
                     />
                 </div>

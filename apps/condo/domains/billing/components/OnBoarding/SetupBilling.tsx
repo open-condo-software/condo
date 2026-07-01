@@ -34,7 +34,7 @@ const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instr
     const router = useRouter()
 
     const handleDoneClick = useCallback(() => {
-        router.push({ query: { step: 2 } }, undefined, { shallow: true })
+        router.push({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
     }, [router])
 
     return (
@@ -69,7 +69,7 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
     const frameOrigin = useMemo(() => extractOrigin(setupUrl), [setupUrl])
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === frameOrigin && get(event.data, 'success') === true) {
-            router.push({ query: { step: 2 } }, undefined, { shallow: true })
+            router.push({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
     }, [frameOrigin, router])
 
@@ -130,7 +130,7 @@ export const SetupBilling: React.FC = ()=> {
     // If no context found, return to step 0
     useEffect(() => {
         if (!currentCtxLoading && !currentCtxError && !currentContextId) {
-            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
+            router.replace({ query: { ...router.query, step: 0 } }, undefined, { shallow: true })
         }
     }, [router, currentCtxLoading, currentCtxError, currentContextId])
 

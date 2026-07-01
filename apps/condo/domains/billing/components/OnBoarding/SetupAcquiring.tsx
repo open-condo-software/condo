@@ -23,6 +23,9 @@ import type { RowProps } from 'antd'
 
 type SetupAcquiringProps = {
     onFinish: () => void
+    integrationId?: string
+    onDone?: () => void
+    verificationStep?: number
 }
 
 const AUTH_BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
@@ -32,7 +35,7 @@ const FULL_COL_SPAN = 24
 const CERTIFICATES_INFO_LINK = 'https://help.doma.ai/article/262-minc'
 const CONNECT_EMAIL = 'sales@doma.ai'
 
-export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
+export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integrationId, onDone, verificationStep }) => {
     const intl = useIntl()
     const AuthRequiredTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.title' })
     const AuthRequiredLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.link' })
@@ -69,9 +72,10 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         ],
     })
 
-    // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
     const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegration.useObjects({
-        where: {
+        where: integrationId ? {
+            id: integrationId,
+        } : {
             isHidden: false,
             setupUrl_not: null,
             type: AcquiringIntegrationTypeType.OnlineProcessing,
@@ -115,9 +119,9 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     useEffect(() => {
         // No connected billing = go to setup beginning
         if (!billingCtxLoading && !billingCtxError && !billingCtxId) {
-            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
+            router.replace({ query: { ...router.query, step: 0 } }, undefined, { shallow: true })
         } else if (!connectedCtxLoading && !connectedCtxError && connectedCtxId) {
-            router.replace({ query: { step: 3 } }, undefined, { shallow: true })
+            router.replace({ query: { ...router.query, step: verificationStep ?? 3 } }, undefined, { shallow: true })
         }
     }, [
         billingCtxLoading,
@@ -127,6 +131,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         connectedCtxError,
         connectedCtxId,
         router,
+        verificationStep,
     ])
 
     // If no context for selected acquiring and correct organization => need to create it and re-fetch
@@ -166,14 +171,15 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
                 status: CONTEXT_FINISHED_STATUS,
             }, { id: billingCtxId })
                 .then(()=> {
+                    if (onDone) return onDone()
                     if (orgType === SERVICE_PROVIDER_TYPE) {
-                        router.push({ query: { step: 3 } }, undefined, { shallow: true })
+                        router.push({ query: { ...router.query, step: verificationStep ?? 3 } }, undefined, { shallow: true })
                     } else {
                         onFinish()
                     }
                 })
         }
-    }, [setupOrigin, updateBillingAction, onFinish, orgType, router, billingCtxId])
+    }, [setupOrigin, updateBillingAction, billingCtxId, onDone, orgType, onFinish, router, verificationStep])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {

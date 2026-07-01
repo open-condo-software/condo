@@ -27,6 +27,7 @@ const CARD_GAP = 40
 const MAX_CARDS = 4
 const FULL_SPAN = 24
 const ROW_GUTTER: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
+const EMPTY_ACQUIRINGS_QUERY_VALUE = 'none'
 
 const AcquiringCardWrapper = styled.div`
   position: relative;
@@ -50,7 +51,7 @@ const BillingCardRadioWrapper = styled.div`
   z-index: 1;
 `
 
-type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | 'name' | 'description'> & {
+type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | 'name' | 'description' > & {
     checked: boolean
     onClick: () => void
 }
@@ -75,7 +76,7 @@ const AcquiringCard: React.FC<AcquiringCardProps> = ({ checked, onClick, ...appC
     )
 }
 
-type BillingCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | 'name' | 'description' | 'connected'> & {
+type BillingCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | 'name' | 'description' | 'connected' > & {
     checked: boolean
     onSelect: () => void
     onOpen: () => void
@@ -104,7 +105,7 @@ const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ..
                 <Radio checked={checked} />
             </BillingCardRadioWrapper>
             <AppCard
-                {...appCardProps}
+                {...appCardProps }
             />
         </BillingCardWrapper>
     )
@@ -148,7 +149,12 @@ export const ChooseChannels: React.FC = () => {
     const moveToTheNextStep = useCallback(async () => {
         await handleBillingSetupClick()
         await handleAcquiringSetupClick()
-        await router.push('/billing/setup?step=1')
+        await router.push({
+            query: {
+                ...router.query,
+                step: 1,
+            },
+        }, undefined, { shallow: true })
     }, [handleAcquiringSetupClick, handleBillingSetupClick, router])
 
     const { objs: connectedContexts, loading: ctxLoading, error: ctxError } = BillingContext.useObjects({
@@ -210,6 +216,26 @@ export const ChooseChannels: React.FC = () => {
         setChosenBillingId(chosenBillingIntegrationId)
         isDefaultSelectionsApplied.current = true
     }, [acquirings, activeAcquiringContexts, activeAcquiringContextsLoading, activeBillingContexts, activeBillingContextsLoading, billings])
+
+    useEffect(() => {
+        if (!isDefaultSelectionsApplied.current) return
+
+        const nextAcquiringsQueryValue = chosenAcquirings.length > 0
+            ? chosenAcquirings.join(',')
+            : EMPTY_ACQUIRINGS_QUERY_VALUE
+        const currentAcquiringsQueryValue = Array.isArray(router.query.acquirings)
+            ? router.query.acquirings.join(',')
+            : router.query.acquirings
+
+        if (currentAcquiringsQueryValue === nextAcquiringsQueryValue) return
+
+        router.replace({
+            query: {
+                ...router.query,
+                acquirings: nextAcquiringsQueryValue,
+            },
+        }, undefined, { shallow: true })
+    }, [chosenAcquirings, router])
 
     const connectedCtx = connectedContexts[0] || null
     const connectedContextId = get(connectedCtx, 'id', null)
