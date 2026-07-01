@@ -11,7 +11,6 @@ import { Button, Markdown, Space, Tooltip, Typography } from '@open-condo/ui'
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
-import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
 import { AI_CHAT_BUTTON_CONFIG } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
@@ -22,9 +21,6 @@ import { AIChatMessage } from './AIChatMessage'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
 
-// Tools that require user action or data from condo can be run recursively
-// -- this setting clamps the maximum depth for these tool calls
-const MAX_TOOL_CALL_DEPTH = 10
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
 
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
@@ -141,7 +137,6 @@ export type Message = {
 
 type ExecuteAIMessageOptions = {
     additionalContext?: Record<string, unknown>
-    toolCallDepth?: number
     messageId?: string | null
     scenarioButtonId?: string | null
     attachments?: AIChatAttachmentMeta[]
@@ -162,10 +157,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
-    const toolDepthExceededMessage = intl.formatMessage({ id: 'ai.chat.toolDepthExceeded' })
     const noResponseMessage = intl.formatMessage({ id: 'ai.chat.noResponse' })
-    const executingToolsMessage = intl.formatMessage({ id: 'ai.chat.executingTools' })
-    const errorExecutingToolsMessage = intl.formatMessage({ id: 'ai.chat.errorExecutingTools' })
 
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -186,7 +178,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const inputContainerRef = useRef<HTMLDivElement>(null)
     const [inputContainerHeight, setInputContainerHeight] = useState(0)
 
-    const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+    const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string }>({
         aiSessionId: aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
@@ -347,22 +339,10 @@ export const AIChat: React.FC<AIChatProps> = ({
     ) => {
         const {
             additionalContext,
-            toolCallDepth = 0,
             messageId = null,
             scenarioButtonId = null,
             attachments: attachmentsForRequest,
         } = options
-
-        if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
-            addMessage({
-                id: `depth-error-${Date.now()}`,
-                role: 'assistant',
-                content: { text: toolDepthExceededMessage },
-                status: 'sent',
-                timestamp: new Date(),
-            })
-            return
-        }
 
         const assistantMessage: Message = {
             id: uuidV4(),
@@ -409,8 +389,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                     suggestions_count_parsed: suggestions.length,
                 })
             }
-            const hasToolCalls = Boolean(result.data?.result?.toolCalls?.length)
-            const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED && !hasToolCalls
+
+            const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
 
             // Show copy button only for final assistant replies, not intermediate statuses.
             changeMessage(assistantMessage.id, {
@@ -422,82 +402,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                 status: 'sent',
                 copyable: isFinalAssistantReply,
             })
-
-            // If had toolcalls -> add message about toolcalls and start executing toolcalls
-            if (result.data?.status === TASK_STATUSES.COMPLETED && hasToolCalls) {
-                const toolCalls = result.data.result.toolCalls
-
-                // Create new message for tool execution
-                const toolExecutionMessage: Message = {
-                    id: `tool-execution-${Date.now()}`,
-                    content: { text: executingToolsMessage },
-                    role: 'assistant',
-                    timestamp: new Date(),
-                    status: 'sending',
-                }
-                addMessage(toolExecutionMessage)
-
-                try {
-                    if (!organization?.id || !user?.id) {
-                        throw new Error('Organization or user not available')
-                    }
-
-                    const userData = {
-                        organizationId: organization.id,
-                        userId: user.id,
-                    }
-
-                    const toolCallPromises = toolCalls.map((toolCall: any) =>
-                        runToolCall(
-                            toolCall.name,
-                            toolCall.args,
-                            userData,
-                            client,
-                            intl
-                        )
-                    )
-
-                    const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
-
-                    const resultsMessage = toolCallResults
-                        .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
-                        .filter(Boolean)
-                        .join('\n')
-
-                    if (resultsMessage) {
-                        changeMessage(toolExecutionMessage.id, {
-                            ...toolExecutionMessage,
-                            content: { text: resultsMessage },
-                            status: 'sent',
-                            timestamp: new Date(),
-                        })
-                    }
-
-                    // Continue the conversation with the additional data
-                    const allToolCallResults = toolCallResults.map(toolCall => (
-                        {
-                            name: toolCall.name,
-                            args: toolCall.args,
-                            result: toolCall.result,
-                        }))
-
-                    if (allToolCallResults.length > 0) {
-                        await executeAIMessage('toolCalls:', {
-                            additionalContext: { toolCalls: allToolCallResults },
-                            toolCallDepth: toolCallDepth + 1,
-                            messageId: toolExecutionMessage.id,
-                        })
-                    }
-                } catch (error) {
-                    changeMessage(toolExecutionMessage.id, {
-                        id: `tool-error-${Date.now()}`,
-                        role: 'assistant',
-                        content: { text: errorExecutingToolsMessage },
-                        status: 'sent',
-                        timestamp: new Date(),
-                    })
-                }
-            }
         } catch (error) {
             console.error('Error in executeAIMessage:', error)
             changeMessage(assistantMessage.id, {
@@ -506,7 +410,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 status: 'sent',
             })
         }
-    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute, toolDepthExceededMessage, noResponseMessage, executingToolsMessage, errorExecutingToolsMessage])
+    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute, noResponseMessage])
 
     const handleSendMessage = async () => {
         const trimmedInput = inputValue.trim()
