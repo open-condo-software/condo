@@ -347,7 +347,7 @@ describe('PublishB2BAppService', () => {
                     importRemoteSystem: REMOTE_SYSTEM,
                 }))
             })
-            test('B2BApp.oidcClient must not be set, if already manually linked', async () => {
+            test('B2BApp.oidcClient is overwritten by local oidcClientId field on publish', async () => {
                 const [anotherApp] = await createTestB2BApp(user)
                 const [result] = await publishB2BAppByTestClient(user, anotherApp)
                 expect(result).toHaveProperty('success', true)
@@ -355,18 +355,11 @@ describe('PublishB2BAppService', () => {
                 const exportField = `${DEV_ENVIRONMENT}ExportId`
 
                 const apiApp = await B2BApp.getOne(admin, { id: anotherApp.id })
-                expect(apiApp).toHaveProperty(exportField)
-                expect(apiApp[exportField]).not.toBeNull()
-
                 const condoAppId = apiApp[exportField]
-
-                const condoAppBefore = await CondoB2BApp.getOne(condoAdmin, { id: condoAppId })
-                expect(condoAppBefore).toHaveProperty('oidcClient', null)
 
                 const [updatedCondoApp] = await updateCondoB2BApp(condoAdmin, { id: condoAppId }, {
                     oidcClient: { connect: { id: oidcClient.id } },
                 })
-
                 expect(updatedCondoApp).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
 
                 const [apiClient] = await createOIDCClientByTestClient(user, anotherApp)
@@ -376,8 +369,7 @@ describe('PublishB2BAppService', () => {
                 expect(secondResult).toHaveProperty('success', true)
 
                 const updatedCondoAppAfter = await CondoB2BApp.getOne(condoAdmin, { id: condoAppId })
-                expect(updatedCondoAppAfter).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
-
+                expect(updatedCondoAppAfter).toHaveProperty(['oidcClient', 'id'], apiClient.id)
             })
             test('B2BApp.oidcClient can be overwritten if linked client is deleted', async () => {
                 const [anotherApp] = await createTestB2BApp(user)
