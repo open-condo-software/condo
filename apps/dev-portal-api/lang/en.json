@@ -20,6 +20,7 @@
   "api.user.user.PASSWORD_TOO_SIMPLE": "The specified password is too short or contains many repeated characters",
 
   "api.miniapp.OIDC_CLIENT_NOT_FOUND": "OIDC client for the specified application was not found",
+  "api.miniapp.OIDC_CLIENT_CHANGED": "The app's OIDC client has changed. Please refresh the page and try again",
   "api.miniapp.B2BApp.APP_NOT_FOUND": "The application with the specified ID was not found",
   "api.miniapp.B2CApp.APP_NOT_FOUND": "The application with the specified ID was not found",
   "api.miniapp.B2CApp.appUrl.INVALID_URL": "App url is not a valid URL",

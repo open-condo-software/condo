@@ -20,6 +20,7 @@
   "api.user.user.PASSWORD_TOO_SIMPLE": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
 
   "api.miniapp.OIDC_CLIENT_NOT_FOUND": "OIDC клиент для указанного приложения не найден",
+  "api.miniapp.OIDC_CLIENT_CHANGED": "OIDC клиент приложения изменился. Пожалуйста, обновите страницу и попробуйте снова",
   "api.miniapp.B2BApp.APP_NOT_FOUND": "Приложение с указанным ID не найдено",
   "api.miniapp.B2CApp.APP_NOT_FOUND": "Приложение с указанным ID не найдено",
   "api.miniapp.B2CApp.appUrl.INVALID_URL": "Точка входа не является валидной ссылкой",
