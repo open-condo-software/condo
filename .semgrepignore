@@ -27,3 +27,6 @@ ignore.*
 
 README.md
 apps/**/docs/**/*.mdx
+
+# todo(AleX83Xpert) remove next line
+.yarnrc.yml

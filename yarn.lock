@@ -1047,6 +1047,32 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/ecom-gateway@workspace:apps/ecom-gateway":
+  version: 0.0.0-use.local
+  resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
+  dependencies:
+    "@ecom-gateway/domains": "link:./domains"
+    "@faker-js/faker": ^7.6.0
+    "@graphql-tools/graphql-file-loader": ^7.5.17
+    "@graphql-tools/load": ^8.1.0
+    "@open-condo/apollo-server-client": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@types/react": ^18.3.1
+    cross-env: ^7.0.3
+    express: ^4.21.2
+    graphql: ^16.10.0
+    jest: ^29.7.0
+    lodash: ^4.17.21
+    mkdirp: ^3.0.1
+    openid-client: 5.7.1
+    pluralize: ^8.0.0
+    react: ^18.3.1
+  languageName: unknown
+  linkType: soft
+
 "@app/employee-bot@workspace:apps/employee-bot":
   version: 0.0.0-use.local
   resolution: "@app/employee-bot@workspace:apps/employee-bot"
@@ -6102,6 +6128,12 @@ __metadata:
   checksum: 8a5015c2faa52760ab82a64287b2ac6a3d798867a1bca5ccbc1178560dbd9a1f9f1a21faea80f590ba1a4277c3eb7e7c4d3b4a39f1f32171bf6bc8174b370547
   languageName: node
   linkType: hard
+
+"@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway":
+  version: 0.0.0-use.local
+  resolution: "@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway"
+  languageName: node
+  linkType: soft
 
 "@emnapi/runtime@npm:^1.4.4":
   version: 1.4.4
