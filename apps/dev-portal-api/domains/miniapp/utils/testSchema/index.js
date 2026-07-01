@@ -40,6 +40,7 @@ const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/constants/b2c")
 const { B2BAppPublishRequest: B2BAppPublishRequestGQL } = require('@dev-portal-api/domains/miniapp/gql')
 const { CONNECT_ACTION } = require('@dev-portal-api/domains/miniapp/constants/b2bAppContext')
+const { CHANGE_OIDC_CLIENT_MUTATION } = require('@dev-portal-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
@@ -722,6 +723,25 @@ async function registerAppUserServiceByTestClient(client, app, confirmEmailActio
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function changeOIDCClientByTestClient(client, app, clientId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (!clientId) throw new Error('no clientId')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        environment: DEV_ENVIRONMENT,
+        clientId,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHANGE_OIDC_CLIENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -747,7 +767,8 @@ module.exports = {
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
 
-    getAllOIDCClientsByTestClient, getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
+    getAllOIDCClientsByTestClient, getOIDCClientByTestClient,
+    createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient, changeOIDCClientByTestClient,
     registerAppUserServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

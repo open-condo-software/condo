@@ -17,6 +17,8 @@ const {
     ALL_B2C_APP_PROPERTIES_QUERY,
     GET_B2C_APP_INFO_QUERY,
     GET_OIDC_CLIENT_QUERY,
+    GET_ALL_OIDC_CLIENTS_QUERY,
+    CHANGE_OIDC_CLIENT_MUTATION,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_B2B_APP_CONTEXT_MUTATION,
@@ -158,6 +160,18 @@ async function getOIDCClient (context, data) {
     })
 }
 
+async function getAllOIDCClients (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_ALL_OIDC_CLIENTS_QUERY,
+        variables: { data },
+        errorMessage: '[error] Unable to getAllOIDCClients',
+        dataPath: 'result',
+    })
+}
+
 async function createOIDCClient (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -209,6 +223,19 @@ async function registerAppUserService (context, data) {
     })
 }
 
+async function changeOIDCClient (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: CHANGE_OIDC_CLIENT_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to changeOIDCClient',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -230,9 +257,11 @@ module.exports = {
     getB2CAppInfo,
 
     getOIDCClient,
+    getAllOIDCClients,
     createOIDCClient,
     generateOIDCClientSecret,
     updateOIDCClientUrl,
     registerAppUserService,
+    changeOIDCClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

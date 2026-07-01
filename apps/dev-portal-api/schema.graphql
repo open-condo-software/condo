@@ -7391,6 +7391,14 @@ type OIDCClient {
   isEnabled: Boolean!
 }
 
+input ChangeOIDCClientInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: AppWhereUniqueInput!
+  environment: AppEnvironment!
+  clientId: String!
+}
+
 input CreateOIDCClientInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -8219,6 +8227,7 @@ type Mutation {
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
   deleteB2CAppProperty(data: DeleteB2CAppPropertyInput!): DeleteB2CAppPropertyOutput
+  changeOIDCClient(data: ChangeOIDCClientInput!): OIDCClient
   createOIDCClient(data: CreateOIDCClientInput!): OIDCClientWithSecret
   generateOIDCClientSecret(data: GenerateOIDCClientSecretInput!): OIDCClientWithSecret
   updateOIDCClientUrl(data: UpdateOIDCClientUrlInput!): OIDCClient

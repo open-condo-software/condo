@@ -10,6 +10,7 @@ const { productionClient, developmentClient } = require('@dev-portal-api/domains
 const { CondoB2BAppGql, CondoB2CAppGql, CondoOIDCClientGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/GetOIDCClientService')
 const { PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { formatOIDCClient } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/oidcClient')
 
 function getOIDCClientWhere (app) {
     return {
@@ -18,15 +19,6 @@ function getOIDCClientWhere (app) {
     }
 }
 
-function formatOIDCClient (oidcClient) {
-    return {
-        id: oidcClient.id,
-        clientId: oidcClient.clientId,
-        name: oidcClient.name ?? null,
-        redirectUri: oidcClient.payload.redirect_uris[0],
-        isEnabled: oidcClient.isEnabled,
-    }
-}
 
 const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
     types: [

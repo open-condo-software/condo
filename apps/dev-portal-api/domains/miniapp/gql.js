@@ -131,6 +131,12 @@ const REGISTER_APP_USER_SERVICE_MUTATION = gql`
         result: registerAppUserService(data: $data) { id }
     }
 `
+const CHANGE_OIDC_CLIENT_MUTATION = gql`
+    mutation changeOIDCClient ($data: ChangeOIDCClientInput!) {
+        result: changeOIDCClient(data: $data) { id clientId name redirectUri isEnabled }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -155,6 +161,7 @@ module.exports = {
 
     GET_OIDC_CLIENT_QUERY,
     GET_ALL_OIDC_CLIENTS_QUERY,
+    CHANGE_OIDC_CLIENT_MUTATION,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,

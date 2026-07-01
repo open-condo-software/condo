@@ -32,7 +32,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND,
         message: 'The application with the specified ID was not found',
-        messageForUser: 'api.miniapp.B2CApp.APP_NOT_FOUND',
+        messageForUser: 'api.miniapp.APP_NOT_FOUND',
     },
     CONDO_USER_ALREADY_EXISTS: {
         code: BAD_USER_INPUT,
