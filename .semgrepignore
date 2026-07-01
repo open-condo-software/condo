@@ -9,6 +9,8 @@
 **/codegen.yaml
 
 *.png
+# temporary add yarnrc
+.yarnrc.yml
 
 # yarn berry
 .pnp.*
