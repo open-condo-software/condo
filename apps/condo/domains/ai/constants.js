@@ -224,19 +224,6 @@ const FLOW_META_SCHEMAS = {
                     properties: {
                         userId: { type: 'string' },
                         organizationId: { type: 'string' },
-                        toolCalls: {
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    name: { type: 'string' },
-                                    args: { type: 'object', additionalProperties: true },
-                                    result: { type: ['object', 'array'] },
-                                },
-                                required: ['name', 'args'],
-                            },
-                            type: 'array',
-                            minItems: 0,
-                        },
                     },
                     required: ['userId', 'organizationId'],
                 },
@@ -263,18 +250,6 @@ const FLOW_META_SCHEMAS = {
             type: 'object',
             properties: {
                 answer: { type: 'string' },
-                toolCalls: {
-                    items: {
-                        type: 'object',
-                        properties: {
-                            name: { type: 'string' },
-                            args: { type: 'object', additionalProperties: true },
-                        },
-                        required: ['name'],
-                    },
-                    type: 'array',
-                    minItems: 0,
-                },
             },
             required: ['answer'],
             additionalProperties: true,

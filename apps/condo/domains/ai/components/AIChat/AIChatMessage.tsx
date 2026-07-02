@@ -9,6 +9,7 @@ import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOption
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
 import styles from './AIChat.module.css'
+import { StreamingAssistantText } from './StreamingAssistantText'
 
 import type { Message } from './AIChat'
 
@@ -19,12 +20,16 @@ export type AIChatMessageProps = {
     message: Message
     onSuggestionClick?: (suggestion: string) => void
     canExecuteAIFlow?: boolean
+    isStreamingActive?: boolean
+    loadingLabel?: string
 }
 
 export const AIChatMessage: React.FC<AIChatMessageProps> = ({
     message,
     onSuggestionClick,
     canExecuteAIFlow = true,
+    isStreamingActive = false,
+    loadingLabel = '',
 }) => {
     const intl = useIntl()
     const assistantMarkdownRef = useRef<HTMLDivElement>(null)
@@ -124,8 +129,37 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
         </Dropdown>
     )
 
+    const isStreamingPending = isStreamingActive
+        && (!message.content.text || message.content.text === loadingLabel)
+    const isStreamingDisplay = isStreamingActive
+        && Boolean(message.content.text)
+        && message.content.text !== loadingLabel
+
+    const isWaitingForStream = message.status === 'sending'
+        && !isStreamingActive
+        && message.content.text === loadingLabel
+
+    const assistantContent = isStreamingDisplay ? (
+        <StreamingAssistantText
+            text={message.content.text}
+            isStreaming
+            className={styles.assistantMarkdown}
+        />
+    ) : isStreamingPending || isWaitingForStream ? (
+        <div className={styles.assistantMarkdown}>
+            <Typography.Text type='secondary'>{loadingLabel}</Typography.Text>
+        </div>
+    ) : (
+        <div ref={assistantMarkdownRef} className={styles.assistantMarkdown}>
+            <Markdown type='inline'>{message.content.text}</Markdown>
+        </div>
+    )
+
     return (
-        <div className={`${styles.messageWrapper} ${message.role === 'user' ? styles.userMessage : styles.assistantMessage}`}>
+        <div
+            className={`${styles.messageWrapper} ${message.role === 'user' ? styles.userMessage : styles.assistantMessage}`}
+            data-chat-message-id={message.id}
+        >
             {message.role === 'user' ? (
                 <div className={styles.userMessageContainer}>
                     <div className={styles.userMessageRow}>
@@ -153,16 +187,14 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
                 </div>
             ) : (
                 <div className={styles.assistantMessageContainer}>
-                    <div ref={assistantMarkdownRef} className={styles.assistantMarkdown}>
-                        <Markdown type='inline'>{message.content.text}</Markdown>
-                    </div>
+                    {assistantContent}
                     {message.copyable === true && message.status !== 'sending' && (
                         <div className={styles.assistantMessageActions}>
                             {copyButton}
                             {downloadButton}
                         </div>
                     )}
-                    {message.content.suggestions?.length > 0 && (
+                    {message.content.suggestions?.length > 0 && message.status === 'sent' && (
                         <div className={styles.assistantSuggestions}>
                             {message.content.suggestions.map((suggestion) => (
                                 <Button

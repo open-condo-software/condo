@@ -1,5 +1,5 @@
-import { useApolloClient } from '@apollo/client'
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -11,7 +11,14 @@ import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/cons
 import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useChatWithCondoButtonConfig } from '@condo/domains/ai/hooks/useChatWithCondoButtonConfig'
-import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
+import { useStreamReveal } from '@condo/domains/ai/hooks/useStreamReveal'
+import {
+    getStreamingDisplayText,
+    parseAssistantAnswer,
+    resolveAssistantAnswerRaw,
+} from '@condo/domains/ai/utils/parseAssistantAnswer'
+import { logAiStreaming } from '@condo/domains/ai/utils/aiStreamingDebug'
+import { AI_STREAMING } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
@@ -21,56 +28,9 @@ import { AIChatMessage } from './AIChatMessage'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
-
-// Tools that require user action or data from condo can be run recursively
-// -- this setting clamps the maximum depth for these tool calls
-const MAX_TOOL_CALL_DEPTH = 10
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
 
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
-
-const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
-
-type ParsedAssistantAnswer = {
-    text: string
-    suggestions: string[]
-    suggestionsFailureReason?: 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
-}
-
-function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
-    if (!answer || typeof answer !== 'string') {
-        return { text: '', suggestions: [], suggestionsFailureReason: 'missing_block' }
-    }
-
-    const match = answer.match(SUGGESTIONS_BLOCK_REGEX)
-    if (!match) {
-        const hasSuggestionMarkers = answer.includes('[[SUGGESTIONS') || answer.includes('[[/SUGGESTIONS')
-        return {
-            text: answer.trim(),
-            suggestions: [],
-            suggestionsFailureReason: hasSuggestionMarkers ? 'service_text_leaked' : 'missing_block',
-        }
-    }
-
-    const suggestions = match[1]
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.startsWith('& '))
-        .map((line) => line.slice(2).trim())
-        .filter(Boolean)
-
-    const textWithoutSuggestions = answer.replace(SUGGESTIONS_BLOCK_REGEX, '').trim()
-    const hasLeakedServiceText = textWithoutSuggestions.includes('[[SUGGESTIONS') || textWithoutSuggestions.includes('[[/SUGGESTIONS')
-    const parsedSuggestions = suggestions.slice(0, 3)
-
-    return {
-        text: textWithoutSuggestions,
-        suggestions: parsedSuggestions,
-        suggestionsFailureReason: hasLeakedServiceText
-            ? 'service_text_leaked'
-            : (parsedSuggestions.length === 0 ? 'empty_after_parse' : undefined),
-    }
-}
 
 export type MessageAttachmentDisplay = {
     name: string
@@ -95,9 +55,7 @@ export type Message = {
 }
 
 type ExecuteAIMessageOptions = {
-    additionalContext?: Record<string, unknown>
-    toolCallDepth?: number
-    messageId?: string | null
+    assistantMessage: Message
     scenarioButtonId?: string | null
     attachments?: AIChatAttachmentMeta[]
 }
@@ -117,13 +75,13 @@ export const AIChat: React.FC<AIChatProps> = ({
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
-    const toolDepthExceededMessage = intl.formatMessage({ id: 'ai.chat.toolDepthExceeded' })
     const noResponseMessage = intl.formatMessage({ id: 'ai.chat.noResponse' })
-    const executingToolsMessage = intl.formatMessage({ id: 'ai.chat.executingTools' })
-    const errorExecutingToolsMessage = intl.formatMessage({ id: 'ai.chat.errorExecutingTools' })
 
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const { useFlagValue } = useFeatureFlags()
+    const aiStreamingEnabled = Boolean(useFlagValue(AI_STREAMING)?.[CHAT_WITH_CONDO_FLOW_TYPE])
+
     const buttonConfig = useChatWithCondoButtonConfig()
     const scenarioButtons = buttonConfig?.buttons ?? []
     const welcomeDisplayMessage = useMemo<Message | null>(() => {
@@ -140,17 +98,18 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [buttonConfig?.welcomeMessage, welcomeMessage])
 
-    const client = useApolloClient()
-
     const [inputValue, setInputValue] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
+    const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
-    const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
     const inputContainerRef = useRef<HTMLDivElement>(null)
+    const messagesContainerRef = useRef<HTMLDivElement>(null)
+    const streamDataTextRef = useRef('')
+    const streamLoggedFirstCharRef = useRef(false)
     const [inputContainerHeight, setInputContainerHeight] = useState(0)
 
-    const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
+    const [{ execute, resume }, { loading, currentTaskId, streamDataText }] = useAIFlow<{ answer: string }>({
         aiSessionId: aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
@@ -161,7 +120,16 @@ export const AIChat: React.FC<AIChatProps> = ({
         },
     })
 
-    // Load messages from localStorage when aiSessionId changes
+    streamDataTextRef.current = streamDataText
+
+    const receivedStreamText = useMemo(
+        () => getStreamingDisplayText(streamDataText),
+        [streamDataText],
+    )
+
+    const isActiveStreamReveal = Boolean(aiStreamingEnabled && streamingMessageId)
+    const displayStreamText = useStreamReveal(receivedStreamText, { enabled: isActiveStreamReveal })
+
     useEffect(() => {
         const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
 
@@ -183,20 +151,62 @@ export const AIChat: React.FC<AIChatProps> = ({
             return
         }
 
-        // Convert timestamp strings back to Date objects
         const historyWithDates = historyArray.map((msg: any) => ({
             ...msg,
             timestamp: new Date(msg.timestamp),
         }))
         setMessages(historyWithDates)
 
-        // Check for active task in the last message and resume if needed
         const lastMessage = historyWithDates[historyWithDates.length - 1]
 
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
-            resume(lastMessage.executionAIFlowTaskId)
+            const taskId = lastMessage.executionAIFlowTaskId
+            const messageId = lastMessage.id
+
+            if (aiStreamingEnabled) {
+                setStreamingMessageId(messageId)
+            }
+
+            void resume(taskId).then((result) => {
+                if (!result.data || result.error) {
+                    setMessages((prev) => prev.map((msg) => {
+                        if (msg.id !== messageId) {
+                            return msg
+                        }
+
+                        return {
+                            ...msg,
+                            content: { text: result.localizedErrorText || failedToGetResponseMessage },
+                            status: 'sent',
+                        }
+                    }))
+                    setStreamingMessageId(null)
+                    return
+                }
+
+                const rawAnswer = resolveAssistantAnswerRaw(
+                    result.data.result,
+                    streamDataTextRef.current,
+                    noResponseMessage,
+                )
+                const { text, suggestions } = parseAssistantAnswer(rawAnswer)
+
+                setMessages((prev) => prev.map((msg) => {
+                    if (msg.id !== messageId) {
+                        return msg
+                    }
+
+                    return {
+                        ...msg,
+                        content: { text, suggestions },
+                        status: 'sent',
+                        copyable: result.data?.status === TASK_STATUSES.COMPLETED,
+                    }
+                }))
+                setStreamingMessageId(null)
+            })
         }
-    }, [aiSessionId, resume])
+    }, [aiSessionId, resume, aiStreamingEnabled, failedToGetResponseMessage, noResponseMessage])
 
     const canExecuteAIFlow = useMemo(() => {
         return !(currentTaskId && loading)
@@ -221,12 +231,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     const changeMessage = useCallback((messageId: string, updatedMessage: Message) => {
         setMessages(prev => {
             return prev.map(msg => msg.id === messageId ? updatedMessage : msg)
-        })
-    }, [])
-
-    const removeMessage = useCallback((messageId: string) => {
-        setMessages(prev => {
-            return prev.filter(msg => msg.id !== messageId)
         })
     }, [])
 
@@ -255,10 +259,8 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [aiSessionId, messages, saveMessagesToLocalStorage])
 
-    // Update message with executionAIFlowTaskId when currentTaskId changes
     useEffect(() => {
         if (currentTaskId) {
-            // Find the last assistant message with 'sending' status and update it with currentTaskId
             setMessages(prev => {
                 const updated = prev.map(msg => {
                     if (msg.role === 'assistant' && msg.status === 'sending' && !msg.executionAIFlowTaskId) {
@@ -274,17 +276,41 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [currentTaskId])
 
-    const scrollToBottom = useCallback(() => {
-        const messagesContainer = messagesEndRef.current?.parentElement
-        if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight
-            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
-        }
+    const scrollMessageIntoView = useCallback((messageId: string) => {
+        requestAnimationFrame(() => {
+            const element = document.querySelector(`[data-chat-message-id="${messageId}"]`)
+            element?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        })
     }, [])
 
     useEffect(() => {
-        scrollToBottom()
-    }, [messages, scrollToBottom])
+        if (!streamingMessageId || !aiStreamingEnabled || !displayStreamText) {
+            return
+        }
+
+        if (!streamLoggedFirstCharRef.current) {
+            streamLoggedFirstCharRef.current = true
+            logAiStreaming('chat first visible char', {
+                messageId: streamingMessageId,
+                displayLength: displayStreamText.length,
+                receivedLength: receivedStreamText.length,
+            })
+        }
+
+        setMessages(prev => prev.map((msg) => {
+            if (msg.id !== streamingMessageId || msg.status !== 'sending') {
+                return msg
+            }
+
+            return {
+                ...msg,
+                content: {
+                    ...msg.content,
+                    text: displayStreamText,
+                },
+            }
+        }))
+    }, [displayStreamText, streamingMessageId, aiStreamingEnabled, receivedStreamText.length])
 
     useEffect(() => {
         setTimeout(() => {
@@ -307,39 +333,18 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const executeAIMessage = useCallback(async (
         userInput: string,
-        options: ExecuteAIMessageOptions = {},
+        options: ExecuteAIMessageOptions,
     ) => {
         const {
-            additionalContext,
-            toolCallDepth = 0,
-            messageId = null,
+            assistantMessage,
             scenarioButtonId = null,
             attachments: attachmentsForRequest,
         } = options
 
-        if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
-            addMessage({
-                id: `depth-error-${Date.now()}`,
-                role: 'assistant',
-                content: { text: toolDepthExceededMessage },
-                status: 'sent',
-                timestamp: new Date(),
-            })
-            return
-        }
-
-        const assistantMessage: Message = {
-            id: uuidV4(),
-            content: { text: loadingLabel },
-            role: 'assistant',
-            timestamp: new Date(),
-            status: 'sending',
-        }
-
-        if (!messageId) {
-            addMessage(assistantMessage)
-        } else {
-            changeMessage(messageId, assistantMessage)
+        if (aiStreamingEnabled) {
+            setStreamingMessageId(assistantMessage.id)
+            streamLoggedFirstCharRef.current = false
+            logAiStreaming('chat stream start', { messageId: assistantMessage.id })
         }
 
         try {
@@ -348,13 +353,17 @@ export const AIChat: React.FC<AIChatProps> = ({
                 userData: {
                     userId: user.id,
                     organizationId: organization?.id,
-                    ...additionalContext,
                 },
                 ...(attachmentsForRequest?.length ? { attachments: attachmentsForRequest } : {}),
                 ...(scenarioButtonId ? { button_id: scenarioButtonId } : {}),
             })
 
-            // If no data returned or there's an error - show error and return
+            const rawAnswer = resolveAssistantAnswerRaw(
+                result.data?.result,
+                streamDataTextRef.current,
+                noResponseMessage,
+            )
+
             if (!result.data || result.error) {
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
@@ -364,7 +373,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 return
             }
 
-            const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(result.data.result?.answer ?? noResponseMessage)
+            const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(rawAnswer)
             if (suggestionsFailureReason) {
                 void analytics.track('ai_suggestions_failure', {
                     reason: suggestionsFailureReason,
@@ -373,10 +382,9 @@ export const AIChat: React.FC<AIChatProps> = ({
                     suggestions_count_parsed: suggestions.length,
                 })
             }
-            const hasToolCalls = Boolean(result.data?.result?.toolCalls?.length)
-            const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED && !hasToolCalls
 
-            // Show copy button only for final assistant replies, not intermediate statuses.
+            const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
+
             changeMessage(assistantMessage.id, {
                 ...assistantMessage,
                 content: {
@@ -387,81 +395,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                 copyable: isFinalAssistantReply,
             })
 
-            // If had toolcalls -> add message about toolcalls and start executing toolcalls
-            if (result.data?.status === TASK_STATUSES.COMPLETED && hasToolCalls) {
-                const toolCalls = result.data.result.toolCalls
-
-                // Create new message for tool execution
-                const toolExecutionMessage: Message = {
-                    id: `tool-execution-${Date.now()}`,
-                    content: { text: executingToolsMessage },
-                    role: 'assistant',
-                    timestamp: new Date(),
-                    status: 'sending',
-                }
-                addMessage(toolExecutionMessage)
-
-                try {
-                    if (!organization?.id || !user?.id) {
-                        throw new Error('Organization or user not available')
-                    }
-
-                    const userData = {
-                        organizationId: organization.id,
-                        userId: user.id,
-                    }
-
-                    const toolCallPromises = toolCalls.map((toolCall: any) =>
-                        runToolCall(
-                            toolCall.name,
-                            toolCall.args,
-                            userData,
-                            client,
-                            intl
-                        )
-                    )
-
-                    const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
-
-                    const resultsMessage = toolCallResults
-                        .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
-                        .filter(Boolean)
-                        .join('\n')
-
-                    if (resultsMessage) {
-                        changeMessage(toolExecutionMessage.id, {
-                            ...toolExecutionMessage,
-                            content: { text: resultsMessage },
-                            status: 'sent',
-                            timestamp: new Date(),
-                        })
-                    }
-
-                    // Continue the conversation with the additional data
-                    const allToolCallResults = toolCallResults.map(toolCall => (
-                        {
-                            name: toolCall.name,
-                            args: toolCall.args,
-                            result: toolCall.result,
-                        }))
-
-                    if (allToolCallResults.length > 0) {
-                        await executeAIMessage('toolCalls:', {
-                            additionalContext: { toolCalls: allToolCallResults },
-                            toolCallDepth: toolCallDepth + 1,
-                            messageId: toolExecutionMessage.id,
-                        })
-                    }
-                } catch (error) {
-                    changeMessage(toolExecutionMessage.id, {
-                        id: `tool-error-${Date.now()}`,
-                        role: 'assistant',
-                        content: { text: errorExecutingToolsMessage },
-                        status: 'sent',
-                        timestamp: new Date(),
-                    })
-                }
-            }
+            logAiStreaming('chat stream complete', {
+                messageId: assistantMessage.id,
+                answerLength: assistantAnswerText.length,
+                suggestionsCount: suggestions.length,
+            })
         } catch (error) {
             console.error('Error in executeAIMessage:', error)
             changeMessage(assistantMessage.id, {
@@ -469,8 +407,32 @@ export const AIChat: React.FC<AIChatProps> = ({
                 content: { text: errorMessage },
                 status: 'sent',
             })
+        } finally {
+            setStreamingMessageId(null)
         }
-    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute, toolDepthExceededMessage, noResponseMessage, executingToolsMessage, errorExecutingToolsMessage])
+    }, [
+        aiSessionId,
+        aiStreamingEnabled,
+        errorMessage,
+        failedToGetResponseMessage,
+        organization,
+        user,
+        changeMessage,
+        execute,
+        noResponseMessage,
+    ])
+
+    const sendExchange = useCallback(async (
+        userMessage: Message,
+        assistantMessage: Message,
+        userInput: string,
+        options: Omit<ExecuteAIMessageOptions, 'assistantMessage'> = {},
+    ) => {
+        addMessage(userMessage)
+        addMessage(assistantMessage)
+        scrollMessageIntoView(userMessage.id)
+        await executeAIMessage(userInput, { assistantMessage, ...options })
+    }, [addMessage, scrollMessageIntoView, executeAIMessage])
 
     const handleSendMessage = async () => {
         const trimmedInput = inputValue.trim()
@@ -500,12 +462,18 @@ export const AIChat: React.FC<AIChatProps> = ({
             copyable: true,
         }
 
-        addMessage(userMessage)
+        const assistantMessage: Message = {
+            id: uuidV4(),
+            content: { text: loadingLabel },
+            role: 'assistant',
+            timestamp: new Date(),
+            status: 'sending',
+        }
 
         setInputValue('')
         attachments?.resetAttachments()
 
-        await executeAIMessage(trimmedInput, { attachments: attachmentsToSend })
+        await sendExchange(userMessage, assistantMessage, trimmedInput, { attachments: attachmentsToSend })
     }
 
     const handleScenarioButtonClick = useCallback(async (buttonId: string, buttonName: string) => {
@@ -530,9 +498,16 @@ export const AIChat: React.FC<AIChatProps> = ({
             copyable: true,
         }
 
-        addMessage(userMessage)
-        await executeAIMessage(buttonName, { scenarioButtonId: buttonId })
-    }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
+        const assistantMessage: Message = {
+            id: uuidV4(),
+            content: { text: loadingLabel },
+            role: 'assistant',
+            timestamp: new Date(),
+            status: 'sending',
+        }
+
+        await sendExchange(userMessage, assistantMessage, buttonName, { scenarioButtonId: buttonId })
+    }, [loading, user, canExecuteAIFlow, messages, sendExchange, loadingLabel])
 
     const handleSuggestionButtonClick = useCallback(async (suggestedText: string) => {
         if (!suggestedText.trim() || loading || !user || !canExecuteAIFlow) return
@@ -555,9 +530,16 @@ export const AIChat: React.FC<AIChatProps> = ({
             copyable: true,
         }
 
-        addMessage(userMessage)
-        await executeAIMessage(suggestedText)
-    }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
+        const assistantMessage: Message = {
+            id: uuidV4(),
+            content: { text: loadingLabel },
+            role: 'assistant',
+            timestamp: new Date(),
+            status: 'sending',
+        }
+
+        await sendExchange(userMessage, assistantMessage, suggestedText)
+    }, [loading, user, canExecuteAIFlow, messages, sendExchange, loadingLabel])
 
     const handleComposerKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
@@ -569,14 +551,20 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [canExecuteAIFlow, canSendMessage, handleSendMessage])
 
+    const isStreamingActive = Boolean(aiStreamingEnabled && streamingMessageId)
+
     return (
         <div className={styles.chatContainer}>
-            <div className={`${styles.messagesContainer} comment-body`}>
+            <div
+                ref={messagesContainerRef}
+                className={`${styles.messagesContainer} comment-body`}
+            >
                 <div className={styles.headerSpacer} />
                 {welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
                         canExecuteAIFlow={canExecuteAIFlow}
+                        loadingLabel={loadingLabel}
                     />
                 )}
                 {scenarioButtons.length > 0 && (
@@ -614,9 +602,13 @@ export const AIChat: React.FC<AIChatProps> = ({
                         message={message}
                         onSuggestionClick={handleSuggestionButtonClick}
                         canExecuteAIFlow={canExecuteAIFlow}
+                        isStreamingActive={aiStreamingEnabled && message.id === streamingMessageId && message.status === 'sending'}
+                        loadingLabel={loadingLabel}
                     />
                 ))}
-                <div ref={messagesEndRef} />
+                {isStreamingActive && (
+                    <div className={styles.streamingViewportSpacer} aria-hidden />
+                )}
                 <div className={styles.inputSpacer} style={{ height: inputContainerHeight }} />
             </div>
 

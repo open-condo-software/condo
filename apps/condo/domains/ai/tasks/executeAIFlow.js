@@ -19,6 +19,7 @@ const {
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
 const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
+const { logAiStreaming } = require('@condo/domains/ai/utils/aiStreamingDebug.server')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
 const {
@@ -80,6 +81,12 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
         const streaming = adapterConfig.streaming || false
 
         const topic = buildUserTopic(task.user.id, `executionAIFlowTask.${task.id}`)
+
+        logAiStreaming(taskLogger, 'task start', {
+            entityId: executionAIFlowTaskId,
+            entity: 'ExecutionAIFlowTask',
+            data: { flowType: task.flowType, streaming, topic },
+        })
 
         void publish({
             topic,
@@ -156,11 +163,18 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
 
         let prediction
         if (streaming) {
+            let streamChunkCount = 0
+            let streamAnswerLength = 0
+
             prediction = await adapter.execute(predictionUrl, fullContext, task.flowType, async (event) => {
                 if (!event) return
 
                 switch (event.type) {
                     case EVENT_TYPES.START:
+                        logAiStreaming(taskLogger, 'adapter stream start', {
+                            entityId: executionAIFlowTaskId,
+                            entity: 'ExecutionAIFlowTask',
+                        })
                         void publish({
                             topic,
                             data: {
@@ -169,6 +183,19 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
                         })
                         return
                     case EVENT_TYPES.ITEM:
+                        streamChunkCount += 1
+                        streamAnswerLength += event.content?.length || 0
+                        if (streamChunkCount === 1 || streamChunkCount % 20 === 0) {
+                            logAiStreaming(taskLogger, 'adapter stream chunk', {
+                                entityId: executionAIFlowTaskId,
+                                entity: 'ExecutionAIFlowTask',
+                                count: streamChunkCount,
+                                data: {
+                                    itemLength: event.content?.length || 0,
+                                    totalLength: streamAnswerLength,
+                                },
+                            })
+                        }
                         void publish({
                             topic,
                             data: {
@@ -178,6 +205,12 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
                         })
                         return
                     case EVENT_TYPES.END:
+                        logAiStreaming(taskLogger, 'adapter stream end', {
+                            entityId: executionAIFlowTaskId,
+                            entity: 'ExecutionAIFlowTask',
+                            count: streamChunkCount,
+                            data: { totalLength: streamAnswerLength },
+                        })
                         void publish({
                             topic,
                             data: {
@@ -261,6 +294,15 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
         }
 
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, updateData)
+
+        logAiStreaming(taskLogger, 'task completed', {
+            entityId: executionAIFlowTaskId,
+            entity: 'ExecutionAIFlowTask',
+            data: {
+                streaming,
+                answerLength: resultWithRestoredPII?.answer?.length || 0,
+            },
+        })
 
         void publish({
             topic,
