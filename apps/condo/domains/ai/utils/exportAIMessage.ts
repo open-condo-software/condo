@@ -9,6 +9,8 @@ const PLAIN_TEXT_MIME = 'text/plain;charset=utf-8'
 const DOCX_LINE_BREAK = '\n'
 const EMPTY_DOCX_LINE_PLACEHOLDER = ' '
 
+export type ExportAIMessageFormat = 'txt' | 'pdf' | 'docx'
+
 export type ExportAIMessageTxtOptions = {
     format: 'txt'
     text: string
