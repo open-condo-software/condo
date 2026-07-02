@@ -8,6 +8,8 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getEnvironmentalFieldName } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
 const {
     B2BApp,
     createTestB2BApp,
@@ -190,6 +192,66 @@ describe('B2BApp', () => {
                 expect.objectContaining({ id: firstApp.id, name }),
                 expect.objectContaining({ id: secondApp.id, deletedAt: expect.stringContaining('') }),
             ]))
+        })
+    })
+    describe('Field access tests', () => {
+        describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
+            const fieldName = getEnvironmentalFieldName(environment, 'oidcClientId')
+            describe(`${fieldName} field`, () => {
+                let app
+                beforeAll(async () => {
+                    [app] = await createTestB2BApp(user)
+                })
+                describe('Create', () => {
+                    test('Admin can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [createdApp] = await createTestB2BApp(admin, { [fieldName]: clientId })
+                        expect(createdApp).toHaveProperty(fieldName, clientId)
+                    })
+                    test('Support can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [createdApp] = await createTestB2BApp(support, { [fieldName]: clientId })
+                        expect(createdApp).toHaveProperty(fieldName, clientId)
+                    })
+                    test('App owner cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestB2BApp(user, { [fieldName]: faker.datatype.uuid() })
+                        })
+                    })
+                })
+                describe('Update', () => {
+                    test('Admin can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [updatedApp] = await updateTestB2BApp(admin, app.id, { [fieldName]: clientId })
+                        expect(updatedApp).toHaveProperty(fieldName, clientId)
+                    })
+                    test('Support can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [updatedApp] = await updateTestB2BApp(support, app.id, { [fieldName]: clientId })
+                        expect(updatedApp).toHaveProperty(fieldName, clientId)
+                    })
+                    test('App owner cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestB2BApp(user, app.id, { [fieldName]: faker.datatype.uuid() })
+                        })
+                    })
+                    test('Other user cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestB2BApp(anotherUser, app.id, { [fieldName]: faker.datatype.uuid() })
+                        })
+                    })
+                })
+                describe('Read', () => {
+                    test('App owner can', async () => {
+                        const readApp = await B2BApp.getOne(user, { id: app.id })
+                        expect(readApp).toHaveProperty(fieldName)
+                    })
+                    test('Admin can', async () => {
+                        const readApp = await B2BApp.getOne(admin, { id: app.id })
+                        expect(readApp).toHaveProperty(fieldName)
+                    })
+                })
+            })
         })
     })
 })

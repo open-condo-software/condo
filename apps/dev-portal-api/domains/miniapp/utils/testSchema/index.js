@@ -28,6 +28,7 @@ const {
     GET_B2C_APP_INFO_QUERY,
 
     GET_OIDC_CLIENT_QUERY,
+    GET_ALL_OIDC_CLIENTS_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
@@ -39,6 +40,7 @@ const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/constants/b2c")
 const { B2BAppPublishRequest: B2BAppPublishRequestGQL } = require('@dev-portal-api/domains/miniapp/gql')
 const { CONNECT_ACTION } = require('@dev-portal-api/domains/miniapp/constants/b2bAppContext')
+const { CHANGE_OIDC_CLIENT_MUTATION } = require('@dev-portal-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
@@ -596,6 +598,15 @@ async function getB2CAppInfoByTestClient(client, app, environment = DEV_ENVIRONM
     return [data.result, attrs]
 }
 
+async function getAllOIDCClientsByTestClient(client, environment = DEV_ENVIRONMENT) {
+    if (!client) throw new Error('no client')
+
+    const attrs = { environment }
+    const { data, errors } = await client.query(GET_ALL_OIDC_CLIENTS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function getOIDCClientByTestClient(client, app, environment = DEV_ENVIRONMENT) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
@@ -712,6 +723,25 @@ async function registerAppUserServiceByTestClient(client, app, confirmEmailActio
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function changeOIDCClientByTestClient(client, app, oidcClientId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (!oidcClientId) throw new Error('no oidcClientId')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        environment: DEV_ENVIRONMENT,
+        oidcClientId,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHANGE_OIDC_CLIENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -737,7 +767,8 @@ module.exports = {
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
 
-    getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
+    getAllOIDCClientsByTestClient, getOIDCClientByTestClient,
+    createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient, changeOIDCClientByTestClient,
     registerAppUserServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

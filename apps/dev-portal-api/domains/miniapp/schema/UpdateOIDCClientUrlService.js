@@ -5,12 +5,12 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
 const { CondoOIDCClientGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/UpdateOIDCClientUrlService')
-const { OIDC_CLIENT_NOT_FOUND, INVALID_URL, HTTPS_ONLY } = require('@dev-portal-api/domains/miniapp/constants/errors')
+const { OIDC_CLIENT_NOT_FOUND, INVALID_URL, HTTPS_ONLY, OIDC_CLIENT_CHANGED } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getOIDCClient } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 
 const ERRORS = {
     OIDC_CLIENT_NOT_FOUND: {
@@ -31,13 +31,19 @@ const ERRORS = {
         message: 'The URL has a non-valid protocol. Only https is allowed for the selected environment',
         messageForUser: 'api.miniapp.updateOIDCClientUrl.HTTPS_ONLY',
     },
+    OIDC_CLIENT_CHANGED: {
+        code: BAD_USER_INPUT,
+        type: OIDC_CLIENT_CHANGED,
+        message: 'The OIDC client has changed since the page was loaded. Please refresh and try again',
+        messageForUser: 'api.miniapp.OIDC_CLIENT_CHANGED',
+    },
 }
 
 const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlService', {
     types: [
         {
             access: true,
-            type: 'input UpdateOIDCClientUrlInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, redirectUri: String! }',
+            type: 'input UpdateOIDCClientUrlInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, redirectUri: String!, oidcClientId: String }',
         },
     ],
     
@@ -46,7 +52,7 @@ const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlServi
             access: access.canUpdateOIDCClientUrl,
             schema: 'updateOIDCClientUrl(data: UpdateOIDCClientUrlInput!): OIDCClient',
             resolver: async (parent, args, context) => {
-                const { data: { app, environment, dv, sender, redirectUri } } = args
+                const { data: { app, environment, dv, sender, redirectUri, oidcClientId } } = args
 
                 let url
                 try {
@@ -68,27 +74,33 @@ const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlServi
                     ? productionClient
                     : developmentClient
 
-                const oidcClients = await serverClient.getModels({
-                    modelGql: CondoOIDCClientGql,
-                    where: {
-                        clientId: app.id,
-                        importId: app.id,
-                        importRemoteSystem: REMOTE_SYSTEM,
-                    },
-                })
+                const oidcClient = await getOIDCClient(context, { app, environment })
 
-                if (!oidcClients.length) {
+                if (!oidcClient) {
                     throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
                 }
 
-                const oidcClient = oidcClients[0]
+                if (oidcClientId && oidcClient.id !== oidcClientId) {
+                    throw new GQLError(ERRORS.OIDC_CLIENT_CHANGED, context)
+                }
+
+                const [condoOIDCClient] = await serverClient.getModels({
+                    modelGql: CondoOIDCClientGql,
+                    where: { id: oidcClient.id },
+                    first: 1,
+                })
+
+                if (!condoOIDCClient) {
+                    throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
+                }
+
                 const updatedClient = await serverClient.updateModel({
                     modelGql: CondoOIDCClientGql,
                     id: oidcClient.id,
                     updateInput: {
                         dv,
                         sender,
-                        payload: { ...oidcClient.payload, redirect_uris: [url.toString()] },
+                        payload: { ...condoOIDCClient.payload, redirect_uris: [url.toString()] },
                     },
                 })
 

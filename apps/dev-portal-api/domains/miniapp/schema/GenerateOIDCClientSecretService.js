@@ -5,12 +5,12 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
 const { CondoOIDCClientGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/GenerateOIDCClientSecretService')
-const { OIDC_CLIENT_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
+const { OIDC_CLIENT_NOT_FOUND, OIDC_CLIENT_CHANGED } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getOIDCClient } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 const { generateClientSecret } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/oidcClient')
 
 const ERRORS = {
@@ -20,6 +20,12 @@ const ERRORS = {
         message: 'OIDC client for the specified application was not found',
         messageForUser: 'api.miniapp.OIDC_CLIENT_NOT_FOUND',
     },
+    OIDC_CLIENT_CHANGED: {
+        code: BAD_USER_INPUT,
+        type: OIDC_CLIENT_CHANGED,
+        message: 'The OIDC client has changed since the page was loaded. Please refresh and try again',
+        messageForUser: 'api.miniapp.OIDC_CLIENT_CHANGED',
+    },
 }
 
 
@@ -27,7 +33,7 @@ const GenerateOIDCClientSecretService = new GQLCustomSchema('GenerateOIDCClientS
     types: [
         {
             access: true,
-            type: 'input GenerateOIDCClientSecretInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment! }',
+            type: 'input GenerateOIDCClientSecretInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, oidcClientId: String }',
         },
     ],
     mutations: [
@@ -35,33 +41,39 @@ const GenerateOIDCClientSecretService = new GQLCustomSchema('GenerateOIDCClientS
             access: access.canGenerateOIDCClientSecret,
             schema: 'generateOIDCClientSecret(data: GenerateOIDCClientSecretInput!): OIDCClientWithSecret',
             resolver: async (parent, args, context) => {
-                const { data: { app, environment, dv, sender } } = args
+                const { data: { app, environment, dv, sender, oidcClientId } } = args
 
                 const serverClient = environment === PROD_ENVIRONMENT
                     ? productionClient
                     : developmentClient
 
-                const oidcClients = await serverClient.getModels({
-                    modelGql: CondoOIDCClientGql,
-                    where: {
-                        clientId: app.id,
-                        importId: app.id,
-                        importRemoteSystem: REMOTE_SYSTEM,
-                    },
-                })
+                const oidcClient = await getOIDCClient(context, { app, environment })
 
-                if (!oidcClients.length) {
+                if (!oidcClient) {
                     throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
                 }
 
-                const oidcClient = oidcClients[0]
+                if (oidcClientId && oidcClient.id !== oidcClientId) {
+                    throw new GQLError(ERRORS.OIDC_CLIENT_CHANGED, context)
+                }
+
+                const [condoOIDCClient] = await serverClient.getModels({
+                    modelGql: CondoOIDCClientGql,
+                    where: { id: oidcClient.id },
+                    first: 1,
+                })
+
+                if (!condoOIDCClient) {
+                    throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
+                }
+
                 const updatedClient = await serverClient.updateModel({
                     modelGql: CondoOIDCClientGql,
                     id: oidcClient.id,
                     updateInput: {
                         dv,
                         sender,
-                        payload: { ...oidcClient.payload, client_secret: generateClientSecret() },
+                        payload: { ...condoOIDCClient.payload, client_secret: generateClientSecret() },
                     },
                 })
 

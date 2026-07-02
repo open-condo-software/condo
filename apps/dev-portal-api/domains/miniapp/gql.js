@@ -12,7 +12,7 @@ const { getEnvironmentalFieldsSelection } = require('./schema/fields/environment
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const EXPORT_FIELDS = getEnvironmentalFieldsSelection(['exportId'])
 
-const B2B_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2B_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['oidcClientId'])} ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
@@ -27,7 +27,7 @@ const PUBLISH_B2B_APP_MUTATION = gql`
 
 
 
-const B2C_APP_FIELDS = `{ name type developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['webTransformEnabled', 'publishedAt', 'appUrl'])}  ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2C_APP_FIELDS = `{ name type developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['webTransformEnabled', 'publishedAt', 'appUrl', 'oidcClientId'])}  ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
 const B2C_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
@@ -98,7 +98,13 @@ const GET_B2C_APP_INFO_QUERY = gql`
 
 const GET_OIDC_CLIENT_QUERY = gql`
     query getGetOIDCClient ($data: GetOIDCClientInput!) {
-        result: OIDCClient(data: $data) { id clientId redirectUri }
+        result: OIDCClient(data: $data) { id clientId name redirectUri isEnabled }
+    }
+`
+
+const GET_ALL_OIDC_CLIENTS_QUERY = gql`
+    query getAllOIDCClients ($data: GetAllOIDCClientsInput!) {
+        result: allOIDCClients(data: $data) { id clientId name redirectUri isEnabled }
     }
 `
 
@@ -125,6 +131,12 @@ const REGISTER_APP_USER_SERVICE_MUTATION = gql`
         result: registerAppUserService(data: $data) { id }
     }
 `
+const CHANGE_OIDC_CLIENT_MUTATION = gql`
+    mutation changeOIDCClient ($data: ChangeOIDCClientInput!) {
+        result: changeOIDCClient(data: $data) { id clientId name redirectUri isEnabled }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -148,6 +160,8 @@ module.exports = {
     GET_B2C_APP_INFO_QUERY,
 
     GET_OIDC_CLIENT_QUERY,
+    GET_ALL_OIDC_CLIENTS_QUERY,
+    CHANGE_OIDC_CLIENT_MUTATION,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,

@@ -354,15 +354,71 @@ describe('B2CApp', () => {
             })
         })
         describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
-            const fieldName = getEnvironmentalFieldName(environment, 'publishedAt')
-            describe(`${fieldName} field`, () => {
+            const oidcClientIdFieldName = getEnvironmentalFieldName(environment, 'oidcClientId')
+            describe(`${oidcClientIdFieldName} field`, () => {
+                let app
+                beforeAll(async () => {
+                    [app] = await createTestB2CApp(user)
+                })
+                describe('Create', () => {
+                    test('Admin can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [createdApp] = await createTestB2CApp(admin, { [oidcClientIdFieldName]: clientId })
+                        expect(createdApp).toHaveProperty(oidcClientIdFieldName, clientId)
+                    })
+                    test('Support can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [createdApp] = await createTestB2CApp(support, { [oidcClientIdFieldName]: clientId })
+                        expect(createdApp).toHaveProperty(oidcClientIdFieldName, clientId)
+                    })
+                    test('App owner cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestB2CApp(user, { [oidcClientIdFieldName]: faker.datatype.uuid() })
+                        })
+                    })
+                })
+                describe('Update', () => {
+                    test('Admin can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [updatedApp] = await updateTestB2CApp(admin, app.id, { [oidcClientIdFieldName]: clientId })
+                        expect(updatedApp).toHaveProperty(oidcClientIdFieldName, clientId)
+                    })
+                    test('Support can', async () => {
+                        const clientId = faker.datatype.uuid()
+                        const [updatedApp] = await updateTestB2CApp(support, app.id, { [oidcClientIdFieldName]: clientId })
+                        expect(updatedApp).toHaveProperty(oidcClientIdFieldName, clientId)
+                    })
+                    test('App owner cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestB2CApp(user, app.id, { [oidcClientIdFieldName]: faker.datatype.uuid() })
+                        })
+                    })
+                    test('Other user cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestB2CApp(anotherUser, app.id, { [oidcClientIdFieldName]: faker.datatype.uuid() })
+                        })
+                    })
+                })
+                describe('Read', () => {
+                    test('App owner can', async () => {
+                        const readApp = await B2CApp.getOne(user, { id: app.id })
+                        expect(readApp).toHaveProperty(oidcClientIdFieldName)
+                    })
+                    test('Admin can', async () => {
+                        const readApp = await B2CApp.getOne(admin, { id: app.id })
+                        expect(readApp).toHaveProperty(oidcClientIdFieldName)
+                    })
+                })
+            })
+            const publishedAtFieldName = getEnvironmentalFieldName(environment, 'publishedAt')
+            describe(`${publishedAtFieldName} field`, () => {
                 describe('Cannot be manually set on creation',  () => {
                     test.each(Object.keys(actors))('By %p', async (actorName) => {
                         const actor = actors[actorName]
 
                         await expectToThrowGraphQLRequestError(async () => {
-                            await createTestB2CApp(actor, { [fieldName]: dayjs().toISOString() })
-                        }, `Field "${fieldName}" is not defined by type "B2CAppCreateInput"`)
+                            await createTestB2CApp(actor, { [publishedAtFieldName]: dayjs().toISOString() })
+                        }, `Field "${publishedAtFieldName}" is not defined by type "B2CAppCreateInput"`)
                     })
                 })
                 describe('Cannot be manually set on update',  () => {
@@ -374,7 +430,7 @@ describe('B2CApp', () => {
                         const actor = actors[actorName]
 
                         await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestB2CApp(actor, app.id, { [fieldName]: dayjs().toISOString() })
+                            await updateTestB2CApp(actor, app.id, { [publishedAtFieldName]: dayjs().toISOString() })
                         })
                     })
                 })

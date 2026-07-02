@@ -98,6 +98,22 @@ class CondoClient extends ApolloServerClient {
 
         return file
     }
+
+    async getAllModels ({ modelGql, where, sortBy = ['createdAt_ASC', 'id_ASC'], chunkSize = 100 }) {
+        let skip = 0
+        const result = []
+        let lastFetchSize = chunkSize
+
+        while (lastFetchSize === chunkSize) {
+            const objs = await this.getModels({ modelGql, first: chunkSize, where, sortBy, skip })
+            result.push(...objs)
+            lastFetchSize = objs.length
+            skip += objs.length
+        }
+
+
+        return result
+    }
 }
 
 const developmentClient = new CondoClient({

@@ -1563,6 +1563,8 @@ type B2BAppHistoryRecord {
   category: String
   developmentAppUrl: String
   productionAppUrl: String
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   id: ID!
   v: Int
   createdAt: String
@@ -1717,6 +1719,14 @@ input B2BAppHistoryRecordWhereInput {
   productionAppUrl_not_ends_with_i: String
   productionAppUrl_in: [String]
   productionAppUrl_not_in: [String]
+  developmentOidcClientId: ID
+  developmentOidcClientId_not: ID
+  developmentOidcClientId_in: [ID]
+  developmentOidcClientId_not_in: [ID]
+  productionOidcClientId: ID
+  productionOidcClientId_not: ID
+  productionOidcClientId_in: [ID]
+  productionOidcClientId_not_in: [ID]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -1850,6 +1860,10 @@ enum SortB2BAppHistoryRecordsBy {
   developmentAppUrl_DESC
   productionAppUrl_ASC
   productionAppUrl_DESC
+  developmentOidcClientId_ASC
+  developmentOidcClientId_DESC
+  productionOidcClientId_ASC
+  productionOidcClientId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -1882,6 +1896,8 @@ input B2BAppHistoryRecordUpdateInput {
   category: String
   developmentAppUrl: String
   productionAppUrl: String
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   v: Int
   createdAt: String
   updatedAt: String
@@ -1913,6 +1929,8 @@ input B2BAppHistoryRecordCreateInput {
   category: String
   developmentAppUrl: String
   productionAppUrl: String
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   v: Int
   createdAt: String
   updatedAt: String
@@ -1994,6 +2012,14 @@ type B2BApp {
   """ Web app entrypoint URL for production environment, which is used to open app in WebView or IFrame 
   """
   productionAppUrl: String
+
+  """ ID of the OIDC client used by this miniapp for condo users authentication for development environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """
+  developmentOidcClientId: ID
+
+  """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """
+  productionOidcClientId: ID
   id: ID!
   v: Int
   createdAt: String
@@ -2162,6 +2188,14 @@ input B2BAppWhereInput {
   productionAppUrl_not_ends_with_i: String
   productionAppUrl_in: [String]
   productionAppUrl_not_in: [String]
+  developmentOidcClientId: ID
+  developmentOidcClientId_not: ID
+  developmentOidcClientId_in: [ID]
+  developmentOidcClientId_not_in: [ID]
+  productionOidcClientId: ID
+  productionOidcClientId_not: ID
+  productionOidcClientId_in: [ID]
+  productionOidcClientId_not_in: [ID]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2277,6 +2311,10 @@ enum SortB2BAppsBy {
   developmentAppUrl_DESC
   productionAppUrl_ASC
   productionAppUrl_DESC
+  developmentOidcClientId_ASC
+  developmentOidcClientId_DESC
+  productionOidcClientId_ASC
+  productionOidcClientId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -2309,6 +2347,8 @@ input B2BAppUpdateInput {
   category: B2BAppCategoryType
   developmentAppUrl: String
   productionAppUrl: String
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   v: Int
   createdAt: String
   updatedAt: String
@@ -2337,6 +2377,8 @@ input B2BAppCreateInput {
   category: B2BAppCategoryType
   developmentAppUrl: String
   productionAppUrl: String
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   v: Int
   createdAt: String
   updatedAt: String
@@ -2816,6 +2858,8 @@ type B2CAppHistoryRecord {
   productionAppUrl: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -2954,6 +2998,14 @@ input B2CAppHistoryRecordWhereInput {
   developmentWebTransformEnabled_not: Boolean
   productionWebTransformEnabled: Boolean
   productionWebTransformEnabled_not: Boolean
+  developmentOidcClientId: ID
+  developmentOidcClientId_not: ID
+  developmentOidcClientId_in: [ID]
+  developmentOidcClientId_not_in: [ID]
+  productionOidcClientId: ID
+  productionOidcClientId_not: ID
+  productionOidcClientId_in: [ID]
+  productionOidcClientId_not_in: [ID]
   developmentFullscreenAllowed: Boolean
   developmentFullscreenAllowed_not: Boolean
   productionFullscreenAllowed: Boolean
@@ -3139,6 +3191,10 @@ enum SortB2CAppHistoryRecordsBy {
   developmentWebTransformEnabled_DESC
   productionWebTransformEnabled_ASC
   productionWebTransformEnabled_DESC
+  developmentOidcClientId_ASC
+  developmentOidcClientId_DESC
+  productionOidcClientId_ASC
+  productionOidcClientId_DESC
   developmentFullscreenAllowed_ASC
   developmentFullscreenAllowed_DESC
   productionFullscreenAllowed_ASC
@@ -3210,6 +3266,8 @@ input B2CAppHistoryRecordUpdateInput {
   productionAppUrl: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3260,6 +3318,8 @@ input B2CAppHistoryRecordCreateInput {
   productionAppUrl: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3344,6 +3404,14 @@ type B2CApp {
   """ Enables automatic transformation from native environments to web and allows automatic web-hosting on publish for production environment 
   """
   productionWebTransformEnabled: Boolean
+
+  """ ID of the OIDC client used by this miniapp for condo users authentication for development environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """
+  developmentOidcClientId: ID
+
+  """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """
+  productionOidcClientId: ID
 
   """ Controls whether the mini-app can use “fullscreen” device permission on development environment 
   """
@@ -3541,6 +3609,14 @@ input B2CAppWhereInput {
   developmentWebTransformEnabled_not: Boolean
   productionWebTransformEnabled: Boolean
   productionWebTransformEnabled_not: Boolean
+  developmentOidcClientId: ID
+  developmentOidcClientId_not: ID
+  developmentOidcClientId_in: [ID]
+  developmentOidcClientId_not_in: [ID]
+  productionOidcClientId: ID
+  productionOidcClientId_not: ID
+  productionOidcClientId_in: [ID]
+  productionOidcClientId_not_in: [ID]
   developmentFullscreenAllowed: Boolean
   developmentFullscreenAllowed_not: Boolean
   productionFullscreenAllowed: Boolean
@@ -3706,6 +3782,10 @@ enum SortB2CAppsBy {
   developmentWebTransformEnabled_DESC
   productionWebTransformEnabled_ASC
   productionWebTransformEnabled_DESC
+  developmentOidcClientId_ASC
+  developmentOidcClientId_DESC
+  productionOidcClientId_ASC
+  productionOidcClientId_DESC
   developmentFullscreenAllowed_ASC
   developmentFullscreenAllowed_DESC
   productionFullscreenAllowed_ASC
@@ -3777,6 +3857,8 @@ input B2CAppUpdateInput {
   productionAppUrl: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3824,6 +3906,8 @@ input B2CAppCreateInput {
   productionAppUrl: String
   developmentWebTransformEnabled: Boolean
   productionWebTransformEnabled: Boolean
+  developmentOidcClientId: ID
+  productionOidcClientId: ID
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -7295,11 +7379,24 @@ input GetOIDCClientInput {
   environment: AppEnvironment!
 }
 
+input GetAllOIDCClientsInput {
+  environment: AppEnvironment!
+}
+
 type OIDCClient {
   id: String!
   clientId: String!
+  name: String
   redirectUri: String!
   isEnabled: Boolean!
+}
+
+input ChangeOIDCClientInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: AppWhereUniqueInput!
+  environment: AppEnvironment!
+  oidcClientId: String!
 }
 
 input CreateOIDCClientInput {
@@ -7322,6 +7419,7 @@ input GenerateOIDCClientSecretInput {
   sender: SenderFieldInput!
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
+  oidcClientId: String
 }
 
 input UpdateOIDCClientUrlInput {
@@ -7330,6 +7428,7 @@ input UpdateOIDCClientUrlInput {
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
   redirectUri: String!
+  oidcClientId: String
 }
 
 enum AppType {
@@ -7695,6 +7794,7 @@ type Query {
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
   getB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
   OIDCClient(data: GetOIDCClientInput!): OIDCClient
+  allOIDCClients(data: GetAllOIDCClientsInput!): [OIDCClient!]
 
   """The version of the Keystone application serving this API."""
   appVersion: String
@@ -8127,6 +8227,7 @@ type Mutation {
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
   deleteB2CAppProperty(data: DeleteB2CAppPropertyInput!): DeleteB2CAppPropertyOutput
+  changeOIDCClient(data: ChangeOIDCClientInput!): OIDCClient
   createOIDCClient(data: CreateOIDCClientInput!): OIDCClientWithSecret
   generateOIDCClientSecret(data: GenerateOIDCClientSecretInput!): OIDCClientWithSecret
   updateOIDCClientUrl(data: UpdateOIDCClientUrlInput!): OIDCClient

@@ -14,10 +14,11 @@ const { APP_NOT_FOUND, FIRST_PUBLISH_WITHOUT_INFO, PUBLISH_NOT_ALLOWED, CONDO_AP
 const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { B2BApp, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 
+const { getEnvironmentalFieldsSelection } = require('./fields/environmental')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
 
-const B2B_APP_EXPORTED_FIELDS = 'id name developer developerUrl createdBy { name } logo { publicUrl originalFilename } shortDescription detailedDescription category developmentAppUrl productionAppUrl developmentExportId productionExportId'
+const B2B_APP_EXPORTED_FIELDS = `id name developer developerUrl createdBy { name } logo { publicUrl originalFilename } shortDescription detailedDescription category developmentAppUrl productionAppUrl ${getEnvironmentalFieldsSelection(['exportId', 'oidcClientId'])}`
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -28,7 +29,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND,
         message: 'The application with the specified ID was not found',
-        messageForUser: 'api.miniapp.B2BApp.APP_NOT_FOUND',
+        messageForUser: 'api.miniapp.APP_NOT_FOUND',
     },
     FIRST_PUBLISH_WITHOUT_INFO: {
         code: BAD_USER_INPUT,
@@ -164,16 +165,25 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     return updatedCondoApp
 }
 
-async function syncOIDCClient ({ args, serverClient, condoApp }) {
+async function syncOIDCClient ({ args, serverClient, condoApp, localApp }) {
     const { data: { dv, sender, app, environment } } = args
+
+    const oidcClientIdField = `${environment}OidcClientId`
+    const explicitId = localApp[oidcClientIdField]
+
+    const orClauses = []
+    if (explicitId) orClauses.push({ AND: [{ id: explicitId }] })
+    orClauses.push({ AND: [getOIDCClientWhere(app)] })
 
     const oidcClients = await serverClient.getModels({
         modelGql: CondoOIDCClientGql,
-        where: getOIDCClientWhere(app),
-        first: 1,
+        where: { OR: orClauses },
+        first: 2,
     })
+    const preferred = explicitId && oidcClients.find(c => c.id === explicitId)
+    const oidcClient = preferred || oidcClients[0] || null
 
-    if (!oidcClients.length) {
+    if (!oidcClient) {
         logger.info({
             msg: 'no OIDC clients found for app',
             entityId: app.id,
@@ -182,8 +192,6 @@ async function syncOIDCClient ({ args, serverClient, condoApp }) {
         })
         return
     }
-
-    const oidcClient = oidcClients[0]
 
     if (!oidcClient.isEnabled) {
         await serverClient.updateModel({
@@ -204,9 +212,7 @@ async function syncOIDCClient ({ args, serverClient, condoApp }) {
         })
     }
 
-
-
-    if (!condoApp.oidcClient || condoApp.oidcClient.deletedAt) {
+    if (condoApp.oidcClient?.id !== oidcClient.id) {
         await serverClient.updateModel({
             modelGql: CondoB2BAppGql,
             id: condoApp.id,
@@ -303,7 +309,7 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
                 }
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
-                await syncOIDCClient({ args, serverClient, condoApp })
+                await syncOIDCClient({ args, serverClient, condoApp, localApp: app })
 
                 return {
                     success: true,
