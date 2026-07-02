@@ -7,8 +7,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
-
-
+import type { ButtonProps } from '@open-condo/ui'
 
 export type UseExportToExcelInputType = {
     sortBy: string | string[]
@@ -16,6 +15,7 @@ export type UseExportToExcelInputType = {
     exportToExcelQuery: DocumentNode
     useTimeZone?: boolean
     label?: string
+    buttonType?: ButtonProps['type']
 }
 
 type ExportButtonInputType = {
@@ -39,6 +39,7 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
         exportToExcelQuery,
         label,
         useTimeZone = true,
+        buttonType = 'secondary',
     } = props
 
     const [
@@ -79,14 +80,14 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
 
     const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
         <Button
-            type='secondary'
+            type={buttonType}
             loading={isXlsLoading}
             onClick={handleExportToExcel}
             disabled={isXlsLoading || disabled}
             children={label || ExportAsExcelLabel}
             id={id}
         />
-    ), [ExportAsExcelLabel, handleExportToExcel, isXlsLoading, label])
+    ), [ExportAsExcelLabel, handleExportToExcel, isXlsLoading, label, buttonType])
 
     return {
         ExportButton,

@@ -73,6 +73,8 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
     const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
+    const ExportPaymentsTitle = intl.formatMessage({ id: 'pages.billing.payments.exportToExcel.title' })
+    
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts[0]
 
@@ -281,6 +283,8 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                         sortBy={sortBy}
                         exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
                         disabled={count < 1}
+                        label={ExportPaymentsTitle}
+                        buttonType='primary'
                     />
                 </Col>
             </Row>
