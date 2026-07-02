@@ -15,14 +15,19 @@ import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageC
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
-import { ACCRUALS_TAB_KEY, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY } from '@condo/domains/billing/constants/constants'
+import { ACCRUALS_TAB_KEY, CONTEXT_FINISHED_STATUS, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { DEFAULT_COMBINED_VIEW_TYPES, useCombinedViewAvailability } from '@condo/domains/billing/hooks/useCombinedViewAvailability'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
+import type { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 
-const { publicRuntimeConfig: { registryUploadIntegrationId } } = getConfig()
+
+const { publicRuntimeConfig: { registryUploadIntegrationId, sppConfig } } = getConfig()
+// TODO(@abshnko): DOMA-13420 remove one integration when we merge them into one
+const accrualsRegistryIntegrationIds = [registryUploadIntegrationId, sppConfig?.BillingIntegrationId]
+    .filter(Boolean)
 
 type ExtensionTabType = {
     id: string
@@ -38,6 +43,15 @@ type RegistryIframeProps = {
     shortDescription?: string | null
     isB2BApp?: boolean
     appId?: string
+}
+
+function buildBillingAppFromContext (context: BillingIntegrationOrganizationContext): ExtensionTabType {
+    return {
+        id: context.id,
+        label: get(context, ['integration', 'billingPageTitle']) || get(context, ['integration', 'name'], ''),
+        integrationId: get(context, ['integration', 'id'], null),
+        appUrl: get(context, ['integration', 'appUrl'], '') || '',
+    }
 }
 
 const IframeTab: React.FC<RegistryIframeProps> = ({ appUrl, shortDescription, isB2BApp, appId }) => {
@@ -99,17 +113,15 @@ export const CombinedMainContent: React.FC = () => {
     const { tab, type } = parseQuery(router.query)
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const hasLastReport = billingContexts.some(({ lastReport }) => !!lastReport)
+    const activeBillingContexts = useMemo(() => {
+        return billingContexts.filter(({ status }) => status === CONTEXT_FINISHED_STATUS)
+    }, [billingContexts])
 
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
-        return billingContexts
-            .filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage)
-            .map(context => ({
-                id: context.id,
-                label: get(context, ['integration', 'billingPageTitle']) || get(context, ['integration', 'name'], ''),
-                integrationId: get(context, ['integration', 'id'], null),
-                appUrl: get(context, ['integration', 'appUrl'], '') || '',
-            }))
-    }, [billingContexts])
+        return activeBillingContexts
+            .filter(({ integration }) => !!integration?.appUrl && !!integration?.extendsBillingPage)
+            .map(buildBillingAppFromContext)
+    }, [activeBillingContexts])
 
     const { data } = useGetB2BAppsWithBillingTabEmbeddingConfigQuery()
     const b2bAppsExtensionTabs: ExtensionTabType[] = useMemo(() => {
@@ -125,16 +137,18 @@ export const CombinedMainContent: React.FC = () => {
     }, [data?.b2bApps])
 
     const extensionAppTabs = useMemo(() => [
-        ...billingIntegrationsExtensionTabs.filter(({ integrationId }) => integrationId !== registryUploadIntegrationId),
+        ...billingIntegrationsExtensionTabs.filter(({ integrationId }) => !accrualsRegistryIntegrationIds.includes(integrationId)),
         ...b2bAppsExtensionTabs,
     ].filter(({ appUrl }) => !!appUrl), [b2bAppsExtensionTabs, billingIntegrationsExtensionTabs])
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
+
     const availableTabs = useMemo(() => [
         canReadPayments && PAYMENTS_TAB_KEY,
         canReadBillingReceipts && ACCRUALS_TAB_KEY,
         ...extensionTabKeys,
     ].filter(Boolean), [canReadBillingReceipts, canReadPayments, extensionTabKeys])
     const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs[0], [availableTabs, tab])
+
     const {
         availableTypesByTab,
         availableTypesForActiveTab,
@@ -146,10 +160,16 @@ export const CombinedMainContent: React.FC = () => {
         acquiringContexts,
     })
 
-    const registryUploadApp = useMemo(() => (
-        billingIntegrationsExtensionTabs.find(({ integrationId }) => integrationId === registryUploadIntegrationId)
-    ), [billingIntegrationsExtensionTabs])
+    const registryUploadContext = useMemo(() => (
+        activeBillingContexts
+            .find(({ integration }) => Boolean(integration?.appUrl && accrualsRegistryIntegrationIds.includes(integration.id)))
+    ), [activeBillingContexts])
 
+    const registryUploadApp = useMemo(() => {
+        if (!registryUploadContext) return null
+
+        return buildBillingAppFromContext(registryUploadContext)
+    }, [registryUploadContext])
     const isExtensionTabActive = extensionTabKeys.includes(activeTab)
 
     useEffect(() => {
