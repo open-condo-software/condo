@@ -997,7 +997,7 @@ jobs:
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f ecom-gateway
+          docker exec condo-container node bin/prepare.js -f condo ecom-gateway
       - name: Check migrations state
         run: |
           docker exec condo-container yarn workspace @app/ecom-gateway makemigrations --check
@@ -1009,8 +1009,9 @@ jobs:
           -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
           -e GH_REF_NAME=$GH_REF_NAME \
           condo-container sh -c "(\
+          yarn workspace @app/condo start & \
           yarn workspace @app/ecom-gateway start & \
-          node bin/wait-apps-apis.js -f ecom-gateway) && \
+          node bin/wait-apps-apis.js -f condo ecom-gateway) && \
           yarn workspace @app/ecom-gateway test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
