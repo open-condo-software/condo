@@ -200,6 +200,15 @@ export type GetOrganizationBillingRecipientsQueryVariables = Types.Exact<{
 
 export type GetOrganizationBillingRecipientsQuery = { __typename?: 'Query', recipients?: Array<{ __typename?: 'BillingRecipient', id: string, bankAccount?: string | null, bic?: string | null, tin?: string | null } | null> | null };
 
+export type GetActiveSppBillingContextQueryVariables = Types.Exact<{
+  organization: Types.OrganizationWhereInput;
+  integration: Types.BillingIntegrationWhereInput;
+  status: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetActiveSppBillingContextQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string } | null> | null };
+
 export type GetProcessingTasksQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   createdAtGte: Types.Scalars['String']['input'];

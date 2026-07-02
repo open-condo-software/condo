@@ -1242,6 +1242,54 @@ export type GetOrganizationBillingRecipientsQueryHookResult = ReturnType<typeof 
 export type GetOrganizationBillingRecipientsLazyQueryHookResult = ReturnType<typeof useGetOrganizationBillingRecipientsLazyQuery>;
 export type GetOrganizationBillingRecipientsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationBillingRecipientsSuspenseQuery>;
 export type GetOrganizationBillingRecipientsQueryResult = Apollo.QueryResult<Types.GetOrganizationBillingRecipientsQuery, Types.GetOrganizationBillingRecipientsQueryVariables>;
+export const GetActiveSppBillingContextDocument = gql`
+    query getActiveSppBillingContext($organization: OrganizationWhereInput!, $integration: BillingIntegrationWhereInput!, $status: String!) {
+  contexts: allBillingIntegrationOrganizationContexts(
+    where: {organization: $organization, integration: $integration, status: $status}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetActiveSppBillingContextQuery__
+ *
+ * To run a query within a React component, call `useGetActiveSppBillingContextQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveSppBillingContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetActiveSppBillingContextQuery({
+ *   variables: {
+ *      organization: // value for 'organization'
+ *      integration: // value for 'integration'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useGetActiveSppBillingContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables> & ({ variables: Types.GetActiveSppBillingContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>(GetActiveSppBillingContextDocument, options);
+      }
+export function useGetActiveSppBillingContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>(GetActiveSppBillingContextDocument, options);
+        }
+// @ts-ignore
+export function useGetActiveSppBillingContextSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>;
+export function useGetActiveSppBillingContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetActiveSppBillingContextQuery | undefined, Types.GetActiveSppBillingContextQueryVariables>;
+export function useGetActiveSppBillingContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>(GetActiveSppBillingContextDocument, options);
+        }
+export type GetActiveSppBillingContextQueryHookResult = ReturnType<typeof useGetActiveSppBillingContextQuery>;
+export type GetActiveSppBillingContextLazyQueryHookResult = ReturnType<typeof useGetActiveSppBillingContextLazyQuery>;
+export type GetActiveSppBillingContextSuspenseQueryHookResult = ReturnType<typeof useGetActiveSppBillingContextSuspenseQuery>;
+export type GetActiveSppBillingContextQueryResult = Apollo.QueryResult<Types.GetActiveSppBillingContextQuery, Types.GetActiveSppBillingContextQueryVariables>;
 export const GetProcessingTasksDocument = gql`
     query getProcessingTasks($userId: ID!, $createdAtGte: String!) {
   allTicketDocumentGenerationTasks(

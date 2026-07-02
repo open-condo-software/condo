@@ -30,6 +30,7 @@ const HelpRequisites = (conf['HELP_REQUISITES'] && JSON.parse(conf['HELP_REQUISI
 const popupSmartConfig = JSON.parse(conf['POPUP_SMART_CONFIG'] || '{}')
 const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}).client_id)
 const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
+const sppFintechUrl = conf['SPP_FINTECH_URL'] || ''
 const registryUploadIntegrationId = conf['REGISTRY_UPLOAD_INTEGRATION_ID'] || null
 const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
 const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
@@ -119,6 +120,7 @@ const nextConfig: NextConfig = {
         popupSmartConfig,
         hasSbbolAuth,
         sppConfig,
+        sppFintechUrl,
         registryUploadIntegrationId,
         globalHints,
         newsItemsSendingDelay,
