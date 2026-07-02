@@ -3,8 +3,8 @@ import { Document, Packer, Paragraph, TextRun } from 'docx'
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
-export type ExportAIMessageFormat = 'txt' | 'pdf' | 'docx'
 const AI_EXPORT_FILE_NAME_PREFIX = 'ai-answer'
+const AI_EXPORT_PDF_PADDING_PX = 24
 const PLAIN_TEXT_MIME = 'text/plain;charset=utf-8'
 const DOCX_LINE_BREAK = '\n'
 const EMPTY_DOCX_LINE_PLACEHOLDER = ' '
@@ -75,6 +75,30 @@ async function exportDocx (text: string, fileNameBase: string): Promise<void> {
     downloadBlob(blob, `${fileNameBase}.docx`)
 }
 
+async function exportPdf (sourceElement: HTMLElement, fileNameBase: string): Promise<void> {
+    const wrapper = document.createElement('div')
+    wrapper.style.boxSizing = 'content-box'
+    wrapper.style.padding = `${AI_EXPORT_PDF_PADDING_PX}px`
+    wrapper.style.background = '#ffffff'
+    wrapper.style.position = 'fixed'
+    wrapper.style.left = '-10000px'
+    wrapper.style.top = '0'
+    wrapper.style.width = `${sourceElement.scrollWidth}px`
+
+    const clone = sourceElement.cloneNode(true) as HTMLElement
+    wrapper.appendChild(clone)
+    document.body.appendChild(wrapper)
+
+    try {
+        await createWrappedPdf({
+            element: wrapper,
+            fileName: `${fileNameBase}.pdf`,
+        })
+    } finally {
+        document.body.removeChild(wrapper)
+    }
+}
+
 export async function exportAIMessage (options: ExportAIMessageOptions): Promise<void> {
     if (typeof window === 'undefined') return
 
@@ -97,8 +121,5 @@ export async function exportAIMessage (options: ExportAIMessageOptions): Promise
     const { pdfSourceElement } = options
     if (!pdfSourceElement) return
 
-    await createWrappedPdf({
-        element: pdfSourceElement,
-        fileName: `${safeFileNameBase}.pdf`,
-    })
+    await exportPdf(pdfSourceElement, safeFileNameBase)
 }

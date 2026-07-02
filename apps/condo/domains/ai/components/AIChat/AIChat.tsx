@@ -491,7 +491,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                                     type='primary'
                                     size='medium'
                                     disabled={!canExecuteAIFlow}
-                                    onClick={() => await handleScenarioButtonClick(btn.buttonId, btn.buttonName)}
+                                    onClick={() => void handleScenarioButtonClick(btn.buttonId, btn.buttonName)}
                                 >
                                     {btn.buttonName}
                                 </Button>
