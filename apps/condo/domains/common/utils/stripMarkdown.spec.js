@@ -85,4 +85,34 @@ describe('stripMarkdown', () => {
     it('handles email addresses', () => {
         expect(stripMarkdown('Contact us at support@example.com')).toBe('Contact us at support@example.com')
     })
+
+    describe('with collapseLineBreaks: false', () => {
+        const preserveLinesOptions = { collapseLineBreaks: false }
+
+        it('preserves paragraph line breaks', () => {
+            const input = 'line one\n\nline two\n'
+            expect(stripMarkdown(input, preserveLinesOptions)).toBe('line one\n\nline two')
+        })
+
+        it('removes block level markdown but keeps line structure', () => {
+            const input = '# Title\n> quote\n- item one\n1. item two'
+            expect(stripMarkdown(input, preserveLinesOptions)).toBe('Title\nquote\n- item one\n1. item two')
+        })
+
+        it('handles complex markdown combinations with preserved breaks', () => {
+            const input = '# Main Title\n\n## Subtitle\n\nThis is **bold** and _italic_ text with [a link](http://example.com) and `inline code`.\n\n- List item 1\n- List item 2 with **bold**\n\n> A blockquote with `code` inside'
+            expect(stripMarkdown(input, preserveLinesOptions)).toBe(
+                'Main Title\n\nSubtitle\n\nThis is bold and _italic_ text with a link and inline code.\n\n- List item 1\n- List item 2 with bold\nA blockquote with code inside',
+            )
+        })
+
+        it('normalizes excessive blank lines', () => {
+            const input = 'text  with   multiple\n\n\nspaces   and\n\nbreaks'
+            expect(stripMarkdown(input, preserveLinesOptions)).toBe('text with multiple\n\nspaces and\n\nbreaks')
+        })
+
+        it('handles edge case with only whitespace', () => {
+            expect(stripMarkdown('   \n\n   \t  \n   ', preserveLinesOptions)).toBe('')
+        })
+    })
 })

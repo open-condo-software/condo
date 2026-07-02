@@ -40,7 +40,7 @@ const UI_AI_REWRITE_NEWS_TEXT = 'ui-ai-news-rewrite-text'
 const UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT = 'ui-ai-rewrite-incident-text-for-resident'
 const UI_AI_CHAT_WITH_CONDO = 'ui-ai-chat-with-condo'
 const UI_NEWS_MARKDOWN = 'ui-news-markdown'
-const AI_CHAT_BUTTON_CONFIG = 'ai-chat-button-config'
+const CHAT_WITH_CONDO_BUTTON_CONFIG = 'chat-with-condo-button-config'
 const CHAT_WITH_CONDO_ATTACHMENTS_CONFIG = 'chat-with-condo-attachments-config'
 const AI_STREAMING = 'ai-streaming'
 const SUBSCRIPTIONS = 'subscriptions'
@@ -111,7 +111,7 @@ module.exports = {
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
     SUBSCRIPTION_PAYMENT_MODAL,
     TWO_FACTOR_SETTING,
-    AI_CHAT_BUTTON_CONFIG,
+    CHAT_WITH_CONDO_BUTTON_CONFIG,
     CHAT_WITH_CONDO_ATTACHMENTS_CONFIG,
     AI_STREAMING,
     NEWS_ITEM_FILES,

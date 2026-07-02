@@ -389,7 +389,7 @@
   "ai.chat.send": "Send",
   "ai.chat.loading": "Thinking...",
   "ai.chat.stop": "Stop",
-  "ai.chat.welcome": "✨ Hello! How can I help you today?",
+  "ai.chat.welcome": "👨‍💻 Hello! **I'm an AI assistant for property management companies and HOAs.** My job is to quickly answer questions based on available platform data and help staff with their daily work.",
   "ai.chat.error": "Sorry, something went wrong. Please try again.",
   "ai.chat.requestTimeout": "Request timed out",
   "ai.chat.failedToGetResponse": "Failed to get response",
