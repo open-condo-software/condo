@@ -21,6 +21,8 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         useTimeZone = true,
         disabled = false,
         actions = [],
+        label,
+        buttonType,
     } = props
 
     const { ExportButton } = useExportToExcel({
@@ -28,6 +30,8 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         sortBy,
         exportToExcelQuery,
         useTimeZone,
+        label,
+        buttonType,
     })
 
     return !hidden &&  (
