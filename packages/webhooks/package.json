@@ -25,7 +25,7 @@
     "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",
     "@open-condo/keystone": "workspace:^",
-    "ajv": "8.11.0",
+    "ajv": "8.18.0",
     "dayjs": "^1.11.10",
     "graphql": "^16.10.0",
     "graphql-2-json-schema": "^0.9.1",
