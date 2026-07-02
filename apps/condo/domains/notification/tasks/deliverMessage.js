@@ -2,6 +2,7 @@ const { format } = require('util')
 
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
@@ -186,8 +187,7 @@ async function deliverMessage (message) {
             // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
             const messageContext = await adapter.prepareMessageToSend(message)
 
-            processingMeta.messageContext = messageContext
-            transportMeta.messageContext = messageContext
+            transportMeta.messageContext = omit(messageContext, 'omitFromProcessingMeta')
             processingMeta.transports.push(transport)
 
             const isAllowedByUser = get(userTransportSettings, transport)

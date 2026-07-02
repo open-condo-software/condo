@@ -94,7 +94,7 @@ async function prepareMessageToSend (message) {
     const originalNotification = await renderTemplate(PUSH_TRANSPORT, message)
 
     return {
-        message,
+        omitFromProcessingMeta: { message },
         /** "original notification", using only in processing meta, will be changed for each RemoteClient */
         notification: originalNotification,
         /** "original data", may change for each RemoteClient */
@@ -319,7 +319,7 @@ async function prepareRecipients ({ pushTokens, originalData, originalNotificati
  * @param isVoIP
  * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
  */
-async function send ({ notification, message, data, user, remoteClient } = {}, isVoIP = false) {
+async function send ({ notification, omitFromProcessingMeta: { message }, data, user, remoteClient } = {}, isVoIP = false) {
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
 
