@@ -25,6 +25,7 @@ const {
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
     MESSAGE_THROTTLED_STATUS,
+    NOT_LOGGABLE_MESSAGE_CONTEXT_KEY,
 } = require('@condo/domains/notification/constants/constants')
 const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
 const emailAdapter = require('@condo/domains/notification/transports/email')
@@ -187,7 +188,7 @@ async function deliverMessage (message) {
             // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
             const messageContext = await adapter.prepareMessageToSend(message)
 
-            transportMeta.messageContext = omit(messageContext, 'omitFromProcessingMeta')
+            transportMeta.messageContext = omit(messageContext, NOT_LOGGABLE_MESSAGE_CONTEXT_KEY)
             processingMeta.transports.push(transport)
 
             const isAllowedByUser = get(userTransportSettings, transport)

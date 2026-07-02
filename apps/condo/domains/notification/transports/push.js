@@ -25,6 +25,7 @@ const {
     TICKET_COMMENT_CREATED_TYPE,
     PASS_TICKET_CREATED_MESSAGE_TYPE,
     PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
+    NOT_LOGGABLE_MESSAGE_CONTEXT_KEY,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
@@ -94,7 +95,7 @@ async function prepareMessageToSend (message) {
     const originalNotification = await renderTemplate(PUSH_TRANSPORT, message)
 
     return {
-        omitFromProcessingMeta: { message },
+        [NOT_LOGGABLE_MESSAGE_CONTEXT_KEY]: { message },
         /** "original notification", using only in processing meta, will be changed for each RemoteClient */
         notification: originalNotification,
         /** "original data", may change for each RemoteClient */
