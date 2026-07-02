@@ -69,7 +69,7 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "packageManager": "yarn@3.2.2",
+  "packageManager": "yarn@4.17.0",
   "resolutions": {
     "minimatch@^5.0.1": "5.1.9",
     "minimatch@^5.1.0": "5.1.9",
@@ -89,7 +89,7 @@
     "es5-ext": "0.10.53",
     "debuglog": "1.0.1",
     "debug": "4.3.4",
-    "@babel/traverse": "^7.23.2",
+    "@babel/traverse": "^7.29.7",
     "protobufjs@>=6.0.0": "^6.11.4",
     "google-gax@npm:2.30.5/protobufjs": "^6.11.4",
     "shell-quote@>=1.1.0": "^1.8.4",

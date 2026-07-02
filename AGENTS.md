@@ -39,7 +39,7 @@ Internal libraries shared across apps:
 
 ### Required Software
 - **Node.js:** 24.x (LTS) - Use nvm for local development
-- **Yarn:** 3.2.2+ (Berry)
+- **Yarn:** 4.17.0 (Berry) — pinned via `packageManager` in `package.json` and `yarnPath` in `.yarnrc.yml`
 - **Python:** 3.x (for database migrations)
 - **PostgreSQL:** 16.8 (as defined in docker-compose.yml)
 - **Redis:** 6.2 (as defined in docker-compose.yml)
