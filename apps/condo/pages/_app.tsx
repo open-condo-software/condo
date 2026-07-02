@@ -324,17 +324,7 @@ const MenuItems: React.FC = () => {
                     path: 'billing',
                     icon: AllIcons['Ruble'],
                     label: 'global.section.accrualsAndPayments',
-                    // NOTE: For SPP users billing is available after first receipts-load finished
-                    access: isSPPOrg
-                        ? hasAccessToBilling && anyReceiptsLoaded
-                        : hasAccessToBilling,
-                },
-                {
-                    id: 'menu-item-service-provider-profile',
-                    path: 'service-provider-profile',
-                    icon: AllIcons['Sber'],
-                    label: 'global.section.SPP',
-                    access: hasAccessToBilling && sppBillingId && isSPPOrg,
+                    access: hasAccessToBilling,
                 },
             ].filter(checkItemAccess),
         },
