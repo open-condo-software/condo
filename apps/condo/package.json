@@ -74,7 +74,7 @@
     "csv-stringify": "^6.2.0",
     "dayjs": "^1.11.10",
     "docx": "^9.6.1",
-    "echarts": "^5.1.2",
+    "echarts": "^6.1.0",
     "echarts-for-react": "3.0.2",
     "encoding": "^0.1.0",
     "esdk-obs-nodejs": "3.21.6",
