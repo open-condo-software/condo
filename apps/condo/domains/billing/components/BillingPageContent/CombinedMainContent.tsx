@@ -26,8 +26,8 @@ import type { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 
 const { publicRuntimeConfig: { registryUploadIntegrationId, sppConfig } } = getConfig()
 // TODO(@abshnko): DOMA-13420 remove one integration when we merge them into one
-const specialBillingIntegrationIds = [registryUploadIntegrationId, sppConfig?.BillingIntegrationId]
-    .filter((integrationId) => Boolean(integrationId))
+const accrualsRegistryIntegrationIds = [registryUploadIntegrationId, sppConfig?.BillingIntegrationId]
+    .filter(Boolean)
 
 type ExtensionTabType = {
     id: string
@@ -137,7 +137,7 @@ export const CombinedMainContent: React.FC = () => {
     }, [data?.b2bApps])
 
     const extensionAppTabs = useMemo(() => [
-        ...billingIntegrationsExtensionTabs.filter(({ integrationId }) => !specialBillingIntegrationIds.includes(integrationId)),
+        ...billingIntegrationsExtensionTabs.filter(({ integrationId }) => !accrualsRegistryIntegrationIds.includes(integrationId)),
         ...b2bAppsExtensionTabs,
     ].filter(({ appUrl }) => !!appUrl), [b2bAppsExtensionTabs, billingIntegrationsExtensionTabs])
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
@@ -162,7 +162,7 @@ export const CombinedMainContent: React.FC = () => {
 
     const registryUploadContext = useMemo(() => (
         activeBillingContexts
-            .find(({ integration }) => Boolean(integration?.appUrl && specialBillingIntegrationIds.includes(integration.id)))
+            .find(({ integration }) => Boolean(integration?.appUrl && accrualsRegistryIntegrationIds.includes(integration.id)))
     ), [activeBillingContexts])
 
     const registryUploadApp = useMemo(() => {
