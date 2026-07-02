@@ -1,0 +1,8 @@
+{
+  "pages.index.title": "Your Fullstack Miniapp",
+  "pages.index.subtitle": "Start building your business logic in domains and pages.",
+  "pages.condo.error.NotFoundTitle": "Page not found",
+  "pages.condo.error.NotFoundDescription": "The page you requested does not exist.",
+  "pages.error.500.title": "Something went wrong",
+  "pages.error.500.description": "Please try again later."
+}

@@ -1,0 +1,13 @@
+{
+  "pages.index.title": "Ваш клиентский миниапп",
+  "pages.index.subtitle": "Добавьте клиентскую бизнес-логику в domains и pages.",
+  "pages.index.user": "ID авторизованного пользователя",
+  "pages.index.logoutOidc": "Выйти (OIDC)",
+  "pages.auth.signin.title": "Вход",
+  "pages.auth.signin.header": "Войдите, чтобы продолжить",
+  "pages.auth.signin.authorizeOidc": "Авторизоваться через OIDC",
+  "pages.condo.error.NotFoundTitle": "Страница не найдена",
+  "pages.condo.error.NotFoundDescription": "Запрошенная страница не существует.",
+  "pages.error.500.title": "Что-то пошло не так",
+  "pages.error.500.description": "Попробуйте снова позже."
+}

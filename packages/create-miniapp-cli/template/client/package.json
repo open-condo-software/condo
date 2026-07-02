@@ -1,0 +1,46 @@
+{
+  "name": "template",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "node ./bin/prepare.js",
+    "dev": "yarn build:deps && (yarn dev:start & yarn types:watch & wait)",
+    "dev:start": "cross-env NODE_ENV=development next dev",
+    "build:deps": "turbo build --filter=@app/~/^... --filter=!@app/condo",
+    "build": "next build",
+    "start": "next start",
+    "test": "next build",
+    "maketypes": "graphql-codegen -c codegen.ts",
+    "types:watch": "graphql-codegen -c codegen.ts --watch --verbose"
+  },
+  "dependencies": {
+    "@apollo/client": "0.0.0",
+    "@open-condo/config": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
+    "@open-condo/next": "workspace:^",
+    "@open-condo/ui": "workspace:^",
+    "antd": "0.0.0",
+    "cross-env": "0.0.0",
+    "dayjs": "0.0.0",
+    "graphql": "0.0.0",
+    "http-proxy": "0.0.0",
+    "iron-session": "0.0.0",
+    "next": "0.0.0",
+    "openid-client": "0.0.0",
+    "react": "0.0.0",
+    "react-dom": "0.0.0",
+    "uuid": "0.0.0",
+    "~/domains": "link:./domains"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "0.0.0",
+    "@graphql-codegen/import-types-preset": "0.0.0",
+    "@graphql-codegen/typescript-operations": "0.0.0",
+    "@graphql-codegen/typescript-react-apollo": "0.0.0",
+    "@open-condo/cli": "workspace:^",
+    "@types/http-proxy": "0.0.0",
+    "@types/node": "0.0.0",
+    "@types/react": "0.0.0",
+    "typescript": "0.0.0"
+  }
+}
