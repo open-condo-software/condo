@@ -724,10 +724,10 @@ async function registerAppUserServiceByTestClient(client, app, confirmEmailActio
     return [data.result, attrs]
 }
 
-async function changeOIDCClientByTestClient(client, app, clientId, extraAttrs = {}) {
+async function changeOIDCClientByTestClient(client, app, oidcClientId, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
-    if (!clientId) throw new Error('no clientId')
+    if (!oidcClientId) throw new Error('no oidcClientId')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -735,7 +735,7 @@ async function changeOIDCClientByTestClient(client, app, clientId, extraAttrs = 
         sender,
         app: { id: app.id },
         environment: DEV_ENVIRONMENT,
-        clientId,
+        oidcClientId,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CHANGE_OIDC_CLIENT_MUTATION, { data: attrs })

@@ -137,29 +137,29 @@ describe('GenerateOIDCClientSecretService', () => {
     })
 
     describe('OIDC_CLIENT_CHANGED guard', () => {
-        test('Succeeds when clientId matches the resolved client', async () => {
+        test('Succeeds when oidcClientId matches the resolved client', async () => {
             const user = await makeRegisteredAndLoggedInUser()
             const [app] = await createTestB2CApp(user)
             const [client] = await createOIDCClientByTestClient(user, app)
 
-            const [result] = await generateOIDCClientSecretByTestClient(user, app, { clientId: client.id })
+            const [result] = await generateOIDCClientSecretByTestClient(user, app, { oidcClientId: client.id })
             expect(result).toHaveProperty('id', client.id)
         })
 
-        test('Throws OIDC_CLIENT_CHANGED when clientId does not match resolved client', async () => {
+        test('Throws OIDC_CLIENT_CHANGED when oidcClientId does not match resolved client', async () => {
             const user = await makeRegisteredAndLoggedInUser()
             const [app] = await createTestB2CApp(user)
             await createOIDCClientByTestClient(user, app)
 
             await expectToThrowGQLError(async () => {
-                await generateOIDCClientSecretByTestClient(user, app, { clientId: faker.datatype.uuid() })
+                await generateOIDCClientSecretByTestClient(user, app, { oidcClientId: faker.datatype.uuid() })
             }, {
                 code: BAD_USER_INPUT,
                 type: OIDC_CLIENT_CHANGED,
             }, 'result')
         })
 
-        test('Succeeds without clientId (field is optional)', async () => {
+        test('Succeeds without oidcClientId (field is optional)', async () => {
             const user = await makeRegisteredAndLoggedInUser()
             const [app] = await createTestB2CApp(user)
             const [client] = await createOIDCClientByTestClient(user, app)

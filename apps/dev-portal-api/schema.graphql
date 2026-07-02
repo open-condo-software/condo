@@ -2013,11 +2013,11 @@ type B2BApp {
   """
   productionAppUrl: String
 
-  """ ID of the OIDC client used by this miniapp for condo users authentication for development environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenarios, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """ ID of the OIDC client used by this miniapp for condo users authentication for development environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
   """
   developmentOidcClientId: ID
 
-  """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenarios, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
   """
   productionOidcClientId: ID
   id: ID!
@@ -3405,11 +3405,11 @@ type B2CApp {
   """
   productionWebTransformEnabled: Boolean
 
-  """ ID of the OIDC client used by this miniapp for condo users authentication for development environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenarios, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """ ID of the OIDC client used by this miniapp for condo users authentication for development environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
   """
   developmentOidcClientId: ID
 
-  """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenarios, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
+  """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
   """
   productionOidcClientId: ID
 
@@ -7396,7 +7396,7 @@ input ChangeOIDCClientInput {
   sender: SenderFieldInput!
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
-  clientId: String!
+  oidcClientId: String!
 }
 
 input CreateOIDCClientInput {
@@ -7419,7 +7419,7 @@ input GenerateOIDCClientSecretInput {
   sender: SenderFieldInput!
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
-  clientId: String
+  oidcClientId: String
 }
 
 input UpdateOIDCClientUrlInput {
@@ -7428,7 +7428,7 @@ input UpdateOIDCClientUrlInput {
   app: AppWhereUniqueInput!
   environment: AppEnvironment!
   redirectUri: String!
-  clientId: String
+  oidcClientId: String
 }
 
 enum AppType {

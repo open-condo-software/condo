@@ -33,7 +33,7 @@ const GenerateOIDCClientSecretService = new GQLCustomSchema('GenerateOIDCClientS
     types: [
         {
             access: true,
-            type: 'input GenerateOIDCClientSecretInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, clientId: String }',
+            type: 'input GenerateOIDCClientSecretInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, oidcClientId: String }',
         },
     ],
     mutations: [
@@ -41,7 +41,7 @@ const GenerateOIDCClientSecretService = new GQLCustomSchema('GenerateOIDCClientS
             access: access.canGenerateOIDCClientSecret,
             schema: 'generateOIDCClientSecret(data: GenerateOIDCClientSecretInput!): OIDCClientWithSecret',
             resolver: async (parent, args, context) => {
-                const { data: { app, environment, dv, sender, clientId } } = args
+                const { data: { app, environment, dv, sender, oidcClientId } } = args
 
                 const serverClient = environment === PROD_ENVIRONMENT
                     ? productionClient
@@ -53,7 +53,7 @@ const GenerateOIDCClientSecretService = new GQLCustomSchema('GenerateOIDCClientS
                     throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
                 }
 
-                if (clientId && oidcClient.id !== clientId) {
+                if (oidcClientId && oidcClient.id !== oidcClientId) {
                     throw new GQLError(ERRORS.OIDC_CLIENT_CHANGED, context)
                 }
 
@@ -62,6 +62,10 @@ const GenerateOIDCClientSecretService = new GQLCustomSchema('GenerateOIDCClientS
                     where: { id: oidcClient.id },
                     first: 1,
                 })
+
+                if (!condoOIDCClient) {
+                    throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
+                }
 
                 const updatedClient = await serverClient.updateModel({
                     modelGql: CondoOIDCClientGql,

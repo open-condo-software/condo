@@ -43,7 +43,7 @@ const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlServi
     types: [
         {
             access: true,
-            type: 'input UpdateOIDCClientUrlInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, redirectUri: String!, clientId: String }',
+            type: 'input UpdateOIDCClientUrlInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, redirectUri: String!, oidcClientId: String }',
         },
     ],
     
@@ -52,7 +52,7 @@ const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlServi
             access: access.canUpdateOIDCClientUrl,
             schema: 'updateOIDCClientUrl(data: UpdateOIDCClientUrlInput!): OIDCClient',
             resolver: async (parent, args, context) => {
-                const { data: { app, environment, dv, sender, redirectUri, clientId } } = args
+                const { data: { app, environment, dv, sender, redirectUri, oidcClientId } } = args
 
                 let url
                 try {
@@ -80,7 +80,7 @@ const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlServi
                     throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
                 }
 
-                if (clientId && oidcClient.id !== clientId) {
+                if (oidcClientId && oidcClient.id !== oidcClientId) {
                     throw new GQLError(ERRORS.OIDC_CLIENT_CHANGED, context)
                 }
 
@@ -89,6 +89,10 @@ const UpdateOIDCClientUrlService = new GQLCustomSchema('UpdateOIDCClientUrlServi
                     where: { id: oidcClient.id },
                     first: 1,
                 })
+
+                if (!condoOIDCClient) {
+                    throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
+                }
 
                 const updatedClient = await serverClient.updateModel({
                     modelGql: CondoOIDCClientGql,

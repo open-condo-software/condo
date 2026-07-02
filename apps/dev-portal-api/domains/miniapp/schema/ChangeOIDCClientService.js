@@ -33,7 +33,7 @@ const ChangeOIDCClientService = new GQLCustomSchema('ChangeOIDCClientService', {
     types: [
         {
             access: true,
-            type: 'input ChangeOIDCClientInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, clientId: String! }',
+            type: 'input ChangeOIDCClientInput { dv: Int!, sender: SenderFieldInput!, app: AppWhereUniqueInput!, environment: AppEnvironment!, oidcClientId: String! }',
         },
     ],
 
@@ -42,7 +42,7 @@ const ChangeOIDCClientService = new GQLCustomSchema('ChangeOIDCClientService', {
             access: access.canChangeOIDCClient,
             schema: 'changeOIDCClient(data: ChangeOIDCClientInput!): OIDCClient',
             resolver: async (parent, args, context) => {
-                const { data: { app, environment, dv, sender, clientId } } = args
+                const { data: { app, environment, dv, sender, oidcClientId } } = args
 
                 const serverClient = environment === PROD_ENVIRONMENT
                     ? productionClient
@@ -58,13 +58,13 @@ const ChangeOIDCClientService = new GQLCustomSchema('ChangeOIDCClientService', {
                 if (user.isAdmin || user.isSupport) {
                     const [found] = await serverClient.getModels({
                         modelGql: CondoOIDCClientGql,
-                        where: { id: clientId, deletedAt: null },
+                        where: { id: oidcClientId, deletedAt: null },
                         first: 1,
                     })
                     matched = found ? formatOIDCClient(found) : null
                 } else {
                     const allClients = await getAllOIDCClients(context, { environment })
-                    matched = allClients && allClients.find(c => c.id === clientId)
+                    matched = allClients && allClients.find(c => c.id === oidcClientId)
                 }
                 if (!matched) {
                     throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
@@ -87,7 +87,7 @@ const ChangeOIDCClientService = new GQLCustomSchema('ChangeOIDCClientService', {
                 await Model.update(context, localApp.id, {
                     dv,
                     sender,
-                    [oidcClientIdField]: clientId,
+                    [oidcClientIdField]: oidcClientId,
                 })
 
                 // If app is published, also update the condoApp link
@@ -105,7 +105,7 @@ const ChangeOIDCClientService = new GQLCustomSchema('ChangeOIDCClientService', {
                             updateInput: {
                                 dv,
                                 sender,
-                                oidcClient: { connect: { id: clientId } },
+                                oidcClient: { connect: { id: oidcClientId } },
                             },
                         })
                     }
