@@ -323,6 +323,17 @@ describe('GetOIDCClientService', () => {
                     const clientIds = new Set(result.map(c => c.id))
                     expect(result).toHaveLength(clientIds.size)
                 })
+                test('Must return clients from user owned apps, which is not currently used by user owned app', async () => {
+                    const user = await makeRegisteredAndLoggedInUser()
+                    const [app] = await createTestB2CApp(user)
+                    const [secondApp] = await createTestB2CApp(user)
+                    const [client] = await createOIDCClientByTestClient(user, app)
+                    const [secondClient] = await createOIDCClientByTestClient(user, secondApp)
+                    await changeOIDCClientByTestClient(user, app, secondClient.id)
+                    const [result] = await getAllOIDCClientsByTestClient(user)
+                    expect(result).toHaveLength(2)
+                    expect(result.map(c => c.id)).toEqual(expect.arrayContaining([client.id, secondClient.id]))
+                })
             })
 
             describe('Step 3 — legacy importId (via CreateOIDCClientService)', () => {
@@ -380,7 +391,7 @@ describe('GetOIDCClientService', () => {
                     expect(result.map(c => c.id)).toContain(oidcClient.id)
                 })
 
-                test('Prefers oidcClientId client over importId client when both exist', async () => {
+                test('Returns oidcClientId and importId client when both exist', async () => {
                     const user = await makeRegisteredAndLoggedInUser()
                     const [app] = await createTestB2CApp(user)
                     const [importIdClient] = await createOIDCClientByTestClient(user, app)
@@ -397,9 +408,11 @@ describe('GetOIDCClientService', () => {
                     await updateTestB2CApp(admin, app.id, { developmentOidcClientId: oidcClientIdClient.id })
 
                     const [result] = await getAllOIDCClientsByTestClient(user)
+                    // ImportId client is also returned, since it was created via dev-portal, but not used right now
+                    expect(result).toHaveLength(2)
                     const ids = result.map(c => c.id)
                     expect(ids).toContain(oidcClientIdClient.id)
-                    expect(ids).not.toContain(importIdClient.id)
+                    expect(ids).toContain(importIdClient.id)
                 })
 
                 test('Falls back to importId client when oidcClientId client is deleted', async () => {
@@ -458,7 +471,7 @@ describe('GetOIDCClientService', () => {
                     expect(result.map(c => c.id)).toContain(linkedClient.id)
                 })
 
-                test('Prefers condoApp.oidcClient over oidcClientId and importId clients', async () => {
+                test('Prefers condoApp.oidcClient over oidcClientId', async () => {
                     const user = await makeRegisteredAndLoggedInUser()
                     const [app] = await createTestB2CApp(user)
                     const [importIdClient] = await createOIDCClientByTestClient(user, app)
@@ -494,10 +507,11 @@ describe('GetOIDCClientService', () => {
                     })
 
                     const [result] = await getAllOIDCClientsByTestClient(user)
+                    expect(result).toHaveLength(2)
                     const ids = result.map(c => c.id)
                     expect(ids).toContain(condoLinkedClient.id)
                     expect(ids).not.toContain(oidcClientIdClient.id)
-                    expect(ids).not.toContain(importIdClient.id)
+                    expect(ids).toContain(importIdClient.id)
                 })
 
                 test('Falls back to step 2/3 when condoApp.oidcClient is deleted', async () => {
