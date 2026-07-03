@@ -317,17 +317,25 @@ const PaymentsTable: React.FC = (props) => {
     const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
 
     return (
-        <Space size={0} direction='vertical' width='100%'>
+        <>
             {areAlertLoading && (
                 <div className={styles.loaderContainer}>
                     <Loader size='large' fill/>
                 </div>
             )}
-            {PosIntegrationAlert}
-            <MultipleFilterContextProvider>
-                <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
-            </MultipleFilterContextProvider>
-        </Space>
+            <Row gutter={ROW_GUTTER}>
+                {PosIntegrationAlert && (
+                    <Col span={24}>
+                        {PosIntegrationAlert}
+                    </Col>
+                )}
+                <Col span={24}>
+                    <MultipleFilterContextProvider>
+                        <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
+                    </MultipleFilterContextProvider>
+                </Col>
+            </Row>
+        </>
     )
 }
 
