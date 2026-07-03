@@ -55,7 +55,7 @@ import { SurveysQueue } from '@condo/domains/common/components/surveys/SurveyQue
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE, UI_HIDE_PAID_FEATURES, UI_LEGAL_INFO } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, UI_BILLING_SPP_COMBINED_PAGE, UI_HIDE_PAID_FEATURES, UI_LEGAL_INFO } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -171,6 +171,7 @@ const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
+    const shouldShowCombinedBilling = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
@@ -324,7 +325,16 @@ const MenuItems: React.FC = () => {
                     path: 'billing',
                     icon: AllIcons['Ruble'],
                     label: 'global.section.accrualsAndPayments',
-                    access: hasAccessToBilling,
+                    access: shouldShowCombinedBilling ? hasAccessToBilling : isSPPOrg
+                        ? hasAccessToBilling && anyReceiptsLoaded
+                        : hasAccessToBilling,
+                },
+                !shouldShowCombinedBilling && {
+                    id: 'menu-item-service-provider-profile',
+                    path: 'service-provider-profile',
+                    icon: AllIcons['Sber'],
+                    label: 'global.section.SPP',
+                    access: hasAccessToBilling && sppBillingId && isSPPOrg,
                 },
             ].filter(checkItemAccess),
         },
