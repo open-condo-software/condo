@@ -329,13 +329,13 @@ const MenuItems: React.FC = () => {
                         ? hasAccessToBilling && anyReceiptsLoaded
                         : hasAccessToBilling,
                 },
-                !shouldShowCombinedBilling && {
+                ...(!shouldShowCombinedBilling ? [{
                     id: 'menu-item-service-provider-profile',
                     path: 'service-provider-profile',
                     icon: AllIcons['Sber'],
                     label: 'global.section.SPP',
                     access: hasAccessToBilling && sppBillingId && isSPPOrg,
-                },
+                }] : []),
             ].filter(checkItemAccess),
         },
         {
