@@ -23,13 +23,46 @@ interface FooterConfig {
     }
 }
 
-const { publicRuntimeConfig: { footerConfig, sppConfig, sppFintechUrl } } = getConfig() as {
+interface SbbolAuthConfig {
+    host?: string
+    port?: string
+}
+
+const parseUrl = (url?: string): URL | null => {
+    if (!url) return null
+
+    try {
+        return new URL(url)
+    } catch {
+        return null
+    }
+}
+
+const getValidatedSppFintechUrl = (
+    rawSppFintechUrl?: string,
+    sbbolAuthConfig?: SbbolAuthConfig,
+): string => {
+    if (!rawSppFintechUrl) return ''
+
+    const baseSppFintechUrl = `${sbbolAuthConfig?.host || ''}:${sbbolAuthConfig?.port || ''}`
+    if (!parseUrl(baseSppFintechUrl)) return ''
+
+    try {
+        const resolvedSppFintechUrl = new URL(rawSppFintechUrl, baseSppFintechUrl).toString()
+        return parseUrl(resolvedSppFintechUrl)?.toString() || ''
+    } catch {
+        return ''
+    }
+}
+
+const { publicRuntimeConfig: { footerConfig, sppConfig, sppFintechUrl, sbbolAuthConfig } } = getConfig() as {
     publicRuntimeConfig: {
         footerConfig: FooterConfig
         sppConfig?: {
             BillingIntegrationId?: string
         }
         sppFintechUrl?: string
+        sbbolAuthConfig?: SbbolAuthConfig
     }
 }
 
@@ -47,6 +80,7 @@ export const Footer: React.FC = () => {
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const currentPath = router.asPath.split('?')[0]
     const isBillingPage = currentPath === '/billing' || currentPath.startsWith('/billing/')
+    const resolvedSppFintechUrl = getValidatedSppFintechUrl(sppFintechUrl, sbbolAuthConfig)
 
     const localizedFooterConfig = footerConfig?.[intl?.locale] || null
     const { data } = useGetActiveSppBillingContextQuery({
@@ -58,7 +92,7 @@ export const Footer: React.FC = () => {
         skip: !isBillingPage || !orgId || !sppBillingId,
     })
     const hasActiveSppBillingContext = Boolean(data?.contexts?.length)
-    const shouldShowSppFintechLink = Boolean(isBillingPage && hasActiveSppBillingContext && sppFintechUrl)
+    const shouldShowSppFintechLink = Boolean(isBillingPage && hasActiveSppBillingContext && resolvedSppFintechUrl)
     const shouldShowPrivacyPolicyLink = Boolean(isLegalInfoEnabled && localizedFooterConfig?.privacyPolicyLink)
     const shouldShowFooterLinks = shouldShowSppFintechLink || shouldShowPrivacyPolicyLink
 
@@ -72,7 +106,7 @@ export const Footer: React.FC = () => {
                         <Col>
                             <SecondaryLink
                                 size='small'
-                                href={sppFintechUrl}
+                                href={resolvedSppFintechUrl}
                                 target='_blank'
                             >
                                 <Space size={8}>
