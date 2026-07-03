@@ -204,7 +204,16 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
                     }
                 }
 
-                return Object.values(oidcClientsByAppId).filter(Boolean).map(formatOIDCClient)
+                const uniqueClients = []
+                const uniqueClientIds = new Set()
+
+                for (const client of Object.values(oidcClientsByAppId)) {
+                    if (!client || !client.id || uniqueClientIds.has(client.id)) continue
+                    uniqueClientIds.add(client.id)
+                    uniqueClients.push(client)
+                }
+
+                return uniqueClients.map(formatOIDCClient)
             },
         },
     ],

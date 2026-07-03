@@ -20,6 +20,7 @@ const {
     createTestB2BApp,
     createOIDCClientByTestClient,
     publishB2CAppByTestClient,
+    changeOIDCClientByTestClient,
     B2CApp,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const {
@@ -314,6 +315,13 @@ describe('GetOIDCClientService', () => {
                         redirectUri: ownedClient.redirectUri,
                         isEnabled: expect.any(Boolean),
                     })
+                })
+                test('Each client must be unique', async () => {
+                    const [thirdApp] = await createTestB2CApp(user)
+                    await changeOIDCClientByTestClient(user, thirdApp, ownedClient.id)
+                    const [result] = await getAllOIDCClientsByTestClient(user)
+                    const clientIds = new Set(result.map(c => c.id))
+                    expect(result).toHaveLength(clientIds.size)
                 })
             })
 
