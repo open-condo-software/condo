@@ -12585,6 +12585,82 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/app-admin-ui@npm:^9.0.8":
+  version: 9.0.8
+  resolution: "@open-keystone/app-admin-ui@npm:9.0.8"
+  dependencies:
+    "@apollo/client": "npm:^3.11.8"
+    "@babel/core": "npm:^7.14.6"
+    "@babel/runtime": "npm:^7.14.6"
+    "@emotion/core": "npm:^10.1.1"
+    "@open-arch-ui/alert": "npm:^1.0.2"
+    "@open-arch-ui/badge": "npm:^1.0.1"
+    "@open-arch-ui/button": "npm:^1.0.1"
+    "@open-arch-ui/card": "npm:^1.0.1"
+    "@open-arch-ui/color-utils": "npm:^1.0.1"
+    "@open-arch-ui/common": "npm:^1.0.1"
+    "@open-arch-ui/confirm": "npm:^1.0.1"
+    "@open-arch-ui/controls": "npm:^1.0.1"
+    "@open-arch-ui/dialog": "npm:^1.0.1"
+    "@open-arch-ui/drawer": "npm:^1.0.1"
+    "@open-arch-ui/dropdown": "npm:^1.0.1"
+    "@open-arch-ui/fields": "npm:^4.0.1"
+    "@open-arch-ui/hooks": "npm:^1.0.1"
+    "@open-arch-ui/input": "npm:^1.0.1"
+    "@open-arch-ui/layout": "npm:^1.0.1"
+    "@open-arch-ui/loading": "npm:^1.0.1"
+    "@open-arch-ui/lozenge": "npm:^1.0.1"
+    "@open-arch-ui/navbar": "npm:^1.0.1"
+    "@open-arch-ui/options": "npm:^1.0.1"
+    "@open-arch-ui/pagination": "npm:^1.0.1"
+    "@open-arch-ui/pill": "npm:^1.0.1"
+    "@open-arch-ui/popout": "npm:^1.0.1"
+    "@open-arch-ui/select": "npm:^1.0.1"
+    "@open-arch-ui/theme": "npm:^1.0.1"
+    "@open-arch-ui/tooltip": "npm:^1.0.1"
+    "@open-arch-ui/typography": "npm:^1.0.1"
+    "@open-keystone/field-views-loader": "npm:^7.0.2"
+    "@open-keystone/session": "npm:^8.5.0"
+    "@open-keystone/utils": "npm:^6.1.6"
+    "@primer/octicons-react": "npm:^11.3.0"
+    "@types/react": "npm:^18.3.1"
+    apollo-upload-client: "npm:^17.0.0"
+    apply-ref: "npm:^1.0.0"
+    babel-loader: "npm:^10.0.0"
+    babel-plugin-emotion: "npm:^10.2.2"
+    babel-preset-react-app: "npm:^10.0.0"
+    clipboard-copy: "npm:^4.0.1"
+    compression: "npm:^1.7.4"
+    cross-fetch: "npm:^3.1.4"
+    css-loader: "npm:^7.1.2"
+    express: "npm:^4.17.1"
+    express-history-api-fallback: "npm:^2.2.1"
+    file-loader: "npm:^6.2.0"
+    graphql: "npm:^16.10.0"
+    html-webpack-plugin: "npm:^5.6.3"
+    lodash: "npm:^4.17.21"
+    memoize-one: "npm:^5.2.1"
+    prop-types: "npm:^15.7.2"
+    raf-schd: "npm:^4.0.3"
+    react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
+    react-prop-toggle: "npm:^1.0.2"
+    react-pseudo-state: "npm:^2.2.2"
+    react-router-dom: "npm:5.2.0"
+    react-select: "npm:^3.2.0"
+    react-toast-notifications: "npm:^2.4.4"
+    react-transition-group: "npm:^4.4.2"
+    react-uid: "npm:^2.3.1"
+    resize-observer-polyfill: "npm:^1.5.1"
+    style-loader: "npm:^4.0.0"
+    use-resize-observer: "npm:^6.1.0"
+    webpack: "npm:^5.99.9"
+    webpack-dev-middleware: "npm:^7.4.2"
+    webpack-hot-middleware: "npm:^2.26.1"
+  checksum: 10/465075179bb3c7ef996eab674322ffd86fe2260db42c529b20dc20e429f733179d49bb888412a075cca39d228f4aa6c4895b49df82eeaffac5d98772d4debb5f
+  languageName: node
+  linkType: hard
+
 "@open-keystone/app-admin-ui@npm:^9.0.9":
   version: 9.0.9
   resolution: "@open-keystone/app-admin-ui@npm:9.0.9"
@@ -12661,6 +12737,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/app-graphql-playground@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "@open-keystone/app-graphql-playground@npm:6.0.6"
+  dependencies:
+    "@apollographql/graphql-playground-html": "npm:^1.6.29"
+    "@apollographql/graphql-playground-react": "npm:^1.7.41"
+    "@open-keystone/session": "npm:^8.5.0"
+    "@open-keystone/utils": "npm:^6.1.6"
+    body-parser: "npm:^1.19.0"
+    chalk: "npm:^4.1.1"
+    graphql-tag: "npm:^2.11.0"
+    object-hash: "npm:^2.2.0"
+    terminal-link: "npm:^2.1.1"
+  peerDependencies:
+    express: ^4.17.1
+  checksum: 10/550e6db25173b0dc64cbdef52feec16d26de3e94c83a709587e55ed2ad32a0ce946a45c51093b18d04f97350d8aa79355dc80b5057ecc4158cce184fe57c55e8
+  languageName: node
+  linkType: hard
+
 "@open-keystone/app-graphql-playground@npm:^6.0.7":
   version: 6.0.7
   resolution: "@open-keystone/app-graphql-playground@npm:6.0.7"
@@ -12677,6 +12772,22 @@ __metadata:
   peerDependencies:
     express: ^4.17.1
   checksum: 10/73e94fc480f6a9d18a832b09546e689c8cc1f0408b113d5ac95befedc8f8cb5ae60838b3662d0c9ac204df12b923373abda8618fb22d7d322645c19142056715
+  languageName: node
+  linkType: hard
+
+"@open-keystone/app-graphql@npm:^7.0.6":
+  version: 7.0.6
+  resolution: "@open-keystone/app-graphql@npm:7.0.6"
+  dependencies:
+    "@open-keystone/app-graphql-playground": "npm:^6.0.6"
+    "@open-keystone/session": "npm:^8.5.0"
+    "@open-keystone/utils": "npm:^6.1.6"
+    graphql: "npm:^16.10.0"
+    graphql-upload: "npm:^15.0.2"
+    nanoassert: "npm:^2.0.0"
+  peerDependencies:
+    express: ^4.17.1
+  checksum: 10/0b49a2ffa4d10123db5384a664bc35c619cefba587c2adf88d22dcb5e084f0fb26e502a96ac2636bbf6a0a8574395aa517ad5785d9bd9044d917e6a50debe9b2
   languageName: node
   linkType: hard
 
@@ -12930,6 +13041,19 @@ __metadata:
     express: "npm:^4.17.1"
     express-session: "npm:^1.17.2"
   checksum: 10/0c5025c270e3747d9ecbca100aaf91d4f7b4f475f5d88c8f7d90ba5713dcf4d90fa326a2bee158368ad74d0800044eb8d2483c39683e6e979f440d43a675f993
+  languageName: node
+  linkType: hard
+
+"@open-keystone/utils@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@open-keystone/utils@npm:6.1.6"
+  dependencies:
+    "@babel/runtime": "npm:^7.14.6"
+    p-is-promise: "npm:^3.0.0"
+    p-lazy: "npm:^3.1.0"
+    p-reflect: "npm:^2.1.0"
+    semver: "npm:^7.3.5"
+  checksum: 10/fb6ccf93eade0e1b375880de80ba89709927137d07b29150920312b892da2e3ba852901d6acb80b960006fd8ca6d5a9729b95890d40532b0c12073b1336dd745
   languageName: node
   linkType: hard
 
@@ -32625,6 +32749,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.isarray@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "lodash.isarray@npm:4.0.0"
+  checksum: 10/88aeb6b9af3e19ad9bfd38cf03b50991a0cd2862965214ef3047f55fd7df27aa731ff9c6aca0899e4a8a90180d5c0c4f936949adcc224f3929e95a1918362123
+  languageName: node
+  linkType: hard
+
 "lodash.isboolean@npm:^3.0.3":
   version: 3.0.3
   resolution: "lodash.isboolean@npm:3.0.3"
@@ -32639,6 +32770,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.isfunction@npm:^3.0.9":
+  version: 3.0.9
+  resolution: "lodash.isfunction@npm:3.0.9"
+  checksum: 10/99e54c34b1e8a9ba75c034deb39cedbd2aca7af685815e67a2a8ec4f73ec9748cda6ebee5a07d7de4b938e90d421fd280e9c385cc190f903ac217ac8aff30314
+  languageName: node
+  linkType: hard
+
 "lodash.isinteger@npm:^4.0.4":
   version: 4.0.4
   resolution: "lodash.isinteger@npm:4.0.4"
@@ -32650,6 +32788,13 @@ __metadata:
   version: 3.0.3
   resolution: "lodash.isnumber@npm:3.0.3"
   checksum: 10/913784275b565346255e6ae6a6e30b760a0da70abc29f3e1f409081585875105138cda4a429ff02577e1bc0a7ae2a90e0a3079a37f3a04c3d6c5aaa532f4cab2
+  languageName: node
+  linkType: hard
+
+"lodash.isobject@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "lodash.isobject@npm:3.0.2"
+  checksum: 10/6c1667cbc4494d0a13a3617a4b23278d6d02dac520311f2bbb43f16f2cf71d2e6eb9dec8057315b77459df4890c756a256a087d3f4baa44a79ab5d6c968b060e
   languageName: node
   linkType: hard
 
@@ -32678,6 +32823,13 @@ __metadata:
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
   checksum: 10/d0ea2dd0097e6201be083865d50c3fb54fbfbdb247d9cc5950e086c991f448b7ab0cdab0d57eacccb43473d3f2acd21e134db39f22dac2d6c9ba6bf26978e3d6
+  languageName: node
+  linkType: hard
+
+"lodash.omit@npm:^4.18.0":
+  version: 4.18.0
+  resolution: "lodash.omit@npm:4.18.0"
+  checksum: 10/dc406ff88b793fe28ce9e615d40128bb8075b23cec8d81e91dfc37a63485f7d5a2a0986cf3c61b598ea0a9759a254bb13cf346a427ea81b7a3b8f037edf53a48
   languageName: node
   linkType: hard
 
