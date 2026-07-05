@@ -30,7 +30,7 @@
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/next",
   "peerDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": ">=16.13.1",
+    "react-dom": ">=16.13.1"
   }
 }

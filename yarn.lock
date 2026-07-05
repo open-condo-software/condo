@@ -805,7 +805,7 @@ __metadata:
     "@types/node": "npm:^24"
     "@types/react": "npm:^18.3.1"
     "@types/wavesurfer.js": "npm:^6.0.6"
-    "@welldone-software/why-did-you-render": "npm:^5.0.0-alpha.1"
+    "@welldone-software/why-did-you-render": "npm:^10.0.1"
     ajv: "npm:8.11.0"
     ajv-formats: "npm:^2.1.0"
     analytics: "npm:^0.8.16"
@@ -11970,10 +11970,12 @@ __metadata:
     "@types/apollo-upload-client": "npm:^17.0.0"
     "@types/lodash": "npm:^4.17.7"
     "@types/react": "npm:^18.3.1"
+    "@types/react-dom": "npm:^18.3.1"
     apollo-upload-client: "npm:^17.0.0"
     apollo3-cache-persist: "npm:^0.15.0"
     babel-loader: "npm:^9.1.3"
     deepmerge: "npm:^4.3.1"
+    graphql: "npm:^16.10.0"
     lodash: "npm:^4.17.21"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -11983,6 +11985,7 @@ __metadata:
     typescript: "npm:^5.8.3"
   peerDependencies:
     "@apollo/client": "*"
+    graphql: "*"
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   languageName: unknown
@@ -12101,7 +12104,8 @@ __metadata:
     lodash: "npm:^4.17.21"
   peerDependencies:
     next: ">=15"
-    react: ">=18.3.1"
+    react: ">=16"
+    react-dom: ">=16"
   languageName: unknown
   linkType: soft
 
@@ -12376,8 +12380,8 @@ __metadata:
     pino: "npm:^6.13.3"
     react-intl: "npm:^7.1.11"
   peerDependencies:
-    react: ^16.13.1
-    react-dom: ^16.13.1
+    react: ">=16.13.1"
+    react-dom: ">=16.13.1"
   languageName: unknown
   linkType: soft
 
@@ -12430,6 +12434,7 @@ __metadata:
     "@tiptap/extension-table-cell": "npm:^3.20.0"
     "@tiptap/extension-table-header": "npm:^3.20.0"
     "@tiptap/extension-table-row": "npm:^3.20.0"
+    "@tiptap/extensions": "npm:^3.20.0"
     "@tiptap/markdown": "npm:^3.20.0"
     "@tiptap/pm": "npm:^3.20.0"
     "@tiptap/react": "npm:^3.20.0"
@@ -17520,14 +17525,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@welldone-software/why-did-you-render@npm:^5.0.0-alpha.1":
-  version: 5.0.0
-  resolution: "@welldone-software/why-did-you-render@npm:5.0.0"
+"@welldone-software/why-did-you-render@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@welldone-software/why-did-you-render@npm:10.0.1"
   dependencies:
     lodash: "npm:^4"
   peerDependencies:
-    react: ^16
-  checksum: 10/279ba6beb5410b02e02d291f75c474ba15c8db5fea7640742fa7e2eee925f9609ff3b144885b547434a459c7026f43619268db8a09bf905ca8e4a99ff205b504
+    react: ^19
+  checksum: 10/da37a677b7e275bf5b4b615cd45bd23c83125d04c9a292b8af5920837d5c65ebf63c8229ff963feb038787938e024dc6d3cfa6c3277e68e24b8b066292453117
   languageName: node
   linkType: hard
 
@@ -28237,21 +28242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:14 - 16, graphql@npm:^16.8.1":
-  version: 16.11.0
-  resolution: "graphql@npm:16.11.0"
-  checksum: 10/e3e1633d0b464bbb3fa41283fae938bd3bac801c350555b3f1a129d99fb3cfe157fa69c1389229dba902731942eb08bdea4b29f1271965feee8779576b26ef01
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^15.5.0, graphql@npm:^15.6.1":
-  version: 15.10.1
-  resolution: "graphql@npm:15.10.1"
-  checksum: 10/49177f52c1fbac022866d39bb15040122da4c3ccd12644233b20edfcb1f76aa92aa92f2a82af4668101d8f726112fda111cb11a12feb05635cd689443a7aafb8
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^16.10.0":
+"graphql@npm:16.10.0":
   version: 16.10.0
   resolution: "graphql@npm:16.10.0"
   checksum: 10/d42cf81ddcf3a61dfb213217576bf33c326f15b02c4cee369b373dc74100cbdcdc4479b3b797e79b654dabd8fddf50ef65ff75420e9ce5596c02e21f24c9126a
@@ -41343,32 +41334,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.13.1":
-  version: 16.14.0
-  resolution: "react-dom@npm:16.14.0"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-    prop-types: "npm:^15.6.2"
-    scheduler: "npm:^0.19.1"
-  peerDependencies:
-    react: ^16.14.0
-  checksum: 10/d59f3376ab41ee874fbb9bd738160f6d70f619b4cba40531d5c60dfa289c216cff4d5e6552babdf59843a1a8e7f08faf4a746bf4df6c68d2b406a6c13bdbd92b
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
-  version: 19.1.0
-  resolution: "react-dom@npm:19.1.0"
-  dependencies:
-    scheduler: "npm:^0.26.0"
-  peerDependencies:
-    react: ^19.1.0
-  checksum: 10/c5b58605862c7b0bb044416b01c73647bb8e89717fb5d7a2c279b11815fb7b49b619fe685c404e59f55eb52c66831236cc565c25ee1c2d042739f4a2cc538aa2
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^18.3.1":
+"react-dom@npm:18.3.1":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
   dependencies:
@@ -41938,36 +41904,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:16.13.1":
-  version: 16.13.1
-  resolution: "react@npm:16.13.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-    prop-types: "npm:^15.6.2"
-  checksum: 10/b907b97f3b1bf31abf691ea15bd2d674ab0ac9063e15b79e1a7dac0b75c0a0cd5728f69b55c687bd023af58ca586ab7794724ee466fc863d190954e7e1d3885e
-  languageName: node
-  linkType: hard
-
-"react@npm:^16.13.1":
-  version: 16.14.0
-  resolution: "react@npm:16.14.0"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-    prop-types: "npm:^15.6.2"
-  checksum: 10/ee04c82f5ecb70fe15a48d8cfc3fb20ce2f7e65277d4adcb56a0ac2b82c54550d4c65eabce0d5dc0cc90d053831b9586d72ee515b11cdf0c5436c7f95aafdcda
-  languageName: node
-  linkType: hard
-
-"react@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
-  version: 19.1.0
-  resolution: "react@npm:19.1.0"
-  checksum: 10/d0180689826fd9de87e839c365f6f361c561daea397d61d724687cae88f432a307d1c0f53a0ee95ddbe3352c10dac41d7ff1ad85530fb24951b27a39e5398db4
-  languageName: node
-  linkType: hard
-
-"react@npm:^18.3.1":
+"react@npm:18.3.1":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
@@ -43412,6 +43349,7 @@ __metadata:
   dependencies:
     "@commitlint/cli": "npm:^17.1.2"
     "@commitlint/config-conventional": "npm:^17.1.0"
+    "@commitlint/lint": "npm:^17.1.0"
     "@faker-js/faker": "npm:^7.6.0"
     "@jest/reporters": "npm:^29.7.0"
     "@mono-pub/commit-analyzer": "npm:^1.0.5"
@@ -43419,6 +43357,9 @@ __metadata:
     "@mono-pub/github": "npm:^1.0.5"
     "@mono-pub/npm": "npm:^1.0.5"
     "@open-condo/cli": "workspace:^"
+    "@types/node": "npm:^24"
+    "@types/react": "npm:^18.3.1"
+    "@types/react-dom": "npm:^18.3.1"
     "@typescript-eslint/eslint-plugin": "npm:^7.18.0"
     "@typescript-eslint/parser": "npm:^7.18.0"
     commander: "npm:14.0.1"
@@ -43604,29 +43545,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.19.1":
-  version: 0.19.1
-  resolution: "scheduler@npm:0.19.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-  checksum: 10/2bf42cd56994dd8a97bad0ecb6fbd720674f640c4a95957f9ab453dda28133d5f56755d842e6a0b203efef89a49c52354d151946f50e5c0b633d97d718285c8d
-  languageName: node
-  linkType: hard
-
 "scheduler@npm:^0.23.2":
   version: 0.23.2
   resolution: "scheduler@npm:0.23.2"
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: 10/e8d68b89d18d5b028223edf090092846868a765a591944760942b77ea1f69b17235f7e956696efbb62c8130ab90af7e0949bfb8eba7896335507317236966bc9
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "scheduler@npm:0.26.0"
-  checksum: 10/1ecf2e5d7de1a7a132796834afe14a2d589ba7e437615bd8c06f3e0786a3ac3434655e67aac8755d9b14e05754c177e49c064261de2673aaa3c926bc98caa002
   languageName: node
   linkType: hard
 

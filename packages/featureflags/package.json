@@ -13,7 +13,8 @@
   },
   "peerDependencies": {
     "next": ">=15",
-    "react": ">=18.3.1"
+    "react": ">=16",
+    "react-dom": ">=16"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/featureflags"
 }
