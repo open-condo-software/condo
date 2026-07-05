@@ -1,5 +1,9 @@
-.password-item {
+.item-with-action {
   margin-bottom: 8px !important;
+}
+
+.item-with-action-container {
+  margin-bottom: 24px;
 }
 
 .last-form-item {

@@ -1,7 +1,7 @@
-import { Divider, Form, notification } from 'antd'
+import { Form, notification } from 'antd'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { RefreshCw } from '@open-condo/icons'
@@ -12,6 +12,7 @@ import { CopyableInput } from '@/domains/common/components/CopyableInput'
 import { SubDivider } from '@/domains/common/components/SubDivider'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
+import { ChangeClientModal } from '@/domains/miniapp/components/OIDC/edit/ChangeClientModal'
 import { useSecretContext } from '@/domains/miniapp/components/OIDC/edit/SecretProvider'
 import  { PROD_REDIRECT_URI_EXAMPLE, DEV_REDIRECT_URI_EXAMPLE } from '@/domains/miniapp/constants/common'
 import { INVALID_URL, HTTPS_ONLY } from '@dev-portal-api/domains/miniapp/constants/errors'
@@ -25,13 +26,11 @@ import {
     useUpdateOidcClientUrlMutation,
     UpdateOidcClientUrlMutation,
     useGenerateOidcClientSecretMutation,
-    GenerateOidcClientSecretMutation,
+    GenerateOidcClientSecretMutation, OidcClientInfoFragment,
 } from '@/gql'
 
 
 const MASKED_PASSWORD = '*'.repeat(OIDC_SECRET_LENGTH)
-const CREDENTIALS_DIVIDER_STYLES: CSSProperties = { marginBottom: 24 }
-const SETTINGS_DIVIDER_STYLES: CSSProperties = { marginTop: 24, marginBottom: 24 }
 const EDIT_CLIENT_FORM_ERRORS_TO_FIELDS_MAP = {
     [INVALID_URL]: 'redirectUri',
     [HTTPS_ONLY]: 'redirectUri',
@@ -55,6 +54,7 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
     const ClientSecretLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.items.clientSecret.label' })
     const RedirectURILabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.items.redirectURI.label' })
     const RegenerateSecretLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.actions.regenerateSecret' })
+    const ChangeClientLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.actions.change' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
     const SuccessUpdateMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notifications.successUpdate.title' })
     const CancelLabel = intl.formatMessage({ id: 'global.actions.cancel' })
@@ -74,9 +74,12 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
         publishLink: <Typography.Link component={Link} href={`/apps/${appType}/${id}?section=publishing`}>{NotEnabledClientPublishLink}</Typography.Link>,
     })
 
-    const [modalOpen, setModalOpen] = useState(false)
-    const openModal = useCallback(() => setModalOpen(true), [])
-    const closeModal = useCallback(() => setModalOpen(false), [])
+    const [clientModalOpen, setClientModalOpen] = useState(false)
+    const [secretModalOpen, setSecretModalOpen] = useState(false)
+    const openClientModal = useCallback(() => setClientModalOpen(true), [])
+    const closeClientModal = useCallback(() => setClientModalOpen(false), [])
+    const openSecretModal = useCallback(() => setSecretModalOpen(true), [])
+    const closeSecretModal = useCallback(() => setSecretModalOpen(false), [])
 
     const { secret, setSecret } = useSecretContext()
     const { urlValidator, requiredFieldValidator } = useValidations()
@@ -112,17 +115,18 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                     redirectUri: values.redirectUri,
                     app: { id },
                     environment,
+                    oidcClientId: client.id,
                 },
             },
         })
-    }, [environment, id, updateUrlMutation])
+    }, [client.id, environment, id, updateUrlMutation])
 
     const onGenerateError = useMutationErrorHandler()
     const onGenerateCompleted = useCallback((data: GenerateOidcClientSecretMutation) => {
         notification.success({ message: SuccessGenerationTitle, description: SuccessGenerationMessage })
         setSecret(data.client?.clientSecret || null)
-        closeModal()
-    }, [SuccessGenerationMessage, SuccessGenerationTitle, closeModal, setSecret])
+        closeSecretModal()
+    }, [SuccessGenerationMessage, SuccessGenerationTitle, closeSecretModal, setSecret])
     const [generateSecretMutation] = useGenerateOidcClientSecretMutation({
         onError: onGenerateError,
         onCompleted:onGenerateCompleted,
@@ -135,10 +139,16 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                     sender: getClientSideSenderInfo(),
                     environment,
                     app: { id },
+                    oidcClientId: client.id,
                 },
             },
         })
-    }, [environment, generateSecretMutation, id])
+    }, [client.id, environment, generateSecretMutation, id])
+
+    const onClientChange = useCallback((data: Pick<OidcClientInfoFragment, 'clientId' | 'redirectUri'>) => {
+        form.setFieldValue('clientId', data.clientId)
+        form.setFieldValue('redirectUri', data.redirectUri)
+    }, [form])
 
     return (
         <>
@@ -154,17 +164,26 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                 requiredMark={false}
             >
                 <SubDivider title={CredentialsLabel}/>
-                <Form.Item
-                    name='clientId'
-                    label={ClientIDLabel}
-                >
-                    <CopyableInput/>
-                </Form.Item>
+                <div className={styles.itemWithActionContainer}>
+                    <Form.Item
+                        name='clientId'
+                        label={ClientIDLabel}
+                        className={styles.itemWithAction}
+                    >
+                        <CopyableInput/>
+                    </Form.Item>
+                    <Typography.Link onClick={openClientModal}>
+                        <Space size={4} direction='horizontal'>
+                            <RefreshCw size='small'/>
+                            {ChangeClientLabel}
+                        </Space>
+                    </Typography.Link>
+                </div>
                 <div>
                     <Form.Item
                         name='clientSecret'
                         label={ClientSecretLabel}
-                        className={styles.passwordItem}
+                        className={styles.itemWithAction}
                     >
                         <Input.Password
                             readOnly
@@ -172,7 +191,7 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                             disabled={!secret}
                         />
                     </Form.Item>
-                    <Typography.Link onClick={openModal}>
+                    <Typography.Link onClick={openSecretModal}>
                         <Space size={4} direction='horizontal'>
                             <RefreshCw size='small'/>
                             {RegenerateSecretLabel}
@@ -208,13 +227,23 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                     {SaveLabel}
                 </Button>
             </Form>
-            {modalOpen && (
+            {clientModalOpen && (
+                <ChangeClientModal
+                    environment={environment}
+                    appId={id}
+                    onCancel={closeClientModal}
+                    open={clientModalOpen}
+                    source='editClientForm'
+                    onChange={onClientChange}
+                />
+            )}
+            {secretModalOpen && (
                 <Modal
                     title={ModalTitle}
-                    onCancel={closeModal}
-                    open={modalOpen}
+                    onCancel={closeSecretModal}
+                    open={secretModalOpen}
                     footer={[
-                        <Button type='secondary' key='cancel' onClick={closeModal}>
+                        <Button type='secondary' key='cancel' onClick={closeSecretModal}>
                             {CancelLabel}
                         </Button>,
                         <Button type='primary' key='confirm' onClick={generateSecret}>

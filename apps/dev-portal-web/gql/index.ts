@@ -91,12 +91,14 @@ export type B2BAppCreateInput = {
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -114,6 +116,7 @@ export type B2BAppHistoryRecordCreateInput = {
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2BAppHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
@@ -123,6 +126,7 @@ export type B2BAppHistoryRecordCreateInput = {
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -146,6 +150,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2BAppHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
@@ -155,6 +160,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -279,6 +285,10 @@ export type B2BAppHistoryRecordWhereInput = {
   developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -369,6 +379,10 @@ export type B2BAppHistoryRecordWhereInput = {
   productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   sender_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -740,12 +754,14 @@ export type B2BAppUpdateInput = {
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -868,6 +884,10 @@ export type B2BAppWhereInput = {
   developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -942,6 +962,10 @@ export type B2BAppWhereInput = {
   productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   sender?: InputMaybe<SenderFieldInput>;
   sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
   sender_not?: InputMaybe<SenderFieldInput>;
@@ -1736,6 +1760,7 @@ export type B2CAppCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1753,6 +1778,7 @@ export type B2CAppCreateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1778,6 +1804,7 @@ export type B2CAppHistoryRecordCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1798,6 +1825,7 @@ export type B2CAppHistoryRecordCreateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1829,6 +1857,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1849,6 +1878,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1950,6 +1980,10 @@ export type B2CAppHistoryRecordWhereInput = {
   developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2068,6 +2102,10 @@ export type B2CAppHistoryRecordWhereInput = {
   productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2464,6 +2502,7 @@ export type B2CAppUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2481,6 +2520,7 @@ export type B2CAppUpdateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2580,6 +2620,10 @@ export type B2CAppWhereInput = {
   developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  developmentOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   developmentPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2682,6 +2726,10 @@ export type B2CAppWhereInput = {
   productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
+  productionOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
   productionPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2737,6 +2785,14 @@ export type B2CAppsCreateInput = {
 export type B2CAppsUpdateInput = {
   data?: InputMaybe<B2CAppUpdateInput>;
   id: Scalars['ID']['input'];
+};
+
+export type ChangeOidcClientInput = {
+  app: AppWhereUniqueInput;
+  dv: Scalars['Int']['input'];
+  environment: AppEnvironment;
+  oidcClientId: Scalars['String']['input'];
+  sender: SenderFieldInput;
 };
 
 export type CompleteConfirmEmailActionInput = {
@@ -3492,7 +3548,12 @@ export type GenerateOidcClientSecretInput = {
   app: AppWhereUniqueInput;
   dv: Scalars['Int']['input'];
   environment: AppEnvironment;
+  oidcClientId?: InputMaybe<Scalars['String']['input']>;
   sender: SenderFieldInput;
+};
+
+export type GetAllOidcClientsInput = {
+  environment: AppEnvironment;
 };
 
 export type GetB2CAppInfoInput = {
@@ -3588,6 +3649,8 @@ export enum SortB2BAppHistoryRecordsBy {
   DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
+  DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -3602,6 +3665,8 @@ export enum SortB2BAppHistoryRecordsBy {
   ProductionAppUrlDesc = 'productionAppUrl_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
+  ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
+  ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -3685,6 +3750,8 @@ export enum SortB2BAppsBy {
   DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
+  DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   IdAsc = 'id_ASC',
@@ -3695,6 +3762,8 @@ export enum SortB2BAppsBy {
   ProductionAppUrlDesc = 'productionAppUrl_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
+  ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
+  ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -3836,6 +3905,8 @@ export enum SortB2CAppHistoryRecordsBy {
   DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
   DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
   DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
+  DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
+  DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
   DevelopmentPublishedAtDesc = 'developmentPublishedAt_DESC',
   DevelopmentPushNotificationsAllowedAsc = 'developmentPushNotificationsAllowed_ASC',
@@ -3872,6 +3943,8 @@ export enum SortB2CAppHistoryRecordsBy {
   ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
   ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
   ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
+  ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
+  ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
   ProductionPublishedAtDesc = 'productionPublishedAt_DESC',
   ProductionPushNotificationsAllowedAsc = 'productionPushNotificationsAllowed_ASC',
@@ -3971,6 +4044,8 @@ export enum SortB2CAppsBy {
   DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
   DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
   DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
+  DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
+  DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
   DevelopmentPublishedAtDesc = 'developmentPublishedAt_DESC',
   DevelopmentPushNotificationsAllowedAsc = 'developmentPushNotificationsAllowed_ASC',
@@ -4003,6 +4078,8 @@ export enum SortB2CAppsBy {
   ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
   ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
   ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
+  ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
+  ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
   ProductionPublishedAtDesc = 'productionPublishedAt_DESC',
   ProductionPushNotificationsAllowedAsc = 'productionPushNotificationsAllowed_ASC',
@@ -4392,6 +4469,7 @@ export type UpdateOidcClientUrlInput = {
   app: AppWhereUniqueInput;
   dv: Scalars['Int']['input'];
   environment: AppEnvironment;
+  oidcClientId?: InputMaybe<Scalars['String']['input']>;
   redirectUri: Scalars['String']['input'];
   sender: SenderFieldInput;
 };
@@ -6087,19 +6165,28 @@ export type GetB2CAppInfoQueryVariables = Exact<{
 
 export type GetB2CAppInfoQuery = { __typename?: 'Query', info?: { __typename?: 'GetB2CAppInfoOutput', id: string, environment: AppEnvironment, isGlobal: boolean, currentBuild?: { __typename?: 'B2CAppCurrentBuild', id: string, version: string } | null } | null };
 
+export type OidcClientInfoFragment = { __typename?: 'OIDCClient', id: string, name?: string | null, clientId: string, redirectUri: string, isEnabled: boolean };
+
 export type GetOidcClientQueryVariables = Exact<{
   data: GetOidcClientInput;
 }>;
 
 
-export type GetOidcClientQuery = { __typename?: 'Query', client?: { __typename?: 'OIDCClient', id: string, clientId: string, redirectUri: string, isEnabled: boolean } | null };
+export type GetOidcClientQuery = { __typename?: 'Query', client?: { __typename?: 'OIDCClient', id: string, name?: string | null, clientId: string, redirectUri: string, isEnabled: boolean } | null };
+
+export type GetAllOidcClientsQueryVariables = Exact<{
+  data: GetAllOidcClientsInput;
+}>;
+
+
+export type GetAllOidcClientsQuery = { __typename?: 'Query', clients?: Array<{ __typename?: 'OIDCClient', id: string, name?: string | null, clientId: string, redirectUri: string, isEnabled: boolean }> | null };
 
 export type CreateOidcClientMutationVariables = Exact<{
   data: CreateOidcClientInput;
 }>;
 
 
-export type CreateOidcClientMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null };
+export type CreateOidcClientMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', id: string, clientId: string, redirectUri: string, clientSecret: string } | null };
 
 export type UpdateOidcClientUrlMutationVariables = Exact<{
   data: UpdateOidcClientUrlInput;
@@ -6114,6 +6201,13 @@ export type GenerateOidcClientSecretMutationVariables = Exact<{
 
 
 export type GenerateOidcClientSecretMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null };
+
+export type ChangeOidcClientMutationVariables = Exact<{
+  data: ChangeOidcClientInput;
+}>;
+
+
+export type ChangeOidcClientMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClient', id: string, name?: string | null, clientId: string, redirectUri: string, isEnabled: boolean } | null };
 
 export type PublishB2BAppMutationVariables = Exact<{
   data: PublishB2BAppInput;
@@ -6239,6 +6333,15 @@ export const B2CAppEntryPointsFragmentDoc = gql`
     fragment B2CAppEntryPoints on B2CApp {
   developmentAppUrl
   productionAppUrl
+}
+    `;
+export const OidcClientInfoFragmentDoc = gql`
+    fragment OIDCClientInfo on OIDCClient {
+  id
+  name
+  clientId
+  redirectUri
+  isEnabled
 }
     `;
 export const AllB2BAppsDocument = gql`
@@ -7150,13 +7253,10 @@ export type GetB2CAppInfoQueryResult = Apollo.QueryResult<GetB2CAppInfoQuery, Ge
 export const GetOidcClientDocument = gql`
     query getOIDCClient($data: GetOIDCClientInput!) {
   client: OIDCClient(data: $data) {
-    id
-    clientId
-    redirectUri
-    isEnabled
+    ...OIDCClientInfo
   }
 }
-    `;
+    ${OidcClientInfoFragmentDoc}`;
 
 /**
  * __useGetOidcClientQuery__
@@ -7193,9 +7293,55 @@ export type GetOidcClientQueryHookResult = ReturnType<typeof useGetOidcClientQue
 export type GetOidcClientLazyQueryHookResult = ReturnType<typeof useGetOidcClientLazyQuery>;
 export type GetOidcClientSuspenseQueryHookResult = ReturnType<typeof useGetOidcClientSuspenseQuery>;
 export type GetOidcClientQueryResult = Apollo.QueryResult<GetOidcClientQuery, GetOidcClientQueryVariables>;
+export const GetAllOidcClientsDocument = gql`
+    query getAllOIDCClients($data: GetAllOIDCClientsInput!) {
+  clients: allOIDCClients(data: $data) {
+    ...OIDCClientInfo
+  }
+}
+    ${OidcClientInfoFragmentDoc}`;
+
+/**
+ * __useGetAllOidcClientsQuery__
+ *
+ * To run a query within a React component, call `useGetAllOidcClientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllOidcClientsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllOidcClientsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetAllOidcClientsQuery(baseOptions: Apollo.QueryHookOptions<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables> & ({ variables: GetAllOidcClientsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>(GetAllOidcClientsDocument, options);
+      }
+export function useGetAllOidcClientsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>(GetAllOidcClientsDocument, options);
+        }
+// @ts-ignore
+export function useGetAllOidcClientsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>;
+export function useGetAllOidcClientsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAllOidcClientsQuery | undefined, GetAllOidcClientsQueryVariables>;
+export function useGetAllOidcClientsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>(GetAllOidcClientsDocument, options);
+        }
+export type GetAllOidcClientsQueryHookResult = ReturnType<typeof useGetAllOidcClientsQuery>;
+export type GetAllOidcClientsLazyQueryHookResult = ReturnType<typeof useGetAllOidcClientsLazyQuery>;
+export type GetAllOidcClientsSuspenseQueryHookResult = ReturnType<typeof useGetAllOidcClientsSuspenseQuery>;
+export type GetAllOidcClientsQueryResult = Apollo.QueryResult<GetAllOidcClientsQuery, GetAllOidcClientsQueryVariables>;
 export const CreateOidcClientDocument = gql`
     mutation createOIDCClient($data: CreateOIDCClientInput!) {
   client: createOIDCClient(data: $data) {
+    id
+    clientId
+    redirectUri
     clientSecret
   }
 }
@@ -7292,6 +7438,39 @@ export function useGenerateOidcClientSecretMutation(baseOptions?: Apollo.Mutatio
 export type GenerateOidcClientSecretMutationHookResult = ReturnType<typeof useGenerateOidcClientSecretMutation>;
 export type GenerateOidcClientSecretMutationResult = Apollo.MutationResult<GenerateOidcClientSecretMutation>;
 export type GenerateOidcClientSecretMutationOptions = Apollo.BaseMutationOptions<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>;
+export const ChangeOidcClientDocument = gql`
+    mutation changeOIDCClient($data: ChangeOIDCClientInput!) {
+  client: changeOIDCClient(data: $data) {
+    ...OIDCClientInfo
+  }
+}
+    ${OidcClientInfoFragmentDoc}`;
+export type ChangeOidcClientMutationFn = Apollo.MutationFunction<ChangeOidcClientMutation, ChangeOidcClientMutationVariables>;
+
+/**
+ * __useChangeOidcClientMutation__
+ *
+ * To run a mutation, you first call `useChangeOidcClientMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeOidcClientMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changeOidcClientMutation, { data, loading, error }] = useChangeOidcClientMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useChangeOidcClientMutation(baseOptions?: Apollo.MutationHookOptions<ChangeOidcClientMutation, ChangeOidcClientMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangeOidcClientMutation, ChangeOidcClientMutationVariables>(ChangeOidcClientDocument, options);
+      }
+export type ChangeOidcClientMutationHookResult = ReturnType<typeof useChangeOidcClientMutation>;
+export type ChangeOidcClientMutationResult = Apollo.MutationResult<ChangeOidcClientMutation>;
+export type ChangeOidcClientMutationOptions = Apollo.BaseMutationOptions<ChangeOidcClientMutation, ChangeOidcClientMutationVariables>;
 export const PublishB2BAppDocument = gql`
     mutation publishB2BApp($data: PublishB2BAppInput!) {
   publishB2BApp(data: $data) {
