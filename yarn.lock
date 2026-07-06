@@ -120,15 +120,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/colors@npm:^7.0.0, @ant-design/colors@npm:^7.2.1":
-  version: 7.2.1
-  resolution: "@ant-design/colors@npm:7.2.1"
-  dependencies:
-    "@ant-design/fast-color": "npm:^2.0.6"
-  checksum: 10/1599f4d3510c9fab5ba3069f0330000475fac6959d5862e3693c6dd9768ff064b8ff9ab8ee98cad86f84b59e368246c30738f9a68801f464e6aa47de438f62bf
-  languageName: node
-  linkType: hard
-
 "@ant-design/colors@npm:^8.0.0":
   version: 8.0.0
   resolution: "@ant-design/colors@npm:8.0.0"
@@ -138,21 +129,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/cssinjs-utils@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "@ant-design/cssinjs-utils@npm:1.1.3"
-  dependencies:
-    "@ant-design/cssinjs": "npm:^1.21.0"
-    "@babel/runtime": "npm:^7.23.2"
-    rc-util: "npm:^5.38.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/071585812aef98b331ee12f189c63d0cd44daec656368c5c786393d5857a68b15285842bed85427fce4b30d4e405bd7c06e129c25370fe9fe34a36599a1bd008
-  languageName: node
-  linkType: hard
-
-"@ant-design/cssinjs@npm:^1.21.0, @ant-design/cssinjs@npm:^1.23.0, @ant-design/cssinjs@npm:^1.24.0":
+"@ant-design/cssinjs@npm:^1.24.0":
   version: 1.24.0
   resolution: "@ant-design/cssinjs@npm:1.24.0"
   dependencies:
@@ -167,15 +144,6 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 10/9a4aedfa270cc36f40bcc17ca6edd0d2e50b8907a089ce21b1457e015411bf868ba61607a0d8c577f018157a0ad5218d9e262ce6ed8507eb5442d08bf37c0a55
-  languageName: node
-  linkType: hard
-
-"@ant-design/fast-color@npm:^2.0.6":
-  version: 2.0.6
-  resolution: "@ant-design/fast-color@npm:2.0.6"
-  dependencies:
-    "@babel/runtime": "npm:^7.24.7"
-  checksum: 10/94167d70e10d4c267875b97bbe282fe32e6a60aabbfb70dd9f3c5500c559e4c91c4881a364168629ec1c150441e37f0da3fa97d34cb3d24373535a792d91e627
   languageName: node
   linkType: hard
 
@@ -216,22 +184,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/icons@npm:^5.6.1":
-  version: 5.6.1
-  resolution: "@ant-design/icons@npm:5.6.1"
-  dependencies:
-    "@ant-design/colors": "npm:^7.0.0"
-    "@ant-design/icons-svg": "npm:^4.4.0"
-    "@babel/runtime": "npm:^7.24.8"
-    classnames: "npm:^2.2.6"
-    rc-util: "npm:^5.31.1"
-  peerDependencies:
-    react: ">=16.0.0"
-    react-dom: ">=16.0.0"
-  checksum: 10/07ed5711ed06b52ff051683e974d49bf58c41ca7c022bc036efee53d0f177499eac4c6467b3819e2f5f838bdde41fcf6cb58a326e14dd3580cdedf7f69c56f01
-  languageName: node
-  linkType: hard
-
 "@ant-design/icons@npm:^6.0.0":
   version: 6.0.0
   resolution: "@ant-design/icons@npm:6.0.0"
@@ -259,21 +211,6 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
   checksum: 10/38958d7883d6fc37cc0be814d1c991f7493185efdf50258fd347211ccd99a8f73e02429a212d1735b26d1cfd98e6a7d4e0b3ee4ce19047ce8a7534841904d18f
-  languageName: node
-  linkType: hard
-
-"@ant-design/react-slick@npm:~1.1.2":
-  version: 1.1.2
-  resolution: "@ant-design/react-slick@npm:1.1.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.4"
-    classnames: "npm:^2.2.5"
-    json2mq: "npm:^0.2.0"
-    resize-observer-polyfill: "npm:^1.5.1"
-    throttle-debounce: "npm:^5.0.0"
-  peerDependencies:
-    react: ">=16.9.0"
-  checksum: 10/b38e44630936c8fa3b055c9f7cdbd510b78d18ce31fe32165be4d0e8d082ee735216daa9228881d41b79e85f22eac8deee182ed8103f23108517c72606348132
   languageName: node
   linkType: hard
 
@@ -540,17 +477,17 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@types/react": "npm:^18.3.1"
-    cross-env: "npm:^7.0.3"
-    express: "npm:^4.17.1"
+    "@types/react": "catalog:"
+    cross-env: "catalog:"
+    express: "catalog:"
     helmet: "npm:^8.1.0"
     ip-range-check: "npm:^0.2.0"
-    jest: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    jest: "catalog:"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
-    zod: "npm:^4.4.3"
+    openid-client: "catalog:"
+    react: "catalog:"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -559,29 +496,30 @@ __metadata:
   resolution: "@app/address-service@workspace:apps/address-service"
   dependencies:
     "@address-service/domains": "link:./domains"
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-admin-ui": "npm:^9.0.9"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    express: "npm:^4.17.1"
+    "@open-keystone/app-admin-ui": "catalog:"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    cross-env: "catalog:"
+    express: "catalog:"
     fast-xml-parser: "npm:^5.4.0"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    lodash: "catalog:"
+    openid-client: "catalog:"
+    react: "catalog:"
     react-router-dom: "npm:5.2.0"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -611,14 +549,14 @@ __metadata:
   resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
   dependencies:
     "@maxhub/max-bot-api": "npm:^0.2.2"
-    "@types/node": "npm:^24"
+    "@types/node": "catalog:"
     dotenv: "npm:^16.4.7"
     https-proxy-agent: "npm:^6"
     node-telegram-bot-api: "npm:^0.66.0"
     socks-proxy-agent: "npm:^8"
     ts-node: "npm:^10.9.2"
     ts-node-dev: "npm:^1.0.0-pre.63"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
     yana: "npm:^1.2.3"
   languageName: unknown
   linkType: soft
@@ -629,24 +567,24 @@ __metadata:
   dependencies:
     "@b2b-payments-gateway/domains": "link:./domains"
     "@faker-js/faker": "npm:^7.6.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@types/react": "npm:^18.3.1"
-    cross-env: "npm:^7.0.3"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    "@types/react": "catalog:"
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    zod: "npm:^4.4.3"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -654,15 +592,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/billing-connector@workspace:apps/billing-connector"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@billing-connector/domains": "link:./domains"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/import-types-preset": "npm:^4.0.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
     "@graphql-codegen/typescript-react-apollo": "npm:^4.4.1"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
@@ -673,32 +611,32 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
+    "@open-keystone/app-next": "catalog:"
     "@pdf-lib/fontkit": "npm:^1.1.1"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
     body-parser: "npm:^1.20.3"
     body-parser-xml: "npm:^2.0.3"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
     ignore-loader: "npm:^0.1.2"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
     jszip: "npm:^3.10.1"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
-    openid-client: "npm:5.7.1"
+    lodash: "catalog:"
+    next: "catalog:"
+    openid-client: "catalog:"
     pdf-lib: "npm:^1.17.1"
     phone: "npm:^3.1.41"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    ts-jest: "npm:^29.4.0"
-    typescript: "npm:^5.8.3"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    ts-jest: "catalog:"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -707,14 +645,14 @@ __metadata:
   resolution: "@app/callcenter@workspace:apps/callcenter"
   dependencies:
     "@ant-design/colors": "npm:^6.0.0"
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@app/condo": "workspace:^"
     "@callcenter/domains": "link:./domains"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/import-types-preset": "npm:^4.0.0"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -729,26 +667,26 @@ __metadata:
     "@open-condo/ui": "workspace:^"
     "@types/http-proxy": "npm:^1.17.16"
     "@types/lodash": "npm:4.14.182"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    classnames: "npm:^2.5.1"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
+    classnames: "catalog:"
     cookies-next: "npm:^4.2.1"
-    dayjs: "npm:^1.11.10"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
+    dayjs: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
     http-proxy: "npm:^1.18.1"
     iron-session: "npm:^8.0.4"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    next-with-less: "catalog:"
+    openid-client: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -758,12 +696,12 @@ __metadata:
   dependencies:
     "@ant-design/colors": "npm:^6.0.0"
     "@ant-design/icons": "npm:^6.0.0"
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@condo/domains": "link:./domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
     "@ffmpeg/ffmpeg": "npm:^0.12.15"
     "@graphql-codegen/cli": "npm:^6.2.0"
@@ -790,57 +728,57 @@ __metadata:
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@open-condo/webhooks": "workspace:^"
-    "@open-keystone/app-admin-ui": "npm:^9.0.9"
-    "@open-keystone/app-graphql": "npm:^7.0.7"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@open-keystone/server-side-graphql-client": "npm:^2.1.5"
+    "@open-keystone/app-admin-ui": "catalog:"
+    "@open-keystone/app-graphql": "catalog:"
+    "@open-keystone/app-next": "catalog:"
+    "@open-keystone/server-side-graphql-client": "catalog:"
     "@parcel/watcher": "npm:^2.5.1"
     "@rc-component/qrcode": "npm:^1.0.0"
     "@types/echarts": "npm:4.9.16"
     "@types/http-proxy": "npm:^1.17.16"
-    "@types/jest": "npm:^29.5.14"
+    "@types/jest": "catalog:"
     "@types/k6": "npm:^0.54.0"
     "@types/lodash": "npm:4.14.186"
     "@types/mjml": "npm:^4.7.4"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
     "@types/wavesurfer.js": "npm:^6.0.6"
     "@welldone-software/why-did-you-render": "npm:^10.0.1"
-    ajv: "npm:8.11.0"
+    ajv: "catalog:"
     ajv-formats: "npm:^2.1.0"
     analytics: "npm:^0.8.16"
-    antd: "npm:^4.24.12"
+    antd: "catalog:"
     aws-sdk: "npm:^2.1692.0"
     bad-words-next: "npm:^1.6.7"
     big.js: "npm:^6.2.2"
     carbone: "npm:3.2.3"
-    classnames: "npm:^2.5.1"
+    classnames: "catalog:"
     commander: "npm:14.0.1"
     cookie-signature: "npm:^1.2.2"
     cookies-next: "npm:^4.2.1"
-    cross-env: "npm:^7.0.3"
+    cross-env: "catalog:"
     csv-stringify: "npm:^6.2.0"
-    dayjs: "npm:^1.11.10"
+    dayjs: "catalog:"
     docx: "npm:^9.6.1"
     echarts: "npm:^5.1.2"
     echarts-for-react: "npm:3.0.2"
     encoding: "npm:^0.1.0"
     esdk-obs-nodejs: "npm:3.21.6"
     eventemitter3: "npm:^4.0.7"
-    express: "npm:^4.17.1"
+    express: "catalog:"
     firebase-admin: "npm:^13.7.0"
     form-data: "npm:^4.0.4"
     generate-password: "npm:^1.6.0"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    graphql-upload: "npm:^15.0.2"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    graphql-upload: "catalog:"
     heic2any: "npm:^0.0.4"
     html2canvas: "npm:^1.0.0-rc.7"
     http-proxy: "npm:^1.18.1"
     https-proxy-agent: "npm:^7.0.1"
     iconv-lite: "npm:^0.6.3"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
     jose: "npm:2.0.5"
     js-cookie: "npm:^3.0.8"
     jschardet: "npm:^3.0.0"
@@ -848,21 +786,21 @@ __metadata:
     jsonwebtoken: "npm:^9.0.0"
     jszip: "npm:^3.10.1"
     jwt-decode: "npm:3.1.2"
-    less: "npm:^4.4.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
     lru-cache: "npm:^7.18.3"
     mjml: "npm:^4.15.3"
     mkdirp: "npm:^3.0.1"
     n2words: "npm:1.15.0"
     nanoid: "npm:^3.3.4"
-    next: "npm:^15.5.15"
-    next-with-less: "npm:^3.0.1"
+    next: "catalog:"
+    next-with-less: "catalog:"
     nock: "npm:^14.0.5"
     node-fetch: "npm:^2.6.7"
     nunjucks: "npm:^3.2.4"
     oidc-provider: "npm:7.14.3"
-    openid-client: "npm:5.7.1"
+    openid-client: "catalog:"
     passport: "npm:^0.7.0"
     passport-custom: "npm:^1.1.1"
     passport-github2: "npm:^0.1.12"
@@ -871,17 +809,17 @@ __metadata:
     pdfmake: "npm:^0.2.10"
     pg: "npm:^8.11.3"
     phone: "npm:^3.1.41"
-    pluralize: "npm:^8.0.0"
+    pluralize: "catalog:"
     prop-types: "npm:^15.7.2"
     qs: "npm:6.11.0"
     rc-picker: "npm:^4.2.0"
     rc-upload: "npm:~4.3.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
+    react: "catalog:"
+    react-dom: "catalog:"
     react-hotkeys-hook: "npm:3.4.6"
     react-indiana-drag-scroll: "npm:^2.0.1"
     react-infinite-scroll-component: "npm:^6.1.0"
-    react-intl: "npm:^7.1.11"
+    react-intl: "catalog:"
     react-phone-input-2: "npm:^2.15.1"
     react-progressive-image: "npm:^0.6.0"
     react-router-dom: "npm:5.2.0"
@@ -891,14 +829,14 @@ __metadata:
     socks-proxy-agent: "npm:^8.0.3"
     supertest: "npm:^7.1.3"
     swr: "npm:^1.3.0"
-    ts-jest: "npm:^29.4.0"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    ts-jest: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
     validate.js: "npm:^0.13.1"
     wavesurfer.js: "npm:^6.6.3"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xss: "npm:^1.0.13"
-    zod: "npm:^4.4.3"
+    zod: "catalog:"
   peerDependencies:
     dd-trace: ^4.46.0
   languageName: unknown
@@ -908,12 +846,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/debt-management@workspace:apps/debt-management"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@debt-management/domains": "link:./domains"
     "@faker-js/faker": "npm:^7.6.0"
     "@graphql-codegen/cli": "npm:^6.2.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -923,27 +861,27 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
+    "@open-keystone/app-next": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
     docx: "npm:^9.6.1"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
     jszip: "npm:^3.10.1"
-    lodash: "npm:^4.17.21"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
-    next: "npm:^15.5.7"
-    openid-client: "npm:5.7.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
+    next: "catalog:"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-    zod: "npm:^4.4.3"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -960,17 +898,17 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
     archiver: "npm:7.0.1"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
     got: "npm:^11.8.6"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    lodash: "catalog:"
     node-html-parser: "npm:^7.0.2"
     phone: "npm:^3.1.41"
     unzipper: "npm:0.12.3"
@@ -982,7 +920,7 @@ __metadata:
   resolution: "@app/dev-portal-web@workspace:apps/dev-portal-web"
   dependencies:
     "@ant-design/cssinjs": "npm:^1.24.0"
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@app/dev-portal-api": "workspace:^"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
@@ -998,33 +936,33 @@ __metadata:
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": "npm:^2.5.1"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
     "@types/title": "npm:3.4.1"
-    antd: "npm:5.28.0"
-    classnames: "npm:^2.5.1"
+    antd: "catalog:"
+    classnames: "catalog:"
     cookies-next: "npm:^4.2.1"
     easymde: "npm:^2.20.0"
     glob: "npm:8.1.0"
-    graphql: "npm:^16.10.0"
+    graphql: "catalog:"
     gray-matter: "npm:4.0.3"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.15"
+    lodash: "catalog:"
+    next: "catalog:"
     next-mdx-remote: "npm:4.3.0"
     next-seo: "npm:^6.4.0"
     phone: "npm:^3.1.41"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-intl: "npm:^7.1.11"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
     react-simplemde-editor: "npm:^5.2.0"
     rehype-prism-plus: "npm:1.5.1"
     remark-custom-heading-id: "npm:1.0.0"
     remark-gfm: "npm:3.0.1"
     title: "npm:3.5.3"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
     usehooks-ts: "npm:^2.9.1"
-    zod: "npm:^4.4.3"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1039,15 +977,15 @@ __metadata:
     "@open-condo/bridge": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    next: "npm:^15.5.7"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-intl: "npm:^7.1.11"
-    typescript: "npm:^5.8.3"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
+    antd: "catalog:"
+    next: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1057,24 +995,30 @@ __metadata:
   dependencies:
     "@ecom-gateway/domains": "link:./domains"
     "@faker-js/faker": "npm:^7.6.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@types/react": "npm:^18.3.1"
-    cross-env: "npm:^7.0.3"
-    express: "npm:^4.21.2"
-    graphql: "npm:^16.10.0"
-    jest: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    "@types/react": "catalog:"
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    jest: "catalog:"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
+<<<<<<< HEAD
     openid-client: "npm:5.7.1"
     pluralize: "npm:^8.0.0"
     react: "npm:^18.3.1"
     zod: "npm:^4.4.3"
+=======
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
+>>>>>>> 4a5a2d1d3 (refactor: use yarn catalog)
   languageName: unknown
   linkType: soft
 
@@ -1083,6 +1027,7 @@ __metadata:
   resolution: "@app/employee-bot@workspace:apps/employee-bot"
   dependencies:
     "@employee-bot/domains": "link:./domains"
+<<<<<<< HEAD
     "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
     "@graphql-tools/load": "npm:^8.1.0"
 <<<<<<< HEAD
@@ -1094,17 +1039,25 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@types/node": "npm:^24"
 =======
+=======
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
+    "@maxhub/max-bot-api": "npm:^0.2.2"
+>>>>>>> 637e45ac2 (refactor: use yarn catalog)
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@types/node": "npm:^24"
+    "@types/node": "catalog:"
     axios: "npm:^1.15.0"
 >>>>>>> 23fa783ba (chore(deps): DOMA-0000 refresh yarn lock)
     commander: "npm:14.0.1"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
     https-proxy-agent: "npm:^7.0.1"
+<<<<<<< HEAD
     jest: "npm:^29.7.0"
     jest-jasmine2: "npm:^29.7.0"
 <<<<<<< HEAD
@@ -1112,10 +1065,16 @@ __metadata:
 =======
 >>>>>>> 23fa783ba (chore(deps): DOMA-0000 refresh yarn lock)
     lodash: "npm:^4.17.21"
+=======
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    jsonwebtoken: "npm:^9.0.0"
+    lodash: "catalog:"
+>>>>>>> 637e45ac2 (refactor: use yarn catalog)
     node-telegram-bot-api: "npm:^0.66.0"
-    openid-client: "npm:5.7.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
     socks-proxy-agent: "npm:^8.0.3"
   languageName: unknown
   linkType: soft
@@ -1124,12 +1083,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/eps@workspace:apps/eps"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/core": "npm:^10.3.1"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/core": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/styled": "catalog:"
     "@eps/domains": "link:./domains"
     "@faker-js/faker": "npm:^7.6.0"
     "@open-arch-ui/button": "npm:^1.0.1"
@@ -1148,37 +1107,37 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-admin-ui": "npm:^9.0.8"
-    "@open-keystone/app-graphql": "npm:^7.0.6"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    ajv: "npm:8.11.0"
-    antd: "npm:^4.24.12"
+    "@open-keystone/app-admin-ui": "catalog:"
+    "@open-keystone/app-graphql": "catalog:"
+    "@open-keystone/app-next": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    ajv: "catalog:"
+    antd: "catalog:"
     big.js: "npm:^6.2.2"
-    classnames: "npm:^2.5.1"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
+    classnames: "catalog:"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
     debounce: "npm:^1.2.1"
-    express: "npm:^4.17.1"
+    express: "catalog:"
     fast-xml-parser: "npm:^5.4.0"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
     nanoid: "npm:^3.3.4"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
+    next: "catalog:"
+    next-with-less: "catalog:"
     nunjucks: "npm:^3.2.4"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
+    react: "catalog:"
+    react-dom: "catalog:"
     react-router-dom: "npm:5.2.0"
     socks-proxy-agent: "npm:^6.2.0"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    typescript: "catalog:"
+    uuid: "catalog:"
     xml-c14n: "npm:^0.0.6"
     xml-js: "npm:^1.6.11"
   languageName: unknown
@@ -1195,14 +1154,14 @@ __metadata:
     apollo-boost: "npm:0.4.9"
     apollo-link-error: "npm:^1.1.13"
     body-parser: "npm:^1.20.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
+    dayjs: "catalog:"
+    express: "catalog:"
     express-pino-logger: "npm:^6.0.0"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
-    uuid: "npm:^8.0.3"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    lodash: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1210,13 +1169,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/insurance@workspace:apps/insurance"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
@@ -1229,33 +1188,33 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
+    "@open-keystone/app-next": "catalog:"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
     apollo-server-errors: "npm:^3.1.0"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
     graphql-request: "npm:^6.1.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
     moment: "npm:2.29.4"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
+    next: "catalog:"
+    next-with-less: "catalog:"
+    openid-client: "catalog:"
     phone: "npm:^3.1.41"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1271,16 +1230,16 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@types/react": "npm:^18.3.1"
+    "@types/react": "catalog:"
     commander: "npm:14.0.1"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    jest: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    jest: "catalog:"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
+    openid-client: "catalog:"
+    react: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1294,10 +1253,10 @@ __metadata:
   resolution: "@app/miniapp@workspace:apps/miniapp"
   dependencies:
     "@app/condo": "workspace:^"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
     "@miniapp/domains": "link:./domains"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
@@ -1307,28 +1266,28 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    classnames: "npm:^2.5.1"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.15"
-    next-with-less: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    "@open-keystone/app-next": "catalog:"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
+    classnames: "catalog:"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    next-with-less: "catalog:"
+    openid-client: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1337,12 +1296,12 @@ __metadata:
   resolution: "@app/news-greenhouse@workspace:apps/news-greenhouse"
   dependencies:
     "@app/condo": "workspace:^"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@news-greenhouse/domains": "link:./domains"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -1351,30 +1310,30 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    ajv: "npm:8.11.0"
-    antd: "npm:^4.24.12"
-    classnames: "npm:^2.5.1"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.18"
-    next-with-less: "npm:^3.0.1"
+    "@open-keystone/app-next": "catalog:"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    ajv: "catalog:"
+    antd: "catalog:"
+    classnames: "catalog:"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    next-with-less: "catalog:"
     node-fetch: "npm:^2.6.7"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1387,18 +1346,18 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
     form-data: "npm:^4.0.4"
     https-proxy-agent: "npm:^7.0.1"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    lodash: "catalog:"
     markdown-it: "npm:^14.1.1"
-    openid-client: "npm:5.7.1"
+    openid-client: "catalog:"
     socks-proxy-agent: "npm:^8.0.3"
-    uuid: "npm:^8.3.0"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1407,7 +1366,7 @@ __metadata:
   resolution: "@app/news-telegram-web@workspace:apps/news-telegram-web"
   dependencies:
     "@ant-design/icons": "npm:^6.0.0"
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -1419,22 +1378,22 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
+    antd: "catalog:"
     apollo-upload-client: "npm:^17.0.0"
-    classnames: "npm:^2.5.1"
-    dayjs: "npm:^1.11.10"
+    classnames: "catalog:"
+    dayjs: "catalog:"
     deepmerge: "npm:^4.3.1"
-    graphql: "npm:^16.10.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-intl: "npm:^7.1.11"
+    graphql: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1442,19 +1401,19 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/pass@workspace:apps/pass"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
     "@graphql-codegen/typescript-react-apollo": "npm:^4.4.1"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -1464,30 +1423,30 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
+    "@open-keystone/app-next": "catalog:"
     "@pass/domains": "link:./domains"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    classnames: "npm:^2.5.1"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
+    classnames: "catalog:"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    next-with-less: "catalog:"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1495,12 +1454,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/pos-integration@workspace:apps/pos-integration"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
@@ -1512,28 +1471,28 @@ __metadata:
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@open-condo/webhooks": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
-    "@open-keystone/server-side-graphql-client": "npm:^2.1.5"
+    "@open-keystone/app-next": "catalog:"
+    "@open-keystone/server-side-graphql-client": "catalog:"
     "@pos-integration/domains": "link:./domains"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
+    "@types/react": "catalog:"
+    antd: "catalog:"
     big.js: "npm:^6.2.2"
     body-parser: "npm:^1.20.3"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
-    next: "npm:^15.5.7"
-    openid-client: "npm:5.7.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    zod: "npm:^4.4.3"
+    next: "catalog:"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1541,7 +1500,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/property-ai-assistant@workspace:apps/property-ai-assistant"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/import-types-preset": "npm:^4.0.0"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -1554,18 +1513,18 @@ __metadata:
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@types/http-proxy": "npm:^1.17.16"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
     flowise-embed-react: "npm:^3.0.3"
     http-proxy: "npm:^1.18.1"
     iron-session: "npm:^8.0.4"
-    next: "npm:^15.5.7"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-intl: "npm:^7.1.11"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    next: "catalog:"
+    openid-client: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1573,7 +1532,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/property-importer@workspace:apps/property-importer"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@app/condo": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -1581,31 +1540,31 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
-    "@open-keystone/app-graphql": "npm:^7.0.6"
-    "@open-keystone/app-next": "npm:^9.0.3"
+    "@open-keystone/app-graphql": "catalog:"
+    "@open-keystone/app-next": "catalog:"
     "@property-importer/domains": "link:./domains"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    ajv: "npm:8.11.0"
-    antd: "npm:^4.24.12"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    ajv: "catalog:"
+    antd: "catalog:"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    next-with-less: "catalog:"
     node-fetch: "npm:^2.6.7"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    openid-client: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1613,14 +1572,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/rb@workspace:apps/rb"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/billing": "workspace:^"
     "@open-condo/bridge": "workspace:^"
@@ -1632,46 +1591,46 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-graphql": "npm:^7.0.6"
-    "@open-keystone/app-next": "npm:^9.0.3"
+    "@open-keystone/app-graphql": "catalog:"
+    "@open-keystone/app-next": "catalog:"
     "@pdf-lib/fontkit": "npm:^1.1.1"
     "@rb/domains": "link:./domains"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    ajv: "npm:8.11.0"
-    antd: "npm:^4.24.12"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    ajv: "catalog:"
+    antd: "catalog:"
     axios: "npm:^1.15.0"
     big.js: "npm:^6.2.2"
     body-parser: "npm:^1.20.3"
     body-parser-xml: "npm:^2.0.3"
     carbone: "npm:3.2.3"
-    cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
+    cross-env: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
     form-data: "npm:^4.0.4"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
     iconv-lite: "npm:^0.6.3"
     ignore-loader: "npm:^0.1.2"
     imapflow: "npm:^1.0.177"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
     next-cookies: "npm:^2.0.3"
-    next-with-less: "npm:^3.0.1"
+    next-with-less: "catalog:"
     nunjucks: "npm:^3.2.4"
-    openid-client: "npm:5.7.1"
+    openid-client: "catalog:"
     pdf-lib: "npm:^1.17.1"
     pg: "npm:^8.11.3"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
     xml-js: "npm:^1.6.11"
   languageName: unknown
   linkType: soft
@@ -1680,16 +1639,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/registry-importer@workspace:apps/registry-importer"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/core": "npm:^10.1.1"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/core": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@open-arch-ui/color-utils": "npm:^1.0.1"
     "@open-arch-ui/common": "npm:^1.0.1"
     "@open-arch-ui/layout": "npm:^1.0.1"
@@ -1705,49 +1664,49 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-graphql": "npm:^7.0.6"
-    "@open-keystone/app-next": "npm:^9.0.3"
+    "@open-keystone/app-graphql": "catalog:"
+    "@open-keystone/app-next": "catalog:"
     "@registry-importer/domains": "link:./domains"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
     "@zxing/library": "npm:^0.21.3"
-    ajv: "npm:8.11.0"
-    antd: "npm:^4.24.12"
+    ajv: "catalog:"
+    antd: "catalog:"
     big.js: "npm:^6.2.2"
     busboy: "npm:^1.6.0"
     carbone: "npm:3.2.3"
-    classnames: "npm:^2.5.1"
-    cross-env: "npm:^7.0.3"
+    classnames: "catalog:"
+    cross-env: "catalog:"
     csv-parse: "npm:^5.2.0"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.17.1"
+    dayjs: "catalog:"
+    express: "catalog:"
     form-data: "npm:^4.0.4"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    graphql-upload: "npm:^15.0.2"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    graphql-upload: "catalog:"
     he: "npm:^1.2.0"
     iconv-lite: "npm:^0.6.3"
     ip-range-check: "npm:^0.2.0"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
     jschardet: "npm:^3.0.0"
     jsqr: "npm:^1.4.0"
     jszip: "npm:^3.10.1"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
     memory-streams: "npm:^0.1.3"
     mkdirp: "npm:^3.0.1"
     muhammara: "npm:^6.0.2"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
+    next: "catalog:"
+    next-with-less: "catalog:"
+    openid-client: "catalog:"
     pdf-lib: "npm:^1.17.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.8.3"
-    uuid: "npm:^8.3.0"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
+    typescript: "catalog:"
+    uuid: "catalog:"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xml2js: "npm:^0.6.2"
   languageName: unknown
@@ -1758,7 +1717,7 @@ __metadata:
   resolution: "@app/resident-app@workspace:apps/resident-app"
   dependencies:
     "@ant-design/cssinjs": "npm:^1.24.0"
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -1777,54 +1736,54 @@ __metadata:
     "@telegram-apps/bridge": "npm:^2.10.3"
     "@types/big.js": "npm:^6.2.2"
     "@types/http-proxy": "npm:^1.17.16"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
     analytics: "npm:^0.8.16"
-    antd: "npm:5.28.0"
+    antd: "catalog:"
     big.js: "npm:^6.2.2"
     bowser: "npm:^2.14.1"
-    classnames: "npm:^2.5.1"
+    classnames: "catalog:"
     cookies-next: "npm:^4.2.1"
     cross-fetch: "npm:4.0.0"
-    dayjs: "npm:^1.11.13"
-    express: "npm:^4.17.3"
+    dayjs: "catalog:"
+    express: "catalog:"
     express-pino-logger: "npm:^6.0.0"
     express-session: "npm:^1.17.2"
     firebase: "npm:^12.4.0"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
     http-proxy: "npm:^1.18.1"
     https-proxy-agent: "npm:^7.0.1"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
     jsonwebtoken: "npm:^9.0.0"
     jssip: "npm:3.11.1"
     libphonenumber-js: "npm:^1.12.26"
     locale-currency: "npm:1.0.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
+    lodash: "catalog:"
+    next: "catalog:"
     node-html-parser: "npm:^7.0.2"
-    openid-client: "npm:5.7.1"
+    openid-client: "catalog:"
     path-to-regexp: "npm:^8.2.0"
     phone: "npm:^3.1.41"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-intl: "npm:^7.1.11"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
     react-number-format: "npm:^5.4.4"
     serwist: "npm:^9.0.0"
     socks-proxy-agent: "npm:^8.0.3"
     swr: "npm:^2.3.6"
     telegraf: "npm:^4.16.3"
     telegraf-i18n: "npm:^6.6.0"
-    ts-jest: "npm:^29.4.0"
+    ts-jest: "catalog:"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
     usehooks-ts: "npm:^3.1.0"
-    uuid: "npm:^8.0.3"
+    uuid: "catalog:"
     yet-another-react-lightbox: "npm:^3.31.0"
-    zod: "npm:^4.4.3"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1833,7 +1792,7 @@ __metadata:
   resolution: "@app/telephony-ws-api@workspace:apps/telephony-ws-api"
   dependencies:
     dotenv: "npm:^16.4.7"
-    express: "npm:^4.17.1"
+    express: "catalog:"
     graphql-request: "npm:^6.1.0"
     jsonwebtoken: "npm:^9.0.0"
     phone: "npm:^3.1.41"
@@ -1850,10 +1809,10 @@ __metadata:
   dependencies:
     "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
-    "@emotion/cache": "npm:^11.11.0"
-    "@emotion/react": "npm:^11.11.0"
-    "@emotion/server": "npm:^11.11.0"
-    "@emotion/styled": "npm:^11.11.0"
+    "@emotion/cache": "catalog:"
+    "@emotion/react": "catalog:"
+    "@emotion/server": "catalog:"
+    "@emotion/styled": "catalog:"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -1861,26 +1820,27 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-next": "npm:^9.0.3"
+    "@open-keystone/app-next": "catalog:"
     "@telephony/domains": "link:./domains"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    express: "npm:^4.17.1"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
     jsonwebtoken: "npm:^9.0.0"
-    less: "npm:^4.3.0"
-    less-loader: "npm:^12.3.0"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.7"
-    next-with-less: "npm:^3.0.1"
-    openid-client: "npm:5.7.1"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
+    next: "catalog:"
+    next-with-less: "catalog:"
+    openid-client: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
     socket.io-client: "npm:^4.7.5"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1888,10 +1848,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/ticket-importer@workspace:apps/ticket-importer"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/load": "npm:^8.1.0"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
     "@maxhub/max-bot-api": "npm:^0.2.2"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
@@ -1899,20 +1859,20 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
-    "@types/node": "npm:^24"
+    "@types/node": "catalog:"
     commander: "npm:14.0.1"
-    cross-env: "npm:^7.0.3"
-    express: "npm:^4.17.1"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
     https-proxy-agent: "npm:^7.0.1"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    lodash: "catalog:"
     node-telegram-bot-api: "npm:^0.66.0"
-    openid-client: "npm:5.7.1"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
     socks-proxy-agent: "npm:^8.0.3"
   languageName: unknown
   linkType: soft
@@ -4056,7 +4016,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-syntax-jsx@npm:^7.17.12, @babel/plugin-syntax-jsx@npm:^7.18.6":
+"@babel/plugin-syntax-jsx@npm:^7.18.6":
   version: 7.18.6
   resolution: "@babel/plugin-syntax-jsx@npm:7.18.6"
   dependencies:
@@ -6273,28 +6233,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/babel-plugin@npm:^11.10.0":
-  version: 11.10.0
-  resolution: "@emotion/babel-plugin@npm:11.10.0"
-  dependencies:
-    "@babel/helper-module-imports": "npm:^7.16.7"
-    "@babel/plugin-syntax-jsx": "npm:^7.17.12"
-    "@babel/runtime": "npm:^7.18.3"
-    "@emotion/hash": "npm:^0.9.0"
-    "@emotion/memoize": "npm:^0.8.0"
-    "@emotion/serialize": "npm:^1.1.0"
-    babel-plugin-macros: "npm:^3.1.0"
-    convert-source-map: "npm:^1.5.0"
-    escape-string-regexp: "npm:^4.0.0"
-    find-root: "npm:^1.1.0"
-    source-map: "npm:^0.5.7"
-    stylis: "npm:4.0.13"
-  peerDependencies:
-    "@babel/core": ^7.0.0
-  checksum: 10/05ee173a5e907238a465adbffed279dcddec0d0206c84ad0df573d4fb1b470887878399b5f2fee9654a9cf5796fa055283cdc0023c631fff1921e0896bca745e
-  languageName: node
-  linkType: hard
-
 "@emotion/babel-plugin@npm:^11.13.5":
   version: 11.13.5
   resolution: "@emotion/babel-plugin@npm:11.13.5"
@@ -6323,19 +6261,6 @@ __metadata:
     "@emotion/utils": "npm:0.11.3"
     "@emotion/weak-memoize": "npm:0.2.5"
   checksum: 10/9978106bb1965e7167d37112fd8de3d12e877cdcf352da095cce7543615bfd4489f0ec798449bd4c8c77c80847175d52df60a84d259ec960af93f4c85293fd6a
-  languageName: node
-  linkType: hard
-
-"@emotion/cache@npm:^11.10.0":
-  version: 11.10.1
-  resolution: "@emotion/cache@npm:11.10.1"
-  dependencies:
-    "@emotion/memoize": "npm:^0.8.0"
-    "@emotion/sheet": "npm:^1.2.0"
-    "@emotion/utils": "npm:^1.2.0"
-    "@emotion/weak-memoize": "npm:^0.3.0"
-    stylis: "npm:4.0.13"
-  checksum: 10/55c70cc409a41aa41255ed2de5471efdaccc636fe71e736197e45edbc80160013b1917a26eed8279202189efb799c0b79926446ec619d02fa01358858dfd0b82
   languageName: node
   linkType: hard
 
@@ -6386,13 +6311,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/hash@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@emotion/hash@npm:0.9.0"
-  checksum: 10/b63428f7c8186607acdca5d003700cecf0ded519d0b5c5cc3b3154eafcad6ff433f8361bd2bac8882715b557e6f06945694aeb6ba8b25c6095d7a88570e2e0bb
-  languageName: node
-  linkType: hard
-
 "@emotion/hash@npm:^0.9.2":
   version: 0.9.2
   resolution: "@emotion/hash@npm:0.9.2"
@@ -6425,13 +6343,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/memoize@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "@emotion/memoize@npm:0.8.0"
-  checksum: 10/c87bb110b829edd8e1c13b90a6bc37cebc39af29c7599a1e66a48e06f9bec43e8e53495ba86278cc52e7589549492c8dfdc81d19f4fdec0cee6ba13d2ad2c928
-  languageName: node
-  linkType: hard
-
 "@emotion/memoize@npm:^0.9.0":
   version: 0.9.0
   resolution: "@emotion/memoize@npm:0.9.0"
@@ -6460,29 +6371,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:^11.9.3":
-  version: 11.10.0
-  resolution: "@emotion/react@npm:11.10.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.3"
-    "@emotion/babel-plugin": "npm:^11.10.0"
-    "@emotion/cache": "npm:^11.10.0"
-    "@emotion/serialize": "npm:^1.1.0"
-    "@emotion/utils": "npm:^1.2.0"
-    "@emotion/weak-memoize": "npm:^0.3.0"
-    hoist-non-react-statics: "npm:^3.3.1"
-  peerDependencies:
-    "@babel/core": ^7.0.0
-    react: ">=16.8.0"
-  peerDependenciesMeta:
-    "@babel/core":
-      optional: true
-    "@types/react":
-      optional: true
-  checksum: 10/d96f13a92d6803a7fc46bf672e6f0e80cb76c5d04f92298e90e6a243b06181f48139ae067fbfddc4702ee537fd2210c8111f2588cc0b2f6bda8f693a738900ac
-  languageName: node
-  linkType: hard
-
 "@emotion/serialize@npm:^0.11.15, @emotion/serialize@npm:^0.11.16":
   version: 0.11.16
   resolution: "@emotion/serialize@npm:0.11.16"
@@ -6493,19 +6381,6 @@ __metadata:
     "@emotion/utils": "npm:0.11.3"
     csstype: "npm:^2.5.7"
   checksum: 10/a6c3b70417bb0fc0ca65da139b147fe5f2067010bd8f4e3dadebe3006777b020f4dc4317e82a5644aaa1c64026ffa9283fdc9777d365b37fcea57d9e1fed7a6c
-  languageName: node
-  linkType: hard
-
-"@emotion/serialize@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@emotion/serialize@npm:1.1.0"
-  dependencies:
-    "@emotion/hash": "npm:^0.9.0"
-    "@emotion/memoize": "npm:^0.8.0"
-    "@emotion/unitless": "npm:^0.8.0"
-    "@emotion/utils": "npm:^1.2.0"
-    csstype: "npm:^3.0.2"
-  checksum: 10/b5bc4dfb84aa2f8a5e027dafda5e0eab57ad1f5e5f6c2a0af238c42f2c6f62e918a524a04a8745fcd1e2c03fb2eadde0c14f1540218bdba17fe22d0188a90a58
   languageName: node
   linkType: hard
 
@@ -6543,13 +6418,6 @@ __metadata:
   version: 0.9.4
   resolution: "@emotion/sheet@npm:0.9.4"
   checksum: 10/53bb833b4bb69ea2af04e1ecad164f78fb2614834d2820f584c909686a8e047c44e96a6e824798c5c558e6d95e10772454a9e5c473c5dbe0d198e50deb2815bc
-  languageName: node
-  linkType: hard
-
-"@emotion/sheet@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@emotion/sheet@npm:1.2.0"
-  checksum: 10/867d798daaac96c07ab831d49c6733eba3c393ec2ed281dd6ff6779d8fd16a3b399d4819eecbebc08fff24bf8a74945f583493483e48bd84fd0a2b42761831a2
   languageName: node
   linkType: hard
 
@@ -6629,13 +6497,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/unitless@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "@emotion/unitless@npm:0.8.0"
-  checksum: 10/176141117ed23c0eb6e53a054a69c63e17ae532ec4210907a20b2208f91771821835f1c63dd2ec63e30e22fcc984026d7f933773ee6526dd038e0850919fae7a
-  languageName: node
-  linkType: hard
-
 "@emotion/use-insertion-effect-with-fallbacks@npm:^1.2.0":
   version: 1.2.0
   resolution: "@emotion/use-insertion-effect-with-fallbacks@npm:1.2.0"
@@ -6652,13 +6513,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/utils@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@emotion/utils@npm:1.2.0"
-  checksum: 10/21826f95e2cfe7b185d4e7151f02d891682cd32d98b4c5f8c202bca7771e219472677c8ebca82f5bc26fc0098073af6814361bbfcea0de3aac1925d8198985b3
-  languageName: node
-  linkType: hard
-
 "@emotion/utils@npm:^1.2.1, @emotion/utils@npm:^1.4.2":
   version: 1.4.2
   resolution: "@emotion/utils@npm:1.4.2"
@@ -6670,13 +6524,6 @@ __metadata:
   version: 0.2.5
   resolution: "@emotion/weak-memoize@npm:0.2.5"
   checksum: 10/27d402b0c683b94658220b6d47840346ee582329ca2a15ec9c233492e0f1a27687ccb233b76eedc922f2e185e444cc89f7b97a81a1d3e5ae9f075bab08e965ea
-  languageName: node
-  linkType: hard
-
-"@emotion/weak-memoize@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@emotion/weak-memoize@npm:0.3.0"
-  checksum: 10/f43ef4c8b7de70d9fa5eb3105921724651e4188e895beb71f0c5919dc899a7b8743e1fdd99d38b9092dd5722c7be2312ebb47fbdad0c4e38bea58f6df5885cc0
   languageName: node
   linkType: hard
 
@@ -11085,65 +10932,65 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@next/env@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/env@npm:15.5.18"
-  checksum: 10/476db1457819d99be69375862bc62b1fcea3470ef6b77f1b80b198bc751d6f8ee135e48ac5c70cb6ea6d6ad93aff38bf8595039986bc3332ce6234d724b5dd50
+"@next/env@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/env@npm:15.5.19"
+  checksum: 10/2edfdd97181934f5414737960789e68209c8b08140a056f9b733c70fd76a9eebc2f90f94203a2efc90bb53b707ae9e76ddaf578170d756ccd8df8f5ab7323bb7
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-darwin-arm64@npm:15.5.18"
+"@next/swc-darwin-arm64@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-darwin-arm64@npm:15.5.19"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-darwin-x64@npm:15.5.18"
+"@next/swc-darwin-x64@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-darwin-x64@npm:15.5.19"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-linux-arm64-gnu@npm:15.5.18"
+"@next/swc-linux-arm64-gnu@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-linux-arm64-gnu@npm:15.5.19"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-linux-arm64-musl@npm:15.5.18"
+"@next/swc-linux-arm64-musl@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-linux-arm64-musl@npm:15.5.19"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-linux-x64-gnu@npm:15.5.18"
+"@next/swc-linux-x64-gnu@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-linux-x64-gnu@npm:15.5.19"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-linux-x64-musl@npm:15.5.18"
+"@next/swc-linux-x64-musl@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-linux-x64-musl@npm:15.5.19"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-win32-arm64-msvc@npm:15.5.18"
+"@next/swc-win32-arm64-msvc@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-win32-arm64-msvc@npm:15.5.19"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:15.5.18":
-  version: 15.5.18
-  resolution: "@next/swc-win32-x64-msvc@npm:15.5.18"
+"@next/swc-win32-x64-msvc@npm:15.5.19":
+  version: 15.5.19
+  resolution: "@next/swc-win32-x64-msvc@npm:15.5.19"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -11942,12 +11789,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/apollo-server-client@workspace:packages/apollo-server-client"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     apollo-upload-client: "npm:^17.0.0"
     form-data: "npm:^4.0.4"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    lodash: "npm:^4.17.21"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    lodash: "catalog:"
     node-fetch: "npm:^2.6.7"
   languageName: unknown
   linkType: soft
@@ -11956,7 +11803,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/apollo@workspace:packages/apollo"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@babel/core": "npm:^7.23.2"
     "@babel/preset-react": "npm:^7.24.7"
     "@nerdwallet/apollo-cache-policies": "npm:^3.3.3"
@@ -11969,25 +11816,25 @@ __metadata:
     "@rollup/plugin-typescript": "npm:^11.1.6"
     "@types/apollo-upload-client": "npm:^17.0.0"
     "@types/lodash": "npm:^4.17.7"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
     apollo-upload-client: "npm:^17.0.0"
     apollo3-cache-persist: "npm:^0.15.0"
     babel-loader: "npm:^9.1.3"
     deepmerge: "npm:^4.3.1"
-    graphql: "npm:^16.10.0"
-    lodash: "npm:^4.17.21"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
+    graphql: "catalog:"
+    lodash: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
     rimraf: "npm:^6.0.1"
     rollup: "npm:^4.59.0"
     rollup-plugin-peer-deps-external: "npm:^2.2.4"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
   peerDependencies:
     "@apollo/client": "*"
     graphql: "*"
-    react: ">=16.0.0"
-    react-dom: ">=16.0.0"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -11998,15 +11845,15 @@ __metadata:
     "@faker-js/faker": "npm:^7.6.0"
     "@open-condo/tsconfig": "workspace:^"
     "@types/big.js": "npm:^6.2.2"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
     big.js: "npm:^6.2.2"
     execa: "npm:^5"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    ts-jest: "npm:^29.4.0"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    ts-jest: "catalog:"
     tsup: "npm:^8.4.0"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -12024,7 +11871,7 @@ __metadata:
     rollup-plugin-json: "npm:^4.0.0"
     rollup-plugin-node-resolve: "npm:^5.2.0"
     tslib: "npm:^2.4.1"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -12046,7 +11893,7 @@ __metadata:
     "@faker-js/faker": "npm:^7.6.0"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    lodash: "npm:^4.17.21"
+    lodash: "catalog:"
     node-fetch: "npm:^2.6.7"
   languageName: unknown
   linkType: soft
@@ -12055,7 +11902,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/codegen@workspace:packages/codegen"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
     "@graphql-typed-document-node/core": "npm:^3.1.1"
     "@open-condo/config": "workspace:^"
@@ -12064,21 +11911,21 @@ __metadata:
     "@open-condo/next": "workspace:^"
     boxen: "npm:^4.2.0"
     chalk: "npm:4.1.2"
-    dayjs: "npm:^1.11.10"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
-    lodash: "npm:^4.17.21"
+    dayjs: "catalog:"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
+    lodash: "catalog:"
     ncp: "npm:^2.0.0"
     nunjucks: "npm:^3.2.4"
-    pluralize: "npm:^8.0.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
+    pluralize: "catalog:"
+    react: "catalog:"
+    react-dom: "catalog:"
     yargs: "npm:^16.2.0"
   peerDependencies:
-    "@graphql-tools/graphql-file-loader": ^7.5.17
-    "@graphql-tools/load": ^8.1.0
-    react: ">=16"
-    react-dom: ">=16"
+    "@graphql-tools/graphql-file-loader": "*"
+    "@graphql-tools/load": "*"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -12100,12 +11947,12 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
-    express: "npm:^4.17.1"
-    lodash: "npm:^4.17.21"
+    express: "catalog:"
+    lodash: "catalog:"
   peerDependencies:
-    next: ">=15"
-    react: ">=16"
-    react-dom: ">=16"
+    next: "*"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -12118,14 +11965,14 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@types/jsonwebtoken": "npm:^9.0.0"
-    express: "npm:^4.21.2"
+    express: "catalog:"
     file-type: "npm:16.5.4"
     form-data: "npm:^4.0.4"
     formidable: "npm:^3.5.4"
     jsonwebtoken: "npm:^9.0.0"
     rimraf: "npm:^6.0.1"
-    typescript: "npm:^5.8.3"
-    zod: "npm:^4.4.3"
+    typescript: "catalog:"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -12143,7 +11990,7 @@ __metadata:
     "@svgr/plugin-prettier": "npm:^6.5.1"
     "@svgr/plugin-svgo": "npm:^6.5.1"
     "@types/fs-extra": "npm:^9.0.13"
-    "@types/node": "npm:^24"
+    "@types/node": "catalog:"
     axios: "npm:^1.15.0"
     babel: "npm:^6.23.0"
     babel-loader: "npm:^9.1.0"
@@ -12152,14 +11999,14 @@ __metadata:
     figma-js: "npm:^1.16.1-0"
     figma-transformer: "npm:^2.1.0"
     fs-extra: "npm:^11.1.0"
-    react: "npm:^16.13.1"
+    react: "catalog:"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.8.3"
-    webpack: "npm:^5.99.9"
+    typescript: "catalog:"
+    webpack: "catalog:"
     webpack-cli: "npm:^5.0.1"
   peerDependencies:
-    react: ">=16"
-    react-dom: ">=16"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -12167,14 +12014,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/keystone@workspace:packages/keystone"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
-    "@emotion/react": "npm:^11.9.3"
+    "@apollo/client": "catalog:"
+    "@emotion/react": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
-    "@graphql-tools/graphql-file-loader": "npm:^7.5.17"
-    "@graphql-tools/links": "npm:^8.3.6"
-    "@graphql-tools/load": "npm:^8.1.0"
-    "@graphql-tools/stitch": "npm:^8.7.6"
-    "@graphql-tools/wrap": "npm:^8.5.1"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/links": "catalog:"
+    "@graphql-tools/load": "catalog:"
+    "@graphql-tools/stitch": "catalog:"
+    "@graphql-tools/wrap": "catalog:"
     "@open-arch-ui/controls": "npm:^1.0.1"
     "@open-arch-ui/fields": "npm:^4.0.1"
     "@open-arch-ui/input": "npm:^1.0.1"
@@ -12185,26 +12032,26 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
-    "@open-keystone/adapter-knex": "npm:^14.0.34"
-    "@open-keystone/adapter-mongoose": "npm:^13.0.28"
-    "@open-keystone/adapter-prisma": "npm:^4.0.34"
-    "@open-keystone/app-admin-ui": "npm:^9.0.9"
-    "@open-keystone/app-graphql": "npm:^7.0.7"
-    "@open-keystone/auth-password": "npm:^7.0.32"
-    "@open-keystone/fields": "npm:^25.1.1"
-    "@open-keystone/fields-authed-relationship": "npm:^2.0.32"
-    "@open-keystone/fields-markdown": "npm:^7.0.21"
-    "@open-keystone/file-adapters": "npm:^7.1.7"
-    "@open-keystone/keystone": "npm:^19.4.34"
-    "@open-keystone/server-side-graphql-client": "npm:^2.1.5"
-    "@open-keystone/utils": "npm:^6.1.7"
+    "@open-keystone/adapter-knex": "catalog:"
+    "@open-keystone/adapter-mongoose": "catalog:"
+    "@open-keystone/adapter-prisma": "catalog:"
+    "@open-keystone/app-admin-ui": "catalog:"
+    "@open-keystone/app-graphql": "catalog:"
+    "@open-keystone/auth-password": "catalog:"
+    "@open-keystone/fields": "catalog:"
+    "@open-keystone/fields-authed-relationship": "catalog:"
+    "@open-keystone/fields-markdown": "catalog:"
+    "@open-keystone/file-adapters": "catalog:"
+    "@open-keystone/keystone": "catalog:"
+    "@open-keystone/server-side-graphql-client": "catalog:"
+    "@open-keystone/utils": "catalog:"
     "@opentelemetry/api": "npm:^1.4.1"
     "@opentelemetry/exporter-trace-otlp-proto": "npm:^0.41.2"
     "@opentelemetry/instrumentation-ioredis": "npm:^0.35.1"
     "@opentelemetry/instrumentation-pg": "npm:^0.36.1"
     "@opentelemetry/sdk-node": "npm:^0.41.2"
     "@primer/octicons-react": "npm:^11.3.0"
-    ajv: "npm:8.11.0"
+    ajv: "catalog:"
     apollo-errors: "npm:^1.9.0"
     apollo-server-errors: "npm:^3.1.0"
     apollo-upload-client: "npm:^17.0.0"
@@ -12218,29 +12065,29 @@ __metadata:
     connect-redis: "npm:^6.0.0"
     csv-parse: "npm:^5.2.0"
     cuid: "npm:^2.1.8"
-    dayjs: "npm:^1.11.10"
+    dayjs: "catalog:"
     debug: "npm:^4.3.4"
     dumb-passwords: "npm:^0.2.1"
     emittery: "npm:^0.7.1"
     encoding: "npm:^0.1.0"
     esdk-obs-nodejs: "npm:3.21.6"
-    express: "npm:^4.17.1"
+    express: "catalog:"
     express-graphql: "npm:^0.12.0"
     express-session: "npm:^1.17.2"
     form-data: "npm:^4.0.4"
-    graphql: "npm:^16.10.0"
+    graphql: "catalog:"
     graphql-disable-introspection: "npm:^1.2.0"
-    graphql-tag: "npm:^2.12.6"
-    graphql-upload: "npm:^15.0.2"
+    graphql-tag: "catalog:"
+    graphql-upload: "catalog:"
     hot-shots: "npm:^10.0.0"
     iconv-lite: "npm:^0.6.3"
     inflection: "npm:^1.13.1"
     ioredis: "npm:^4.28.5"
-    jest: "npm:^29.7.0"
+    jest: "catalog:"
     jschardet: "npm:^3.0.0"
     jsonwebtoken: "npm:^9.0.0"
     knex: "npm:^3.1.0"
-    lodash: "npm:^4.17.21"
+    lodash: "catalog:"
     lru-cache: "npm:^7.18.3"
     minimatch: "npm:^5.1.8"
     ms: "npm:^2.1.3"
@@ -12252,14 +12099,14 @@ __metadata:
     ow: "npm:^0.19.0"
     pino: "npm:^6.13.3"
     pino-std-serializers: "npm:^4.0.0"
-    pluralize: "npm:^8.0.0"
+    pluralize: "catalog:"
     proxy-addr: "npm:^2.0.7"
-    react: "npm:^18.3.1"
+    react: "catalog:"
     tough-cookie: "npm:^4.1.3"
-    uuid: "npm:^8.3.0"
+    uuid: "catalog:"
     validate.js: "npm:^0.13.1"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-    zod: "npm:^4.4.3"
+    zod: "catalog:"
   bin:
     keystone: ./bin/cli.js
   languageName: unknown
@@ -12270,7 +12117,7 @@ __metadata:
   resolution: "@open-condo/locales@workspace:packages/locales"
   dependencies:
     "@open-condo/config": "workspace:^"
-    lodash: "npm:^4.17.21"
+    lodash: "catalog:"
     next-cookies: "npm:^2.0.3"
   languageName: unknown
   linkType: soft
@@ -12282,13 +12129,13 @@ __metadata:
     "@nats-io/nats-core": "npm:^3.3.1"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    express: "npm:^4.21.2"
+    express: "catalog:"
     jsonwebtoken: "npm:^9.0.0"
     nats: "npm:^2.28.2"
     next-cookies: "npm:^2.0.3"
     nkeys.js: "npm:^1.1.0"
   peerDependencies:
-    react: ^17.0.0 || ^18.0.0
+    react: "*"
   languageName: unknown
   linkType: soft
 
@@ -12299,8 +12146,8 @@ __metadata:
     "@faker-js/faker": "npm:^7.6.0"
     "@open-condo/tsconfig": "workspace:^"
     "@types/ioredis": "npm:^4.28.5"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
     "@types/prompts": "npm:^2.4.9"
     "@types/tmp": "npm:^0.2.6"
     cli-table3: "npm:^0.6.5"
@@ -12309,14 +12156,14 @@ __metadata:
     execa: "npm:^5.0.0"
     glob: "npm:^11.0.1"
     ioredis: "npm:^4.28.5"
-    jest: "npm:^29.7.0"
+    jest: "catalog:"
     prompts: "npm:^2.4.2"
     testcontainers: "npm:^11.7.0"
     tmp: "npm:^0.2.3"
-    ts-jest: "npm:^29.4.0"
+    ts-jest: "catalog:"
     tsup: "npm:^8.3.6"
-    typescript: "npm:^5.8.3"
-    zod: "npm:^4.4.3"
+    typescript: "catalog:"
+    zod: "catalog:"
   bin:
     migrator: dist/cli.js
   languageName: unknown
@@ -12326,36 +12173,36 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/miniapp-utils@workspace:packages/miniapp-utils"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@types/http-proxy": "npm:^1.17.16"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24"
+    "@types/jest": "catalog:"
+    "@types/node": "catalog:"
     "@types/proxy-addr": "npm:^2.0.3"
-    "@types/react": "npm:^18.3.1"
+    "@types/react": "catalog:"
     analytics: "npm:^0.8.16"
     cookie: "npm:^0.7.0"
     cookies-next: "npm:^4.2.1"
-    graphql: "npm:^16.10.0"
+    graphql: "catalog:"
     http-proxy: "npm:^1.18.1"
-    jest: "npm:^29.7.0"
+    jest: "catalog:"
     jsonwebtoken: "npm:^9.0.0"
-    openid-client: "npm:5.7.1"
+    openid-client: "catalog:"
     proxy-addr: "npm:^2.0.7"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    ts-jest: "npm:^29.4.0"
+    react: "catalog:"
+    react-dom: "catalog:"
+    ts-jest: "catalog:"
     tsup: "npm:^8.4.0"
-    typescript: "npm:^5.8.3"
-    webpack: "npm:^5.99.9"
-    zod: "npm:^4.4.3"
+    typescript: "catalog:"
+    webpack: "catalog:"
+    zod: "catalog:"
   peerDependencies:
-    "@apollo/client": ">=3.0.0"
+    "@apollo/client": "*"
     "@open-condo/bridge": ">=2.0.0"
     analytics: ^0.8.16
-    react: ">=16.0.0"
-    react-dom: ">=16.0.0"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -12363,25 +12210,25 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/next@workspace:packages/next"
   dependencies:
-    "@apollo/client": "npm:^3.11.8"
+    "@apollo/client": "catalog:"
     "@graphql-typed-document-node/core": "npm:3.2.0"
     "@open-condo/apollo": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     apollo-upload-client: "npm:^17.0.0"
     eventemitter3: "npm:^4.0.0"
-    graphql: "npm:^16.10.0"
-    graphql-tag: "npm:^2.12.6"
+    graphql: "catalog:"
+    graphql-tag: "catalog:"
     isomorphic-unfetch: "npm:^3.0.0"
     js-cookie: "npm:^3.0.8"
-    lodash: "npm:^4.17.21"
-    next: "npm:^15.5.15"
+    lodash: "catalog:"
+    next: "catalog:"
     next-cookies: "npm:^2.0.3"
     pino: "npm:^6.13.3"
-    react-intl: "npm:^7.1.11"
+    react-intl: "catalog:"
   peerDependencies:
-    react: ">=16.13.1"
-    react-dom: ">=16.13.1"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -12390,7 +12237,7 @@ __metadata:
   resolution: "@open-condo/surveys@workspace:packages/surveys"
   peerDependencies:
     posthog-js: ">=1.364.1"
-    react: ">=18.3.1"
+    react: "*"
   languageName: unknown
   linkType: soft
 
@@ -12439,29 +12286,29 @@ __metadata:
     "@tiptap/pm": "npm:^3.20.0"
     "@tiptap/react": "npm:^3.20.0"
     "@tiptap/starter-kit": "npm:^3.20.0"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    antd: "catalog:"
     babel: "npm:^6.23.0"
     babel-loader: "npm:^8.2.5"
     chromatic: "npm:^6.9.0"
-    classnames: "npm:^2.5.1"
+    classnames: "catalog:"
     commander: "npm:14.0.1"
     copy-webpack-plugin: "npm:^11.0.0"
     css-loader: "npm:^6.7.1"
     css-minimizer-webpack-plugin: "npm:^4.0.0"
     emoji-mart: "npm:^5.6.0"
-    less: "npm:^4.1.3"
-    less-loader: "npm:^11.0.0"
-    lodash: "npm:^4.17.21"
+    less: "catalog:"
+    less-loader: "catalog:"
+    lodash: "catalog:"
     mini-css-extract-plugin: "npm:^2.6.1"
-    pluralize: "npm:^8.0.0"
+    pluralize: "catalog:"
     postcss: "npm:^8.4.16"
     postcss-loader: "npm:^7.0.1"
     postcss-preset-env: "npm:^7.8.1"
     quicktype-core: "npm:^6.0.71"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
+    react: "catalog:"
+    react-dom: "catalog:"
     react-markdown: "npm:^6"
     react-phone-input-2: "npm:^2.15.1"
     remark-gfm: "npm:^1"
@@ -12472,14 +12319,14 @@ __metadata:
     style-loader: "npm:^3.3.1"
     token-transformer: "npm:^0.0.27"
     ts-loader: "npm:^9.4.1"
-    typescript: "npm:^5.8.3"
-    webpack: "npm:^5.99.9"
+    typescript: "catalog:"
+    webpack: "catalog:"
     webpack-cli: "npm:^4.10.0"
     webpack-merge: "npm:^5.8.0"
-    zod: "npm:^4.4.3"
+    zod: "catalog:"
   peerDependencies:
-    react: ">=16"
-    react-dom: ">=16"
+    react: "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -12491,21 +12338,21 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    ajv: "npm:8.11.0"
-    dayjs: "npm:^1.11.10"
-    express: "npm:^4.21.2"
-    graphql: "npm:^16.10.0"
+    ajv: "catalog:"
+    dayjs: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
     graphql-2-json-schema: "npm:^0.9.1"
-    graphql-tag: "npm:^2.12.6"
-    jest: "npm:^29.7.0"
-    jest-jasmine2: "npm:^29.7.0"
-    lodash: "npm:^4.17.21"
+    graphql-tag: "catalog:"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    lodash: "catalog:"
     nock: "npm:^14.0.5"
-    pluralize: "npm:^8.0.0"
+    pluralize: "catalog:"
   peerDependencies:
-    "@graphql-tools/graphql-file-loader": ^7.5.17
-    "@graphql-tools/load": ^8.1.0
-    "@open-keystone/fields": ^25.1.1
+    "@graphql-tools/graphql-file-loader": "*"
+    "@graphql-tools/load": "*"
+    "@open-keystone/fields": "*"
   languageName: unknown
   linkType: soft
 
@@ -12585,82 +12432,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/app-admin-ui@npm:^9.0.8":
-  version: 9.0.8
-  resolution: "@open-keystone/app-admin-ui@npm:9.0.8"
-  dependencies:
-    "@apollo/client": "npm:^3.11.8"
-    "@babel/core": "npm:^7.14.6"
-    "@babel/runtime": "npm:^7.14.6"
-    "@emotion/core": "npm:^10.1.1"
-    "@open-arch-ui/alert": "npm:^1.0.2"
-    "@open-arch-ui/badge": "npm:^1.0.1"
-    "@open-arch-ui/button": "npm:^1.0.1"
-    "@open-arch-ui/card": "npm:^1.0.1"
-    "@open-arch-ui/color-utils": "npm:^1.0.1"
-    "@open-arch-ui/common": "npm:^1.0.1"
-    "@open-arch-ui/confirm": "npm:^1.0.1"
-    "@open-arch-ui/controls": "npm:^1.0.1"
-    "@open-arch-ui/dialog": "npm:^1.0.1"
-    "@open-arch-ui/drawer": "npm:^1.0.1"
-    "@open-arch-ui/dropdown": "npm:^1.0.1"
-    "@open-arch-ui/fields": "npm:^4.0.1"
-    "@open-arch-ui/hooks": "npm:^1.0.1"
-    "@open-arch-ui/input": "npm:^1.0.1"
-    "@open-arch-ui/layout": "npm:^1.0.1"
-    "@open-arch-ui/loading": "npm:^1.0.1"
-    "@open-arch-ui/lozenge": "npm:^1.0.1"
-    "@open-arch-ui/navbar": "npm:^1.0.1"
-    "@open-arch-ui/options": "npm:^1.0.1"
-    "@open-arch-ui/pagination": "npm:^1.0.1"
-    "@open-arch-ui/pill": "npm:^1.0.1"
-    "@open-arch-ui/popout": "npm:^1.0.1"
-    "@open-arch-ui/select": "npm:^1.0.1"
-    "@open-arch-ui/theme": "npm:^1.0.1"
-    "@open-arch-ui/tooltip": "npm:^1.0.1"
-    "@open-arch-ui/typography": "npm:^1.0.1"
-    "@open-keystone/field-views-loader": "npm:^7.0.2"
-    "@open-keystone/session": "npm:^8.5.0"
-    "@open-keystone/utils": "npm:^6.1.6"
-    "@primer/octicons-react": "npm:^11.3.0"
-    "@types/react": "npm:^18.3.1"
-    apollo-upload-client: "npm:^17.0.0"
-    apply-ref: "npm:^1.0.0"
-    babel-loader: "npm:^10.0.0"
-    babel-plugin-emotion: "npm:^10.2.2"
-    babel-preset-react-app: "npm:^10.0.0"
-    clipboard-copy: "npm:^4.0.1"
-    compression: "npm:^1.7.4"
-    cross-fetch: "npm:^3.1.4"
-    css-loader: "npm:^7.1.2"
-    express: "npm:^4.17.1"
-    express-history-api-fallback: "npm:^2.2.1"
-    file-loader: "npm:^6.2.0"
-    graphql: "npm:^16.10.0"
-    html-webpack-plugin: "npm:^5.6.3"
-    lodash: "npm:^4.17.21"
-    memoize-one: "npm:^5.2.1"
-    prop-types: "npm:^15.7.2"
-    raf-schd: "npm:^4.0.3"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-prop-toggle: "npm:^1.0.2"
-    react-pseudo-state: "npm:^2.2.2"
-    react-router-dom: "npm:5.2.0"
-    react-select: "npm:^3.2.0"
-    react-toast-notifications: "npm:^2.4.4"
-    react-transition-group: "npm:^4.4.2"
-    react-uid: "npm:^2.3.1"
-    resize-observer-polyfill: "npm:^1.5.1"
-    style-loader: "npm:^4.0.0"
-    use-resize-observer: "npm:^6.1.0"
-    webpack: "npm:^5.99.9"
-    webpack-dev-middleware: "npm:^7.4.2"
-    webpack-hot-middleware: "npm:^2.26.1"
-  checksum: 10/465075179bb3c7ef996eab674322ffd86fe2260db42c529b20dc20e429f733179d49bb888412a075cca39d228f4aa6c4895b49df82eeaffac5d98772d4debb5f
-  languageName: node
-  linkType: hard
-
 "@open-keystone/app-admin-ui@npm:^9.0.9":
   version: 9.0.9
   resolution: "@open-keystone/app-admin-ui@npm:9.0.9"
@@ -12737,25 +12508,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/app-graphql-playground@npm:^6.0.6":
-  version: 6.0.6
-  resolution: "@open-keystone/app-graphql-playground@npm:6.0.6"
-  dependencies:
-    "@apollographql/graphql-playground-html": "npm:^1.6.29"
-    "@apollographql/graphql-playground-react": "npm:^1.7.41"
-    "@open-keystone/session": "npm:^8.5.0"
-    "@open-keystone/utils": "npm:^6.1.6"
-    body-parser: "npm:^1.19.0"
-    chalk: "npm:^4.1.1"
-    graphql-tag: "npm:^2.11.0"
-    object-hash: "npm:^2.2.0"
-    terminal-link: "npm:^2.1.1"
-  peerDependencies:
-    express: ^4.17.1
-  checksum: 10/550e6db25173b0dc64cbdef52feec16d26de3e94c83a709587e55ed2ad32a0ce946a45c51093b18d04f97350d8aa79355dc80b5057ecc4158cce184fe57c55e8
-  languageName: node
-  linkType: hard
-
 "@open-keystone/app-graphql-playground@npm:^6.0.7":
   version: 6.0.7
   resolution: "@open-keystone/app-graphql-playground@npm:6.0.7"
@@ -12772,22 +12524,6 @@ __metadata:
   peerDependencies:
     express: ^4.17.1
   checksum: 10/73e94fc480f6a9d18a832b09546e689c8cc1f0408b113d5ac95befedc8f8cb5ae60838b3662d0c9ac204df12b923373abda8618fb22d7d322645c19142056715
-  languageName: node
-  linkType: hard
-
-"@open-keystone/app-graphql@npm:^7.0.6":
-  version: 7.0.6
-  resolution: "@open-keystone/app-graphql@npm:7.0.6"
-  dependencies:
-    "@open-keystone/app-graphql-playground": "npm:^6.0.6"
-    "@open-keystone/session": "npm:^8.5.0"
-    "@open-keystone/utils": "npm:^6.1.6"
-    graphql: "npm:^16.10.0"
-    graphql-upload: "npm:^15.0.2"
-    nanoassert: "npm:^2.0.0"
-  peerDependencies:
-    express: ^4.17.1
-  checksum: 10/0b49a2ffa4d10123db5384a664bc35c619cefba587c2adf88d22dcb5e084f0fb26e502a96ac2636bbf6a0a8574395aa517ad5785d9bd9044d917e6a50debe9b2
   languageName: node
   linkType: hard
 
@@ -13041,19 +12777,6 @@ __metadata:
     express: "npm:^4.17.1"
     express-session: "npm:^1.17.2"
   checksum: 10/0c5025c270e3747d9ecbca100aaf91d4f7b4f475f5d88c8f7d90ba5713dcf4d90fa326a2bee158368ad74d0800044eb8d2483c39683e6e979f440d43a675f993
-  languageName: node
-  linkType: hard
-
-"@open-keystone/utils@npm:^6.1.6":
-  version: 6.1.6
-  resolution: "@open-keystone/utils@npm:6.1.6"
-  dependencies:
-    "@babel/runtime": "npm:^7.14.6"
-    p-is-promise: "npm:^3.0.0"
-    p-lazy: "npm:^3.1.0"
-    p-reflect: "npm:^2.1.0"
-    semver: "npm:^7.3.5"
-  checksum: 10/fb6ccf93eade0e1b375880de80ba89709927137d07b29150920312b892da2e3ba852901d6acb80b960006fd8ca6d5a9729b95890d40532b0c12073b1336dd745
   languageName: node
   linkType: hard
 
@@ -14265,66 +13988,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@rc-component/async-validator@npm:^5.0.3":
-  version: 5.0.4
-  resolution: "@rc-component/async-validator@npm:5.0.4"
-  dependencies:
-    "@babel/runtime": "npm:^7.24.4"
-  checksum: 10/b5e4431a073ec047a3fd1425f30d38bb600d5ad3fc180ec7afa977a6361d7e83df30d66ce9c637910907b6a50debf8bb64d7378fe3d39b352c395144a2eaf1d5
-  languageName: node
-  linkType: hard
-
-"@rc-component/color-picker@npm:~2.0.1":
-  version: 2.0.1
-  resolution: "@rc-component/color-picker@npm:2.0.1"
-  dependencies:
-    "@ant-design/fast-color": "npm:^2.0.6"
-    "@babel/runtime": "npm:^7.23.6"
-    classnames: "npm:^2.2.6"
-    rc-util: "npm:^5.38.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/7c4268063a476184a8cf68fadc6f353ae303832f0e458478c5d6ad12ed4a4ffa77ae3d46aebc8823ebfa9e7efb44207e0478099a3ba0ea323cc338f1aebff6ef
-  languageName: node
-  linkType: hard
-
-"@rc-component/context@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@rc-component/context@npm:1.4.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    rc-util: "npm:^5.27.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/77b84e6cea11d7adbf68a89a49142d96129abbe485449851702d83d34ba507872404adacee39171dd47e9000556260cc76ab327e09f3320937ecb0c7e6906caa
-  languageName: node
-  linkType: hard
-
-"@rc-component/mini-decimal@npm:^1.0.1":
-  version: 1.1.0
-  resolution: "@rc-component/mini-decimal@npm:1.1.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.0"
-  checksum: 10/5dbc39a590f87790d22f57c7271f05c9a73e3f28a3a4587fa562e817b69706079a8ae9763a010aa9c2887bc9003a6ef395ca0795cd8c653ce038dfe4b9005d4e
-  languageName: node
-  linkType: hard
-
-"@rc-component/mutate-observer@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@rc-component/mutate-observer@npm:1.1.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.0"
-    classnames: "npm:^2.3.2"
-    rc-util: "npm:^5.24.4"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/ffd79ad54b1f4dd02a94306373d3ebe408d5348156ac7908a86937f58c169f2fd42457461a5dc27bb874b9af5c2c196dc11a18db6bb6a5ff514cfd6bc1a3bb6a
-  languageName: node
-  linkType: hard
-
 "@rc-component/portal@npm:^1.0.0-8, @rc-component/portal@npm:^1.0.2":
   version: 1.0.3
   resolution: "@rc-component/portal@npm:1.0.3"
@@ -14339,7 +14002,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rc-component/portal@npm:^1.0.0-9, @rc-component/portal@npm:^1.1.0":
+"@rc-component/portal@npm:^1.1.0":
   version: 1.1.2
   resolution: "@rc-component/portal@npm:1.1.2"
   dependencies:
@@ -14381,35 +14044,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rc-component/qrcode@npm:~1.1.0":
-  version: 1.1.0
-  resolution: "@rc-component/qrcode@npm:1.1.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.24.7"
-    classnames: "npm:^2.3.2"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/72455858cee7a0d7def84b2399986811720fd469b355f5111739ac1c4ff2625dd4632c9fdb835a6a6e212eb975d5addc2c1d94f388163af8f3c608cf038b2156
-  languageName: node
-  linkType: hard
-
-"@rc-component/tour@npm:~1.15.1":
-  version: 1.15.1
-  resolution: "@rc-component/tour@npm:1.15.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.0"
-    "@rc-component/portal": "npm:^1.0.0-9"
-    "@rc-component/trigger": "npm:^2.0.0"
-    classnames: "npm:^2.3.2"
-    rc-util: "npm:^5.24.4"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/6dfbb662c19456d78ac653e4ecdc359cea6590cbf52da5f8a06ddb229d367a567630c8aa493c479d631a11cd9fab12c744757a180324ce1c07861983e7444f43
-  languageName: node
-  linkType: hard
-
 "@rc-component/trigger@npm:^2.0.0":
   version: 2.2.7
   resolution: "@rc-component/trigger@npm:2.2.7"
@@ -14424,23 +14058,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/ef30a962b25806045ba1d9d277f4d5edd213f6cce6a88e905ae6b13328bb09e27631caa2acf885327fc94c20cddb6e2a216ffc75874e56bbc82f3b0b0ccd9e2d
-  languageName: node
-  linkType: hard
-
-"@rc-component/trigger@npm:^2.1.1, @rc-component/trigger@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@rc-component/trigger@npm:2.3.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.23.2"
-    "@rc-component/portal": "npm:^1.1.0"
-    classnames: "npm:^2.3.2"
-    rc-motion: "npm:^2.0.0"
-    rc-resize-observer: "npm:^1.3.1"
-    rc-util: "npm:^5.44.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/cb3a1d8bb77ad1a2fcb71d6f815b9b6ac593347ebdabcde4831818c33a45b5b3b18d99cb6d6502ff77447a58f8963fba580ae0729dee31cf8e6bd78a7e0348d7
   languageName: node
   linkType: hard
 
@@ -18320,66 +17937,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:5.28.0":
-  version: 5.28.0
-  resolution: "antd@npm:5.28.0"
-  dependencies:
-    "@ant-design/colors": "npm:^7.2.1"
-    "@ant-design/cssinjs": "npm:^1.23.0"
-    "@ant-design/cssinjs-utils": "npm:^1.1.3"
-    "@ant-design/fast-color": "npm:^2.0.6"
-    "@ant-design/icons": "npm:^5.6.1"
-    "@ant-design/react-slick": "npm:~1.1.2"
-    "@babel/runtime": "npm:^7.26.0"
-    "@rc-component/color-picker": "npm:~2.0.1"
-    "@rc-component/mutate-observer": "npm:^1.1.0"
-    "@rc-component/qrcode": "npm:~1.1.0"
-    "@rc-component/tour": "npm:~1.15.1"
-    "@rc-component/trigger": "npm:^2.3.0"
-    classnames: "npm:^2.5.1"
-    copy-to-clipboard: "npm:^3.3.3"
-    dayjs: "npm:^1.11.11"
-    rc-cascader: "npm:~3.34.0"
-    rc-checkbox: "npm:~3.5.0"
-    rc-collapse: "npm:~3.9.0"
-    rc-dialog: "npm:~9.6.0"
-    rc-drawer: "npm:~7.3.0"
-    rc-dropdown: "npm:~4.2.1"
-    rc-field-form: "npm:~2.7.1"
-    rc-image: "npm:~7.12.0"
-    rc-input: "npm:~1.8.0"
-    rc-input-number: "npm:~9.5.0"
-    rc-mentions: "npm:~2.20.0"
-    rc-menu: "npm:~9.16.1"
-    rc-motion: "npm:^2.9.5"
-    rc-notification: "npm:~5.6.4"
-    rc-pagination: "npm:~5.1.0"
-    rc-picker: "npm:~4.11.3"
-    rc-progress: "npm:~4.0.0"
-    rc-rate: "npm:~2.13.1"
-    rc-resize-observer: "npm:^1.4.3"
-    rc-segmented: "npm:~2.7.0"
-    rc-select: "npm:~14.16.8"
-    rc-slider: "npm:~11.1.9"
-    rc-steps: "npm:~6.0.1"
-    rc-switch: "npm:~4.1.0"
-    rc-table: "npm:~7.54.0"
-    rc-tabs: "npm:~15.7.0"
-    rc-textarea: "npm:~1.10.2"
-    rc-tooltip: "npm:~6.4.0"
-    rc-tree: "npm:~5.13.1"
-    rc-tree-select: "npm:~5.27.0"
-    rc-upload: "npm:~4.11.0"
-    rc-util: "npm:^5.44.4"
-    scroll-into-view-if-needed: "npm:^3.1.0"
-    throttle-debounce: "npm:^5.0.2"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/53b5eea69010277d4c5054a905e7ea0ab0f320768a61e178eb36df54a451a68071f6dd9d729fd5065ed78fadc30d8df7f267c8c58efa5d919a4c8ceb90ca54b7
-  languageName: node
-  linkType: hard
-
 "antd@npm:^4.24.12":
   version: 4.24.12
   resolution: "antd@npm:4.24.12"
@@ -20054,7 +19611,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.3, body-parser@npm:^1.20.3":
+"body-parser@npm:^1.20.3":
   version: 1.20.3
   resolution: "body-parser@npm:1.20.3"
   dependencies:
@@ -22056,13 +21613,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compute-scroll-into-view@npm:^3.0.2":
-  version: 3.1.1
-  resolution: "compute-scroll-into-view@npm:3.1.1"
-  checksum: 10/b68827555c39862cf3d7def838f3b8ee3751e3e88b9ec3bb601484666f0596963cd91db16b23248e14759339cf2ddff72b9c53c3070f6fd27177393ea83185f3
-  languageName: node
-  linkType: hard
-
 "concat-map@npm:0.0.1":
   version: 0.0.1
   resolution: "concat-map@npm:0.0.1"
@@ -22289,13 +21839,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.7.1":
-  version: 0.7.1
-  resolution: "cookie@npm:0.7.1"
-  checksum: 10/aec6a6aa0781761bf55d60447d6be08861d381136a0fe94aa084fddd4f0300faa2b064df490c6798adfa1ebaef9e0af9b08a189c823e0811b8b313b3d9a03380
-  languageName: node
-  linkType: hard
-
 "cookie@npm:^0.6.0":
   version: 0.6.0
   resolution: "cookie@npm:0.6.0"
@@ -22359,15 +21902,6 @@ __metadata:
   dependencies:
     toggle-selection: "npm:^1.0.6"
   checksum: 10/cdd0c44dc43900e8518ea2eb8ac9d53db3e0c1900e45e446668b57e95b3b0897883cabd9ebfbb70e39aa3108a0eac20fd506dfa0873d88f7bf09216d2a19c789
-  languageName: node
-  linkType: hard
-
-"copy-to-clipboard@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "copy-to-clipboard@npm:3.3.3"
-  dependencies:
-    toggle-selection: "npm:^1.0.6"
-  checksum: 10/e0a325e39b7615108e6c1c8ac110ae7b829cdc4ee3278b1df6a0e4228c490442cc86444cd643e2da344fbc424b3aab8909e2fec82f8bc75e7e5b190b7c24eecf
   languageName: node
   linkType: hard
 
@@ -23312,20 +22846,6 @@ __metadata:
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: 10/7374d63ab179b8d909a95e74790def25c8986e329ae989840bacb8b1888be116d20e1c4eee75a69ea0dfbae13172efc50ef85619d304ee7ca3c01d5878b704f5
-  languageName: node
-  linkType: hard
-
-"dayjs@npm:^1.11.11":
-  version: 1.11.19
-  resolution: "dayjs@npm:1.11.19"
-  checksum: 10/185b820d68492b83a3ce2b8ddc7543034edc1dfd1423183f6ae4707b29929a3cc56503a81826309279f9084680c15966b99456e74cf41f7d1f6a2f98f9c7196f
-  languageName: node
-  linkType: hard
-
-"dayjs@npm:^1.11.13":
-  version: 1.11.20
-  resolution: "dayjs@npm:1.11.20"
-  checksum: 10/5347533f21a55b8bb1b1ef559be9b805514c3a8fb7e68b75fb7e73808131c59e70909c073aa44ce8a0d159195cd110cdd4081cf87ab96cb06fee3edacae791c6
   languageName: node
   linkType: hard
 
@@ -26050,7 +25570,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.17.3, express@npm:^4.18.2":
+"express@npm:^4.18.2":
   version: 4.22.1
   resolution: "express@npm:4.22.1"
   dependencies:
@@ -26086,45 +25606,6 @@ __metadata:
     utils-merge: "npm:1.0.1"
     vary: "npm:~1.1.2"
   checksum: 10/f33c1bd0c7d36e2a1f18de9cdc176469d32f68e20258d2941b8d296ab9a4fd9011872c246391bf87714f009fac5114c832ec5ac65cbee39421f1258801eb8470
-  languageName: node
-  linkType: hard
-
-"express@npm:^4.21.2":
-  version: 4.21.2
-  resolution: "express@npm:4.21.2"
-  dependencies:
-    accepts: "npm:~1.3.8"
-    array-flatten: "npm:1.1.1"
-    body-parser: "npm:1.20.3"
-    content-disposition: "npm:0.5.4"
-    content-type: "npm:~1.0.4"
-    cookie: "npm:0.7.1"
-    cookie-signature: "npm:1.0.6"
-    debug: "npm:2.6.9"
-    depd: "npm:2.0.0"
-    encodeurl: "npm:~2.0.0"
-    escape-html: "npm:~1.0.3"
-    etag: "npm:~1.8.1"
-    finalhandler: "npm:1.3.1"
-    fresh: "npm:0.5.2"
-    http-errors: "npm:2.0.0"
-    merge-descriptors: "npm:1.0.3"
-    methods: "npm:~1.1.2"
-    on-finished: "npm:2.4.1"
-    parseurl: "npm:~1.3.3"
-    path-to-regexp: "npm:0.1.12"
-    proxy-addr: "npm:~2.0.7"
-    qs: "npm:6.13.0"
-    range-parser: "npm:~1.2.1"
-    safe-buffer: "npm:5.2.1"
-    send: "npm:0.19.0"
-    serve-static: "npm:1.16.2"
-    setprototypeof: "npm:1.2.0"
-    statuses: "npm:2.0.1"
-    type-is: "npm:~1.6.18"
-    utils-merge: "npm:1.0.1"
-    vary: "npm:~1.1.2"
-  checksum: 10/34571c442fc8c9f2c4b442d2faa10ea1175cf8559237fc6a278f5ce6254a8ffdbeb9a15d99f77c1a9f2926ab183e3b7ba560e3261f1ad4149799e3412ab66bd1
   languageName: node
   linkType: hard
 
@@ -26654,21 +26135,6 @@ __metadata:
     statuses: "npm:2.0.1"
     unpipe: "npm:~1.0.0"
   checksum: 10/635718cb203c6d18e6b48dfbb6c54ccb08ea470e4f474ddcef38c47edcf3227feec316f886dd701235997d8af35240cae49856721ce18f539ad038665ebbf163
-  languageName: node
-  linkType: hard
-
-"finalhandler@npm:1.3.1":
-  version: 1.3.1
-  resolution: "finalhandler@npm:1.3.1"
-  dependencies:
-    debug: "npm:2.6.9"
-    encodeurl: "npm:~2.0.0"
-    escape-html: "npm:~1.0.3"
-    on-finished: "npm:2.4.1"
-    parseurl: "npm:~1.3.3"
-    statuses: "npm:2.0.1"
-    unpipe: "npm:~1.0.0"
-  checksum: 10/4babe72969b7373b5842bc9f75c3a641a4d0f8eb53af6b89fa714d4460ce03fb92b28de751d12ba415e96e7e02870c436d67412120555e2b382640535697305b
   languageName: node
   linkType: hard
 
@@ -28366,10 +27832,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:16.10.0":
-  version: 16.10.0
-  resolution: "graphql@npm:16.10.0"
-  checksum: 10/d42cf81ddcf3a61dfb213217576bf33c326f15b02c4cee369b373dc74100cbdcdc4479b3b797e79b654dabd8fddf50ef65ff75420e9ce5596c02e21f24c9126a
+"graphql@npm:^16.10.0":
+  version: 16.14.2
+  resolution: "graphql@npm:16.14.2"
+  checksum: 10/cd9a2581508f82621112a4dc625714e81ce725ab0a62502d97c14f61fee180e85276ac64bf9094f4fbf237737832ad4bb970aa26088f9dffece56f8919a49a29
   languageName: node
   linkType: hard
 
@@ -32112,7 +31578,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"klona@npm:^2.0.4, klona@npm:^2.0.5":
+"klona@npm:^2.0.5":
   version: 2.0.5
   resolution: "klona@npm:2.0.5"
   checksum: 10/27cc78ea2dab88da6671b5a19c60215c30ed1e1f8ba3dc900a1beb88d1f8dba815a5d5a61306cd4982330bc6f5db3e3d5d2410556a3a225428341bb6482f90ae
@@ -32279,18 +31745,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less-loader@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "less-loader@npm:11.0.0"
-  dependencies:
-    klona: "npm:^2.0.4"
-  peerDependencies:
-    less: ^3.5.0 || ^4.0.0
-    webpack: ^5.0.0
-  checksum: 10/16141bc2f68f462a7f5512004120b3d4952a82983b2439d036418055044262f97f6a595cdfdd99a141fde970581f17119e268a5af33fd8069f24aaacfac83cd2
-  languageName: node
-  linkType: hard
-
 "less-loader@npm:^12.3.0":
   version: 12.3.0
   resolution: "less-loader@npm:12.3.0"
@@ -32307,42 +31761,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less@npm:^4.1.3":
-  version: 4.1.3
-  resolution: "less@npm:4.1.3"
-  dependencies:
-    copy-anything: "npm:^2.0.1"
-    errno: "npm:^0.1.1"
-    graceful-fs: "npm:^4.1.2"
-    image-size: "npm:~0.5.0"
-    make-dir: "npm:^2.1.0"
-    mime: "npm:^1.4.1"
-    needle: "npm:^3.1.0"
-    parse-node-version: "npm:^1.0.1"
-    source-map: "npm:~0.6.0"
-    tslib: "npm:^2.3.0"
-  dependenciesMeta:
-    errno:
-      optional: true
-    graceful-fs:
-      optional: true
-    image-size:
-      optional: true
-    make-dir:
-      optional: true
-    mime:
-      optional: true
-    needle:
-      optional: true
-    source-map:
-      optional: true
-  bin:
-    lessc: bin/lessc
-  checksum: 10/d0688b6b46196b6d5378e4de153678e8b52d991d1a738e469fbc798a61d39df37ad4496ee398e26d59aad4bd463839441046542080b17e5719628fb4196e6ecc
-  languageName: node
-  linkType: hard
-
-"less@npm:^4.3.0, less@npm:^4.4.0":
+"less@npm:^4.4.0":
   version: 4.4.0
   resolution: "less@npm:4.4.0"
   dependencies:
@@ -35872,19 +35291,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:^15.5.18":
-  version: 15.5.18
-  resolution: "next@npm:15.5.18"
+"next@npm:^15.5.15":
+  version: 15.5.19
+  resolution: "next@npm:15.5.19"
   dependencies:
-    "@next/env": "npm:15.5.18"
-    "@next/swc-darwin-arm64": "npm:15.5.18"
-    "@next/swc-darwin-x64": "npm:15.5.18"
-    "@next/swc-linux-arm64-gnu": "npm:15.5.18"
-    "@next/swc-linux-arm64-musl": "npm:15.5.18"
-    "@next/swc-linux-x64-gnu": "npm:15.5.18"
-    "@next/swc-linux-x64-musl": "npm:15.5.18"
-    "@next/swc-win32-arm64-msvc": "npm:15.5.18"
-    "@next/swc-win32-x64-msvc": "npm:15.5.18"
+    "@next/env": "npm:15.5.19"
+    "@next/swc-darwin-arm64": "npm:15.5.19"
+    "@next/swc-darwin-x64": "npm:15.5.19"
+    "@next/swc-linux-arm64-gnu": "npm:15.5.19"
+    "@next/swc-linux-arm64-musl": "npm:15.5.19"
+    "@next/swc-linux-x64-gnu": "npm:15.5.19"
+    "@next/swc-linux-x64-musl": "npm:15.5.19"
+    "@next/swc-win32-arm64-msvc": "npm:15.5.19"
+    "@next/swc-win32-x64-msvc": "npm:15.5.19"
     "@swc/helpers": "npm:0.5.15"
     caniuse-lite: "npm:^1.0.30001579"
     postcss: "npm:8.4.31"
@@ -35927,7 +35346,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 10/3e4c11beb34b9c827a49db477429c3e6fc9c38e1e37734014082dd748d401772742705ef0d9752c0a5d1714a577b7937612869a8041069081c9930231017db93
+  checksum: 10/a377c2a06bed4102c3a11d10fa6369871456da6c98942f565f831b4fede7a00c3b2749bd3e5cbde43c69f63ab402d28ad09c500719098e38bca40f9263559e1b
   languageName: node
   linkType: hard
 
@@ -40256,22 +39675,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-cascader@npm:~3.34.0":
-  version: 3.34.0
-  resolution: "rc-cascader@npm:3.34.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.25.7"
-    classnames: "npm:^2.3.1"
-    rc-select: "npm:~14.16.2"
-    rc-tree: "npm:~5.13.0"
-    rc-util: "npm:^5.43.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/fb0d821c76df9d3f148b2c380677f3b4f25516e59f07cc00367e935964d5a887e910171801fa2cc15246a9e38e6065bad98c9d8bbc7f3223f26d2111b179069c
-  languageName: node
-  linkType: hard
-
 "rc-cascader@npm:~3.7.0":
   version: 3.7.0
   resolution: "rc-cascader@npm:3.7.0"
@@ -40303,20 +39706,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-checkbox@npm:~3.5.0":
-  version: 3.5.0
-  resolution: "rc-checkbox@npm:3.5.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.3.2"
-    rc-util: "npm:^5.25.2"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/b0eb814a438b190dcf7d4d097b03a8aaa175108279e15dd2b88faed9f9348a79cf41dd4d641057869cc83000839129518e7755c7b7cffd01b675525fdcd03b27
-  languageName: node
-  linkType: hard
-
 "rc-collapse@npm:~3.4.2":
   version: 3.4.2
   resolution: "rc-collapse@npm:3.4.2"
@@ -40330,21 +39719,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/c0acdb793e41260b7cc650d4c8d252778ccd5a1c235c31f98e4810bda8564f149f74c3f9ed2bcb7aadba666655f50b5394382aa1fffe9ec3664b7d3dad1e1653
-  languageName: node
-  linkType: hard
-
-"rc-collapse@npm:~3.9.0":
-  version: 3.9.0
-  resolution: "rc-collapse@npm:3.9.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.3.4"
-    rc-util: "npm:^5.27.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/86f1f54062a2445a7e6ebee1d975ea86d0cf3ff2ce862ecb9d9c30cb6e9f311ea59b5f2a9239703f70bd7a0bd0b0b1890dd177a166cb933ba6b3b4f02b12435a
   languageName: node
   linkType: hard
 
@@ -40364,22 +39738,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-dialog@npm:~9.6.0":
-  version: 9.6.0
-  resolution: "rc-dialog@npm:9.6.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    "@rc-component/portal": "npm:^1.0.0-8"
-    classnames: "npm:^2.2.6"
-    rc-motion: "npm:^2.3.0"
-    rc-util: "npm:^5.21.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/f6dcdb066f26f7b59fef458e18ba3c257a73b7036774d12022d548c7e343e8a51db2d1f3bae45928bcefb978fb29c4f2d6954c56fd006b0360fcc47c095c01c8
-  languageName: node
-  linkType: hard
-
 "rc-drawer@npm:~6.3.0":
   version: 6.3.0
   resolution: "rc-drawer@npm:6.3.0"
@@ -40393,22 +39751,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/696d52b4b64ff3f9ffe9555e1ccdbfa2fdfa98cace04b2c0a5ec38840a035b9450e01674679250d963aec2358954cae3fda2ce36647e3c76c29460fb439e4518
-  languageName: node
-  linkType: hard
-
-"rc-drawer@npm:~7.3.0":
-  version: 7.3.0
-  resolution: "rc-drawer@npm:7.3.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.23.9"
-    "@rc-component/portal": "npm:^1.1.1"
-    classnames: "npm:^2.2.6"
-    rc-motion: "npm:^2.6.1"
-    rc-util: "npm:^5.38.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/99dd1dd51abd21ae1b7b12a1f32a1509fac5d1d9e4719b77e5354cae98fe14fb21dde382c9552cdb21fba07505d3bfbab490b04fb97df709f4efe0b352f129e1
   languageName: node
   linkType: hard
 
@@ -40427,21 +39769,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-dropdown@npm:~4.2.0, rc-dropdown@npm:~4.2.1":
-  version: 4.2.1
-  resolution: "rc-dropdown@npm:4.2.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.3"
-    "@rc-component/trigger": "npm:^2.0.0"
-    classnames: "npm:^2.2.6"
-    rc-util: "npm:^5.44.1"
-  peerDependencies:
-    react: ">=16.11.0"
-    react-dom: ">=16.11.0"
-  checksum: 10/9b6fd364345432e423202461301dda6fa1690f155e544a47166fce8b60ab069f68a574b65070bbbe2301fd4e9fa90710f0e9019200be7336bca5d6e87282677d
-  languageName: node
-  linkType: hard
-
 "rc-field-form@npm:~1.34.0":
   version: 1.34.1
   resolution: "rc-field-form@npm:1.34.1"
@@ -40453,20 +39780,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/fce92d6e688eba6a96eaed73c9df43eb289b70d2a720f457a8e7bf9febd879c9d3ddc4d0ded76ecc4d7fd13e315c80edf30dca6283fdf30cb991a9f98459fcb1
-  languageName: node
-  linkType: hard
-
-"rc-field-form@npm:~2.7.1":
-  version: 2.7.1
-  resolution: "rc-field-form@npm:2.7.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.0"
-    "@rc-component/async-validator": "npm:^5.0.3"
-    rc-util: "npm:^5.32.2"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/d5ef26a857ce7f176df1ce62ea55b8d7d191e7e2ee09f9e976d684e3a6377a98a1874adf4a5380a907b8f30ccd7e0d05b7d3e9fab97faa99abfff55cd2f75b53
   languageName: node
   linkType: hard
 
@@ -40487,23 +39800,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-image@npm:~7.12.0":
-  version: 7.12.0
-  resolution: "rc-image@npm:7.12.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.11.2"
-    "@rc-component/portal": "npm:^1.0.2"
-    classnames: "npm:^2.2.6"
-    rc-dialog: "npm:~9.6.0"
-    rc-motion: "npm:^2.6.2"
-    rc-util: "npm:^5.34.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/33edf25a51538cc01d4c94a0db01f93274e02110be7cfe6f7cf1fa3c8b06682b06568c4728ae93c7b32da631fcbf5c62cb8456714432d6766063ae969f1c1413
-  languageName: node
-  linkType: hard
-
 "rc-input-number@npm:~7.3.9":
   version: 7.3.11
   resolution: "rc-input-number@npm:7.3.11"
@@ -40515,22 +39811,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/61ff0ea0d95e8a5a5734f16663e9d30bbdee1dfa8bb402543448a12b9fe4def60aa1dcce6ae1a1aac00e0fe3a6aa5885ffe9775087cc9aca85b3396d528b61c4
-  languageName: node
-  linkType: hard
-
-"rc-input-number@npm:~9.5.0":
-  version: 9.5.0
-  resolution: "rc-input-number@npm:9.5.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    "@rc-component/mini-decimal": "npm:^1.0.1"
-    classnames: "npm:^2.2.5"
-    rc-input: "npm:~1.8.0"
-    rc-util: "npm:^5.40.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/2a05f411e44266f36eb28f610b3a7327c1c8d45fd93b00861989fc9538f80a9816d5a2e8ebba12a8f01a3722c1967674bfb640f0c2d32e5ca6090b79971c7e12
   languageName: node
   linkType: hard
 
@@ -40548,20 +39828,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-input@npm:~1.8.0":
-  version: 1.8.0
-  resolution: "rc-input@npm:1.8.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.11.1"
-    classnames: "npm:^2.2.1"
-    rc-util: "npm:^5.18.1"
-  peerDependencies:
-    react: ">=16.0.0"
-    react-dom: ">=16.0.0"
-  checksum: 10/09632197528e07b200d8d36607ad182ee2bb91e3756eadbad08d70f9d7976f6c22c05f3d7d54468ce7d5aab9da09d4baec25e2d2b636d6fd04401603336a122c
-  languageName: node
-  linkType: hard
-
 "rc-mentions@npm:~1.13.1":
   version: 1.13.1
   resolution: "rc-mentions@npm:1.13.1"
@@ -40576,41 +39842,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/4922ef6af19a3b7aeb28bb5bc8f7d977aa629f40a780e448aad459a2314b16fe483dedce2cf90d68c8aae1168e593659f280e6a967e16c1325f2a003697d5c90
-  languageName: node
-  linkType: hard
-
-"rc-mentions@npm:~2.20.0":
-  version: 2.20.0
-  resolution: "rc-mentions@npm:2.20.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.22.5"
-    "@rc-component/trigger": "npm:^2.0.0"
-    classnames: "npm:^2.2.6"
-    rc-input: "npm:~1.8.0"
-    rc-menu: "npm:~9.16.0"
-    rc-textarea: "npm:~1.10.0"
-    rc-util: "npm:^5.34.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/2102f755fc6fc3427507e336aaf846af94dbda0fe24959636a6ebc2fe406d65a12df2ea5441c5ee0b83e58bd87d002da5fbf9eb2c07b18d195224f9c08adb879
-  languageName: node
-  linkType: hard
-
-"rc-menu@npm:~9.16.0, rc-menu@npm:~9.16.1":
-  version: 9.16.1
-  resolution: "rc-menu@npm:9.16.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    "@rc-component/trigger": "npm:^2.0.0"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.4.3"
-    rc-overflow: "npm:^1.3.1"
-    rc-util: "npm:^5.27.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/200016d580205b4c38aa30927b76157f7c6e8091344faf8cbc32e25b2add2d874f8cdec3e91ee72a598734345c0db431ae8368d35fe3258ef7fc398cfcfb30cb
   languageName: node
   linkType: hard
 
@@ -40645,20 +39876,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-motion@npm:^2.9.0, rc-motion@npm:^2.9.5":
-  version: 2.9.5
-  resolution: "rc-motion@npm:2.9.5"
-  dependencies:
-    "@babel/runtime": "npm:^7.11.1"
-    classnames: "npm:^2.2.1"
-    rc-util: "npm:^5.44.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/81a60e49c2fa78e88654039523ef9043f1476bc26f80f38561604ec48c256c9e5897254cda62ceff3c8e898285ae085568d1cd4fe35e8b018016517e998e3d44
-  languageName: node
-  linkType: hard
-
 "rc-notification@npm:~4.6.0":
   version: 4.6.0
   resolution: "rc-notification@npm:4.6.0"
@@ -40671,21 +39888,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/73449ce156803d04dc0613412ed7b5308d3d0fca70235415f02a78f70bdf6d9e5a2ab4f02e2c19afde0f0247698cac613968b6a0041ddce5ea2f44b155dae855
-  languageName: node
-  linkType: hard
-
-"rc-notification@npm:~5.6.4":
-  version: 5.6.4
-  resolution: "rc-notification@npm:5.6.4"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.9.0"
-    rc-util: "npm:^5.20.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/3bf9bd74a7cebbe8645578e5fe1fc13f03955f5805f63a4101ca1a354186137c1bec2723762b8d468269ee25d02f583461e31c03b0ecec19f5cbbfc1916a64b6
   languageName: node
   linkType: hard
 
@@ -40704,7 +39906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-overflow@npm:^1.3.1, rc-overflow@npm:^1.3.2":
+"rc-overflow@npm:^1.3.2":
   version: 1.4.1
   resolution: "rc-overflow@npm:1.4.1"
   dependencies:
@@ -40732,21 +39934,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-pagination@npm:~5.1.0":
-  version: 5.1.0
-  resolution: "rc-pagination@npm:5.1.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.3.2"
-    rc-util: "npm:^5.38.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/50c75dad5798604a9c5f75438361eab44bc24dff77a4e62933172798eed193e10a3019278f215edd1e3776ea5a8d5fbdc35f6f987562e331510694557098ac60
-  languageName: node
-  linkType: hard
-
-"rc-picker@npm:^4.2.0, rc-picker@npm:~4.11.3":
+"rc-picker@npm:^4.2.0":
   version: 4.11.3
   resolution: "rc-picker@npm:4.11.3"
   dependencies:
@@ -40809,34 +39997,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-progress@npm:~4.0.0":
-  version: 4.0.0
-  resolution: "rc-progress@npm:4.0.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.2.6"
-    rc-util: "npm:^5.16.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/c65efbc45fced051715647538c1ebe70a6da761ca6691455d72d38dcbba41d5bb5e7f7de38d4bb8e8939645a2cd120e8d5b2b8690b6d6bb4fa4cf6848700a2d8
-  languageName: node
-  linkType: hard
-
-"rc-rate@npm:~2.13.1":
-  version: 2.13.1
-  resolution: "rc-rate@npm:2.13.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.2.5"
-    rc-util: "npm:^5.0.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/485d2b257eb4a26d6e9b00246e379d0f6376d8cae60905089352cfdf4a9401dda3b0ebe4dc082c765a9894258183d20cd491bdb59004e688b71d9ffce6c1f5b5
-  languageName: node
-  linkType: hard
-
 "rc-rate@npm:~2.9.0":
   version: 2.9.2
   resolution: "rc-rate@npm:2.9.2"
@@ -40866,7 +40026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-resize-observer@npm:^1.3.1, rc-resize-observer@npm:^1.4.0, rc-resize-observer@npm:^1.4.3":
+"rc-resize-observer@npm:^1.3.1, rc-resize-observer@npm:^1.4.0":
   version: 1.4.3
   resolution: "rc-resize-observer@npm:1.4.3"
   dependencies:
@@ -40893,21 +40053,6 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 10/f259da527c72d65561d09ecc6e99cd556a0fedc3269c4156761667826fbfe1ee905a276ba48952277a322d661e36c5dd306aecdff5aa08249a4b577e64270f74
-  languageName: node
-  linkType: hard
-
-"rc-segmented@npm:~2.7.0":
-  version: 2.7.0
-  resolution: "rc-segmented@npm:2.7.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.11.1"
-    classnames: "npm:^2.2.1"
-    rc-motion: "npm:^2.4.4"
-    rc-util: "npm:^5.17.0"
-  peerDependencies:
-    react: ">=16.0.0"
-    react-dom: ">=16.0.0"
-  checksum: 10/d53f033a83f28eaef7b77acd2c5b77ab324438086a6b6386a66a79669edaf4fa2435e43102a04893cb974d46f200f28e81192986f836047db9b08084422b6353
   languageName: node
   linkType: hard
 
@@ -40947,24 +40092,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-select@npm:~14.16.2, rc-select@npm:~14.16.8":
-  version: 14.16.8
-  resolution: "rc-select@npm:14.16.8"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    "@rc-component/trigger": "npm:^2.1.1"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.0.1"
-    rc-overflow: "npm:^1.3.1"
-    rc-util: "npm:^5.16.1"
-    rc-virtual-list: "npm:^3.5.2"
-  peerDependencies:
-    react: "*"
-    react-dom: "*"
-  checksum: 10/87be18cc51fdb3e9ba7909f2edc93490d5e3c811e42fb14c0fe55b093bbb0d58773fa65d980f28f48a9a0cca17b380c998fd4e4b7a5fcfc84cb75880dbc95735
-  languageName: node
-  linkType: hard
-
 "rc-slider@npm:~10.0.0":
   version: 10.0.1
   resolution: "rc-slider@npm:10.0.1"
@@ -40977,20 +40104,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/153590dc54cb8cd70282836ecb046c30846e09001f7e8871cd3a98ac14db10ddbe8b1c2bf113be8a99ae86cf25e3bd1e1fa9393e3d08078bd0a5fb1a24dfaa8a
-  languageName: node
-  linkType: hard
-
-"rc-slider@npm:~11.1.9":
-  version: 11.1.9
-  resolution: "rc-slider@npm:11.1.9"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.2.5"
-    rc-util: "npm:^5.36.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/b9b1c5b9e690db565a09fde0d6cc9b8562cbb15dd8a0d1eb0a7039c4fcb6c4307ba1cb58047322b8be518a6eb226af9db5c7d974d6ff197fe07f0db84d56cc5e
   languageName: node
   linkType: hard
 
@@ -41008,20 +40121,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-steps@npm:~6.0.1":
-  version: 6.0.1
-  resolution: "rc-steps@npm:6.0.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.16.7"
-    classnames: "npm:^2.2.3"
-    rc-util: "npm:^5.16.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/4b4ae96caae47e7ac46351cb97e62d23a8193647781d615d12f6bd83ae8669f453f776045d2c877bffe6a06439c33c21f7e6d1b6ba6e70220880c5f2f2147d53
-  languageName: node
-  linkType: hard
-
 "rc-switch@npm:~3.2.0":
   version: 3.2.2
   resolution: "rc-switch@npm:3.2.2"
@@ -41033,20 +40132,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/8f3e0bfdeeed7f04c1e579d5a7a55221b147dd90e88ba1f8fae36b2cde423df7e32a388df5b5fb6ecd5fa04e68b5afa3014da1bed571010169095d466b44dd64
-  languageName: node
-  linkType: hard
-
-"rc-switch@npm:~4.1.0":
-  version: 4.1.0
-  resolution: "rc-switch@npm:4.1.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.21.0"
-    classnames: "npm:^2.2.1"
-    rc-util: "npm:^5.30.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/20e310e1b05515804048aeff1b76c52c00a45ec46c9dd4d5504fa452b25a96ff0f6cc634b7608a360139acd337a308302ea6a7f3218817383e09af189966ab94
   languageName: node
   linkType: hard
 
@@ -41063,23 +40148,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/8c5953e40986325f33094ac8360aad312869efe01dc79fc70700b4f8b0fba030918cecb16d4eb650a3f859512dcbcf4c2835cb8d2fa464046a0f5914b64dc9da
-  languageName: node
-  linkType: hard
-
-"rc-table@npm:~7.54.0":
-  version: 7.54.0
-  resolution: "rc-table@npm:7.54.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    "@rc-component/context": "npm:^1.4.0"
-    classnames: "npm:^2.2.5"
-    rc-resize-observer: "npm:^1.1.0"
-    rc-util: "npm:^5.44.3"
-    rc-virtual-list: "npm:^3.14.2"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/3b85e673664120af8b33d984fa04d5f3b437f94df43dbad41a084034ad2c37fd6f152303d549610ba64c8b09a5b3163ccba5b1374004d818dc506daf71ea7409
   languageName: node
   linkType: hard
 
@@ -41101,24 +40169,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-tabs@npm:~15.7.0":
-  version: 15.7.0
-  resolution: "rc-tabs@npm:15.7.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.11.2"
-    classnames: "npm:2.x"
-    rc-dropdown: "npm:~4.2.0"
-    rc-menu: "npm:~9.16.0"
-    rc-motion: "npm:^2.6.2"
-    rc-resize-observer: "npm:^1.0.0"
-    rc-util: "npm:^5.34.1"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/e712bf074d067e372175dd6dd2c61c3749933f8f4eaa07d3903311c5037f6421fc20b66525e14cdfecb63620c932b7bab7e1439e737ef2b92e2e67d7cec10edd
-  languageName: node
-  linkType: hard
-
 "rc-textarea@npm:^0.4.0, rc-textarea@npm:~0.4.5":
   version: 0.4.6
   resolution: "rc-textarea@npm:0.4.6"
@@ -41132,22 +40182,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/2e468077e76a854225057df6e2ea113b4a88a629eb1b09b6114ac055d0612a3850bca22218bfa19bf67c205df1dfbf0475ce2f70388d491c9efbc3cc5c54929e
-  languageName: node
-  linkType: hard
-
-"rc-textarea@npm:~1.10.0, rc-textarea@npm:~1.10.2":
-  version: 1.10.2
-  resolution: "rc-textarea@npm:1.10.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.2.1"
-    rc-input: "npm:~1.8.0"
-    rc-resize-observer: "npm:^1.0.0"
-    rc-util: "npm:^5.27.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/43852b77c1b7a8d909415394e34028a57f72bc6419b129346a084a0b5b0670603ace20ff92aa3843bb70b773cd6c8e800f4b9a0faaff6330c5bdc294ce8a9eb0
   languageName: node
   linkType: hard
 
@@ -41165,37 +40199,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-tooltip@npm:~6.4.0":
-  version: 6.4.0
-  resolution: "rc-tooltip@npm:6.4.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.11.2"
-    "@rc-component/trigger": "npm:^2.0.0"
-    classnames: "npm:^2.3.1"
-    rc-util: "npm:^5.44.3"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/3d0502136f352fda261827974aa08c46d7ace4b7b246940cecea87fe6a1a7c360f0897c233be7ea8aeddcb1aef4e20fdac081356e8dfdf0e4c176a56b5bbc79b
-  languageName: node
-  linkType: hard
-
-"rc-tree-select@npm:~5.27.0":
-  version: 5.27.0
-  resolution: "rc-tree-select@npm:5.27.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.25.7"
-    classnames: "npm:2.x"
-    rc-select: "npm:~14.16.2"
-    rc-tree: "npm:~5.13.0"
-    rc-util: "npm:^5.43.0"
-  peerDependencies:
-    react: "*"
-    react-dom: "*"
-  checksum: 10/a63eceb3b2e72a5b6e40004c240d40020833af1b4584ac42fe5e44b66a9455a62010f3da23498a173b14c960f3b9ebe40f751050e9184e08b33a47ab157b99b7
-  languageName: node
-  linkType: hard
-
 "rc-tree-select@npm:~5.5.0":
   version: 5.5.4
   resolution: "rc-tree-select@npm:5.5.4"
@@ -41209,22 +40212,6 @@ __metadata:
     react: "*"
     react-dom: "*"
   checksum: 10/9a21193fe49f83148faf7d70181f9103ed4f9ba67f00173ed2cc502806bcf4c7ef8e65ad5006ae034870d7dff63271650816a75adf7e411239ae9b60ac652aa7
-  languageName: node
-  linkType: hard
-
-"rc-tree@npm:~5.13.0, rc-tree@npm:~5.13.1":
-  version: 5.13.1
-  resolution: "rc-tree@npm:5.13.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.0.1"
-    rc-util: "npm:^5.16.1"
-    rc-virtual-list: "npm:^3.5.1"
-  peerDependencies:
-    react: "*"
-    react-dom: "*"
-  checksum: 10/27d11b1bda077e14dff4dd3d17ea246145f52b4c4157a17f9a8d8c55a0e440fbf9a0eef76d07e1fdc70501b28a7d0009e08bc4594130340ee4df0978dda4820f
   languageName: node
   linkType: hard
 
@@ -41257,20 +40244,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/64a56bcd8ffa90850bae81bb0e3c1aff506d07ede982c1a8263b63beb058affeb25e18c95b6e37dab366495005af10eb15b5cc7029087a7a72f0bc9346198e35
-  languageName: node
-  linkType: hard
-
-"rc-upload@npm:~4.11.0":
-  version: 4.11.0
-  resolution: "rc-upload@npm:4.11.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.3"
-    classnames: "npm:^2.2.5"
-    rc-util: "npm:^5.2.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/80a3a685b6b885e451fd88fd22214aeee38856a8e591211ce2e4311e1afa72a595d9c5fb177380e4c651dbd6a9514311a6629a8454e47dd62940da9c42f31432
   languageName: node
   linkType: hard
 
@@ -41342,7 +40315,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-util@npm:^5.30.0, rc-util@npm:^5.31.1, rc-util@npm:^5.34.1, rc-util@npm:^5.35.0, rc-util@npm:^5.36.0, rc-util@npm:^5.37.0, rc-util@npm:^5.38.0, rc-util@npm:^5.38.1, rc-util@npm:^5.40.1, rc-util@npm:^5.43.0, rc-util@npm:^5.44.0, rc-util@npm:^5.44.1, rc-util@npm:^5.44.3, rc-util@npm:^5.44.4":
+"rc-util@npm:^5.35.0, rc-util@npm:^5.37.0, rc-util@npm:^5.38.0, rc-util@npm:^5.43.0, rc-util@npm:^5.44.0, rc-util@npm:^5.44.1":
   version: 5.44.4
   resolution: "rc-util@npm:5.44.4"
   dependencies:
@@ -41352,21 +40325,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 10/c456b9899545625b6d856bef1218ce0ed87af13e2c9c328e302fd255b912ee2e4a0fd81603221736ed9b176ed79507abc2275dc1df488ea465d26b4807f4e99a
-  languageName: node
-  linkType: hard
-
-"rc-virtual-list@npm:^3.14.2, rc-virtual-list@npm:^3.5.1, rc-virtual-list@npm:^3.5.2":
-  version: 3.19.1
-  resolution: "rc-virtual-list@npm:3.19.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.20.0"
-    classnames: "npm:^2.2.6"
-    rc-resize-observer: "npm:^1.0.0"
-    rc-util: "npm:^5.36.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 10/4bce57c34b6fcbded92f3b7e78930cebe996a9c5bd66baafc8792667d71ae2d1f4a8390e76dbe236b543843e7e2c21b6fa07dc2d39d6af0660da3fb00ec68eac
   languageName: node
   linkType: hard
 
@@ -41486,7 +40444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18.3.1":
+"react-dom@npm:^18.3.1":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
   dependencies:
@@ -42056,7 +41014,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:18.3.1":
+"react@npm:^18.3.1":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
@@ -43509,14 +42467,14 @@ __metadata:
     "@mono-pub/github": "npm:^1.0.5"
     "@mono-pub/npm": "npm:^1.0.5"
     "@open-condo/cli": "workspace:^"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
     "@typescript-eslint/eslint-plugin": "npm:^7.18.0"
     "@typescript-eslint/parser": "npm:^7.18.0"
     commander: "npm:14.0.1"
     commitlint-plugin-function-rules: "npm:^1.3.2"
-    cross-env: "npm:^7.0.3"
+    cross-env: "catalog:"
     dd-trace: "npm:4.46.0"
     eslint: "npm:^8.57.0"
     eslint-plugin-import: "npm:^2.29.1"
@@ -43535,7 +42493,7 @@ __metadata:
     stylelint-config-rational-order: "npm:^0.1.2"
     stylelint-config-standard: "npm:^28.0.0"
     turbo: "npm:^2.4.4"
-    typescript: "npm:^5.8.3"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -43773,15 +42731,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scroll-into-view-if-needed@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "scroll-into-view-if-needed@npm:3.1.0"
-  dependencies:
-    compute-scroll-into-view: "npm:^3.0.2"
-  checksum: 10/1ea10d84b79db592493ed22563e307a4eaf858527b4c345e70cc26b9c51383636edda31a09d383541fafb5b50a94e59384d85351662cb7d6e5d70805c0d18798
-  languageName: node
-  linkType: hard
-
 "sdp-transform@npm:^2.14.1":
   version: 2.15.0
   resolution: "sdp-transform@npm:2.15.0"
@@ -43925,27 +42874,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"send@npm:0.19.0":
-  version: 0.19.0
-  resolution: "send@npm:0.19.0"
-  dependencies:
-    debug: "npm:2.6.9"
-    depd: "npm:2.0.0"
-    destroy: "npm:1.2.0"
-    encodeurl: "npm:~1.0.2"
-    escape-html: "npm:~1.0.3"
-    etag: "npm:~1.8.1"
-    fresh: "npm:0.5.2"
-    http-errors: "npm:2.0.0"
-    mime: "npm:1.6.0"
-    ms: "npm:2.1.3"
-    on-finished: "npm:2.4.1"
-    range-parser: "npm:~1.2.1"
-    statuses: "npm:2.0.1"
-  checksum: 10/1f6064dea0ae4cbe4878437aedc9270c33f2a6650a77b56a16b62d057527f2766d96ee282997dd53ec0339082f2aad935bc7d989b46b48c82fc610800dc3a1d0
-  languageName: node
-  linkType: hard
-
 "send@npm:~0.19.0, send@npm:~0.19.1":
   version: 0.19.2
   resolution: "send@npm:0.19.2"
@@ -44014,18 +42942,6 @@ __metadata:
     parseurl: "npm:~1.3.3"
     send: "npm:0.18.0"
   checksum: 10/699b2d4c29807a51d9b5e0f24955346911437aebb0178b3c4833ad30d3eca93385ff9927254f5c16da345903cad39d9cd4a532198c95a5129cc4ed43911b15a4
-  languageName: node
-  linkType: hard
-
-"serve-static@npm:1.16.2":
-  version: 1.16.2
-  resolution: "serve-static@npm:1.16.2"
-  dependencies:
-    encodeurl: "npm:~2.0.0"
-    escape-html: "npm:~1.0.3"
-    parseurl: "npm:~1.3.3"
-    send: "npm:0.19.0"
-  checksum: 10/7fa9d9c68090f6289976b34fc13c50ac8cd7f16ae6bce08d16459300f7fc61fbc2d7ebfa02884c073ec9d6ab9e7e704c89561882bbe338e99fcacb2912fde737
   languageName: node
   linkType: hard
 
@@ -45964,13 +44880,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylis@npm:4.0.13":
-  version: 4.0.13
-  resolution: "stylis@npm:4.0.13"
-  checksum: 10/0b1c3437e36b8c11e1a1d4b9a3d9ddeb92d5138d867d8384e66aabbbd7f6ca483166db9f9f3a1639b937ac1c22c0049aeaea68e3255df1fbade5bc0284c210bf
-  languageName: node
-  linkType: hard
-
 "stylis@npm:4.2.0":
   version: 4.2.0
   resolution: "stylis@npm:4.2.0"
@@ -46657,13 +45566,6 @@ __metadata:
   version: 2.3.0
   resolution: "throttle-debounce@npm:2.3.0"
   checksum: 10/efed4a2d0528ece05d95cb7b4d1e11e501bfd55853746ab6eae02df38ea3220fc1be9746621db46b733edd61a12774684c137f5b40d71728bf0ea553d6a7e693
-  languageName: node
-  linkType: hard
-
-"throttle-debounce@npm:^5.0.0, throttle-debounce@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "throttle-debounce@npm:5.0.2"
-  checksum: 10/9a5e5ae7f93127d921e913ad741e75e6d2bb946d15e1898ed541037bc646adb9a759c481385400be917ec6d93f078fd8b016980c1a9143e09ea88c99559b0c93
   languageName: node
   linkType: hard
 
@@ -48865,7 +47767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^8.0.0, uuid@npm:^8.0.3, uuid@npm:^8.3.0, uuid@npm:^8.3.2":
+"uuid@npm:^8.0.0, uuid@npm:^8.3.0, uuid@npm:^8.3.2":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@open-condo/config": "workspace:^",
-    "lodash": "^4.17.21",
+    "lodash": "catalog:",
     "next-cookies": "^2.0.3"
   },
   "exports": {
