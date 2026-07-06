@@ -531,16 +531,16 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@types/node": "npm:^24"
-    "@types/react": "npm:^18.3.1"
-    "@types/react-dom": "npm:^18.3.1"
-    antd: "npm:^4.24.12"
-    next: "npm:^15.5.7"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
+    antd: "catalog:"
+    next: "catalog:"
     pdfmake: "npm:0.2.10"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    react-intl: "npm:^7.1.11"
-    typescript: "npm:^5.8.3"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
+    typescript: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -12227,8 +12227,8 @@ __metadata:
     pino: "npm:^6.13.3"
     react-intl: "catalog:"
   peerDependencies:
-    react: "*"
-    react-dom: "*"
+    react: ">=16.13.1"
+    react-dom: ">=16.13.1"
   languageName: unknown
   linkType: soft
 
@@ -12325,8 +12325,8 @@ __metadata:
     webpack-merge: "npm:^5.8.0"
     zod: "catalog:"
   peerDependencies:
-    react: "*"
-    react-dom: "*"
+    react: ">=16"
+    react-dom: ">=16"
   languageName: unknown
   linkType: soft
 

@@ -8,8 +8,7 @@
     "miniapps",
     "cache",
     "apollo",
-    "@apollo/client",
-    "react"
+    "@apollo/client"
   ],
   "repository": {
     "type": "git",
