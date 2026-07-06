@@ -26,7 +26,7 @@ const FavoriteTicketsContext = createContext<IFavoriteTicketsContext>({
 
 const useFavoriteTickets = (): IFavoriteTicketsContext => useContext(FavoriteTicketsContext)
 
-const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) => {
+const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, first = 500, skip: skipProp = false }) => {
     const { user } = useAuth()
     const { persistor } = useCachePersistor()
 
@@ -38,8 +38,9 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) =>
         variables: {
             userId: user?.id,
             ticketWhere: extraTicketsQuery,
+            first,
         },
-        skip: !persistor || !user,
+        skip: !persistor || !user || skipProp,
     })
     const userFavoriteTickets = useMemo(() => userFavoriteTicketsData?.userFavoriteTickets?.filter(Boolean) || [],
         [userFavoriteTicketsData?.userFavoriteTickets])

@@ -354,6 +354,7 @@ const TicketsTableContainer = ({
     TicketImportButton,
     playSoundOnNewTickets,
     refetchTicketTypeCountersRef,
+    onTicketsLoaded,
 }) => {
     const intl = useIntl()
 
@@ -393,6 +394,10 @@ const TicketsTableContainer = ({
     const total = useMemo(() => ticketsData?.meta?.count, [ticketsData?.meta?.count])
     const ticketIds = useMemo(() => tickets?.map(ticket => ticket?.id), [tickets])
     const userId = useMemo(() => user?.id, [user?.id])
+
+    useEffect(() => {
+        onTicketsLoaded?.(ticketIds)
+    }, [ticketIds, onTicketsLoaded])
 
     const {
         data: userTicketCommentReadTimesData,
@@ -891,6 +896,7 @@ export const TicketsPageContent = ({
     error,
     refetchTicketTypeCountersRef,
     hasSupervisedTickets = false,
+    onTicketsLoaded,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -991,6 +997,7 @@ export const TicketsPageContent = ({
                 TicketImportButton={TicketImportButton}
                 playSoundOnNewTickets={playSoundOnNewTickets}
                 refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
+                onTicketsLoaded={onTicketsLoaded}
             />
         </>
     )
@@ -1128,6 +1135,19 @@ const TicketsPage: PageComponentType = () => {
 
     const { organization: userOrganization, employee: activeEmployee } = useOrganization()
     const userOrganizationId = userOrganization?.id || null
+
+    const router = useRouter()
+    const { filters } = useMemo(() => parseQuery(router.query), [router.query])
+    const isFavoritesFilter = filters?.type === 'favorite'
+
+    const [currentPageTicketIds, setCurrentPageTicketIds] = useState<string[]>([])
+
+    const favoriteExtraQuery = useMemo(() => {
+        if (isFavoritesFilter) {
+            return { ...ticketFilterQuery, organization: { id: userOrganizationId } }
+        }
+        return currentPageTicketIds.length > 0 ? { id_in: currentPageTicketIds } : null
+    }, [isFavoritesFilter, ticketFilterQuery, userOrganizationId, currentPageTicketIds])
     const employeeId = activeEmployee?.id || null
 
     const filterMetas = useTicketTableFilters()
@@ -1177,7 +1197,9 @@ const TicketsPage: PageComponentType = () => {
                 {GlobalHints}
                 <AutoRefetchTicketsContextProvider>
                     <FavoriteTicketsContextProvider
-                        extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
+                        extraTicketsQuery={favoriteExtraQuery ?? {}}
+                        first={isFavoritesFilter ? 500 : DEFAULT_PAGE_SIZE}
+                        skip={!favoriteExtraQuery}
                     >
                         <WindowTitleContextProvider title={PageTitleMessage}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: breakpoints.TABLET_LARGE ? '40px' : '24px', height: '100%' }}>
@@ -1226,6 +1248,7 @@ const TicketsPage: PageComponentType = () => {
                                             error={error}
                                             refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
                                             hasSupervisedTickets={hasSupervisedTickets}
+                                            onTicketsLoaded={setCurrentPageTicketIds}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>

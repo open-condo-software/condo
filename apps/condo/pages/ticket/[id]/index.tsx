@@ -1003,6 +1003,7 @@ const TicketIdPage: PageComponentType = () => {
                 <PageContent>
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ id: ticketId }}
+                        first={1}
                     >
                         <TicketPageContent
                             pollCommentsQuery={pollCommentsQuery}

@@ -9829,10 +9829,10 @@ export type GetTicketStatusesLazyQueryHookResult = ReturnType<typeof useGetTicke
 export type GetTicketStatusesSuspenseQueryHookResult = ReturnType<typeof useGetTicketStatusesSuspenseQuery>;
 export type GetTicketStatusesQueryResult = Apollo.QueryResult<Types.GetTicketStatusesQuery, Types.GetTicketStatusesQueryVariables>;
 export const GetUserFavoriteTicketsDocument = gql`
-    query getUserFavoriteTickets($userId: ID!, $ticketWhere: TicketWhereInput) {
+    query getUserFavoriteTickets($userId: ID!, $ticketWhere: TicketWhereInput, $first: Int = 500) {
   userFavoriteTickets: allUserFavoriteTickets(
     where: {user: {id: $userId}, ticket: $ticketWhere}
-    first: 500
+    first: $first
   ) {
     id
     ticket {

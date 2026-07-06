@@ -1452,6 +1452,7 @@ export type GetTicketStatusesQuery = { __typename?: 'Query', statuses?: Array<{ 
 export type GetUserFavoriteTicketsQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   ticketWhere?: Types.InputMaybe<Types.TicketWhereInput>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
 
