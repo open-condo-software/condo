@@ -1,14 +1,28 @@
+fragment OIDCClientInfo on OIDCClient {
+    id
+    name
+    clientId
+    redirectUri
+    isEnabled
+}
+
 query getOIDCClient($data: GetOIDCClientInput!) {
     client: OIDCClient(data: $data) {
-        id
-        clientId
-        redirectUri
-        isEnabled
+        ...OIDCClientInfo
+    }
+}
+
+query getAllOIDCClients($data: GetAllOIDCClientsInput!) {
+    clients: allOIDCClients(data: $data) {
+        ...OIDCClientInfo
     }
 }
 
 mutation createOIDCClient($data: CreateOIDCClientInput!) {
     client: createOIDCClient(data: $data) {
+        id
+        clientId
+        redirectUri
         clientSecret
     }
 }
@@ -22,5 +36,11 @@ mutation updateOIDCClientUrl($data: UpdateOIDCClientUrlInput!) {
 mutation generateOIDCClientSecret($data: GenerateOIDCClientSecretInput!) {
     client: generateOIDCClientSecret(data: $data) {
         clientSecret
+    }
+}
+
+mutation changeOIDCClient($data: ChangeOIDCClientInput!) {
+    client: changeOIDCClient(data: $data) {
+        ...OIDCClientInfo
     }
 }

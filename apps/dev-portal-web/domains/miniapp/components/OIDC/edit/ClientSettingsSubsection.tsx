@@ -4,7 +4,7 @@ import { useCachePersistor } from '@open-condo/apollo'
 
 import { Spin } from '@/domains/common/components/Spin'
 
-import { CreateClientForm } from './CreateClientForm'
+import { AddClientForm } from './AddClientForm'
 import { EditClientForm } from './EditClientForm'
 import { SecretContextProvider } from './SecretProvider'
 
@@ -37,9 +37,9 @@ export const ClientSettingsSubsection: React.FC<ClientSettingsSubsectionProps> =
     return (
         <SecretContextProvider>
             {data?.client ? (
-                <EditClientForm id={id} environment={environment} client={data.client}/>
+                <EditClientForm id={id} environment={environment} client={data.client} key={data.client.id}/>
             ) : (
-                <CreateClientForm id={id} environment={environment}/>
+                <AddClientForm id={id} environment={environment}/>
             )}
         </SecretContextProvider>
     )

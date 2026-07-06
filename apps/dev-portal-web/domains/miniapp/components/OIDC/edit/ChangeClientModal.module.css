@@ -1,0 +1,15 @@
+.card-box :global(label.condo-radio-wrapper) {
+  max-width: 100%;
+}
+
+.card-box :global(label.condo-radio-wrapper) > span:last-child {
+  min-width: 0;
+}
+
+.checkbox-label > *:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+.card-box:not(:last-child) {
+  margin-bottom: 12px;
+}

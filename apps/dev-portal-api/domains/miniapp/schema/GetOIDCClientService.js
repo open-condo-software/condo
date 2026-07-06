@@ -131,10 +131,11 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
                 const localAppById = Object.fromEntries(
                     [...b2bApps, ...b2cApps].map(app => [app.id, app])
                 )
+                const localAppIds = Object.keys(localAppById)
 
                 // oidcClientsByAppId tracks the resolved OIDCClient per app (null = unresolved)
                 const oidcClientsByAppId = Object.fromEntries(
-                    Object.keys(localAppById).map(id => [id, null])
+                    localAppIds.map(id => [id, null])
                 )
 
                 if (!Object.keys(oidcClientsByAppId).length) {
@@ -170,16 +171,18 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
 
                 // Steps 2+3: for apps still unresolved, batch-fetch OIDCClients by oidcClientId OR importId.
                 // Same combined OR strategy as the single-app resolver — prefer oidcClientId match over importId.
+                // Also include all local apps in the query, so it can be available for choice
                 const unresolvedApps = Object.keys(oidcClientsByAppId)
                     .filter(id => oidcClientsByAppId[id] === null)
                     .map(id => localAppById[id])
 
-                if (unresolvedApps.length) {
+                let nonUsedClients = []
+
+                if (localAppIds.length) {
                     const oidcClientIds = unresolvedApps.map(a => a[oidcClientIdField]).filter(Boolean)
-                    const appIds = unresolvedApps.map(a => a.id)
 
                     const orClauses = [
-                        { AND: [{ importRemoteSystem: REMOTE_SYSTEM, importId_in: appIds }] },
+                        { AND: [{ importRemoteSystem: REMOTE_SYSTEM, importId_in: localAppIds }] },
                     ]
                     if (oidcClientIds.length) {
                         orClauses.push({ AND: [{ id_in: oidcClientIds }] })
@@ -194,6 +197,8 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
                     const clientById = Object.fromEntries(oidcClients.map(c => [c.id, c]))
                     const clientByImportId = Object.fromEntries(oidcClients.map(c => [c.importId, c]))
 
+                    nonUsedClients = oidcClients.filter(c => c.importRemoteSystem === REMOTE_SYSTEM && localAppIds.includes(c.importId))
+
                     for (const app of unresolvedApps) {
                         const oidcClientId = app[oidcClientIdField]
                         // Prefer explicit oidcClientId match, fall back to importId (legacy)
@@ -204,7 +209,20 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
                     }
                 }
 
-                return Object.values(oidcClientsByAppId).filter(Boolean).map(formatOIDCClient)
+                // NOTE: At this point we need to build a list of unique clients.
+                // We start from the resolved clients -> its a clients currently attached to user owned apps
+                // Then we augment it with clients related to the apps (by importId), but not currently used by any of them
+                // (We've already fetched them in step 2/3)
+                const uniqueClients = []
+                const uniqueClientIds = new Set()
+
+                for (const client of Object.values(oidcClientsByAppId).concat(nonUsedClients)) {
+                    if (!client || !client.id || uniqueClientIds.has(client.id)) continue
+                    uniqueClientIds.add(client.id)
+                    uniqueClients.push(client)
+                }
+
+                return uniqueClients.map(formatOIDCClient)
             },
         },
     ],
