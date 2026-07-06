@@ -30,9 +30,9 @@ const FeeDistributionJsonSchema = {
     type: 'object',
     properties: {
         recipient: { type: 'string' },
-        percent: { type: 'string' },
-        minAmount: { type: 'string' },
-        maxAmount: { type: 'string' },
+        percent: { type: 'string', pattern: '^(0|[1-9]\\d*)(\\.\\d+)?$' },
+        minAmount: { type: 'string', pattern: '^(0|[1-9]\\d*)(\\.\\d+)?$' },
+        maxAmount: { type: 'string', pattern: '^(0|[1-9]\\d*)(\\.\\d+)?$' },
         category: { type: 'string' },
     },
     additionalProperties: false,
@@ -65,4 +65,5 @@ const FEE_DISTRIBUTION_SCHEMA_FIELD = {
 module.exports = {
     FEE_DISTRIBUTION_SCHEMA_FIELD,
     FEE_DISTRIBUTION_QUERY_LIST,
+    FeeDistributionSchemaJsonValidator,
 }
