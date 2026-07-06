@@ -20,6 +20,6 @@ export const B2C_BUILD_VERSION_REGEXP = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d
 export const DEFAULT_PAGE_SIZE = 10
 
 // TODO: Replace with relative link after migrating docs
-export const OIDC_DOCS_LINK = 'https://docs.google.com/document/d/1pTMq0Qi9307uUIfHK4eGi6T1xtUvrK4Asz9j5Eoo8bI/edit#heading=h.tyzk29z45ac'
+export const OIDC_DOCS_LINK = 'https://docs.google.com/document/d/1zAvzY6B2_aWN1jXqZLhlXbZmTIS72YKZ/edit#heading=h.tq5tn71eq3nw'
 export const DEV_REDIRECT_URI_EXAMPLE = 'https://miniapp.dev.example.com/oidc/callback'
 export const PROD_REDIRECT_URI_EXAMPLE = 'https://miniapp.example.com/oidc/callback'

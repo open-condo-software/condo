@@ -15,8 +15,7 @@ import { DEV_REDIRECT_URI_EXAMPLE, PROD_REDIRECT_URI_EXAMPLE } from '@/domains/m
 
 import styles from './ChangeClientModal.module.css'
 
-import type { FormInstance } from 'antd'
-import type { RadioChangeEvent } from 'antd'
+import type { FormInstance, RadioChangeEvent } from 'antd'
 
 import {
     AppEnvironment,
