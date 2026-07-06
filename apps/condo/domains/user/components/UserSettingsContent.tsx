@@ -288,8 +288,6 @@ export const UserSettingsContent: React.FC = () => {
         }
     }, [initialIs2FAEnabled])
 
-    console.log(regionMessengerEmployeeBotLink)
-
     return (
         <Row gutter={ROW_GUTTER_BIG}>
             <Col span={24}>
