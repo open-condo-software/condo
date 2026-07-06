@@ -14,7 +14,6 @@ const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,
     PUSH_TRANSPORT,
-    TELEGRAM_TRANSPORT,
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
@@ -24,6 +23,7 @@ const {
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
     MESSAGE_THROTTLED_STATUS,
+    TELEGRAM_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
 const emailAdapter = require('@condo/domains/notification/transports/email')

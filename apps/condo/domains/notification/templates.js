@@ -209,7 +209,7 @@ function normalizeSMSText (text) {
 function substituteTranslations (item, locale) {
     if (isArray(item)) return item.map(itemValue => substituteTranslations(itemValue, locale))
     if (isObject(item)) return translateObjectItems(item, locale)
-    
+
     return getLocalized(locale, item)
 }
 
@@ -316,16 +316,16 @@ function emailRenderer ({ message, env }) {
 function pushRenderer ({ message, env, additionalParams }) {
     const { lang: locale, type } = message
     const messageTranslated = substituteTranslations(message, locale)
-    
+
     const appId = additionalParams?.appId
     const overridesForAppId = PUSH_MESSAGE_OVERRIDES?.[appId]
 
     const titleKey = translationStringKeyForPushTitle(type)
     const bodyKey = translationStringKeyForPushBody(type)
-    
+
     let renderedTitle
     let renderedBody
-    
+
     if (appId && overridesForAppId) {
         const overrides = overridesForAppId[locale]
         const titleTemplate = overrides?.[titleKey]

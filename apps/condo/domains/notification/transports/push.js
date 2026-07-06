@@ -45,6 +45,7 @@ const logger = getLogger()
 
 /** @type {PushAdapterSettings} */
 const PUSH_ADAPTER_SETTINGS = JSON.parse(conf.PUSH_ADAPTER_SETTINGS || '{}')
+const DISABLED_TYPES_EXCEPTIONS_BY_APP_ID = JSON.parse(conf.DISABLED_TYPES_EXCEPTIONS_BY_APP_ID || '[]')
 
 const PUSH_DATA_VALIDATORS_BY_APP_ID = Object.fromEntries(
     Object.entries(PUSH_ADAPTER_SETTINGS.pushDataValidatorsByAppId || {})
@@ -323,11 +324,23 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
 
-    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(message, 'type'))) {
-        return [false, { error: 'Disabled type for push transport' }]
+    let pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
+
+    const messageType = get(message, 'type')
+    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(messageType)) {
+        const allowedAppIds = DISABLED_TYPES_EXCEPTIONS_BY_APP_ID?.[messageType] || []
+
+        if (allowedAppIds.length > 0) {
+            pushTokens = pushTokens.filter(token => allowedAppIds.includes(token.appId))
+
+            if (pushTokens.length === 0) {
+                return [false, { error: 'Disabled type for push transport (no allowed appIds found)' }]
+            }
+        } else {
+            return [false, { error: 'Disabled type for push transport' }]
+        }
     }
 
-    let pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
     // If the message has a preferred push type, it takes priority over the value from the remote client.
     const preferredPushTypeForMessage = getPreferredPushTypeByMessageType(get(message, 'type'))
