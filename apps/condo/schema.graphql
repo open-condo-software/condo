@@ -93507,7 +93507,6 @@ input RegisterNewServiceUserInput {
 type RegisterNewServiceUserOutput {
   id: ID!
   email: String!
-  password: String!
 }
 
 enum SendMessageToSupportLang {

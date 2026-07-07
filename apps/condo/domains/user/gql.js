@@ -155,7 +155,7 @@ const RESET_USER_MUTATION = gql`
 
 const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
     mutation registerNewServiceUser ($data: RegisterNewServiceUserInput!) {
-        result: registerNewServiceUser(data: $data) { id email password }
+        result: registerNewServiceUser(data: $data) { id email }
     }
 `
 

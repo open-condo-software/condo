@@ -1,7 +1,8 @@
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const { getItems } = require('@open-keystone/server-side-graphql-client')
 
-const { setFakeClientMode, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, catchErrorFrom, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const {
     createTestB2BApp,
@@ -21,7 +22,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
     registerNewServiceUserByTestClient,
-    makeLoggedInClient,
+    makeLoggedInClient, updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { keystone } = index
@@ -37,16 +38,23 @@ describe('B2BAppAccessRightSet check access through file middleware', () => {
 
     beforeAll(async () => {
         support = await makeClientWithSupportUser()
-        const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+        const admin = await makeLoggedInAdminClient()
+
+        const [newServiceUser] = await registerNewServiceUserByTestClient(admin)
+        const serviceUserPassword = faker.internet.password()
+        await updateTestUser(admin, newServiceUser.id, { password: serviceUserPassword })
         integratedServiceUser = await makeLoggedInClient({
             email: newServiceUser.email,
-            password: newServiceUser.password,
+            password: serviceUserPassword,
             type: 'service',
         })
-        const [anotherServiceUser] = await registerNewServiceUserByTestClient(support)
+
+        const [anotherServiceUser] = await registerNewServiceUserByTestClient(admin)
+        const anotherUserPassword = faker.internet.password()
+        await updateTestUser(admin, anotherServiceUser.id, { password: anotherUserPassword })
         notIntegratedServiceUser = await makeLoggedInClient({
             email: anotherServiceUser.email,
-            password: anotherServiceUser.password,
+            password: anotherUserPassword,
             type: 'service',
         })
         user = await makeClientWithNewRegisteredAndLoggedInUser()

@@ -294,7 +294,7 @@ describe('B2BAppContext', () => {
 
             const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app)
             const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
-            const [serviceUser] = await registerNewServiceUserByTestClient(support)
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
             await createTestB2BAppAccessRight(support, serviceUser, app, accessRightSet)
 
             const ids = []

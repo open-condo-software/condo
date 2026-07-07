@@ -242,7 +242,8 @@ describe('B2BAppAccessRight', () => {
 
         test('Can not create or update "B2BAppAccessRight" if "accessRightSet"."type" != "GLOBAL"', async () => {
             const support = await makeClientWithSupportUser()
-            const [serviceUser] = await registerNewServiceUserByTestClient(support)
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
 
             const [app] = await createTestB2BApp(support)
 

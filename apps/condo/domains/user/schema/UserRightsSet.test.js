@@ -803,14 +803,14 @@ describe('UserRightsSet', () => {
                     })
                 })
                 test('Can search service users by email', async () => {
-                    const [serviceUser] = await registerNewServiceUserByTestClient(support)
+                    const [serviceUser] = await registerNewServiceUserByTestClient(admin)
                     expect(serviceUser).toHaveProperty('email')
                     const foundUser = await User.getOne(portalClient, { email: serviceUser.email })
                     expect(foundUser).toBeDefined()
                     expect(foundUser).toHaveProperty('id', serviceUser.id)
                 })
                 test('Can read service users emails', async () => {
-                    const [serviceUser] = await registerNewServiceUserByTestClient(support)
+                    const [serviceUser] = await registerNewServiceUserByTestClient(admin)
                     expect(serviceUser).toHaveProperty('email')
                     const UserWithEmail = generateGQLTestUtils(generateGqlQueries('User', '{ id email deletedAt }'))
                     const readUser = await UserWithEmail.getOne(portalClient, { id: serviceUser.id })
