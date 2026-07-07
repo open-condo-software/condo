@@ -241,7 +241,6 @@
     "@open-condo/bridge": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",
     "@types/http-proxy": "^1.17.16",
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
     "@types/proxy-addr": "^2.0.3",
     "@types/react": "catalog:",

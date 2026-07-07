@@ -56,7 +56,6 @@
   },
   "devDependencies": {
     "@open-condo/cli": "workspace:^",
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "jest": "catalog:",

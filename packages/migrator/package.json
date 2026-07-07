@@ -40,7 +40,6 @@
     "@faker-js/faker": "^7.6.0",
     "@open-condo/tsconfig": "workspace:^",
     "@types/ioredis": "^4.28.5",
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
     "@types/prompts": "^2.4.9",
     "@types/tmp": "^0.2.6",

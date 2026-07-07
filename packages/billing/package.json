@@ -58,7 +58,6 @@
     "@faker-js/faker": "^7.6.0",
     "@open-condo/tsconfig": "workspace:^",
     "@types/big.js": "^6.2.2",
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
     "execa": "^5",
     "jest": "catalog:",
