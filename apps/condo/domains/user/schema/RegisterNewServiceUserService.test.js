@@ -12,16 +12,12 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
-const { GET_MY_USERINFO } = require('@condo/domains/user/gql')
 const {
     registerNewServiceUserByTestClient,
-    makeLoggedInClient,
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
     User,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { PASS_LENGTH, PASS_ALPHABET } = require('./RegisterNewServiceUserService')
 
 
 describe('RegisterNewServiceUserService', () => {
@@ -37,18 +33,14 @@ describe('RegisterNewServiceUserService', () => {
     })
     describe('Access tests', () => {
         test('Admin can create service user', async () => {
-            const [{ email, password }] = await registerNewServiceUserByTestClient(admin)
-            const serviceClient = await makeLoggedInClient({ email: email, password: password })
-            const { data: { user } } = await serviceClient.query(GET_MY_USERINFO)
-            expect(user.id).toEqual(serviceClient.user.id)
-            expect(user.type).toEqual(SERVICE)
+            const [{ id, email }] = await registerNewServiceUserByTestClient(admin)
+            expect(id).toBeTruthy()
+            expect(email).toBeTruthy()
         })
-        test('Support can create service user', async () => {
-            const [{ email, password }] = await registerNewServiceUserByTestClient(support)
-            const serviceClient = await makeLoggedInClient({ email: email, password: password })
-            const { data: { user } } = await serviceClient.query(GET_MY_USERINFO)
-            expect(user.id).toEqual(serviceClient.user.id)
-            expect(user.type).toEqual(SERVICE)
+        test('Support can not create service user', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerNewServiceUserByTestClient(support)
+            })
         })
         test('User can not create service user', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -93,9 +85,11 @@ describe('RegisterNewServiceUserService', () => {
                 await registerNewServiceUserByTestClient(admin, { email })
             }, 'unique_type_and_email')
         })
-        test('Password must be strong enough', async () => {
-            const [{ password }] = await registerNewServiceUserByTestClient(admin)
-            expect(password).toMatch(new RegExp(`^[${PASS_ALPHABET}]{${PASS_LENGTH}}$`))
+        test('created service user must be email-verified', async () => {
+            const [{ id }] = await registerNewServiceUserByTestClient(admin)
+            const createdUser = await User.getOne(admin, { id })
+            expect(createdUser.isEmailVerified).toBe(true)
+            expect(createdUser.type).toEqual(SERVICE)
         })
     })
 })

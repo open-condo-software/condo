@@ -8,7 +8,7 @@ const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directA
 async function canRegisterNewServiceUser ({ authentication: { item: user }, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
 
     return await canDirectlyExecuteService(user, gqlName)
 }
