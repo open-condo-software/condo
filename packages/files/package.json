@@ -35,12 +35,15 @@
     "./utils.test": "./utils.test.js"
   },
   "dependencies": {
+    "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",
+    "@open-condo/keystone": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
     "express": "catalog:",
     "file-type": "16.5.4",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.0",
+    "tslib": "^2.4.1",
     "zod": "catalog:"
   },
   "devDependencies": {

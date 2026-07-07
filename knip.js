@@ -128,11 +128,13 @@ async function config () {
         'apps/asterisk-bot': {
             entry: ['index.ts'],
         },
-        'apps/insurance': {
-            ignoreDependencies: ['@graphql-codegen/typescript'],
-        },
         'apps/resident-app': {
-            entry: ['domains/common/utils/sw.ts', 'domains/telegram-bot/utils/bot.js' ],
+            entry: [
+                'domains/common/utils/sw.ts',
+                'domains/telegram-bot/utils/bot.js',
+                'bot.js',
+                'domains/telegram-bot/**/*.js',
+            ],
         },
         'packages/icons': {
             ignoreDependencies: ['@svgr/plugin-svgo', '@svgr/plugin-prettier', '@svgr/plugin-jsx'],
@@ -142,7 +144,6 @@ async function config () {
         },
         'packages/ui': {
             ignoreDependencies: [
-                /storybook/,
                 'style-loader',
                 'chromatic',
                 'token-transformer',
@@ -172,22 +173,13 @@ async function config () {
 
         // KS app entry points
         if (isKSApp(packageJsonPath)) {
-            packageConfig.entry.push('index.js', 'admin-ui/index.js')
-        }
-
-        // Telegram bot packages
-        if (hasPath(packageJsonPath, './domains/*/scenes')) {
-            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n', 'graphql-tag', 'express', 'express-session', 'express-pino-logger', 'openid-client', 'uuid', 'jsonwebtoken')
+            packageConfig.entry.push('index.js', 'admin-ui/index.js', 'admin-ui/index.jsx')
         }
 
         // Jest-specific packages
         if (hasDependency(packageJsonPath, 'jest')) {
             if (hasPath(packageJsonPath, 'jest.config.js') && hasDependency(packageJsonPath, 'jest-jasmine2')) {
                 packageConfig.ignoreDependencies.push('jest-jasmine2')
-            }
-
-            if (hasDependency(packageJsonPath, '@types/jest') && (hasPath(packageJsonPath, 'tsconfig.json') || hasDependency(packageJsonPath, 'typescript'))) {
-                packageConfig.ignoreDependencies.push('@types/jest')
             }
         }
 
@@ -233,7 +225,7 @@ async function config () {
         }
 
         // webpack-cli required for libs built with webpack
-        if (hasDependency(packageJsonPath, 'webpack-cli') && hasPath(packageJsonPath, 'webpack.*.js')) {
+        if (hasDependency(packageJsonPath, 'webpack-cli') && hasPath(packageJsonPath, 'webpack.*.js') && !hasName(packageJsonPath, '@open-condo/ui') && !hasName(packageJsonPath, '@open-condo/icons')) {
             packageConfig.ignoreDependencies.push('webpack-cli')
         }
 
