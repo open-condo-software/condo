@@ -1177,6 +1177,13 @@ export type GetTicketsCountQueryVariables = Types.Exact<{
 
 export type GetTicketsCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetLatestTicketUpdatedAtQueryVariables = Types.Exact<{
+  where: Types.TicketWhereInput;
+}>;
+
+
+export type GetLatestTicketUpdatedAtQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', updatedAt?: string | null } | null> | null };
+
 export type GetOrganizationEmployeeTicketsCountForReassignmentQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];

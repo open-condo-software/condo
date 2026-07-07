@@ -7903,6 +7903,49 @@ export type GetTicketsCountQueryHookResult = ReturnType<typeof useGetTicketsCoun
 export type GetTicketsCountLazyQueryHookResult = ReturnType<typeof useGetTicketsCountLazyQuery>;
 export type GetTicketsCountSuspenseQueryHookResult = ReturnType<typeof useGetTicketsCountSuspenseQuery>;
 export type GetTicketsCountQueryResult = Apollo.QueryResult<Types.GetTicketsCountQuery, Types.GetTicketsCountQueryVariables>;
+export const GetLatestTicketUpdatedAtDocument = gql`
+    query getLatestTicketUpdatedAt($where: TicketWhereInput!) {
+  tickets: allTickets(where: $where, sortBy: [updatedAt_DESC], first: 1) {
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetLatestTicketUpdatedAtQuery__
+ *
+ * To run a query within a React component, call `useGetLatestTicketUpdatedAtQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLatestTicketUpdatedAtQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLatestTicketUpdatedAtQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetLatestTicketUpdatedAtQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables> & ({ variables: Types.GetLatestTicketUpdatedAtQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>(GetLatestTicketUpdatedAtDocument, options);
+      }
+export function useGetLatestTicketUpdatedAtLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>(GetLatestTicketUpdatedAtDocument, options);
+        }
+// @ts-ignore
+export function useGetLatestTicketUpdatedAtSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>;
+export function useGetLatestTicketUpdatedAtSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLatestTicketUpdatedAtQuery | undefined, Types.GetLatestTicketUpdatedAtQueryVariables>;
+export function useGetLatestTicketUpdatedAtSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>(GetLatestTicketUpdatedAtDocument, options);
+        }
+export type GetLatestTicketUpdatedAtQueryHookResult = ReturnType<typeof useGetLatestTicketUpdatedAtQuery>;
+export type GetLatestTicketUpdatedAtLazyQueryHookResult = ReturnType<typeof useGetLatestTicketUpdatedAtLazyQuery>;
+export type GetLatestTicketUpdatedAtSuspenseQueryHookResult = ReturnType<typeof useGetLatestTicketUpdatedAtSuspenseQuery>;
+export type GetLatestTicketUpdatedAtQueryResult = Apollo.QueryResult<Types.GetLatestTicketUpdatedAtQuery, Types.GetLatestTicketUpdatedAtQueryVariables>;
 export const GetOrganizationEmployeeTicketsCountForReassignmentDocument = gql`
     query getOrganizationEmployeeTicketsCountForReassignment($userId: ID!, $organizationId: ID!) {
   meta: _allTicketsMeta(
