@@ -1070,6 +1070,7 @@ __metadata:
     openid-client: "npm:5.7.1"
     pluralize: "npm:^8.0.0"
     react: "npm:^18.3.1"
+    zod: "npm:^4.4.3"
   languageName: unknown
   linkType: soft
 
