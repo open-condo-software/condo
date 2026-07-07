@@ -439,7 +439,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@app/accruals-gateway@workspace:apps/accruals-gateway":
+"@app/accruals-gateway@workspace:^, @app/accruals-gateway@workspace:apps/accruals-gateway":
   version: 0.0.0-use.local
   resolution: "@app/accruals-gateway@workspace:apps/accruals-gateway"
   dependencies:
@@ -475,6 +475,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@open-keystone/app-admin-ui": "catalog:"
     "@types/jest": "catalog:"
@@ -508,6 +509,7 @@ __metadata:
     "@types/react": "catalog:"
     "@types/react-dom": "catalog:"
     antd: "catalog:"
+    lodash: "catalog:"
     next: "catalog:"
     pdfmake: "npm:0.2.10"
     react: "catalog:"
@@ -538,12 +540,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/b2b-payments-gateway@workspace:apps/b2b-payments-gateway"
   dependencies:
+    "@app/accruals-gateway": "workspace:^"
     "@b2b-payments-gateway/domains": "link:./domains"
     "@faker-js/faker": "npm:^7.6.0"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/react": "catalog:"
@@ -632,8 +636,11 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": "npm:^4.4.1"
     "@open-condo/apollo": "workspace:^"
     "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/icons": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
@@ -831,6 +838,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -871,6 +879,8 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/webhooks": "workspace:^"
     "@types/jest": "catalog:"
     "@types/node": "catalog:"
     archiver: "npm:7.0.1"
@@ -895,6 +905,8 @@ __metadata:
     "@ant-design/cssinjs": "npm:^1.24.0"
     "@apollo/client": "catalog:"
     "@app/dev-portal-api": "workspace:^"
+    "@condo/domains": "link:../condo/domains"
+    "@dev-portal-api/domains": "link:../dev-portal-api/domains"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -909,6 +921,7 @@ __metadata:
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": "npm:^2.5.1"
+    "@types/mdx": "npm:^2.0.14"
     "@types/react": "catalog:"
     "@types/react-dom": "catalog:"
     "@types/title": "npm:3.4.1"
@@ -1004,6 +1017,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/featureflags": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@types/node": "catalog:"
     axios: "npm:^1.15.0"
     commander: "npm:14.0.1"
@@ -1028,6 +1042,7 @@ __metadata:
   resolution: "@app/eps@workspace:apps/eps"
   dependencies:
     "@apollo/client": "catalog:"
+    "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@emotion/cache": "catalog:"
     "@emotion/core": "catalog:"
@@ -1045,9 +1060,11 @@ __metadata:
     "@open-arch-ui/theme": "npm:^1.0.1"
     "@open-arch-ui/typography": "npm:^1.0.1"
     "@open-condo/cli": "workspace:^"
+    "@open-condo/clients": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -1093,6 +1110,8 @@ __metadata:
   dependencies:
     "@condo/domains": "link:../condo/domains"
     "@open-condo/cli": "workspace:^"
+    "@open-condo/clients": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     apollo-boost: "npm:0.4.9"
@@ -1127,6 +1146,7 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
@@ -1172,6 +1192,7 @@ __metadata:
     "@meter-importer/domains": "link:./domains"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
+    "@open-condo/clients": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/react": "catalog:"
@@ -1242,6 +1263,7 @@ __metadata:
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
     "@news-greenhouse/domains": "link:./domains"
+    "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -1284,6 +1306,7 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     cross-env: "catalog:"
     dayjs: "catalog:"
@@ -1357,6 +1380,7 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
@@ -1384,6 +1408,7 @@ __metadata:
     pluralize: "catalog:"
     react: "catalog:"
     react-dom: "catalog:"
+    react-intl: "catalog:"
     typescript: "catalog:"
     uuid: "catalog:"
   languageName: unknown
@@ -1406,6 +1431,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -1440,6 +1466,7 @@ __metadata:
   resolution: "@app/property-ai-assistant@workspace:apps/property-ai-assistant"
   dependencies:
     "@apollo/client": "catalog:"
+    "@app/condo": "workspace:^"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/import-types-preset": "npm:^4.0.0"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -1473,6 +1500,7 @@ __metadata:
   dependencies:
     "@apollo/client": "catalog:"
     "@app/condo": "workspace:^"
+    "@condo/domains": "link:../condo/domains"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -1512,6 +1540,7 @@ __metadata:
   resolution: "@app/rb@workspace:apps/rb"
   dependencies:
     "@apollo/client": "catalog:"
+    "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@emotion/cache": "catalog:"
     "@emotion/react": "catalog:"
@@ -1603,6 +1632,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
+    "@open-keystone/app-admin-ui": "catalog:"
     "@open-keystone/app-graphql": "catalog:"
     "@open-keystone/app-next": "catalog:"
     "@registry-importer/domains": "link:./domains"
@@ -1657,16 +1687,22 @@ __metadata:
   dependencies:
     "@ant-design/cssinjs": "npm:^1.24.0"
     "@apollo/client": "catalog:"
+    "@app/condo": "workspace:^"
+    "@condo/domains": "link:../condo/domains"
     "@graphql-codegen/cli": "npm:^6.2.0"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
     "@graphql-codegen/typescript-react-apollo": "npm:^4.4.1"
     "@metro-fs/analytics-plugin-posthog": "npm:^1.14.0"
+    "@miniapp/domains": "link:../miniapp/domains"
     "@open-condo/apollo": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -1796,6 +1832,7 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
     "@types/node": "catalog:"
@@ -3803,6 +3840,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@condo/domains@link:../condo/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web"
+  languageName: node
+  linkType: soft
+
 "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
@@ -3827,6 +3870,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
+  languageName: node
+  linkType: soft
+
 "@condo/domains@link:../condo/domains::locator=%40app%2Frb%40workspace%3Aapps%2Frb":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Frb%40workspace%3Aapps%2Frb"
@@ -3836,6 +3885,12 @@ __metadata:
 "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer"
+  languageName: node
+  linkType: soft
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fresident-app%40workspace%3Aapps%2Fresident-app":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fresident-app%40workspace%3Aapps%2Fresident-app"
   languageName: node
   linkType: soft
 
@@ -4138,6 +4193,12 @@ __metadata:
 "@debt-management/domains@link:./domains::locator=%40app%2Fdebt-management%40workspace%3Aapps%2Fdebt-management":
   version: 0.0.0-use.local
   resolution: "@debt-management/domains@link:./domains::locator=%40app%2Fdebt-management%40workspace%3Aapps%2Fdebt-management"
+  languageName: node
+  linkType: soft
+
+"@dev-portal-api/domains@link:../dev-portal-api/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web":
+  version: 0.0.0-use.local
+  resolution: "@dev-portal-api/domains@link:../dev-portal-api/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web"
   languageName: node
   linkType: soft
 
@@ -8348,6 +8409,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@miniapp/domains@link:../miniapp/domains::locator=%40app%2Fresident-app%40workspace%3Aapps%2Fresident-app":
+  version: 0.0.0-use.local
+  resolution: "@miniapp/domains@link:../miniapp/domains::locator=%40app%2Fresident-app%40workspace%3Aapps%2Fresident-app"
+  languageName: node
+  linkType: soft
+
 "@miniapp/domains@link:./domains::locator=%40app%2Fminiapp%40workspace%3Aapps%2Fminiapp":
   version: 0.0.0-use.local
   resolution: "@miniapp/domains@link:./domains::locator=%40app%2Fminiapp%40workspace%3Aapps%2Fminiapp"
@@ -9475,7 +9542,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/clients@workspace:packages/clients":
+"@open-condo/clients@workspace:^, @open-condo/clients@workspace:packages/clients":
   version: 0.0.0-use.local
   resolution: "@open-condo/clients@workspace:packages/clients"
   dependencies:
@@ -9550,7 +9617,9 @@ __metadata:
   resolution: "@open-condo/files@workspace:packages/files"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
+    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@types/jsonwebtoken": "npm:^9.0.0"
@@ -9560,6 +9629,7 @@ __metadata:
     formidable: "npm:^3.5.4"
     jsonwebtoken: "npm:^9.0.0"
     rimraf: "npm:^6.0.1"
+    tslib: "npm:^2.4.1"
     typescript: "catalog:"
     zod: "catalog:"
   languageName: unknown
@@ -9896,6 +9966,7 @@ __metadata:
     postcss-loader: "npm:^7.0.1"
     postcss-preset-env: "npm:^7.8.1"
     quicktype-core: "npm:^6.0.71"
+    rc-menu: "npm:~9.8.4"
     react: "catalog:"
     react-dom: "catalog:"
     react-markdown: "npm:^6"
@@ -13598,7 +13669,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mdx@npm:^2.0.0":
+"@types/mdx@npm:^2.0.0, @types/mdx@npm:^2.0.14":
   version: 2.0.14
   resolution: "@types/mdx@npm:2.0.14"
   checksum: 10/bb485c22c6f57b1f17437c889671859ce99160d97da9f72036fd57a8db22127088dde783bf19df975858fde69c2fc92349f6f39a803e51e823549967db282ae8
