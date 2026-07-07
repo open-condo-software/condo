@@ -26,6 +26,7 @@ const { Organization, registerNewOrganization } = require('@condo/domains/organi
 const {
     makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
     registerNewServiceUserByTestClient, makeClientWithServiceUser,
+    updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -58,7 +59,9 @@ describe('B2BAccessToken', () => {
             name: faker.random.alphaNumeric(8),
             type: 'SCOPED',
         });
-        [serviceUser] = await registerNewServiceUserByTestClient(support)
+
+
+        [serviceUser] = await registerNewServiceUserByTestClient(admin)
         await createTestB2BAppAccessRight(support, serviceUser, b2bApp, globalRightSet)
     })
 
@@ -378,9 +381,9 @@ describe('B2BAccessToken', () => {
             const [tokenRightSet1] = await createTestB2BAppAccessRightSet(support, otherApp1, { type: 'SCOPED' })
             const [tokenRightSet2] = await createTestB2BAppAccessRightSet(support, otherApp2, { type: 'SCOPED' })
             const [tokenRightSet3] = await createTestB2BAppAccessRightSet(support, otherApp3, { type: 'SCOPED' })
-            const [otherServiceUser1] = await registerNewServiceUserByTestClient(support)
-            const [otherServiceUser2] = await registerNewServiceUserByTestClient(support)
-            const [otherServiceUser3] = await registerNewServiceUserByTestClient(support)
+            const [otherServiceUser1] = await registerNewServiceUserByTestClient(admin)
+            const [otherServiceUser2] = await registerNewServiceUserByTestClient(admin)
+            const [otherServiceUser3] = await registerNewServiceUserByTestClient(admin)
             await createTestB2BAppAccessRight(support, otherServiceUser1, otherApp1)
             await createTestB2BAppAccessRight(support, otherServiceUser2, otherApp2)
             await createTestB2BAppAccessRight(support, otherServiceUser3, otherApp3)
@@ -477,7 +480,9 @@ describe('B2BAccessToken', () => {
 
         test('Show token only once after creation', async () => {
             await updateTestB2BAppAccessRightSet(support, globalRightSet.id, { canManageB2BAccessTokens: true, canReadB2BAccessTokens: true })
-            const client = await makeLoggedInClient(serviceUser)
+            const password = faker.internet.password()
+            await updateTestUser(admin, serviceUser.id, { password })
+            const client = await makeLoggedInClient({ email: serviceUser.email, password })
             const [createdToken] = await createTestB2BAccessToken(client, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('token')
             expect(createdToken.token.length).toBeGreaterThan(0)

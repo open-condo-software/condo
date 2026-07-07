@@ -74,7 +74,16 @@ const {
     makeClientWithSupportUser,
     registerNewServiceUserByTestClient,
     makeLoggedInClient,
+    updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+async function makeServiceUser (client) {
+    const [newServiceUser] = await registerNewServiceUserByTestClient(client)
+    const password = faker.internet.password()
+    await updateTestUser(client, newServiceUser.id, { password })
+
+    return await makeLoggedInClient({ email: newServiceUser.email, password })
+}
 
 
 describe('B2BAppAccessRightSet', () => {
@@ -104,12 +113,10 @@ describe('B2BAppAccessRightSet', () => {
         const [createdAccessRightSet] = await createTestB2BAppAccessRightSet(support, app)
         accessRightSet = createdAccessRightSet
 
-        const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-        integratedServiceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
+        integratedServiceUser = await makeServiceUser(admin)
         await createTestB2BAppAccessRight(support, integratedServiceUser.user, app)
 
-        const [newServiceUser2] = await registerNewServiceUserByTestClient(support)
-        integratedToAnotherAppServiceUser = await makeLoggedInClient({ email: newServiceUser2.email, password: newServiceUser2.password })
+        integratedToAnotherAppServiceUser = await makeServiceUser(admin)
         await createTestB2BAppAccessRight(support, integratedToAnotherAppServiceUser.user, anotherApp)
     })
 
@@ -516,12 +523,13 @@ describe('B2BApp permissions for service user', () => {
     let support
     let user
     let serviceUser
+    let admin
 
     beforeEach(async () => {
+        admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-        serviceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
+        serviceUser = await makeServiceUser(admin)
     })
 
     test('Get all permissions for app', async () => {
@@ -1337,12 +1345,8 @@ describe('B2BApp permissions for service user', () => {
     describe('Meters domain', () => {
         test('RegisterMetersReadings', async () => {
             const [organization] = await registerNewOrganization(user)
-
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            const serviceUser = await makeLoggedInClient({
-                email: newServiceUser.email,
-                password: newServiceUser.password,
-            })
+            
+            const serviceUser = await makeServiceUser(admin)
 
             const [app] = await createTestB2BApp(support)
             await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
@@ -1375,12 +1379,8 @@ describe('B2BApp permissions for service user', () => {
             const [source] = await MeterReadingSource.getAll(user, { id: CALL_METER_READING_SOURCE_ID })
             const [resource] = await MeterResource.getAll(user, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(user, organization, property, resource, {})
-
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            const serviceUser = await makeLoggedInClient({
-                email: newServiceUser.email,
-                password: newServiceUser.password,
-            })
+            
+            const serviceUser = await makeServiceUser(admin)
 
             const [app] = await createTestB2BApp(support)
             await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
@@ -1415,12 +1415,8 @@ describe('B2BApp permissions for service user', () => {
             const [resource] = await MeterResource.getAll(user, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(user, organization, property, resource, {})
             const [meterReading] = await createTestMeterReading(user, meter, source)
-
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            const serviceUser = await makeLoggedInClient({
-                email: newServiceUser.email,
-                password: newServiceUser.password,
-            })
+            
+            const serviceUser = await makeServiceUser(admin)
 
             const [app] = await createTestB2BApp(support)
             await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
@@ -1454,12 +1450,8 @@ describe('B2BApp permissions for service user', () => {
             const [period] = await createTestMeterReportingPeriod(user, organization, {
                 property: { connect: { id: property.id } },
             })
-
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            const serviceUser = await makeLoggedInClient({
-                email: newServiceUser.email,
-                password: newServiceUser.password,
-            })
+            
+            const serviceUser = await makeServiceUser(admin)
 
             const [app] = await createTestB2BApp(support)
             await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
@@ -1515,11 +1507,7 @@ describe('B2BApp permissions for service user', () => {
         })
 
         beforeEach(async () => {
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            serviceUser = await makeLoggedInClient({
-                email: newServiceUser.email,
-                password: newServiceUser.password,
-            });
+            serviceUser = await makeServiceUser(admin);
 
             [b2bApp] = await createTestB2BApp(support)
             await createTestB2BAppContext(support, b2bApp, organization, { status: 'Finished' });
@@ -1686,8 +1674,7 @@ describe('B2BApp permissions for service user', () => {
 
         beforeAll(async () => {
             const [organization] = await registerNewOrganization(user)
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            serviceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password });
+            serviceUser = await makeServiceUser(admin);
             [app] = await createTestB2BApp(support);
             [context] = await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
             const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app);
@@ -1766,13 +1753,10 @@ describe('B2BApp permissions for service user', () => {
 
             const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, { canReadPayments: true })
             const [anotherAccessRightSet] = await createTestB2BAppAccessRightSet(support, anotherApp, { canReadPayments: true })
-
-            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-            const serviceUserClient = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
+            
+            const serviceUserClient = await makeServiceUser(admin)
             await createTestB2BAppAccessRight(support, serviceUserClient.user, app, accessRightSet)
-
-            const [newServiceUser2] = await registerNewServiceUserByTestClient(support)
-            const anotherServiceUserClient = await makeLoggedInClient({ email: newServiceUser2.email, password: newServiceUser2.password })
+            const anotherServiceUserClient = await makeServiceUser(admin)
             await createTestB2BAppAccessRight(support, anotherServiceUserClient.user, anotherApp, anotherAccessRightSet)
 
             // can't without rights
