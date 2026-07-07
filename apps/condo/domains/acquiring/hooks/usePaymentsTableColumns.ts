@@ -79,19 +79,25 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 sorter: true,
                 render: stringSearch,
             },
-            status: {
-                title: StatusTitle,
-                key: 'status',
-                dataIndex: 'status',
-                width: '8%',
-                render: getStatusRender(intl, openStatusDescModal, search),
-            },
+            source: hasSourceColumn ? {
+                title: PaymentSourceTitle,
+                key: 'integration',
+                dataIndex: ['context', 'integration', 'name'],
+                width: '7%',
+            } : null,
             order: {
                 title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 key: 'order',
                 dataIndex: 'order',
                 width: '8%',
                 render: stringSearch,
+            },
+            status: {
+                title: StatusTitle,
+                key: 'status',
+                dataIndex: 'status',
+                width: '8%',
+                render: getStatusRender(intl, openStatusDescModal, search),
             },
             amount: {
                 title: PaymentAmountTitle,
@@ -101,12 +107,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 width: '10%',
                 sorter: true,
             },
-            source: hasSourceColumn ? {
-                title: PaymentSourceTitle,
-                key: 'integration',
-                dataIndex: ['context', 'integration', 'name'],
-                width: '7%',
-            } : null,
             posReceiptUrl: hasPosReceiptUrlColumn ? {
                 title: PosReceiptColumnTitle,
                 key: 'posReceiptUrl',

@@ -28,8 +28,10 @@ const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
 const UseDeskWidgetId = conf['USE_DESK_WIDGET_ID']
 const HelpRequisites = (conf['HELP_REQUISITES'] && JSON.parse(conf['HELP_REQUISITES'])) || {}
 const popupSmartConfig = JSON.parse(conf['POPUP_SMART_CONFIG'] || '{}')
-const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}).client_id)
+const sbbolAuthConfig = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+const hasSbbolAuth = Boolean(sbbolAuthConfig?.client_id)
 const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
+const sppFintechUrl = conf['SPP_FINTECH_URL'] || ''
 const registryUploadIntegrationId = conf['REGISTRY_UPLOAD_INTEGRATION_ID'] || null
 const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
 const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
@@ -119,6 +121,8 @@ const nextConfig: NextConfig = {
         popupSmartConfig,
         hasSbbolAuth,
         sppConfig,
+        sbbolAuthConfig: { host: sbbolAuthConfig?.host, port: sbbolAuthConfig?.port },
+        sppFintechUrl,
         registryUploadIntegrationId,
         globalHints,
         newsItemsSendingDelay,

@@ -1,0 +1,12 @@
+query getActiveSppBillingContext ($organization: OrganizationWhereInput!, $integration: BillingIntegrationWhereInput!, $status: String!) {
+    contexts: allBillingIntegrationOrganizationContexts(
+        where: {
+            organization: $organization,
+            integration: $integration,
+            status: $status,
+        }
+        first: 1
+    ) {
+        id
+    }
+}
