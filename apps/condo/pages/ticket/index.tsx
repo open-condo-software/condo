@@ -355,6 +355,7 @@ const TicketsTableContainer = ({
     playSoundOnNewTickets,
     refetchTicketTypeCountersRef,
     onTicketsLoaded,
+    onTotalChange,
 }) => {
     const intl = useIntl()
 
@@ -398,6 +399,10 @@ const TicketsTableContainer = ({
     useEffect(() => {
         onTicketsLoaded?.(ticketIds)
     }, [ticketIds, onTicketsLoaded])
+
+    useEffect(() => {
+        onTotalChange?.(total)
+    }, [total, onTotalChange])
 
     const {
         data: userTicketCommentReadTimesData,
@@ -547,7 +552,7 @@ const ALL_TICKETS_COUNT_CONTAINER_STYLES: CSSProperties = {
 }
 const LOADER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '20px' }
 
-const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutStatusQuery }) => {
+const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTicketsCount }) => {
     const intl = useIntl()
     const OpenedTicketsMessage = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
     const InProgressTicketsMessage = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.many' })
@@ -567,17 +572,6 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     const isComplexFilter = isCountersLimitEnabled && estimatedComplexity > 1000
 
     const {
-        data: allTicketsCountData,
-        loading: allTicketsCountLoading,
-    } = useGetTicketsCountQuery({
-        variables: {
-            where: searchTicketsQuery,
-        },
-        skip: !persistor,
-    })
-    const allTicketsCount = useMemo(() => allTicketsCountData?.meta?.count, [allTicketsCountData?.meta?.count])
-
-    const {
         data: ticketsCountByStatusesData,
         loading: ticketsCountByStatusesLoading,
     } = useGetTicketsCountersByStatusQuery({
@@ -587,7 +581,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
         skip: !persistor || isComplexFilter,
     })
 
-    const loading = allTicketsCountLoading || ticketsCountByStatusesLoading
+    const loading = totalTicketsCount === undefined || ticketsCountByStatusesLoading
 
     return loading ? <Loader style={LOADER_STYLES}/> : (
         <Row gutter={SMALL_HORIZONTAL_GUTTER} style={TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES}>
@@ -595,7 +589,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
                 <Typography.Text size='large' strong>
                     {
                         intl.formatMessage({ id: 'TicketsCount' }, {
-                            ticketsCount: allTicketsCount,
+                            ticketsCount: totalTicketsCount,
                         })
                     }
                 </Typography.Text>
@@ -885,6 +879,8 @@ export const TicketsPageContent = ({
         ...filtersToWhere(omit(filters, 'status')),
     }), [baseTicketsQuery, filters, filtersToWhere])
 
+    const [ticketsTotal, setTicketsTotal] = useState<number | undefined>(undefined)
+
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)
@@ -953,8 +949,8 @@ export const TicketsPageContent = ({
                 </Col>
                 <Col span={24}>
                     <TicketStatusFilterContainer
-                        searchTicketsQuery={searchTicketsQuery}
                         searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
+                        totalTicketsCount={ticketsTotal}
                     />
                 </Col>
             </Row>
@@ -968,12 +964,13 @@ export const TicketsPageContent = ({
                 playSoundOnNewTickets={playSoundOnNewTickets}
                 refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
                 onTicketsLoaded={onTicketsLoaded}
+                onTotalChange={setTicketsTotal}
             />
         </>
     )
 }
 
-export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCountersRef }) => {
+export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCountersRef, allTicketsCount, refetchAllTicketsCount }) => {
     const intl = useIntl()
     const AllTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.all' })
     const OwnTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
@@ -1002,14 +999,6 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCou
         }
     }, [isAllTicketsSelected, isFavoriteTicketsSelected, isOwnTicketsSelected])
 
-    const { data: allTicketsCountData, refetch: refetchAllTickets } = useGetTicketsCountQuery({
-        variables: {
-            where: ticketFilterQuery,
-        },
-        skip: !persistor,
-    })
-    const allTicketsCount = useMemo(() => allTicketsCountData?.meta?.count, [allTicketsCountData?.meta?.count])
-
     // NOTE: we have index "ticket_org_assign_exec_deletedAt" for this filter
     // If you change filter condition, you need to change index
     const ownTicketsQuery = useMemo(() => (
@@ -1028,8 +1017,8 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCou
 
     const refetch = useCallback(async () => {
         await refetchOwnTickets()
-        await refetchAllTickets()
-    }, [refetchAllTickets, refetchOwnTickets])
+        await refetchAllTicketsCount()
+    }, [refetchOwnTickets, refetchAllTicketsCount])
 
     useEffect(() => {
         refetchTicketTypeCountersRef.current = refetch
@@ -1130,14 +1119,15 @@ const TicketsPage: PageComponentType = () => {
         error,
         data: ticketExistenceData,
         loading: ticketExistenceLoading,
+        refetch: refetchAllTicketsCount,
     } = useGetTicketsCountQuery({
         variables: {
             where: ticketFilterQuery,
         },
         skip: !persistor || ticketFilterQueryLoading,
     })
-    const isTicketsExists = useMemo(() => ticketExistenceData?.meta?.count > 0,
-        [ticketExistenceData?.meta?.count])
+    const allTicketsCount = useMemo(() => ticketExistenceData?.meta?.count, [ticketExistenceData?.meta?.count])
+    const isTicketsExists = (allTicketsCount ?? 0) > 0
 
     const {
         data: callRecordFragmentExistenceData,
@@ -1199,6 +1189,8 @@ const TicketsPage: PageComponentType = () => {
                                                     <TicketTypeFilterSwitch
                                                         ticketFilterQuery={ticketFilterQuery}
                                                         refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
+                                                        allTicketsCount={allTicketsCount}
+                                                        refetchAllTicketsCount={refetchAllTicketsCount}
                                                     />
                                                 )
                                             }
