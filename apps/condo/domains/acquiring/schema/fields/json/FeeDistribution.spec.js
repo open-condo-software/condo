@@ -32,7 +32,6 @@ describe('FeeDistributionSchemaJsonValidator', () => {
         ['missing percent', [{ recipient: 'organization' }]],
         ['recipient is not a string', [{ ...validItem, recipient: 123 }]],
         ['percent is not a string', [{ ...validItem, percent: 1 }]],
-        ['invalid percent format', [{ ...validItem, percent: '-1' }]],
         ['invalid minAmount format', [{ ...validItem, minAmount: 'abc' }]],
         ['invalid maxAmount format', [{ ...validItem, maxAmount: '10.' }]],
         ['additional property', [{ ...validItem, extra: 'unexpected' }]],
@@ -50,41 +49,108 @@ describe('FeeDistributionSchemaJsonValidator', () => {
         })
     })
 
-    describe('percent,minAmount,maxAmount pattern validation', () => {
-        const cases = [
-            ['0', true],
-            ['1', true],
-            ['10', true],
-            ['999999', true],
-            ['0.1', true],
-            ['1.0', true],
-            ['10.25', true],
-            ['999999.999999', true],
-
-            ['', false],
-            [' ', false],
-            ['01', false],
-            ['001', false],
-            ['-1', false],
-            ['+1', false],
-            ['1.', false],
-            ['.5', false],
-            ['1.2.3', false],
-            ['1,5', false],
-            ['abc', false],
-            ['1a', false],
-            ['a1', false],
-        ]
-
-        test.each(cases)('value "%s" -> %s', (value, expected) => {
+    describe.each([
+        ['percent', {
+            valid: [
+                '0',
+                '1',
+                '10',
+                '99.99',
+                '100',
+                '100.0',
+            ],
+            invalid: [
+                '',
+                ' ',
+                '01',
+                '001',
+                '-1',
+                '+1',
+                '1.',
+                '.5',
+                '1.2.3',
+                '1,5',
+                'abc',
+                '1a',
+                'a1',
+                '100.1',
+                '101',
+                '999999',
+            ],
+        }],
+        ['minAmount', {
+            valid: [
+                '0',
+                '1',
+                '10',
+                '999999',
+                '0.1',
+                '1.0',
+                '10.25',
+                '999999.999999',
+            ],
+            invalid: [
+                '',
+                ' ',
+                '01',
+                '001',
+                '-1',
+                '+1',
+                '1.',
+                '.5',
+                '1.2.3',
+                '1,5',
+                'abc',
+                '1a',
+                'a1',
+            ],
+        }],
+        ['maxAmount', {
+            valid: [
+                '0',
+                '1',
+                '10',
+                '999999',
+                '0.1',
+                '1.0',
+                '10.25',
+                '999999.999999',
+            ],
+            invalid: [
+                '',
+                ' ',
+                '01',
+                '001',
+                '-1',
+                '+1',
+                '1.',
+                '.5',
+                '1.2.3',
+                '1,5',
+                'abc',
+                '1a',
+                'a1',
+            ],
+        }],
+    ])('%s pattern', (field, { valid, invalid }) => {
+        test.each(valid)('accepts "%s"', (value) => {
             const data = [{
-                recipient: 'merchant',
-                percent: value,
-                minAmount: value,
-                maxAmount: value,
+                recipient: 'organization',
+                percent: '1',
+                [field]: value,
             }]
 
-            expect(FeeDistributionSchemaJsonValidator(data)).toBe(expected)
+            expect(FeeDistributionSchemaJsonValidator(data)).toBe(true)
+        })
+
+        test.each(invalid)('rejects "%s"', (value) => {
+            const data = [{
+                recipient: 'organization',
+                percent: '1',
+                [field]: value,
+            }]
+
+            expect(FeeDistributionSchemaJsonValidator(data)).toBe(false)
         })
     })
 })

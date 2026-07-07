@@ -25,14 +25,16 @@ const FEE_DISTRIBUTION_GRAPHQL_TYPES = `
         ${render(FeeDistributionFields)}
     }
 `
+const decimalPattern = String.raw`^(0|[1-9]\d*)(\.\d+)?$`
+const percentPattern = String.raw`^(100(\.0+)?|([1-9]?\d)(\.\d+)?)$`
 
 const FeeDistributionJsonSchema = {
     type: 'object',
     properties: {
         recipient: { type: 'string' },
-        percent: { type: 'string', pattern: '^(0|[1-9]\\d*)(\\.\\d+)?$' },
-        minAmount: { type: 'string', pattern: '^(0|[1-9]\\d*)(\\.\\d+)?$' },
-        maxAmount: { type: 'string', pattern: '^(0|[1-9]\\d*)(\\.\\d+)?$' },
+        percent: { type: 'string', pattern: percentPattern },
+        minAmount: { type: 'string', pattern: decimalPattern },
+        maxAmount: { type: 'string', pattern: decimalPattern },
         category: { type: 'string' },
     },
     additionalProperties: false,
