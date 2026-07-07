@@ -55,7 +55,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT, TICKET_OBSERVERS, TICKET_STATUS_COUNTERS_LS_CACHE } from '@condo/domains/common/constants/featureflags'
+import { TICKET_IMPORT, TICKET_OBSERVERS, TICKET_STATUS_COUNTERS_LIMIT } from '@condo/domains/common/constants/featureflags'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -71,7 +71,6 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
-import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketStatusFilter } from '@condo/domains/ticket/components/TicketStatusFilter/TicketStatusFilter'
@@ -94,6 +93,7 @@ import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicke
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
+import { estimateTicketCountersComplexity } from '@condo/domains/ticket/utils/complexity'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { getTicketTypeFilter } from '@condo/domains/ticket/utils/tables.utils'
 
@@ -549,17 +549,6 @@ const ALL_TICKETS_COUNT_CONTAINER_STYLES: CSSProperties = {
 }
 const LOADER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '20px' }
 
-const STATUS_COUNTERS_TTL = 5 * 60 * 1000
-const STATUS_COUNTERS_STORAGE_KEY = 'sc:ticketStatusCounters'
-
-type StatusCountersCacheEntry = {
-    fetchedAt: number
-    variablesKey: string
-    data: ReturnType<typeof useGetTicketsCountersByStatusQuery>['data']
-}
-
-const statusCountersStorage = new LocalStorageManager<StatusCountersCacheEntry>()
-
 const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutStatusQuery }) => {
     const intl = useIntl()
     const OpenedTicketsMessage = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
@@ -570,9 +559,14 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     const ClosedTicketsMessage = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
 
     const { persistor } = useCachePersistor()
-    const { user } = useAuth()
     const { useFlag } = useFeatureFlags()
-    const isLsCacheEnabled = useFlag(TICKET_STATUS_COUNTERS_LS_CACHE)
+    const isCountersLimitEnabled = useFlag(TICKET_STATUS_COUNTERS_LIMIT)
+
+    const estimatedComplexity = useMemo(
+        () => estimateTicketCountersComplexity(searchTicketsWithoutStatusQuery as Record<string, unknown>),
+        [searchTicketsWithoutStatusQuery]
+    )
+    const isComplexFilter = isCountersLimitEnabled && estimatedComplexity > 1000
 
     const {
         data: allTicketsCountData,
@@ -585,37 +579,15 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     })
     const allTicketsCount = useMemo(() => allTicketsCountData?.meta?.count, [allTicketsCountData?.meta?.count])
 
-    const variablesKey = JSON.stringify(searchTicketsWithoutStatusQuery)
-    const userId = user?.id ?? ''
-
-    const [cachedEntry, setCachedEntry] = useState<StatusCountersCacheEntry | null>(() => {
-        if (!isLsCacheEnabled || !userId) return null
-        const entry = statusCountersStorage.getItem(`${STATUS_COUNTERS_STORAGE_KEY}:${userId}`)
-        if (!entry || entry.variablesKey !== variablesKey) return null
-        if (Date.now() - entry.fetchedAt >= STATUS_COUNTERS_TTL) return null
-        return entry
-    })
-
-    const isCacheHit = isLsCacheEnabled && cachedEntry !== null && cachedEntry.variablesKey === variablesKey
-
     const {
-        data: fetchedCountersByStatusData,
+        data: ticketsCountByStatusesData,
         loading: ticketsCountByStatusesLoading,
     } = useGetTicketsCountersByStatusQuery({
         variables: {
             whereWithoutStatuses: searchTicketsWithoutStatusQuery,
         },
-        skip: !persistor || isCacheHit,
-        fetchPolicy: isLsCacheEnabled ? 'network-only' : undefined,
-        onCompleted: (data) => {
-            if (!isLsCacheEnabled || !userId) return
-            const entry: StatusCountersCacheEntry = { fetchedAt: Date.now(), variablesKey, data }
-            statusCountersStorage.setItem(`${STATUS_COUNTERS_STORAGE_KEY}:${userId}`, entry)
-            setCachedEntry(entry)
-        },
+        skip: !persistor || isComplexFilter,
     })
-
-    const ticketsCountByStatusesData = fetchedCountersByStatusData ?? cachedEntry?.data
 
     const loading = allTicketsCountLoading || ticketsCountByStatusesLoading
 

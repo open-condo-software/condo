@@ -9861,6 +9861,7 @@ export const GetUserFavoriteTicketsDocument = gql`
  *   variables: {
  *      userId: // value for 'userId'
  *      ticketWhere: // value for 'ticketWhere'
+ *      first: // value for 'first'
  *   },
  * });
  */

@@ -144,11 +144,13 @@ export const TicketStatusFilter = ({ count, title, type }) => {
             tagType={ticketStatusTagType}
             onClick={handleStatusFilterClick}
         >
-            <Tag
-                textColor={colorsByTagType.counterTextColor}
-            >
-                {count?.[type]?.count}
-            </Tag>
+            {count !== undefined && count !== null && (
+                <Tag
+                    textColor={colorsByTagType.counterTextColor}
+                >
+                    {count?.[type]?.count}
+                </Tag>
+            )}
             {title}
             {
                 ticketStatusTagType === 'checked' && (
