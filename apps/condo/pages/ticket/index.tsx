@@ -454,7 +454,7 @@ const TicketsTableContainer = ({
         }
     }, [loadNewTicketCount])
 
-    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
+    const { refetchInterval } = useAutoRefetchTickets()
 
     const refetchTickets = useCallback(async () => {
         setIsRefetching(true)
@@ -470,8 +470,6 @@ const TicketsTableContainer = ({
     const timerRef = useRef<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
-        if (!isRefetchTicketsFeatureEnabled) return
-
         const scheduleNext = () => {
             timerRef.current = setTimeout(async () => {
                 if (document.hidden) {
@@ -506,7 +504,7 @@ const TicketsTableContainer = ({
             if (timerRef.current) clearTimeout(timerRef.current)
             document.removeEventListener('visibilitychange', onVisibilityChange)
         }
-    }, [isRefetchTicketsFeatureEnabled, refetchTickets, loadNewTicketCount, refetchInterval])
+    }, [refetchTickets, loadNewTicketCount, refetchInterval])
 
     const columns = useTableColumns({
         filterMetas,
