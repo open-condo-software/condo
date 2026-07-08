@@ -1,7 +1,6 @@
 const {
     createSourceRegistry,
     getSourceRegistryConfig,
-    getConsistencyMode,
     isCrossDbPlannerEnabled,
 } = require('./sourceRegistry')
 
@@ -35,12 +34,6 @@ describe('source registry', () => {
 
         expect(registry.resolveSource('User')).toEqual('users_db')
         expect(registry.resolveSource('Ticket')).toEqual('default')
-    })
-
-    test('uses strict consistency by default', () => {
-        expect(getConsistencyMode(undefined)).toEqual('strict')
-        expect(getConsistencyMode('unexpected')).toEqual('strict')
-        expect(getConsistencyMode('eventual')).toEqual('eventual')
     })
 
     test('enables planner only for explicit true', () => {

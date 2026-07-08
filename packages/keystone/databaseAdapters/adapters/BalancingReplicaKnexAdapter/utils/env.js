@@ -1,3 +1,7 @@
+/**
+ * Parse and validate `DATABASE_URL`, `DATABASE_POOLS`, and `DATABASE_ROUTING_RULES`.
+ * Shared by BalancingReplicaKnexAdapter and BalancingReplicaPrismaAdapter.
+ */
 const Ajv = require('ajv')
 
 const { SUPPORTED_PG_OPERATIONS } = require('./sql')
