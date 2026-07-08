@@ -26,7 +26,6 @@ export function useTicketListPolling ({
     const shouldRefetchOnFocusRef = useRef(false)
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    // Keep callbacks in refs so polling useEffect never restarts on callback identity changes
     const onFullRefetchRef = useRef(onFullRefetch)
     useEffect(() => { onFullRefetchRef.current = onFullRefetch }, [onFullRefetch])
     const onEveryTickRef = useRef(onEveryTick)
