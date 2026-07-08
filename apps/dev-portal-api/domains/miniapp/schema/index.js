@@ -6,6 +6,7 @@
 const { AllB2BAppContextsService } = require('./AllB2BAppContextsService')
 const { AllB2CAppPropertiesService } = require('./AllB2CAppPropertiesService')
 const { B2BApp } = require('./B2BApp')
+const { B2BAppAccessRight } = require('./B2BAppAccessRight')
 const { B2BAppPublishRequest } = require('./B2BAppPublishRequest')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
@@ -28,6 +29,7 @@ const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 
 module.exports = {
     B2BApp,
+    B2BAppAccessRight,
     B2BAppPublishRequest,
     PublishB2BAppService,
     AllB2BAppContextsService,
