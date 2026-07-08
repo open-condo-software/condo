@@ -100,7 +100,7 @@ NODE
 }
 
 setup_and_start_services() {
-    node bin/prepare.js -f condo -r condo -c condo
+    node bin/prepare.js -f condo -c condo
     configure_message_db_storage
 
     export NEWS_ITEMS_SENDING_DELAY_SEC=2
