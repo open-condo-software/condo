@@ -577,7 +577,9 @@ async function planCrossPoolSelect ({
         }
 
         const joinClient = joinPool.getKnexClient()
-        const query = joinClient(join.joinTable).select('id')
+        const query = joinClient(join.joinTable)
+            .select('id')
+            .limit(CROSS_DB_JOIN_IDS_HARD_LIMIT + 1)
         for (const predicate of predicates) {
             _applyJoinPredicate(query, predicate)
         }
