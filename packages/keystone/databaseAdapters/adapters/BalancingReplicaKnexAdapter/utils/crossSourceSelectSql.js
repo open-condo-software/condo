@@ -9,8 +9,9 @@
  *
  * Entry point: {@link planCrossPoolSelect}.
  */
-const conf = require('@open-condo/config')
 const { Parser } = require('node-sql-parser/build/postgresql')
+
+const conf = require('@open-condo/config')
 
 const parser = new Parser()
 

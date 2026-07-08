@@ -212,6 +212,16 @@ class CrossDbPlanner {
         return relationMap
     }
 
+    _isLogicalWhereKey (key) {
+        return key === 'AND' || key === 'OR' || key === 'NOT'
+    }
+
+    async _tryRewriteRelationFilter (key, value, relationMap, rewritten) {
+        if (await this._rewriteDirectRelation(key, value, relationMap, rewritten)) return true
+        if (await this._rewriteNotRelation(key, value, relationMap, rewritten)) return true
+        return this._rewriteInRelation(key, value, relationMap, rewritten)
+    }
+
     async _rewriteWhereNode (node, relationMap) {
         if (Array.isArray(node)) {
             return Promise.all(node.map(item => this._rewriteWhereNode(item, relationMap)))
@@ -220,14 +230,12 @@ class CrossDbPlanner {
 
         const rewritten = {}
         for (const [key, value] of Object.entries(node)) {
-            if (key === 'AND' || key === 'OR' || key === 'NOT') {
+            if (this._isLogicalWhereKey(key)) {
                 rewritten[key] = await this._rewriteWhereNode(value, relationMap)
                 continue
             }
 
-            if (await this._rewriteDirectRelation(key, value, relationMap, rewritten)) continue
-            if (await this._rewriteNotRelation(key, value, relationMap, rewritten)) continue
-            if (await this._rewriteInRelation(key, value, relationMap, rewritten)) continue
+            if (await this._tryRewriteRelationFilter(key, value, relationMap, rewritten)) continue
 
             rewritten[key] = await this._rewriteWhereNode(value, relationMap)
         }
