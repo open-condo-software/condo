@@ -22,7 +22,6 @@ export function useTicketListPolling ({
     const shouldRefetchOnFocusRef = useRef(false)
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    // Keep callbacks in refs so polling useEffect never restarts on callback identity changes
     const onFullRefetchRef = useRef(onFullRefetch)
     useEffect(() => { onFullRefetchRef.current = onFullRefetch }, [onFullRefetch])
     const onEveryTickRef = useRef(onEveryTick)
@@ -32,14 +31,12 @@ export function useTicketListPolling ({
 
     const runRefetch = useCallback(async () => {
         if (lastUpdatedAt.current !== null) {
-            // Cheap check: any ticket updated since last known timestamp?
             const { data } = await fetchLatestUpdatedAt({
                 variables: { where: { ...baseTicketsQuery, updatedAt_gt: lastUpdatedAt.current } },
             })
             const latestTicket = data?.tickets?.[0]
-            if (!latestTicket) return  // nothing changed
+            if (!latestTicket) return
 
-            // Advance cursor to the latest seen updatedAt before the full refetch
             lastUpdatedAt.current = latestTicket.updatedAt
         }
 
@@ -47,7 +44,6 @@ export function useTicketListPolling ({
         await onFullRefetchRef.current()
         setIsRefetching(false)
 
-        // After first full refetch (cursor was null): initialize cursor
         if (lastUpdatedAt.current === null) {
             const { data } = await fetchLatestUpdatedAt({
                 variables: { where: baseTicketsQuery },
