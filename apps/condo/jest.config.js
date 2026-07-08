@@ -48,6 +48,7 @@ module.exports = {
             transformIgnorePatterns: ['/node_modules/(?!(uuid|nanoid|msgpackr|n2words)/)'],
             moduleNameMapper: {
                 '@open-condo/next/(.*)': '<rootDir>/../../packages/next/$1',
+                '^@ant-design/icons(/.*)?$': '<rootDir>/../../node_modules/@ant-design/icons$1',
             },
         },
     ],
