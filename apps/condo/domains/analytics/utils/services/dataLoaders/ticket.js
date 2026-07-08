@@ -25,7 +25,6 @@ const createPropertyRange = async (organizationWhereInput, whereIn) => {
         listKey: 'Property',
         fields: 'id address',
         where: { organization: organizationWhereInput, deletedAt: null },
-        crossDbPlannerEnabled: true,
     }
     const propertyFilter = get(whereIn, 'property', false)
     if (propertyFilter) {
@@ -64,7 +63,6 @@ const createCategoryClassifierRange = async (organizationWhereInput, whereIn) =>
     const gqlLoaderOptions = {
         listKey: 'TicketCategoryClassifier',
         fields: 'id name organization',
-        crossDbPlannerEnabled: true,
     }
     const categoryClassifierFilter = get(whereIn, 'categoryClassifier', false)
     if (categoryClassifierFilter) {
@@ -83,7 +81,6 @@ const createExecutorRange = async (organizationWhereInput, whereIn) => {
         fields: 'id name',
         singleRelations: [['User', 'user', 'id']],
         where: { organization: organizationWhereInput, role: { canBeAssignedAsExecutor: true } },
-        crossDbPlannerEnabled: true,
     }
     const executorFilter = get(whereIn, 'executor', false)
     const executorLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
@@ -103,7 +100,6 @@ const createAssigneeRange = async (organizationWhereInput, whereIn) => {
         fields: 'id name',
         singleRelations: [['User', 'user', 'id']],
         where: { organization: organizationWhereInput, role: { canBeAssignedAsResponsible: true } },
-        crossDbPlannerEnabled: true,
     }
     const assigneeFilter = get(whereIn, 'assignee', false)
     const assigneeLoader = new GqlWithKnexLoadList(gqlLoaderOptions)

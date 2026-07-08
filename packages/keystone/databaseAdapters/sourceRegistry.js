@@ -1,5 +1,14 @@
 const conf = require('@open-condo/config')
 
+/**
+ * Maps Keystone list (table) names to a logical source name.
+ *
+ * Source names must match pool names from `DATABASE_POOLS`, or a registered data provider (`kv`, …).
+ * Used by BalancingReplicaKnexAdapter.executeFind and CrossDbPlanner.
+ *
+ * @see packages/keystone/databaseAdapters/README.md
+ */
+
 const SOURCE_REGISTRY_PREFIX = 'custom:'
 
 function _parseJsonConfig (value, fallback = {}) {
@@ -14,24 +23,23 @@ function _parseJsonConfig (value, fallback = {}) {
     return JSON.parse(normalizedValue)
 }
 
+/** @returns {{ sourceByTable?: Record<string, string>, defaultSource?: string }} */
 function getSourceRegistryConfig (rawConfig = conf.CROSS_DB_SOURCE_REGISTRY) {
     return _parseJsonConfig(rawConfig, {})
-}
-
-function getConsistencyMode (rawMode = conf.CROSS_DB_CONSISTENCY_MODE) {
-    const consistencyMode = String(rawMode || 'strict').toLowerCase()
-    if (consistencyMode === 'eventual') return 'eventual'
-    return 'strict'
 }
 
 function isCrossDbPlannerEnabled (rawFlag = conf.CROSS_DB_RELATION_PLANNER_ENABLED) {
     return String(rawFlag) === 'true'
 }
 
+/**
+ * @param {{ sourceByTable?: Record<string, string>, defaultSource?: string }} [options]
+ */
 function createSourceRegistry ({ sourceByTable = {}, defaultSource = 'default' } = {}) {
     return {
         sourceByTable,
         defaultSource,
+        /** @param {string} tableName Keystone list key / SQL table name */
         resolveSource (tableName) {
             return sourceByTable[tableName] || defaultSource
         },
@@ -49,7 +57,6 @@ function getSourceRegistry () {
 module.exports = {
     getSourceRegistry,
     getSourceRegistryConfig,
-    getConsistencyMode,
     isCrossDbPlannerEnabled,
     createSourceRegistry,
 }

@@ -11,8 +11,97 @@ usage() {
     exit 1
 }
 
+configure_message_db_storage() {
+    local main_db
+    main_db=$(node <<'NODE'
+const fs = require('fs')
+
+const envFile = fs.readFileSync('./apps/condo/.env', 'utf8')
+const databaseUrlLine = envFile.split(/\r?\n/).find(line => line.startsWith('DATABASE_URL='))
+if (!databaseUrlLine) {
+    throw new Error('DATABASE_URL is missing in apps/condo/.env')
+}
+
+const databaseUrl = databaseUrlLine.slice('DATABASE_URL='.length)
+const parsedUrl = databaseUrl.startsWith('custom:')
+    ? JSON.parse(databaseUrl.slice('custom:'.length)).main
+    : databaseUrl
+
+process.stdout.write(new URL(parsedUrl).pathname.replace(/^\//, ''))
+NODE
+)
+
+    local message_db="${main_db}_message"
+    local postgres_admin_url="postgresql://postgres:postgres@127.0.0.1:5432/postgres"
+    local main_db_url="postgresql://postgres:postgres@127.0.0.1:5432/${main_db}"
+    local message_db_url="postgresql://postgres:postgres@127.0.0.1:5432/${message_db}"
+    local message_tables='["Message","MessageHistoryRecord"]'
+
+    psql "$postgres_admin_url" -c "DROP DATABASE IF EXISTS \"$message_db\""
+    psql "$postgres_admin_url" -c "CREATE DATABASE \"$message_db\""
+
+    pg_dump \
+        --schema-only \
+        --no-owner \
+        --no-privileges \
+        --dbname="$main_db_url" \
+        --table='"Message"' \
+        --table='"MessageHistoryRecord"' |
+        python3 -c 'import sys
+for line in sys.stdin:
+    if "ADD CONSTRAINT" in line and "REFERENCES " in line:
+        continue
+    sys.stdout.write(line)' |
+        psql "$message_db_url"
+
+    MAIN_DB_NAME="$main_db" MESSAGE_DB_NAME="$message_db" MESSAGE_TABLES="$message_tables" node <<'NODE'
+const { prepareAppEnv } = require('./packages/cli')
+
+async function main () {
+    const { MAIN_DB_NAME, MESSAGE_DB_NAME } = process.env
+    const messageTables = JSON.parse(process.env.MESSAGE_TABLES)
+    const sourceByTable = Object.fromEntries(messageTables.map((tableName) => [tableName, 'message']))
+    const messageTableRegex = `^(${messageTables.join('|')})$`
+
+    await prepareAppEnv('condo', {
+        DATABASE_URL: `custom:${JSON.stringify({
+            main: `postgresql://postgres:postgres@127.0.0.1:5432/${MAIN_DB_NAME}`,
+            replica: `postgresql://postgres:postgres@127.0.0.1:5433/${MAIN_DB_NAME}`,
+            message: `postgresql://postgres:postgres@127.0.0.1:5432/${MESSAGE_DB_NAME}`,
+        })}`,
+        DATABASE_POOLS: JSON.stringify({
+            main: { databases: ['main'], writable: true },
+            message: { databases: ['message'], writable: true },
+            replicas: { databases: ['replica'], writable: false },
+        }),
+        DATABASE_ROUTING_RULES: JSON.stringify([
+            { tableName: messageTableRegex, target: 'message' },
+            { target: 'main', gqlOperationType: 'mutation' },
+            { target: 'replicas', sqlOperationName: 'select' },
+            { target: 'main' },
+        ]),
+        CROSS_DB_SOURCE_REGISTRY: `custom:${JSON.stringify({
+            defaultSource: 'main',
+            sourceByTable,
+        })}`,
+    })
+}
+
+main().catch((error) => {
+    console.error(error)
+    process.exit(1)
+})
+NODE
+
+    for table_name in MessageHistoryRecord Message; do
+        psql "$main_db_url" \
+            -c "DROP TABLE IF EXISTS \"${table_name}\" CASCADE"
+    done
+}
+
 setup_and_start_services() {
     node bin/prepare.js -f condo -r condo -c condo
+    configure_message_db_storage
 
     export NEWS_ITEMS_SENDING_DELAY_SEC=2
     export NEWS_ITEM_SENDING_TTL_SEC=2
