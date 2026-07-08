@@ -817,7 +817,7 @@ export const TicketsPageContent = ({
     playSoundOnNewTickets = false,
     error,
     hasSupervisedTickets = false,
-    onTicketsLoaded,
+    onTicketsLoaded = undefined,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
