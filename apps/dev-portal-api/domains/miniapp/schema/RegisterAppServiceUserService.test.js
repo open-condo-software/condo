@@ -17,7 +17,9 @@ const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/comm
 const { PROD_ENVIRONMENT, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const {
     B2CAppAccessRight,
+    B2BAppAccessRight,
     createTestB2CApp,
+    createTestB2BApp,
     registerAppUserServiceByTestClient,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const {
@@ -32,7 +34,7 @@ const {
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./RegisterAppServiceUserService')
- 
+
 describe('RegisterAppServiceUserService', () => {
     let admin
     let support
@@ -40,7 +42,8 @@ describe('RegisterAppServiceUserService', () => {
     let anotherUser
     let anonymous
     let condoAdmin
-    let app
+    let b2cApp
+    let b2bApp
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeLoggedInSupportClient()
@@ -51,39 +54,65 @@ describe('RegisterAppServiceUserService', () => {
     })
     describe('Access tests', () => {
         beforeEach(async () => {
-            [app] = await createTestB2CApp(user)
+            [b2cApp] = await createTestB2CApp(user);
+            [b2bApp] = await createTestB2BApp(user)
         })
         test('Admin can register service user for any app', async () => {
             const confirmAction = await verifyEmailByTestClient(admin, admin)
-            const [result] = await registerAppUserServiceByTestClient(admin, app, confirmAction)
+            const [result] = await registerAppUserServiceByTestClient(admin, b2cApp, confirmAction)
             expect(result).toBeDefined()
             expect(result).toHaveProperty('id')
             expect(result.id).not.toBeNull()
+
+            const anotherAction = await verifyEmailByTestClient(admin, admin)
+            const [anotherResult] = await registerAppUserServiceByTestClient(admin, b2bApp, anotherAction)
+            expect(anotherResult).toBeDefined()
+            expect(anotherResult).toHaveProperty('id')
+            expect(anotherResult.id).not.toBeNull()
         })
         test('Support can register service user for any app', async () => {
             const confirmAction = await verifyEmailByTestClient(support, admin)
-            const [result] = await registerAppUserServiceByTestClient(support, app, confirmAction)
+            const [result] = await registerAppUserServiceByTestClient(support, b2cApp, confirmAction)
             expect(result).toBeDefined()
             expect(result).toHaveProperty('id')
             expect(result.id).not.toBeNull()
+
+            const anotherAction = await verifyEmailByTestClient(support, admin)
+            const [anotherResult] = await registerAppUserServiceByTestClient(support, b2bApp, anotherAction)
+            expect(anotherResult).toBeDefined()
+            expect(anotherResult).toHaveProperty('id')
+            expect(anotherResult.id).not.toBeNull()
         })
         describe('User', () => {
-            test('Can register service user for app he created', async () => {
+            test('Can register service user for B2C app he created', async () => {
                 const confirmAction = await verifyEmailByTestClient(user, admin)
-                const [result] = await registerAppUserServiceByTestClient(user, app, confirmAction)
+                const [result] = await registerAppUserServiceByTestClient(user, b2cApp, confirmAction)
+                expect(result).toBeDefined()
+                expect(result).toHaveProperty('id')
+                expect(result.id).not.toBeNull()
+            })
+            test('Can register service user for B2B app he created', async () => {
+                const confirmAction = await verifyEmailByTestClient(user, admin)
+                const [result] = await registerAppUserServiceByTestClient(user, b2bApp, confirmAction)
                 expect(result).toBeDefined()
                 expect(result).toHaveProperty('id')
                 expect(result.id).not.toBeNull()
             })
             test('Cannot register service user for other apps', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
-                    await registerAppUserServiceByTestClient(anotherUser, app, { id: faker.datatype.uuid() })
+                    await registerAppUserServiceByTestClient(anotherUser, b2cApp, { id: faker.datatype.uuid() })
+                })
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await registerAppUserServiceByTestClient(anotherUser, b2bApp, { id: faker.datatype.uuid() })
                 })
             })
         })
         test('Anonymous cannot register any service user', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await registerAppUserServiceByTestClient(anonymous, app, { id: faker.datatype.uuid() })
+                await registerAppUserServiceByTestClient(anonymous, b2cApp, { id: faker.datatype.uuid() })
+            })
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await registerAppUserServiceByTestClient(anonymous, b2bApp, { id: faker.datatype.uuid() })
             })
         })
     })
@@ -94,7 +123,7 @@ describe('RegisterAppServiceUserService', () => {
                     await registerAppUserServiceByTestClient(support, { id: faker.datatype.uuid() }, { id: faker.datatype.uuid() })
                 }, ERRORS.APP_NOT_FOUND, 'result')
             })
-            test('Cannot register user if app already have linked user in access rights', async () => {
+            test('Cannot register user if B2C app already has linked user in access rights', async () => {
                 const newUser = await makeRegisteredAndLoggedInUser()
                 const [newApp] = await createTestB2CApp(newUser)
                 const confirmAction = await verifyEmailByTestClient(newUser, admin)
@@ -107,7 +136,20 @@ describe('RegisterAppServiceUserService', () => {
                     await registerAppUserServiceByTestClient(newUser, newApp, anotherAction)
                 }, ERRORS.ACCESS_RIGHT_ALREADY_EXISTS, 'result')
             })
-            test('Proper access right must be created', async () => {
+            test('Cannot register user if B2B app already has linked user in access rights', async () => {
+                const newUser = await makeRegisteredAndLoggedInUser()
+                const [newApp] = await createTestB2BApp(newUser)
+                const confirmAction = await verifyEmailByTestClient(newUser, admin)
+
+                const [result] = await registerAppUserServiceByTestClient(newUser, newApp, confirmAction)
+                expect(result).toBeDefined()
+
+                const anotherAction = await verifyEmailByTestClient(newUser, admin)
+                await expectToThrowGQLError(async () => {
+                    await registerAppUserServiceByTestClient(newUser, newApp, anotherAction)
+                }, ERRORS.ACCESS_RIGHT_ALREADY_EXISTS, 'result')
+            })
+            test('Proper B2C access right must be created', async () => {
                 const newUser = await makeRegisteredAndLoggedInUser()
                 const [newApp] = await createTestB2CApp(newUser)
                 const confirmAction = await verifyEmailByTestClient(newUser, admin)
@@ -120,7 +162,20 @@ describe('RegisterAppServiceUserService', () => {
                 expect(accessRight).toHaveProperty('condoUserId', result.id)
                 expect(accessRight).toHaveProperty(['app', 'id'], newApp.id)
             })
-            test('Each app can have separate access right for each environment', async () => {
+            test('Proper B2B access right must be created', async () => {
+                const newUser = await makeRegisteredAndLoggedInUser()
+                const [newApp] = await createTestB2BApp(newUser)
+                const confirmAction = await verifyEmailByTestClient(newUser, admin)
+
+                const [result] = await registerAppUserServiceByTestClient(newUser, newApp, confirmAction)
+                expect(result).toBeDefined()
+
+                const accessRight = await B2BAppAccessRight.getOne(newUser, { app: { id: newApp.id } })
+                expect(accessRight).toBeDefined()
+                expect(accessRight).toHaveProperty('condoUserId', result.id)
+                expect(accessRight).toHaveProperty(['app', 'id'], newApp.id)
+            })
+            test('Each B2C app can have separate access right for each environment', async () => {
                 const newUser = await makeRegisteredAndLoggedInUser()
                 const [newApp] = await createTestB2CApp(newUser)
                 const firstConfirmAction = await verifyEmailByTestClient(newUser, admin)
@@ -136,10 +191,32 @@ describe('RegisterAppServiceUserService', () => {
                     expect.objectContaining({ environment: DEV_ENVIRONMENT }),
                 ]))
             })
+            test('Each B2B app can have separate access right for each environment', async () => {
+                const newUser = await makeRegisteredAndLoggedInUser()
+                const [newApp] = await createTestB2BApp(newUser)
+                const firstConfirmAction = await verifyEmailByTestClient(newUser, admin)
+                const secondConfirmAction = await verifyEmailByTestClient(newUser, admin)
+                const [firstResult] = await registerAppUserServiceByTestClient(newUser, newApp, firstConfirmAction)
+                expect(firstResult).toBeDefined()
+                const [secondResult] = await registerAppUserServiceByTestClient(newUser, newApp, secondConfirmAction, { environment: PROD_ENVIRONMENT })
+                expect(secondResult).toBeDefined()
+
+                const accessRights = await B2BAppAccessRight.getAll(newUser, { app: { id: newApp.id } })
+                expect(accessRights).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ environment: PROD_ENVIRONMENT }),
+                    expect.objectContaining({ environment: DEV_ENVIRONMENT }),
+                ]))
+            })
         })
         describe('ConfirmEmailAction tests', () => {
-            test('Cannot register user with non-existing action', async () => {
+            test('Cannot register user with non-existing action for B2C app', async () => {
                 const [newApp] = await createTestB2CApp(user)
+                await expectToThrowGQLError(async () => {
+                    await registerAppUserServiceByTestClient(user, newApp, { id: faker.datatype.uuid() })
+                }, ERRORS.ACTION_NOT_FOUND, 'result')
+            })
+            test('Cannot register user with non-existing action for B2B app', async () => {
+                const [newApp] = await createTestB2BApp(user)
                 await expectToThrowGQLError(async () => {
                     await registerAppUserServiceByTestClient(user, newApp, { id: faker.datatype.uuid() })
                 }, ERRORS.ACTION_NOT_FOUND, 'result')
@@ -199,7 +276,7 @@ describe('RegisterAppServiceUserService', () => {
                     await registerAppUserServiceByTestClient(newUser, secondApp, secondConfirmAction)
                 }, ERRORS.CONDO_USER_ALREADY_EXISTS, 'result')
             })
-            test('Proper condo user must be created', async () => {
+            test('Proper condo user must be created for B2C app', async () => {
                 const newUser = await makeRegisteredAndLoggedInUser()
                 const [newApp] = await createTestB2CApp(newUser)
                 const confirmAction = await verifyEmailByTestClient(newUser, admin)
@@ -216,6 +293,27 @@ describe('RegisterAppServiceUserService', () => {
                 expect(condoUser.name.toLowerCase()).toContain(newApp.name.toLowerCase())
                 expect(condoUser).toHaveProperty('meta', expect.objectContaining({
                     appType: 'B2C',
+                    appId: newApp.id,
+                }))
+                expect(condoUser).toHaveProperty('type', SERVICE)
+            })
+            test('Proper condo user must be created for B2B app', async () => {
+                const newUser = await makeRegisteredAndLoggedInUser()
+                const [newApp] = await createTestB2BApp(newUser)
+                const confirmAction = await verifyEmailByTestClient(newUser, admin)
+
+                const [result] = await registerAppUserServiceByTestClient(newUser, newApp, confirmAction)
+                expect(result).toBeDefined()
+                expect(result).toHaveProperty('id')
+                expect(result.id).not.toBeNull()
+
+                const condoUser = await CondoUser.getOne(condoAdmin, { id: result.id })
+                expect(condoUser).toHaveProperty('name')
+                expect(condoUser.name.toLowerCase()).toContain('b2b')
+                expect(condoUser.name.toLowerCase()).toContain(REMOTE_SYSTEM.toLowerCase())
+                expect(condoUser.name.toLowerCase()).toContain(newApp.name.toLowerCase())
+                expect(condoUser).toHaveProperty('meta', expect.objectContaining({
+                    appType: 'B2B',
                     appId: newApp.id,
                 }))
                 expect(condoUser).toHaveProperty('type', SERVICE)
