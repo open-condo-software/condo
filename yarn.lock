@@ -1025,7 +1025,7 @@ __metadata:
     "@types/react": "catalog:"
     "@types/react-dom": "catalog:"
     "@types/title": "npm:3.4.1"
-    antd: "catalog:"
+    antd: "npm:5.28.0"
     classnames: "catalog:"
     cookies-next: "npm:^4.2.1"
     easymde: "npm:^2.20.0"
