@@ -109,7 +109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/colors@npm:^8.0.1":
+"@ant-design/colors@npm:^8.0.0, @ant-design/colors@npm:^8.0.1":
   version: 8.0.1
   resolution: "@ant-design/colors@npm:8.0.1"
   dependencies:
@@ -170,6 +170,21 @@ __metadata:
   version: 4.5.0
   resolution: "@ant-design/icons-svg@npm:4.5.0"
   checksum: 10/1f03fe952e519edb0e15c24fa73c538e449429ce7a00a353c4209624c466331b3f68c4ddf171fba479d573d0e3f5bb5958e9f2d5318424ebed645604a45c4a70
+  languageName: node
+  linkType: hard
+
+"@ant-design/icons@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@ant-design/icons@npm:6.0.0"
+  dependencies:
+    "@ant-design/colors": "npm:^8.0.0"
+    "@ant-design/icons-svg": "npm:^4.4.0"
+    "@rc-component/util": "npm:^1.2.1"
+    classnames: "npm:^2.2.6"
+  peerDependencies:
+    react: ">=16.0.0"
+    react-dom: ">=16.0.0"
+  checksum: 10/71b4f47ae09b8b7b38d641284eef34523a6348b9c616203d4a4f167320e31fc52276a1e1d95856da4b4a3f87c362247500e2f7da837c88ca7be2e9043c9b78a4
   languageName: node
   linkType: hard
 
@@ -775,7 +790,7 @@ __metadata:
   resolution: "@app/condo@workspace:apps/condo"
   dependencies:
     "@ant-design/colors": "npm:^6.0.0"
-    "@ant-design/icons": "npm:^6.0.0"
+    "@ant-design/icons": "npm:6.0.0"
     "@apollo/client": "catalog:"
     "@condo/domains": "link:./domains"
     "@emotion/cache": "catalog:"
@@ -9740,6 +9755,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/keystone@workspace:packages/keystone"
   dependencies:
+    "@ant-design/icons": "npm:6.0.0"
     "@apollo/client": "catalog:"
     "@emotion/react": "catalog:"
     "@faker-js/faker": "npm:^7.6.0"
@@ -9833,6 +9849,9 @@ __metadata:
     validate.js: "npm:^0.13.1"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     zod: "catalog:"
+  dependenciesMeta:
+    "@ant-design/icons":
+      optional: true
   bin:
     keystone: ./bin/cli.js
   languageName: unknown
@@ -11721,7 +11740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rc-component/util@npm:^1.11.0":
+"@rc-component/util@npm:^1.11.0, @rc-component/util@npm:^1.2.1":
   version: 1.11.1
   resolution: "@rc-component/util@npm:1.11.1"
   dependencies:

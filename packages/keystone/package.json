@@ -121,5 +121,8 @@
     "@faker-js/faker": "^7.6.0",
     "babel-jest": "^29.7.0",
     "jest": "catalog:"
+  },
+  "optionalDependencies": {
+    "@ant-design/icons": "6.0.0"
   }
 }
