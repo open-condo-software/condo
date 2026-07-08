@@ -65,6 +65,7 @@ async function recreateDatabase (adminClient, dbName) {
 }
 
 async function cloneTableSchema ({ sourceClient, targetClient, tableName }) {
+    const qualifiedTableName = `"public".${quoteIdent(tableName)}`
     const { rows: columnRows } = await sourceClient.query(`
         SELECT
             a.attname AS column_name,
@@ -77,7 +78,7 @@ async function cloneTableSchema ({ sourceClient, targetClient, tableName }) {
           AND a.attnum > 0
           AND NOT a.attisdropped
         ORDER BY a.attnum
-    `, [`public.${tableName}`])
+    `, [qualifiedTableName])
 
     const { rows: constraintRows } = await sourceClient.query(`
         SELECT conname, contype, pg_get_constraintdef(oid, true) AS definition
@@ -85,7 +86,7 @@ async function cloneTableSchema ({ sourceClient, targetClient, tableName }) {
         WHERE conrelid = $1::regclass
           AND contype IN ('p', 'u', 'c')
         ORDER BY contype, conname
-    `, [`public.${tableName}`])
+    `, [qualifiedTableName])
 
     const columnDefinitions = columnRows.map((column) => {
         const parts = [quoteIdent(column.column_name), column.data_type]
