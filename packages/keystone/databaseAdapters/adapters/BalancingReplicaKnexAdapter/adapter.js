@@ -6,7 +6,6 @@ const omit = require('lodash/omit')
 const conf = require('@open-condo/config')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
-const { getDataProvider } = require('../../dataProviders')
 const { KnexPool } = require('./pool')
 const { planCrossPoolSelect } = require('./utils/crossSourceSelectSql')
 const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
@@ -15,6 +14,7 @@ const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
 
+const { getDataProvider } = require('../../dataProviders')
 const { getSourceRegistry } = require('../../sourceRegistry')
 const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
