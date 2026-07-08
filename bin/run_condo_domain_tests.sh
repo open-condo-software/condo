@@ -37,22 +37,123 @@ NODE
     local message_db_url="postgresql://postgres:postgres@127.0.0.1:5432/${message_db}"
     local message_tables='["Message","MessageHistoryRecord"]'
 
-    psql "$postgres_admin_url" -c "DROP DATABASE IF EXISTS \"$message_db\""
-    psql "$postgres_admin_url" -c "CREATE DATABASE \"$message_db\""
+    POSTGRES_ADMIN_URL="$postgres_admin_url" MAIN_DB_URL="$main_db_url" MESSAGE_DB_URL="$message_db_url" MESSAGE_TABLES="$message_tables" node <<'NODE'
+const { Client } = require('pg')
 
-    pg_dump \
-        --schema-only \
-        --no-owner \
-        --no-privileges \
-        --dbname="$main_db_url" \
-        --table='"Message"' \
-        --table='"MessageHistoryRecord"' |
-        python3 -c 'import sys
-for line in sys.stdin:
-    if "ADD CONSTRAINT" in line and "REFERENCES " in line:
-        continue
-    sys.stdout.write(line)' |
-        psql "$message_db_url"
+function quoteIdent (value) {
+    return `"${String(value).replace(/"/g, '""')}"`
+}
+
+async function withClient (connectionString, callback) {
+    const client = new Client({ connectionString })
+    await client.connect()
+    try {
+        return await callback(client)
+    } finally {
+        await client.end()
+    }
+}
+
+async function recreateDatabase (adminClient, dbName) {
+    await adminClient.query(`
+        SELECT pg_terminate_backend(pid)
+        FROM pg_stat_activity
+        WHERE datname = $1 AND pid <> pg_backend_pid()
+    `, [dbName])
+    await adminClient.query(`DROP DATABASE IF EXISTS ${quoteIdent(dbName)}`)
+    await adminClient.query(`CREATE DATABASE ${quoteIdent(dbName)}`)
+}
+
+async function cloneTableSchema ({ sourceClient, targetClient, tableName }) {
+    const { rows: columnRows } = await sourceClient.query(`
+        SELECT
+            a.attname AS column_name,
+            pg_catalog.format_type(a.atttypid, a.atttypmod) AS data_type,
+            a.attnotnull AS not_null,
+            pg_get_expr(ad.adbin, ad.adrelid) AS default_expr
+        FROM pg_attribute a
+        LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+        WHERE a.attrelid = $1::regclass
+          AND a.attnum > 0
+          AND NOT a.attisdropped
+        ORDER BY a.attnum
+    `, [`public.${tableName}`])
+
+    const { rows: constraintRows } = await sourceClient.query(`
+        SELECT conname, contype, pg_get_constraintdef(oid, true) AS definition
+        FROM pg_constraint
+        WHERE conrelid = $1::regclass
+          AND contype IN ('p', 'u', 'c')
+        ORDER BY contype, conname
+    `, [`public.${tableName}`])
+
+    const columnDefinitions = columnRows.map((column) => {
+        const parts = [quoteIdent(column.column_name), column.data_type]
+        if (column.default_expr) parts.push(`DEFAULT ${column.default_expr}`)
+        if (column.not_null) parts.push('NOT NULL')
+        return parts.join(' ')
+    })
+
+    const constraintDefinitions = constraintRows.map((constraint) => {
+        return `CONSTRAINT ${quoteIdent(constraint.conname)} ${constraint.definition}`
+    })
+
+    const createTableSql = `
+        CREATE TABLE ${quoteIdent(tableName)} (
+            ${[...columnDefinitions, ...constraintDefinitions].join(',\n            ')}
+        )
+    `
+    await targetClient.query(createTableSql)
+
+    const { rows: indexRows } = await sourceClient.query(`
+        SELECT pg_get_indexdef(i.indexrelid) AS indexdef
+        FROM pg_index i
+        JOIN pg_class t ON t.oid = i.indrelid
+        JOIN pg_namespace ns ON ns.oid = t.relnamespace
+        LEFT JOIN pg_constraint c ON c.conindid = i.indexrelid
+        WHERE ns.nspname = 'public'
+          AND t.relname = $1
+          AND c.oid IS NULL
+    `, [tableName])
+
+    for (const { indexdef } of indexRows) {
+        await targetClient.query(indexdef)
+    }
+}
+
+async function dropSourceTables (sourceClient, tableNames) {
+    for (const tableName of tableNames) {
+        await sourceClient.query(`DROP TABLE IF EXISTS ${quoteIdent(tableName)} CASCADE`)
+    }
+}
+
+async function main () {
+    const adminUrl = process.env.POSTGRES_ADMIN_URL
+    const mainDbUrl = process.env.MAIN_DB_URL
+    const messageDbUrl = process.env.MESSAGE_DB_URL
+    const tableNames = JSON.parse(process.env.MESSAGE_TABLES)
+    const messageDbName = new URL(messageDbUrl).pathname.replace(/^\//, '')
+
+    await withClient(adminUrl, async (adminClient) => {
+        await recreateDatabase(adminClient, messageDbName)
+    })
+
+    await withClient(mainDbUrl, async (sourceClient) => {
+        await withClient(messageDbUrl, async (targetClient) => {
+            for (const tableName of tableNames) {
+                await cloneTableSchema({ sourceClient, targetClient, tableName })
+            }
+        })
+
+        await dropSourceTables(sourceClient, [...tableNames].reverse())
+    })
+}
+
+main().catch((error) => {
+    console.error(error)
+    process.exit(1)
+})
+NODE
 
     MAIN_DB_NAME="$main_db" MESSAGE_DB_NAME="$message_db" MESSAGE_TABLES="$message_tables" node <<'NODE'
 const { prepareAppEnv } = require('./packages/cli')
@@ -92,11 +193,6 @@ main().catch((error) => {
     process.exit(1)
 })
 NODE
-
-    for table_name in MessageHistoryRecord Message; do
-        psql "$main_db_url" \
-            -c "DROP TABLE IF EXISTS \"${table_name}\" CASCADE"
-    done
 }
 
 setup_and_start_services() {
