@@ -1,0 +1,21 @@
+node_modules
+bin/.local
+dist
+out
+.next
+.idea
+.env
+.DS_Store
+coverage
+__generated__
+__media
+_example.js
+
+# yarn + npm
+yarn-error.log
+npm-debug.*
+
+.vscode
+
+# Turborepo local cache
+.turbo

@@ -1,0 +1,13 @@
+{
+  "pages.index.title": "Your Client Miniapp",
+  "pages.index.subtitle": "Start building your client-side business logic in domains and pages.",
+  "pages.index.user": "Authenticated user id",
+  "pages.index.logoutOidc": "Logout (OIDC)",
+  "pages.auth.signin.title": "Sign in",
+  "pages.auth.signin.header": "Sign in to continue",
+  "pages.auth.signin.authorizeOidc": "Authorize with OIDC",
+  "pages.condo.error.NotFoundTitle": "Page not found",
+  "pages.condo.error.NotFoundDescription": "The page you requested does not exist.",
+  "pages.error.500.title": "Something went wrong",
+  "pages.error.500.description": "Please try again later."
+}
