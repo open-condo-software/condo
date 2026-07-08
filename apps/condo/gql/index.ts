@@ -9923,8 +9923,10 @@ export type GetUserFavoriteTicketsLazyQueryHookResult = ReturnType<typeof useGet
 export type GetUserFavoriteTicketsSuspenseQueryHookResult = ReturnType<typeof useGetUserFavoriteTicketsSuspenseQuery>;
 export type GetUserFavoriteTicketsQueryResult = Apollo.QueryResult<Types.GetUserFavoriteTicketsQuery, Types.GetUserFavoriteTicketsQueryVariables>;
 export const GetUserFavoriteTicketsCountDocument = gql`
-    query getUserFavoriteTicketsCount($userId: ID!) {
-  meta: _allUserFavoriteTicketsMeta(where: {user: {id: $userId}}) {
+    query getUserFavoriteTicketsCount($userId: ID!, $ticketWhere: TicketWhereInput) {
+  meta: _allUserFavoriteTicketsMeta(
+    where: {user: {id: $userId}, ticket: $ticketWhere}
+  ) {
     count
   }
 }
@@ -9943,6 +9945,7 @@ export const GetUserFavoriteTicketsCountDocument = gql`
  * const { data, loading, error } = useGetUserFavoriteTicketsCountQuery({
  *   variables: {
  *      userId: // value for 'userId'
+ *      ticketWhere: // value for 'ticketWhere'
  *   },
  * });
  */

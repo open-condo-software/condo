@@ -27,7 +27,7 @@ const FavoriteTicketsContext = createContext<IFavoriteTicketsContext>({
 
 const useFavoriteTickets = (): IFavoriteTicketsContext => useContext(FavoriteTicketsContext)
 
-const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, first, skip: skipProp = false }) => {
+const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, organizationId = null, first, skip: skipProp = false }) => {
     const { user } = useAuth()
     const { persistor } = useCachePersistor()
 
@@ -47,7 +47,10 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, firs
     })
 
     const { data: countData } = useGetUserFavoriteTicketsCountQuery({
-        variables: { userId: user?.id },
+        variables: {
+            userId: user?.id,
+            ticketWhere: organizationId ? { organization: { id: organizationId } } : undefined,
+        },
         skip,
     })
 

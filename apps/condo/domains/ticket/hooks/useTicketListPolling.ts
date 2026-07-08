@@ -68,25 +68,26 @@ export function useTicketListPolling ({
     useEffect(() => {
         const scheduleNext = () => {
             timerRef.current = setTimeout(async () => {
-                if (document.hidden) {
-                    shouldRefetchOnFocusRef.current = true
-                } else {
-                    await runRefetch()
-                    shouldRefetchOnFocusRef.current = false
+                try {
+                    if (document.hidden) {
+                        shouldRefetchOnFocusRef.current = true
+                    } else {
+                        await runRefetch()
+                        shouldRefetchOnFocusRef.current = false
+                    }
+                    await onEveryTickRef.current?.()
+                } finally {
+                    scheduleNext()
                 }
-
-                await onEveryTickRef.current?.()
-
-                scheduleNext()
             }, refetchInterval)
         }
 
         const onVisibilityChange = async () => {
             if (!document.hidden && shouldRefetchOnFocusRef.current) {
+                if (timerRef.current) clearTimeout(timerRef.current)
+                timerRef.current = null
                 await runRefetch()
                 shouldRefetchOnFocusRef.current = false
-
-                if (timerRef.current) clearTimeout(timerRef.current)
                 scheduleNext()
             }
         }

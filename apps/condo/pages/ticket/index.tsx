@@ -1043,11 +1043,18 @@ const TicketsPage: PageComponentType = () => {
     const { organization: userOrganization, employee: activeEmployee } = useOrganization()
     const userOrganizationId = userOrganization?.id || null
 
+    const router = useRouter()
+    const { filters } = useMemo(() => parseQuery(router.query), [router.query])
+    const isFavoritesFilter = filters?.type === 'favorite'
+
     const [currentPageTicketIds, setCurrentPageTicketIds] = useState<string[]>([])
 
     const favoriteExtraQuery = useMemo(() => {
+        if (isFavoritesFilter) {
+            return { ...ticketFilterQuery, organization: { id: userOrganizationId } }
+        }
         return currentPageTicketIds.length > 0 ? { id_in: currentPageTicketIds } : null
-    }, [currentPageTicketIds])
+    }, [isFavoritesFilter, ticketFilterQuery, userOrganizationId, currentPageTicketIds])
     const employeeId = activeEmployee?.id || null
 
     const filterMetas = useTicketTableFilters()
@@ -1097,7 +1104,8 @@ const TicketsPage: PageComponentType = () => {
                 <AutoRefetchTicketsContextProvider>
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={favoriteExtraQuery ?? {}}
-                        first={DEFAULT_PAGE_SIZE}
+                        organizationId={userOrganizationId}
+                        first={isFavoritesFilter ? 500 : DEFAULT_PAGE_SIZE}
                         skip={!favoriteExtraQuery}
                     >
                         <WindowTitleContextProvider title={PageTitleMessage}>

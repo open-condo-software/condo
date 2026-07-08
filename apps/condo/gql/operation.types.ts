@@ -1467,6 +1467,7 @@ export type GetUserFavoriteTicketsQuery = { __typename?: 'Query', userFavoriteTi
 
 export type GetUserFavoriteTicketsCountQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
+  ticketWhere?: Types.InputMaybe<Types.TicketWhereInput>;
 }>;
 
 
