@@ -1463,7 +1463,14 @@ export type GetUserFavoriteTicketsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetUserFavoriteTicketsQuery = { __typename?: 'Query', userFavoriteTickets?: Array<{ __typename?: 'UserFavoriteTicket', id: string, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetUserFavoriteTicketsQuery = { __typename?: 'Query', userFavoriteTickets?: Array<{ __typename?: 'UserFavoriteTicket', id: string, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null };
+
+export type GetUserFavoriteTicketsCountQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetUserFavoriteTicketsCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetUserTicketCommentsReadTimeQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];

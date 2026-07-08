@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
 
 
+const LAST_UPDATED_AT_STORAGE_KEY = 'condo:ticket:lastUpdatedAt'
+
 interface UseTicketListPollingOptions {
     baseTicketsQuery: Record<string, unknown>
     onFullRefetch: () => Promise<void>
@@ -18,16 +20,28 @@ export function useTicketListPolling ({
     const { refetchInterval } = useAutoRefetchTickets()
     const [isRefetching, setIsRefetching] = useState(false)
 
-    const lastUpdatedAt = useRef<string | null>(null)
+    const lastUpdatedAt = useRef<string | null>(
+        typeof window !== 'undefined' ? localStorage.getItem(LAST_UPDATED_AT_STORAGE_KEY) : null
+    )
     const shouldRefetchOnFocusRef = useRef(false)
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    // Keep callbacks in refs so polling useEffect never restarts on callback identity changes
     const onFullRefetchRef = useRef(onFullRefetch)
     useEffect(() => { onFullRefetchRef.current = onFullRefetch }, [onFullRefetch])
     const onEveryTickRef = useRef(onEveryTick)
     useEffect(() => { onEveryTickRef.current = onEveryTick }, [onEveryTick])
 
     const [fetchLatestUpdatedAt] = useGetLatestTicketUpdatedAtLazyQuery({ fetchPolicy: 'network-only' })
+
+    const setLastUpdatedAt = useCallback((value: string | null) => {
+        lastUpdatedAt.current = value
+        if (value) {
+            localStorage.setItem(LAST_UPDATED_AT_STORAGE_KEY, value)
+        } else {
+            localStorage.removeItem(LAST_UPDATED_AT_STORAGE_KEY)
+        }
+    }, [])
 
     const runRefetch = useCallback(async () => {
         if (lastUpdatedAt.current !== null) {
@@ -37,7 +51,7 @@ export function useTicketListPolling ({
             const latestTicket = data?.tickets?.[0]
             if (!latestTicket) return
 
-            lastUpdatedAt.current = latestTicket.updatedAt
+            setLastUpdatedAt(latestTicket.updatedAt)
         }
 
         setIsRefetching(true)
@@ -48,9 +62,9 @@ export function useTicketListPolling ({
             const { data } = await fetchLatestUpdatedAt({
                 variables: { where: baseTicketsQuery },
             })
-            lastUpdatedAt.current = data?.tickets?.[0]?.updatedAt ?? null
+            setLastUpdatedAt(data?.tickets?.[0]?.updatedAt ?? null)
         }
-    }, [baseTicketsQuery, fetchLatestUpdatedAt])
+    }, [baseTicketsQuery, fetchLatestUpdatedAt, setLastUpdatedAt])
 
     useEffect(() => {
         const scheduleNext = () => {

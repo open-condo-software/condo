@@ -1,4 +1,4 @@
-query getUserFavoriteTickets ($userId: ID!, $ticketWhere: TicketWhereInput, $first: Int = 500) {
+query getUserFavoriteTickets ($userId: ID!, $ticketWhere: TicketWhereInput, $first: Int) {
     userFavoriteTickets: allUserFavoriteTickets(
         where: {
             user: { id: $userId },
@@ -9,11 +9,10 @@ query getUserFavoriteTickets ($userId: ID!, $ticketWhere: TicketWhereInput, $fir
         id
         ticket { id }
     }
+}
 
-    meta: _allUserFavoriteTicketsMeta(where: {
-        user: { id: $userId },
-        ticket: $ticketWhere
-    }) {
+query getUserFavoriteTicketsCount ($userId: ID!) {
+    meta: _allUserFavoriteTicketsMeta(where: { user: { id: $userId } }) {
         count
     }
 }

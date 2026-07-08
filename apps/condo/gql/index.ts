@@ -9872,7 +9872,7 @@ export type GetTicketStatusesLazyQueryHookResult = ReturnType<typeof useGetTicke
 export type GetTicketStatusesSuspenseQueryHookResult = ReturnType<typeof useGetTicketStatusesSuspenseQuery>;
 export type GetTicketStatusesQueryResult = Apollo.QueryResult<Types.GetTicketStatusesQuery, Types.GetTicketStatusesQueryVariables>;
 export const GetUserFavoriteTicketsDocument = gql`
-    query getUserFavoriteTickets($userId: ID!, $ticketWhere: TicketWhereInput, $first: Int = 500) {
+    query getUserFavoriteTickets($userId: ID!, $ticketWhere: TicketWhereInput, $first: Int) {
   userFavoriteTickets: allUserFavoriteTickets(
     where: {user: {id: $userId}, ticket: $ticketWhere}
     first: $first
@@ -9881,11 +9881,6 @@ export const GetUserFavoriteTicketsDocument = gql`
     ticket {
       id
     }
-  }
-  meta: _allUserFavoriteTicketsMeta(
-    where: {user: {id: $userId}, ticket: $ticketWhere}
-  ) {
-    count
   }
 }
     `;
@@ -9927,6 +9922,49 @@ export type GetUserFavoriteTicketsQueryHookResult = ReturnType<typeof useGetUser
 export type GetUserFavoriteTicketsLazyQueryHookResult = ReturnType<typeof useGetUserFavoriteTicketsLazyQuery>;
 export type GetUserFavoriteTicketsSuspenseQueryHookResult = ReturnType<typeof useGetUserFavoriteTicketsSuspenseQuery>;
 export type GetUserFavoriteTicketsQueryResult = Apollo.QueryResult<Types.GetUserFavoriteTicketsQuery, Types.GetUserFavoriteTicketsQueryVariables>;
+export const GetUserFavoriteTicketsCountDocument = gql`
+    query getUserFavoriteTicketsCount($userId: ID!) {
+  meta: _allUserFavoriteTicketsMeta(where: {user: {id: $userId}}) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetUserFavoriteTicketsCountQuery__
+ *
+ * To run a query within a React component, call `useGetUserFavoriteTicketsCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserFavoriteTicketsCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserFavoriteTicketsCountQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetUserFavoriteTicketsCountQuery(baseOptions: Apollo.QueryHookOptions<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables> & ({ variables: Types.GetUserFavoriteTicketsCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>(GetUserFavoriteTicketsCountDocument, options);
+      }
+export function useGetUserFavoriteTicketsCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>(GetUserFavoriteTicketsCountDocument, options);
+        }
+// @ts-ignore
+export function useGetUserFavoriteTicketsCountSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>;
+export function useGetUserFavoriteTicketsCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetUserFavoriteTicketsCountQuery | undefined, Types.GetUserFavoriteTicketsCountQueryVariables>;
+export function useGetUserFavoriteTicketsCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>(GetUserFavoriteTicketsCountDocument, options);
+        }
+export type GetUserFavoriteTicketsCountQueryHookResult = ReturnType<typeof useGetUserFavoriteTicketsCountQuery>;
+export type GetUserFavoriteTicketsCountLazyQueryHookResult = ReturnType<typeof useGetUserFavoriteTicketsCountLazyQuery>;
+export type GetUserFavoriteTicketsCountSuspenseQueryHookResult = ReturnType<typeof useGetUserFavoriteTicketsCountSuspenseQuery>;
+export type GetUserFavoriteTicketsCountQueryResult = Apollo.QueryResult<Types.GetUserFavoriteTicketsCountQuery, Types.GetUserFavoriteTicketsCountQueryVariables>;
 export const GetUserTicketCommentsReadTimeDocument = gql`
     query getUserTicketCommentsReadTime($userId: ID!, $ticketIds: [ID!]) {
   objs: allUserTicketCommentReadTimes(

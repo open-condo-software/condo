@@ -1,5 +1,6 @@
-import { 
+import {
     useGetUserFavoriteTicketsQuery,
+    useGetUserFavoriteTicketsCountQuery,
     GetUserFavoriteTicketsQuery,
 } from '@app/condo/gql'
 import { createContext, useContext, useMemo } from 'react'
@@ -26,9 +27,11 @@ const FavoriteTicketsContext = createContext<IFavoriteTicketsContext>({
 
 const useFavoriteTickets = (): IFavoriteTicketsContext => useContext(FavoriteTicketsContext)
 
-const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, first = 500, skip: skipProp = false }) => {
+const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, first, skip: skipProp = false }) => {
     const { user } = useAuth()
     const { persistor } = useCachePersistor()
+
+    const skip = !persistor || !user || skipProp
 
     const {
         data: userFavoriteTicketsData,
@@ -40,12 +43,18 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, firs
             ticketWhere: extraTicketsQuery,
             first,
         },
-        skip: !persistor || !user || skipProp,
+        skip,
     })
+
+    const { data: countData } = useGetUserFavoriteTicketsCountQuery({
+        variables: { userId: user?.id },
+        skip,
+    })
+
     const userFavoriteTickets = useMemo(() => userFavoriteTicketsData?.userFavoriteTickets?.filter(Boolean) || [],
         [userFavoriteTicketsData?.userFavoriteTickets])
-    const userFavoriteTicketsCount = useMemo(() => userFavoriteTicketsData?.meta?.count,
-        [userFavoriteTicketsData?.meta?.count])
+    const userFavoriteTicketsCount = useMemo(() => countData?.meta?.count,
+        [countData?.meta?.count])
 
     return (
         <FavoriteTicketsContext.Provider
