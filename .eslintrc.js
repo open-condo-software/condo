@@ -125,6 +125,7 @@ module.exports = {
                 children: 'never',
             },
         ],
+        'react/no-unknown-property': ['error', { ignore: ['css'] }], // Some where we still use css prop from emotion
         'jest/no-disabled-tests': 'warn',
         'jest/no-focused-tests': 'error',
         'jest/no-identical-title': 'error',
