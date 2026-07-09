@@ -60,6 +60,16 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
             },
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['app'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'b2b_app_access_right_unique_app',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
     access: {
         read: access.canReadB2BAppAccessRights,

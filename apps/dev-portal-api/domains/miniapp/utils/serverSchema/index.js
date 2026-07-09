@@ -29,6 +29,7 @@ const {
 
 const B2BApp = generateServerUtils('B2BApp')
 const B2BAppAccessRight = generateServerUtils('B2BAppAccessRight')
+const B2BAppAccessRightSet = generateServerUtils('B2BAppAccessRightSet')
 const B2BAppPublishRequest = generateServerUtils('B2BAppPublishRequest')
 
 const B2CApp = generateServerUtils('B2CApp')
@@ -242,6 +243,7 @@ async function changeOIDCClient (context, data) {
 module.exports = {
     B2BApp,
     B2BAppAccessRight,
+    B2BAppAccessRightSet,
     B2BAppPublishRequest,
     publishB2BApp,
     allB2BAppContexts,

@@ -18,6 +18,9 @@ const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
+const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
+
 
 const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
 const B2BAppPublishRequest = generateGqlQueries('B2BAppPublishRequest', B2B_APP_PUBLISH_REQUEST_FIELDS)
@@ -148,6 +151,7 @@ module.exports = {
 
     B2BApp,
     B2BAppAccessRight,
+    B2BAppAccessRightSet,
     B2BAppPublishRequest,
     PUBLISH_B2B_APP_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
