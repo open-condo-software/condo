@@ -33,6 +33,29 @@ function keystoneSelectWithFkJoin ({
     ].join(' ')
 }
 
+/** Keystone `_all*Meta` count: `SELECT count(*) FROM (SELECT * ... JOIN ...)`. */
+function keystoneCountSubselectWithFkJoin ({
+    baseTable = 'Message',
+    baseAlias = 't0',
+    joinTable = 'User',
+    joinAlias = 't0__user',
+    fkColumn = 'user',
+    extraWhere = '',
+} = {}) {
+    const whereParts = ['true']
+    if (extraWhere) whereParts.push(`(${extraWhere})`)
+    whereParts.push(`("${baseAlias}"."deletedAt" is null)`)
+
+    const inner = [
+        `select * from "public"."${baseTable}" as "${baseAlias}"`,
+        `left outer join "public"."${joinTable}" as "${joinAlias}"`,
+        `on "${joinAlias}"."id" = "${baseAlias}"."${fkColumn}"`,
+        `where ${whereParts.join(' and ')}`,
+    ].join(' ')
+
+    return `select count(*) as "count" from (${inner}) as "unused_alias"`
+}
+
 /** Assert rewrite outcome with readable diff-friendly checks. */
 function expectSqlRewrite ({ inputSql, joinRewrites, mustContain = [], mustNotContain = [], equalsNormalized }) {
     const rewritten = rewriteCrossSourceSelectSql(inputSql, { joinRewrites })
@@ -90,6 +113,24 @@ describe('crossSourceSelectSql', () => {
 
         test('returns null for non-SELECT input', () => {
             expect(getFkJoinMetadata('not a select')).toBeNull()
+        })
+
+        test('detects FK join inside count(*) subselect (_allMessagesMeta shape)', () => {
+            const sql = keystoneCountSubselectWithFkJoin({
+                extraWhere: '"t0__user"."id" = \'user-1\'',
+            })
+
+            expect(getFkJoinMetadata(sql)).toEqual({
+                baseTable: 'Message',
+                baseAlias: 't0',
+                joins: [{
+                    alias: 't0__user',
+                    joinTable: 'User',
+                    sourceAlias: 't0',
+                    sourceField: 'user',
+                    fkExpression: '"t0"."user"',
+                }],
+            })
         })
     })
 
@@ -219,6 +260,23 @@ describe('crossSourceSelectSql', () => {
             expect(() => rewriteCrossSourceSelectSql(inputSql, {
                 joinRewrites: [userJoinRewrite(['user-ann-1'])],
             })).toThrow('Unsupported cross-pool JOIN rewrite: OR condition on alias "t0__user"')
+        })
+
+        test('rewrites count(*) subselect and drops User JOIN', () => {
+            const inputSql = keystoneCountSubselectWithFkJoin({
+                extraWhere: '"t0__user"."id" = \'user-1\'',
+            })
+
+            expectSqlRewrite({
+                inputSql,
+                joinRewrites: [userJoinRewrite(['user-1'])],
+                mustNotContain: ['left outer join', 't0__user'],
+                mustContain: [
+                    'count(*)',
+                    '"t0"."user" in (\'user-1\')',
+                    'unused_alias',
+                ],
+            })
         })
     })
 })

@@ -29,6 +29,25 @@ class KnexPool {
     }
 }
 
+/**
+ * Non-SQL pool backed by a registered data provider (`DATABASE_POOLS.provider`).
+ */
+class ProviderPool {
+    constructor ({ provider, writable = false }) {
+        this._provider = provider
+        this._writable = writable
+    }
+
+    getKnexClient () {
+        throw new Error(`Pool "${this._provider}" uses data provider storage and does not support SQL`)
+    }
+
+    getQueryRunner () {
+        throw new Error(`Pool "${this._provider}" uses data provider storage and does not support SQL`)
+    }
+}
+
 module.exports = {
     KnexPool,
+    ProviderPool,
 }

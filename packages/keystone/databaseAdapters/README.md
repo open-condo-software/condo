@@ -32,8 +32,8 @@ BalancingReplicaKnexAdapter
 
 **Three independent knobs** (often confused — keep them separate):
 
-1. **Pool routing** (`DATABASE_URL`, `DATABASE_POOLS`, `DATABASE_ROUTING_RULES`) — which Postgres instance runs a query.
-2. **Table → source map** (`CROSS_DB_SOURCE_REGISTRY`) — which backend owns a table (`main`, `historical`, `kv`, …). Pool names and registry values must align for SQL sources.
+1. **Pool routing** (`DATABASE_URL`, `DATABASE_POOLS`, `DATABASE_ROUTING_RULES`) — which backend runs a query (Postgres pool or provider pool).
+2. **Table → pool map** (derived at connect from pool introspection + routing rules) — which pool owns a table for cross-db logic.
 3. **GraphQL relation planner** (`CROSS_DB_RELATION_PLANNER_ENABLED`) — `CrossDbPlanner` in `databaseAdapters/crossDb/`, wired from `GqlWithKnexLoadList` in the condo app.
 
 ## BalancingReplicaKnexAdapter in 60 seconds
@@ -52,7 +52,7 @@ Detailed env var reference: [`adapters/BalancingReplicaKnexAdapter/README.md`](.
 databaseAdapters/
 ├── README.md                          ← you are here
 ├── index.js                           ← re-exports adapters + sourceRegistry + dataProviders
-├── sourceRegistry.js                  ← CROSS_DB_SOURCE_REGISTRY parser
+├── sourceRegistry.js                  ← table → pool map (from DATABASE_POOLS + routing rules)
 ├── dataProviders/
 │   ├── index.js                       ← SOURCE_PROVIDERS registry (add new backends here)
 │   └── kv.js                          ← find-by-id via KV store
@@ -80,7 +80,7 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 | Variable | Purpose |
 |----------|---------|
 | `DATABASE_URL` | `custom:{"main":"postgresql://...","replica":"postgresql://..."}` |
-| `DATABASE_POOLS` | JSON: pool name → `{ databases, writable, balancer? }` |
+| `DATABASE_POOLS` | JSON: Postgres pool → `{ databases, writable, balancer? }` or provider pool → `{ provider, writable: false }` |
 | `DATABASE_ROUTING_RULES` | JSON array; must end with `{ "target": "<writable-pool>" }` |
 | `DATABASE_POOL_MAX` | Knex pool size per DB (default `3`) |
 
@@ -88,11 +88,12 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `CROSS_DB_SOURCE_REGISTRY` | — | `custom:{"sourceByTable":{"Ticket":"historical"}, "defaultSource":"main"}` |
 | `CROSS_DB_RELATION_PLANNER_ENABLED` | — | `true` enables GraphQL relation planner |
 | `CROSS_DB_JOIN_FILTER_IDS_LIMIT` | `10000` | Max ids for SQL JOIN rewrite |
 | `CROSS_DB_RELATION_FILTER_IDS_LIMIT` | `50000` | Max ids for GraphQL relation filters |
 | `CROSS_DB_RELATION_FILTER_MAX_PAGES` | — | Pagination cap for relation id collection |
+
+**Write path:** `validateCrossSourceReferences` runs on INSERT/UPDATE when relationship fields point to a table on another pool (pools derived from `DATABASE_POOLS`).
 
 ## How to add a new data provider (KV, Mongo, …)
 
@@ -100,9 +101,14 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 
 1. Create `dataProviders/<name>.js` with `canFind` / `find` (extend when mutations are needed).
 2. Add one line to `SOURCE_PROVIDERS` in `dataProviders/index.js`.
-3. Map tables in env: `CROSS_DB_SOURCE_REGISTRY=custom:{"sourceByTable":{"MyList":"<name>"},"defaultSource":"main"}`.
+3. Add a provider pool in `DATABASE_POOLS` and route the table in `DATABASE_ROUTING_RULES`:
 
-Postgres pools do **not** need a provider — any source name that matches a `DATABASE_POOLS` key uses normal Knex routing via the list adapter.
+```dotenv
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":false}}
+DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
+```
+
+Postgres pools use `databases: [...]`. Provider pools use `provider: "<name>"` and must be read-only (`writable: false`).
 
 ## How to add a new balancing adapter variant
 

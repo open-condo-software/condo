@@ -162,7 +162,6 @@ const { prepareAppEnv } = require('./packages/cli')
 async function main () {
     const { MAIN_DB_NAME, MESSAGE_DB_NAME } = process.env
     const messageTables = JSON.parse(process.env.MESSAGE_TABLES)
-    const sourceByTable = Object.fromEntries(messageTables.map((tableName) => [tableName, 'message']))
     const messageTableRegex = `^(${messageTables.join('|')})$`
 
     await prepareAppEnv('condo', {
@@ -182,10 +181,6 @@ async function main () {
             { target: 'replicas', sqlOperationName: 'select' },
             { target: 'main' },
         ]),
-        CROSS_DB_SOURCE_REGISTRY: `custom:${JSON.stringify({
-            defaultSource: 'main',
-            sourceByTable,
-        })}`,
     })
 }
 

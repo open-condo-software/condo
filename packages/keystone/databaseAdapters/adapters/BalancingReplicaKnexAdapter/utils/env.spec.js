@@ -106,7 +106,7 @@ describe('Config validation utils', () => {
                 configString,
                 ['asyncReplica', 'syncReplica', 'asyncBillingReplica']
             ))
-                .toThrow('Invalid DB pools config. Expected at least 1 pool to be writable')
+                .toThrow('Invalid DB pools config. Expected at least 1 writable Postgres pool')
         })
         describe('Must parse correct config', () => {
             const cases = [
@@ -191,7 +191,7 @@ describe('Config validation utils', () => {
                     const expectedConfig = Object.fromEntries(
                         Object.entries(config).map(([name, pool]) => [
                             name,
-                            pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' },
+                            pool.provider ? pool : (pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' }),
                         ])
                     )
                     expect(getReplicaPoolsConfig(config, allDatabases)).toEqual(expectedConfig)
@@ -202,7 +202,7 @@ describe('Config validation utils', () => {
                     const expectedConfig = Object.fromEntries(
                         Object.entries(config).map(([name, pool]) => [
                             name,
-                            pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' },
+                            pool.provider ? pool : (pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' }),
                         ])
                     )
                     expect(getReplicaPoolsConfig(JSON.stringify(config), allDatabases)).toEqual(expectedConfig)
@@ -218,6 +218,23 @@ describe('Config validation utils', () => {
             expect(result).toEqual({
                 main: { ...simpleConfig.main, balancer: 'RoundRobin' },
             })
+        })
+        test('accepts provider pool for kv backend', () => {
+            const config = {
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', writable: false },
+            }
+
+            expect(getReplicaPoolsConfig(config, ['main'])).toEqual({
+                main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
+                kv: { provider: 'kv', writable: false },
+            })
+        })
+        test('rejects provider pool with writable true', () => {
+            expect(() => getReplicaPoolsConfig({
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', writable: true },
+            }, ['main'])).toThrow(/Invalid DB pools config/)
         })
     })
     describe('getQueryRoutingRules', () => {

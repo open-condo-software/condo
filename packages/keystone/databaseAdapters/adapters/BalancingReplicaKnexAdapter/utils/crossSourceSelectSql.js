@@ -162,6 +162,40 @@ function _formatSelectQuery (parsedQuery) {
 }
 
 /**
+ * When Keystone runs `_allMessagesMeta` count, SQL is `SELECT count(*) FROM (SELECT ... JOIN ...)`.
+ * Returns the inner SELECT AST when that pattern is detected.
+ *
+ * @param {object} parsedQuery outer SELECT AST
+ * @returns {object|null} inner SELECT AST
+ */
+function _unwrapCountSubselect (parsedQuery) {
+    const columns = parsedQuery.columns
+    if (!columns || columns.length !== 1) return null
+
+    const columnExpr = columns[0]?.expr
+    if (!columnExpr || columnExpr.type !== 'aggr_func') return null
+    if (String(columnExpr.name).toUpperCase() !== 'COUNT') return null
+
+    const from = parsedQuery.from || []
+    if (from.length !== 1) return null
+
+    const innerSelect = from[0]?.expr?.ast
+    if (!innerSelect || innerSelect.type !== 'select') return null
+
+    return innerSelect
+}
+
+/**
+ * SELECT body to rewrite: outer count wrapper or the query itself.
+ *
+ * @param {object} parsedQuery
+ * @returns {object}
+ */
+function _resolveSelectTargetAst (parsedQuery) {
+    return _unwrapCountSubselect(parsedQuery) || parsedQuery
+}
+
+/**
  * Parse a standalone WHERE fragment into an AST node.
  * Wraps the fragment as `SELECT 1 WHERE <fragment>` internally.
  *
@@ -251,7 +285,7 @@ function _getFkJoinMetadataFromParsedQuery (parsedQuery) {
 function getFkJoinMetadata (sqlString) {
     try {
         const parsedQuery = _parseSelectQuery(sqlString)
-        return _getFkJoinMetadataFromParsedQuery(parsedQuery)
+        return _getFkJoinMetadataFromParsedQuery(_resolveSelectTargetAst(parsedQuery))
     } catch (err) {
         return null
     }
@@ -271,7 +305,7 @@ function getFkJoinMetadata (sqlString) {
  */
 function extractJoinAliasPredicates (sqlString, alias) {
     const parsedQuery = _parseSelectQuery(sqlString)
-    return _extractAliasPredicates(parsedQuery.where, alias)
+    return _extractAliasPredicates(_resolveSelectTargetAst(parsedQuery).where, alias)
 }
 
 /**
@@ -447,24 +481,25 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
     if (!joinRewrites.length) return null
 
     const parsedQuery = _parseSelectQuery(sqlString)
+    const targetQuery = _resolveSelectTargetAst(parsedQuery)
     let changed = false
 
     for (const rewrite of joinRewrites) {
         const { alias, fkExpression, ids } = rewrite
-        const { predicates, where, unsupported } = _extractAndRemoveAliasPredicates(parsedQuery.where, alias)
+        const { predicates, where, unsupported } = _extractAndRemoveAliasPredicates(targetQuery.where, alias)
         if (unsupported) {
             throw new Error(`Unsupported cross-pool JOIN rewrite: OR condition on alias "${alias}"`)
         }
         if (!predicates.length) continue
 
-        parsedQuery.where = where
-        _removeJoinByAlias(parsedQuery, alias)
+        targetQuery.where = where
+        _removeJoinByAlias(targetQuery, alias)
 
         if (!ids || ids.length === 0) {
-            parsedQuery.where = _andWhereCondition(parsedQuery.where, 'false')
+            targetQuery.where = _andWhereCondition(targetQuery.where, 'false')
         } else {
             const escapedIds = ids.map(id => `'${String(id).replace(/'/g, '\'\'')}'`).join(', ')
-            parsedQuery.where = _andWhereCondition(parsedQuery.where, `${fkExpression} IN (${escapedIds})`)
+            targetQuery.where = _andWhereCondition(targetQuery.where, `${fkExpression} IN (${escapedIds})`)
         }
         changed = true
     }
