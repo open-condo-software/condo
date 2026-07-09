@@ -34,7 +34,7 @@ const {
     SUBSCRIPTION_PLANS_FIELD_B2B,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
-const { ADDITIONAL_DOMAINS_FIELD, OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD } = require('./fields/domains')
+const { ADDITIONAL_DOMAINS_FIELD, OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD, IS_MAPPING_ENABLED_FIELD } = require('./fields/domains')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
@@ -60,6 +60,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         appUrl: IFRAME_URL_FIELD,
         additionalDomains: ADDITIONAL_DOMAINS_FIELD,
         oidcClient: OIDC_CLIENT_FIELD,
+        isDomainsMappingEnabled: IS_MAPPING_ENABLED_FIELD,
         domains: MINIAPP_DOMAINS_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {

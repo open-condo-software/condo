@@ -46,6 +46,10 @@ const MINIAPP_DOMAINS_FIELD = {
     graphQLReturnType: 'MiniappDomains',
     graphQLReturnFragment: '{ mapping { from to } }',
     resolver: async (item) => {
+        if (!item.isDomainsMappingEnabled) {
+            return { mapping: [] }
+        }
+
         let oidcRedirectURIS = [null]
 
         if (item.oidcClient) {
@@ -109,8 +113,16 @@ const MINIAPP_DOMAINS_FIELD = {
     },
 }
 
+const IS_MAPPING_ENABLED_FIELD = {
+    schemaDoc: 'If enabled, then all request to apps domains will be proxied via condo proxy, allowing miniapps to use background OIDC flow',
+    type: 'Checkbox',
+    isRequired: true,
+    defaultValue: true,
+}
+
 module.exports = {
     OIDC_CLIENT_FIELD,
     MINIAPP_DOMAINS_FIELD,
     ADDITIONAL_DOMAINS_FIELD,
+    IS_MAPPING_ENABLED_FIELD,
 }

@@ -72697,6 +72697,7 @@ type B2BAppHistoryRecord {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  isDomainsMappingEnabled: Boolean
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -72840,6 +72841,8 @@ input B2BAppHistoryRecordWhereInput {
   oidcClient_not: String
   oidcClient_in: [String]
   oidcClient_not_in: [String]
+  isDomainsMappingEnabled: Boolean
+  isDomainsMappingEnabled_not: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
   isGlobal: Boolean
@@ -73117,6 +73120,8 @@ enum SortB2BAppHistoryRecordsBy {
   developerUrl_DESC
   appUrl_ASC
   appUrl_DESC
+  isDomainsMappingEnabled_ASC
+  isDomainsMappingEnabled_DESC
   isHidden_ASC
   isHidden_DESC
   isGlobal_ASC
@@ -73171,6 +73176,7 @@ input B2BAppHistoryRecordUpdateInput {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  isDomainsMappingEnabled: Boolean
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -73219,6 +73225,7 @@ input B2BAppHistoryRecordCreateInput {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  isDomainsMappingEnabled: Boolean
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -73517,6 +73524,10 @@ type B2BApp {
   """
   oidcClient: OidcClient
 
+  """ If enabled, then all request to apps domains will be proxied via condo proxy, allowing miniapps to use background OIDC flow 
+  """
+  isDomainsMappingEnabled: Boolean
+
   """ List of mapping from condo-hosted domain to miniapp-defined domain """
   domains: MiniappDomains
 
@@ -73746,6 +73757,8 @@ input B2BAppWhereInput {
   additionalDomains_not_in: [[String!]]
   oidcClient: OidcClientWhereInput
   oidcClient_is_null: Boolean
+  isDomainsMappingEnabled: Boolean
+  isDomainsMappingEnabled_not: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
   isGlobal: Boolean
@@ -73938,6 +73951,8 @@ enum SortB2BAppsBy {
   appUrl_DESC
   oidcClient_ASC
   oidcClient_DESC
+  isDomainsMappingEnabled_ASC
+  isDomainsMappingEnabled_DESC
   isHidden_ASC
   isHidden_DESC
   isGlobal_ASC
@@ -74002,6 +74017,7 @@ input B2BAppUpdateInput {
   appUrl: String
   additionalDomains: [String!]
   oidcClient: OidcClientRelateToOneInput
+  isDomainsMappingEnabled: Boolean
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -74048,6 +74064,7 @@ input B2BAppCreateInput {
   appUrl: String
   additionalDomains: [String!]
   oidcClient: OidcClientRelateToOneInput
+  isDomainsMappingEnabled: Boolean
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -74908,6 +74925,7 @@ type B2CAppHistoryRecord {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  isDomainsMappingEnabled: Boolean
   externalLinks: JSON
   currentBuild: String
   isFullscreenAllowed: Boolean
@@ -75036,6 +75054,8 @@ input B2CAppHistoryRecordWhereInput {
   oidcClient_not: String
   oidcClient_in: [String]
   oidcClient_not_in: [String]
+  isDomainsMappingEnabled: Boolean
+  isDomainsMappingEnabled_not: Boolean
   externalLinks: JSON
   externalLinks_not: JSON
   externalLinks_in: [JSON]
@@ -75197,6 +75217,8 @@ enum SortB2CAppHistoryRecordsBy {
   isGlobal_DESC
   appUrl_ASC
   appUrl_DESC
+  isDomainsMappingEnabled_ASC
+  isDomainsMappingEnabled_DESC
   isFullscreenAllowed_ASC
   isFullscreenAllowed_DESC
   isMicrophoneAllowed_ASC
@@ -75249,6 +75271,7 @@ input B2CAppHistoryRecordUpdateInput {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  isDomainsMappingEnabled: Boolean
   externalLinks: JSON
   currentBuild: String
   isFullscreenAllowed: Boolean
@@ -75294,6 +75317,7 @@ input B2CAppHistoryRecordCreateInput {
   appUrl: String
   additionalDomains: JSON
   oidcClient: String
+  isDomainsMappingEnabled: Boolean
   externalLinks: JSON
   currentBuild: String
   isFullscreenAllowed: Boolean
@@ -75418,6 +75442,10 @@ type B2CApp {
   """ Relation to OIDC configuration, which application use for authorization 
   """
   oidcClient: OidcClient
+
+  """ If enabled, then all request to apps domains will be proxied via condo proxy, allowing miniapps to use background OIDC flow 
+  """
+  isDomainsMappingEnabled: Boolean
 
   """ List of mapping from condo-hosted domain to miniapp-defined domain """
   domains: MiniappDomains
@@ -75595,6 +75623,8 @@ input B2CAppWhereInput {
   additionalDomains_not_in: [[String!]]
   oidcClient: OidcClientWhereInput
   oidcClient_is_null: Boolean
+  isDomainsMappingEnabled: Boolean
+  isDomainsMappingEnabled_not: Boolean
   externalLinks: [String!]
   externalLinks_not: [String!]
   externalLinks_in: [[String!]]
@@ -75743,6 +75773,8 @@ enum SortB2CAppsBy {
   appUrl_DESC
   oidcClient_ASC
   oidcClient_DESC
+  isDomainsMappingEnabled_ASC
+  isDomainsMappingEnabled_DESC
   currentBuild_ASC
   currentBuild_DESC
   accessRights_ASC
@@ -75801,6 +75833,7 @@ input B2CAppUpdateInput {
   appUrl: String
   additionalDomains: [String!]
   oidcClient: OidcClientRelateToOneInput
+  isDomainsMappingEnabled: Boolean
   externalLinks: [String!]
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
@@ -75844,6 +75877,7 @@ input B2CAppCreateInput {
   appUrl: String
   additionalDomains: [String!]
   oidcClient: OidcClientRelateToOneInput
+  isDomainsMappingEnabled: Boolean
   externalLinks: [String!]
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
