@@ -3,7 +3,8 @@
  * packages/keystone/apolloServerPlugins/rateLimiting/query.utils.js
  *
  * Used to estimate _allTicketsMeta query complexity before sending it,
- * so we can skip getTicketsCountersByStatus when it would be too expensive.
+ * so we can hide counts in getTicketsCountersByStatus when it would be too expensive.
+ * The limit is configured via the ticket-status-counters-limit feature flag (number).
  */
 
 const WHERE_SCALING_FACTOR = 2

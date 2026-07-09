@@ -520,14 +520,15 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
     const ClosedTicketsMessage = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
 
     const { persistor } = useCachePersistor()
-    const { useFlag } = useFeatureFlags()
-    const isCountersLimitEnabled = useFlag(TICKET_STATUS_COUNTERS_LIMIT)
+    const { useFlagValue } = useFeatureFlags()
+    const countersComplexityLimit = useFlagValue<number>(TICKET_STATUS_COUNTERS_LIMIT)
 
     const estimatedComplexity = useMemo(
         () => estimateTicketCountersComplexity(searchTicketsWithoutStatusQuery as Record<string, unknown>),
         [searchTicketsWithoutStatusQuery]
     )
-    const isComplexFilter = isCountersLimitEnabled && estimatedComplexity > 1000
+    const isComplexFilter = Number.isFinite(countersComplexityLimit) && countersComplexityLimit > 0
+        && estimatedComplexity > countersComplexityLimit
 
     const {
         data: ticketsCountByStatusesData,
@@ -557,6 +558,7 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
                     title={OpenedTicketsMessage}
                     type={TicketStatusTypeType.NewOrReopened}
                     count={ticketsCountByStatusesData}
+                    hideCount={isComplexFilter}
                 />
             </Col>
             <Col>
@@ -564,6 +566,7 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
                     title={InProgressTicketsMessage}
                     type={TicketStatusTypeType.Processing}
                     count={ticketsCountByStatusesData}
+                    hideCount={isComplexFilter}
                 />
             </Col>
             <Col>
@@ -571,6 +574,7 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
                     title={CompletedTicketsMessage}
                     type={TicketStatusTypeType.Completed}
                     count={ticketsCountByStatusesData}
+                    hideCount={isComplexFilter}
                 />
             </Col>
             <Col>
@@ -578,6 +582,7 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
                     title={DeferredTicketsMessage}
                     type={TicketStatusTypeType.Deferred}
                     count={ticketsCountByStatusesData}
+                    hideCount={isComplexFilter}
                 />
             </Col>
             <Col>
@@ -585,6 +590,7 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
                     title={CanceledTicketsMessage}
                     type={TicketStatusTypeType.Canceled}
                     count={ticketsCountByStatusesData}
+                    hideCount={isComplexFilter}
                 />
             </Col>
             <Col>
@@ -592,6 +598,7 @@ const TicketStatusFilterContainer = ({ searchTicketsWithoutStatusQuery, totalTic
                     title={ClosedTicketsMessage}
                     type={TicketStatusTypeType.Closed}
                     count={ticketsCountByStatusesData}
+                    hideCount={isComplexFilter}
                 />
             </Col>
         </Row>

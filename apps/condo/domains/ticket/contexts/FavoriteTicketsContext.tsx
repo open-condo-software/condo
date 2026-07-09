@@ -65,7 +65,7 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, orga
                 userFavoriteTickets,
                 userFavoriteTicketsCount,
                 refetchFavoriteTickets,
-                loading,
+                loading: skipProp || loading,
             }}
         >
             {children}
