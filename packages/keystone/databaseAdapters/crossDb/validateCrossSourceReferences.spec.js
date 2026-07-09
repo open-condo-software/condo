@@ -17,7 +17,7 @@ function createMessageListAdapter () {
     }
 }
 
-function createRouteToPool ({ existingIdsByTable = {} } = {}) {
+function createGetPoolByName ({ existingIdsByTable = {} } = {}) {
     return () => ({
         getKnexClient: () => (tableName) => ({
             select: () => ({
@@ -166,7 +166,7 @@ describe('validateCrossSourceReferences', () => {
                 bindings: ['existing-user', 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'],
                 sqlOperationName: 'insert',
                 sourceRegistry,
-                routeToPool: createRouteToPool({
+                getPoolByName: createGetPoolByName({
                     existingIdsByTable: { User: [{ id: 'existing-user' }] },
                 }),
             })).resolves.toBeUndefined()
@@ -180,7 +180,7 @@ describe('validateCrossSourceReferences', () => {
                 bindings: [null, 'a@b.com', 'CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE'],
                 sqlOperationName: 'insert',
                 sourceRegistry,
-                routeToPool: createRouteToPool(),
+                getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
         })
 
@@ -192,7 +192,7 @@ describe('validateCrossSourceReferences', () => {
                 bindings: ['missing-user', 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'],
                 sqlOperationName: 'insert',
                 sourceRegistry,
-                routeToPool: createRouteToPool({ existingIdsByTable: { User: [] } }),
+                getPoolByName: createGetPoolByName({ existingIdsByTable: { User: [] } }),
             })).rejects.toThrow(
                 'Cross-database foreign key violation: Message.user references missing User id "missing-user"',
             )
@@ -206,10 +206,56 @@ describe('validateCrossSourceReferences', () => {
                 bindings: ['missing-rc', 'message-1'],
                 sqlOperationName: 'update',
                 sourceRegistry,
-                routeToPool: createRouteToPool({ existingIdsByTable: { RemoteClient: [] } }),
+                getPoolByName: createGetPoolByName({ existingIdsByTable: { RemoteClient: [] } }),
             })).rejects.toThrow(
                 'Cross-database foreign key violation: Message.remoteClient references missing RemoteClient id "missing-rc"',
             )
+        })
+
+        test('checks related row in owning pool, not generic select target', async () => {
+            const replicaAwareRegistry = createPoolBasedSourceRegistry({
+                poolTables: {
+                    main: new Set(['User', 'Organization', 'Message']),
+                    replicas: new Set(['User', 'Organization']),
+                    message: new Set(['Message']),
+                },
+                routingRules: [
+                    { tableName: 'Message', target: 'message' },
+                    { target: 'main', gqlOperationType: 'mutation' },
+                    { target: 'replicas', sqlOperationName: 'select' },
+                    { target: 'main' },
+                ],
+                replicaPoolsConfig: {
+                    main: { databases: ['main'], writable: true },
+                    replicas: { databases: ['replica'], writable: false },
+                    message: { databases: ['message'], writable: true },
+                },
+            })
+
+            const getPoolByName = (poolName) => ({
+                getKnexClient: () => (tableName) => ({
+                    select: () => ({
+                        where: ({ id }) => ({
+                            first: async () => {
+                                if (poolName === 'main' && tableName === 'Organization' && id === 'org-1') {
+                                    return { id }
+                                }
+                                return null
+                            },
+                        }),
+                    }),
+                }),
+            })
+
+            await expect(validateCrossSourceReferences({
+                tableName: 'Message',
+                listAdapter: createMessageListAdapter(),
+                sql: 'insert into "public"."Message" ("organization", "type") values ($1, $2) returning *',
+                bindings: ['org-1', 'CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE'],
+                sqlOperationName: 'insert',
+                sourceRegistry: replicaAwareRegistry,
+                getPoolByName,
+            })).resolves.toBeUndefined()
         })
 
         test('no-op for tables without cross-source relationships', async () => {
@@ -226,7 +272,7 @@ describe('validateCrossSourceReferences', () => {
                 bindings: ['user-1'],
                 sqlOperationName: 'insert',
                 sourceRegistry: sameSourceRegistry,
-                routeToPool: createRouteToPool(),
+                getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
         })
 
@@ -238,7 +284,7 @@ describe('validateCrossSourceReferences', () => {
                 bindings: [],
                 sqlOperationName: 'select',
                 sourceRegistry,
-                routeToPool: createRouteToPool(),
+                getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
         })
     })

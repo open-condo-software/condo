@@ -139,9 +139,7 @@ function _isPresentFkValue (value) {
  * @param {Array} [options.bindings]
  * @param {string} options.sqlOperationName
  * @param {object} options.sourceRegistry
- * @param {(context: object) => object} options.routeToPool
- * @param {string} [options.gqlOperationType]
- * @param {string} [options.gqlOperationName]
+ * @param {(poolName: string) => object} options.getPoolByName
  * @returns {Promise<void>}
  */
 async function validateCrossSourceReferences ({
@@ -151,9 +149,7 @@ async function validateCrossSourceReferences ({
     bindings = [],
     sqlOperationName,
     sourceRegistry,
-    routeToPool,
-    gqlOperationType,
-    gqlOperationName,
+    getPoolByName,
 }) {
     if (!['insert', 'update'].includes(sqlOperationName)) return
 
@@ -171,12 +167,8 @@ async function validateCrossSourceReferences ({
         const fkValue = columnValues[columnName]
         if (!_isPresentFkValue(fkValue)) continue
 
-        const relatedPool = routeToPool({
-            gqlOperationType,
-            gqlOperationName,
-            sqlOperationName: 'select',
-            tableName: refListKey,
-        })
+        const relatedPoolName = sourceRegistry.resolveSource(refListKey)
+        const relatedPool = getPoolByName(relatedPoolName)
         const relatedClient = relatedPool.getKnexClient()
         const relatedRow = await relatedClient(refListKey)
             .select('id')
