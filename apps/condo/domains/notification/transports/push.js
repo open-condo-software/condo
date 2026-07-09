@@ -107,7 +107,6 @@ async function prepareMessageToSend (message) {
 
 async function prepareNotificationsByAppId ({ message, appIds }) {
     const uniqAppIds = [...appIds]
-    logger.info({ msg: 'prepareNotificationsByAppId', entity: 'Message', entityId: message.id, data: { appIds: uniqAppIds, type: message.type } })
     const notificationsByAppIdPromises = uniqAppIds.map(async appId => {
         return await renderTemplate(PUSH_TRANSPORT, message, { appId })
     })
@@ -120,7 +119,6 @@ async function prepareNotificationsByAppId ({ message, appIds }) {
             logger.error({ msg: 'renderTemplate error', entity: 'Message', entityId: message.id, err: notificationsByAppIdPromisesResults[i].reason, data: { appId } })
             continue
         }
-        logger.info({ msg: 'renderTemplate result', entity: 'Message', entityId: message.id, data: { appId, title: notificationsByAppIdPromisesResults[i].value?.title } })
         notificationsByAppId[appId] = notificationsByAppIdPromisesResults[i].value
     }
 
@@ -327,7 +325,6 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     const remoteClientId = get(remoteClient, 'id')
 
     let pushTokens = await getTokens(userId, remoteClientId, isVoIP, PUSH_ADAPTER_SETTINGS.transportPriorityByAppId)
-    logger.info({ msg: 'send() pushTokens', entity: 'Message', entityId: message.id, data: { type: get(message, 'type'), tokens: pushTokens.map(t => ({ appId: t.appId, transport: t.transport })) } })
 
     const messageType = get(message, 'type')
     if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(messageType)) {
@@ -371,7 +368,6 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
     const invalidRecipients = recipients.filter(recipient => !recipient.notification || !recipient.data)
-    logger.info({ msg: '[debug] recipients', entity: 'Message', entityId: message.id, data: { valid: recipients.length - invalidRecipients.length, invalid: invalidRecipients.length, invalidReasons: invalidRecipients.map(r => ({ appId: r.appId, hasNotification: !!r.notification, hasData: !!r.data })) } })
     recipients = recipients.filter(recipient => !invalidRecipients.includes(recipient))
 
     container.failureCount += invalidRecipients.length
