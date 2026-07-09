@@ -118,7 +118,7 @@ const StatusFilterContainer = styled.div<{ tagType, colorsByTagType }>`
   }
 `
 
-export const TicketStatusFilter = ({ count, title, type }) => {
+export const TicketStatusFilter = ({ count, title, type, hideCount = false }) => {
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const ticketStatusTagType = useMemo(() => getTicketStatusTagType(filters, type), [filters, type])
@@ -144,11 +144,11 @@ export const TicketStatusFilter = ({ count, title, type }) => {
             tagType={ticketStatusTagType}
             onClick={handleStatusFilterClick}
         >
-            <Tag
-                textColor={colorsByTagType.counterTextColor}
-            >
-                {count?.[type]?.count}
-            </Tag>
+            {(hideCount || (count !== undefined && count !== null)) && (
+                <Tag textColor={colorsByTagType.counterTextColor}>
+                    {!hideCount && count?.[type]?.count}
+                </Tag>
+            )}
             {title}
             {
                 ticketStatusTagType === 'checked' && (

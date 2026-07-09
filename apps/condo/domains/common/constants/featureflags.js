@@ -1,5 +1,5 @@
 const SMS_AFTER_TICKET_CREATION = 'sms-after-ticket-creation'
-const RE_FETCH_TICKETS_IN_CONTROL_ROOM = 'refetch-tickets-in-control-room'
+const REFETCH_TICKETS_INTERVAL_IN_SECONDS = 'refetch-tickets-interval-in-seconds'
 const SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK = 'send-submit-meter-readings-push-notifications-task'
 const SEND_METER_VERIFICATION_DATE_REMINDER_TASK = 'send-verification-date-reminder-task'
 const SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK = 'send-billing-receipts-notifications-task'
@@ -60,10 +60,11 @@ const UI_HIDE_LAYOUT_HEADER = 'ui-hide-layout-header'
 const UI_HIDE_LAYOUT_SIDE_MENU = 'ui-hide-layout-sideMenu'
 const UI_HIDE_PAID_FEATURES = 'ui-hide-paid-features'
 const UI_BILLING_SPP_COMBINED_PAGE = 'ui-billing-spp-combined-page'
+const TICKET_STATUS_COUNTERS_LIMIT = 'ticket-status-counters-limit'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
-    RE_FETCH_TICKETS_IN_CONTROL_ROOM,
+    REFETCH_TICKETS_INTERVAL_IN_SECONDS,
     SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK,
     SEND_METER_VERIFICATION_DATE_REMINDER_TASK,
     SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK,
@@ -124,4 +125,5 @@ module.exports = {
     UI_HIDE_LAYOUT_SIDE_MENU,
     UI_HIDE_PAID_FEATURES,
     UI_BILLING_SPP_COMBINED_PAGE,
+    TICKET_STATUS_COUNTERS_LIMIT,
 }

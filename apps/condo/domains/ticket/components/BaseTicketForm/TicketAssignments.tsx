@@ -74,7 +74,7 @@ const TicketAssignments = ({
 
     const { assignee: initialAssignee, executor: initialExecutor, observers: initialObservers } = form.getFieldsValue(['assignee', 'executor', 'observers'])
 
-    const { objs: employees, allDataLoaded: allEmployeesLoaded } = OrganizationEmployee.useAllObjects({
+    const { objs: employees, allDataLoaded: allEmployeesLoaded, loading: allEmployeesLoading } = OrganizationEmployee.useAllObjects({
         where: {
             organization: { id: organizationId },
             user: { deletedAt: null },
@@ -82,13 +82,13 @@ const TicketAssignments = ({
             isBlocked: false,
             isRejected: false,
         },
-    })
+    }, { skip: !propertyId })
 
     const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
             property: { id: propertyId },
         },
-    })
+    }, { skip: !propertyId })
     const filteredPropertyScopeProperties = useMemo(() =>
         propertyScopeProperties.filter(scope => scope.property && scope.propertyScope),
     [propertyScopeProperties])
@@ -100,12 +100,12 @@ const TicketAssignments = ({
                 { hasAllProperties: true },
             ],
         },
-    })
+    }, { skip: !propertyId })
     const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
         where: {
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
-    })
+    }, { skip: propertyScopes.length === 0 })
     const filteredPropertyScopeEmployees = useMemo(() =>
         propertyScopeEmployees.filter(scope => scope.employee && scope.propertyScope),
     [propertyScopeEmployees])
@@ -113,7 +113,7 @@ const TicketAssignments = ({
         where: {
             employee: { organization: { id: organizationId } },
         },
-    })
+    }, { skip: !propertyId })
     const filteredEmployeeSpecializations = useMemo(() =>
         organizationEmployeeSpecializations.filter(scope => scope.employee && scope.specialization),
     [organizationEmployeeSpecializations])
@@ -219,7 +219,7 @@ const TicketAssignments = ({
     const search = useMemo(() => searchEmployeeUser(intl, organizationId, null),
         [intl, organizationId])
 
-    const loading = propertiesLoading || scopesLoading || employeesLoading || specializationsLoading
+    const loading = allEmployeesLoading || propertiesLoading || scopesLoading || employeesLoading || specializationsLoading
 
     return (
         <Col span={24}>

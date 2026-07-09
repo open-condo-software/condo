@@ -1186,6 +1186,13 @@ export type GetTicketsCountQueryVariables = Types.Exact<{
 
 export type GetTicketsCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetLatestTicketUpdatedAtQueryVariables = Types.Exact<{
+  where: Types.TicketWhereInput;
+}>;
+
+
+export type GetLatestTicketUpdatedAtQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', updatedAt?: string | null } | null> | null };
+
 export type GetOrganizationEmployeeTicketsCountForReassignmentQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];
@@ -1461,10 +1468,19 @@ export type GetTicketStatusesQuery = { __typename?: 'Query', statuses?: Array<{ 
 export type GetUserFavoriteTicketsQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   ticketWhere?: Types.InputMaybe<Types.TicketWhereInput>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
 
-export type GetUserFavoriteTicketsQuery = { __typename?: 'Query', userFavoriteTickets?: Array<{ __typename?: 'UserFavoriteTicket', id: string, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetUserFavoriteTicketsQuery = { __typename?: 'Query', userFavoriteTickets?: Array<{ __typename?: 'UserFavoriteTicket', id: string, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null };
+
+export type GetUserFavoriteTicketsCountQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  ticketWhere?: Types.InputMaybe<Types.TicketWhereInput>;
+}>;
+
+
+export type GetUserFavoriteTicketsCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetUserTicketCommentsReadTimeQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];

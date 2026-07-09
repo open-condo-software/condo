@@ -1,5 +1,6 @@
-import { 
+import {
     useGetUserFavoriteTicketsQuery,
+    useGetUserFavoriteTicketsCountQuery,
     GetUserFavoriteTicketsQuery,
 } from '@app/condo/gql'
 import { createContext, useContext, useMemo } from 'react'
@@ -26,9 +27,11 @@ const FavoriteTicketsContext = createContext<IFavoriteTicketsContext>({
 
 const useFavoriteTickets = (): IFavoriteTicketsContext => useContext(FavoriteTicketsContext)
 
-const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) => {
+const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {}, organizationId = null, first, skip: skipProp = false }) => {
     const { user } = useAuth()
     const { persistor } = useCachePersistor()
+
+    const skip = !persistor || !user || skipProp
 
     const {
         data: userFavoriteTicketsData,
@@ -38,13 +41,23 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) =>
         variables: {
             userId: user?.id,
             ticketWhere: extraTicketsQuery,
+            first,
         },
-        skip: !persistor || !user,
+        skip,
     })
+
+    const { data: countData } = useGetUserFavoriteTicketsCountQuery({
+        variables: {
+            userId: user?.id,
+            ticketWhere: organizationId ? { organization: { id: organizationId } } : undefined,
+        },
+        skip,
+    })
+
     const userFavoriteTickets = useMemo(() => userFavoriteTicketsData?.userFavoriteTickets?.filter(Boolean) || [],
         [userFavoriteTicketsData?.userFavoriteTickets])
-    const userFavoriteTicketsCount = useMemo(() => userFavoriteTicketsData?.meta?.count,
-        [userFavoriteTicketsData?.meta?.count])
+    const userFavoriteTicketsCount = useMemo(() => countData?.meta?.count,
+        [countData?.meta?.count])
 
     return (
         <FavoriteTicketsContext.Provider
@@ -52,7 +65,7 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) =>
                 userFavoriteTickets,
                 userFavoriteTicketsCount,
                 refetchFavoriteTickets,
-                loading,
+                loading: skipProp || loading,
             }}
         >
             {children}

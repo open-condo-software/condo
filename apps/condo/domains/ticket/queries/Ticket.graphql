@@ -170,6 +170,12 @@ query getTicketsCount ($where: TicketWhereInput!) {
     }
 }
 
+query getLatestTicketUpdatedAt ($where: TicketWhereInput!) {
+    tickets: allTickets(where: $where, sortBy: [updatedAt_DESC], first: 1) {
+        updatedAt
+    }
+}
+
 query getOrganizationEmployeeTicketsCountForReassignment ($userId: ID!, $organizationId: ID!) {
     meta: _allTicketsMeta (
         where: {
