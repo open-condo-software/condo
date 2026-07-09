@@ -21,7 +21,7 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
 
 import { useSudoToken } from './SudoTokenProvider'
-
+import styles from './UserSettingsContent.module.css'
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
@@ -30,6 +30,7 @@ const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
 const {
     publicRuntimeConfig: {
         telegramEmployeeBotName,
+        regionMessengerEmployeeBotLink,
         sppConfig,
     },
 } = getConfig()
@@ -40,8 +41,10 @@ export const UserSettingsContent: React.FC = () => {
     const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.interfaceLanguage' })
     const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.chooseInterfaceLanguage' })
     const EmployeeTelegramTitle = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.title' })
-    const EmployeeTelegramTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.description' })
+    const EmployeeRegionMessengerTitle = intl.formatMessage({ id: 'pages.condo.profile.employeeRegionMessengerBot.title' })
+    const EmployeeTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeBot.description' })
     const EmployeeTelegramOpenMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.open' })
+    const EmployeeRegionMessengerOpenMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeRegionMessengerBot.open' })
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
     const CompanyName = intl.formatMessage({ id: 'CompanyName' })
     const HasMarketingConsentTitle = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent' }, { company: CompanyName })
@@ -431,11 +434,11 @@ export const UserSettingsContent: React.FC = () => {
                                         <Row align='middle'>
                                             <Col lg={5} xs={10}>
                                                 <Typography.Text type='secondary'>
-                                                    <span style={{ marginRight: 8 }}>
+                                                    <span className={styles.botLinkTitle}>
                                                         {EmployeeTelegramTitle}
                                                     </span>
-                                                    <Tooltip title={EmployeeTelegramTooltipMessage}>
-                                                        <span style={{ verticalAlign: 'middle' }}>
+                                                    <Tooltip title={EmployeeTooltipMessage}>
+                                                        <span className={styles.botLinkTooltipIcon}>
                                                             <Info size='small' />
                                                         </span>
                                                     </Tooltip>
@@ -448,6 +451,36 @@ export const UserSettingsContent: React.FC = () => {
                                                     id='employee-telegram-bot'
                                                 >
                                                     {EmployeeTelegramOpenMessage}
+                                                </Typography.Link>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                )
+                            }
+
+                            {
+                                regionMessengerEmployeeBotLink && (
+                                    <Col span={24}>
+                                        <Row align='middle'>
+                                            <Col lg={5} xs={10}>
+                                                <Typography.Text type='secondary'>
+                                                    <span className={styles.botLinkTitle}>
+                                                        {EmployeeRegionMessengerTitle}
+                                                    </span>
+                                                    <Tooltip title={EmployeeTooltipMessage}>
+                                                        <span className={styles.botLinkTooltipIcon}>
+                                                            <Info size='small' />
+                                                        </span>
+                                                    </Tooltip>
+                                                </Typography.Text>
+                                            </Col>
+                                            <Col lg={18} xs={10} offset={1}>
+                                                <Typography.Link
+                                                    href={regionMessengerEmployeeBotLink}
+                                                    target='_blank'
+                                                    id='employee-region-messenger-bot'
+                                                >
+                                                    {EmployeeRegionMessengerOpenMessage}
                                                 </Typography.Link>
                                             </Col>
                                         </Row>
