@@ -198,6 +198,12 @@ class CrossDbPlanner {
         return this.knex
     }
 
+    _getFieldAdapters () {
+        if (this.listAdapter?.fieldAdapters?.length) return this.listAdapter.fieldAdapters
+        if (this.listAdapter?.fieldAdaptersByPath) return Object.values(this.listAdapter.fieldAdaptersByPath)
+        return []
+    }
+
     _buildRelationMap () {
         const relationMap = new Map()
 
@@ -207,14 +213,12 @@ class CrossDbPlanner {
             }
         }
 
-        if (this.listAdapter?.fieldAdapters) {
-            for (const fieldAdapter of this.listAdapter.fieldAdapters) {
-                if (!fieldAdapter.isRelationship || !fieldAdapter.refListKey) continue
-                const fieldName = fieldAdapter.path
-                if (relationMap.has(fieldName)) continue
-                if (this._isCrossSourceRelation(fieldAdapter.refListKey)) {
-                    relationMap.set(fieldName, fieldAdapter.refListKey)
-                }
+        for (const fieldAdapter of this._getFieldAdapters()) {
+            if (!fieldAdapter.isRelationship || !fieldAdapter.refListKey) continue
+            const fieldName = fieldAdapter.path
+            if (relationMap.has(fieldName)) continue
+            if (this._isCrossSourceRelation(fieldAdapter.refListKey)) {
+                relationMap.set(fieldName, fieldAdapter.refListKey)
             }
         }
 
@@ -223,6 +227,14 @@ class CrossDbPlanner {
 
     _isLogicalWhereKey (key) {
         return key === 'AND' || key === 'OR' || key === 'NOT'
+    }
+
+    _isDirectIdRelationFilter (value) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+        const keys = Object.keys(value)
+        if (keys.length === 0) return false
+        const allowed = new Set(['id', 'id_in', 'id_not', 'id_not_in'])
+        return keys.every(key => allowed.has(key))
     }
 
     async _tryRewriteRelationFilter (key, value, relationMap, rewritten) {
@@ -255,7 +267,11 @@ class CrossDbPlanner {
         const directModel = relationMap.get(key)
         if (!directModel || !value || typeof value !== 'object' || Array.isArray(value)) return false
 
-        rewritten[`${key}_in`] = await this.loadRelatedIds(directModel, value)
+        // FK id filters stay as nested GraphQL relation where; SQL cross-pool rewrite handles the join.
+        if (this._isDirectIdRelationFilter(value)) return false
+
+        const ids = await this.loadRelatedIds(directModel, value)
+        rewritten[key] = { id_in: ids }
         return true
     }
 
@@ -266,8 +282,10 @@ class CrossDbPlanner {
         const model = relationMap.get(relationField)
         if (!model || !value || typeof value !== 'object' || Array.isArray(value)) return false
 
+        if (this._isDirectIdRelationFilter(value)) return false
+
         const ids = await this.loadRelatedIds(model, value)
-        if (ids.length > 0) rewritten[`${relationField}_not_in`] = ids
+        if (ids.length > 0) rewritten[relationField] = { id_not_in: ids }
         return true
     }
 
@@ -283,10 +301,12 @@ class CrossDbPlanner {
 
         const idsGroups = await Promise.all(value.map(filter => this.loadRelatedIds(model, filter)))
         const ids = [...new Set(idsGroups.flat())]
+        if (ids.length === 0) return true
+
         if (suffix === '_not_in') {
-            if (ids.length > 0) rewritten[key] = ids
+            rewritten[relationField] = { id_not_in: ids }
         } else {
-            rewritten[key] = ids
+            rewritten[relationField] = { id_in: ids }
         }
         return true
     }
@@ -365,7 +385,8 @@ class CrossDbPlanner {
 }
 
 /**
- * Rewrite GraphQL `where` for cross-source relation filters (e.g. `{ user: { id } }` → `{ user_in: [...] }`).
+ * Rewrite GraphQL `where` for cross-source relation filters (e.g. `{ user: { name_contains: 'x' } }` → `{ user: { id_in: [...] } }`).
+ * Direct FK id filters (`user: { id_in: [...] }`) are left unchanged; SQL cross-pool rewrite handles them.
  * Used by `GqlWithKnexLoadList` and `loadListByChunks`.
  *
  * @param {{ listKey: string, where: object }} options
