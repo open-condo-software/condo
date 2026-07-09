@@ -93,6 +93,6 @@ describe('source registry', () => {
     test('enables planner only for explicit true', () => {
         expect(isCrossDbPlannerEnabled('true')).toEqual(true)
         expect(isCrossDbPlannerEnabled('false')).toEqual(false)
-        expect(isCrossDbPlannerEnabled(undefined)).toEqual(false)
+        expect(isCrossDbPlannerEnabled(null)).toEqual(false)
     })
 })
