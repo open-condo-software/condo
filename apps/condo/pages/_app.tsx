@@ -324,7 +324,7 @@ const MenuItems: React.FC = () => {
                     id: 'menu-item-billing',
                     path: 'billing',
                     icon: AllIcons['Ruble'],
-                    label: 'global.section.accrualsAndPayments',
+                    label: shouldShowCombinedBilling ? 'global.section.SPP' : 'global.section.accrualsAndPayments',
                     access: shouldShowCombinedBilling ? hasAccessToBilling : isSPPOrg
                         ? hasAccessToBilling && anyReceiptsLoaded
                         : hasAccessToBilling,

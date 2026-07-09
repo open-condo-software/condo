@@ -26,7 +26,7 @@ export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource
         const sourceValues: string[] = []
         const destinationValues: string[] = []
         const sppBillingId = sppBillingContext?.integration?.id
-        const bankPartnerName = sppBillingContext?.integration?.name
+        const bankPartnerName = sppBillingContext?.integration?.billingPageTitle || sppBillingContext?.integration?.name
         const platformPartnerName = activePlatformPartnerContext?.integration?.name
 
         if (bankPartnerName) {
@@ -68,6 +68,6 @@ export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource
         billingContexts,
         intl,
         sppBillingContext?.integration?.id,
-        sppBillingContext?.integration?.name,
+        sppBillingContext?.integration?.billingPageTitle,
     ])
 }
