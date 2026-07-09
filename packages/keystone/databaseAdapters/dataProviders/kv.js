@@ -3,7 +3,7 @@ const get = require('lodash/get')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
 /**
- * Find-by-id reads for tables mapped to source `kv` in CROSS_DB_SOURCE_REGISTRY.
+ * Find-by-id reads for tables routed to a `kv` provider pool in `DATABASE_POOLS`.
  */
 class KvDataProvider {
     /**

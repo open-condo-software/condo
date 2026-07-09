@@ -441,6 +441,7 @@ function generateServerUtils (schemaName) {
 
     return {
         gql: defaultGql,
+        listKey: schemaName,
         getAll,
         getOne,
         count,

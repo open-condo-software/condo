@@ -96,11 +96,14 @@ const routingRules = [
 
 ### KV-backed tables
 
-Set in `CROSS_DB_SOURCE_REGISTRY` (provider registered in `dataProviders/index.js`):
+Register the provider in `dataProviders/index.js`, then add a provider pool and routing rule:
 
 ```dotenv
-CROSS_DB_SOURCE_REGISTRY=custom:{"sourceByTable":{"CachedUser":"kv"},"defaultSource":"main"}
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":false}}
+DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
+
+Only `find` with `{ id }` / `{ id_in }` is supported.
 
 Only `find` with `{ id }` / `{ id_in }` is supported.
 

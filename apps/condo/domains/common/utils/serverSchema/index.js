@@ -5,7 +5,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getSourceRegistry } = require('@open-condo/keystone/databaseAdapters')
-const { CrossDbPlanner, GLOBAL_QUERY_LIMIT } = require('@open-condo/keystone/databaseAdapters/crossDb')
+const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, prepareCrossDbWhere } = require('@open-condo/keystone/databaseAdapters/crossDb')
 const { getDatabaseAdapter, isPrismaAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -334,7 +334,7 @@ class GqlWithKnexLoadList {
             listAdapter: this._listAdapter,
             resolveDbColumn: (fieldName) => this._resolveDbColumn(fieldName),
             applyPrismaMultipleRelations: (rows) => this._applyPrismaMultipleRelations(rows),
-            sourceRegistry: getSourceRegistry(),
+            sourceRegistry: getSourceRegistry(this.adapter),
         })
     }
 
@@ -413,6 +413,11 @@ const loadListByChunks = async ({
 
     const startTime = Date.now()
 
+    const listKey = get(list, 'listKey')
+    const effectiveWhere = listKey
+        ? await prepareCrossDbWhere({ listKey, where })
+        : where
+
     do {
         const now = Date.now()
 
@@ -433,7 +438,7 @@ const loadListByChunks = async ({
         }
 
         const resolvedFields = !isNil(fields) ? fields : 'id'
-        newChunk = await list.getAll(context, where, resolvedFields, { sortBy, first: chunkSize, skip: skip })
+        newChunk = await list.getAll(context, effectiveWhere, resolvedFields, { sortBy, first: chunkSize, skip: skip })
         newChunkLength = newChunk.length
 
         if (newChunkLength > 0) {
