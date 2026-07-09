@@ -93,13 +93,40 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     _selectTargetPool (sql) {
         const gqlContext = graphqlCtx.getStore()
         const { sqlOperationName, tableName } = extractCRUDQueryData(sql)
-
-        return this._routeToPool({
+        const routedPool = this._routeToPool({
             gqlOperationType: get(gqlContext, 'gqlOperationType'),
             gqlOperationName: get(gqlContext, 'gqlOperationName'),
             sqlOperationName,
             tableName,
         })
+
+        if (!tableName || !this._sourceRegistry) {
+            return routedPool
+        }
+
+        const ownerPoolName = this._sourceRegistry.resolveSource(tableName)
+        const ownerPool = this._replicaPools[ownerPoolName]
+        if (!ownerPool) {
+            return routedPool
+        }
+
+        const routedPoolName = this._getPoolName(routedPool)
+        if (ownerPoolName === routedPoolName) {
+            return routedPool
+        }
+
+        // Writes must go to the pool that actually owns the target table.
+        if (['insert', 'update', 'delete'].includes(sqlOperationName)) {
+            return ownerPool
+        }
+
+        // Reads may still follow replica rules, but only when that pool really has the table.
+        const routedPoolTables = routedPoolName ? this._poolTables?.[routedPoolName] : null
+        if (routedPoolTables?.has(tableName)) {
+            return routedPool
+        }
+
+        return ownerPool
     }
 
     /** @param {KnexPool} pool */
@@ -169,7 +196,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         await validateCrossSourceReferences({
             tableName: finalTableName,
             listAdapter,
-            sql: sqlObject.sql,
+            sql: this.knex.client.positionBindings(sqlObject.sql),
             bindings: sqlObject.bindings,
             sqlOperationName: finalSqlOperationName,
             sourceRegistry: this._sourceRegistry,
