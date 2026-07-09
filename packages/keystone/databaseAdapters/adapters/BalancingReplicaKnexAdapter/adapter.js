@@ -173,9 +173,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             bindings: sqlObject.bindings,
             sqlOperationName: finalSqlOperationName,
             sourceRegistry: this._sourceRegistry,
-            routeToPool: (context) => this._routeToPool(context),
-            gqlOperationType,
-            gqlOperationName,
+            getPoolByName: (poolName) => this._replicaPools[poolName],
         })
     }
 
