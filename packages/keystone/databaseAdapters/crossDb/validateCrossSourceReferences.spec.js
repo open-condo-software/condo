@@ -143,8 +143,31 @@ describe('validateCrossSourceReferences', () => {
             })
         })
 
+        test('maps INSERT knex placeholders to column names', () => {
+            const sql = [
+                'insert into "public"."Message"',
+                '("user", "remoteClient", "type")',
+                'values (?, ?, ?) returning *',
+            ].join(' ')
+
+            expect(extractMutationColumnValues(sql, ['user-1', null, 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'])).toEqual({
+                user: 'user-1',
+                remoteClient: null,
+                type: 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE',
+            })
+        })
+
         test('maps UPDATE SET assignments to column names', () => {
             const sql = 'update "public"."Message" set "user" = $1, "status" = $2 where "id" = $3 returning *'
+
+            expect(extractMutationColumnValues(sql, ['user-2', 'sent', 'message-1'])).toEqual({
+                user: 'user-2',
+                status: 'sent',
+            })
+        })
+
+        test('maps UPDATE knex placeholders to column names', () => {
+            const sql = 'update "public"."Message" set "user" = ?, "status" = ? where "id" = ? returning *'
 
             expect(extractMutationColumnValues(sql, ['user-2', 'sent', 'message-1'])).toEqual({
                 user: 'user-2',

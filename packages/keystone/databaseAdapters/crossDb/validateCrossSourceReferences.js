@@ -10,6 +10,93 @@ const { Parser } = require('node-sql-parser/build/postgresql')
 const parser = new Parser()
 
 /**
+ * Convert Knex `?` placeholders into PostgreSQL-style `$1`, `$2`, ... placeholders
+ * so `node-sql-parser` can parse mutation SQL produced before `positionBindings()`.
+ * Keeps placeholders inside quoted strings/comments untouched.
+ *
+ * @param {string} sql
+ * @returns {string}
+ */
+function _normalizePositionalBindings (sql) {
+    if (!sql || !sql.includes('?')) return sql
+
+    let bindingIndex = 0
+    let normalizedSql = ''
+    let quoteChar = null
+    let lineComment = false
+    let blockCommentDepth = 0
+
+    for (let i = 0; i < sql.length; i++) {
+        const char = sql[i]
+        const nextChar = sql[i + 1]
+
+        if (lineComment) {
+            normalizedSql += char
+            if (char === '\n') lineComment = false
+            continue
+        }
+
+        if (blockCommentDepth > 0) {
+            normalizedSql += char
+            if (char === '/' && sql[i - 1] === '*') blockCommentDepth -= 1
+            else if (char === '*' && nextChar === '/') {
+                normalizedSql += nextChar
+                i += 1
+                blockCommentDepth -= 1
+            } else if (char === '/' && nextChar === '*') {
+                normalizedSql += nextChar
+                i += 1
+                blockCommentDepth += 1
+            }
+            continue
+        }
+
+        if (quoteChar) {
+            normalizedSql += char
+            if (char === quoteChar) {
+                if (nextChar === quoteChar) {
+                    normalizedSql += nextChar
+                    i += 1
+                } else {
+                    quoteChar = null
+                }
+            }
+            continue
+        }
+
+        if (char === '-' && nextChar === '-') {
+            normalizedSql += char + nextChar
+            i += 1
+            lineComment = true
+            continue
+        }
+
+        if (char === '/' && nextChar === '*') {
+            normalizedSql += char + nextChar
+            i += 1
+            blockCommentDepth = 1
+            continue
+        }
+
+        if (char === '\'' || char === '"') {
+            normalizedSql += char
+            quoteChar = char
+            continue
+        }
+
+        if (char === '?') {
+            bindingIndex += 1
+            normalizedSql += `$${bindingIndex}`
+            continue
+        }
+
+        normalizedSql += char
+    }
+
+    return normalizedSql
+}
+
+/**
  * @param {object|null} node
  * @returns {string|number|boolean|null|undefined}
  */
@@ -61,7 +148,7 @@ function _normalizeColumnName (columnNode) {
  * @returns {Record<string, *>}
  */
 function extractMutationColumnValues (sql, bindings = []) {
-    let ast = parser.astify(sql)
+    let ast = parser.astify(_normalizePositionalBindings(sql))
     if (Array.isArray(ast)) {
         if (ast.length !== 1) return {}
         ast = ast[0]
