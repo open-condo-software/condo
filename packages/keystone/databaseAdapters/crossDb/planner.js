@@ -5,7 +5,8 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { isDataProviderSource } = require('../dataProviders')
+const { isDataProviderPool } = require('../dataProviders')
+const { getDatabaseAdapter, isPrismaAdapter } = require('../utils')
 const { getSourceRegistry, isCrossDbPlannerEnabled } = require('../sourceRegistry')
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -21,9 +22,9 @@ const logger = getLogger()
  *
  * When `CROSS_DB_RELATION_PLANNER_ENABLED=true`:
  * 1. Rewrites `where: { relationField: {...} }` → `{ relationField_in: [ids] }`.
- * 2. Hydrates relations from the source named in `CROSS_DB_SOURCE_REGISTRY`.
+ * 2. Hydrates relations from the pool that owns the related table (derived from DATABASE_POOLS).
  *
- * Env: `CROSS_DB_RELATION_PLANNER_ENABLED`, `CROSS_DB_SOURCE_REGISTRY`, `CROSS_DB_RELATION_FILTER_*`.
+ * Env: `CROSS_DB_RELATION_PLANNER_ENABLED`, `CROSS_DB_RELATION_FILTER_*`.
  */
 class CrossDbPlanner {
     constructor ({
@@ -49,7 +50,7 @@ class CrossDbPlanner {
         this.listAdapter = listAdapter
         this.resolveDbColumn = resolveDbColumn
         this.applyPrismaMultipleRelations = applyPrismaMultipleRelations
-        this.sourceRegistry = sourceRegistry || getSourceRegistry()
+        this.sourceRegistry = sourceRegistry || getSourceRegistry(adapter)
         this.baseSource = this.sourceRegistry.resolveSource(listKey)
         this._relationIdsCache = new Map()
     }
@@ -148,13 +149,13 @@ class CrossDbPlanner {
     }
 
     _ensureSqlBackedSource (tableName) {
-        const sourceName = this.sourceRegistry.resolveSource(tableName)
-        if (isDataProviderSource(sourceName)) {
+        const poolName = this.sourceRegistry.resolveSource(tableName)
+        if (isDataProviderPool(poolName, this.adapter._replicaPoolsConfig)) {
             throw new Error(
-                `Cross-db relation hydration does not support non-SQL source "${sourceName}" (table: ${tableName})`,
+                `Cross-db relation hydration does not support non-SQL pool "${poolName}" (table: ${tableName})`,
             )
         }
-        return sourceName
+        return poolName
     }
 
     async _fetchRows ({ tableName, columns, values, valueColumn = 'id' }) {
@@ -182,9 +183,17 @@ class CrossDbPlanner {
         return this.prisma
     }
 
-    _getKnexClient (sourceName) {
-        if (this.adapter._knexClients?.[sourceName]) {
-            return this.adapter._knexClients[sourceName]
+    _getKnexClient (poolName) {
+        const pool = this.adapter._replicaPools?.[poolName]
+        if (pool && typeof pool.getKnexClient === 'function' && !this.adapter._replicaPoolsConfig?.[poolName]?.provider) {
+            return pool.getKnexClient()
+        }
+        const dbName = this.adapter._replicaPoolsConfig?.[poolName]?.databases?.[0]
+        if (dbName && this.adapter._knexClients?.[dbName]) {
+            return this.adapter._knexClients[dbName]
+        }
+        if (this.adapter._knexClients?.[poolName]) {
+            return this.adapter._knexClients[poolName]
         }
         return this.knex
     }
@@ -355,7 +364,38 @@ class CrossDbPlanner {
     }
 }
 
+/**
+ * Rewrite GraphQL `where` for cross-source relation filters (e.g. `{ user: { id } }` → `{ user_in: [...] }`).
+ * Used by `GqlWithKnexLoadList` and `loadListByChunks`.
+ *
+ * @param {{ listKey: string, where: object }} options
+ * @returns {Promise<object>}
+ */
+async function prepareCrossDbWhere ({ listKey, where }) {
+    if (!isCrossDbPlannerEnabled() || !where || typeof where !== 'object') {
+        return where
+    }
+
+    const { keystone } = await getSchemaCtx(listKey)
+    const adapter = getDatabaseAdapter(keystone)
+    const isPrisma = isPrismaAdapter(keystone)
+    const planner = new CrossDbPlanner({
+        listKey,
+        adapter,
+        isPrisma,
+        prisma: isPrisma ? adapter.prisma : undefined,
+        knex: !isPrisma ? adapter.knex : undefined,
+        listAdapter: adapter.listAdapters?.[listKey],
+        resolveDbColumn: (fieldName) => fieldName,
+        applyPrismaMultipleRelations: async (rows) => rows,
+        sourceRegistry: getSourceRegistry(adapter),
+    })
+
+    return planner.prepareWhere(where)
+}
+
 module.exports = {
     CrossDbPlanner,
     GLOBAL_QUERY_LIMIT,
+    prepareCrossDbWhere,
 }

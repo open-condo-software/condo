@@ -82,6 +82,15 @@ describe('sendMessageBatch', () => {
                 expect(detectTransportType()).toBeNull()
             })
 
+            it('uses explicit message type when batch type is not CUSTOM_CONTENT_MESSAGE_TYPE', () => {
+                expect(detectTransportType('broken@email', CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE)).toEqual(EMAIL_TRANSPORT)
+                expect(detectTransportType('not-a-phone', CUSTOM_CONTENT_MESSAGE_SMS_TYPE)).toEqual(SMS_TRANSPORT)
+                expect(detectTransportType('not-a-uuid', CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)).toEqual(PUSH_TRANSPORT)
+            })
+
+            it('treats rc-prefixed ids as push targets', () => {
+                expect(detectTransportType(`rc:${faker.datatype.uuid()}`)).toEqual(PUSH_TRANSPORT)
+            })
         })
 
         describe('getUniqKey', () => {
@@ -121,6 +130,42 @@ describe('sendMessageBatch', () => {
         })
 
         describe('prepareMessageData', () => {
+            it('returns 0 for invalid targets', () => {
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: faker.random.alphaNumeric(20),
+                    message: faker.random.alphaNumeric(50),
+                    deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                }
+                const today = dayjs().format(DATE_FORMAT)
+
+                expect(prepareMessageData(null, batch, today)).toEqual(0)
+                expect(prepareMessageData('', batch, today)).toEqual(0)
+                expect(prepareMessageData(faker.random.alphaNumeric(8), batch, today)).toEqual(0)
+                expect(prepareMessageData(17, batch, today)).toEqual(0)
+            })
+
+            it('prepares proper remoteClient push messageData', async () => {
+                const remoteClientId = faker.datatype.uuid()
+                const target = `rc:${remoteClientId}`
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: faker.random.alphaNumeric(20),
+                    message: faker.random.alphaNumeric(50),
+                    deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                }
+                const today = dayjs().format(DATE_FORMAT)
+                const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toBeNull()
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)
+                expect(messageData.to).toMatchObject({ remoteClient: { id: remoteClientId } })
+                expect(messageData.meta.data.remoteClient).toEqual(remoteClientId)
+                expect(messageData.meta.data.userId).toBeUndefined()
+            })
+
             it('prepares proper push messageData', async () => {
                 const target = faker.datatype.uuid()
                 const batch = {

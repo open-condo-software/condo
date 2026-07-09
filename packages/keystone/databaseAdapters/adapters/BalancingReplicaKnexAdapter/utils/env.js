@@ -4,6 +4,8 @@
  */
 const Ajv = require('ajv')
 
+const { REGISTERED_DATA_PROVIDER_NAMES } = require('../../../dataProviders')
+
 const { SUPPORTED_PG_OPERATIONS } = require('./sql')
 
 const ajv = new Ajv({ useDefaults: true })
@@ -81,39 +83,49 @@ function _createReplicaPoolsSchema (availableDatabases) {
                         },
                         minItems: 1,
                     },
+                    provider: {
+                        type: 'string',
+                        enum: REGISTERED_DATA_PROVIDER_NAMES,
+                    },
                     writable: { type: 'boolean' },
                     balancer: {
                         type: 'string',
                         enum: Object.keys(BALANCER_OPTIONS_SCHEMAS),
-                        default: 'RoundRobin', // default balancer
+                        default: 'RoundRobin',
                     },
-                    balancerOptions: { type: 'object' }, // will be redefined based on balancer value
+                    balancerOptions: { type: 'object' },
                 },
-                required: ['databases', 'writable', 'balancer'],
+                required: ['writable'],
                 additionalProperties: false,
-                oneOf: [
-                    ...Object.entries(BALANCER_OPTIONS_SCHEMAS)
-                        .map(([balancerName, optionsSchema]) => optionsSchema
-                            ? {
-                                properties: {
-                                    balancer: { const: balancerName },
-                                    balancerOptions: optionsSchema,
-                                },
-                                required: ['databases', 'writable', 'balancer', 'balancerOptions'],
-                            }
-                            : {
-                                properties: {
-                                    balancer: { const: balancerName },
-                                    balancerOptions: { not: {} },
-                                },
-                                required: ['databases', 'writable'],
-                            }
-                        ),
-
-                ],
             },
         },
     }
+}
+
+/**
+ * @param {string} poolName
+ * @param {object} poolConfig
+ * @returns {object}
+ */
+function _normalizePoolConfig (poolName, poolConfig) {
+    if (poolConfig.provider) {
+        if (poolConfig.databases) {
+            throw new TypeError(`Invalid DB pools config. Pool "${poolName}" cannot set both "provider" and "databases"`)
+        }
+        if (poolConfig.writable !== false) {
+            throw new TypeError(`Invalid DB pools config. Provider pool "${poolName}" must have writable: false`)
+        }
+        if (!REGISTERED_DATA_PROVIDER_NAMES.includes(poolConfig.provider)) {
+            throw new TypeError(`Invalid DB pools config. Unknown provider "${poolConfig.provider}" in pool "${poolName}"`)
+        }
+        return { provider: poolConfig.provider, writable: false }
+    }
+
+    if (!Array.isArray(poolConfig.databases) || poolConfig.databases.length === 0) {
+        throw new TypeError(`Invalid DB pools config. Postgres pool "${poolName}" must define "databases"`)
+    }
+
+    return poolConfig.balancer ? poolConfig : { ...poolConfig, balancer: 'RoundRobin' }
 }
 
 /**
@@ -138,11 +150,13 @@ function getReplicaPoolsConfig (config, availableDatabases) {
         throw new TypeError(`Invalid DB pools config. ${ajv.errorsText(validateConfig.errors)}`)
     }
 
-    if (!Object.values(parsedConfig).some(poolConfig => poolConfig.writable)) {
-        throw new TypeError('Invalid DB pools config. Expected at least 1 pool to be writable')
+    if (!Object.values(parsedConfig).some(poolConfig => poolConfig.writable && !poolConfig.provider)) {
+        throw new TypeError('Invalid DB pools config. Expected at least 1 writable Postgres pool')
     }
 
-    return parsedConfig
+    return Object.fromEntries(
+        Object.entries(parsedConfig).map(([name, pool]) => [name, _normalizePoolConfig(name, pool)]),
+    )
 }
 
 /**
@@ -246,6 +260,14 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
         const { gqlOperationType, target, sqlOperationName, tableName } = rule
 
         const commonErrorPrefix = `[${idx + 1}/${parsedRules.length}] Routing rule configuration error. `
+
+        // Provider pools cannot receive SQL mutations
+        if (poolsConfig[target].provider && sqlOperationName && !IMMUTABLE_OPERATIONS.has(sqlOperationName)) {
+            throw new TypeError(
+                commonErrorPrefix +
+                `Provider pool "${target}" does not support SQL operation "${sqlOperationName}"`
+            )
+        }
 
         // GQL-level guard
         if (gqlOperationType === 'mutation' && !poolsConfig[target].writable) {

@@ -25,16 +25,19 @@ describe('createKmigratorKnexAdapter', () => {
         const knex = { schema: { withSchema: jest.fn(() => 'schemaBuilder') } }
         const listAdapters = {}
         const getListAdapterByKey = jest.fn()
+        const rels = [{ left: { listKey: 'Foo' }, right: { listKey: 'Bar' } }]
 
         const stub = createKmigratorKnexAdapter({
             knex,
             listAdapters,
             getListAdapterByKey,
+            rels,
             schemaName: 'public',
         })
 
         expect(stub.knex).toBe(knex)
         expect(stub.schemaName).toBe('public')
+        expect(stub.rels).toBe(rels)
         expect(typeof stub.schema).toBe('function')
         expect(typeof stub._createTables).toBe('function')
         expect(stub.getListAdapterByKey).toBe(getListAdapterByKey)
@@ -57,6 +60,7 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
 
         adapter.listAdapters = {}
         adapter.getListAdapterByKey = jest.fn()
+        adapter.rels = [{ left: { listKey: 'Foo' }, right: { listKey: 'Bar' } }]
         adapter._knexClients = {
             main: mainKnex,
             external: externalKnex,
@@ -87,8 +91,10 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
         expect(stubs).toHaveLength(2)
         expect(stubs[0].dbName).toBe('external')
         expect(stubs[0].knex).toBe(externalKnex)
+        expect(stubs[0].rels).toBe(adapter.rels)
         expect(stubs[1].dbName).toBe('main')
         expect(stubs[1].knex).toBe(mainKnex)
+        expect(stubs[1].rels).toBe(adapter.rels)
         stubs.forEach((stub) => {
             expect(typeof stub._createTables).toBe('function')
             expect(typeof stub.schema).toBe('function')
