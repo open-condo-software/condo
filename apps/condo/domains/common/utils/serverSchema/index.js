@@ -4,16 +4,74 @@ const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { getDatabaseAdapter, isPrismaAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getSourceRegistry, getConsistencyMode, isCrossDbPlannerEnabled } = require('@open-condo/keystone/databaseAdapters')
+const { getDatabaseAdapter, isPrismaAdapter, castUuidParams, convertPrismaBigInts } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const GLOBAL_QUERY_LIMIT = 1000
+const CROSS_DB_RELATION_IDS_HARD_LIMIT = Number(conf.CROSS_DB_RELATION_FILTER_IDS_LIMIT) || 50000
+const CROSS_DB_RELATION_MAX_PAGES = Number(conf.CROSS_DB_RELATION_FILTER_MAX_PAGES) ||
+    Math.ceil(CROSS_DB_RELATION_IDS_HARD_LIMIT / GLOBAL_QUERY_LIMIT) + 1
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
 const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
 const logger = getLogger()
 const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
+
+// Cross-table join (GraphQL path): load related rows from another source registry entry.
+// Used by GqlWithKnexLoadList to rewrite where { relation: {...} } and hydrate relations after main query.
+class RelationExecutionPlanner {
+    constructor ({ listKey, adapter, isPrisma, prisma, knex, sourceRegistry, consistencyMode = 'strict' }) {
+        this.listKey = listKey
+        this.adapter = adapter
+        this.isPrisma = isPrisma
+        this.prisma = prisma
+        this.knex = knex
+        this.sourceRegistry = sourceRegistry
+        this.consistencyMode = consistencyMode
+        this.baseSource = sourceRegistry.resolveSource(listKey)
+    }
+
+    _hasCrossSourceRelations (singleRelations = []) {
+        return singleRelations.some(([model]) => this.sourceRegistry.resolveSource(model) !== this.baseSource)
+    }
+
+    _isCrossSourceRelation (model) {
+        return this.sourceRegistry.resolveSource(model) !== this.baseSource
+    }
+
+    async _fetchRows ({ tableName, columns, values, valueColumn = 'id' }) {
+        if (!values.length) return []
+
+        const sourceName = this.sourceRegistry.resolveSource(tableName)
+        if (this.isPrisma) {
+            const prismaClient = this._getPrismaClient(sourceName)
+            const placeholders = values.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
+            const selectClause = columns.map(column => `"${column}"`).join(', ')
+            const sql = `SELECT ${selectClause} FROM "${tableName}" WHERE "${valueColumn}" IN (${placeholders})`
+            const rows = await prismaClient.$queryRawUnsafe(castUuidParams(sql, values), ...values)
+            return convertPrismaBigInts(rows)
+        }
+
+        const knexClient = this._getKnexClient(sourceName)
+        return knexClient(tableName).select(columns).whereIn(valueColumn, values)
+    }
+
+    _getPrismaClient (sourceName) {
+        if (this.consistencyMode === 'strict' && this.adapter._prismaClients && this.adapter._prismaClients[sourceName]) {
+            return this.adapter._prismaClients[sourceName]
+        }
+        return this.prisma
+    }
+
+    _getKnexClient (sourceName) {
+        if (this.consistencyMode === 'strict' && this.adapter._knexClients && this.adapter._knexClients[sourceName]) {
+            return this.adapter._knexClients[sourceName]
+        }
+        return this.knex
+    }
+}
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
 // For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
@@ -54,7 +112,7 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
  */
 class GqlWithKnexLoadList {
 
-    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
+    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [], crossDbPlannerEnabled }) {
         if (!Reflect.has(where, 'deletedAt')) {
             where.deletedAt = null
         }
@@ -64,6 +122,9 @@ class GqlWithKnexLoadList {
         this.sortBy = sortBy
         this.singleRelations = singleRelations
         this.multipleRelations = multipleRelations
+        this.crossDbPlannerEnabled = typeof crossDbPlannerEnabled === 'boolean'
+            ? crossDbPlannerEnabled
+            : isCrossDbPlannerEnabled()
     }
 
     async load () {
@@ -125,10 +186,13 @@ class GqlWithKnexLoadList {
 
     async loadChunk (offset = 0, limit) {
         await this.initContext()
+        const where = this.crossDbPlannerEnabled
+            ? await this._prepareCrossDbWhere(this.where)
+            : this.where
         const mainTableObjects = await getItems({
             keystone: this.keystone,
             listKey: this.listKey,
-            where: this.where,
+            where,
             sortBy: this.sortBy,
             skip: offset,
             first: limit || GLOBAL_QUERY_LIMIT,
@@ -138,6 +202,10 @@ class GqlWithKnexLoadList {
             return []
         }
 
+        if (this.crossDbPlannerEnabled && this._relationPlanner._hasCrossSourceRelations(this.singleRelations)) {
+            return this._loadChunkCrossDb(mainTableObjects)
+        }
+
         if (this._isPrisma) {
             if (this.singleRelations.length === 0 && this.multipleRelations.length === 0) {
                 return mainTableObjects
@@ -145,6 +213,200 @@ class GqlWithKnexLoadList {
             return this._loadChunkPrisma(mainTableObjects)
         }
         return this._loadChunkKnex(mainTableObjects)
+    }
+
+    // Replace nested relation filters with fk _in: query related model on its DB, then filter main list by ids.
+    async _prepareCrossDbWhere (initialWhere) {
+        if (!initialWhere || typeof initialWhere !== 'object') return initialWhere
+        if (!this._relationPlanner._hasCrossSourceRelations(this.singleRelations)) return initialWhere
+
+        this._crossDbRelationIdsCache = this._crossDbRelationIdsCache || new Map()
+        const relationMap = new Map(
+            this.singleRelations
+                .filter(([model, fieldName]) => this._relationPlanner._isCrossSourceRelation(model) && fieldName)
+                .map(([model, fieldName]) => [fieldName, model])
+        )
+
+        if (relationMap.size === 0) return initialWhere
+
+        return this._rewriteCrossDbWhereNode(initialWhere, relationMap)
+    }
+
+    async _rewriteCrossDbWhereNode (node, relationMap) {
+        if (Array.isArray(node)) {
+            return Promise.all(node.map(item => this._rewriteCrossDbWhereNode(item, relationMap)))
+        }
+        if (!node || typeof node !== 'object') return node
+
+        const rewritten = {}
+        for (const [key, value] of Object.entries(node)) {
+            if (key === 'AND' || key === 'OR') {
+                rewritten[key] = await this._rewriteCrossDbWhereNode(value, relationMap)
+                continue
+            }
+            if (key === 'NOT') {
+                rewritten[key] = await this._rewriteCrossDbWhereNode(value, relationMap)
+                continue
+            }
+
+            const directModel = relationMap.get(key)
+            if (directModel && value && typeof value === 'object' && !Array.isArray(value)) {
+                const ids = await this._loadCrossDbRelatedIds(directModel, value)
+                rewritten[`${key}_in`] = ids
+                continue
+            }
+
+            if (key.endsWith('_not')) {
+                const relationField = key.slice(0, -4)
+                const model = relationMap.get(relationField)
+                if (model && value && typeof value === 'object' && !Array.isArray(value)) {
+                    const ids = await this._loadCrossDbRelatedIds(model, value)
+                    if (ids.length > 0) rewritten[`${relationField}_not_in`] = ids
+                    continue
+                }
+            }
+
+            if (key.endsWith('_in') || key.endsWith('_not_in')) {
+                const suffix = key.endsWith('_not_in') ? '_not_in' : '_in'
+                const relationField = key.slice(0, -suffix.length)
+                const model = relationMap.get(relationField)
+                if (model && Array.isArray(value) && value.every(v => v && typeof v === 'object' && !Array.isArray(v))) {
+                    const idsGroups = await Promise.all(value.map(filter => this._loadCrossDbRelatedIds(model, filter)))
+                    const ids = [...new Set(idsGroups.flat())]
+                    if (suffix === '_not_in') {
+                        if (ids.length > 0) rewritten[key] = ids
+                    } else {
+                        rewritten[key] = ids
+                    }
+                    continue
+                }
+            }
+
+            rewritten[key] = await this._rewriteCrossDbWhereNode(value, relationMap)
+        }
+        return rewritten
+    }
+
+    async _loadCrossDbRelatedIds (model, relationWhere) {
+        const cacheKey = `${model}:${JSON.stringify(relationWhere)}`
+        if (this._crossDbRelationIdsCache.has(cacheKey)) {
+            return this._crossDbRelationIdsCache.get(cacheKey)
+        }
+
+        const { keystone: relatedKeystone } = await getSchemaCtx(model)
+        const ids = []
+        let skip = 0
+        let page = 0
+
+        while (page < CROSS_DB_RELATION_MAX_PAGES) {
+            page += 1
+            const relatedRows = await getItems({
+                keystone: relatedKeystone,
+                listKey: model,
+                where: relationWhere,
+                returnFields: 'id',
+                sortBy: ['id_ASC'],
+                first: GLOBAL_QUERY_LIMIT,
+                skip,
+            })
+
+            if (relatedRows.length === 0) break
+
+            ids.push(...relatedRows.map(row => row.id).filter(Boolean))
+            if (ids.length > CROSS_DB_RELATION_IDS_HARD_LIMIT) {
+                throw new Error(`Cross-db relation filter returned too many ids for ${model}. ` +
+                    `Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`)
+            }
+
+            if (relatedRows.length < GLOBAL_QUERY_LIMIT) break
+            skip += relatedRows.length
+        }
+
+        if (page >= CROSS_DB_RELATION_MAX_PAGES) {
+            throw new Error(`Cross-db relation filter reached page limit for ${model}. ` +
+                `Limit: ${CROSS_DB_RELATION_MAX_PAGES}`)
+        }
+
+        this._crossDbRelationIdsCache.set(cacheKey, ids)
+        return ids
+    }
+
+    /** @private */
+    // After main-table rows are loaded: batch-fetch related records from other sources and merge into result.
+    async _loadChunkCrossDb (mainTableObjects) {
+        logger.info({
+            msg: 'cross-db relation planner path selected',
+            listKey: this.listKey,
+            status: this._relationPlanner.consistencyMode,
+            count: mainTableObjects.length,
+            data: {
+                singleRelationsCount: this.singleRelations.length,
+                multipleRelationsCount: this.multipleRelations.length,
+            },
+        })
+
+        if (this.singleRelations.length === 0) {
+            return this._isPrisma ? this._loadChunkPrisma(mainTableObjects) : this._loadChunkKnex(mainTableObjects)
+        }
+
+        const ids = mainTableObjects.map(object => object.id)
+        const resolvedSingleRelations = this.singleRelations.map(([model, fieldName, value, alias]) => ({
+            model,
+            fieldName,
+            value,
+            alias: alias || fieldName,
+            dbColumn: this._isPrisma ? this._resolveDbColumn(fieldName) : fieldName,
+        }))
+
+        const missingFields = resolvedSingleRelations.filter(({ fieldName }) => !(fieldName in (mainTableObjects[0] || {})))
+        let fkById = {}
+        if (missingFields.length > 0) {
+            const columns = ['id', ...missingFields.map(({ dbColumn }) => dbColumn)]
+            const rows = await this._relationPlanner._fetchRows({
+                tableName: this.listKey,
+                columns,
+                values: ids,
+            })
+            fkById = Object.fromEntries(rows.map(row => [row.id, row]))
+        }
+
+        const relationPayload = {}
+        for (const relation of resolvedSingleRelations) {
+            const fkValues = [...new Set(mainTableObjects.map(object => {
+                if (relation.fieldName in object) return object[relation.fieldName]
+                return get(fkById, [object.id, relation.dbColumn], null)
+            }).filter(Boolean))]
+
+            if (fkValues.length === 0) continue
+
+            const rows = await this._relationPlanner._fetchRows({
+                tableName: relation.model,
+                columns: ['id', relation.value],
+                values: fkValues,
+            })
+            const lookup = Object.fromEntries(rows.map(row => [row.id, row[relation.value]]))
+
+            for (const object of mainTableObjects) {
+                const fk = relation.fieldName in object
+                    ? object[relation.fieldName]
+                    : get(fkById, [object.id, relation.dbColumn], null)
+                if (!relationPayload[object.id]) relationPayload[object.id] = {}
+                relationPayload[object.id][relation.alias] = fk ? (lookup[fk] || null) : null
+            }
+        }
+
+        const relationResult = mainTableObjects.map(object => ({ ...object, ...(relationPayload[object.id] || {}) }))
+
+        if (this.multipleRelations.length === 0) {
+            return relationResult
+        }
+
+        logger.info({
+            msg: 'cross-db planner detected multiple relations, fallback to local strategy',
+            listKey: this.listKey,
+            data: { multipleRelationsCount: this.multipleRelations.length },
+        })
+        return this._isPrisma ? this._loadChunkPrisma(mainTableObjects) : this._loadChunkKnex(mainTableObjects)
     }
 
     /** @private */
@@ -298,7 +560,10 @@ class GqlWithKnexLoadList {
         const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
         this.keystone = modelAdapter
         const adapter = getDatabaseAdapter(modelAdapter)
+        this.adapter = adapter
         this._isPrisma = isPrismaAdapter(modelAdapter)
+        const sourceRegistry = getSourceRegistry()
+        const consistencyMode = getConsistencyMode()
         if (this._isPrisma) {
             this.prisma = adapter.prisma
             this._listAdapter = adapter.listAdapters[this.listKey]
@@ -311,6 +576,15 @@ class GqlWithKnexLoadList {
         } else {
             this.knex = adapter.knex
         }
+        this._relationPlanner = new RelationExecutionPlanner({
+            listKey: this.listKey,
+            adapter: this.adapter,
+            isPrisma: this._isPrisma,
+            prisma: this.prisma,
+            knex: this.knex,
+            sourceRegistry,
+            consistencyMode,
+        })
     }
 
     /**
