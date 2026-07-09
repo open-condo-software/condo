@@ -237,11 +237,38 @@ describe('B2BApp', () => {
         })
     })
     describe('Resolvers', () => {
+        describe('isDomainsMappingEnabled field', () => {
+            test('Must be set to true by default for all new B2BApps', async () => {
+                const [app] = await createTestB2BApp(support)
+                expect(app).toHaveProperty('isDomainsMappingEnabled', true)
+            })
+        })
         describe('domains field', () => {
             test('should initially return empty mapping', async () => {
                 const [app] = await createTestB2BApp(support)
                 const appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains).toEqual({ mapping: [] })
+            })
+
+            test('should return empty mapping if isDomainsMappingEnabled set to false', async () => {
+                const [app] = await createTestB2BApp(support, {
+                    appUrl: 'https://main.example.com/app',
+                    additionalDomains: ['https://cdn.example.com'],
+                    isDomainsMappingEnabled: false,
+                })
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains).toEqual({ mapping: [] })
+            })
+
+            test('should return domains mapping if isDomainsMappingEnabled set to true', async () => {
+                const [app] = await createTestB2BApp(support, {
+                    appUrl: 'https://main.example.com/app',
+                    isDomainsMappingEnabled: true,
+                })
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toEqual([
+                    { from: 'https://main.example.com', to: expectedAppDomain(app.id, 1) },
+                ])
             })
 
             test('should show correct resolution order', async () => {

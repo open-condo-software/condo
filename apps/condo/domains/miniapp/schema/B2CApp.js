@@ -23,7 +23,7 @@ const {
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { NATIVE_APP_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/nativeAppFeatures')
 
-const { OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD, ADDITIONAL_DOMAINS_FIELD } = require('./fields/domains')
+const { OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD, ADDITIONAL_DOMAINS_FIELD, IS_MAPPING_ENABLED_FIELD } = require('./fields/domains')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
@@ -59,6 +59,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
         appUrl: IFRAME_URL_FIELD,
         additionalDomains: ADDITIONAL_DOMAINS_FIELD,
         oidcClient: OIDC_CLIENT_FIELD,
+        isDomainsMappingEnabled: IS_MAPPING_ENABLED_FIELD,
         domains: MINIAPP_DOMAINS_FIELD,
         externalLinks: EXTERNAL_LINKS_FIELD,
         currentBuild: {
