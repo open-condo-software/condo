@@ -10,6 +10,7 @@ const mjml2html = require('mjml')
 const Nunjucks = require('nunjucks')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n, getLocalized, renderTranslation } = require('@open-condo/locales/loader')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -24,6 +25,8 @@ const {
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
 } = require('./constants/constants')
+
+const logger = getLogger()
 
 const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
@@ -319,6 +322,7 @@ function pushRenderer ({ message, env, additionalParams }) {
 
     const appId = additionalParams?.appId
     const overridesForAppId = PUSH_MESSAGE_OVERRIDES?.[appId]
+    logger.info({ msg: 'pushRenderer', data: { appId, locale, type, hasOverride: !!overridesForAppId } })
 
     const titleKey = translationStringKeyForPushTitle(type)
     const bodyKey = translationStringKeyForPushBody(type)
