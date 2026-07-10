@@ -9682,9 +9682,8 @@ __metadata:
     express: "catalog:"
     lodash: "catalog:"
   peerDependencies:
-    next: "*"
-    react: "*"
-    react-dom: "*"
+    next: ">=15"
+    react: ">=18.3.1"
   languageName: unknown
   linkType: soft
 
@@ -9976,7 +9975,7 @@ __metadata:
   resolution: "@open-condo/surveys@workspace:packages/surveys"
   peerDependencies:
     posthog-js: ">=1.364.1"
-    react: "*"
+    react: ">=18.3.1"
   languageName: unknown
   linkType: soft
 

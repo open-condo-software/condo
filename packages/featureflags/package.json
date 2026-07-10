@@ -12,9 +12,8 @@
     "lodash": "catalog:"
   },
   "peerDependencies": {
-    "next": "*",
-    "react": "*",
-    "react-dom": "*"
+    "next": ">=15",
+    "react": ">=18.3.1"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/featureflags"
 }
