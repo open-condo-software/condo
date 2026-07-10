@@ -126,6 +126,7 @@ jobs:
       # See dorny/paths-filter@v3 required permissions https://github.com/dorny/paths-filter?tab=readme-ov-file#conditional-execution
       pull-requests: read
     outputs:
+      force-all: ${{ steps.detect-changes.outputs.force-all }}
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-portal-api: ${{ steps.detect-changes.outputs.dev-portal-api }}
       eps: ${{ steps.detect-changes.outputs.eps }}
@@ -157,6 +158,8 @@ jobs:
         id: detect-changes
         with:
           filters: |
+            force-all:
+              - '.yarnrc.yml'
             accruals-gateway:
               - 'apps/accruals-gateway/**'
               - 'apps/condo/domains/acquiring/**'
@@ -311,7 +314,7 @@ jobs:
     needs:
       - authorize
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.open-condo == 'true' }}
+    if: ${{ needs.detect-changes.outputs.open-condo == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     strategy:
       matrix:
 #        TODO: Fix windows "too many files open" runner issue
@@ -377,7 +380,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.address-service == 'true' }}
+    if: ${{ needs.detect-changes.outputs.address-service == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -463,7 +466,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.dev-portal-api == 'true' }}
+    if: ${{ needs.detect-changes.outputs.dev-portal-api == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -531,7 +534,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.eps == 'true' }}
+    if: ${{ needs.detect-changes.outputs.eps == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -583,7 +586,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.meter-importer == 'true' }}
+    if: ${{ needs.detect-changes.outputs.meter-importer == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -635,7 +638,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.pos-integration == 'true' }}
+    if: ${{ needs.detect-changes.outputs.pos-integration == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -687,7 +690,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.accruals-gateway == 'true' }}
+    if: ${{ needs.detect-changes.outputs.accruals-gateway == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
@@ -739,7 +742,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.external-api == 'true' }}
+    if: ${{ needs.detect-changes.outputs.external-api == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -786,7 +789,7 @@ jobs:
     needs:
       - authorize
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.migrator == 'true' }}
+    if: ${{ needs.detect-changes.outputs.migrator == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -813,7 +816,7 @@ jobs:
     needs:
       - authorize
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.miniapp-utils == 'true' }}
+    if: ${{ needs.detect-changes.outputs.miniapp-utils == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -841,7 +844,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.rb == 'true' }}
+    if: ${{ needs.detect-changes.outputs.rb == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -893,7 +896,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.registry-importer == 'true' }}
+    if: ${{ needs.detect-changes.outputs.registry-importer == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -945,7 +948,7 @@ jobs:
     needs:
       - authorize
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.resident-app == 'true' }}
+    if: ${{ needs.detect-changes.outputs.resident-app == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -974,7 +977,7 @@ jobs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.ecom-gateway == 'true' }}
+    if: ${{ needs.detect-changes.outputs.ecom-gateway == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
@@ -1024,7 +1027,7 @@ jobs:
     needs:
       - authorize
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.webhooks == 'true' }}
+    if: ${{ needs.detect-changes.outputs.webhooks == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
