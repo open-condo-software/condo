@@ -17,11 +17,13 @@ export const IFRAME_PERMISSIONS_SCHEMA = z.object({
     isMicrophoneAllowed: z.boolean().nullish().default(false),
     isCameraAllowed: z.boolean().nullish().default(false),
     isSpeakerSelectionAllowed: z.boolean().nullish().default(false),
+    isClipboardWriteAllowed: z.boolean().nullish().default(false),
 }).default({
     isFullscreenAllowed: false,
     isMicrophoneAllowed: false,
     isCameraAllowed: false,
     isSpeakerSelectionAllowed: false,
+    isClipboardWriteAllowed: false,
 })
 export const IFRAME_METADATA_SCHEMA = z.object({
     domainsMapping,
@@ -34,6 +36,7 @@ export function buildAllowString (permissions: Partial<IFramePermissions>): stri
         permissions.isMicrophoneAllowed ? 'microphone' : null,
         permissions.isCameraAllowed ? 'camera' : null,
         permissions.isSpeakerSelectionAllowed ? 'speaker-selection' : null,
+        permissions.isClipboardWriteAllowed ? 'clipboard-write' : null,
     ].filter(nonNull).join('; ')
 }
 
