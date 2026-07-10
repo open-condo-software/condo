@@ -37,19 +37,20 @@
     "access": "public"
   },
   "devDependencies": {
-    "@faker-js/faker": "catalog:",
+    "@faker-js/faker": "^7.6.0",
     "@open-condo/tsconfig": "workspace:^",
     "@types/ioredis": "^4.28.5",
-    "@types/node": "catalog:",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24",
     "@types/prompts": "^2.4.9",
     "@types/tmp": "^0.2.6",
     "execa": "^5.0.0",
-    "jest": "catalog:",
+    "jest": "^29.7.0",
     "testcontainers": "^11.7.0",
     "tmp": "^0.2.3",
-    "ts-jest": "catalog:",
+    "ts-jest": "^29.4.0",
     "tsup": "^8.3.6",
-    "typescript": "catalog:"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "cli-table3": "^0.6.5",
