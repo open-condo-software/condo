@@ -1,5 +1,4 @@
 const chunk = require('lodash/chunk')
-const get = require('lodash/get')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
 const { find } = require('@open-condo/keystone/schema')
@@ -22,8 +21,8 @@ async function normalizeAddresses (addresses, tin, addressService) {
         })
 
         for (const address of addressChunk) {
-            const addressKey = get(result, ['map', address, 'data', 'addressKey'])
-            const normalizedAddress = get(result, ['addresses', addressKey, 'address'])
+            const addressKey = result?.map?.[address]?.data?.addressKey
+            const normalizedAddress = addressKey ? result?.addresses?.[addressKey]?.address : undefined
 
             if (addressKey && normalizedAddress) {
                 normalizedAddresses[address] = {
