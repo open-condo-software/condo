@@ -13,11 +13,11 @@ const mappingRule = z.object({
 const domainsMapping = z.array(mappingRule)
 
 export const IFRAME_PERMISSIONS_SCHEMA = z.object({
-    isFullscreenAllowed: z.boolean().nullish().default(false),
-    isMicrophoneAllowed: z.boolean().nullish().default(false),
-    isCameraAllowed: z.boolean().nullish().default(false),
-    isSpeakerSelectionAllowed: z.boolean().nullish().default(false),
-    isClipboardWriteAllowed: z.boolean().nullish().default(false),
+    isFullscreenAllowed: z.boolean().nullish().transform(v => v ?? false),
+    isMicrophoneAllowed: z.boolean().nullish().transform(v => v ?? false),
+    isCameraAllowed: z.boolean().nullish().transform(v => v ?? false),
+    isSpeakerSelectionAllowed: z.boolean().nullish().transform(v => v ?? false),
+    isClipboardWriteAllowed: z.boolean().nullish().transform(v => v ?? false),
 }).default({
     isFullscreenAllowed: false,
     isMicrophoneAllowed: false,
