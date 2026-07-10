@@ -63,7 +63,7 @@ async function resolvePropertyMeterAddressesForOrganization ({
             addressKey_in: addressKeys,
         })
         : []
-    console.log('properties', properties, 'addressKeys', addressKeys, 'normalizedAddresses', normalizedAddresses)
+
     const organizationPropertyAddressKeys = new Set(properties.map(({ addressKey }) => addressKey))
 
     const resolvedAddresses = readings.reduce((index, reading) => {
