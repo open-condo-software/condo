@@ -72706,6 +72706,10 @@ type B2BAppHistoryRecord {
   menuCategory: String
   contextDefaultStatus: String
   category: String
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   features: JSON
   displayPriority: Int
   label: String
@@ -72923,6 +72927,14 @@ input B2BAppHistoryRecordWhereInput {
   category_not_ends_with_i: String
   category_in: [String]
   category_not_in: [String]
+  isFullscreenAllowed: Boolean
+  isFullscreenAllowed_not: Boolean
+  isMicrophoneAllowed: Boolean
+  isMicrophoneAllowed_not: Boolean
+  isCameraAllowed: Boolean
+  isCameraAllowed_not: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isSpeakerSelectionAllowed_not: Boolean
   features: JSON
   features_not: JSON
   features_in: [JSON]
@@ -73138,6 +73150,14 @@ enum SortB2BAppHistoryRecordsBy {
   contextDefaultStatus_DESC
   category_ASC
   category_DESC
+  isFullscreenAllowed_ASC
+  isFullscreenAllowed_DESC
+  isMicrophoneAllowed_ASC
+  isMicrophoneAllowed_DESC
+  isCameraAllowed_ASC
+  isCameraAllowed_DESC
+  isSpeakerSelectionAllowed_ASC
+  isSpeakerSelectionAllowed_DESC
   displayPriority_ASC
   displayPriority_DESC
   label_ASC
@@ -73185,6 +73205,10 @@ input B2BAppHistoryRecordUpdateInput {
   menuCategory: String
   contextDefaultStatus: String
   category: String
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   features: JSON
   displayPriority: Int
   label: String
@@ -73234,6 +73258,10 @@ input B2BAppHistoryRecordCreateInput {
   menuCategory: String
   contextDefaultStatus: String
   category: String
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   features: JSON
   displayPriority: Int
   label: String
@@ -73567,6 +73595,19 @@ type B2BApp {
   """
   category: B2BAppCategoryType
 
+  """ Controls whether the mini-app can use “fullscreen” device permission """
+  isFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permission """
+  isMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permission """
+  isCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permission 
+  """
+  isSpeakerSelectionAllowed: Boolean
+
   """ Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application 
   """
   accessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight!]!
@@ -73783,6 +73824,14 @@ input B2BAppWhereInput {
   category_not: B2BAppCategoryType
   category_in: [B2BAppCategoryType]
   category_not_in: [B2BAppCategoryType]
+  isFullscreenAllowed: Boolean
+  isFullscreenAllowed_not: Boolean
+  isMicrophoneAllowed: Boolean
+  isMicrophoneAllowed_not: Boolean
+  isCameraAllowed: Boolean
+  isCameraAllowed_not: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isSpeakerSelectionAllowed_not: Boolean
 
   """ condition must be true for all nodes """
   accessRights_every: B2BAppAccessRightWhereInput
@@ -73969,6 +74018,14 @@ enum SortB2BAppsBy {
   contextDefaultStatus_DESC
   category_ASC
   category_DESC
+  isFullscreenAllowed_ASC
+  isFullscreenAllowed_DESC
+  isMicrophoneAllowed_ASC
+  isMicrophoneAllowed_DESC
+  isCameraAllowed_ASC
+  isCameraAllowed_DESC
+  isSpeakerSelectionAllowed_ASC
+  isSpeakerSelectionAllowed_DESC
   accessRights_ASC
   accessRights_DESC
   displayPriority_ASC
@@ -74026,6 +74083,10 @@ input B2BAppUpdateInput {
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
   category: B2BAppCategoryType
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
@@ -74073,6 +74134,10 @@ input B2BAppCreateInput {
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
   category: B2BAppCategoryType
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int

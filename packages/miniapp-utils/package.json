@@ -60,6 +60,9 @@
       "helpers/i18n": [
         "dist/helpers/i18n.d.ts"
       ],
+      "helpers/iframe": [
+        "dist/helpers/iframe.d.ts"
+      ],
       "helpers/ip": [
         "dist/helpers/ip/index.d.ts"
       ],
@@ -146,6 +149,11 @@
       "types": "./dist/helpers/i18n.d.ts",
       "require": "./dist/helpers/i18n.js",
       "import": "./dist/helpers/i18n.mjs"
+    },
+    "./helpers/iframe": {
+      "types": "./dist/helpers/iframe.d.ts",
+      "require": "./dist/helpers/iframe.js",
+      "import": "./dist/helpers/iframe.mjs"
     },
     "./helpers/ip": {
       "types": "./dist/helpers/ip/index.d.ts",
