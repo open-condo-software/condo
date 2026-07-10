@@ -1,10 +1,11 @@
-const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
-
 const {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
 } = require('./validateCrossSourceReferences')
+
+const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
+
 
 function createMessageListAdapter () {
     return {
@@ -136,11 +137,11 @@ describe('validateCrossSourceReferences', () => {
                 'values ($1, $2, $3) returning *',
             ].join(' ')
 
-            expect(extractMutationColumnValues(sql, ['user-1', null, 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'])).toEqual({
+            expect(extractMutationColumnValues(sql, ['user-1', null, 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'])).toEqual([{
                 user: 'user-1',
                 remoteClient: null,
                 type: 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE',
-            })
+            }])
         })
 
         test('maps INSERT knex placeholders to column names', () => {
@@ -150,33 +151,46 @@ describe('validateCrossSourceReferences', () => {
                 'values (?, ?, ?) returning *',
             ].join(' ')
 
-            expect(extractMutationColumnValues(sql, ['user-1', null, 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'])).toEqual({
+            expect(extractMutationColumnValues(sql, ['user-1', null, 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'])).toEqual([{
                 user: 'user-1',
                 remoteClient: null,
                 type: 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE',
-            })
+            }])
         })
 
         test('maps UPDATE SET assignments to column names', () => {
             const sql = 'update "public"."Message" set "user" = $1, "status" = $2 where "id" = $3 returning *'
 
-            expect(extractMutationColumnValues(sql, ['user-2', 'sent', 'message-1'])).toEqual({
+            expect(extractMutationColumnValues(sql, ['user-2', 'sent', 'message-1'])).toEqual([{
                 user: 'user-2',
                 status: 'sent',
-            })
+            }])
         })
 
         test('maps UPDATE knex placeholders to column names', () => {
             const sql = 'update "public"."Message" set "user" = ?, "status" = ? where "id" = ? returning *'
 
-            expect(extractMutationColumnValues(sql, ['user-2', 'sent', 'message-1'])).toEqual({
+            expect(extractMutationColumnValues(sql, ['user-2', 'sent', 'message-1'])).toEqual([{
                 user: 'user-2',
                 status: 'sent',
-            })
+            }])
         })
 
-        test('returns empty object for unsupported SQL', () => {
-            expect(extractMutationColumnValues('select 1')).toEqual({})
+        test('returns empty array for unsupported SQL', () => {
+            expect(extractMutationColumnValues('select 1')).toEqual([])
+        })
+
+        test('maps every INSERT value row for multi-row statements', () => {
+            const sql = [
+                'insert into "public"."Message"',
+                '("user", "type")',
+                'values ($1, $2), ($3, $4) returning *',
+            ].join(' ')
+
+            expect(extractMutationColumnValues(sql, ['user-1', 'TYPE_A', 'user-2', 'TYPE_B'])).toEqual([
+                { user: 'user-1', type: 'TYPE_A' },
+                { user: 'user-2', type: 'TYPE_B' },
+            ])
         })
     })
 
@@ -216,6 +230,22 @@ describe('validateCrossSourceReferences', () => {
                 sqlOperationName: 'insert',
                 sourceRegistry,
                 getPoolByName: createGetPoolByName({ existingIdsByTable: { User: [] } }),
+            })).rejects.toThrow(
+                'Cross-database foreign key violation: Message.user references missing User id "missing-user"',
+            )
+        })
+
+        test('validates every row in multi-row INSERT statements', async () => {
+            await expect(validateCrossSourceReferences({
+                tableName: 'Message',
+                listAdapter: createMessageListAdapter(),
+                sql: 'insert into "public"."Message" ("user", "type") values ($1, $2), ($3, $4) returning *',
+                bindings: ['existing-user', 'TYPE_A', 'missing-user', 'TYPE_B'],
+                sqlOperationName: 'insert',
+                sourceRegistry,
+                getPoolByName: createGetPoolByName({
+                    existingIdsByTable: { User: [{ id: 'existing-user' }] },
+                }),
             })).rejects.toThrow(
                 'Cross-database foreign key violation: Message.user references missing User id "missing-user"',
             )
