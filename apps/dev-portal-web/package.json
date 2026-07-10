@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@app/dev-portal-api": "workspace:^",
-    "@graphql-codegen/cli": "^6.2.0",
+    "@graphql-codegen/cli": "catalog:",
     "@graphql-codegen/typescript": "^5.0.9",
     "@graphql-codegen/typescript-operations": "^5.0.9",
     "@graphql-codegen/typescript-react-apollo": "^4.4.1",
