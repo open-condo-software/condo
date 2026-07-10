@@ -2511,6 +2511,7 @@
   "pages.condo.payments.createBillingLabel": "View list of integrations",
   "pages.condo.payments.enterBillingAddress": "Enter billing address",
   "pages.condo.payments.enterStatus": "Enter status",
+  "pages.condo.payments.enterSource": "Enter source name",
   "pages.condo.payments.enterType": "Enter type name",
   "pages.condo.payments.noAcquiringLabel": "Residents can't pay their bills using mobile application yet",
   "pages.condo.payments.noAcquiringMessage": "For this opportunity to appear, you need to submit an application for connecting the service 'Settlement Bank'",

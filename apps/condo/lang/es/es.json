@@ -2518,6 +2518,7 @@
   "pages.condo.payments.posReceiptLink": "Ver",
   "pages.condo.payments.posReceiptVerifyTitle": "Verifique la exactitud del recibo",
   "pages.condo.payments.posReceiptVerifyDescription": "Si todos los datos son correctos, puede activar la fiscalización. Si hay errores, contacte al soporte técnico.",
+  "pages.condo.payments.enterSource": "Introduzca el nombre del origen",
   "pages.condo.payments.type": "Tipo",
   "pages.condo.phone.table.lastComment": "Último comentario",
   "pages.condo.profile.2FA.title": "Autenticación de dos factores",
