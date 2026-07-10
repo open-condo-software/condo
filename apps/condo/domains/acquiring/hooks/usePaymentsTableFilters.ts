@@ -37,9 +37,8 @@ export function usePaymentsTableFilters (
     const TransferDateMessage = intl.formatMessage({ id: 'TransferDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.payments.billingAddress' })
-    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.payments.enterBillingAddress' })
-    const TypeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
-    const EnterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
+    const SourceMessage = intl.formatMessage({ id: 'field.Source' })
+    const EnterSourceMessage = intl.formatMessage({ id: 'pages.condo.payments.enterSource' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
@@ -105,11 +104,11 @@ export function usePaymentsTableFilters (
                         search: searchAcquiringIntegration(organizationId),
                         mode: 'multiple',
                         showArrow: true,
-                        placeholder: EnterTypeMessage,
+                        placeholder: EnterSourceMessage,
                         infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
-                        label: TypeMessage,
+                        label: SourceMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -157,10 +156,10 @@ export function usePaymentsTableFilters (
     }, [
         AccountTitle, AddressMessage,
         DepositedDateMessage, TransferDateMessage, EndDateMessage,
-        EnterAddressMessage, EnterStatusMessage,
-        EnterTypeMessage, PaymentOrderTitle,
+        EnterStatusMessage,
+        EnterSourceMessage, PaymentOrderTitle,
         StartDateMessage, StatusTitle,
-        TypeMessage,
+        SourceMessage,
         organizationId, statusOptions,
     ])
 
