@@ -55,7 +55,7 @@
     "big.js": "^6.2.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "@open-condo/tsconfig": "workspace:^",
     "@types/big.js": "^6.2.2",
     "@types/node": "catalog:",

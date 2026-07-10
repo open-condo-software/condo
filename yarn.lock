@@ -559,7 +559,7 @@ __metadata:
   resolution: "@app/accruals-gateway@workspace:apps/accruals-gateway"
   dependencies:
     "@accruals-gateway/domains": "link:./domains"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
@@ -657,7 +657,7 @@ __metadata:
   dependencies:
     "@app/accruals-gateway": "workspace:^"
     "@b2b-payments-gateway/domains": "link:./domains"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
@@ -797,7 +797,7 @@ __metadata:
     "@emotion/react": "catalog:"
     "@emotion/server": "catalog:"
     "@emotion/styled": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@ffmpeg/ffmpeg": "npm:^0.12.15"
     "@graphql-codegen/cli": "catalog:"
     "@graphql-codegen/import-types-preset": "npm:^4.0.0"
@@ -943,7 +943,7 @@ __metadata:
   dependencies:
     "@apollo/client": "catalog:"
     "@debt-management/domains": "link:./domains"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-codegen/cli": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
@@ -987,7 +987,7 @@ __metadata:
   dependencies:
     "@app/condo": "workspace:^"
     "@dev-portal-api/domains": "link:./domains"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -1091,7 +1091,7 @@ __metadata:
   resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
   dependencies:
     "@ecom-gateway/domains": "link:./domains"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
@@ -1157,7 +1157,7 @@ __metadata:
     "@emotion/react": "catalog:"
     "@emotion/styled": "catalog:"
     "@eps/domains": "link:./domains"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-arch-ui/button": "npm:^1.0.1"
     "@open-arch-ui/color-utils": "npm:^1.0.1"
     "@open-arch-ui/common": "npm:^1.0.1"
@@ -1247,7 +1247,7 @@ __metadata:
     "@emotion/react": "catalog:"
     "@emotion/server": "catalog:"
     "@emotion/styled": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-codegen/cli": "catalog:"
     "@insurance/domains": "link:./domains"
     "@open-condo/cli": "workspace:^"
@@ -1524,7 +1524,7 @@ __metadata:
   resolution: "@app/pos-integration@workspace:apps/pos-integration"
   dependencies:
     "@apollo/client": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-codegen/cli": "catalog:"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-tools/graphql-file-loader": "catalog:"
@@ -1650,7 +1650,7 @@ __metadata:
     "@emotion/cache": "catalog:"
     "@emotion/react": "catalog:"
     "@emotion/server": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
     "@open-condo/apollo-server-client": "workspace:^"
@@ -1929,7 +1929,7 @@ __metadata:
   resolution: "@app/ticket-importer@workspace:apps/ticket-importer"
   dependencies:
     "@apollo/client": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
     "@maxhub/max-bot-api": "npm:^0.2.2"
@@ -9575,7 +9575,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/billing@workspace:packages/billing"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-condo/tsconfig": "workspace:^"
     "@types/big.js": "npm:^6.2.2"
     "@types/node": "catalog:"
@@ -9622,7 +9622,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/clients@workspace:packages/clients"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     lodash: "catalog:"
@@ -9635,7 +9635,7 @@ __metadata:
   resolution: "@open-condo/codegen@workspace:packages/codegen"
   dependencies:
     "@apollo/client": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-typed-document-node/core": "npm:^3.1.1"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -9692,7 +9692,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/files@workspace:packages/files"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -9752,7 +9752,7 @@ __metadata:
     "@ant-design/icons": "npm:6.0.0"
     "@apollo/client": "catalog:"
     "@emotion/react": "catalog:"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/links": "catalog:"
     "@graphql-tools/load": "catalog:"
@@ -9882,7 +9882,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/migrator@workspace:packages/migrator"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-condo/tsconfig": "workspace:^"
     "@types/ioredis": "npm:^4.28.5"
     "@types/node": "catalog:"
@@ -10071,7 +10071,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/webhooks@workspace:packages/webhooks"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -37580,7 +37580,7 @@ __metadata:
     "@commitlint/cli": "npm:^17.1.2"
     "@commitlint/config-conventional": "npm:^17.1.0"
     "@commitlint/lint": "npm:^17.1.0"
-    "@faker-js/faker": "npm:^7.6.0"
+    "@faker-js/faker": "catalog:"
     "@jest/reporters": "npm:^29.7.0"
     "@mono-pub/commit-analyzer": "npm:^1.0.5"
     "@mono-pub/git": "npm:^1.0.5"

@@ -5,7 +5,7 @@
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/codegen",
   "dependencies": {
     "@apollo/client": "catalog:",
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "@graphql-typed-document-node/core": "^3.1.1",
     "@open-condo/config": "workspace:^",
     "@open-condo/keystone": "workspace:^",

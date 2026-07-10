@@ -141,7 +141,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "@graphql-codegen/cli": "catalog:",
     "@graphql-codegen/import-types-preset": "^4.0.0",
     "@graphql-codegen/typescript": "^5.0.9",

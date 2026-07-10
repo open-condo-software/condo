@@ -118,7 +118,7 @@
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/keystone",
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "babel-jest": "^29.7.0",
     "jest": "catalog:"
   },

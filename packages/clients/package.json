@@ -9,7 +9,7 @@
         "clients"
     ],
     "dependencies": {
-        "@faker-js/faker": "^7.6.0",
+        "@faker-js/faker": "catalog:",
         "@open-condo/config": "workspace:^",
         "@open-condo/keystone": "workspace:^",
         "lodash": "catalog:",

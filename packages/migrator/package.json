@@ -37,7 +37,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "@open-condo/tsconfig": "workspace:^",
     "@types/ioredis": "^4.28.5",
     "@types/node": "catalog:",

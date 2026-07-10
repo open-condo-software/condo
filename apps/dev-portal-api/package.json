@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@dev-portal-api/domains": "link:./domains",
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "@open-condo/apollo-server-client": "workspace:^",
     "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",

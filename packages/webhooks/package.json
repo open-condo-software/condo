@@ -34,7 +34,7 @@
     "pluralize": "catalog:"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "express": "catalog:",
     "jest": "catalog:",
     "jest-jasmine2": "catalog:",
