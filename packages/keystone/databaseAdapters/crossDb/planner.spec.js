@@ -170,6 +170,17 @@ describe('CrossDbPlanner.prepareWhere', () => {
 
         expect(result).toEqual({ user: { id_in: ['user-1', 'user-2'] } })
     })
+
+    test('rewrites empty positive relation _in groups to nested id_in []', async () => {
+        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getItems.mockResolvedValueOnce([])
+
+        const result = await planner.prepareWhere({
+            user_in: [{ name_contains: 'missing' }],
+        })
+
+        expect(result).toEqual({ user: { id_in: [] } })
+    })
 })
 
 describe('prepareCrossDbWhere', () => {

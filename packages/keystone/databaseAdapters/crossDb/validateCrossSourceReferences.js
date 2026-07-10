@@ -9,6 +9,59 @@ const { Parser } = require('node-sql-parser/build/postgresql')
 
 const parser = new Parser()
 
+function _appendLineCommentChar (char, state) {
+    state.normalizedSql += char
+    if (char === '\n') state.lineComment = false
+}
+
+function _appendBlockCommentChar (char, nextChar, sql, index, state) {
+    state.normalizedSql += char
+    if (char === '*' && nextChar === '/') {
+        state.normalizedSql += nextChar
+        state.index = index + 1
+        state.blockCommentDepth -= 1
+        return
+    }
+    if (char === '/' && nextChar === '*') {
+        state.normalizedSql += nextChar
+        state.index = index + 1
+        state.blockCommentDepth += 1
+    }
+}
+
+function _appendQuotedChar (char, nextChar, state) {
+    state.normalizedSql += char
+    if (char === state.quoteChar) {
+        if (nextChar === state.quoteChar) {
+            state.normalizedSql += nextChar
+            state.index += 1
+        } else {
+            state.quoteChar = null
+        }
+    }
+}
+
+function _tryStartCommentOrQuote (char, nextChar, index, state) {
+    if (char === '-' && nextChar === '-') {
+        state.normalizedSql += char + nextChar
+        state.index = index + 1
+        state.lineComment = true
+        return true
+    }
+    if (char === '/' && nextChar === '*') {
+        state.normalizedSql += char + nextChar
+        state.index = index + 1
+        state.blockCommentDepth = 1
+        return true
+    }
+    if (char === '\'' || char === '"') {
+        state.normalizedSql += char
+        state.quoteChar = char
+        return true
+    }
+    return false
+}
+
 /**
  * Convert Knex `?` placeholders into PostgreSQL-style `$1`, `$2`, ... placeholders
  * so `node-sql-parser` can parse mutation SQL produced before `positionBindings()`.
@@ -20,80 +73,46 @@ const parser = new Parser()
 function _normalizePositionalBindings (sql) {
     if (!sql || !sql.includes('?')) return sql
 
-    let bindingIndex = 0
-    let normalizedSql = ''
-    let quoteChar = null
-    let lineComment = false
-    let blockCommentDepth = 0
-
-    for (let i = 0; i < sql.length; i++) {
-        const char = sql[i]
-        const nextChar = sql[i + 1]
-
-        if (lineComment) {
-            normalizedSql += char
-            if (char === '\n') lineComment = false
-            continue
-        }
-
-        if (blockCommentDepth > 0) {
-            normalizedSql += char
-            if (char === '/' && sql[i - 1] === '*') blockCommentDepth -= 1
-            else if (char === '*' && nextChar === '/') {
-                normalizedSql += nextChar
-                i += 1
-                blockCommentDepth -= 1
-            } else if (char === '/' && nextChar === '*') {
-                normalizedSql += nextChar
-                i += 1
-                blockCommentDepth += 1
-            }
-            continue
-        }
-
-        if (quoteChar) {
-            normalizedSql += char
-            if (char === quoteChar) {
-                if (nextChar === quoteChar) {
-                    normalizedSql += nextChar
-                    i += 1
-                } else {
-                    quoteChar = null
-                }
-            }
-            continue
-        }
-
-        if (char === '-' && nextChar === '-') {
-            normalizedSql += char + nextChar
-            i += 1
-            lineComment = true
-            continue
-        }
-
-        if (char === '/' && nextChar === '*') {
-            normalizedSql += char + nextChar
-            i += 1
-            blockCommentDepth = 1
-            continue
-        }
-
-        if (char === '\'' || char === '"') {
-            normalizedSql += char
-            quoteChar = char
-            continue
-        }
-
-        if (char === '?') {
-            bindingIndex += 1
-            normalizedSql += `$${bindingIndex}`
-            continue
-        }
-
-        normalizedSql += char
+    const state = {
+        bindingIndex: 0,
+        normalizedSql: '',
+        quoteChar: null,
+        lineComment: false,
+        blockCommentDepth: 0,
+        index: 0,
     }
 
-    return normalizedSql
+    for (state.index = 0; state.index < sql.length; state.index++) {
+        const char = sql[state.index]
+        const nextChar = sql[state.index + 1]
+
+        if (state.lineComment) {
+            _appendLineCommentChar(char, state)
+            continue
+        }
+
+        if (state.blockCommentDepth > 0) {
+            _appendBlockCommentChar(char, nextChar, sql, state.index, state)
+            continue
+        }
+
+        if (state.quoteChar) {
+            _appendQuotedChar(char, nextChar, state)
+            continue
+        }
+
+        if (_tryStartCommentOrQuote(char, nextChar, state.index, state)) continue
+
+        if (char === '?') {
+            state.bindingIndex += 1
+            state.normalizedSql += `$${state.bindingIndex}`
+            continue
+        }
+
+        state.normalizedSql += char
+    }
+
+    return state.normalizedSql
 }
 
 /**
@@ -125,7 +144,7 @@ function _resolveSqlValue (node, bindings) {
 }
 
 /**
- * @param {object} columnNode
+ * @param {*} columnNode
  * @returns {string|null}
  */
 function _normalizeColumnName (columnNode) {
@@ -143,27 +162,38 @@ function _normalizeColumnName (columnNode) {
 }
 
 /**
+ * @param {object} valueRow
+ * @param {string[]} columns
+ * @param {Array} bindings
+ * @returns {Record<string, *>|null}
+ */
+function _mapInsertValueRow (valueRow, columns, bindings) {
+    if (!valueRow || columns.length !== valueRow.length) return null
+
+    const result = {}
+    for (let i = 0; i < columns.length; i++) {
+        result[columns[i]] = _resolveSqlValue(valueRow[i], bindings)
+    }
+    return result
+}
+
+/**
  * @param {string} sql
  * @param {Array} bindings
- * @returns {Record<string, *>}
+ * @returns {Array<Record<string, *>>}
  */
 function extractMutationColumnValues (sql, bindings = []) {
     let ast = parser.astify(_normalizePositionalBindings(sql))
     if (Array.isArray(ast)) {
-        if (ast.length !== 1) return {}
+        if (ast.length !== 1) return []
         ast = ast[0]
     }
 
     if (ast.type === 'insert') {
         const columns = (ast.columns || []).map(_normalizeColumnName).filter(Boolean)
-        const valueRow = ast.values?.[0]?.value
-        if (!valueRow || columns.length !== valueRow.length) return {}
-
-        const result = {}
-        for (let i = 0; i < columns.length; i++) {
-            result[columns[i]] = _resolveSqlValue(valueRow[i], bindings)
-        }
-        return result
+        return (ast.values || [])
+            .map(valueGroup => _mapInsertValueRow(valueGroup?.value, columns, bindings))
+            .filter(Boolean)
     }
 
     if (ast.type === 'update') {
@@ -173,10 +203,10 @@ function extractMutationColumnValues (sql, bindings = []) {
             if (!columnName) continue
             result[columnName] = _resolveSqlValue(item.value, bindings)
         }
-        return result
+        return Object.keys(result).length ? [result] : []
     }
 
-    return {}
+    return []
 }
 
 /**
@@ -247,26 +277,28 @@ async function validateCrossSourceReferences ({
     })
     if (!crossSourceFields.length) return
 
-    const columnValues = extractMutationColumnValues(sql, bindings)
-    if (!Object.keys(columnValues).length) return
+    const columnValueRows = extractMutationColumnValues(sql, bindings)
+    if (!columnValueRows.length) return
 
-    for (const { columnName, refListKey } of crossSourceFields) {
-        const fkValue = columnValues[columnName]
-        if (!_isPresentFkValue(fkValue)) continue
+    for (const columnValues of columnValueRows) {
+        for (const { columnName, refListKey } of crossSourceFields) {
+            const fkValue = columnValues[columnName]
+            if (!_isPresentFkValue(fkValue)) continue
 
-        const relatedPoolName = sourceRegistry.resolveSource(refListKey)
-        const relatedPool = getPoolByName(relatedPoolName)
-        const relatedClient = relatedPool.getKnexClient()
-        const relatedRow = await relatedClient(refListKey)
-            .select('id')
-            .where({ id: fkValue })
-            .first()
+            const relatedPoolName = sourceRegistry.resolveSource(refListKey)
+            const relatedPool = getPoolByName(relatedPoolName)
+            const relatedClient = relatedPool.getKnexClient()
+            const relatedRow = await relatedClient(refListKey)
+                .select('id')
+                .where({ id: fkValue })
+                .first()
 
-        if (!relatedRow) {
-            throw new Error(
-                `Cross-database foreign key violation: ${tableName}.${columnName} ` +
-                `references missing ${refListKey} id "${fkValue}"`,
-            )
+            if (!relatedRow) {
+                throw new Error(
+                    `Cross-database foreign key violation: ${tableName}.${columnName} ` +
+                    `references missing ${refListKey} id "${fkValue}"`,
+                )
+            }
         }
     }
 }

@@ -6,8 +6,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { isDataProviderPool } = require('../dataProviders')
-const { getDatabaseAdapter, isPrismaAdapter } = require('../utils')
 const { getSourceRegistry, isCrossDbPlannerEnabled } = require('../sourceRegistry')
+const { getDatabaseAdapter, isPrismaAdapter } = require('../utils')
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const GLOBAL_QUERY_LIMIT = 1000
@@ -301,7 +301,12 @@ class CrossDbPlanner {
 
         const idsGroups = await Promise.all(value.map(filter => this.loadRelatedIds(model, filter)))
         const ids = [...new Set(idsGroups.flat())]
-        if (ids.length === 0) return true
+        if (ids.length === 0) {
+            if (suffix !== '_not_in') {
+                rewritten[relationField] = { id_in: [] }
+            }
+            return true
+        }
 
         if (suffix === '_not_in') {
             rewritten[relationField] = { id_not_in: ids }

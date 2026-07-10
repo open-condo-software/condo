@@ -14,9 +14,9 @@ const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
 
+const { validateCrossSourceReferences } = require('../../crossDb/validateCrossSourceReferences')
 const { getDataProvider, resolvePoolProvider } = require('../../dataProviders')
 const { createPoolBasedSourceRegistry } = require('../../sourceRegistry')
-const { validateCrossSourceReferences } = require('../../crossDb/validateCrossSourceReferences')
 const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
 /**
