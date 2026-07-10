@@ -50,12 +50,11 @@
   },
   "peerDependencies": {
     "@apollo/client": "*",
-    "graphql": "*",
     "react": ">=16.0.0",
     "react-dom": ">=16.0.0"
   },
   "devDependencies": {
-    "@apollo/client": "^3.11.8",
+    "@apollo/client": "3.11.8",
     "@babel/core": "^7.23.2",
     "@babel/preset-react": "^7.24.7",
     "@open-condo/tsconfig": "workspace:^",
