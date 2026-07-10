@@ -4,7 +4,10 @@ jest.mock('@open-condo/keystone/schema', () => ({
 
 const { find } = require('@open-condo/keystone/schema')
 
-const { NO_PROPERTY_IN_ORGANIZATION } = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const {
+    ERRORS,
+    NO_PROPERTY_IN_ORGANIZATION,
+} = require('@condo/domains/billing/constants/registerBillingReceiptService')
 
 const { resolvePropertyMeterAddressesForOrganization } = require('./resolvePropertyMeterAddressesForOrganization')
 
@@ -92,6 +95,39 @@ describe('resolvePropertyMeterAddressesForOrganization', () => {
             address,
             addressKey: 'address-key-1',
             problem: NO_PROPERTY_IN_ORGANIZATION,
+        })
+    })
+
+    test('returns unrecognized-address state when bulkSearch does not resolve address key', async () => {
+        const address = 'г Иваново, мкр Московский, д 14А к 1'
+        const addressService = {
+            bulkSearch: jest.fn().mockResolvedValue({
+                map: {
+                    [address]: {
+                        err: 'not found',
+                        data: null,
+                    },
+                },
+                addresses: {},
+            }),
+        }
+        find.mockResolvedValue([])
+
+        const result = await resolvePropertyMeterAddressesForOrganization({
+            organizationId: 'organization-1',
+            tin: '1234567890',
+            readings: [{ address }],
+            addressService,
+        })
+
+        expect(find).not.toHaveBeenCalled()
+        expect(result.properties).toEqual([])
+        expect(result.resolvedAddresses[address].addressResolve).toEqual({
+            addresses: [address],
+            properties: {},
+            propertyAddress: {
+                error: ERRORS.ADDRESS_NOT_RECOGNIZED_VALUE,
+            },
         })
     })
 })
