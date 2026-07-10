@@ -4,9 +4,10 @@
  */
 const Ajv = require('ajv')
 
+const { SUPPORTED_PG_OPERATIONS } = require('./sql')
+
 const { REGISTERED_DATA_PROVIDER_NAMES } = require('../../../dataProviders')
 
-const { SUPPORTED_PG_OPERATIONS } = require('./sql')
 
 const ajv = new Ajv({ useDefaults: true })
 
