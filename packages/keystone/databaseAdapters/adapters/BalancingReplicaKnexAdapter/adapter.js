@@ -427,7 +427,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
 
         const orderedDbNames = [
-            ...[...writableDbNames].filter(name => name !== defaultDbName).sort(),
+            ...[...writableDbNames].filter(name => name !== defaultDbName).sort((a, b) => a.localeCompare(b)),
             defaultDbName,
         ].filter(name => this._knexClients[name])
 
