@@ -1757,6 +1757,7 @@ export type B2CAppCreateInput = {
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1775,6 +1776,7 @@ export type B2CAppCreateInput = {
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1801,6 +1803,7 @@ export type B2CAppHistoryRecordCreateInput = {
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1822,6 +1825,7 @@ export type B2CAppHistoryRecordCreateInput = {
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1854,6 +1858,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1875,6 +1880,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1958,6 +1964,8 @@ export type B2CAppHistoryRecordWhereInput = {
   developmentBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2080,6 +2088,8 @@ export type B2CAppHistoryRecordWhereInput = {
   productionBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2499,6 +2509,7 @@ export type B2CAppUpdateInput = {
   developmentBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2517,6 +2528,7 @@ export type B2CAppUpdateInput = {
   productionBleCentralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionBlePeripheralBgAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2598,6 +2610,8 @@ export type B2CAppWhereInput = {
   developmentBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2704,6 +2718,8 @@ export type B2CAppWhereInput = {
   productionBlePeripheralBgAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -3899,6 +3915,8 @@ export enum SortB2CAppHistoryRecordsBy {
   DevelopmentBlePeripheralBgAllowedDesc = 'developmentBlePeripheralBgAllowed_DESC',
   DevelopmentCameraAllowedAsc = 'developmentCameraAllowed_ASC',
   DevelopmentCameraAllowedDesc = 'developmentCameraAllowed_DESC',
+  DevelopmentClipboardWriteAllowedAsc = 'developmentClipboardWriteAllowed_ASC',
+  DevelopmentClipboardWriteAllowedDesc = 'developmentClipboardWriteAllowed_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
   DevelopmentFullscreenAllowedAsc = 'developmentFullscreenAllowed_ASC',
@@ -3937,6 +3955,8 @@ export enum SortB2CAppHistoryRecordsBy {
   ProductionBlePeripheralBgAllowedDesc = 'productionBlePeripheralBgAllowed_DESC',
   ProductionCameraAllowedAsc = 'productionCameraAllowed_ASC',
   ProductionCameraAllowedDesc = 'productionCameraAllowed_DESC',
+  ProductionClipboardWriteAllowedAsc = 'productionClipboardWriteAllowed_ASC',
+  ProductionClipboardWriteAllowedDesc = 'productionClipboardWriteAllowed_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   ProductionFullscreenAllowedAsc = 'productionFullscreenAllowed_ASC',
@@ -4038,6 +4058,8 @@ export enum SortB2CAppsBy {
   DevelopmentBlePeripheralBgAllowedDesc = 'developmentBlePeripheralBgAllowed_DESC',
   DevelopmentCameraAllowedAsc = 'developmentCameraAllowed_ASC',
   DevelopmentCameraAllowedDesc = 'developmentCameraAllowed_DESC',
+  DevelopmentClipboardWriteAllowedAsc = 'developmentClipboardWriteAllowed_ASC',
+  DevelopmentClipboardWriteAllowedDesc = 'developmentClipboardWriteAllowed_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
   DevelopmentFullscreenAllowedAsc = 'developmentFullscreenAllowed_ASC',
@@ -4072,6 +4094,8 @@ export enum SortB2CAppsBy {
   ProductionBlePeripheralBgAllowedDesc = 'productionBlePeripheralBgAllowed_DESC',
   ProductionCameraAllowedAsc = 'productionCameraAllowed_ASC',
   ProductionCameraAllowedDesc = 'productionCameraAllowed_DESC',
+  ProductionClipboardWriteAllowedAsc = 'productionClipboardWriteAllowed_ASC',
+  ProductionClipboardWriteAllowedDesc = 'productionClipboardWriteAllowed_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   ProductionFullscreenAllowedAsc = 'productionFullscreenAllowed_ASC',
@@ -6073,7 +6097,7 @@ export type CreateB2BAppPublishRequestMutationVariables = Exact<{
 
 export type CreateB2BAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2BAppPublishRequest', id: string } | null };
 
-export type B2CAppPermissionsFragment = { __typename?: 'B2CApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null };
+export type B2CAppPermissionsFragment = { __typename?: 'B2CApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null };
 
 export type B2CAppEntryPointsFragment = { __typename?: 'B2CApp', developmentAppUrl?: string | null, productionAppUrl?: string | null };
 
@@ -6082,7 +6106,7 @@ export type GetB2CAppQueryVariables = Exact<{
 }>;
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, type?: B2CAppTypeType | null, developer?: string | null, developmentWebTransformEnabled?: boolean | null, productionWebTransformEnabled?: boolean | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, developmentPushNotificationsAllowed?: boolean | null, productionPushNotificationsAllowed?: boolean | null, developmentVoipNotificationsAllowed?: boolean | null, productionVoipNotificationsAllowed?: boolean | null, developmentBleBeaconBgAllowed?: boolean | null, productionBleBeaconBgAllowed?: boolean | null, developmentBleCentralBgAllowed?: boolean | null, productionBleCentralBgAllowed?: boolean | null, developmentBlePeripheralBgAllowed?: boolean | null, productionBlePeripheralBgAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2CAppMutationVariables = Exact<{
   data: B2CAppCreateInput;
@@ -6317,6 +6341,8 @@ export const B2CAppPermissionsFragmentDoc = gql`
   productionCameraAllowed
   developmentSpeakerSelectionAllowed
   productionSpeakerSelectionAllowed
+  developmentClipboardWriteAllowed
+  productionClipboardWriteAllowed
   developmentPushNotificationsAllowed
   productionPushNotificationsAllowed
   developmentVoipNotificationsAllowed
