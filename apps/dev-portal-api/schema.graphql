@@ -2860,6 +2860,8 @@ type B2CAppHistoryRecord {
   productionWebTransformEnabled: Boolean
   developmentOidcClientId: ID
   productionOidcClientId: ID
+  developmentClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed: Boolean
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3006,6 +3008,10 @@ input B2CAppHistoryRecordWhereInput {
   productionOidcClientId_not: ID
   productionOidcClientId_in: [ID]
   productionOidcClientId_not_in: [ID]
+  developmentClipboardWriteAllowed: Boolean
+  developmentClipboardWriteAllowed_not: Boolean
+  productionClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed_not: Boolean
   developmentFullscreenAllowed: Boolean
   developmentFullscreenAllowed_not: Boolean
   productionFullscreenAllowed: Boolean
@@ -3195,6 +3201,10 @@ enum SortB2CAppHistoryRecordsBy {
   developmentOidcClientId_DESC
   productionOidcClientId_ASC
   productionOidcClientId_DESC
+  developmentClipboardWriteAllowed_ASC
+  developmentClipboardWriteAllowed_DESC
+  productionClipboardWriteAllowed_ASC
+  productionClipboardWriteAllowed_DESC
   developmentFullscreenAllowed_ASC
   developmentFullscreenAllowed_DESC
   productionFullscreenAllowed_ASC
@@ -3268,6 +3278,8 @@ input B2CAppHistoryRecordUpdateInput {
   productionWebTransformEnabled: Boolean
   developmentOidcClientId: ID
   productionOidcClientId: ID
+  developmentClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed: Boolean
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3320,6 +3332,8 @@ input B2CAppHistoryRecordCreateInput {
   productionWebTransformEnabled: Boolean
   developmentOidcClientId: ID
   productionOidcClientId: ID
+  developmentClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed: Boolean
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3412,6 +3426,14 @@ type B2CApp {
   """ ID of the OIDC client used by this miniapp for condo users authentication for production environment. Cannot be set directly by dev-portal user. For historical reasons (where each app has its own OIDC client), this field might be null. In this scenario, lookup by importId + importRemoteSystem is used to find the correct OIDC client. 
   """
   productionOidcClientId: ID
+
+  """ Controls whether the mini-app can use “clipboard write” device permission on development environment 
+  """
+  developmentClipboardWriteAllowed: Boolean
+
+  """ Controls whether the mini-app can use “clipboard write” device permission on production environment 
+  """
+  productionClipboardWriteAllowed: Boolean
 
   """ Controls whether the mini-app can use “fullscreen” device permission on development environment 
   """
@@ -3617,6 +3639,10 @@ input B2CAppWhereInput {
   productionOidcClientId_not: ID
   productionOidcClientId_in: [ID]
   productionOidcClientId_not_in: [ID]
+  developmentClipboardWriteAllowed: Boolean
+  developmentClipboardWriteAllowed_not: Boolean
+  productionClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed_not: Boolean
   developmentFullscreenAllowed: Boolean
   developmentFullscreenAllowed_not: Boolean
   productionFullscreenAllowed: Boolean
@@ -3786,6 +3812,10 @@ enum SortB2CAppsBy {
   developmentOidcClientId_DESC
   productionOidcClientId_ASC
   productionOidcClientId_DESC
+  developmentClipboardWriteAllowed_ASC
+  developmentClipboardWriteAllowed_DESC
+  productionClipboardWriteAllowed_ASC
+  productionClipboardWriteAllowed_DESC
   developmentFullscreenAllowed_ASC
   developmentFullscreenAllowed_DESC
   productionFullscreenAllowed_ASC
@@ -3859,6 +3889,8 @@ input B2CAppUpdateInput {
   productionWebTransformEnabled: Boolean
   developmentOidcClientId: ID
   productionOidcClientId: ID
+  developmentClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed: Boolean
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean
@@ -3908,6 +3940,8 @@ input B2CAppCreateInput {
   productionWebTransformEnabled: Boolean
   developmentOidcClientId: ID
   productionOidcClientId: ID
+  developmentClipboardWriteAllowed: Boolean
+  productionClipboardWriteAllowed: Boolean
   developmentFullscreenAllowed: Boolean
   productionFullscreenAllowed: Boolean
   developmentMicrophoneAllowed: Boolean

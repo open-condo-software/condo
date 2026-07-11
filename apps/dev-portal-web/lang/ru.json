@@ -206,6 +206,8 @@
   "pages.apps.any.id.sections.permissions.permission.camera.hint": "Позволяет мини-приложению получать видеопоток с устройства",
   "pages.apps.any.id.sections.permissions.permission.speakerSelection.title": "Выбор аудиоустройства",
   "pages.apps.any.id.sections.permissions.permission.speakerSelection.hint": "Позволяет мини-приложению просматривать список аудиоустройств и изменять текущее аудиоустройство (наушники, динамики и т.п.)",
+  "pages.apps.any.id.sections.permissions.permission.clipboardWrite.title": "Запись в буфер обмена",
+  "pages.apps.any.id.sections.permissions.permission.clipboardWrite.hint": "Позволяет мини-приложению записывать данные в буфер обмена с помощью методов navigator.clipboard",
   "pages.apps.any.id.sections.permissions.permission.bleBeaconBg.title": "BLE Beacon BG",
   "pages.apps.any.id.sections.permissions.permission.bleBeaconBg.hint": "Дает возможность устройству транслировать в эфир метку или ссылку, позволяя другим устройствам фиксировать присутствие устройства без прямого контакта.",
   "pages.apps.any.id.sections.permissions.permission.bleCentralBg.title": "BLE Central BG",

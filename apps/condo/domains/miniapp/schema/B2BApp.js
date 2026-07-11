@@ -14,6 +14,7 @@ const {
     GLOBAL_APP_NO_APP_URL_ERROR,
     NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 } = require('@condo/domains/miniapp/constants')
+const { getDevicePermissionsFields } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const { GLOBAL_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/globalFeaturesField')
 const {
@@ -97,6 +98,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             options: B2B_APP_CATEGORIES,
             defaultValue: OTHER_CATEGORY,
         },
+        ...getDevicePermissionsFields({ listKey: 'B2BApp' }),
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can access app\'s contexts related as well as perform actions on behalf of the application',
             type: 'Relationship',

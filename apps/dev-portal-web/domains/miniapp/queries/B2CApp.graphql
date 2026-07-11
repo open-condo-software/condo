@@ -7,6 +7,8 @@ fragment B2CAppPermissions on B2CApp {
     productionCameraAllowed
     developmentSpeakerSelectionAllowed
     productionSpeakerSelectionAllowed
+    developmentClipboardWriteAllowed
+    productionClipboardWriteAllowed
     developmentPushNotificationsAllowed
     productionPushNotificationsAllowed
     developmentVoipNotificationsAllowed

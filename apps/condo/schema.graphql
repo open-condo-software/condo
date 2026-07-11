@@ -72706,6 +72706,11 @@ type B2BAppHistoryRecord {
   menuCategory: String
   contextDefaultStatus: String
   category: String
+  isClipboardWriteAllowed: Boolean
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   features: JSON
   displayPriority: Int
   label: String
@@ -72923,6 +72928,16 @@ input B2BAppHistoryRecordWhereInput {
   category_not_ends_with_i: String
   category_in: [String]
   category_not_in: [String]
+  isClipboardWriteAllowed: Boolean
+  isClipboardWriteAllowed_not: Boolean
+  isFullscreenAllowed: Boolean
+  isFullscreenAllowed_not: Boolean
+  isMicrophoneAllowed: Boolean
+  isMicrophoneAllowed_not: Boolean
+  isCameraAllowed: Boolean
+  isCameraAllowed_not: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isSpeakerSelectionAllowed_not: Boolean
   features: JSON
   features_not: JSON
   features_in: [JSON]
@@ -73138,6 +73153,16 @@ enum SortB2BAppHistoryRecordsBy {
   contextDefaultStatus_DESC
   category_ASC
   category_DESC
+  isClipboardWriteAllowed_ASC
+  isClipboardWriteAllowed_DESC
+  isFullscreenAllowed_ASC
+  isFullscreenAllowed_DESC
+  isMicrophoneAllowed_ASC
+  isMicrophoneAllowed_DESC
+  isCameraAllowed_ASC
+  isCameraAllowed_DESC
+  isSpeakerSelectionAllowed_ASC
+  isSpeakerSelectionAllowed_DESC
   displayPriority_ASC
   displayPriority_DESC
   label_ASC
@@ -73185,6 +73210,11 @@ input B2BAppHistoryRecordUpdateInput {
   menuCategory: String
   contextDefaultStatus: String
   category: String
+  isClipboardWriteAllowed: Boolean
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   features: JSON
   displayPriority: Int
   label: String
@@ -73234,6 +73264,11 @@ input B2BAppHistoryRecordCreateInput {
   menuCategory: String
   contextDefaultStatus: String
   category: String
+  isClipboardWriteAllowed: Boolean
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   features: JSON
   displayPriority: Int
   label: String
@@ -73567,6 +73602,23 @@ type B2BApp {
   """
   category: B2BAppCategoryType
 
+  """ Controls whether the mini-app can use “clipboard write” device permission 
+  """
+  isClipboardWriteAllowed: Boolean
+
+  """ Controls whether the mini-app can use “fullscreen” device permission """
+  isFullscreenAllowed: Boolean
+
+  """ Controls whether the mini-app can use “microphone” device permission """
+  isMicrophoneAllowed: Boolean
+
+  """ Controls whether the mini-app can use “camera” device permission """
+  isCameraAllowed: Boolean
+
+  """ Controls whether the mini-app can use “speaker selection” device permission 
+  """
+  isSpeakerSelectionAllowed: Boolean
+
   """ Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application 
   """
   accessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight!]!
@@ -73783,6 +73835,16 @@ input B2BAppWhereInput {
   category_not: B2BAppCategoryType
   category_in: [B2BAppCategoryType]
   category_not_in: [B2BAppCategoryType]
+  isClipboardWriteAllowed: Boolean
+  isClipboardWriteAllowed_not: Boolean
+  isFullscreenAllowed: Boolean
+  isFullscreenAllowed_not: Boolean
+  isMicrophoneAllowed: Boolean
+  isMicrophoneAllowed_not: Boolean
+  isCameraAllowed: Boolean
+  isCameraAllowed_not: Boolean
+  isSpeakerSelectionAllowed: Boolean
+  isSpeakerSelectionAllowed_not: Boolean
 
   """ condition must be true for all nodes """
   accessRights_every: B2BAppAccessRightWhereInput
@@ -73969,6 +74031,16 @@ enum SortB2BAppsBy {
   contextDefaultStatus_DESC
   category_ASC
   category_DESC
+  isClipboardWriteAllowed_ASC
+  isClipboardWriteAllowed_DESC
+  isFullscreenAllowed_ASC
+  isFullscreenAllowed_DESC
+  isMicrophoneAllowed_ASC
+  isMicrophoneAllowed_DESC
+  isCameraAllowed_ASC
+  isCameraAllowed_DESC
+  isSpeakerSelectionAllowed_ASC
+  isSpeakerSelectionAllowed_DESC
   accessRights_ASC
   accessRights_DESC
   displayPriority_ASC
@@ -74026,6 +74098,11 @@ input B2BAppUpdateInput {
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
   category: B2BAppCategoryType
+  isClipboardWriteAllowed: Boolean
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
@@ -74073,6 +74150,11 @@ input B2BAppCreateInput {
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
   category: B2BAppCategoryType
+  isClipboardWriteAllowed: Boolean
+  isFullscreenAllowed: Boolean
+  isMicrophoneAllowed: Boolean
+  isCameraAllowed: Boolean
+  isSpeakerSelectionAllowed: Boolean
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
@@ -74928,6 +75010,7 @@ type B2CAppHistoryRecord {
   isDomainsMappingEnabled: Boolean
   externalLinks: JSON
   currentBuild: String
+  isClipboardWriteAllowed: Boolean
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
@@ -75064,6 +75147,8 @@ input B2CAppHistoryRecordWhereInput {
   currentBuild_not: String
   currentBuild_in: [String]
   currentBuild_not_in: [String]
+  isClipboardWriteAllowed: Boolean
+  isClipboardWriteAllowed_not: Boolean
   isFullscreenAllowed: Boolean
   isFullscreenAllowed_not: Boolean
   isMicrophoneAllowed: Boolean
@@ -75219,6 +75304,8 @@ enum SortB2CAppHistoryRecordsBy {
   appUrl_DESC
   isDomainsMappingEnabled_ASC
   isDomainsMappingEnabled_DESC
+  isClipboardWriteAllowed_ASC
+  isClipboardWriteAllowed_DESC
   isFullscreenAllowed_ASC
   isFullscreenAllowed_DESC
   isMicrophoneAllowed_ASC
@@ -75274,6 +75361,7 @@ input B2CAppHistoryRecordUpdateInput {
   isDomainsMappingEnabled: Boolean
   externalLinks: JSON
   currentBuild: String
+  isClipboardWriteAllowed: Boolean
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
@@ -75320,6 +75408,7 @@ input B2CAppHistoryRecordCreateInput {
   isDomainsMappingEnabled: Boolean
   externalLinks: JSON
   currentBuild: String
+  isClipboardWriteAllowed: Boolean
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
@@ -75461,6 +75550,10 @@ type B2CApp {
   """
   accessRights(where: B2CAppAccessRightWhereInput, search: String, sortBy: [SortB2CAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2CAppAccessRight!]!
   _accessRightsMeta(where: B2CAppAccessRightWhereInput, search: String, sortBy: [SortB2CAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Controls whether the mini-app can use “clipboard write” device permission 
+  """
+  isClipboardWriteAllowed: Boolean
 
   """ Controls whether the mini-app can use “fullscreen” device permission """
   isFullscreenAllowed: Boolean
@@ -75640,6 +75733,8 @@ input B2CAppWhereInput {
 
   """ condition must be false for all nodes """
   accessRights_none: B2CAppAccessRightWhereInput
+  isClipboardWriteAllowed: Boolean
+  isClipboardWriteAllowed_not: Boolean
   isFullscreenAllowed: Boolean
   isFullscreenAllowed_not: Boolean
   isMicrophoneAllowed: Boolean
@@ -75779,6 +75874,8 @@ enum SortB2CAppsBy {
   currentBuild_DESC
   accessRights_ASC
   accessRights_DESC
+  isClipboardWriteAllowed_ASC
+  isClipboardWriteAllowed_DESC
   isFullscreenAllowed_ASC
   isFullscreenAllowed_DESC
   isMicrophoneAllowed_ASC
@@ -75837,6 +75934,7 @@ input B2CAppUpdateInput {
   externalLinks: [String!]
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
+  isClipboardWriteAllowed: Boolean
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
@@ -75881,6 +75979,7 @@ input B2CAppCreateInput {
   externalLinks: [String!]
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
+  isClipboardWriteAllowed: Boolean
   isFullscreenAllowed: Boolean
   isMicrophoneAllowed: Boolean
   isCameraAllowed: Boolean
