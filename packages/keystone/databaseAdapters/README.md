@@ -80,7 +80,7 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 | Variable | Purpose |
 |----------|---------|
 | `DATABASE_URL` | `custom:{"main":"postgresql://...","replica":"postgresql://..."}` |
-| `DATABASE_POOLS` | JSON: Postgres pool → `{ databases, writable, balancer? }` or provider pool → `{ provider, writable: false }` |
+| `DATABASE_POOLS` | JSON: Postgres pool → `{ databases, writable, balancer? }` or provider pool → `{ provider, writable }` |
 | `DATABASE_ROUTING_RULES` | JSON array; must end with `{ "target": "<writable-pool>" }` |
 | `DATABASE_POOL_MAX` | Knex pool size per DB (default `3`) |
 
@@ -99,16 +99,18 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 
 **One place:** `dataProviders/index.js`.
 
-1. Create `dataProviders/<name>.js` with `canFind` / `find` (extend when mutations are needed).
+1. Create `dataProviders/<name>.js` with `find` / `create` / `update` / `delete` as needed. Optional `matchFind` narrows which find filters the provider handles.
 2. Add one line to `SOURCE_PROVIDERS` in `dataProviders/index.js`.
 3. Add a provider pool in `DATABASE_POOLS` and route the table in `DATABASE_ROUTING_RULES`:
 
 ```dotenv
-DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":false}}
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}
 DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
 
-Postgres pools use `databases: [...]`. Provider pools use `provider: "<name>"` and must be read-only (`writable: false`).
+Postgres pools use `databases: [...]`. Provider pools use `provider: "<name>"` and `writable: true` for mutations.
+
+`BalancingReplicaKnexAdapter` delegates via `executeFind` / `executeCreate` / `executeUpdate` / `executeDelete` / `executeItemsQuery`, and intercepts knex SQL for GraphQL mutations.
 
 ## How to add a new balancing adapter variant
 

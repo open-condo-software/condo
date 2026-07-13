@@ -113,13 +113,13 @@ function _normalizePoolConfig (poolName, poolConfig) {
         if (poolConfig.databases) {
             throw new TypeError(`Invalid DB pools config. Pool "${poolName}" cannot set both "provider" and "databases"`)
         }
-        if (poolConfig.writable !== false) {
-            throw new TypeError(`Invalid DB pools config. Provider pool "${poolName}" must have writable: false`)
-        }
         if (!REGISTERED_DATA_PROVIDER_NAMES.includes(poolConfig.provider)) {
             throw new TypeError(`Invalid DB pools config. Unknown provider "${poolConfig.provider}" in pool "${poolName}"`)
         }
-        return { provider: poolConfig.provider, writable: false }
+        return {
+            provider: poolConfig.provider,
+            writable: Boolean(poolConfig.writable),
+        }
     }
 
     if (!Array.isArray(poolConfig.databases) || poolConfig.databases.length === 0) {
@@ -262,12 +262,14 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
 
         const commonErrorPrefix = `[${idx + 1}/${parsedRules.length}] Routing rule configuration error. `
 
-        // Provider pools cannot receive SQL mutations
+        // Provider pools handle mutations via data providers, not SQL
         if (poolsConfig[target].provider && sqlOperationName && !IMMUTABLE_OPERATIONS.has(sqlOperationName)) {
-            throw new TypeError(
-                commonErrorPrefix +
-                `Provider pool "${target}" does not support SQL operation "${sqlOperationName}"`
-            )
+            if (!poolsConfig[target].writable) {
+                throw new TypeError(
+                    commonErrorPrefix +
+                    `Provider pool "${target}" is read-only and does not support SQL operation "${sqlOperationName}"`
+                )
+            }
         }
 
         // GQL-level guard
