@@ -13,8 +13,6 @@
   "dependencies": {
     "@ant-design/cssinjs": "^1.24.0",
     "@apollo/client": "catalog:",
-    "@condo/domains": "link:../condo/domains",
-    "@dev-portal-api/domains": "link:../dev-portal-api/domains",
     "@open-condo/apollo": "workspace:^",
     "@open-condo/billing": "workspace:^",
     "@open-condo/cli": "workspace:^",
@@ -54,7 +52,6 @@
     "@graphql-codegen/typescript-operations": "^5.0.9",
     "@graphql-codegen/typescript-react-apollo": "^4.4.1",
     "@parcel/watcher": "^2.5.1",
-    "@types/mdx": "^2.0.14",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@types/title": "3.4.1",

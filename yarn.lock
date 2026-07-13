@@ -983,8 +983,6 @@ __metadata:
     "@ant-design/cssinjs": "npm:^1.24.0"
     "@apollo/client": "catalog:"
     "@app/dev-portal-api": "workspace:^"
-    "@condo/domains": "link:../condo/domains"
-    "@dev-portal-api/domains": "link:../dev-portal-api/domains"
     "@graphql-codegen/cli": "catalog:"
     "@graphql-codegen/typescript": "npm:^5.0.9"
     "@graphql-codegen/typescript-operations": "npm:^5.0.9"
@@ -999,7 +997,6 @@ __metadata:
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": "npm:^2.5.1"
-    "@types/mdx": "npm:^2.0.14"
     "@types/react": "catalog:"
     "@types/react-dom": "catalog:"
     "@types/title": "npm:3.4.1"
@@ -3877,12 +3874,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web"
-  languageName: node
-  linkType: soft
-
 "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
@@ -4230,12 +4221,6 @@ __metadata:
 "@debt-management/domains@link:./domains::locator=%40app%2Fdebt-management%40workspace%3Aapps%2Fdebt-management":
   version: 0.0.0-use.local
   resolution: "@debt-management/domains@link:./domains::locator=%40app%2Fdebt-management%40workspace%3Aapps%2Fdebt-management"
-  languageName: node
-  linkType: soft
-
-"@dev-portal-api/domains@link:../dev-portal-api/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web":
-  version: 0.0.0-use.local
-  resolution: "@dev-portal-api/domains@link:../dev-portal-api/domains::locator=%40app%2Fdev-portal-web%40workspace%3Aapps%2Fdev-portal-web"
   languageName: node
   linkType: soft
 
@@ -13682,7 +13667,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mdx@npm:^2.0.0, @types/mdx@npm:^2.0.14":
+"@types/mdx@npm:^2.0.0":
   version: 2.0.14
   resolution: "@types/mdx@npm:2.0.14"
   checksum: 10/bb485c22c6f57b1f17437c889671859ce99160d97da9f72036fd57a8db22127088dde783bf19df975858fde69c2fc92349f6f39a803e51e823549967db282ae8
