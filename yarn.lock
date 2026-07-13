@@ -10006,7 +10006,6 @@ __metadata:
     "@tiptap/extension-table-cell": "npm:^3.20.0"
     "@tiptap/extension-table-header": "npm:^3.20.0"
     "@tiptap/extension-table-row": "npm:^3.20.0"
-    "@tiptap/extensions": "npm:^3.20.0"
     "@tiptap/markdown": "npm:^3.20.0"
     "@tiptap/pm": "npm:^3.20.0"
     "@tiptap/react": "npm:^3.20.0"
@@ -12993,7 +12992,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tiptap/extensions@npm:^3.20.0, @tiptap/extensions@npm:^3.27.1":
+"@tiptap/extensions@npm:^3.27.1":
   version: 3.27.1
   resolution: "@tiptap/extensions@npm:3.27.1"
   peerDependencies:
