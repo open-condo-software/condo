@@ -28,10 +28,10 @@
     ]
   },
   "peerDependencies": {
-    "@graphql-tools/graphql-file-loader": "*",
-    "@graphql-tools/load": "*",
-    "react": "*",
-    "react-dom": "*"
+    "@graphql-tools/graphql-file-loader": "^7.5.17",
+    "@graphql-tools/load": "^8.1.0",
+    "react": ">=16",
+    "react-dom": ">=16"
   },
   "devDependencies": {
     "react": "catalog:",
