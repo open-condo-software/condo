@@ -1,7 +1,6 @@
 import get from 'lodash/get'
 import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-
 import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -11,12 +10,12 @@ import { ActionBar, Typography, Button } from '@open-condo/ui'
 import { DynamicIcon, IconName } from '@condo/domains/common/components/DynamicIcon'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
+import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProviderOld'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
-import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
+import type { RequestHandler } from '@condo/domains/common/components/PostMessageProviderOld/types'
 
 
 const DEFAULT_FRAME_HEIGHT = 700

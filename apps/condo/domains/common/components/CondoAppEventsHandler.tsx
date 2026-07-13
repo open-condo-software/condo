@@ -8,10 +8,10 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import { flattenObject } from '@condo/domains/common/utils/flattenObject'
 import { STAFF } from '@condo/domains/user/constants/common'
 
-import { usePostMessageContext } from './PostMessageProvider'
+import { usePostMessageContext } from './PostMessageProviderOld'
 
 
-import type { RequestHandler } from './PostMessageProvider/types'
+import type { RequestHandler } from './PostMessageProviderOld/types'
 import type { FC } from 'react'
 
 export const CondoAppEventsHandler: FC = () => {

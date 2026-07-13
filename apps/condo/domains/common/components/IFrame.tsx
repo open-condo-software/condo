@@ -1,5 +1,6 @@
+import { Spin } from 'antd'
 import getConfig from 'next/config'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { IFrameMetadata } from '@open-condo/miniapp-utils/helpers/iframe'
 import { buildAllowString } from '@open-condo/miniapp-utils/helpers/iframe'
@@ -8,12 +9,20 @@ import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/send
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
+import { BasicEmptyListView, type IBasicEmptyListProps } from './EmptyListView'
 import styles from './IFrame.module.css'
 
 const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 const DEFAULT_FRAME_HEIGHT = 700
+const EMPTY_LIST_PROPS: IBasicEmptyListProps = {
+    spaceSize: 16,
+    image: '/mascot/waiting.webp',
+    imageStyle: { marginBottom: 20 },
+    containerStyle: { position: 'absolute', backgroundColor: 'var(--condo-global-color-white)' },
+}
 
 type IFrameRegisterEvent = {
     frameId: string
@@ -27,10 +36,11 @@ type IFrameReloadScope = 'user' | 'organization'
 
 export type IFrameProps = {
     src: string
-    reloadScope?: IFrameReloadScope
-    initialHeight?: number
     metadata?: IFrameMetadata
+    initialHeight?: number
     onRegister?: IFrameRegistrationHandler
+    prefetch?: boolean
+    reloadScope?: IFrameReloadScope
 }
 
 const IFrame = React.memo<IFrameProps>(({
@@ -38,14 +48,19 @@ const IFrame = React.memo<IFrameProps>(({
     metadata,
     initialHeight,
     onRegister,
+    prefetch = true,
     reloadScope = 'organization',
 }) => {
     const intl = useIntl()
+    const LoadingErrorOccurredTitle = intl.formatMessage({ id: 'miniapp.loadingError.title' })
+    const LoadingErrorOccurredMessage = intl.formatMessage({ id: 'miniapp.loadingError.message' })
+
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
     const [src, setSrc] = useState<string | undefined>(undefined)
     const [isFrameReady, setIsFrameReady] = useState(false)
-    // const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true)
+    const [prefetchFailed, setPrefetchFailed] = useState(false)
 
     const { addFrame, removeFrame } = usePostMessageContext()
 
@@ -88,7 +103,18 @@ const IFrame = React.memo<IFrameProps>(({
         }
     }, [addFrame, initialHeight, metadata, onRegister, propsSrc, removeFrame])
 
-    // NOTE: Step 2. Load the page by setting src attr after the iframe is initialized and handlers are registered
+    const prefetchFn = useCallback(async (src: string) => {
+        try {
+            const response = await fetch(src, { method: 'HEAD', redirect: 'manual' })
+            if (response.status >= 400) {
+                setPrefetchFailed(true)
+            }
+        } catch {
+            setPrefetchFailed(true)
+        }
+    }, [])
+
+    // NOTE: Step 2. Prefetch iframe if necessary, then load the page by setting src attr after the iframe is initialized and handlers are registered
     useEffect(() => {
         if (!isFrameReady) return
 
@@ -106,11 +132,32 @@ const IFrame = React.memo<IFrameProps>(({
         }
 
         setSrc(u.toString())
-    }, [isFrameReady, organization?.id, propsSrc, user?.id, user?.type])
+        if (prefetch) {
+            void prefetchFn(u.toString())
+        }
+    // NOTE: make sure optional chaining on user?.* and organization?.*. Its types are incorrect right now
+    }, [isFrameReady, organization?.id, prefetch, prefetchFn, propsSrc, user?.id, user?.type])
+
+    // NOTE: will be triggered only after src is set
+    const handleLoad = useCallback(() => {
+        setLoading(false)
+    }, [])
 
     return (
-        <div>
+        <div className={styles.iframeContainer}>
+            {loading && !prefetchFailed && (<Spin size='large' className={styles.iframeLoader}/>)}
+            {prefetchFailed && (
+                <BasicEmptyListView {...EMPTY_LIST_PROPS}>
+                    <Typography.Title level={4}>
+                        {LoadingErrorOccurredTitle}
+                    </Typography.Title>
+                    <Typography.Text type='secondary'>
+                        {LoadingErrorOccurredMessage}
+                    </Typography.Text>
+                </BasicEmptyListView>
+            )}
             <iframe
+                onLoad={handleLoad}
                 allow={allowString}
                 key={iframeKey}
                 ref={iframeRef}

@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
+import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProviderOld'
 
 import type { FC, PropsWithChildren } from 'react'
 
