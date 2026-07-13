@@ -98,4 +98,16 @@ describe('SearchBySource plugin', () => {
             expect.objectContaining({ source: fullSource }),
         ]))
     })
+
+    describe('Always enabled', () => {
+        test('isEnabled returns true for any input', async () => {
+            const plugin = new SearchBySource()
+            const params = { req: { id: faker.datatype.uuid() } }
+            
+            expect(plugin.isEnabled('test', params)).toBe(true)
+            expect(plugin.isEnabled('', params)).toBe(true)
+            expect(plugin.isEnabled('   ', params)).toBe(true)
+            expect(plugin.isEnabled('123', params)).toBe(true)
+        })
+    })
 })
