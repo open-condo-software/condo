@@ -4956,7 +4956,6 @@ describe('Ticket', () => {
             })
 
             test('dont send sms 2 times a day to same number', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
 
                 const clientName = faker.name.firstName()
@@ -4975,13 +4974,15 @@ describe('Ticket', () => {
                 const messageWhere = {
                     phone: clientPhone,
                     type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+                    uniqKey: `${today}_${md5(clientPhone)}`,
                 }
                 await waitFor(async () => {
                     const message = await Message.getOne(admin, messageWhere)
 
+                    expect(message).toBeDefined()
                     expect(message.id).toMatch(UUID_RE)
                     expect(message.uniqKey).toEqual(`${today}_${md5(clientPhone)}`)
-                })
+                }, { delay: MESSAGE_SENDING_DElAY })
 
                 await createTestTicket(client, client.organization, client.property, {
                     isResidentTicket: true,

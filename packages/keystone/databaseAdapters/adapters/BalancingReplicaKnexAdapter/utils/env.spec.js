@@ -219,7 +219,18 @@ describe('Config validation utils', () => {
                 main: { ...simpleConfig.main, balancer: 'RoundRobin' },
             })
         })
-        test('accepts provider pool for kv backend', () => {
+        test('accepts writable provider pool for kv backend', () => {
+            const config = {
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', writable: true },
+            }
+
+            expect(getReplicaPoolsConfig(config, ['main'])).toEqual({
+                main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
+                kv: { provider: 'kv', writable: true },
+            })
+        })
+        test('accepts read-only provider pool for kv backend', () => {
             const config = {
                 main: { databases: ['main'], writable: true },
                 kv: { provider: 'kv', writable: false },
@@ -230,11 +241,11 @@ describe('Config validation utils', () => {
                 kv: { provider: 'kv', writable: false },
             })
         })
-        test('rejects provider pool with writable true', () => {
+        test('rejects unknown provider name', () => {
             expect(() => getReplicaPoolsConfig({
                 main: { databases: ['main'], writable: true },
-                kv: { provider: 'kv', writable: true },
-            }, ['main'])).toThrow(/Invalid DB pools config/)
+                kv: { provider: 'unknown', writable: true },
+            }, ['main'])).toThrow(/allowed values/)
         })
     })
     describe('getQueryRoutingRules', () => {
