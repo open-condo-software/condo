@@ -39,12 +39,11 @@
     "@open-condo/config": "workspace:^",
     "@open-condo/keystone": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
-    "express": "catalog:",
+    "express": "^4.21.2",
     "file-type": "16.5.4",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.0",
-    "tslib": "^2.4.1",
-    "zod": "catalog:"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@faker-js/faker": "catalog:",
@@ -52,6 +51,6 @@
     "@types/jsonwebtoken": "^9.0.0",
     "form-data": "^4.0.4",
     "rimraf": "^6.0.1",
-    "typescript": "catalog:"
+    "typescript": "^5.8.3"
   }
 }
