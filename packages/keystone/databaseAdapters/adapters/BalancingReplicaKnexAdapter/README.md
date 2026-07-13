@@ -7,7 +7,7 @@ Multi-database Postgres adapter. Extends Keystone's `KnexAdapter`.
 ## When to use
 
 - Read replicas or dedicated DBs for historical / billing / counts tables
-- Same schema on multiple writable Postgres instances (mirror writes)
+- Dedicated writable pools for specific table groups (e.g. Message on a separate DB)
 - Cross-pool SQL JOIN rewrite (Keystone-style `LEFT JOIN`)
 
 Use `DATABASE_URL=custom:{...}` (see `setup.utils.js`).
@@ -90,9 +90,9 @@ const routingRules = [
 
 ### Writes
 
-1. Primary pool executes mutation.
-2. Other writable pools that contain the table get a best-effort `raw()` replay.
-3. Mirror failure is logged; caller still sees success from primary.
+1. `_selectTargetPool` picks the owning pool (routing rules + source registry).
+2. Cross-source FK validation runs when needed.
+3. Target pool executes the mutation.
 
 ### KV-backed tables
 
@@ -102,8 +102,6 @@ Register the provider in `dataProviders/index.js`, then add a provider pool and 
 DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":false}}
 DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
-
-Only `find` with `{ id }` / `{ id_in }` is supported.
 
 Only `find` with `{ id }` / `{ id_in }` is supported.
 

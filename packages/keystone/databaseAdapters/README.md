@@ -26,7 +26,7 @@ BalancingReplicaKnexAdapter
     └─ knex.client.runner hook
            ├─ match DATABASE_ROUTING_RULES → pick pool
            ├─ SELECT + cross-pool JOIN → planCrossPoolSelect rewrites SQL
-           ├─ mutation on shared table → primary write + best-effort mirror
+           ├─ mutation → routed pool executes write
            └─ KnexPool → RoundRobin → physical knex client → Postgres
 ```
 
@@ -41,7 +41,7 @@ BalancingReplicaKnexAdapter
 1. **Connect** — open one knex client per named DB in `DATABASE_URL`, group them into pools (`DATABASE_POOLS`).
 2. **Route** — patch `this.knex.client.runner`. Every query: parse SQL → build context `{ gqlOperationType, gqlOperationName, sqlOperationName, tableName }` → first matching rule → pool.
 3. **Cross-pool SELECT** — if a SELECT JOINs a table on another pool, `planCrossPoolSelect` (in `crossSourceSelectSql.js`) runs filters on the remote pool, collects ids, rewrites to `base.fk IN (...)`.
-4. **Mirror writes** — after a successful mutation on pool A, replay the same SQL on other **writable** pools that contain the table. Mirror errors are logged, not thrown.
+4. **Writes** — mutations go to the pool that owns the table (`DATABASE_ROUTING_RULES` + source registry).
 5. **Transactions / migrations** — always use the default writable pool.
 
 Detailed env var reference: [`adapters/BalancingReplicaKnexAdapter/README.md`](./adapters/BalancingReplicaKnexAdapter/README.md).
@@ -63,7 +63,7 @@ databaseAdapters/
     ├── KnexAdapter.js                 ← single-DB baseline
     ├── PrismaAdapter.js
     ├── BalancingReplicaKnexAdapter/
-    │   ├── adapter.js                 ← routing hook, mirror writes, executeFind
+    │   ├── adapter.js                 ← routing hook, executeFind
     │   ├── pool.js                    ← KnexPool + load balancer
     │   └── utils/
     │       ├── crossSourceSelectSql.js    ← SQL AST helpers + planCrossPoolSelect
@@ -135,10 +135,10 @@ resolver sets graphqlCtx
 
 ```
 mutation SQL
-  → _routeToPool → primary pool executes
-  → _findMirrorPools for same table on other writable pools
-  → _mirrorMutation (best-effort, errors swallowed)
-  → return primary result
+  → _selectTargetPool (routing rules + table owner)
+  → [INSERT/UPDATE] validateCrossSourceReferences when FK targets another pool
+  → target pool executes
+  → return result
 ```
 
 ## Tests
