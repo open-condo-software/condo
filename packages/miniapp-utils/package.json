@@ -237,7 +237,7 @@
     "react-dom": ">=16.0.0"
   },
   "devDependencies": {
-    "@apollo/client": "3.11.8",
+    "@apollo/client": "^3.11.8",
     "@open-condo/bridge": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",
     "@types/http-proxy": "^1.17.16",
