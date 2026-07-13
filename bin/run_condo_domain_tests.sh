@@ -1,5 +1,14 @@
 #!/bin/bash
-# NOTE: CI USAGE ONLY!
+# CI-only entry point for condo domain / shard test runs.
+#
+# Flow (setup_and_start_services):
+#   1. bin/prepare.js        — create DB, migrate, write base apps/condo/.env
+#   2. configure-message-db-storage.js — split Message tables to a second DB, enable multi-DB routing
+#   3. start condo app + worker, run jest shards, stop services
+#
+# Usage:
+#   ./bin/run_condo_domain_tests.sh -d <domain>     # legacy per-domain mode
+#   ./bin/run_condo_domain_tests.sh -s <i> -t <n>  # shard i of n (current CI)
 set -ex
 
 domain_name=""
@@ -11,189 +20,13 @@ usage() {
     exit 1
 }
 
-configure_message_db_storage() {
-    local main_db
-    main_db=$(node <<'NODE'
-const fs = require('fs')
-
-const envFile = fs.readFileSync('./apps/condo/.env', 'utf8')
-const databaseUrlLine = envFile.split(/\r?\n/).find(line => line.startsWith('DATABASE_URL='))
-if (!databaseUrlLine) {
-    throw new Error('DATABASE_URL is missing in apps/condo/.env')
-}
-
-const databaseUrl = databaseUrlLine.slice('DATABASE_URL='.length)
-const parsedUrl = databaseUrl.startsWith('custom:')
-    ? JSON.parse(databaseUrl.slice('custom:'.length)).main
-    : databaseUrl
-
-process.stdout.write(new URL(parsedUrl).pathname.replace(/^\//, ''))
-NODE
-)
-
-    local message_db="${main_db}_message"
-    local postgres_admin_url="postgresql://postgres:postgres@127.0.0.1:5432/postgres"
-    local main_db_url="postgresql://postgres:postgres@127.0.0.1:5432/${main_db}"
-    local message_db_url="postgresql://postgres:postgres@127.0.0.1:5432/${message_db}"
-    local message_tables='["Message","MessageHistoryRecord"]'
-
-    POSTGRES_ADMIN_URL="$postgres_admin_url" MAIN_DB_URL="$main_db_url" MESSAGE_DB_URL="$message_db_url" MESSAGE_TABLES="$message_tables" node <<'NODE'
-const { Client } = require('pg')
-
-function quoteIdent (value) {
-    return `"${String(value).replace(/"/g, '""')}"`
-}
-
-async function withClient (connectionString, callback) {
-    const client = new Client({ connectionString })
-    await client.connect()
-    try {
-        return await callback(client)
-    } finally {
-        await client.end()
-    }
-}
-
-async function recreateDatabase (adminClient, dbName) {
-    await adminClient.query(`
-        SELECT pg_terminate_backend(pid)
-        FROM pg_stat_activity
-        WHERE datname = $1 AND pid <> pg_backend_pid()
-    `, [dbName])
-    await adminClient.query(`DROP DATABASE IF EXISTS ${quoteIdent(dbName)}`)
-    await adminClient.query(`CREATE DATABASE ${quoteIdent(dbName)}`)
-}
-
-async function cloneTableSchema ({ sourceClient, targetClient, tableName }) {
-    const qualifiedTableName = `"public".${quoteIdent(tableName)}`
-    const { rows: columnRows } = await sourceClient.query(`
-        SELECT
-            a.attname AS column_name,
-            pg_catalog.format_type(a.atttypid, a.atttypmod) AS data_type,
-            a.attnotnull AS not_null,
-            pg_get_expr(ad.adbin, ad.adrelid) AS default_expr
-        FROM pg_attribute a
-        LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
-        WHERE a.attrelid = $1::regclass
-          AND a.attnum > 0
-          AND NOT a.attisdropped
-        ORDER BY a.attnum
-    `, [qualifiedTableName])
-
-    const { rows: constraintRows } = await sourceClient.query(`
-        SELECT conname, contype, pg_get_constraintdef(oid, true) AS definition
-        FROM pg_constraint
-        WHERE conrelid = $1::regclass
-          AND contype IN ('p', 'u', 'c')
-        ORDER BY contype, conname
-    `, [qualifiedTableName])
-
-    const columnDefinitions = columnRows.map((column) => {
-        const parts = [quoteIdent(column.column_name), column.data_type]
-        if (column.default_expr) parts.push(`DEFAULT ${column.default_expr}`)
-        if (column.not_null) parts.push('NOT NULL')
-        return parts.join(' ')
-    })
-
-    const constraintDefinitions = constraintRows.map((constraint) => {
-        return `CONSTRAINT ${quoteIdent(constraint.conname)} ${constraint.definition}`
-    })
-
-    const createTableSql = `
-        CREATE TABLE ${quoteIdent(tableName)} (
-            ${[...columnDefinitions, ...constraintDefinitions].join(',\n            ')}
-        )
-    `
-    await targetClient.query(createTableSql)
-
-    const { rows: indexRows } = await sourceClient.query(`
-        SELECT pg_get_indexdef(i.indexrelid) AS indexdef
-        FROM pg_index i
-        JOIN pg_class t ON t.oid = i.indrelid
-        JOIN pg_namespace ns ON ns.oid = t.relnamespace
-        LEFT JOIN pg_constraint c ON c.conindid = i.indexrelid
-        WHERE ns.nspname = 'public'
-          AND t.relname = $1
-          AND c.oid IS NULL
-    `, [tableName])
-
-    for (const { indexdef } of indexRows) {
-        await targetClient.query(indexdef)
-    }
-}
-
-async function dropSourceTables (sourceClient, tableNames) {
-    for (const tableName of tableNames) {
-        await sourceClient.query(`DROP TABLE IF EXISTS ${quoteIdent(tableName)} CASCADE`)
-    }
-}
-
-async function main () {
-    const adminUrl = process.env.POSTGRES_ADMIN_URL
-    const mainDbUrl = process.env.MAIN_DB_URL
-    const messageDbUrl = process.env.MESSAGE_DB_URL
-    const tableNames = JSON.parse(process.env.MESSAGE_TABLES)
-    const messageDbName = new URL(messageDbUrl).pathname.replace(/^\//, '')
-
-    await withClient(adminUrl, async (adminClient) => {
-        await recreateDatabase(adminClient, messageDbName)
-    })
-
-    await withClient(mainDbUrl, async (sourceClient) => {
-        await withClient(messageDbUrl, async (targetClient) => {
-            for (const tableName of tableNames) {
-                await cloneTableSchema({ sourceClient, targetClient, tableName })
-            }
-        })
-
-        await dropSourceTables(sourceClient, [...tableNames].reverse())
-    })
-}
-
-main().catch((error) => {
-    console.error(error)
-    process.exit(1)
-})
-NODE
-
-    MAIN_DB_NAME="$main_db" MESSAGE_DB_NAME="$message_db" MESSAGE_TABLES="$message_tables" node <<'NODE'
-const { prepareAppEnv } = require('./packages/cli')
-
-async function main () {
-    const { MAIN_DB_NAME, MESSAGE_DB_NAME } = process.env
-    const messageTables = JSON.parse(process.env.MESSAGE_TABLES)
-    const messageTableRegex = `^(${messageTables.join('|')})$`
-
-    await prepareAppEnv('condo', {
-        DATABASE_URL: `custom:${JSON.stringify({
-            main: `postgresql://postgres:postgres@127.0.0.1:5432/${MAIN_DB_NAME}`,
-            replica: `postgresql://postgres:postgres@127.0.0.1:5433/${MAIN_DB_NAME}`,
-            message: `postgresql://postgres:postgres@127.0.0.1:5432/${MESSAGE_DB_NAME}`,
-        })}`,
-        DATABASE_POOLS: JSON.stringify({
-            main: { databases: ['main'], writable: true },
-            message: { databases: ['message'], writable: true },
-            replicas: { databases: ['replica'], writable: false },
-        }),
-        DATABASE_ROUTING_RULES: JSON.stringify([
-            { tableName: messageTableRegex, target: 'message' },
-            { target: 'main', gqlOperationType: 'mutation' },
-            { target: 'replicas', sqlOperationName: 'select' },
-            { target: 'main' },
-        ]),
-    })
-}
-
-main().catch((error) => {
-    console.error(error)
-    process.exit(1)
-})
-NODE
-}
-
 setup_and_start_services() {
+    # 1. Single-DB migrate + base .env (standard CI bootstrap)
     node bin/prepare.js -f condo -c condo
-    configure_message_db_storage
+
+    # 2. Create message DB, copy Message table schemas, enable multi-DB routing in .env.
+    #    See bin/configure-message-db-storage.js (main DB is unchanged).
+    node bin/configure-message-db-storage.js
 
     export NEWS_ITEMS_SENDING_DELAY_SEC=2
     export NEWS_ITEM_SENDING_TTL_SEC=2

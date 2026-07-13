@@ -5,7 +5,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getSourceRegistry } = require('@open-condo/keystone/databaseAdapters')
-const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, prepareCrossDbWhere } = require('@open-condo/keystone/databaseAdapters/crossDb')
+const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isUnsatisfiableWhere, prepareCrossDbWhere } = require('@open-condo/keystone/databaseAdapters/crossDb')
 const { getDatabaseAdapter, isPrismaAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -417,6 +417,10 @@ const loadListByChunks = async ({
     const effectiveWhere = listKey
         ? await prepareCrossDbWhere({ listKey, where })
         : where
+
+    if (isUnsatisfiableWhere(effectiveWhere)) {
+        return []
+    }
 
     do {
         const now = Date.now()

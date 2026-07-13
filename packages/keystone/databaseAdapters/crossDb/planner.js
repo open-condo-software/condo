@@ -390,6 +390,35 @@ class CrossDbPlanner {
 }
 
 /**
+ * @param {object|Array} where GraphQL where after cross-db rewrite
+ * @returns {boolean} true when the filter cannot match any row (e.g. `id_in: []`)
+ */
+function isUnsatisfiableWhere (where) {
+    if (!where || typeof where !== 'object') return false
+
+    if (Array.isArray(where)) {
+        return where.some(isUnsatisfiableWhere)
+    }
+
+    if (Array.isArray(where.id_in) && where.id_in.length === 0) {
+        return true
+    }
+
+    if (Array.isArray(where.AND) && where.AND.some(isUnsatisfiableWhere)) {
+        return true
+    }
+
+    for (const [key, value] of Object.entries(where)) {
+        if (key === 'AND' || key === 'OR' || key === 'NOT') continue
+        if (value && typeof value === 'object' && isUnsatisfiableWhere(value)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+/**
  * Rewrite GraphQL `where` for cross-source relation filters (e.g. `{ user: { name_contains: 'x' } }` → `{ user: { id_in: [...] } }`).
  * Direct FK id filters (`user: { id_in: [...] }`) are left unchanged; SQL cross-pool rewrite handles them.
  * Used by `GqlWithKnexLoadList` and `loadListByChunks`.
@@ -423,5 +452,6 @@ async function prepareCrossDbWhere ({ listKey, where }) {
 module.exports = {
     CrossDbPlanner,
     GLOBAL_QUERY_LIMIT,
+    isUnsatisfiableWhere,
     prepareCrossDbWhere,
 }

@@ -24,7 +24,7 @@ const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter
  *
  * **How it works (one sentence):** every Knex query is intercepted, matched against
  * `DATABASE_ROUTING_RULES`, and sent to the chosen pool; optional cross-pool JOIN
- * rewrite and write mirroring happen inside that hook.
+ * rewrite happens inside that hook.
  *
  * **Activation:** `DATABASE_URL=custom:{...}` (see `databaseAdapters/README.md`).
  *
@@ -134,7 +134,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return Object.entries(this._replicaPools).find(([, candidate]) => candidate === pool)?.[0]
     }
 
-    /** @returns {Promise<Record<string, Set<string>>>} table names per pool (for write mirroring) */
+    /** @returns {Promise<Record<string, Set<string>>>} table names per pool (source registry) */
     async _initPoolTables () {
         const poolEntries = Object.entries(this._replicaPools)
         const poolTables = {}
@@ -161,23 +161,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             }
         }))
         return poolTables
-    }
-
-    /**
-     * Writable pools (other than the primary target) that contain `tableName`.
-     * Used for best-effort mirror writes after a successful primary mutation.
-     */
-    _findMirrorPools ({ selectedPoolName, tableName }) {
-        if (!selectedPoolName || !tableName) return []
-
-        return Object.entries(this._replicaPools)
-            .filter(([poolName, pool]) => {
-                if (poolName === selectedPoolName) return false
-                if (!pool._writable) return false
-                const tables = this._poolTables?.[poolName]
-                return tables && tables.has(tableName)
-            })
-            .map(([, pool]) => pool)
     }
 
     /** Validate cross-source FK columns before INSERT/UPDATE when DB constraints are absent. */
@@ -233,25 +216,9 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return directResult.rows || directResult
     }
 
-    /** Best-effort mirror of a mutation to other writable pools. Failures are logged only. */
-    async _mirrorMutation ({ mirrorPools, sql, bindings }) {
-        for (const mirrorPool of mirrorPools) {
-            try {
-                const mirrorClient = mirrorPool.getKnexClient()
-                await mirrorClient.raw(sql, bindings || [])
-            } catch (err) {
-                logger.error({
-                    msg: 'cross-pool mirror write failed',
-                    err,
-                    data: { sql },
-                })
-            }
-        }
-    }
-
     /**
      * Keystone calls `this.knex` for every query. We replace `knex.client.runner` so
-     * routing, cross-pool SELECT rewrite, and mirror writes happen transparently.
+     * routing and cross-pool SELECT rewrite happen transparently.
      */
     _patchKnexRunner () {
         this.knex.client.runner = (builder) => {
@@ -272,17 +239,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
                 const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings)
                 const primaryRunner = selectedPool.getQueryRunner(builder)
-                const isMutation = ['insert', 'update', 'delete'].includes(finalSqlOperationName)
-                const selectedPoolName = this._getPoolName(selectedPool)
-                const mirrorPools = isMutation
-                    ? this._findMirrorPools({ selectedPoolName, tableName: finalTableName })
-                    : []
                 const needsCrossSourceValidation = ['insert', 'update'].includes(finalSqlOperationName)
                     && Boolean(this.listAdapters?.[finalTableName])
 
-                const shouldWrapRunner = finalSqlOperationName === 'select'
-                    || mirrorPools.length > 0
-                    || needsCrossSourceValidation
+                const shouldWrapRunner = finalSqlOperationName === 'select' || needsCrossSourceValidation
                 if (!shouldWrapRunner) {
                     return primaryRunner
                 }
@@ -310,14 +270,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                             })
                         }
                         primaryResult = await originalPrimaryRun()
-                    }
-
-                    if (mirrorPools.length > 0) {
-                        await this._mirrorMutation({
-                            mirrorPools,
-                            sql: sqlObject.sql,
-                            bindings: sqlObject.bindings,
-                        })
                     }
 
                     return primaryResult
