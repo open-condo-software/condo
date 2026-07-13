@@ -1,4 +1,4 @@
-const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, prepareCrossDbWhere } = require('./planner')
+const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isUnsatisfiableWhere, prepareCrossDbWhere } = require('./planner')
 const {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
@@ -9,6 +9,7 @@ module.exports = {
     CrossDbPlanner,
     GLOBAL_QUERY_LIMIT,
     prepareCrossDbWhere,
+    isUnsatisfiableWhere,
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,

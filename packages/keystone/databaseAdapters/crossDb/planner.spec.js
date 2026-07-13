@@ -183,6 +183,26 @@ describe('CrossDbPlanner.prepareWhere', () => {
     })
 })
 
+describe('isUnsatisfiableWhere', () => {
+    const { isUnsatisfiableWhere } = require('./planner')
+
+    test('detects nested id_in []', () => {
+        expect(isUnsatisfiableWhere({ user: { id_in: [] } })).toEqual(true)
+    })
+
+    test('detects top-level id_in []', () => {
+        expect(isUnsatisfiableWhere({ id_in: [] })).toEqual(true)
+    })
+
+    test('returns false for non-empty id_in', () => {
+        expect(isUnsatisfiableWhere({ user: { id_in: ['user-1'] } })).toEqual(false)
+    })
+
+    test('returns false for id_not_in []', () => {
+        expect(isUnsatisfiableWhere({ user: { id_not_in: [] } })).toEqual(false)
+    })
+})
+
 describe('prepareCrossDbWhere', () => {
     beforeEach(() => {
         jest.clearAllMocks()
