@@ -9510,6 +9510,7 @@ __metadata:
     deepmerge: "npm:^4.3.1"
     lodash: "npm:^4.17.21"
     react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
     rimraf: "npm:^6.0.1"
     rollup: "npm:^4.59.0"
     rollup-plugin-peer-deps-external: "npm:^2.2.4"
