@@ -41,8 +41,8 @@
     "nock": "^14.0.5"
   },
   "peerDependencies": {
-    "@graphql-tools/graphql-file-loader": "*",
-    "@graphql-tools/load": "*",
-    "@open-keystone/fields": "*"
+    "@graphql-tools/graphql-file-loader": "^7.5.17",
+    "@graphql-tools/load": "^8.1.0",
+    "@open-keystone/fields": "^24.0.0"
   }
 }

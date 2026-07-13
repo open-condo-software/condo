@@ -9915,8 +9915,8 @@ __metadata:
     pino: "npm:^6.13.3"
     react-intl: "catalog:"
   peerDependencies:
-    react: ">=16.13.1"
-    react-dom: ">=16.13.1"
+    react: ^16.13.1
+    react-dom: ^16.13.1
   languageName: unknown
   linkType: soft
 
@@ -10037,9 +10037,9 @@ __metadata:
     nock: "npm:^14.0.5"
     pluralize: "catalog:"
   peerDependencies:
-    "@graphql-tools/graphql-file-loader": "*"
-    "@graphql-tools/load": "*"
-    "@open-keystone/fields": "*"
+    "@graphql-tools/graphql-file-loader": ^7.5.17
+    "@graphql-tools/load": ^8.1.0
+    "@open-keystone/fields": ^24.0.0
   languageName: unknown
   linkType: soft
 
