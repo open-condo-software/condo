@@ -6,26 +6,32 @@ const {
     resolveTablePool,
 } = require('./sourceRegistry')
 
+const ciLikePoolTables = {
+    main: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
+    message: new Set(['Message', 'MessageHistoryRecord']),
+    replicas: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
+}
+
+const ciLikeRoutingRulesRaw = [
+    { tableName: '^(Message|MessageHistoryRecord)$', target: 'message' },
+    { target: 'main', gqlOperationType: 'mutation' },
+    { target: 'replicas', sqlOperationName: 'select' },
+    { target: 'main' },
+]
+
+const ciLikeRoutingRules = ciLikeRoutingRulesRaw.map((rule) => (
+    rule.tableName
+        ? { ...rule, tableName: new RegExp(rule.tableName) }
+        : rule
+))
+
+const ciLikePoolsConfig = {
+    main: { databases: ['main'], writable: true },
+    message: { databases: ['message'], writable: true },
+    replicas: { databases: ['replica'], writable: false },
+}
+
 describe('source registry', () => {
-    const ciLikePoolTables = {
-        main: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
-        message: new Set(['Message', 'MessageHistoryRecord']),
-        replicas: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
-    }
-
-    const ciLikeRoutingRules = [
-        { tableName: /^(Message|MessageHistoryRecord)$/, target: 'message' },
-        { target: 'main', gqlOperationType: 'mutation' },
-        { target: 'replicas', sqlOperationName: 'select' },
-        { target: 'main' },
-    ]
-
-    const ciLikePoolsConfig = {
-        main: { databases: ['main'], writable: true },
-        message: { databases: ['message'], writable: true },
-        replicas: { databases: ['replica'], writable: false },
-    }
-
     test('derives Message pool from DATABASE_POOLS introspection', () => {
         const registry = createPoolBasedSourceRegistry({
             poolTables: ciLikePoolTables,
@@ -100,25 +106,6 @@ describe('source registry', () => {
 })
 
 describe('BalancingReplicaKnexAdapter routing with CI-like config', () => {
-    const ciLikePoolTables = {
-        main: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
-        message: new Set(['Message', 'MessageHistoryRecord']),
-        replicas: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
-    }
-
-    const ciLikeRoutingRules = [
-        { tableName: /^(Message|MessageHistoryRecord)$/, target: 'message' },
-        { target: 'main', gqlOperationType: 'mutation' },
-        { target: 'replicas', sqlOperationName: 'select' },
-        { target: 'main' },
-    ]
-
-    const ciLikePoolsConfig = {
-        main: { databases: ['main'], writable: true },
-        message: { databases: ['message'], writable: true },
-        replicas: { databases: ['replica'], writable: false },
-    }
-
     function createCiLikeAdapter () {
         const mainPool = new KnexPool({
             knexClients: [{ poolTag: 'main' }],
@@ -142,12 +129,7 @@ describe('BalancingReplicaKnexAdapter routing with CI-like config', () => {
         const adapter = new BalancingReplicaKnexAdapter({
             databaseUrl: 'custom:{"main":"postgresql://postgres:postgres@127.0.0.1:5432/main","message":"postgresql://postgres:postgres@127.0.0.1:5432/message","replica":"postgresql://postgres:postgres@127.0.0.1:5433/replica"}',
             replicaPools: ciLikePoolsConfig,
-            routingRules: [
-                { tableName: '^(Message|MessageHistoryRecord)$', target: 'message' },
-                { target: 'main', gqlOperationType: 'mutation' },
-                { target: 'replicas', sqlOperationName: 'select' },
-                { target: 'main' },
-            ],
+            routingRules: ciLikeRoutingRulesRaw,
         })
 
         adapter._replicaPools = { main: mainPool, message: messagePool, replicas: replicaPool }

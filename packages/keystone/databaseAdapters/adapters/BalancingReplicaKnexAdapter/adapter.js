@@ -17,7 +17,7 @@ const { extractCRUDQueryData } = require('./utils/sql')
 const { validateCrossSourceReferences } = require('../../crossDb/validateCrossSourceReferences')
 const { getDataProvider, isDataProviderPool, resolvePoolProvider } = require('../../dataProviders')
 const { executeProviderSqlMutation, executeProviderSqlSelect } = require('../../dataProviders/executeProviderSql')
-const { providerSupportsCreate, providerSupportsDelete, providerSupportsFind, providerSupportsUpdate } = require('../../dataProviders/providerMethods')
+const { providerSupportsCreate, providerSupportsDelete, providerSupportsFind, providerSupportsItemsQuery, providerSupportsUpdate, applyItemsQueryToRows } = require('../../dataProviders/providerMethods')
 const { createPoolBasedSourceRegistry } = require('../../sourceRegistry')
 const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
@@ -437,12 +437,12 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     async executeItemsQuery ({ schemaName, args, meta, from, listAdapter }) {
         const provider = this._getProviderForSchema(schemaName)
-        const where = args?.where || {}
-        if (providerSupportsFind(provider, where)) {
-            const rows = await provider.find({ schemaName, condition: where })
-            return meta ? { count: rows.length } : rows
+        if (!providerSupportsItemsQuery(provider, args)) {
+            return listAdapter.itemsQuery(args, { meta, from })
         }
-        return listAdapter.itemsQuery(args, { meta, from })
+
+        const rows = await provider.find({ schemaName, condition: args?.where || {} })
+        return meta ? { count: rows.length } : applyItemsQueryToRows(rows, args)
     }
 
     async executeCreate ({ schemaName, data, listAdapter }) {
@@ -484,7 +484,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
         const writableDbNames = new Set()
         for (const poolConfig of Object.values(this._replicaPoolsConfig)) {
-            if (!poolConfig.writable) continue
+            if (!poolConfig.writable || poolConfig.provider || !poolConfig.databases) continue
             for (const dbName of poolConfig.databases) {
                 writableDbNames.add(dbName)
             }
