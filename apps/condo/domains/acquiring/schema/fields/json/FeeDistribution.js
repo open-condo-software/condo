@@ -25,14 +25,16 @@ const FEE_DISTRIBUTION_GRAPHQL_TYPES = `
         ${render(FeeDistributionFields)}
     }
 `
+const decimalPattern = String.raw`^(0|[1-9]\d*)(\.\d+)?$`
+const percentPattern = String.raw`^(100(\.0+)?|([1-9]?\d)(\.\d+)?)$`
 
 const FeeDistributionJsonSchema = {
     type: 'object',
     properties: {
         recipient: { type: 'string' },
-        percent: { type: 'string' },
-        minAmount: { type: 'string' },
-        maxAmount: { type: 'string' },
+        percent: { type: 'string', pattern: percentPattern },
+        minAmount: { type: 'string', pattern: decimalPattern },
+        maxAmount: { type: 'string', pattern: decimalPattern },
         category: { type: 'string' },
     },
     additionalProperties: false,
@@ -65,4 +67,5 @@ const FEE_DISTRIBUTION_SCHEMA_FIELD = {
 module.exports = {
     FEE_DISTRIBUTION_SCHEMA_FIELD,
     FEE_DISTRIBUTION_QUERY_LIST,
+    FeeDistributionSchemaJsonValidator,
 }
